@@ -24,7 +24,7 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    m_datemap = QMap<QString, QDate>();
+    map_date = QMap<QString, QDate>();
 
     ui->JourradioButton             ->setChecked(true);
     ui->DepuisdateEdit              ->setDate(QDate::currentDate());
@@ -38,8 +38,8 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
     ui->MoinsFinPeriodepushButton   ->setVisible(false);
 
     connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=] {
-        m_datemap["DateDebut"] = ui->DepuisdateEdit->date();
-        m_datemap["DateFin"] = (ui->JourradioButton->isChecked()? m_datemap["DateDebut"] : ui->JusquAdateEdit->date());
+        map_date["DateDebut"] = ui->DepuisdateEdit->date();
+        map_date["DateFin"] = (ui->JourradioButton->isChecked()? map_date["DateDebut"] : ui->JusquAdateEdit->date());
         accept();});
     connect(ui->AnnulupPushButton,              &QPushButton::clicked,  this,    [=] {reject();});
     connect(ui->JourradioButton,                &QPushButton::clicked,  this,    [=] {AfficheDates(ui->JourradioButton);});
@@ -64,9 +64,9 @@ dlg_choixdate::~dlg_choixdate()
     delete ui;
 }
 
-QMap<QString, QDate> dlg_choixdate::map()
+QMap<QString, QDate> dlg_choixdate::map() const
 {
-    return m_datemap;
+    return map_date;
 }
 
 void    dlg_choixdate::AfficheDates(QWidget *widg)

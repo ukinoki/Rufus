@@ -30,9 +30,9 @@ public:
     explicit            dlg_fontdialog(QString nomSettings, QString Position, QWidget *parent = Q_NULLPTR);
                         ~dlg_fontdialog();
     void                setFont(QFont);
-    QFont               getFont() const;
+    QFont               font() const;
     void                setFontAttribut(QString);
-    QString             getFontAttribut() const;
+    QString             fontAttribut() const;
 
 private slots:
     void                Slot_Redessinelabel(QTreeWidgetItem*);

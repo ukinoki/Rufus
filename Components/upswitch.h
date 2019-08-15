@@ -29,7 +29,7 @@ class UpSwitch : public QFrame
     Q_OBJECT
 public:
     explicit UpSwitch(QWidget *parent = Q_NULLPTR);
-    int     PosSwitch();
+    int     PosSwitch() const;
 
 private:
     int     pos;

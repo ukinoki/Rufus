@@ -91,7 +91,7 @@ void UpLineEdit::setdatas(QVariant data)
     m_datas = data;
 }
 
-QVariant UpLineEdit::datas()
+QVariant UpLineEdit::datas() const
 {
     return m_datas;
 }

@@ -32,13 +32,13 @@ class dlg_autresmesures : public UpDialog
 
 public:
     ~dlg_autresmesures();
-    enum mode {TONO, PACHY};    Q_ENUM(mode)
-    explicit dlg_autresmesures(enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
-    QWidget*            Widget();
+    enum Mode {TONO, PACHY};    Q_ENUM(Mode)
+    explicit dlg_autresmesures(enum Mode mod = TONO, QWidget *parent = Q_NULLPTR);
+    QWidget*            Widget() const;
 
 private:
     Procedures          *proc = Procedures::I();
-    mode                m_mode;
+    Mode                m_mode;
     WidgTono            *widgto;
     QWidget             *m_widget;
     double              m_TOD, m_TOG;

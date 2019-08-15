@@ -80,7 +80,7 @@ void UpRadioButton::setitem(Item* item)
 {
     m_item = item;
 }
-Item* UpRadioButton::item()
+Item* UpRadioButton::item() const
 {
     return m_item;
 }

@@ -22,23 +22,23 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, User *> *Users::all() const
 {
-    return m_users;
+    return map_users;
 }
 QMap<int, User *> *Users::superviseurs() const
 {
-    return m_superviseurs;
+    return map_superviseurs;
 }
 QMap<int, User *> *Users::parents() const
 {
-    return m_parents;
+    return map_parents;
 }
 QMap<int, User *> *Users::liberaux() const
 {
-    return m_liberaux;
+    return map_liberaux;
 }
 QMap<int, User *> *Users::comptables() const
 {
-    return m_comptables;
+    return map_comptables;
 }
 
 /*!
@@ -47,11 +47,11 @@ QMap<int, User *> *Users::comptables() const
  */
 Users::Users(QObject *parent) : ItemsList(parent)
 {
-    m_users = new QMap<int, User*>();
-    m_superviseurs = new QMap<int, User*>();
-    m_liberaux = new QMap<int, User*>();
-    m_parents = new QMap<int, User*>();
-    m_comptables = new QMap<int, User*>();
+    map_users = new QMap<int, User*>();
+    map_superviseurs = new QMap<int, User*>();
+    map_liberaux = new QMap<int, User*>();
+    map_parents = new QMap<int, User*>();
+    map_comptables = new QMap<int, User*>();
 }
 
 /*!
@@ -70,27 +70,27 @@ bool Users::add(User *usr)
         return false;
     User *result = Q_NULLPTR;
 
-    auto itusr = m_users->find(usr->id());
-    if( itusr != m_users->constEnd() )
+    auto itusr = map_users->find(usr->id());
+    if( itusr != map_users->constEnd() )
     {
         result = const_cast<User*>(itusr.value());
         result->setData(usr->datas());
     }
     else
-        m_users->insert(usr->id(), usr);
+        map_users->insert(usr->id(), usr);
 
-    m_superviseurs  ->remove(usr->id());
-    m_liberaux      ->remove(usr->id());
-    m_parents       ->remove(usr->id());
-    m_comptables    ->remove(usr->id());
+    map_superviseurs  ->remove(usr->id());
+    map_liberaux      ->remove(usr->id());
+    map_parents       ->remove(usr->id());
+    map_comptables    ->remove(usr->id());
     if( usr->isResponsable() || usr->isResponsableOuAssistant())
-        m_superviseurs->insert(usr->id(), usr);
+        map_superviseurs->insert(usr->id(), usr);
     if( usr->isLiberal() )
-        m_liberaux->insert(usr->id(), usr);
+        map_liberaux->insert(usr->id(), usr);
     if( usr->isSoignant() && !usr->isRemplacant() )
-        m_parents->insert(usr->id(), usr);
+        map_parents->insert(usr->id(), usr);
     if( usr->isComptable() )
-        m_comptables->insert(usr->id(), usr);
+        map_comptables->insert(usr->id(), usr);
 
     if (result != Q_NULLPTR)
         delete usr;
@@ -113,9 +113,9 @@ void Users::addList(QList<User*> listusr)
  */
 User* Users::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 {
-    QMap<int, User*>::const_iterator user = m_users->find(id);
+    QMap<int, User*>::const_iterator user = map_users->find(id);
     User *result;
-    if( user == m_users->constEnd() )
+    if( user == map_users->constEnd() )
         result = new User();
     else
     {
@@ -163,11 +163,11 @@ QString Users::getLoginById(int id)
 void Users::initListe()
 {
     QList<User*> listusers = DataBase::I()->loadUsers();
-    epurelist(m_users, &listusers);
-    m_superviseurs  ->clear();
-    m_liberaux      ->clear();
-    m_parents       ->clear();
-    m_comptables    ->clear();
+    epurelist(map_users, &listusers);
+    map_superviseurs  ->clear();
+    map_liberaux      ->clear();
+    map_parents       ->clear();
+    map_comptables    ->clear();
     addList(listusers);
 }
 
@@ -175,11 +175,11 @@ void Users::SupprimeUser(User *usr)
 {
     if( usr == Q_NULLPTR)
         return;
-    m_users         ->remove(usr->id());
-    m_superviseurs  ->remove(usr->id());
-    m_liberaux      ->remove(usr->id());
-    m_parents       ->remove(usr->id());
-    m_comptables    ->remove(usr->id());
+    map_users         ->remove(usr->id());
+    map_superviseurs  ->remove(usr->id());
+    map_liberaux      ->remove(usr->id());
+    map_parents       ->remove(usr->id());
+    map_comptables    ->remove(usr->id());
     DataBase::I()->SupprRecordFromTable(usr->id(), "idUser", TBL_UTILISATEURS);
     delete usr;
 }

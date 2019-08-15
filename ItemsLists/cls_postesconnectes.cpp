@@ -19,24 +19,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 PostesConnectes::PostesConnectes(QObject * parent) : ItemsList(parent)
 {
-    m_postesconnectes = new QMap<QString, PosteConnecte*>();
+    map_postesconnectes = new QMap<QString, PosteConnecte*>();
 }
 
 PostesConnectes::~PostesConnectes()
 {
-    clearAll(m_postesconnectes);
-    delete m_postesconnectes;
+    clearAll(map_postesconnectes);
+    delete map_postesconnectes;
 }
 
 QMap<QString, PosteConnecte*>* PostesConnectes::postesconnectes() const
 {
-    return m_postesconnectes;
+    return map_postesconnectes;
 }
 
 PosteConnecte* PostesConnectes::getById(QString stringid)
 {
-    QMap<QString, PosteConnecte*>::const_iterator itcpt = m_postesconnectes->find(stringid) ;
-    if( itcpt == m_postesconnectes->constEnd() )
+    QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->find(stringid) ;
+    if( itcpt == map_postesconnectes->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
@@ -44,13 +44,13 @@ PosteConnecte* PostesConnectes::getById(QString stringid)
 void PostesConnectes::initListe()
 {
     QList<PosteConnecte*> listpostes = DataBase::I()->loadPostesConnectes();
-    epurelist(m_postesconnectes, &listpostes);
-    addList(m_postesconnectes, &listpostes);
+    epurelist(map_postesconnectes, &listpostes);
+    addList(map_postesconnectes, &listpostes);
 }
 
 void PostesConnectes::SupprimeAllPostesConnectes()
 {
-    clearAll(m_postesconnectes);
+    clearAll(map_postesconnectes);
     DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES);
 }
 
@@ -66,7 +66,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         QJsonObject jadmin = DataBase::I()->loadAdminData();
         if (jadmin.size() > 0)
             idAdministrateur = jadmin.value("id").toInt();
-        foreach (PosteConnecte *post, *m_postesconnectes)
+        foreach (PosteConnecte *post, *map_postesconnectes)
             if(post->id() == idAdministrateur && idAdministrateur > -1)
             {
                 m_admin = post;
@@ -89,7 +89,7 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
     bool canremoveverrouactes = true;
     QString req = "delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
     DataBase::I()->StandardSQL(req);
-    foreach (PosteConnecte *postit, *m_postesconnectes)
+    foreach (PosteConnecte *postit, *map_postesconnectes)
         if (postit->id() == post->id() && postit->nomposte() != post->nomposte())
         {
             canremoveverrouactes = false;
@@ -97,7 +97,7 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
         }
     if (canremoveverrouactes)
         DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(post->id()));
-    remove(m_postesconnectes, post);
+    remove(map_postesconnectes, post);
 }
 
 PosteConnecte* PostesConnectes::CreationPosteConnecte()
@@ -132,6 +132,6 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);
     post->setipadress(Utils::getIpAdress());
-    add( m_postesconnectes, post );
+    add( map_postesconnectes, post );
     return post;
 }

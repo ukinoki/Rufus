@@ -30,13 +30,13 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     db              = DataBase::I();
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire() );
     m_accesdistant    = (db->getMode()==DataBase::Distant);
-    m_listUserLiberaux = Datas::I()->users->liberaux();
+    map_usersliberaux = Datas::I()->users->liberaux();
     m_userencours       = Q_NULLPTR;
 
     int index = 0;
     bool foundUser = false;
     int currentIdUser = Datas::I()->users->userconnected()->id(); //Utilisateur connecte
-    foreach (User * user, *m_listUserLiberaux)
+    foreach (User * user, *map_usersliberaux)
     {
         ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
         if( !foundUser )
@@ -47,7 +47,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
                 foundUser = true;
         }
     }
-    if(index >= m_listUserLiberaux->size())
+    if(index >= map_usersliberaux->size())
         ui->UserscomboBox->setCurrentIndex(0);
     else
         ui->UserscomboBox->setCurrentIndex(index);
@@ -474,7 +474,7 @@ void dlg_depenses::AnnulEnreg()
 bool dlg_depenses::initializeUserSelected()
 {
     int id = ui->UserscomboBox->currentData().toInt();
-    m_userencours = m_listUserLiberaux->find(id).value();
+    m_userencours = map_usersliberaux->find(id).value();
     proc->SetUserAllData(m_userencours);
     Datas::I()->depenses->initListeByUser(m_userencours->id());
     if( m_userencours->listecomptesbancaires()->size() == 0)
@@ -921,7 +921,7 @@ void dlg_depenses::CalculTotalDepenses()
 void dlg_depenses::GestionComptes()
 {
     Dlg_Cmpt = new dlg_comptes();
-    if (Dlg_Cmpt->getInitOK())
+    if (Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
 }
 
@@ -1381,7 +1381,7 @@ void dlg_depenses::keyPressEvent ( QKeyEvent * event )
     }
 }
 
-bool dlg_depenses::getInitOK()
+bool dlg_depenses::initOK() const
 {
     return m_initok;
 }

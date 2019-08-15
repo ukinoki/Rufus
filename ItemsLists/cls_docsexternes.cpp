@@ -19,14 +19,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
 {
-    m_docsexternes      = new QMap<int, DocExterne*>();
+    map_docsexternes      = new QMap<int, DocExterne*>();
     m_nouveaudocument   = false;
     m_patient           = Q_NULLPTR;
 }
 
 QMap<int, DocExterne *> *DocsExternes::docsexternes()
 {
-    return m_docsexternes;
+    return map_docsexternes;
 }
 
 /*!
@@ -37,9 +37,9 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
  */
 DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 {
-    QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->find(id);
+    QMap<int, DocExterne*>::const_iterator itdoc = map_docsexternes->find(id);
     DocExterne *result;
-    if( itdoc == m_docsexternes->constEnd() )
+    if( itdoc == map_docsexternes->constEnd() )
             result = new DocExterne();
     else
     {
@@ -61,7 +61,7 @@ DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLI
             result->setData(jsonDocExterne);
     }
     if( addToList == ItemsList::AddToList)
-        add( m_docsexternes, result );
+        add( map_docsexternes, result );
     return result;
 }
 
@@ -79,9 +79,9 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     foreach (DocExterne* doc, listdocs)
     {
-        if(!m_docsexternes->contains(doc->id()))
+        if(!map_docsexternes->contains(doc->id()))
             m_nouveaudocument = true;
-        add(m_docsexternes, doc);
+        add(map_docsexternes, doc);
     }
 }
 
@@ -94,7 +94,7 @@ void DocsExternes::initListeByPatient(Patient *pat)
 {
     m_patient = pat;
     QList<DocExterne*> listdocs = DataBase::I()->loadDoscExternesByPatient(pat);
-    epurelist(m_docsexternes, &listdocs);
+    epurelist(map_docsexternes, &listdocs);
     addList(listdocs);
 }
 
@@ -109,7 +109,7 @@ void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
     if (doc == Q_NULLPTR)
         return;
     DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
-    Supprime(m_docsexternes, doc);
+    Supprime(map_docsexternes, doc);
 }
 
 DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)

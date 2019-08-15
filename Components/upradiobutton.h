@@ -37,7 +37,7 @@ public:
     void        setiD(int val);
     int         iD() const;
     void        setitem(Item* item);
-    Item*       item();
+    Item*       item() const;
 
 
 private:

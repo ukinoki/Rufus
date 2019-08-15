@@ -207,7 +207,7 @@ void dlg_listemotscles::DisableLines()
     m_selectionmodel->clearSelection();
 }
 
-QStringList dlg_listemotscles::listMCDepart()
+QStringList dlg_listemotscles::listMCDepart() const
 {
     return m_listidmotsclesdepart;
 }

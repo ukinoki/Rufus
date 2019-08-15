@@ -47,7 +47,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
     }
     for (int itr=0; itr<listdocs.size(); itr++)
     {
-        QString NomDirDoc = proc->getDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())

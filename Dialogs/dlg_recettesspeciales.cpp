@@ -571,7 +571,7 @@ void dlg_recettesspeciales::CalculTotalRecettes()
 void dlg_recettesspeciales::GestionComptes()
 {
     Dlg_Cmpt          = new dlg_comptes();
-    if (Dlg_Cmpt->getInitOK())
+    if (Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
     wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
 }
@@ -841,7 +841,7 @@ void dlg_recettesspeciales::keyPressEvent ( QKeyEvent * event )
     }
 }
 
-bool dlg_recettesspeciales::getInitOK()
+bool dlg_recettesspeciales::initOK() const
 {
     return m_initok;
 }

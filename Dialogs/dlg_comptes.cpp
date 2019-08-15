@@ -661,14 +661,9 @@ bool dlg_comptes::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-bool dlg_comptes::getInitOK()
+bool dlg_comptes::initOK() const
 {
     return m_initok;
-}
-
-void dlg_comptes::setInitOK(bool init)
-{
-    m_initok = init;
 }
 
 void dlg_comptes::DefinitArchitetureTable()

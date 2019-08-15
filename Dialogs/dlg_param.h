@@ -46,9 +46,9 @@ public:
     explicit dlg_param(QWidget *parent = Q_NULLPTR);
     ~dlg_param();
     Ui::dlg_param       *ui;
-    bool                CotationsModifiees();
-    bool                DataUserModifiees();
-    QLineEdit           *CPDefautlineEdit, *VilleDefautlineEdit;
+    bool                CotationsModifiees() const;
+    bool                DataUserModifiees() const;
+    QLineEdit           *wdg_CPDefautlineEdit, *wdg_VilleDefautlineEdit;
 
 private:
     Procedures              *proc;

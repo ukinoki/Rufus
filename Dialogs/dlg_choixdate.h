@@ -34,10 +34,10 @@ public:
     explicit                dlg_choixdate(QWidget *parent = Q_NULLPTR);
     ~dlg_choixdate();
     Ui::dlg_choixdate       *ui;
-    QMap<QString, QDate>    map();
+    QMap<QString, QDate>    map() const;
 
 private:
-    QMap<QString, QDate>    m_datemap;
+    QMap<QString, QDate>    map_date;
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     void                    AfficheDates(QWidget *widg);
     void                    ModifDate(QWidget *widg);

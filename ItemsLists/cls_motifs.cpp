@@ -19,18 +19,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Motifs::Motifs(QObject *parent) : ItemsList(parent)
 {
-    m_motifs = new QMap<int, Motif*>();
+    map_motifs = new QMap<int, Motif*>();
 }
 
 QMap<int, Motif *> *Motifs::motifs() const
 {
-    return m_motifs;
+    return map_motifs;
 }
 
 Motif* Motifs::getById(int id)
 {
-    QMap<int, Motif*>::const_iterator itcpt = m_motifs->find(id);
-    if( itcpt == m_motifs->constEnd() )
+    QMap<int, Motif*>::const_iterator itcpt = map_motifs->find(id);
+    if( itcpt == map_motifs->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
@@ -51,8 +51,8 @@ Motif* Motifs::getMotifFromRaccourci(QString txt)
 void Motifs::initListe()
 {
     QList<Motif*> listmotifs = DataBase::I()->loadMotifs();
-    epurelist(m_motifs, &listmotifs);
-    addList(m_motifs, &listmotifs);
+    epurelist(map_motifs, &listmotifs);
+    addList(map_motifs, &listmotifs);
 }
 
 void Motifs::SupprimeMotif(Motif *mf)
@@ -60,7 +60,7 @@ void Motifs::SupprimeMotif(Motif *mf)
     if (mf == Q_NULLPTR)
         return;
     DataBase::I()->SupprRecordFromTable(mf->id(), "idMotifsRDV", TBL_MOTIFSRDV);
-    remove(m_motifs, mf);
+    remove(map_motifs, mf);
 }
 
 Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, int Duree, bool ParDefaut, bool Utiliser, int NoOrdre)
@@ -103,6 +103,6 @@ Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, 
     jmotif["utiliser"] = Utiliser;
     jmotif["noordre"] = NoOrdre;
     motf = new Motif(jmotif);
-    add(m_motifs, motf);
+    add(map_motifs, motf);
     return motf;
 }

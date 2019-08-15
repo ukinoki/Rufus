@@ -40,15 +40,13 @@ class dlg_commentaires : public UpDialog
 public:
     dlg_commentaires(QWidget *parent = Q_NULLPTR);
     ~dlg_commentaires();
-    Ui::dlg_commentaires            *ui;
-    QString Commentaire()           { return m_commentaire; }
-    QString CommentaireResume()     { return m_commentaireresume; }
-    enum Mode                       {Selection, Modification, Creation};     Q_ENUM(Mode)
+    Ui::dlg_commentaires                *ui;
+    QString Commentaire() const         { return m_commentaire; }
+    QString CommentaireResume() const   { return m_commentaireresume; }
+    enum Mode                           {Selection, Modification, Creation};     Q_ENUM(Mode)
 
 private:
     DataBase                    *db;
-    bool                        m_modifsurvol;
-    bool                        m_modesurvol;
     User*                       m_currentuser;
     Mode                        m_mode;
     WidgetButtonFrame           *wdg_buttonframe;

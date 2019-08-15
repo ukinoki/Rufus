@@ -83,12 +83,12 @@ void UpMessageBox::Repons(QPushButton *button)
     accept();
 }
 
-UpSmallButton* UpMessageBox::clickedButton()
+UpSmallButton* UpMessageBox::clickedButton() const
 {
     return ReponsSmallButton;
 }
 
-UpPushButton* UpMessageBox::clickedpushbutton()
+UpPushButton* UpMessageBox::clickedpushbutton() const
 {
     return ReponsPushButton;
 }

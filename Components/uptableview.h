@@ -9,7 +9,7 @@ class UpTableView : public QTableView
 public:
     explicit UpTableView(QWidget *parent = Q_NULLPTR);
     void    FixLargeurTotale();
-    int     rowNoHiddenCount();
+    int     rowNoHiddenCount() const;
 };
 
 #endif // UPTABLEVIEW_H

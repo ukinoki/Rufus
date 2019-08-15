@@ -21,18 +21,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 PaiementsTiers::PaiementsTiers(QObject *parent) : ItemsList(parent)
 {
-    m_paiementstiers = new QMap<int, PaiementTiers*>();
+    map_paiementstiers = new QMap<int, PaiementTiers*>();
 }
 
 QMap<int, PaiementTiers *> *PaiementsTiers::paiementstiers() const
 {
-    return m_paiementstiers;
+    return map_paiementstiers;
 }
 
 PaiementTiers* PaiementsTiers::getById(int id)
 {
-    QMap<int, PaiementTiers*>::const_iterator itcpt = m_paiementstiers->find(id);
-    if( itcpt == m_paiementstiers->constEnd() )
+    QMap<int, PaiementTiers*>::const_iterator itcpt = map_paiementstiers->find(id);
+    if( itcpt == map_paiementstiers->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
@@ -45,6 +45,6 @@ PaiementTiers* PaiementsTiers::getById(int id)
 void PaiementsTiers::initListe(User* usr)
 {
     QList<PaiementTiers*> listpaiements = DataBase::I()->loadPaiementTiersByUser(usr);
-    epurelist(m_paiementstiers, &listpaiements);
-    addList(m_paiementstiers, &listpaiements);
+    epurelist(map_paiementstiers, &listpaiements);
+    addList(map_paiementstiers, &listpaiements);
 }

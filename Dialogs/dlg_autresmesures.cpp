@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_autresmesures.h"
 
-dlg_autresmesures::dlg_autresmesures(mode mod,  QWidget *parent) :
+dlg_autresmesures::dlg_autresmesures(Mode mod,  QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionTono", parent)
 {
     m_mode            = mod;
@@ -100,7 +100,7 @@ void dlg_autresmesures::EnregistreTono()
     accept();
 }
 
-QWidget *dlg_autresmesures::Widget()
+QWidget *dlg_autresmesures::Widget() const
 {
     return  m_widget;
 }

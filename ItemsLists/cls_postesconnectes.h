@@ -29,7 +29,7 @@ class PostesConnectes : public ItemsList
      * la clé n'du QMap des userconnectés est l'adresse mac du poste sur lequel le user est connecté,
      */
 public:
-    QMap<QString, PosteConnecte*> *m_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
+    QMap<QString, PosteConnecte*> *map_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
 
 private:
     PosteConnecte   *m_admin;

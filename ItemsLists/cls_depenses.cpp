@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, Depense *> *Depenses::depenses() const
 {
-    return m_depenses;
+    return map_depenses;
 }
 
 
@@ -34,7 +34,7 @@ QMap<int, Depense *> *Depenses::depenses() const
  */
 Depenses::Depenses(QObject *parent) : ItemsList(parent)
 {
-    m_depenses = new QMap<int, Depense*>();
+    map_depenses = new QMap<int, Depense*>();
 }
 
 /*!
@@ -45,8 +45,8 @@ Depenses::Depenses(QObject *parent) : ItemsList(parent)
  */
 Depense* Depenses::getById(int id)
 {
-    QMap<int, Depense*>::const_iterator Depense = m_depenses->find(id);
-    if( Depense == m_depenses->constEnd() )
+    QMap<int, Depense*>::const_iterator Depense = map_depenses->find(id);
+    if( Depense == map_depenses->constEnd() )
         return Q_NULLPTR;
     return Depense.value();
 }
@@ -58,14 +58,14 @@ Depense* Depenses::getById(int id)
  */
 void Depenses::initListeByUser(int iduser)
 {
-    clearAll(m_depenses);
+    clearAll(map_depenses);
     QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
-    addList(m_depenses, &listdepenses);
+    addList(map_depenses, &listdepenses);
 }
 
 void Depenses::SupprimeDepense(Depense *dep)
 {
-    Supprime(m_depenses, dep);
+    Supprime(map_depenses, dep);
 }
 
 Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale,
@@ -125,7 +125,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     dep->setidcomptebancaire(Compte);
     dep->setnocheque(Nocheque);
     dep->setidfacture(idFacture);
-    add(m_depenses, dep);
+    add(map_depenses, dep);
     return dep;
 }
 

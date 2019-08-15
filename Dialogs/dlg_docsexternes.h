@@ -41,7 +41,7 @@ class dlg_docsexternes : public UpDialog
 public:
     explicit dlg_docsexternes(DocsExternes* Docs, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
-    Patient*                getPatient() { return m_currentpatient; }   //!> renseigne sur le patient en cours d'affichage
+    Patient*                currentpatient() const { return m_currentpatient; } //!> renseigne le patient en cours d'affichage
     enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("13-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("15-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -359,7 +359,7 @@ void Rufus::OuvrirDocsExternes(Patient *pat)
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
         if (ListDialogDocs.size()>0)
             for (int i=0; i< ListDialogDocs.size();++i)
-                if (ListDialogDocs.at(i)->getPatient() == Datas::I()->patients->currentpatient())
+                if (ListDialogDocs.at(i)->currentpatient() == Datas::I()->patients->currentpatient())
                     return;
     }
     DocsExternes *docs;
@@ -386,7 +386,7 @@ void Rufus::MAJActesPrecs()
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     if (m_currentact != Q_NULLPTR)
         for (int n = 0; n < ListDialog.size(); n++)
-            if (ListDialog.at(n)->getActeAffiche() == m_currentact)
+            if (ListDialog.at(n)->currentacte() == m_currentact)
                 ListDialog.at(n)->ActesPrecsAfficheActe(m_currentact);
 }
 
@@ -399,7 +399,7 @@ void Rufus::MAJDocsExternes()
     if (ListDialogDocs.size()>0)
     {
         for (int i=0; i< ListDialogDocs.size();++i)
-            if (ListDialogDocs.at(i)->getPatient() == Datas::I()->patients->currentpatient())
+            if (ListDialogDocs.at(i)->currentpatient() == Datas::I()->patients->currentpatient())
             {
                 proc->emit UpdDocsExternes();
                 break;
@@ -1174,7 +1174,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
     }
 
     Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, this);//NOTE : New Paiement
-    if(Dlg_PmtDirect->getInitOK())
+    if(Dlg_PmtDirect->initOK())
         Dlg_PmtDirect->exec();
     if (origin == BoutonPaiement)  // on redonne le statut en cours d'examen au dossier
     {
@@ -1226,7 +1226,7 @@ void Rufus::AppelPaiementTiers()
                 return;
             }
     Dlg_PmtTiers = new dlg_paiementtiers(this); //NOTE : New Paiement
-    if(Dlg_PmtTiers->getInitOK())
+    if(Dlg_PmtTiers->initOK())
     {
         Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
         Dlg_PmtTiers->show();
@@ -1280,7 +1280,7 @@ void Rufus::BasculerMontantActe()
 void Rufus::BilanRecettes()
 {   
     Dlg_BilanRec            = new dlg_bilanrecettes();
-    if (!Dlg_BilanRec->getInitOK())
+    if (!Dlg_BilanRec->initOK())
     {
         delete Dlg_BilanRec;
         return;
@@ -1755,7 +1755,7 @@ void Rufus::EnregistreDocScanner(Patient *pat)
     if (pat == Q_NULLPTR)
         return;
     Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "", this);
-    if (!Dlg_DocsScan->getinitOK())
+    if (!Dlg_DocsScan->initOK())
         return;
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
     Dlg_DocsScan->exec();
@@ -1819,7 +1819,7 @@ void Rufus::FiltreAccueil(int idx)
 void Rufus::GestionComptes()
 {
     Dlg_Cmpt = new dlg_comptes(this);
-    if(Dlg_Cmpt->getInitOK())
+    if(Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
 }
 
@@ -3886,7 +3886,7 @@ void Rufus::OuvrirActesPrecspushButtonClicked()
 void Rufus::OuvrirJournalDepenses()
 {
     Dlg_Deps = new dlg_depenses();
-    if(Dlg_Deps->getInitOK())
+    if(Dlg_Deps->initOK())
     {
         Dlg_Deps->setWindowTitle(tr("Journal des dépenses"));
         Dlg_Deps->ui->GestionComptesupPushButton->setVisible(actionGestionComptesBancaires->isVisible());
@@ -3992,7 +3992,7 @@ void Rufus::OuvrirParametres()
 void Rufus::RecettesSpeciales()
 {
     Dlg_RecSpec           = new dlg_recettesspeciales();
-    if(Dlg_RecSpec->getInitOK())
+    if(Dlg_RecSpec->initOK())
     {
         Dlg_RecSpec->setWindowTitle(tr("Journal des recettes spéciales"));
         Dlg_RecSpec->ui->GestionComptesupPushButton->setVisible(actionGestionComptesBancaires->isVisible());
@@ -6847,7 +6847,7 @@ void Rufus::CreerActe(Patient *pat)
     {
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
         for (int i = 0; i<listactesprecs.size();i++)
-            if (listactesprecs.at(i)->getidPatient() != pat->id())
+            if (listactesprecs.at(i)->idcurrentpatient() != pat->id())
                 listactesprecs.at(i)->close();
         if (findChildren<dlg_actesprecedents *>().size() == 0)
             OuvrirActesPrecedents();            //! depuis CreerActe()
@@ -7460,7 +7460,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 
         else if (mode == dlg_identificationpatient::Copie)
         {
-            pat = Dlg_IdentPatient->getPatient();
+            pat = Dlg_IdentPatient->currentpatient();
             FiltreTable(pat->nom(), pat->prenom());
             // Si le User est un soignant, on propose d'afficher le dossier et si oui, n crée une consutation d'emblée
             if( m_currentuser->isSoignant() )
@@ -7501,7 +7501,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
     }
     else  // si la fiche est rejetée
     {
-        if (mode == dlg_identificationpatient::Copie && Dlg_IdentPatient->getPatient() == Q_NULLPTR)  // il n'y a pas eu de copie parce que le dossssier existait déjà
+        if (mode == dlg_identificationpatient::Copie && Dlg_IdentPatient->currentpatient() == Q_NULLPTR)  // il n'y a pas eu de copie parce que le dossssier existait déjà
         {
             QString Sexe ("");
             if (Dlg_IdentPatient->ui->MradioButton->isChecked()) Sexe = "M";
@@ -7514,7 +7514,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         }
     }
     if (unpatientaetecreeoumodifie)
-        envoieMessage(QString::number(Dlg_IdentPatient->getPatient()->id()) + TCPMSG_MAJPatient);
+        envoieMessage(QString::number(Dlg_IdentPatient->currentpatient()->id()) + TCPMSG_MAJPatient);
     delete Dlg_IdentPatient;
     return unpatientaetecreeoumodifie;
 }
@@ -8115,7 +8115,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     bool aa = true;
     if (Dlg_Docs->exec() > 0)
     {
-        User *userEntete = Dlg_Docs->getUserEntete();
+        User *userEntete = Dlg_Docs->userentete();
         if (userEntete == Q_NULLPTR)
             return;
 
@@ -8126,30 +8126,25 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
 
         bool ALD;
         QString imprimante = "";
-        for (int k = 0; k < Dlg_Docs->TextDocumentsAImprimerList.size(); k++)
+        QMap<dlg_documents::DATASAIMPRIMER, QString> mapdoc;
+        foreach (mapdoc, Dlg_Docs->mapdocsaimprimer())
         {
-            /* On dispose de 6 QStringList qui décrivent ce q'on doit imprimer pour chaque itération
-             * TitreDocumentAImprimerList       -> le titre qui sera inséré dans la fiche docsexternes et dans la conclusion
-             * TextDocumentAImprimerList        -> le texte du document
-             * prescriptionAImprimerList        -> précise si le document est une prescription - le formatage n'est pas le même
-             * DupliAImprimerList               -> la nécessité ou non d'imprimer un dupli
-             * AdministratifAImprimerList       -> le document est un document purement administratif
-            */
-            ALD                     = (Dlg_Docs->ui->ALDcheckBox->checkState() == Qt::Checked) && (Dlg_Docs->PrescriptionAImprimerList.at(k) == "1");
-            bool Prescription       = (Dlg_Docs->PrescriptionAImprimerList.at(k) == "1");
-            bool AvecDupli          = (Dlg_Docs->DupliAImprimerList.at(k) == "1");
-            bool AvecChoixImprimante= (k == 0);                             // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
-            bool AvecPrevisu        = proc->ApercuAvantImpression();
-            bool Administratif      = (Dlg_Docs->AdministratifAImprimerList.at(k) != "1");
-            QString Titre           = Dlg_Docs->TitreDocumentAImprimerList.at(k);
-            QString TxtDocument     = Dlg_Docs->TextDocumentsAImprimerList.at(k);
-            Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+            bool Prescription           = (mapdoc.find(dlg_documents::Prescription).value() == "1");
+            bool AvecDupli              = (mapdoc.find(dlg_documents::Dupli).value() == "1");
+            bool Administratif          = (mapdoc.find(dlg_documents::Administratif).value() == "1");
+            QString Titre               =  mapdoc.find(dlg_documents::Titre).value();
+            QString TxtDocument         =  mapdoc.find(dlg_documents::Texte).value();
+
+            bool AvecChoixImprimante    = (mapdoc == Dlg_Docs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
+            bool AvecPrevisu            = proc->ApercuAvantImpression();
+            ALD                         = Dlg_Docs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
+            Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
             if (Entete == "") return;
             Entete.replace("{{TITRE1}}"        , "");
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
-            proc                    ->setNomImprimante(imprimante);
-            aa                      = Imprimer_Document(userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            proc                        ->setNomImprimante(imprimante);
+            aa                          = Imprimer_Document(userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!aa)
                 break;
             imprimante = proc->getNomImprimante();
@@ -8628,7 +8623,7 @@ void Rufus::RegleRefracteur(Refraction::Mesure mesure)
 void Rufus::RemiseCheques()
 {
     Dlg_RemCheq          = new dlg_remisecheques();
-    if (Dlg_RemCheq->getInitOK())
+    if (Dlg_RemCheq->initOK())
     {
         Dlg_RemCheq->setWindowTitle(tr("Remise de chèques"));
         Dlg_RemCheq->exec();
@@ -9447,7 +9442,7 @@ void Rufus::SupprimerActe(Acte *act)
     // On met à jour l'affichage éventuel de dlg_actesprecedents
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
     for (int i = 0; i<listactesprecs.size();i++)
-        if (listactesprecs.at(i)->getidPatient() != Datas::I()->patients->currentpatient()->id())
+        if (listactesprecs.at(i)->idcurrentpatient() != Datas::I()->patients->currentpatient()->id())
             listactesprecs.at(i)->close();
     if (findChildren<dlg_actesprecedents *>().size()>0)
     {

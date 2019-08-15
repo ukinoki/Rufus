@@ -19,22 +19,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Refractions::Refractions(QObject *parent) : ItemsList(parent)
 {
-    m_refractions = new QMap<int, Refraction*>();
+    map_refractions = new QMap<int, Refraction*>();
 }
 
 QMap<int, Refraction *>* Refractions::refractions() const
 {
-    return m_refractions;
+    return map_refractions;
 }
 
 Refraction* Refractions::getById(int id)
 {
-    QMap<int, Refraction*>::const_iterator itref = m_refractions->find(id);
-    if( itref == m_refractions->constEnd() )
+    QMap<int, Refraction*>::const_iterator itref = map_refractions->find(id);
+    if( itref == map_refractions->constEnd() )
     {
         Refraction * ref = DataBase::I()->loadRefractionById(id);
         if (ref != Q_NULLPTR)
-            add( m_refractions, ref );
+            add( map_refractions, ref );
         return ref;
     }
     return itref.value();
@@ -48,13 +48,13 @@ Refraction* Refractions::getById(int id)
 void Refractions::initListebyPatId(int id)
 {
     QList<Refraction*> listrefractions = DataBase::I()->loadRefractionByPatId(id);
-    epurelist(m_refractions, &listrefractions);
-    addList(m_refractions, &listrefractions, Item::ForceUpdate);
+    epurelist(map_refractions, &listrefractions);
+    addList(map_refractions, &listrefractions, Item::ForceUpdate);
 }
 
 
 void Refractions::SupprimeRefraction(Refraction* ref)
 {
-    Supprime(m_refractions, ref);
+    Supprime(map_refractions, ref);
 }
 

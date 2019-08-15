@@ -1510,7 +1510,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
     close();
 }
 
-int     dlg_refraction::getidRefraction()
+int     dlg_refraction::idrefraction() const
 {
     return m_idrefraction;
 }
@@ -3764,11 +3764,11 @@ void dlg_refraction::RegleAffichageFiche()
     MasquerObjetsOeilDecoche();
 }
 
-QString dlg_refraction::ResultatPrescription()
+QString dlg_refraction::ResultatPrescription() const
 {
     return m_resultPrescription;
 }
-QString dlg_refraction::ResultatObservation()
+QString dlg_refraction::ResultatObservation() const
 {
     return m_resultObservation;
 }

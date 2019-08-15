@@ -97,7 +97,7 @@ public:
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
     bool                    PrintDocument(QMap<QString, QVariant> doc);
     bool                    FicheChoixConnexion();
-    QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
+    QString                 pathDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
     void                    EnChantier(bool avecMsg = false);
 
     void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
@@ -201,7 +201,7 @@ private:
 public:
     bool                    Init();
     bool                    ApercuAvantImpression();
-    // Les accesseurs
+
     static QString          CodePostalParDefaut();
     static QString          VilleParDefaut();
 
@@ -338,17 +338,17 @@ private:
     void                    debugformule(QMap<QString,QVariant>  Data, QString type);
                                                                     // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
     //LE FRONTO ----------------------------------------------------
-    QMap<QString,QVariant>  m_mesureFronto;
+    QMap<QString,QVariant>  map_mesureFronto;
     QString                 m_htmlMesureFronto;
     void                    setDonneesFronto(QString Mesure);       // détermine le QMap MesureFronto à partir de la mesure relevée sur le port série du fronto
     void                    setHtmlFronto();                        // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
     bool                    m_isnewMesureFronto;                    // détermine si la mesure provient du fronto ou du dossier
     //L'AUTOREF ----------------------------------------------------
-    QMap<QString,QVariant>  m_mesureAutoref;
-    QMap<QString,QVariant>  m_mesureKerato;
-    QMap<QString,QVariant>  m_mesureTono;
-    QMap<QString,QVariant>  m_mesurePachy;
-    QMap<QString,QVariant>  m_dataAEnvoyerAuRefracteur;
+    QMap<QString,QVariant>  map_mesureAutoref;
+    QMap<QString,QVariant>  map_mesureKerato;
+    QMap<QString,QVariant>  map_mesureTono;
+    QMap<QString,QVariant>  map_mesurePachy;
+    QMap<QString,QVariant>  map_dataAEnvoyerAuRefracteur;
     QString                 m_htmlMesureAutoref;
     QString                 m_htmlMesureKerato;
     QString                 m_htmlMesureTono;
@@ -360,9 +360,9 @@ private:
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
     bool                    m_isnewMesureAutoref;                           // détermine si la mesure provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
-    QMap<QString,QVariant>  m_mesureRefracteurSubjectif;
+    QMap<QString,QVariant>  map_mesureRefracteurSubjectif;
     QString                 m_htmlMesureRefracteurSubjectif;
-    QMap<QString,QVariant>  m_mesureRefracteurFinal;
+    QMap<QString,QVariant>  map_mesureRefracteurFinal;
     QString                 m_htmlMesureRefracteurFinal;
     void                    setDonneesRefracteur(QString Mesure);   // détermine le QMap MesureRefracteur à partir de la mesure relevée sur le port série du refracteur
     void                    setHtmlRefracteur();                    // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif

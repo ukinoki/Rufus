@@ -255,12 +255,13 @@ private:
     Acte                    *m_currentact                   = Q_NULLPTR;
     User                    *m_currentuser                  = Q_NULLPTR;
     Patients                *m_patients                     = Q_NULLPTR;
-    QMap<int, Patient*>     *m_patientstable                = Q_NULLPTR;
-    QMap<int, Patient*>     *m_patientssaldat               = Q_NULLPTR;
+    QMap<int, Patient*>     *map_patientstable              = Q_NULLPTR;
+    QMap<int, Patient*>     *map_patientssaldat             = Q_NULLPTR;
     Actes                   *m_listeactes                   = Q_NULLPTR;
     LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
 
-    QMap<QString,QVariant>  map_mesureFronto, map_mesureAutoref;
+    QMap<QString,QVariant>  map_mesureFronto;
+    QMap<QString,QVariant>  map_mesureAutoref;
     UpDialog                *dlg_rechParMotCle,*dlg_rechParId, *dlg_listPatients;
 
     QDialog                 *dlg_msgRepons, *dlg_msgDialog;

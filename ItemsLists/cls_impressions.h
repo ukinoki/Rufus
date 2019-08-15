@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Impressions : public ItemsList
 {
 private:
-    QMap<int, Impression*> *m_impressions = Q_NULLPTR;      //!< la liste des impressions
+    QMap<int, Impression*> *map_impressions = Q_NULLPTR;      //!< la liste des impressions
 
 public:
     explicit Impressions(QObject *parent = Q_NULLPTR);
@@ -39,7 +39,7 @@ public:
 class DossiersImpressions : public ItemsList
 {
 private:
-    QMap<int, DossierImpression*> *m_dossiersimpressions = Q_NULLPTR;      //!< la liste des dossiers d'impressions
+    QMap<int, DossierImpression*> *map_dossiersimpressions = Q_NULLPTR;      //!< la liste des dossiers d'impressions
 
 public:
     explicit DossiersImpressions();

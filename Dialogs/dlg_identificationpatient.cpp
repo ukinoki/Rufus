@@ -597,12 +597,12 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 }
 
 
-bool dlg_identificationpatient::listecorrespondantsmodifiee()
+bool dlg_identificationpatient::listecorrespondantsmodifiee() const
 {
     return  m_listecorrespondantsmodfifiee;
 }
 
-Patient* dlg_identificationpatient::getPatient()
+Patient* dlg_identificationpatient::currentpatient() const
 {
     return m_currentpatient;
 }

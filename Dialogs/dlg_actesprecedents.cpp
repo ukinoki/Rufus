@@ -33,7 +33,7 @@ ui(new Ui::dlg_actesprecedents)
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
     proc            = Procedures::I();
-    m_idavantdernieracte   = AvantDernier;
+    m_avantdernieracte   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_ShowWithoutActivating);
     QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
@@ -43,7 +43,7 @@ ui(new Ui::dlg_actesprecedents)
     ui->ConclusionupTextEdit    ->setStyleSheet(style);
     ui->FermepushButton->installEventFilter(this);
 
-    if (m_idavantdernieracte)
+    if (m_avantdernieracte)
         restoreGeometry(proc->m_settings->value("PositionsFiches/PositionActesPrec").toByteArray());
     else
         restoreGeometry(proc->m_settings->value("PositionsFiches/PositionAutreDossier").toByteArray());
@@ -80,16 +80,16 @@ void dlg_actesprecedents::Actualise()
     }
 
     int initScrollValue;
-    itCurrentActe = m_listeactes->getLast();
+    it_currentacte = m_listeactes->getLast();
     initScrollValue = m_listeactes->actes()->size() - 1;
-    if( m_idavantdernieracte )
+    if( m_avantdernieracte )
     {
         --initScrollValue;
-        --itCurrentActe;
-        if( itCurrentActe == Q_NULLPTR )
+        --it_currentacte;
+        if( it_currentacte == Q_NULLPTR )
         {
             initScrollValue = 0;
-            itCurrentActe = m_listeactes->actes()->constBegin();
+            it_currentacte = m_listeactes->actes()->constBegin();
         }
     }
     ui->ScrollBar->disconnect();
@@ -101,7 +101,7 @@ void dlg_actesprecedents::Actualise()
 
     if( ui->ScrollBar->maximum() > 0 )
         connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
-            itCurrentActe = m_listeactes->getAt(newValue);
+            it_currentacte = m_listeactes->getAt(newValue);
             ActesPrecsAfficheActe();
         });
 }
@@ -116,7 +116,7 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
         if (ui->ScrollBar->value() >= ui->ScrollBar->maximum())
             return;
 
-        ++itCurrentActe;
+        ++it_currentacte;
         ActesPrecsAfficheActe();
     }
 
@@ -125,9 +125,9 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
         if (ui->ScrollBar->value() <= ui->ScrollBar->minimum())
             return;
 
-        --itCurrentActe;
-        if( itCurrentActe == Q_NULLPTR)
-            itCurrentActe = m_listeactes->actes()->constBegin();
+        --it_currentacte;
+        if( it_currentacte == Q_NULLPTR)
+            it_currentacte = m_listeactes->actes()->constBegin();
         ActesPrecsAfficheActe();
     }
 
@@ -168,7 +168,7 @@ void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
 
 void dlg_actesprecedents::closeEvent(QCloseEvent *event)
 {
-    if (m_idavantdernieracte)
+    if (m_avantdernieracte)
         proc->m_settings->setValue("PositionsFiches/PositionActesPrec", saveGeometry());
     else
         proc->m_settings->setValue("PositionsFiches/PositionAutreDossier", saveGeometry());
@@ -206,15 +206,15 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 {
-    itCurrentActe = m_listeactes->actes()->find(acte->id());
-    if( itCurrentActe == m_listeactes->actes()->constEnd() )
+    it_currentacte = m_listeactes->actes()->find(acte->id());
+    if( it_currentacte == m_listeactes->actes()->constEnd() )
         return;
     ActesPrecsAfficheActe();
 }
 
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
-    Acte *acte = itCurrentActe.value();
+    Acte *acte = it_currentacte.value();
     User * usr = Datas::I()->users->getById(acte->idUser());
 
     if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
@@ -379,9 +379,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Retrouver l'acte à afficher -------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-Acte* dlg_actesprecedents::getActeAffiche()
+Acte* dlg_actesprecedents::currentacte() const
 {
-    return itCurrentActe.value();;
+    return it_currentacte.value();;
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -395,26 +395,26 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     int idActe = -1;
     if (i == ItemsList::Suiv)
     {
-        ++itCurrentActe;
-        if( itCurrentActe == m_listeactes->actes()->constEnd() )
-            itCurrentActe = m_listeactes->getLast();
+        ++it_currentacte;
+        if( it_currentacte == m_listeactes->actes()->constEnd() )
+            it_currentacte = m_listeactes->getLast();
     }
     else if (i == ItemsList::Prec)
     {
-        --itCurrentActe;
-        if( itCurrentActe == Q_NULLPTR )
-            itCurrentActe = m_listeactes->actes()->constBegin();
+        --it_currentacte;
+        if( it_currentacte == Q_NULLPTR )
+            it_currentacte = m_listeactes->actes()->constBegin();
     }
     else if (i == ItemsList::Debut)
     {
-        itCurrentActe = m_listeactes->actes()->constBegin();
+        it_currentacte = m_listeactes->actes()->constBegin();
     }
     else if (i == ItemsList::Fin)
     {
-        itCurrentActe = m_listeactes->getLast();
+        it_currentacte = m_listeactes->getLast();
     }
 
-    idActe = itCurrentActe.value()->id();
+    idActe = it_currentacte.value()->id();
     if (idActe > -1)
     {
         ActesPrecsAfficheActe();
@@ -424,7 +424,7 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     return false;
 }
 
-int dlg_actesprecedents::getidPatient()
+int dlg_actesprecedents::idcurrentpatient() const
 {
     return m_idpatient;
 }

@@ -31,7 +31,7 @@ class PaiementsTiers : public ItemsList
 {
 
 private:
-    QMap<int, PaiementTiers*> *m_paiementstiers; //!< la liste des paiements par tiers
+    QMap<int, PaiementTiers*> *map_paiementstiers; //!< la liste des paiements par tiers
 
 public:
     explicit PaiementsTiers(QObject *parent = Q_NULLPTR);

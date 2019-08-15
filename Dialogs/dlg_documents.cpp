@@ -35,12 +35,12 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
     ui->PrescriptioncheckBox->setVisible(Datas::I()->users->userconnected()->isSoignant());
-    widgButtonsDocs     = new WidgetButtonFrame(ui->DocupTableWidget);
-    widgButtonsDocs     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    widgButtonsDocs     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
-    widgButtonsDocs     ->layButtons()->insertWidget(0, ui->label);
-    widgButtonsDossiers = new WidgetButtonFrame(ui->DossiersupTableWidget);
-    widgButtonsDossiers ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
+    wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
+    wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->label);
+    wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableWidget);
+    wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
@@ -56,8 +56,8 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
     connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_documents::dblClicktextEdit);
     connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
-    connect (widgButtonsDocs,                   &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(widgButtonsDocs->Reponse(), widgButtonsDocs);});
-    connect (widgButtonsDossiers,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(widgButtonsDossiers->Reponse(), widgButtonsDossiers);});
+    connect (wdg_docsbuttonframe,                   &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe->Reponse(), wdg_docsbuttonframe);});
+    connect (wdg_dossiersbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe->Reponse(), wdg_dossiersbuttonframe);});
 
     // Mise en forme de la table Documents
     ui->DocupTableWidget->setPalette(QPalette(Qt::white));
@@ -117,8 +117,8 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     ui->DossiersupTableWidget->FixLargeurTotale();
 
     QHBoxLayout *doclay = new QHBoxLayout();
-    doclay      ->addWidget(widgButtonsDossiers->widgButtonParent());
-    doclay      ->addWidget(widgButtonsDocs->widgButtonParent());
+    doclay      ->addWidget(wdg_dossiersbuttonframe->widgButtonParent());
+    doclay      ->addWidget(wdg_docsbuttonframe->widgButtonParent());
     doclay      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
     int marge   = 0;
     int space   = 5;
@@ -146,8 +146,8 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     ui->textFrame->installEventFilter(this);
     ui->DocupTableWidget->installEventFilter(this);
     ui->DossiersupTableWidget->installEventFilter(this);
-    gOp             = new QGraphicsOpacityEffect();
-    gTimerEfface    = new QTimer(this);
+    m_opacityeffect             = new QGraphicsOpacityEffect();
+    t_timerefface    = new QTimer(this);
 
     ui->ALDcheckBox->setChecked(m_currentpatient->isald());
 
@@ -161,30 +161,35 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
         ConfigMode(Selection);
     ui->ChercheupLineEdit->setFocus();
 
-    gChampsMap[TITRUSER]        = tr("Titre, nom et prénom de l'utilisateur");
-    gChampsMap[NOMPAT]          = tr("Nom du patient");
-    gChampsMap[DATEDOC]         = tr("Date du jour");
-    gChampsMap[DDNPAT]          = tr("Date de naissance");
-    gChampsMap[TITREPAT]        = tr("Titre du patient");
-    gChampsMap[AGEPAT]          = tr("Âge du patient");
-    gChampsMap[PRENOMPAT]       = tr("Prénom du patient");
-    gChampsMap[MGPAT]           = tr("Médecin du patient");
-    gChampsMap[MGPATTITRE]      = tr("Titre médecin du patient");
-    gChampsMap[POLITESSEMG]     = tr("formule de politesse médecin patient");
-    gChampsMap[PRENOMMG]        = tr("Prénom du médecin");
-    gChampsMap[NOMMG]           = tr("Nom du médecin");
-    gChampsMap[REFRACT]         = tr("Refraction du patient'");
-    gChampsMap[KERATO]          = tr("Keratométrie du patient");
-    gChampsMap[CORPAT]          = tr("Correspondant du patient");
-    gChampsMap[POLITESSECOR]    = tr("formule de politesse correspondant");
-    gChampsMap[PRENOMCOR]       = tr("Prénom du correspondant");
-    gChampsMap[NOMCOR]          = tr("Nom du correspondant");
-    gChampsMap[TELEPHONE]       = tr("Téléphone du patient");
-    gChampsMap[SEXEPAT]         = tr("Sexe du patient");
+    map_champs[TITRUSER]        = tr("Titre, nom et prénom de l'utilisateur");
+    map_champs[NOMPAT]          = tr("Nom du patient");
+    map_champs[DATEDOC]         = tr("Date du jour");
+    map_champs[DDNPAT]          = tr("Date de naissance");
+    map_champs[TITREPAT]        = tr("Titre du patient");
+    map_champs[AGEPAT]          = tr("Âge du patient");
+    map_champs[PRENOMPAT]       = tr("Prénom du patient");
+    map_champs[MGPAT]           = tr("Médecin du patient");
+    map_champs[MGPATTITRE]      = tr("Titre médecin du patient");
+    map_champs[POLITESSEMG]     = tr("formule de politesse médecin patient");
+    map_champs[PRENOMMG]        = tr("Prénom du médecin");
+    map_champs[NOMMG]           = tr("Nom du médecin");
+    map_champs[REFRACT]         = tr("Refraction du patient'");
+    map_champs[KERATO]          = tr("Keratométrie du patient");
+    map_champs[CORPAT]          = tr("Correspondant du patient");
+    map_champs[POLITESSECOR]    = tr("formule de politesse correspondant");
+    map_champs[PRENOMCOR]       = tr("Prénom du correspondant");
+    map_champs[NOMCOR]          = tr("Nom du correspondant");
+    map_champs[TELEPHONE]       = tr("Téléphone du patient");
+    map_champs[SEXEPAT]         = tr("Sexe du patient");
 }
 
 dlg_documents::~dlg_documents()
 {
+}
+
+QMap<int, QMap<dlg_documents::DATASAIMPRIMER, QString> > dlg_documents::mapdocsaimprimer() const
+{
+    return map_docsaimprimer;
 }
 
 // ----------------------------------------------------------------------------------
@@ -193,7 +198,7 @@ dlg_documents::~dlg_documents()
 // ----------------------------------------------------------------------------------
 void dlg_documents::Annulation()
 {
-    if (gMode == CreationDOC || gMode == ModificationDOC || gMode == ModificationDOSS || gMode == CreationDOSS)
+    if (m_mode == CreationDOC || m_mode == ModificationDOC || m_mode == ModificationDOSS || m_mode == CreationDOSS)
     {
         QString TableAmodifier = "";
         int     row = -1;
@@ -221,7 +226,7 @@ void dlg_documents::Annulation()
                 }
             }
         }
-        if (gMode == CreationDOC || gMode == CreationDOSS)
+        if (m_mode == CreationDOC || m_mode == CreationDOSS)
             Remplir_TableWidget();
         if (ui->DocupTableWidget->rowCount() == 0)
             ConfigMode(CreationDOC);
@@ -242,7 +247,7 @@ void dlg_documents::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
 {
     UpLineEdit *line = new UpLineEdit();
     int row = 0;
-    if (widgbutt== widgButtonsDocs)
+    if (widgbutt== wdg_docsbuttonframe)
     {
         switch (j) {
         case 1:
@@ -274,7 +279,7 @@ void dlg_documents::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
             break;
         }
     }
-    else if (widgbutt== widgButtonsDossiers)
+    else if (widgbutt== wdg_dossiersbuttonframe)
     {
         switch (j) {
         case 1:
@@ -347,7 +352,7 @@ void dlg_documents::CheckPublicEditablAdmin(QCheckBox *check)
 
 void dlg_documents::dblClicktextEdit()
 {
-    if (gMode == Selection)
+    if (m_mode == Selection)
     {
         UpLineEdit *line;
         int row = 0;
@@ -379,7 +384,7 @@ void dlg_documents::DocCellEnter(UpLineEdit *line)
         //    QRect rect = QRect(itemselect->tableWidget()->pos(),itemselect->tableWidget()->size());
         QTextEdit *text = new QTextEdit;
         MetAJour(getDocumentFromRow(row)->texte(),false);
-        text->setText(glisttxt.at(0));
+        text->setText(m_listtexts.at(0));
         QString ab = text->toPlainText();
         ab.replace(QRegExp("\n\n[\n]*"),"\n");
         while (ab.endsWith("\n"))
@@ -474,7 +479,7 @@ void dlg_documents::DocCellDblClick(UpLineEdit *line)
 void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
 {
     ui->OKupPushButton->setShortcut(QKeySequence());
-    if (gMode == CreationDOC || gMode == ModificationDOC)
+    if (m_mode == CreationDOC || m_mode == ModificationDOC)
     {
         UpLineEdit *line = new UpLineEdit(this);
         bool a = false;
@@ -500,7 +505,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
         }
         ui->OKupPushButton->setEnabled(true);
     }
-    else if (gMode == CreationDOSS || gMode == ModificationDOSS)
+    else if (m_mode == CreationDOSS || m_mode == ModificationDOSS)
     {
         UpLineEdit *line= new UpLineEdit(this);
         bool a = false;
@@ -531,7 +536,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
         }
         ui->OKupPushButton->setEnabled(a);
     }
-    else if (gMode == Selection)
+    else if (m_mode == Selection)
     {
         if (Check != Q_NULLPTR)
         {
@@ -553,7 +558,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
             }
         }
         if (ui->ChercheupLineEdit->text() == "")
-            glistid.clear();
+            m_listid.clear();
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
             QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -561,12 +566,12 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
             {
                 UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
                 if(Check->isChecked())
-                    glistid << QString::number(getDocumentFromRow(i)->id());
+                    m_listid << QString::number(getDocumentFromRow(i)->id());
                 else
                 {
-                    for (int k=0; k<glistid.size();k++){
-                        if (glistid.at(k) == QString::number(getDocumentFromRow(Check->rowTable())->id())){
-                            glistid.removeAt(k);
+                    for (int k=0; k<m_listid.size();k++){
+                        if (m_listid.at(k) == QString::number(getDocumentFromRow(Check->rowTable())->id())){
+                            m_listid.removeAt(k);
                             k--;
                         }
                     }
@@ -610,7 +615,7 @@ void dlg_documents::FiltreListe()
 
 void dlg_documents::MenuContextuel(QWidget *widg)
 {
-    gmenuContextuel = new QMenu(this);
+    m_menucontextuel = new QMenu(this);
     QAction *pAction_ModifDossier;
     QAction *pAction_SupprDossier;
     QAction *pAction_CreerDossier;
@@ -655,15 +660,15 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         {
             LineSelect(ui->DossiersupTableWidget,row);
 
-            pAction_CreerDossier            = gmenuContextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
-            pAction_ModifDossier            = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
-            pAction_SupprDossier            = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
-            gmenuContextuel->addSeparator();
+            pAction_CreerDossier            = m_menucontextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
+            pAction_ModifDossier            = m_menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
+            pAction_SupprDossier            = m_menucontextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
+            m_menucontextuel->addSeparator();
             UpLabel *lbl                    = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->Row(),4));
             if (lbl->pixmap() != Q_NULLPTR)
-                pAction_PublicDossier       = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
+                pAction_PublicDossier       = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
             else
-                pAction_PublicDossier       = gmenuContextuel->addAction(tr("Public")) ;
+                pAction_PublicDossier       = m_menucontextuel->addAction(tr("Public")) ;
 
             connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDossier");});
             connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("SupprimerDossier");});
@@ -674,32 +679,32 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         {
             LineSelect(ui->DocupTableWidget,line->Row());
 
-            pAction_ModifDoc                = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
-            pAction_SupprDoc                = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
-            pAction_CreerDoc                = gmenuContextuel->addAction(Icons::icCreer(), tr("Créer un document"));
+            pAction_ModifDoc                = m_menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
+            pAction_SupprDoc                = m_menucontextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
+            pAction_CreerDoc                = m_menucontextuel->addAction(Icons::icCreer(), tr("Créer un document"));
             if (getDocumentFromRow(row)->ispublic())
-                pAction_PublicDoc           = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public"));
+                pAction_PublicDoc           = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Public"));
             else
-                pAction_PublicDoc           = gmenuContextuel->addAction(tr("Public"));
+                pAction_PublicDoc           = m_menucontextuel->addAction(tr("Public"));
             if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
             {
                 if (getDocumentFromRow(row)->isprescription())
-                    pAction_PrescripDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Prescription"));
+                    pAction_PrescripDoc         = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Prescription"));
                 else
-                    pAction_PrescripDoc         = gmenuContextuel->addAction(tr("Prescription"));
+                    pAction_PrescripDoc         = m_menucontextuel->addAction(tr("Prescription"));
                 pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
                 connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuel("PrescripDoc");});
             }
             if (getDocumentFromRow(row)->iseditable())
-                pAction_EditableDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Editable"));
+                pAction_EditableDoc         = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Editable"));
             else
-                pAction_EditableDoc         = gmenuContextuel->addAction(tr("Editable"));
+                pAction_EditableDoc         = m_menucontextuel->addAction(tr("Editable"));
             if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
             {
                 if (!getDocumentFromRow(row)->ismedical())
-                    pAction_AdminDoc        = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Document administratif"));
+                    pAction_AdminDoc        = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Document administratif"));
                 else
-                    pAction_AdminDoc        = gmenuContextuel->addAction(tr("Document administratif"));
+                    pAction_AdminDoc        = m_menucontextuel->addAction(tr("Document administratif"));
                 pAction_AdminDoc    ->setToolTip(tr("si cette option est cochée\nle document est considéré comme un document non médical"));
                 connect (pAction_AdminDoc,      &QAction::triggered,this, [=] {ChoixMenuContextuel("AdminDoc");});
             }
@@ -715,7 +720,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         }
     }
 
-    else if (gMode == Selection)
+    else if (m_mode == Selection)
     {
         bool a = false;
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
@@ -727,14 +732,14 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         }
         if (a)
         {
-            pAction_ModifDoc       = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
+            pAction_ModifDoc       = m_menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
             connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDoc");});
         }
     }
     else if (widg == ui->upTextEdit)
     {
-        pAction_InsertChamp         = gmenuContextuel->addAction    (Icons::icAjouter(), tr("Insérer un champ"));
-        interro                     = gmenuContextuel->addMenu      (Icons::icAjouter(), tr("Insérer une interrogation"));
+        pAction_InsertChamp         = m_menucontextuel->addAction    (Icons::icAjouter(), tr("Insérer un champ"));
+        interro                     = m_menucontextuel->addMenu      (Icons::icAjouter(), tr("Insérer une interrogation"));
         pAction_InsInterroDate      = interro->addAction            (Icons::icDate(),   tr("Date"));
         pAction_InsInterroHeure     = interro->addAction            (Icons::icClock(),  tr("Heure"));
         pAction_InsInterroCote      = interro->addAction            (Icons::icSide(),   tr("Côté"));
@@ -746,29 +751,29 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         pAction_InsInterroSite      = interro->addAction            (Icons::icClinic(),   tr("Centre"));
         pAction_InsInterroText      = interro->addAction            (Icons::icMedoc(),  tr("Texte libre"));
 
-        gmenuContextuel->addSeparator();
+        m_menucontextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_ModifPolice     = gmenuContextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
-            pAction_Fontbold        = gmenuContextuel->addAction(Icons::icFontbold(),       tr("Gras"));
-            pAction_Fontitalic      = gmenuContextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
-            pAction_Fontunderline   = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
-            pAction_Fontnormal      = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
+            pAction_ModifPolice     = m_menucontextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
+            pAction_Fontbold        = m_menucontextuel->addAction(Icons::icFontbold(),       tr("Gras"));
+            pAction_Fontitalic      = m_menucontextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
+            pAction_Fontunderline   = m_menucontextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
+            pAction_Fontnormal      = m_menucontextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
 
             connect (pAction_ModifPolice,       &QAction::triggered,    this, [=] {ChoixMenuContextuel("Police");});
             connect (pAction_Fontbold,          &QAction::triggered,    this, [=] {ChoixMenuContextuel("Gras");});
             connect (pAction_Fontitalic,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Italique");});
             connect (pAction_Fontunderline,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Souligne");});
             connect (pAction_Fontnormal,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Normal");});
-            gmenuContextuel->addSeparator();
+            m_menucontextuel->addSeparator();
         }
-        pAction_Blockleft       = gmenuContextuel->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
-        pAction_Blockright      = gmenuContextuel->addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
-        pAction_Blockcentr      = gmenuContextuel->addAction(Icons::icBlockCenter(),        tr("Centré"));
-        pAction_Blockjust       = gmenuContextuel->addAction(Icons::icBlockJustify(),       tr("Justifié"));
-        gmenuContextuel->addSeparator();
+        pAction_Blockleft       = m_menucontextuel->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
+        pAction_Blockright      = m_menucontextuel->addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
+        pAction_Blockcentr      = m_menucontextuel->addAction(Icons::icBlockCenter(),        tr("Centré"));
+        pAction_Blockjust       = m_menucontextuel->addAction(Icons::icBlockJustify(),       tr("Justifié"));
+        m_menucontextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_Copier          = gmenuContextuel->addAction(Icons::icCopy(),   tr("Copier"));
-            pAction_Cut             = gmenuContextuel->addAction(Icons::icCut(),    tr("Couper"));
+            pAction_Copier          = m_menucontextuel->addAction(Icons::icCopy(),   tr("Copier"));
+            pAction_Cut             = m_menucontextuel->addAction(Icons::icCut(),    tr("Couper"));
             connect (pAction_Copier,            &QAction::triggered,    this, [=] {ChoixMenuContextuel("Copier");});
             connect (pAction_Cut,               &QAction::triggered,    this, [=] {ChoixMenuContextuel("Couper");});
         }
@@ -777,7 +782,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
                 || qApp->clipboard()->mimeData()->hasImage()
                 || qApp->clipboard()->mimeData()->hasHtml())
         {
-            QAction *pAction_Coller = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
+            QAction *pAction_Coller = m_menucontextuel->addAction(Icons::icPaste(),  tr("Coller"));
             connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Coller");});
         }
 
@@ -799,14 +804,14 @@ void dlg_documents::MenuContextuel(QWidget *widg)
     }
 
     // ouvrir le menu
-    gmenuContextuel->exec(cursor().pos());
-    delete gmenuContextuel;
+    m_menucontextuel->exec(cursor().pos());
+    delete m_menucontextuel;
 }
 
 void dlg_documents::ChoixMenuContextuel(QString choix)
 {
     bool a = false;
-    QPoint pos = ui->DocupTableWidget->viewport()->mapFromGlobal(gmenuContextuel->pos());
+    QPoint pos = ui->DocupTableWidget->viewport()->mapFromGlobal(m_menucontextuel->pos());
     if (choix       == "Coller")    ui->upTextEdit->paste();
 
     else if (choix  == "Copier")    ui->upTextEdit->copy();
@@ -868,7 +873,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             lbl->clear();
         }
         ui->DocPubliccheckBox->toggle();
-        if (gMode == Selection)
+        if (m_mode == Selection)
         {
             db->StandardSQL("update " TBL_IMPRESSIONS " set DocPublic = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->Row())->id()));
@@ -894,7 +899,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         else
             lbl->clear();
         ui->DocEditcheckBox->toggle();
-        if (gMode == Selection)
+        if (m_mode == Selection)
         {
             db->StandardSQL("update " TBL_IMPRESSIONS " set Editable = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->Row())->id()));
@@ -920,7 +925,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             lbl->clear();
         }
         ui->DocAdministratifcheckBox->toggle();
-        if (gMode == Selection)
+        if (m_mode == Selection)
         {
             db->StandardSQL("update " TBL_IMPRESSIONS " set Medical = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->Row())->id()));
@@ -946,7 +951,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         }
         else
             lbl->clear();
-        if (gMode == Selection)
+        if (m_mode == Selection)
             db->StandardSQL("update " TBL_DOSSIERSIMPRESSIONS " set Public = " + b + " where idMetaDocument = " +
                        QString::number(getMetaDocumentFromRow(line->Row())->id()));
     }
@@ -963,7 +968,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         QString b = "null";
         if (ui->PrescriptioncheckBox->isChecked())
             b = "1";
-        if (gMode == Selection)
+        if (m_mode == Selection)
         {
             db->StandardSQL("update " TBL_IMPRESSIONS " set Prescription = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->Row())->id()));
@@ -1081,11 +1086,11 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         tabChamps->setColumnWidth(1,0); // si on met setcolumnhidden, ça ne rentre pas dans les selecteditems()
         QTableWidgetItem        *pitem0, *pitem1;
         int                     i = 0;
-        for(auto it = gChampsMap.cbegin(); it!=gChampsMap.cend(); ++it)
+        for(auto it = map_champs.cbegin(); it!=map_champs.cend(); ++it)
         {
             tabChamps   ->insertRow(i);
             pitem0       = new QTableWidgetItem;
-            pitem0       ->setText(gChampsMap[it.key()]);
+            pitem0       ->setText(map_champs[it.key()]);
             tabChamps   ->setItem(i,0,pitem0);
             pitem1       = new QTableWidgetItem;
             pitem1      ->setText(it.key());
@@ -1124,19 +1129,19 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
     else if (choix == "Date")
     {
         if (AskDialog("Choix de date")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//DATE))");
-        delete gAskDialog;
+            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//DATE))");
+        delete dlg_askdialog;
     }
     else if (choix == "Texte")
     {
         if (AskDialog("Choix de texte")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//TEXTE))");
-        delete gAskDialog;
+            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//TEXTE))");
+        delete dlg_askdialog;
     }
     else if (choix == "Soignant")
     {
         ui->upTextEdit->textCursor().insertHtml("((" + tr("Quel soignant?") + "//SOIGNANT))");
-        delete gAskDialog;
+        delete dlg_askdialog;
     }
     else if (choix == TYPEANESTHESIE)
     {
@@ -1144,7 +1149,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += TYPEANESTHESIE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
+        delete dlg_askdialog;
     }
     else if (choix == PROVENANCE)
     {
@@ -1152,7 +1157,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += PROVENANCE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
+        delete dlg_askdialog;
     }
     else if (choix == TYPESEJOUR)
     {
@@ -1160,7 +1165,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += TYPESEJOUR;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
+        delete dlg_askdialog;
     }
     else if (choix == SITE)
     {
@@ -1168,30 +1173,30 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += SITE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
+        delete dlg_askdialog;
     }
     else if (choix == "Montant")
     {
         if (AskDialog("Choix de texte")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//MONTANT))");
-        delete gAskDialog;
+            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//MONTANT))");
+        delete dlg_askdialog;
     }
     else if (choix == "Heure")
     {
         if (AskDialog("Choix d'une heure")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//HEURE))");
-        delete gAskDialog;
+            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//HEURE))");
+        delete dlg_askdialog;
     }
     else if (choix == COTE)
     {
         if (AskDialog("Choix d'un côté")>0)
         {
-            QString txt = "((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//";
+            QString txt = "((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//";
             txt += COTE;
             txt += "))";
             ui->upTextEdit->textCursor().insertHtml(txt);
         }
-        delete gAskDialog;
+        delete dlg_askdialog;
     }
 }
 
@@ -1208,11 +1213,12 @@ void dlg_documents::Validation()
     QStringList ExpARemplacer, Rempla;
     QString listusers = "ListUsers";
     QString listsoignants = "ListSoignants";
-    gUserEntete = Q_NULLPTR;
+    m_userentete = Q_NULLPTR;
     if (m_currentuser->ishisownsupervisor())
-        gUserEntete = m_currentuser;
+        m_userentete = m_currentuser;
 
-    switch (gMode) {
+    int ndocs = 0;
+    switch (m_mode) {
     case CreationDOC:
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
@@ -1307,12 +1313,12 @@ void dlg_documents::Validation()
         // On a établi la liste de questions - on prépare la fiche qui va les poser
         if (listQuestions.size()>0 || !m_currentuser->ishisownsupervisor())
         {
-            gAsk = new UpDialog(this);
-            gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-            gAsk->setModal(true);
-            gAsk->setSizeGripEnabled(false);
-            gAsk->move(QPoint(x()+width()/2,y()+height()/2));
-            gAsk->setWindowTitle(tr("Complétez la fiche"));
+            dlg_ask = new UpDialog(this);
+            dlg_ask->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+            dlg_ask->setModal(true);
+            dlg_ask->setSizeGripEnabled(false);
+            dlg_ask->move(QPoint(x()+width()/2,y()+height()/2));
+            dlg_ask->setWindowTitle(tr("Complétez la fiche"));
 
             QVBoxLayout *layWidg = new QVBoxLayout();
             for (int m=0; m<listQuestions.size();m++)
@@ -1336,7 +1342,7 @@ void dlg_documents::Validation()
                 }
                 else if (listtypeQuestions.at(m)  == "MONTANT")
                 {
-                    UpLineEdit *Line = new UpLineEdit(gAsk);
+                    UpLineEdit *Line = new UpLineEdit(dlg_ask);
                     QDoubleValidator *val= new QDoubleValidator(this);
                     val->setDecimals(2);
                     Line->setValidator(val);
@@ -1456,19 +1462,19 @@ void dlg_documents::Validation()
                 Combo->setAccessibleDescription(listusers);
                 lay->addWidget(Combo);
             }
-            gAsk->dlglayout()   ->setContentsMargins(5,5,5,5);
+            dlg_ask->dlglayout()   ->setContentsMargins(5,5,5,5);
             layWidg     ->setContentsMargins(0,0,0,0);
             layWidg     ->setSpacing(0);
-            gAsk->dlglayout()   ->setSpacing(5);
-            gAsk->dlglayout()   ->insertLayout(0,layWidg);
+            dlg_ask->dlglayout()   ->setSpacing(5);
+            dlg_ask->dlglayout()   ->insertLayout(0,layWidg);
 
-            gAsk->AjouteLayButtons();
-            gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-            connect(gAsk->OKButton,     &QPushButton::clicked,   [=] {VerifCoherencegAsk();});
+            dlg_ask->AjouteLayButtons();
+            dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+            connect(dlg_ask->OKButton,     &QPushButton::clicked,   [=] {VerifCoherencedlg_ask();});
 
-            if (gAsk->exec() == 0)
+            if (dlg_ask->exec() == 0)
             {
-                delete gAsk;
+                delete dlg_ask;
                 return;
             }
             else
@@ -1555,7 +1561,7 @@ void dlg_documents::Validation()
                                     else
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        gUserEntete = Datas::I()->users->getById(idusr, Item::LoadDetails);
+                                        m_userentete = Datas::I()->users->getById(idusr, Item::LoadDetails);
                                     }
                                     delete linecombo;
                                 }
@@ -1564,7 +1570,7 @@ void dlg_documents::Validation()
                     }
                 }
             }
-            delete gAsk;
+            delete dlg_ask;
         }
         for (int i =0 ; i < ui->DocupTableWidget->rowCount(); i++)
         {
@@ -1582,37 +1588,38 @@ void dlg_documents::Validation()
                 if (Check->isChecked())
                 {
                     // on effectue les corrections de chacun des documents
+                    QMap<DATASAIMPRIMER,QString>  datasdocaimprimer;
                     QString textAimprimer = getDocumentFromRow(i)->texte();
                     if (ExpARemplacer.size() > 0)
                         for (int y=0; y<ExpARemplacer.size(); y++)
                             textAimprimer.replace(ExpARemplacer.at(y),Rempla.at(y));
                     MetAJour(textAimprimer,true);
-                    for (int j=0; j<glisttxt.size();j++)
+                    for (int j=0; j<m_listtexts.size();j++)
                     {
-                        QString txtdoc = glisttxt.at(j);
+                        QString txtdoc = m_listtexts.at(j);
+                        int row = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->Row();
+                        Impression *impr = getDocumentFromRow(row);
 
                         // on détermine le titre du document à inscrire en conclusion et le statut de prescription (si prescription => impression d'un dupli)
-                        int row = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->Row();
+
                         QString titre                   = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->text();
-                        TitreDocumentAImprimerList      << titre;
-                        PrescriptionAImprimerList       << (getDocumentFromRow(row)->isprescription()? "1": "");
-                        DupliAImprimerList              << ((getDocumentFromRow(row)->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": "");
-                        AdministratifAImprimerList      << ((getDocumentFromRow(row)->ismedical())? "1": "");
+                        datasdocaimprimer.insert(Titre, titre);
+                        datasdocaimprimer.insert(Prescription, (impr->isprescription()? "1": ""));
+                        datasdocaimprimer.insert(Administratif, (impr->ismedical()? "1": ""));
+                        datasdocaimprimer.insert(Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
                         // on visualise le document pour correction s'il est éditable
-                        txtdoc                          = (getDocumentFromRow(row)->iseditable()? proc->Edit(txtdoc, titre): txtdoc);
-                        if (txtdoc == "")               // si le texte du document est vide, on annule l'impression de cette itération
+                        txtdoc                          = (impr->iseditable()? proc->Edit(txtdoc, titre): txtdoc);
+                        if (txtdoc != "")               // si le texte du document est vide, on annule l'impression de cette itération
                         {
-                            TitreDocumentAImprimerList  .removeLast();
-                            PrescriptionAImprimerList   .removeLast();
-                            DupliAImprimerList          .removeLast();
-                            AdministratifAImprimerList  .removeLast();
+                            datasdocaimprimer.insert(Texte, txtdoc);
+                            map_docsaimprimer.insert(ndocs, datasdocaimprimer);
+                            ++ndocs;
                         }
-                        else TextDocumentsAImprimerList << txtdoc;
                     }
                 }
             }
         }
-        if (TitreDocumentAImprimerList.size() > 0)
+        if (map_docsaimprimer.size() > 0)
             accept();
         break;
     default:
@@ -1627,11 +1634,11 @@ void dlg_documents::OrdoAvecDupli(bool a)
 
 
 /* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Vérifie que les champs sont remplis avant la fermeture de gAsk ------------------------------------------------------------------------------------------------------------
+-- Vérifie que les champs sont remplis avant la fermeture de dlg_ask ------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_documents::VerifCoherencegAsk()
+void dlg_documents::VerifCoherencedlg_ask()
 {
-    QList<UpLineEdit*> listUpline = gAsk->findChildren<UpLineEdit*>();
+    QList<UpLineEdit*> listUpline = dlg_ask->findChildren<UpLineEdit*>();
     bool a = true;
     for (int i=0;i<listUpline.size();i++)
     {
@@ -1644,7 +1651,7 @@ void dlg_documents::VerifCoherencegAsk()
     }
     if (a)
     {
-        QList<UpComboBox*> listCombo = gAsk->findChildren<UpComboBox*>();
+        QList<UpComboBox*> listCombo = dlg_ask->findChildren<UpComboBox*>();
         for (int i=0;i<listCombo.size();i++)
         {
             if (listCombo.at(i)->currentText() == "")
@@ -1655,7 +1662,7 @@ void dlg_documents::VerifCoherencegAsk()
             }
         }
     }
-    if (a) gAsk->accept();
+    if (a) dlg_ask->accept();
 }
 
 bool dlg_documents::event(QEvent *event)
@@ -1700,18 +1707,6 @@ bool dlg_documents::event(QEvent *event)
     }*/
     return QWidget::event(event);
 }
-void dlg_documents::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
 void dlg_documents::closeEvent(QCloseEvent *event)
 {
     proc->m_settings->setValue("PositionsFiches/PositionDocuments",saveGeometry());
@@ -1744,7 +1739,7 @@ bool dlg_documents::eventFilter(QObject *obj, QEvent *event)
     if(event->type() == QEvent::MouseMove)
     {
         if (obj == ui->textFrame || obj == ui->upTextEdit)
-            if (gMode == Selection)
+            if (m_mode == Selection)
             {
                 QRect rect = QRect(ui->textFrame->pos(),ui->textFrame->size());
                 QPoint pos = mapFromParent(cursor().pos());
@@ -1833,33 +1828,33 @@ void dlg_documents::keyPressEvent(QKeyEvent * event )
 
 int dlg_documents::AskDialog(QString titre)
 {
-    gAskDialog                  = new UpDialog(this);
-    gAskDialog                  ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-    UpLineEdit  *Line           = new UpLineEdit(gAskDialog);
-    UpLabel     *label          = new UpLabel(gAskDialog);
+    dlg_askdialog               = new UpDialog(this);
+    dlg_askdialog               ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    UpLineEdit  *Line           = new UpLineEdit(dlg_askdialog);
+    UpLabel     *label          = new UpLabel(dlg_askdialog);
     QString question            = tr("Entrez la question que vous voulez poser.");
 
     label   ->setText(question);
     label   ->setFixedSize(Utils::CalcSize(question));
     Line    ->setFixedSize(Utils::CalcSize(question));
 
-    gAskDialog->dlglayout()->setSpacing(4);
-    gAskDialog->dlglayout()->insertWidget(0,Line);
-    gAskDialog->dlglayout()->insertWidget(0,label);
+    dlg_askdialog->dlglayout()->setSpacing(4);
+    dlg_askdialog->dlglayout()->insertWidget(0,Line);
+    dlg_askdialog->dlglayout()->insertWidget(0,label);
 
-    gAskDialog->setModal(true);
-    gAskDialog->setSizeGripEnabled(false);
-    //gAskDialog->setFixedSize(270,100);
-    gAskDialog->move(QPoint(x()+width()/2,y()+height()/2));
-    gAskDialog->setWindowTitle(titre);
-    gAskDialog->AjouteLayButtons();
-    gAskDialog->TuneSize();
+    dlg_askdialog->setModal(true);
+    dlg_askdialog->setSizeGripEnabled(false);
+    //dlg_askdialog->setFixedSize(270,100);
+    dlg_askdialog->move(QPoint(x()+width()/2,y()+height()/2));
+    dlg_askdialog->setWindowTitle(titre);
+    dlg_askdialog->AjouteLayButtons();
+    dlg_askdialog->TuneSize();
 
-    connect(gAskDialog->OKButton,   &QPushButton::clicked,   [=] {gAskDialog->accept();});
+    connect(dlg_askdialog->OKButton,   &QPushButton::clicked,   [=] {dlg_askdialog->accept();});
 
     Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
-    return gAskDialog->exec();
+    return dlg_askdialog->exec();
 }
 
 // ----------------------------------------------------------------------------------
@@ -1868,7 +1863,7 @@ int dlg_documents::AskDialog(QString titre)
 bool dlg_documents::ChercheDoublon(QString str, int row)
 {
     QString req, nom;
-    switch (gMode) {
+    switch (m_mode) {
     case CreationDOC:
         req = "select resumedocument, iduser from " TBL_IMPRESSIONS;
         nom = tr("document");
@@ -1994,37 +1989,37 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
 // ----------------------------------------------------------------------------------
 void dlg_documents::ConfigMode(Mode mode, int row)
 {
-    gMode = mode;
-    ui->ChercheupLineEdit->setEnabled       (gMode == Selection);
-    ui->dateEdit->setEnabled                (gMode == Selection);
-    ui->ALDcheckBox->setVisible             (gMode == Selection);
-    widgButtonsDossiers->setEnabled         (gMode == Selection);
-    ui->DossiersupTableWidget->setEnabled   (gMode == Selection);
+    m_mode = mode;
+    ui->ChercheupLineEdit->setEnabled       (m_mode == Selection);
+    ui->dateEdit->setEnabled                (m_mode == Selection);
+    ui->ALDcheckBox->setVisible             (m_mode == Selection);
+    wdg_dossiersbuttonframe->setEnabled         (m_mode == Selection);
+    ui->DossiersupTableWidget->setEnabled   (m_mode == Selection);
     ui->OKupPushButton->setEnabled          (false);
-    ui->textFrame->setVisible               (gMode != CreationDOSS && gMode!= ModificationDOSS && gMode != Selection);
+    ui->textFrame->setVisible               (m_mode != CreationDOSS && m_mode!= ModificationDOSS && m_mode != Selection);
 
-    if (gMode != Selection) {
-        gTimerEfface->disconnect();
+    if (m_mode != Selection) {
+        t_timerefface->disconnect();
         ui->textFrame->setGraphicsEffect(new QGraphicsOpacityEffect());
     }
     else
     {
-        gOp = new QGraphicsOpacityEffect();
-        gOp->setOpacity(0.1);
-        ui->textFrame->setGraphicsEffect(gOp);
+        m_opacityeffect = new QGraphicsOpacityEffect();
+        m_opacityeffect->setOpacity(0.1);
+        ui->textFrame->setGraphicsEffect(m_opacityeffect);
     }
 
     if (mode == Selection)
     {
         EnableLines();
-        widgButtonsDocs                 ->setEnabled(true);
+        wdg_docsbuttonframe                 ->setEnabled(true);
         ui->DocPubliccheckBox           ->setChecked(false);
         ui->DocPubliccheckBox           ->setEnabled(false);
         ui->DocPubliccheckBox           ->setToolTip("");
         ui->DocupTableWidget            ->setEnabled(true);
         ui->DocupTableWidget            ->setFocus();
         ui->DocupTableWidget            ->setStyleSheet("");
-        widgButtonsDossiers             ->setEnabled(true);
+        wdg_dossiersbuttonframe             ->setEnabled(true);
         ui->DossiersupTableWidget       ->setEnabled(true);
         ui->DocEditcheckBox             ->setChecked(false);
         ui->DocEditcheckBox             ->setEnabled(false);
@@ -2034,11 +2029,11 @@ void dlg_documents::ConfigMode(Mode mode, int row)
         ui->DocAdministratifcheckBox    ->setToolTip("");
         ui->Expliclabel                 ->setText(tr("SELECTION - Cochez les dossiers ou les documents que vous voulez imprimer")
                                                      + "\n" + tr("clic souris ou touche F5 pour sélectionner/déselectionner"));
-        widgButtonsDocs->wdg_modifBouton    ->setEnabled(false);
-        widgButtonsDossiers->wdg_modifBouton->setEnabled(false);
+        wdg_docsbuttonframe->wdg_modifBouton    ->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
         ui->PrescriptioncheckBox        ->setEnabled(false);
-        widgButtonsDocs->wdg_moinsBouton    ->setEnabled(false);
-        widgButtonsDossiers->wdg_moinsBouton->setEnabled(false);
+        wdg_docsbuttonframe->wdg_moinsBouton    ->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
         ui->textFrame                   ->setStyleSheet("");
         ui->textFrame                   ->setEnabled(true);
         ui->upTextEdit                  ->clear();
@@ -2091,9 +2086,9 @@ void dlg_documents::ConfigMode(Mode mode, int row)
         ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
         ui->DocupTableWidget->setEnabled(true);
         ui->DocupTableWidget->setStyleSheet("");
-        widgButtonsDocs->setEnabled(false);
+        wdg_docsbuttonframe->setEnabled(false);
         ui->DossiersupTableWidget->setEnabled(true);
-        widgButtonsDossiers->setEnabled(false);
+        wdg_dossiersbuttonframe->setEnabled(false);
         ui->textFrame->setEnabled(true);
         ui->Expliclabel->setText(tr("DOCUMENTS - MODIFICATION"));
         ui->DocEditcheckBox->setEnabled(true);
@@ -2212,7 +2207,7 @@ void dlg_documents::ConfigMode(Mode mode, int row)
         ui->DocPubliccheckBox->setEnabled(true);
         ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
         ui->DossiersupTableWidget->setEnabled(false);
-        widgButtonsDossiers->setEnabled(false);
+        wdg_dossiersbuttonframe->setEnabled(false);
         ui->DocEditcheckBox->setEnabled(true);
         ui->DocEditcheckBox->setChecked(false);
         ui->DocEditcheckBox->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
@@ -2222,7 +2217,7 @@ void dlg_documents::ConfigMode(Mode mode, int row)
         ui->DocAdministratifcheckBox->setEnabled(true);
         ui->DocAdministratifcheckBox->setChecked(false);
         ui->DocAdministratifcheckBox->setToolTip(tr("si cette option est cochée\nle document est considéré comme purement administratif"));
-        widgButtonsDocs->wdg_moinsBouton->setEnabled(false);
+        wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
@@ -2308,11 +2303,11 @@ void dlg_documents::ConfigMode(Mode mode, int row)
 
         ui->DossiersupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 
-        widgButtonsDocs->setEnabled(false);
+        wdg_docsbuttonframe->setEnabled(false);
         ui->DocupTableWidget->setEnabled(true);
         ui->DocupTableWidget->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
         ui->DossiersupTableWidget->setEnabled(true);
-        widgButtonsDossiers->setEnabled(false);
+        wdg_dossiersbuttonframe->setEnabled(false);
         ui->Expliclabel->setText(tr("DOSSIER - CREATION - Cochez les cases correspondants au dossier que vous voulez créer"));
 
         ui->AnnulupPushButton->setIcon(Icons::icBack());
@@ -2340,8 +2335,8 @@ void dlg_documents::DisableLines()
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
         ui->DossiersupTableWidget->setRowHidden(i,false);
 
-    widgButtonsDossiers->setEnabled(false);
-    widgButtonsDocs->setEnabled(false);
+    wdg_dossiersbuttonframe->setEnabled(false);
+    wdg_docsbuttonframe->setEnabled(false);
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -2381,8 +2376,8 @@ void dlg_documents::DisableLines()
 // -------------------------------------------------------------------------------------------
 void dlg_documents::EnableLines()
 {
-    widgButtonsDossiers->setEnabled(true);
-    widgButtonsDocs->setEnabled(true);
+    wdg_dossiersbuttonframe->setEnabled(true);
+    wdg_docsbuttonframe->setEnabled(true);
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -2437,28 +2432,28 @@ void dlg_documents::EnableLines()
 void dlg_documents::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 {
     QTime DebutTimer     = QTime::currentTime();
-    gOpacity = 1;
+    m_opacity = 1;
     widg->setVisible(true);
     widg->setAutoFillBackground(true);
-    gTimerEfface->disconnect();
-    gTimerEfface->start(70);
-    connect(gTimerEfface, &QTimer::timeout, [=]
+    t_timerefface->disconnect();
+    t_timerefface->start(70);
+    connect(t_timerefface, &QTimer::timeout, [=]
     {
         QRect rect = QRect(widg->pos(),widg->size());
         QPoint pos = mapFromParent(cursor().pos());
         int Pause = (AvecOuSansPause? 4000: 0);
         if (DebutTimer.msecsTo(QTime::currentTime()) > Pause  && !rect.contains(pos))
         {
-            gOpacity = gOpacity*0.9;
-            gOp->setOpacity(gOpacity);
-            widg->setGraphicsEffect(gOp);
-            if (gOpacity < 0.10)
-                gTimerEfface->disconnect();
+            m_opacity = m_opacity*0.9;
+            m_opacityeffect->setOpacity(m_opacity);
+            widg->setGraphicsEffect(m_opacityeffect);
+            if (m_opacity < 0.10)
+                t_timerefface->disconnect();
         }
         else
         {
-            gOp->setOpacity(1);
-            widg->setGraphicsEffect(gOp);
+            m_opacityeffect->setOpacity(1);
+            widg->setGraphicsEffect(m_opacityeffect);
         }
     });
 }
@@ -2473,9 +2468,9 @@ DossierImpression* dlg_documents::getMetaDocumentFromRow(int row)
     return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,3)->text().toInt());
 }
 
-User* dlg_documents::getUserEntete()
+User* dlg_documents::userentete() const
 {
-    return gUserEntete;
+    return m_userentete;
 }
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
@@ -2654,15 +2649,15 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
     }
     if (table == ui->DocupTableWidget)
     {
-        widgButtonsDocs->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
-        widgButtonsDocs->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
-        widgButtonsDossiers->wdg_modifBouton    ->setEnabled(false);
-        widgButtonsDossiers->wdg_moinsBouton    ->setEnabled(false);
-        if (gMode == Selection)
+        wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(false);
+        if (m_mode == Selection)
         {
             ui->textFrame                   ->setVisible(true);
             MetAJour(getDocumentFromRow(row)->texte(), false);
-            ui->upTextEdit                  ->setText(glisttxt.at(0));
+            ui->upTextEdit                  ->setText(m_listtexts.at(0));
             EffaceWidget(ui->textFrame);
             ui->DocPubliccheckBox           ->setChecked(getDocumentFromRow(row)->ispublic());
             ui->DocEditcheckBox             ->setChecked(getDocumentFromRow(row)->iseditable());
@@ -2673,10 +2668,10 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
     else if (table == ui->DossiersupTableWidget)
     {
         ui->textFrame                       ->setVisible(false);
-        widgButtonsDocs->wdg_modifBouton        ->setEnabled(false);
-        widgButtonsDossiers->wdg_modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
-        widgButtonsDocs->wdg_moinsBouton        ->setEnabled(false);
-        widgButtonsDossiers->wdg_moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
     }
     line->selectAll();
 }
@@ -2687,7 +2682,7 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
 void dlg_documents::MetAJour(QString texte, bool pourVisu)
 {
     m_listedestinataires.clear();
-    glisttxt.clear();
+    m_listtexts.clear();
 
     User *userEntete = (m_currentuser->superviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : m_currentuser->superviseur());
     if (userEntete == Q_NULLPTR)
@@ -2752,7 +2747,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     {
         QString req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " TBL_DONNEES_OPHTA_PATIENTS
               " where idpat = " + QString::number(m_currentpatient->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
-        QList<QVariantList> listker = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listker = db->StandardSelectSQL(req,m_ok);
         if (listker.size()>0)
         {
             QVariantList ker = listker.last();
@@ -2926,26 +2921,26 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
                     txtdef.replace("{{" + POLITESSECOR + "}}"   , form2);
                     txtdef.replace("{{" + NOMCOR + "}}}"        , cor->nom());
                     txtdef.replace("{{" + PRENOMCOR + "}}"      , cor->prenom());
-                    glisttxt << txtdef;
+                    m_listtexts << txtdef;
                 }
             }
         }
     }
     if (m_listedestinataires.size() == 0)
-        glisttxt << texte;
+        m_listtexts << texte;
 }
 
 void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
 {
     m_listedestinataires.clear();
-    gAskCorresp                 = new UpDialog(this);
-    gAskCorresp                 ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-    gAskCorresp                 ->setAttribute(Qt::WA_DeleteOnClose);
-    gAskCorresp                 ->AjouteLayButtons();
-    QTableView  *tblCorresp     = new QTableView(gAskCorresp);
-    QStandardItemModel *gmodele = new QStandardItemModel;
+    dlg_askcorrespondant                 = new UpDialog(this);
+    dlg_askcorrespondant                 ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    dlg_askcorrespondant                 ->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_askcorrespondant                 ->AjouteLayButtons();
+    QTableView  *tblCorresp     = new QTableView(dlg_askcorrespondant);
+    QStandardItemModel *m_modele = new QStandardItemModel;
     QStandardItem *pitem;
-    UpLabel     *label          = new UpLabel(gAskCorresp);
+    UpLabel     *label          = new UpLabel(dlg_askcorrespondant);
     QFontMetrics fm             = QFontMetrics(qApp->font());
     int largeurcolonne          = 0;
     const QString lbltxt        = tr("À qui adresser ce courrier?");
@@ -2970,10 +2965,10 @@ void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
         pitem       ->setCheckState(Qt::Unchecked);
         if (fm.width(pitem->text()) > largeurcolonne)
             largeurcolonne = fm.width(pitem->text());
-        gmodele     ->appendRow(pitem);
+        m_modele     ->appendRow(pitem);
     }
-    tblCorresp  ->setModel(gmodele);
-    int nrows   = gmodele->rowCount();
+    tblCorresp  ->setModel(m_modele);
+    int nrows   = m_modele->rowCount();
     int haut    = nrows*30 + 2;             //la valeur 30 correpsond à la hauteur figée de la ligne par la présence du checkbox
     tblCorresp  ->setFixedHeight(haut);
     if ((largeurcolonne + 40 + 2) > largfinal)
@@ -2982,20 +2977,20 @@ void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
     tblCorresp  ->setFixedWidth(largfinal);
     label       ->setFixedWidth(largfinal);
     label       ->setFixedHeight(hauteurligne + 2);
-    gAskCorresp->dlglayout()   ->insertWidget(0,tblCorresp);
-    gAskCorresp->dlglayout()   ->insertWidget(0,label);
+    dlg_askcorrespondant->dlglayout()   ->insertWidget(0,tblCorresp);
+    dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
 
-    gAskCorresp ->setModal(true);
-    gAskCorresp->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_askcorrespondant ->setModal(true);
+    dlg_askcorrespondant->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(gAskCorresp->OKButton,   &QPushButton::clicked, [=] {ListidCor();});
+    connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, [=] {ListidCor();});
 
-    gAskCorresp ->exec();
+    dlg_askcorrespondant ->exec();
 }
 
 void dlg_documents::ListidCor()
 {
-    QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(gAskCorresp->findChildren<QTableView *>().at(0)->model());
+    QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(dlg_askcorrespondant->findChildren<QTableView *>().at(0)->model());
     for (int i=0; i< model->rowCount(); i++)
         if (model->item(i)->checkState() == Qt::Checked)
         {
@@ -3004,7 +2999,7 @@ void dlg_documents::ListidCor()
                 m_listedestinataires << cor;
         }
     if (m_listedestinataires.size() > 0)
-        gAskCorresp->accept();
+        dlg_askcorrespondant->accept();
 }
 
 // ----------------------------------------------------------------------------------

@@ -35,7 +35,7 @@ class dlg_listecorrespondants : public UpDialog
 public:
     explicit                dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);
     ~dlg_listecorrespondants();
-    bool                    listecorrespondantsmodifiee();
+    bool                    listecorrespondantsmodifiee() const;
 
 private:
     dlg_identificationcorresp   *Dlg_IdentCorresp;

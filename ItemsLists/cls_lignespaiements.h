@@ -26,7 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class LignesPaiements : public ItemsList
 {
 private:
-    QMap<QString, LignePaiement*> *m_lignespaiements; /*! la liste des lignes de paiements
+    QMap<QString, LignePaiement*> *map_lignespaiements; /*! la liste des lignes de paiements
                                                         * on utilise un QString pour la key du QMap parce qu'il n'y a pas de champ id
                                                         * dans la table ComptaMedicale.lignesaiements correspondant à cette classe (erreur du début de la rédaction du programme)
                                                         * par contre, le couple idActe/idRecette est unique pour chaque enregistrement

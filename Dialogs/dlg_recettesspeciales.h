@@ -36,8 +36,8 @@ class dlg_recettesspeciales : public QDialog
 public:
     explicit dlg_recettesspeciales(QWidget *parent = Q_NULLPTR);
     Ui::dlg_recettesspeciales   *ui;
-    bool                        getInitOK();
-    enum Mode                  {Lire, Modifier, Enregistrer, TableVide};    Q_ENUM(Mode)
+    bool                        initOK() const;
+    enum Mode                   {Lire, Modifier, Enregistrer, TableVide};    Q_ENUM(Mode)
 
 private:
     Procedures                  *proc;

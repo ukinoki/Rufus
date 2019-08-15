@@ -40,44 +40,43 @@ class dlg_documents : public QDialog
     Q_OBJECT
 
 public:
-    explicit                    dlg_documents(Patient *pat, QWidget *parent = Q_NULLPTR);
+    explicit                                    dlg_documents(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_documents();
-    Ui::dlg_documents           *ui;
-    QString                     gReponseResumeOrdo, gReponseResumePrescription;
-    QStringList                 TextDocumentsAImprimerList, TitreDocumentAImprimerList, PrescriptionAImprimerList, DupliAImprimerList, AdministratifAImprimerList;
-    QStringList                 glistid;
-    User*                       getUserEntete();
-    enum Mode                  {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};     Q_ENUM(Mode)
-
-
-protected:
-    void                        changeEvent(QEvent *e);
-    bool                        event(QEvent *event);
+    Ui::dlg_documents                           *ui;
+    enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                                     Q_ENUM(DATASAIMPRIMER)
+    enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};  Q_ENUM(Mode)
+    User*                                       userentete() const;
+    QMap<int, QMap<DATASAIMPRIMER, QString> >   mapdocsaimprimer() const;
 
 private:
-    DataBase                    *db             = DataBase::I();
-    User                        *m_currentuser   = Datas::I()->users->userconnected();
-    Procedures                  *proc           = Procedures::I();
-    Patient                     *m_currentpatient;
-    User                        *gUserEntete;
-    bool                        ok;
+    DataBase                                    *db             = DataBase::I();
+    User                                        *m_currentuser  = Datas::I()->users->userconnected();
+    Procedures                                  *proc           = Procedures::I();
+    Patient                                     *m_currentpatient;
+    User                                        *m_userentete;
+    QList<Correspondant*>                       m_listedestinataires;
+    QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
+
+    Mode                        m_mode;
+    double                      m_opacity;
+    bool                        m_ok;
+    QMap<QString,QString>       map_champs;
+    QStringList                 m_listid;
+    QStringList                 m_listtexts;   //! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires -> le texte varie légèrement d'un destinataire à l'autre -> la variable correspond à la lite des textes
+    QGraphicsOpacityEffect      *m_opacityeffect;
+    QMenu                       *m_menucontextuel;
+    QTimer                      *t_timerefface;
+
+    UpDialog                    *dlg_ask;
+    UpDialog                    *dlg_askdialog;
+    UpDialog                    *dlg_askcorrespondant;
+    WidgetButtonFrame           *wdg_docsbuttonframe, *wdg_dossiersbuttonframe;
+
+
+    bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);
     void                        keyPressEvent   (QKeyEvent * event );
-    WidgetButtonFrame           *widgButtonsDocs, *widgButtonsDossiers;
-    double                      gOpacity;
-    Mode                        gMode;
-    QGraphicsOpacityEffect      *gOp;
-    QList<Correspondant*>       m_listedestinataires;
-    QMap<QString,QString>       gChampsMap;
-    QStringList                 glisttxt;
-    UpDialog                    *gAsk;
-    UpDialog                    *gAskDialog;
-    UpDialog                    *gAskCorresp;
-    QMenu                       *gmenuContextuel;
-    QTimer                      *gTimerEfface;
-
-
     void                        Annulation();
     void                        ChoixButtonFrame(int, WidgetButtonFrame *);
     void                        ChoixMenuContextuel(QString);
@@ -95,8 +94,8 @@ private:
     void                        EnableLines();
     void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
     void                        FiltreListe();
-    Impression*                   getDocumentFromRow(int row);
-    DossierImpression*               getMetaDocumentFromRow(int row);
+    Impression*                 getDocumentFromRow(int row);
+    DossierImpression*          getMetaDocumentFromRow(int row);
     void                        InsertDocument(int row);
     void                        InsertDossier(int row);
     void                        LineSelect(UpTableWidget *table, int row);
@@ -114,7 +113,7 @@ private:
     void                        UpdateDocument(int row);
     void                        UpdateDossier(int row);
     void                        Validation();
-    void                        VerifCoherencegAsk();
+    void                        VerifCoherencedlg_ask();
     bool                        VerifDocumentPublic(int row, bool msg = true);
     void                        VerifDossiers();
     bool                        VerifDossierPublic(int row, bool msg = true);

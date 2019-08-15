@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Comptes : public ItemsList
 {
 private:
-    QMap<int, Compte*> *m_comptes = Q_NULLPTR;  //!< la liste de tous les comptes
+    QMap<int, Compte*> *map_comptes = Q_NULLPTR;  //!< la liste de tous les comptes
 
 public:
     explicit Comptes(QObject *parent = Q_NULLPTR);

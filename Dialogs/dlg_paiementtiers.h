@@ -39,8 +39,7 @@ public:
     explicit dlg_paiementtiers(QWidget *parent = Q_NULLPTR);
     ~dlg_paiementtiers();
     Ui::dlg_paiementtiers   *ui;
-    bool                    getInitOK();
-    void                    setInitOK(bool init);
+    bool                    initOK() const;
     enum Mode               {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};    Q_ENUM(Mode)
     enum OrdreTri           {Alphabetique, Chronologique};                                  Q_ENUM(OrdreTri)
     enum TypeTable          {Actes,Paiements};                                              Q_ENUM(TypeTable)
@@ -94,7 +93,7 @@ private:
     QTimer                  *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
     User                    *m_useracrediter;
     User                    *m_userconnected;
-    QMap<int, User*>        *m_listecomptables;
+    QMap<int, User*>        *map_comptables;
 
 
     void                closeEvent(QCloseEvent *event);

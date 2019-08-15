@@ -26,7 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class DocsExternes : public ItemsList
 {
 private:
-    QMap<int, DocExterne*> *m_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
+    QMap<int, DocExterne*> *map_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
     bool m_nouveaudocument;
     Patient *m_patient;
 

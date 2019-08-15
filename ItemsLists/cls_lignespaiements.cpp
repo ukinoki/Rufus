@@ -19,18 +19,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 LignesPaiements::LignesPaiements(QObject *parent) : ItemsList(parent)
 {
-    m_lignespaiements = new QMap<QString, LignePaiement*>();
+    map_lignespaiements = new QMap<QString, LignePaiement*>();
 }
 
 QMap<QString, LignePaiement *>* LignesPaiements::lignespaiements() const
 {
-    return m_lignespaiements;
+    return map_lignespaiements;
 }
 
 LignePaiement* LignesPaiements::getById(QString stringid)
 {
-    QMap<QString, LignePaiement*>::const_iterator itcpt = m_lignespaiements->find(stringid);
-    if( itcpt == m_lignespaiements->constEnd() )
+    QMap<QString, LignePaiement*>::const_iterator itcpt = map_lignespaiements->find(stringid);
+    if( itcpt == map_lignespaiements->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
@@ -45,8 +45,8 @@ void LignesPaiements::initListeByPatient(Patient *pat)
     if (pat == Q_NULLPTR)
         return;
     QList<LignePaiement*> listlignes = DataBase::I()->loadlignespaiementsByPatient(pat);
-    epurelist(m_lignespaiements, &listlignes);
-    addList(m_lignespaiements, &listlignes);
+    epurelist(map_lignespaiements, &listlignes);
+    addList(map_lignespaiements, &listlignes);
 }
 
 void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
@@ -55,12 +55,12 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
         return;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
     QList<LignePaiement*> listlignesasupprimer = QList<LignePaiement*>();
-    for (auto itlign = m_lignespaiements->begin() ; itlign != m_lignespaiements->end();)
+    for (auto itlign = map_lignespaiements->begin() ; itlign != map_lignespaiements->end();)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
         if (lign->idacte() == act->id())
         {
-            itlign = m_lignespaiements->erase(itlign);
+            itlign = map_lignespaiements->erase(itlign);
             delete lign;
         }
         else

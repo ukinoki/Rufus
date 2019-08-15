@@ -103,7 +103,7 @@ void UpSmallButton::setdata(QVariant var)
     m_luggage = var;
 }
 
-QVariant UpSmallButton::data()
+QVariant UpSmallButton::data() const
 {
     return m_luggage;
 }
@@ -113,12 +113,12 @@ void UpSmallButton::setiD(int idbut)
     m_id  = idbut;
 }
 
-int UpSmallButton::iD()
+int UpSmallButton::iD() const
 {
     return m_id;
 }
 
-UpSmallButton::StyleBouton UpSmallButton::ButtonStyle()
+UpSmallButton::StyleBouton UpSmallButton::ButtonStyle() const
 {
     return m_style;
 }

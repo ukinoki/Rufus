@@ -76,13 +76,13 @@ bool Villes::add(Ville *ville)
     if (ville == Q_NULLPTR)
         return false;
 
-    if( m_codePostal.contains(ville->codePostal()) )
+    if( map_codespostaux.contains(ville->codePostal()) )
     {
         delete ville;
         return false;
     }
-    m_villes.insert(ville->nom(), ville);
-    m_codePostal.insert(ville->codePostal(), ville);
+    map_villes.insert(ville->nom(), ville);
+    map_codespostaux.insert(ville->codePostal(), ville);
     return true;
 }
 
@@ -101,23 +101,23 @@ void Villes::addList(QList<Ville*> listvilles)
 QStringList Villes::getListVilles()
 {
    if( m_listeNomVilles.isEmpty() )
-        m_listeNomVilles = QStringList(m_villes.uniqueKeys());
+        m_listeNomVilles = QStringList(map_villes.uniqueKeys());
 
     return m_listeNomVilles;
 }
 QStringList Villes::getListCodePostal()
 {
     if( m_listeCodePostal.isEmpty() )
-        m_listeCodePostal = QStringList(m_codePostal.uniqueKeys());
+        m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
 
     return m_listeCodePostal;
 }
 
 QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegrite)
 {
-    QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
+    QMap<QString, Ville*>::const_iterator it = map_codespostaux.find( codePostal );
     QJsonObject error{};
-    if( testIntegrite && (it == m_codePostal.constEnd()) )
+    if( testIntegrite && (it == map_codespostaux.constEnd()) )
     {
         error["errorCode"] = 1;
         error["errorMessage"] = QObject::tr("Code postal inconnu");
@@ -125,7 +125,7 @@ QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegri
     }
 
     QList<Ville *> listV;
-    while( it != m_codePostal.end() && it.key() == codePostal)
+    while( it != map_codespostaux.end() && it.key() == codePostal)
     {
         listV << it.value();
         ++it;
@@ -145,8 +145,8 @@ QList<Ville *> Villes::getVilleByName(QString name, bool distinct)
     QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présente.
     QList<Ville *> listV;
     QList<Ville *> listVStartWith;
-    QMap<QString, Ville*>::const_iterator it = m_villes.constBegin();
-    while( it != m_villes.constEnd() )
+    QMap<QString, Ville*>::const_iterator it = map_villes.constBegin();
+    while( it != map_villes.constEnd() )
     {
         if( it.value()->nom() == name )
         {
@@ -186,8 +186,8 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
     }
     */
 
-    QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
-    while( it != m_codePostal.end() && it.key() == codePostal)
+    QMap<QString, Ville*>::const_iterator it = map_codespostaux.find( codePostal );
+    while( it != map_codespostaux.end() && it.key() == codePostal)
     {
         if( it.value()->nom() == name )
             listV << it.value();

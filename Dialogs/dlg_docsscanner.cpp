@@ -32,7 +32,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     m_accesdistant = (db->getMode()==DataBase::Distant);
 
-    m_nomdirstockageimagerie = proc->DirImagerie();
+    m_pathdirstockageimagerie = proc->DirImagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
     {
@@ -59,9 +59,9 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     AccesDistant = true;
     Base = "BDD_LOCAL";*/
 
-    if (!QDir(m_nomdirstockageimagerie).exists() || m_nomdirstockageimagerie == "")
+    if (!QDir(m_pathdirstockageimagerie).exists() || m_pathdirstockageimagerie == "")
     {
-        QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + m_nomdirstockageimagerie + "</b></font>" + tr(" n'existe pas");
+        QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + m_pathdirstockageimagerie + "</b></font>" + tr(" n'existe pas");
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet \"ce poste\" /Onglet \"") + NomOnglet + "</b></font>";
         QStringList listmsg;
         listmsg << msg;
@@ -276,10 +276,10 @@ void dlg_docsscanner::ChangeFile()
 
 QMap<QString, QVariant> dlg_docsscanner::getdataFacture()
 {
-    return m_datafacture;
+    return map_datafacture;
 }
 
-bool dlg_docsscanner::getinitOK()
+bool dlg_docsscanner::initOK() const
 {
     return m_initok;
 }
@@ -332,11 +332,11 @@ void dlg_docsscanner::ValideFiche()
     QString user("");
     if (gMode != Document)
         user = Datas::I()->users->getLoginById(Datas::I()->depenses->getById(m_iditem)->iduser());
-    QString CheminBackup = m_nomdirstockageimagerie + DIR_ORIGINAUX + (gMode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
+    QString CheminBackup = m_pathdirstockageimagerie + DIR_ORIGINAUX + (gMode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + m_nomfichierimageencours);
 
-    QString CheminOKTransfrDir  = m_nomdirstockageimagerie + (gMode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
+    QString CheminOKTransfrDir  = m_pathdirstockageimagerie + (gMode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
@@ -434,7 +434,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds["LienFichier"] =      lien;
             listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
             listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
-            m_datafacture["lien"] =           lien;
+            map_datafacture["lien"] =           lien;
         }
         else
         {
@@ -444,14 +444,14 @@ void dlg_docsscanner::ValideFiche()
             listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
             listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
             listbinds[suffixe] =            ba;
-            m_datafacture["lien"] =           "";
+            map_datafacture["lien"] =           "";
         }
         b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);
         if(!b)
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
-        m_datafacture["idfacture"] = idimpr;
-        m_datafacture["echeancier"] = (gMode == Echeancier);
-        m_datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
+        map_datafacture["idfacture"] = idimpr;
+        map_datafacture["echeancier"] = (gMode == Echeancier);
+        map_datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
     }
     if(!b)
     {
@@ -461,7 +461,7 @@ void dlg_docsscanner::ValideFiche()
     }
     else if (!m_accesdistant)
     {
-        QString CheminOKTransfrDoc = m_nomdirstockageimagerie + (gMode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
+        QString CheminOKTransfrDoc = m_pathdirstockageimagerie + (gMode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);

@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, Site *> *Sites::sites() const
 {
-    return m_sites;
+    return map_sites;
 }
 
 /*!
@@ -31,7 +31,7 @@ QMap<int, Site *> *Sites::sites() const
  */
 Sites::Sites(QObject *parent) : ItemsList(parent)
 {
-    m_sites = new QMap<int, Site*>();
+    map_sites = new QMap<int, Site*>();
 }
 
 /*!
@@ -42,9 +42,9 @@ Sites::Sites(QObject *parent) : ItemsList(parent)
  */
 Site* Sites::getById(int id)
 {
-    QMap<int, Site*>::const_iterator itsit = m_sites->find(id);
+    QMap<int, Site*>::const_iterator itsit = map_sites->find(id);
     Site *result = Q_NULLPTR;
-    if( itsit!= m_sites->constEnd() )
+    if( itsit!= map_sites->constEnd() )
         result = itsit.value();
     return result;
 }
@@ -58,8 +58,8 @@ Site* Sites::getById(int id)
 void Sites::initListe()
 {
     QList<Site*> listsites = DataBase::I()->loadSitesAll();
-    epurelist(m_sites, &listsites);
-    addList(m_sites, &listsites);
+    epurelist(map_sites, &listsites);
+    addList(map_sites, &listsites);
 }
 
 /*!

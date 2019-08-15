@@ -101,7 +101,7 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
     }
 }
 
-bool dlg_listecorrespondants::listecorrespondantsmodifiee()
+bool dlg_listecorrespondants::listecorrespondantsmodifiee() const
 {
     return m_listemodifiee;
 }

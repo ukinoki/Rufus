@@ -19,12 +19,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Banques::Banques(QObject *parent) : ItemsList(parent)
 {
-    m_banques = new QMap<int, Banque*>();
+    map_banques = new QMap<int, Banque*>();
 }
 
 QMap<int, Banque *> *Banques::banques() const
 {
-    return m_banques;
+    return map_banques;
 }
 
 /*!
@@ -35,21 +35,21 @@ QMap<int, Banque *> *Banques::banques() const
 void Banques::initListe()
 {
     QList<Banque*> listbanques = DataBase::I()->loadBanques();
-    epurelist(m_banques, &listbanques);
-    addList(m_banques, &listbanques);
+    epurelist(map_banques, &listbanques);
+    addList(map_banques, &listbanques);
 }
 
 Banque* Banques::getById(int id)
 {
-    QMap<int, Banque*>::const_iterator itcpt = m_banques->find(id);
-    if( itcpt == m_banques->constEnd() )
+    QMap<int, Banque*>::const_iterator itcpt = map_banques->find(id);
+    if( itcpt == map_banques->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
 
 void Banques::SupprimeBanque(Banque *bq)
 {
-    Supprime(m_banques, bq);
+    Supprime(map_banques, bq);
 }
 
  Banque* Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)
@@ -76,6 +76,6 @@ void Banques::SupprimeBanque(Banque *bq)
     bq->setnomabrege(idBanqueAbrege);
     bq->setnom(NomBanque);
     bq->setcode(CodeBanque);
-    add(m_banques, bq);
+    add(map_banques, bq);
     return bq;
 }

@@ -23,9 +23,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  */
 Patients::Patients(QObject *parent) : ItemsList(parent)
 {
-    m_patients              = new QMap<int, Patient*>();
-    m_patientstable         = new QMap<int, Patient*>();
-    m_patientssaldat        = new QMap<int, Patient*>();
+    map_patients              = new QMap<int, Patient*>();
+    map_patientstable         = new QMap<int, Patient*>();
+    map_patientssaldat        = new QMap<int, Patient*>();
     m_currentpatient        = new Patient();
     m_dossierpatientaouvrir = new Patient();
     m_full                  = false;
@@ -61,12 +61,12 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
     if (id == 0)
         return Q_NULLPTR;
     Patient *pat = Q_NULLPTR;
-    QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
-    if (itpat == m_patients->constEnd())
+    QMap<int, Patient*>::const_iterator itpat = map_patients->find(id);
+    if (itpat == map_patients->constEnd())
     {
         pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
         if (pat != Q_NULLPTR)
-            m_patients->insert(pat->id(), pat);
+            map_patients->insert(pat->id(), pat);
     }
     else
     {
@@ -103,8 +103,8 @@ void Patients::initListeSalDat(QList<int> listidaajouter)
     /*! on recrée la liste des patients en cours
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
-    epurelist(m_patientssaldat, &listpatients);
-    addList(m_patientssaldat, &listpatients, Item::ForceUpdate);
+    epurelist(map_patientssaldat, &listpatients);
+    addList(map_patientssaldat, &listpatients, Item::ForceUpdate);
 }
 
 void Patients::initListeTable(QString nom, QString prenom, bool filtre)
@@ -113,16 +113,16 @@ void Patients::initListeTable(QString nom, QString prenom, bool filtre)
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
     m_full = (nom == "" && prenom == "");
-    epurelist(m_patientstable, &listpatients);
-    addList(m_patientstable, &listpatients, Item::ForceUpdate);
+    epurelist(map_patientstable, &listpatients);
+    addList(map_patientstable, &listpatients, Item::ForceUpdate);
 }
 
 void Patients::initListeByDDN(QDate DDN)
 {
     QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
-    epurelist(m_patientstable, &listpatients);
-    addList(m_patientstable, &listpatients, Item::ForceUpdate);
+    epurelist(map_patientstable, &listpatients);
+    addList(map_patientstable, &listpatients, Item::ForceUpdate);
 }
 
 void Patients::SupprimePatient(Patient *pat)
@@ -149,26 +149,26 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_PATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DONNEESSOCIALESPATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    auto it = m_patientssaldat->find(pat->id());
-    if (it != m_patientssaldat->end())
+    auto it = map_patientssaldat->find(pat->id());
+    if (it != map_patientssaldat->end())
     {
         if (it.value() != pat)
             delete it.value();
-        m_patientssaldat->remove(pat->id());
+        map_patientssaldat->remove(pat->id());
     }
-    it = m_patientstable->find(pat->id());
-    if (it != m_patientstable->end())
+    it = map_patientstable->find(pat->id());
+    if (it != map_patientstable->end())
     {
         if (it.value() != pat)
             delete it.value();
-        m_patientstable->remove(pat->id());
+        map_patientstable->remove(pat->id());
     }
-    it = m_patients->find(pat->id());
-    if (it != m_patients->end())
+    it = map_patients->find(pat->id());
+    if (it != map_patients->end())
     {
         if (it.value() != pat)
             delete it.value();
-        m_patients->remove(pat->id());
+        map_patients->remove(pat->id());
     }
     int id = pat->id();
     if (pat != m_currentpatient && pat != m_dossierpatientaouvrir)

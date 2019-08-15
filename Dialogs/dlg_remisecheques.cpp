@@ -803,7 +803,7 @@ bool dlg_remisecheques::eventFilter(QObject *obj, QEvent *event) // A REVOIR
     return QWidget::eventFilter(obj, event);
 }
 
-bool dlg_remisecheques::getInitOK()
+bool dlg_remisecheques::initOK() const
 {
     return m_initok;
 }
@@ -1118,8 +1118,8 @@ void dlg_remisecheques::ReconstruitListeUsers()
 {
     ui->UserComboBox->clear();
     //on reconstruit la liste des users comptables qui ont des chèques en attente
-    m_comptables    = Datas::I()->users->comptables();
-    m_comptablesavecchequesenattente    = new QMap<int, User*>();
+    map_comptables    = Datas::I()->users->comptables();
+    map_comptablesavecchequesenattente    = new QMap<int, User*>();
 
     QString req = "SELECT distinct iduser from " TBL_RECETTES " WHERE IdRemise IS NULL AND ModePaiement = 'C'";
     bool ok = true;
@@ -1130,12 +1130,12 @@ void dlg_remisecheques::ReconstruitListeUsers()
         if (listitem.at(0).toInt() > 0)
         {
             User *user = Datas::I()->users->getById(listitem.at(0).toInt());
-            m_comptablesavecchequesenattente->insert(user->id(), user);
+            map_comptablesavecchequesenattente->insert(user->id(), user);
             ui->UserComboBox->addItem(user->login(), user->id() );
         }
     }
 
-    if (m_comptablesavecchequesenattente->count()<1)
+    if (map_comptablesavecchequesenattente->count()<1)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));
         m_initok = false;
@@ -1145,8 +1145,8 @@ void dlg_remisecheques::ReconstruitListeUsers()
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
     if (m_currentuser->comptable() != Q_NULLPTR)
     {
-        auto itusr = m_comptablesavecchequesenattente->find(m_currentuser->id());
-        if(itusr != m_comptablesavecchequesenattente->end())
+        auto itusr = map_comptablesavecchequesenattente->find(m_currentuser->id());
+        if(itusr != map_comptablesavecchequesenattente->end())
             ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_currentuser->id()));
     }
     else

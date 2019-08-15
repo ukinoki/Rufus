@@ -19,30 +19,30 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Comptes::Comptes(QObject * parent) : ItemsList(parent)
 {
-    m_comptes = new QMap<int, Compte*>();
+    map_comptes = new QMap<int, Compte*>();
 }
 
 Comptes::~Comptes()
 {
-    clearAll(m_comptes);
-    delete m_comptes;
+    clearAll(map_comptes);
+    delete map_comptes;
 }
 
 QMap<int, Compte*>* Comptes::comptes() const
 {
-    return m_comptes;
+    return map_comptes;
 }
 
 Compte* Comptes::getById(int id)
 {
-    QMap<int, Compte*>::const_iterator itcpt = m_comptes->find(id);
-    if( itcpt == m_comptes->constEnd() )
+    QMap<int, Compte*>::const_iterator itcpt = map_comptes->find(id);
+    if( itcpt == map_comptes->constEnd() )
     {
         QJsonObject data = DataBase::I()->loadCompteDataById(id);
         if (data != QJsonObject{})
         {
             Compte * cpt = new Compte(data);
-            add( m_comptes, cpt );
+            add( map_comptes, cpt );
             return cpt;
         }
         return Q_NULLPTR;
@@ -60,19 +60,19 @@ void Comptes::reloadCompte(Compte *compte)
 void Comptes::initListe()
 {
     QList<Compte*> listcomptes = DataBase::I()->loadComptesAll();
-    epurelist(m_comptes, &listcomptes);
-    addList(m_comptes, &listcomptes);
+    epurelist(map_comptes, &listcomptes);
+    addList(map_comptes, &listcomptes);
 }
 
 void Comptes::SupprimeCompte(Compte *cpt)
 {
-    Supprime(m_comptes, cpt);
+    Supprime(map_comptes, cpt);
 }
 
 QMap<int, bool> Comptes::initListeComptesByIdUser(int id)
 {
     QMap<int, bool> mapcomptes;
-    foreach (Compte *cpt, *m_comptes)
+    foreach (Compte *cpt, *map_comptes)
         if (cpt->idUser() == id)
             mapcomptes.insert(cpt->id(), cpt->isDesactive());
     return mapcomptes;
@@ -121,6 +121,6 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     cpt->setsolde(SoldeSurDernierReleve);
     cpt->setpartage(Partage);
     cpt->setdesactive(Desactive);
-    add(m_comptes, cpt);
+    add(map_comptes, cpt);
     return cpt;
 }

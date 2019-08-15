@@ -50,10 +50,10 @@ class Villes : public ItemsList
 {
 
 private:
-    QMultiMap<QString, Ville*> m_villes;        //!< la liste des villes par nom
-    QMultiMap<QString, Ville*> m_codePostal;    //!< la liste des villes par codePostal
-    QStringList m_listeNomVilles;               //!< la liste de nom de ville
-    QStringList m_listeCodePostal;              //!< la liste des codes postaux
+    QMultiMap<QString, Ville*> map_villes;          //!< map des villes par nom
+    QMultiMap<QString, Ville*> map_codespostaux;    //!< map des villes par codePostal
+    QStringList m_listeNomVilles;                   //!< la liste de nom de ville
+    QStringList m_listeCodePostal;                  //!< la liste des codes postaux
     bool add(Ville *ville);
     void addList(QList<Ville*> listvilles);
 

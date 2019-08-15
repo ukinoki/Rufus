@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Depenses : public ItemsList
 {
 private:
-    QMap<int, Depense*> *m_depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
+    QMap<int, Depense*> *map_depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
 
 public:
     //GETTER

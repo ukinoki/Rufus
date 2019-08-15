@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Motifs : public ItemsList
 {
 private:
-    QMap<int, Motif*> *m_motifs; //!< la liste des Motifs
+    QMap<int, Motif*> *map_motifs; //!< la liste des Motifs
 
 public:
     explicit Motifs(QObject *parent = Q_NULLPTR);

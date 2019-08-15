@@ -858,7 +858,7 @@ void dlg_gestionusers::Slot_GestionComptes()
     ui->OKupSmallButton->setEnabled(modif);
 }
 
-bool dlg_gestionusers::isMDPverified()
+bool dlg_gestionusers::isMDPverified() const
 {
     return m_MDPverified;
 }

@@ -245,16 +245,16 @@ dlg_param::dlg_param(QWidget *parent) :
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
-       CPDefautlineEdit    = wdg_villeCP->ui->CPlineEdit;
-       VilleDefautlineEdit = wdg_villeCP->ui->VillelineEdit;
+       wdg_CPDefautlineEdit    = wdg_villeCP->ui->CPlineEdit;
+       wdg_VilleDefautlineEdit = wdg_villeCP->ui->VillelineEdit;
        wdg_villeCP   ->move(15,10);
        wdg_villeCP->ui->CPlabel      ->setText(tr("Code postal par défaut"));
        wdg_villeCP->ui->Villelabel   ->setText(tr("Ville par défaut"));
-       VilleDefautlineEdit                 ->setText(proc->m_settings->value("Param_Poste/VilleParDefaut").toString());
-       CPDefautlineEdit                    ->completer()->setCurrentRow(proc->m_settings->value("Param_Poste/CodePostalParDefaut").toInt());
+       wdg_VilleDefautlineEdit                 ->setText(proc->m_settings->value("Param_Poste/VilleParDefaut").toString());
+       wdg_CPDefautlineEdit                    ->completer()->setCurrentRow(proc->m_settings->value("Param_Poste/CodePostalParDefaut").toInt());
        // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
        // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-       CPDefautlineEdit                    ->setText(proc->m_settings->value("Param_Poste/CodePostalParDefaut").toString());
+       wdg_CPDefautlineEdit                    ->setText(proc->m_settings->value("Param_Poste/CodePostalParDefaut").toString());
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
@@ -594,7 +594,7 @@ void dlg_param::Slot_ChoixDossierStockageApp()
         mode = DataBase::ReseauLocal;
     else if (ui->DistantDocupTableWidget->isAncestorOf(bout))
         mode = DataBase::Distant;
-    QString dir = proc->getDossierDocuments(exam, mode);
+    QString dir = proc->pathDossierDocuments(exam, mode);
     if (dir == "")
         dir = QDir::homePath() + DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
@@ -746,8 +746,8 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
     {
-        QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->getFont().toString()
-                                + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
+        QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->font().toString()
+                                + "', UserPoliceAttribut = '" + Dlg_Fonts->fontAttribut()
                                 + "' where idUser = " + QString::number(m_currentuser->id());
         db->StandardSQL(fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
@@ -2135,12 +2135,12 @@ void dlg_param::ConnectSlots()
     connect(ui->HeureBackuptimeEdit,                SIGNAL(timeChanged(QTime)),         this,   SLOT(Slot_ModifDateBackup()));
 }
 
-bool dlg_param::CotationsModifiees()
+bool dlg_param::CotationsModifiees() const
 {
     return m_cotationsmodifiees;
 }
 
-bool dlg_param::DataUserModifiees()
+bool dlg_param::DataUserModifiees() const
 {
     return m_donneesusermodifiees;
 }
@@ -2770,9 +2770,9 @@ void dlg_param::Remplir_Tables()
         col++; //2
         pItem3->setText(Applist.at(i).at(2).toString());                             // NomAppareil
         ui->AppareilsConnectesupTableWidget->setItem(i,col,pItem3);
-        line5a->setText(proc->getDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Poste));
-        line5b->setText(proc->getDossierDocuments(Applist.at(i).at(2).toString(),DataBase::ReseauLocal));
-        line5c->setText(proc->getDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Distant));
+        line5a->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Poste));
+        line5b->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),DataBase::ReseauLocal));
+        line5c->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Distant));
         line5a->setRow(i);
         line5b->setRow(i);
         line5c->setRow(i);
@@ -2982,8 +2982,8 @@ bool dlg_param::Valide_Modifications()
         proc->m_settings->setValue("Param_Poste/Tonometre",ui->TonometreupComboBox->currentText());
         proc->m_settings->setValue("Param_Poste/PortTonometre",ui->PortTonometreupComboBox->currentText());
 
-        proc->m_settings->setValue("Param_Poste/VilleParDefaut",VilleDefautlineEdit->text());
-        proc->m_settings->setValue("Param_Poste/CodePostalParDefaut",CPDefautlineEdit->text());
+        proc->m_settings->setValue("Param_Poste/VilleParDefaut",wdg_VilleDefautlineEdit->text());
+        proc->m_settings->setValue("Param_Poste/CodePostalParDefaut",wdg_CPDefautlineEdit->text());
 
         m_modifposte = false;
     }

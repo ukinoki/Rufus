@@ -19,12 +19,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Recettes::Recettes(QObject *parent) : ItemsList(parent)
 {
-    m_recettes = new QMap<int, Recette*>();
+    map_recettes = new QMap<int, Recette*>();
 }
 
 QMap<int, Recette *> *Recettes::recettes() const
 {
-    return m_recettes;
+    return map_recettes;
 }
 
 /*!
@@ -35,14 +35,14 @@ QMap<int, Recette *> *Recettes::recettes() const
 void Recettes::initListe(QMap<QString, QDate> DateMap)
 {
     QList<Recette*> listrecettes = DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]);
-    epurelist(m_recettes, &listrecettes);
-    addList(m_recettes, &listrecettes, Item::ForceUpdate);
+    epurelist(map_recettes, &listrecettes);
+    addList(map_recettes, &listrecettes, Item::ForceUpdate);
 }
 
 Recette* Recettes::getById(int id)
 {
-    QMap<int, Recette*>::const_iterator itcpt = m_recettes->find(id);
-    if( itcpt == m_recettes->constEnd() )
+    QMap<int, Recette*>::const_iterator itcpt = map_recettes->find(id);
+    if( itcpt == map_recettes->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }

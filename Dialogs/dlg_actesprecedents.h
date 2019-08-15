@@ -52,20 +52,20 @@ class dlg_actesprecedents : public QDialog
 public:
     dlg_actesprecedents(Actes *actes, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
     ~dlg_actesprecedents();
-    int                     getidPatient();       //!> renvoie à rufus.cpp le patient concerné
+    int                     idcurrentpatient() const;       //!> renvoie à rufus.cpp le patient concerné
     void                    Actualise();
     void                    ActesPrecsAfficheActe(Acte *acte); // Affiche l'acte défini
     void                    ActesPrecsAfficheActe();
-    Acte*                   getActeAffiche();
+    Acte*                   currentacte() const;
 
 private:
     Ui::dlg_actesprecedents             *ui;
     Procedures                          *proc;
     Patient                             *m_currentpatient;
-    QMap<int, Acte*>::const_iterator    itCurrentActe;
+    QMap<int, Acte*>::const_iterator    it_currentacte;
     Actes                               *m_listeactes;
     LignesPaiements                     *m_listepaiements;
-    bool                                m_idavantdernieracte;
+    bool                                m_avantdernieracte;
     int                                 m_idpatient;
 
     void                    wheelEvent(QWheelEvent *event);

@@ -32,7 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class TiersPayants : public ItemsList
 {
 private:
-    QMap<int, Tiers*> *m_tierspayants; //!< la liste des tiers payants
+    QMap<int, Tiers*> *map_tierspayants; //!< la liste des tiers payants
 
 public:
     explicit TiersPayants(QObject *parent = Q_NULLPTR);

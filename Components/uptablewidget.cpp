@@ -163,7 +163,7 @@ int UpTableWidget::FixLargeurTotale()
     return larg+2;
 }
 
-int UpTableWidget::rowNoHiddenCount()
+int UpTableWidget::rowNoHiddenCount() const
 {
     int nrow = 0;
     for (int i=0; i<rowCount(); i++)
@@ -172,7 +172,7 @@ int UpTableWidget::rowNoHiddenCount()
     return nrow;
 }
 
-int UpTableWidget::FirstRowNoHidden()
+int UpTableWidget::FirstRowNoHidden() const
 {
     int row = -1;
     for (int i=0; i<rowCount(); i++)
@@ -184,7 +184,7 @@ int UpTableWidget::FirstRowNoHidden()
     return row;
 }
 
-int UpTableWidget::LastRowNoHidden()
+int UpTableWidget::LastRowNoHidden() const
 {
     int row = -1;
     for (int i=rowCount()-1; i>-1; i--)
@@ -216,7 +216,7 @@ void UpTableWidget::setAttribut(QString attrib)
     Attrib = attrib;
 }
 
-QString UpTableWidget::Attribut()
+QString UpTableWidget::Attribut() const
 {
     return Attrib;
 }

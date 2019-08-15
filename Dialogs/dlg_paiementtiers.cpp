@@ -44,7 +44,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 
     restoreGeometry(proc->m_settings->value("PositionsFiches/PositionPaiement").toByteArray());
 
-    m_listecomptables = Datas::I()->users->comptables(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
+    map_comptables = Datas::I()->users->comptables(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
     if (m_userconnected->isLiberal())
         m_useracrediter = m_userconnected;
     else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
@@ -58,7 +58,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
             m_useracrediter = Datas::I()->users->getById(parent->idcomptable());
     }
     else if(m_userconnected->isSecretaire())
-        m_useracrediter = Datas::I()->users->getById(m_listecomptables->firstKey());
+        m_useracrediter = Datas::I()->users->getById(map_comptables->firstKey());
     if (m_useracrediter == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("L'utilisateur n'est pas valide"));
@@ -75,7 +75,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 
 
     // On reconstruit le combobox des utilisateurs avec la liste des utilisateurs qui encaissent des honoraires et qui travaillent encore
-    foreach (User *usr, *m_listecomptables)
+    foreach (User *usr, *map_comptables)
         ui->UserscomboBox->addItem(usr->login(), QString::number(usr->id()));
     int idx = ui->UserscomboBox->findData(m_useracrediter->id());
     ui->UserscomboBox->setCurrentIndex(idx==-1? 0 : idx);
@@ -930,14 +930,9 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-bool dlg_paiementtiers::getInitOK()
+bool dlg_paiementtiers::initOK() const
 {
     return m_initok;
-}
-
-void dlg_paiementtiers::setInitOK(bool init)
-{
-    m_initok = init;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

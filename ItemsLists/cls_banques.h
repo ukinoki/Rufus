@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Banques : public ItemsList
 {
 private:
-    QMap<int, Banque*> *m_banques = Q_NULLPTR; //!< la liste des Banques
+    QMap<int, Banque*> *map_banques = Q_NULLPTR; //!< la liste des Banques
 
 public:
     explicit Banques(QObject *parent = Q_NULLPTR);

@@ -25,26 +25,29 @@ void Flags::setTCP(bool tcp)
     m_useTCP = tcp;
 }
 
-int Flags::flagCorrespondants()
+int Flags::flagCorrespondants() const
 {
-    QVariantList flag = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " TBL_FLAGS, m_ok);
-    if (m_ok && flag.size() > 0)
+    bool ok;
+    QVariantList flag = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " TBL_FLAGS, ok);
+    if (ok && flag.size() > 0)
         return flag.at(0).toInt();
     return 0;
 }
 
-int Flags::flagMessages()
+int Flags::flagMessages() const
 {
-    QVariantList flag = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " TBL_FLAGS, m_ok);
-    if (m_ok && flag.size() > 0)
+    bool ok;
+    QVariantList flag = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " TBL_FLAGS, ok);
+    if (ok && flag.size() > 0)
         return flag.at(0).toInt();
     return 0;
 }
 
-int Flags::flagSalleDAttente()
+int Flags::flagSalleDAttente() const
 {
-    QVariantList flag = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " TBL_FLAGS, m_ok);
-    if (m_ok && flag.size() > 0)
+    bool ok;
+    QVariantList flag = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " TBL_FLAGS, ok);
+    if (ok && flag.size() > 0)
         return flag.at(0).toInt();
     return 0;
 }

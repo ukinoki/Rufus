@@ -35,7 +35,7 @@ public:
     Mode                gMode;
     explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
-    bool                    getinitOK();
+    bool                    initOK() const;
     void                    NavigueVers(QString);
     QMap<QString, QVariant> getdataFacture();
 
@@ -48,9 +48,9 @@ private:
     bool                    m_accesdistant;
     QStringList             m_listtypesexamen;
     QString                 m_docpath;
-    QString                 m_nomdirstockageimagerie;
+    QString                 m_pathdirstockageimagerie;
     QString                 m_nomfichierimageencours;
-    QMap<QString, QVariant> m_datafacture;
+    QMap<QString, QVariant> map_datafacture;
     QList<QImage>           m_listimages;
 
     UpLineEdit              *wdg_linetitre;

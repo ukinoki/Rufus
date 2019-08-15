@@ -114,20 +114,20 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     dlglayout()->insertLayout(0,wdg_lblbox);
     dlglayout()->insertWidget(0,wdg_bigtable);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    connect(CloseButton,        &QPushButton::clicked,                                  this, [=] {accept();});
-    connect(PrintButton,        &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
-    connect(wdg_choixperiodebouton,      &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
-    connect(wdg_exportbouton,         &QPushButton::clicked,                                  this, [=] {ExportTable();});
+    connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {accept();});
+    connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
+    connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
+    connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
-    connect(wdg_comptableradiobouton,     &UpRadioButton::clicked,                                this, [=] {ChangeMode(COMPTABLE);});
-    connect(wdg_superviseurradiobouton,        &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
+    connect(wdg_comptableradiobouton,   &UpRadioButton::clicked,                                this, [=] {ChangeMode(COMPTABLE);});
+    connect(wdg_superviseurradiobouton, &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
 }
 
 dlg_bilanrecettes::~dlg_bilanrecettes()
 {
 }
 
-bool dlg_bilanrecettes::getInitOK()
+bool dlg_bilanrecettes::initOK() const
 {
     return m_initok;
 }
@@ -381,16 +381,16 @@ void dlg_bilanrecettes::ImprimeEtat()
         test4 +=    "<table width  =\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
         test4 +=    "<tr>"
                     "<tr><td width =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\">" + tr("Total apports praticien") + "</span></font></td>"
-                                                                                                                                                             "<td width     =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(TotalApport,'f',2) + "</div></span></font></font></td>";
+                                                                                                                                                             "<td width     =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(m_totalapport,'f',2) + "</div></span></font></font></td>";
         test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total recettes") + "</span></td>"
-                    "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(TotalRecu,'f',2) + "</div></span></td>"
-                    "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(TotalRecEsp,'f',2) + ", Banque = " + QString::number(TotalRecBanq,'f',2) + ")</span></td>";
+                    "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(m_totalrecu,'f',2) + "</div></span></td>"
+                    "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(m_totalrecuespeces,'f',2) + ", Banque = " + QString::number(m_totalrecubanque,'f',2) + ")</span></td>";
         test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total autres recettes") + "</span></td>"
-                    "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(TotalAutresRec,'f',2) + "</div></span></td>"
-                    "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(TotalAutresRecEsp,'f',2) + ", Banque = " + QString::number(TotalAutresRecBanq,'f',2) + ")</span></td>";
+                    "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(m_totalautresrecettes,'f',2) + "</div></span></td>"
+                    "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(m_totalautresrecettesespeces,'f',2) + ", Banque = " + QString::number(m_totalautresrecettesbanque,'f',2) + ")</span></td>";
         test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt;font-weight:bold\">" + tr("Total général recettes") + "</span></td>"
-                    "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt;font-weight:bold\"><div align=\"right\">" + QString::number(GdTotalBanq + GdTotalEsp,'f',2) + "</div></span></td>"
-                    "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt;font-weight:bold\">(Espèces = " + QString::number(GdTotalEsp,'f',2) + ", Banque = " + QString::number(GdTotalBanq,'f',2) + ")</span></td>";
+                    "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt;font-weight:bold\"><div align=\"right\">" + QString::number(m_grandtotalbanqu + m_grandtotalespeces,'f',2) + "</div></span></td>"
+                    "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt;font-weight:bold\">(Espèces = " + QString::number(m_grandtotalespeces,'f',2) + ", Banque = " + QString::number(m_grandtotalbanqu,'f',2) + ")</span></td>";
         test4 += "</table>";
     }
     test4 += "</body></html>";
@@ -439,10 +439,10 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
 
 void dlg_bilanrecettes::CalculeTotal()
 {
-    TotalMontant = 0;
-    TotalRecu    = 0;
-    TotalRecEsp     = 0;
-    TotalRecBanq    = 0;
+    m_totalmontant = 0;
+    m_totalrecu    = 0;
+    m_totalrecuespeces     = 0;
+    m_totalrecubanque    = 0;
     int    nbreActes    = 0;
     wdg_totalapportslbl      ->setVisible(m_mode==COMPTABLE);
     wdg_grandtotallbl       ->setVisible(m_mode==COMPTABLE);
@@ -457,68 +457,68 @@ void dlg_bilanrecettes::CalculeTotal()
                     Recette * rec = getRecetteFromRow(k);
                     if(rec->montant()>0)
                     {
-                        TotalMontant    += rec->montant();
+                        m_totalmontant    += rec->montant();
                         nbreActes++;
                     }
-                    TotalRecu           += rec->encaissement();
+                    m_totalrecu           += rec->encaissement();
                     if(rec->modepaiement()  == "E")
-                        TotalRecEsp     += rec->encaissement();
+                        m_totalrecuespeces     += rec->encaissement();
                     else
-                        TotalRecBanq    += rec->encaissement();
+                        m_totalrecubanque    += rec->encaissement();
                 }
             }
-            wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" actes ") : tr(" acte ")) + QLocale().toString(TotalMontant,'f',2));
-            wdg_totalrecetteslbl     ->setText(tr("Total reçu ") + QLocale().toString(TotalRecu,'f',2)
-                                        + "\n(" + tr("Espèces") + ": " + QLocale().toString(TotalRecEsp,'f',2) + " - "
-                                        + tr("Banque")  + ": " + QLocale().toString(TotalRecBanq,'f',2) + ")");
+            wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" actes ") : tr(" acte ")) + QLocale().toString(m_totalmontant,'f',2));
+            wdg_totalrecetteslbl     ->setText(tr("Total reçu ") + QLocale().toString(m_totalrecu,'f',2)
+                                        + "\n(" + tr("Espèces") + ": " + QLocale().toString(m_totalrecuespeces,'f',2) + " - "
+                                        + tr("Banque")  + ": " + QLocale().toString(m_totalrecubanque,'f',2) + ")");
         }
         if (m_mode == COMPTABLE)
         {
-            TotalApport     = 0;
-            TotalAutresRec  = 0;
-            TotalAutresRecEsp   = 0;
-            TotalAutresRecBanq  = 0;
-            GdTotalEsp      = 0;
-            GdTotalBanq     = 0;
+            m_totalapport     = 0;
+            m_totalautresrecettes  = 0;
+            m_totalautresrecettesespeces   = 0;
+            m_totalautresrecettesbanque  = 0;
+            m_grandtotalespeces      = 0;
+            m_grandtotalbanqu     = 0;
             for (int k = 0; k < m_recettesmodel->rowCount(); k++)
             {
                 if (!wdg_bigtable->isRowHidden(k))
                 {
                     nbreActes++;
                     Recette * rec           = getRecetteFromRow(k);
-                    TotalRecu               += rec->encaissement();
-                    TotalApport             += (rec->isapportpraticien()? rec->encaissementautrerecette() : 0.0);
-                    TotalAutresRec          += (rec->isautrerecette()? rec->encaissementautrerecette() : 0.0);
+                    m_totalrecu               += rec->encaissement();
+                    m_totalapport             += (rec->isapportpraticien()? rec->encaissementautrerecette() : 0.0);
+                    m_totalautresrecettes          += (rec->isautrerecette()? rec->encaissementautrerecette() : 0.0);
                     if(rec->modepaiement()  == "E")
                     {
-                        TotalRecEsp         += rec->encaissement();
+                        m_totalrecuespeces         += rec->encaissement();
                         if (rec->isautrerecette())
-                            TotalAutresRecEsp   += rec->encaissementautrerecette();
+                            m_totalautresrecettesespeces   += rec->encaissementautrerecette();
                     }
                     else
                     {
-                        TotalRecBanq           += rec->encaissement();
+                        m_totalrecubanque           += rec->encaissement();
                         if (rec->isautrerecette())
-                            TotalAutresRecBanq  += rec->encaissementautrerecette();
+                            m_totalautresrecettesbanque  += rec->encaissementautrerecette();
                     }
                 }
             }
-            GdTotalBanq = TotalRecBanq + TotalAutresRecBanq;
-            GdTotalEsp  = TotalRecEsp + TotalAutresRecEsp;
+            m_grandtotalbanqu = m_totalrecubanque + m_totalautresrecettesbanque;
+            m_grandtotalespeces  = m_totalrecuespeces + m_totalautresrecettesespeces;
             wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" lignes ") : tr(" ligne ")));
-            wdg_totalrecetteslbl     ->setText(tr("Total recettes ") + QLocale().toString(TotalRecu,'f',2)
-                                        + "\n(" + tr("Espèces") + ": " + QLocale().toString(TotalRecEsp,'f',2) + " - "
-                                        + tr("Banque")  + ": " + QLocale().toString(TotalRecBanq,'f',2) + ")");
-            wdg_totalapportslbl      ->setVisible(TotalApport>0.0);
-            wdg_grandtotallbl       ->setVisible(TotalAutresRec>0.0);
-            if ((TotalApport>0.0))
-                wdg_totalapportslbl->setText(tr("Total apports praticien ") + QLocale().toString(TotalApport,'f',2));
-            if ((TotalAutresRec>0.0))
+            wdg_totalrecetteslbl     ->setText(tr("Total recettes ") + QLocale().toString(m_totalrecu,'f',2)
+                                        + "\n(" + tr("Espèces") + ": " + QLocale().toString(m_totalrecuespeces,'f',2) + " - "
+                                        + tr("Banque")  + ": " + QLocale().toString(m_totalrecubanque,'f',2) + ")");
+            wdg_totalapportslbl      ->setVisible(m_totalapport>0.0);
+            wdg_grandtotallbl       ->setVisible(m_totalautresrecettes>0.0);
+            if ((m_totalapport>0.0))
+                wdg_totalapportslbl->setText(tr("Total apports praticien ") + QLocale().toString(m_totalapport,'f',2));
+            if ((m_totalautresrecettes>0.0))
             {
-                wdg_grandtotallbl->setText(tr("Total autres recettes ") + QLocale().toString(TotalAutresRec,'f',2)
-                                       + "\n" + tr("Total général recettes ") + QLocale().toString(TotalAutresRec + TotalRecu,'f',2)
-                                       + "\n(" + tr("Espèces") + ": " + QLocale().toString(GdTotalEsp,'f',2) + " - "
-                                       + tr("Banque")  + ": " + QLocale().toString(GdTotalBanq,'f',2) + ")");
+                wdg_grandtotallbl->setText(tr("Total autres recettes ") + QLocale().toString(m_totalautresrecettes,'f',2)
+                                       + "\n" + tr("Total général recettes ") + QLocale().toString(m_totalautresrecettes + m_totalrecu,'f',2)
+                                       + "\n(" + tr("Espèces") + ": " + QLocale().toString(m_grandtotalespeces,'f',2) + " - "
+                                       + tr("Banque")  + ": " + QLocale().toString(m_grandtotalbanqu,'f',2) + ")");
             }
         }
     }

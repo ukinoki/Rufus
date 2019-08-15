@@ -30,7 +30,7 @@ void UpStandardItem::setitem(Item* item)
     m_item = item;
 }
 
-Item* UpStandardItem::item()
+Item* UpStandardItem::item() const
 {
     return m_item;
 }

@@ -19,13 +19,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Actes::Actes(QObject *parent) : ItemsList(parent)
 {
-    m_actes = new QMap<int, Acte*>();
+    map_actes = new QMap<int, Acte*>();
     m_actesmodel = Q_NULLPTR;
 }
 
 QMap<int, Acte *> *Actes::actes() const
 {
-    return m_actes;
+    return map_actes;
 }
 
 /*!
@@ -38,13 +38,13 @@ void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
     if (pat == Q_NULLPTR)
         return;
     if (upd == Item::NoUpdate)
-        clearAll(m_actes);
+        clearAll(map_actes);
     QList<Acte*> listActes;
     if (quelesid)
         listActes = DataBase::I()->loadIdActesByPat(pat);
     else
         listActes = DataBase::I()->loadActesByPat(pat);
-    addList(m_actes, &listActes, upd);
+    addList(map_actes, &listActes, upd);
 }
 
 void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.
@@ -57,7 +57,7 @@ void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont p
         m_actesmodel = new QStandardItemModel();
     else
         m_actesmodel->clear();
-    foreach (Acte* act, m_actes->values())
+    foreach (Acte* act, map_actes->values())
     {
         QList<QStandardItem *> items;
         UpStandardItem *itemact = new UpStandardItem(QString::number(act->id()));
@@ -95,8 +95,8 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
 
 Acte* Actes::getById(int id, ADDTOLIST add)
 {
-    QMap<int, Acte*>::const_iterator itact = m_actes->find(id);
-    if( itact == m_actes->constEnd() )
+    QMap<int, Acte*>::const_iterator itact = map_actes->find(id);
+    if( itact == map_actes->constEnd() )
     {
         Acte * act = Q_NULLPTR;
         if (add == AddToList)
@@ -146,7 +146,7 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
 
 void Actes::SupprimeActe(Acte* act)
 {
-    Supprime(m_actes, act);
+    Supprime(map_actes, act);
 }
 
 Acte* Actes::CreationActe(Patient *pat, int idcentre)
@@ -197,6 +197,6 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     act->seteffectueparremplacant(rempla == "1");
     act->setnumcentre(idcentre);
     act->setidlieu(usr->idsitedetravail());
-    add(m_actes, act);
+    add(map_actes, act);
     return act;
 }

@@ -20,18 +20,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Impressions::Impressions(QObject *parent) : ItemsList(parent)
 {
-    m_impressions = new QMap<int, Impression*>();
+    map_impressions = new QMap<int, Impression*>();
 }
 
 QMap<int, Impression *> *Impressions::impressions() const
 {
-    return m_impressions;
+    return map_impressions;
 }
 
 Impression* Impressions::getById(int id)
 {
-    QMap<int, Impression*>::const_iterator itdoc = m_impressions->find(id);
-    if( itdoc == m_impressions->constEnd() )
+    QMap<int, Impression*>::const_iterator itdoc = map_impressions->find(id);
+    if( itdoc == map_impressions->constEnd() )
         return Q_NULLPTR;
     return itdoc.value();
 }
@@ -44,25 +44,25 @@ Impression* Impressions::getById(int id)
 void Impressions::initListe()
 {
     QList<Impression *> listimpressions = DataBase::I()->loadImpressions();
-    epurelist(m_impressions, &listimpressions);
-    addList(m_impressions, &listimpressions);
+    epurelist(map_impressions, &listimpressions);
+    addList(map_impressions, &listimpressions);
 }
 
 
 DossiersImpressions::DossiersImpressions()
 {
-    m_dossiersimpressions = new QMap<int, DossierImpression*>();
+    map_dossiersimpressions = new QMap<int, DossierImpression*>();
 }
 
 QMap<int, DossierImpression *> *DossiersImpressions::dossiersimpressions() const
 {
-    return m_dossiersimpressions;
+    return map_dossiersimpressions;
 }
 
 DossierImpression* DossiersImpressions::getById(int id)
 {
-    QMap<int, DossierImpression*>::const_iterator itdoc = m_dossiersimpressions->find(id);
-    if( itdoc == m_dossiersimpressions->constEnd() )
+    QMap<int, DossierImpression*>::const_iterator itdoc = map_dossiersimpressions->find(id);
+    if( itdoc == map_dossiersimpressions->constEnd() )
         return Q_NULLPTR;
     return itdoc.value();
 }
@@ -75,7 +75,7 @@ DossierImpression* DossiersImpressions::getById(int id)
 void DossiersImpressions::initListe()
 {
     QList<DossierImpression *> listdossiers = DataBase::I()->loadDossiersImpressions();
-    epurelist(m_dossiersimpressions, &listdossiers);
-    addList(m_dossiersimpressions, &listdossiers);
+    epurelist(map_dossiersimpressions, &listdossiers);
+    addList(map_dossiersimpressions, &listdossiers);
 }
 

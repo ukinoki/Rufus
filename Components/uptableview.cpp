@@ -14,7 +14,7 @@ void UpTableView::FixLargeurTotale()
     setFixedWidth(larg+2);
 }
 
-int UpTableView::rowNoHiddenCount()
+int UpTableView::rowNoHiddenCount() const
 {
     int nrow = 0;
     for (int i=0; i<model()->rowCount(); i++)

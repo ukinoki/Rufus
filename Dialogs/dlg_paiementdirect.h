@@ -48,7 +48,7 @@ class dlg_paiementdirect : public QDialog
 public:
     explicit dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_paiementdirect();
-    bool                    getInitOK();
+    bool                    initOK() const;
     enum Mode               {Accueil, EnregistrePaiement, VoirListeActes};   Q_ENUM(Mode)
     enum OrdreTri           {Alphabetique, Chronologique};                   Q_ENUM(OrdreTri)
     enum TypeTable          {ActesDirects,ActesTiers,Paiements};             Q_ENUM(TypeTable)                    // définit les 3 types de tables possibles dans la fiche
@@ -79,8 +79,8 @@ private:
     QList<QString>              m_lignerecetteamodifier;
     QList<QString>              m_montantactesamodifier;
 
-    QMap<int, User*>            *m_listeComptables;
-    QMap<int, Banque*>          *m_banques;
+    QMap<int, User*>            *map_comptables;
+    QMap<int, Banque*>          *map_banques;
     QList<TypeTiers*>           *m_typestiers;
     User                        *m_userConnected, *m_useracrediter;
 
@@ -94,7 +94,7 @@ private:
     bool                        eventFilter(QObject *obj, QEvent *event)  ;
     void                        ChangeComptable(User *comptable, bool depuislecombo = false);
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
-    void                        DefinitArchitectureTable(UpTableWidget *TableARemplir, int TypeTable = 0);
+    void                        DefinitArchitectureTable(UpTableWidget *TableARemplir, TypeTable typetable);
     ResultEnregRecette          EnregistreRecette();
     void                        FiltreLesTables();
     void                        ModifGratuitChoixMenu(QString Choix);

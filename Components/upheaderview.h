@@ -36,10 +36,8 @@ public:
     explicit    UpHeaderView(QHeaderView *header);
     void        reDim(int section, int debut, int fin); //permet à la secion section de recouvrir les colonnes depuis debut à fin
 
-protected:
-    bool        eventFilter(QObject *o, QEvent *e);
-
 private:
+    bool        eventFilter(QObject *o, QEvent *e);
     void        updateOffset();
     int         getSectionSizes(int first, int second);
     QHeaderView *mainHeader;

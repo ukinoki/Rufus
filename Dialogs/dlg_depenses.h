@@ -43,7 +43,7 @@ public:
     explicit dlg_depenses(QWidget *parent = Q_NULLPTR);
     ~dlg_depenses();
     Ui::dlg_depenses            *ui;
-    bool                        getInitOK();
+    bool                        initOK() const;
     enum Mode                   {Lire, Modifier, Enregistrer, TableVide};       Q_ENUM(Mode)
 
 private:
@@ -52,7 +52,7 @@ private:
 
     Depense                     *m_depenseencours;
     User                        *m_userencours;
-    QMap<int, User*>            *m_listUserLiberaux;
+    QMap<int, User*>            *map_usersliberaux;
 
     QList<QImage>               m_listeimages;
     QStringList                 m_listemoyensdepaiement;

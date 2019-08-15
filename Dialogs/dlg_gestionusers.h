@@ -64,7 +64,7 @@ public:
     ~dlg_gestionusers();
     Ui::dlg_gestionusers    *ui;
     void                    setConfig(UserMode mode);
-    bool                    isMDPverified();
+    bool                    isMDPverified() const;
 
 private:
     DataBase                *db;

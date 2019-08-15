@@ -31,7 +31,7 @@ class dlg_listemotscles : public UpDialog
 public:
     explicit dlg_listemotscles(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_listemotscles();
-    QStringList         listMCDepart();
+    QStringList         listMCDepart() const;
     enum Mode {Creation, Modif};    Q_ENUM(Mode)
 
 private:

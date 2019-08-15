@@ -39,8 +39,7 @@ public:
     explicit            dlg_comptes(QWidget *parent = Q_NULLPTR);
     ~dlg_comptes();
     Ui::dlg_comptes     *ui;
-    bool                getInitOK();
-    void                setInitOK(bool init);
+    bool                initOK() const;
     enum ModeArchives   {TOUT, PARARCHIVE};       Q_ENUM(ModeArchives)
 
 private:

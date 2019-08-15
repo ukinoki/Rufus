@@ -39,7 +39,9 @@ class dlg_gestioncomptes : public UpDialog
 
 public:
     explicit dlg_gestioncomptes(User *user,
-                                bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
+                                bool societe,
+                                bool AfficheLeSolde = true,
+                                QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
     enum Mode               {Norm, Modif, Nouv};    Q_ENUM(Mode)
 

@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Refractions : public ItemsList
 {
 private:
-    QMap<int, Refraction*> *m_refractions = Q_NULLPTR;      //!< la liste des refractions
+    QMap<int, Refraction*> *map_refractions = Q_NULLPTR;      //!< la liste des refractions
 
 public:
     explicit Refractions(QObject *parent = Q_NULLPTR);

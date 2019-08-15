@@ -33,7 +33,7 @@ class dlg_bilanrecettes : public UpDialog
 public:
     explicit dlg_bilanrecettes(QWidget *parent = Q_NULLPTR);
     ~dlg_bilanrecettes();
-    bool                        getInitOK();
+    bool                        initOK() const;
     enum Mode                   {SUPERVISEUR, COMPTABLE};    Q_ENUM(Mode)
 
 private:
@@ -42,16 +42,16 @@ private:
 
     QDate                       m_debut, m_fin;
     bool                        m_initok;
-    double                      TotalMontant;
-    double                      TotalRecu;
-    double                      TotalRecEsp;
-    double                      TotalRecBanq;
-    double                      TotalApport;
-    double                      TotalAutresRec;
-    double                      TotalAutresRecEsp;
-    double                      TotalAutresRecBanq;
-    double                      GdTotalEsp;
-    double                      GdTotalBanq;
+    double                      m_totalmontant;
+    double                      m_totalrecu;
+    double                      m_totalrecuespeces;
+    double                      m_totalrecubanque;
+    double                      m_totalapport;
+    double                      m_totalautresrecettes;
+    double                      m_totalautresrecettesespeces;
+    double                      m_totalautresrecettesbanque;
+    double                      m_grandtotalespeces;
+    double                      m_grandtotalbanqu;
 
     Mode                        m_mode;
     QStandardItemModel          *m_recettesmodel;
@@ -59,12 +59,15 @@ private:
 
     QCheckBox                   *wdg_supervcheckbox;
     QGroupBox                   *wdg_classmtupgrpbox;
-    QHBoxLayout                 *wdg_lblbox, *wdg_hboxsup;
+    QHBoxLayout                 *wdg_lblbox;
+    QHBoxLayout                 *wdg_hboxsup;
     UpComboBox                  *wdg_supervcombobox;
     UpLabel                     *wdg_label;
     UpTableView                 *wdg_bigtable;
-    UpLabel                     *wdg_totalmontantlbl, *wdg_totalrecetteslbl;
-    UpLabel                     *wdg_totalapportslbl, *wdg_grandtotallbl;
+    UpLabel                     *wdg_totalmontantlbl;
+    UpLabel                     *wdg_totalrecetteslbl;
+    UpLabel                     *wdg_totalapportslbl;
+    UpLabel                     *wdg_grandtotallbl;
     UpPushButton                *wdg_choixperiodebouton;
     UpPushButton                *wdg_exportbouton;
     UpRadioButton               *wdg_comptableradiobouton;

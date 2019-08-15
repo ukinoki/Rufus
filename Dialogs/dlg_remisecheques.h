@@ -39,7 +39,7 @@ public:
     explicit dlg_remisecheques(QWidget *parent = Q_NULLPTR);
     ~dlg_remisecheques();
     Ui::dlg_remisecheques   *ui;
-    bool                    getInitOK();
+    bool                    initOK() const;
     enum Mode               {NouvelleRemise, RevoirRemisesPrecs, ReprendreRemise};   Q_ENUM(Mode)
 
 private slots:
@@ -61,7 +61,8 @@ private:
     Procedures              *proc;
     bool                    m_initok;
     Mode                    m_mode;
-    QMap<int, User *>       *m_comptables, *m_comptablesavecchequesenattente;
+    QMap<int, User *>       *map_comptables;
+    QMap<int, User *>       *map_comptablesavecchequesenattente;
     User                    *m_currentuser;
     QString                 m_valeuravantchangement;
     bool                    m_bloquecellchanged;  // ce flag sert à empêcher le déclenchement du slot cellchanged sur les tables quand on utilise certianes fonctions

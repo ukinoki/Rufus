@@ -27,7 +27,7 @@ public:
     UpStandardItem();
     UpStandardItem(QString txt);
     void    setitem(Item* item);
-    Item*   item();
+    Item*   item() const;
 
 private:
     Item*   m_item = Q_NULLPTR;

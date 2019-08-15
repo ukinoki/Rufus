@@ -299,12 +299,12 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     accept();
 }
 
-bool dlg_identificationcorresp::identcorrespondantmodifiee()
+bool dlg_identificationcorresp::identcorrespondantmodifiee() const
 {
     return m_modifdatascor;
 }
 
-Correspondant* dlg_identificationcorresp::correspondantrenvoye()
+Correspondant* dlg_identificationcorresp::correspondantrenvoye() const
 {
     return m_correspondant;
 }

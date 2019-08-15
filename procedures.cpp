@@ -144,7 +144,7 @@ QMap<QString, QDate> Procedures::ChoixDate(QWidget *parent)
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- renvoie la valeur du dossier documents pour le type d'appareil concerné -----------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
-QString Procedures::getDossierDocuments(QString Appareil, int mode)
+QString Procedures::pathDossierDocuments(QString Appareil, int mode)
 {
     QString cle = db->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil;
     QString dossier = m_settings->value(cle).toString();
@@ -4440,13 +4440,13 @@ bool Procedures::Ouverture_Ports_Series()
 
 void Procedures::ClearMesures()
 {
-    m_mesureFronto                .clear();
-    m_mesureAutoref               .clear();
-    m_mesureKerato                .clear();
-    m_mesureTono                  .clear();
-    m_mesurePachy                 .clear();
-    m_mesureRefracteurSubjectif   .clear();
-    m_mesureRefracteurFinal       .clear();
+    map_mesureFronto                .clear();
+    map_mesureAutoref               .clear();
+    map_mesureKerato                .clear();
+    map_mesureTono                  .clear();
+    map_mesurePachy                 .clear();
+    map_mesureRefracteurSubjectif   .clear();
+    map_mesureRefracteurFinal       .clear();
 }
 
 void Procedures::ClearHtmlMesures()
@@ -4507,13 +4507,13 @@ void Procedures::Slot_ReponsePortSerie_Refracteur(const QString &s)
         }
     }
     setDonneesRefracteur(m_mesureSerie);
-    if (m_mesureAutoref.isEmpty()
-        && m_mesureFronto.isEmpty()
-        && m_mesureKerato.isEmpty()
-        && m_mesurePachy.isEmpty()
-        && m_mesureTono.isEmpty()
-        && m_mesureRefracteurSubjectif.isEmpty()
-        && m_mesureRefracteurFinal.isEmpty())
+    if (map_mesureAutoref.isEmpty()
+        && map_mesureFronto.isEmpty()
+        && map_mesureKerato.isEmpty()
+        && map_mesurePachy.isEmpty()
+        && map_mesureTono.isEmpty()
+        && map_mesureRefracteurSubjectif.isEmpty()
+        && map_mesureRefracteurFinal.isEmpty())
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("pas de données reçues du refracteur"));
         return;
@@ -4540,11 +4540,11 @@ void Procedures::RegleRefracteur()
         QString DataAEnvoyer;
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
-        if (!m_mesureAutoref.isEmpty())
+        if (!map_mesureAutoref.isEmpty())
         {
             //debugformule(MesureAutoref, "Autoref");
-            Mesure = m_mesureAutoref;
-            m_mesureAutoref.clear();
+            Mesure = map_mesureAutoref;
+            map_mesureAutoref.clear();
             if (Mesure["AxeOD"].toInt()<10)
                 AxeOD = "  " + QString::number(Mesure["AxeOD"].toInt());
             else if (Mesure["AxeOD"].toInt()<100)
@@ -4576,11 +4576,11 @@ void Procedures::RegleRefracteur()
             }
             //qDebug() << "SCAOD = " << SCAOD << "SCAOG = " << SCAOG;
         }
-        if (!m_mesureFronto.isEmpty())
+        if (!map_mesureFronto.isEmpty())
         {
             //debugformule(MesureFronto, "Fronto");
-            Mesure = m_mesureFronto;
-            m_mesureFronto.clear();
+            Mesure = map_mesureFronto;
+            map_mesureFronto.clear();
             if (Mesure["AxeOD"].toInt()<10)
                 AxeOD = "  " + QString::number(Mesure["AxeOD"].toInt());
             else if (Mesure["AxeOD"].toInt()<100)
@@ -4664,8 +4664,8 @@ void Procedures::SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto,
     debugformule(DataFronto, "Fronto");
     debugformule(DataAutoref, "Autoref");
     ClearMesures();
-    m_mesureAutoref       = DataAutoref;
-    m_mesureFronto        = DataFronto;
+    map_mesureAutoref       = DataAutoref;
+    map_mesureFronto        = DataFronto;
     m_isnewMesureFronto    = false;
     m_isnewMesureAutoref   = false;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -4767,15 +4767,15 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 mAxeOG       = mesureOG.mid(12,3);
                 mAddOG       = SectionFronto.mid(SectionFronto.indexOf("AL")+2,6)    .replace(" ","0");
             }
-            m_mesureFronto.clear();
-            m_mesureFronto["SphereOD"]    = mSphereOD;
-            m_mesureFronto["CylOD"]       = mCylOD;
-            m_mesureFronto["AxeOD"]       = mAxeOD;
-            m_mesureFronto["AddOD"]       = mAddOD;
-            m_mesureFronto["SphereOG"]    = mSphereOG;
-            m_mesureFronto["CylOG"]       = mCylOG;
-            m_mesureFronto["AxeOG"]       = mAxeOG;
-            m_mesureFronto["AddOG"]       = mAddOG;
+            map_mesureFronto.clear();
+            map_mesureFronto["SphereOD"]    = mSphereOD;
+            map_mesureFronto["CylOD"]       = mCylOD;
+            map_mesureFronto["AxeOD"]       = mAxeOD;
+            map_mesureFronto["AddOD"]       = mAddOD;
+            map_mesureFronto["SphereOG"]    = mSphereOG;
+            map_mesureFronto["CylOG"]       = mCylOG;
+            map_mesureFronto["AxeOG"]       = mAxeOG;
+            map_mesureFronto["AddOG"]       = mAddOG;
         }
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
         if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
@@ -4799,17 +4799,17 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 mCylOG       = mesureOG.mid(6,6);
                 mAxeOG       = mesureOG.mid(12,3);
             }
-            m_mesureAutoref.clear();
-            m_mesureAutoref["SphereOD"]    = mSphereOD;
-            m_mesureAutoref["CylOD"]       = mCylOD;
-            m_mesureAutoref["AxeOD"]       = mAxeOD;
-            m_mesureAutoref["SphereOG"]    = mSphereOG;
-            m_mesureAutoref["CylOG"]       = mCylOG;
-            m_mesureAutoref["AxeOG"]       = mAxeOG;
+            map_mesureAutoref.clear();
+            map_mesureAutoref["SphereOD"]    = mSphereOD;
+            map_mesureAutoref["CylOD"]       = mCylOD;
+            map_mesureAutoref["AxeOD"]       = mAxeOD;
+            map_mesureAutoref["SphereOG"]    = mSphereOG;
+            map_mesureAutoref["CylOG"]       = mCylOG;
+            map_mesureAutoref["AxeOG"]       = mAxeOG;
         }
         if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie
         {
-            m_mesureKerato.clear();
+            map_mesureKerato.clear();
             idx                     = Mesure.indexOf("@KM");
             QString SectionKerato   = Mesure.right(Mesure.length()-idx);
             //Edit(SectionKerato + "\nOK");
@@ -4824,9 +4824,9 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 {
                     mesureOD            = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
                     DioptrAstCornOD     = QString::number(mesureOD.mid(0,5).toDouble() - mesureOD.mid(5,5).toDouble(),'f',2);
-                    m_mesureKerato["DioptrK1OD"]  = QString::number(mesureOD.mid(0,5).toDouble(),'f',2);
-                    m_mesureKerato["DioptrK2OD"]  = QString::number(mesureOD.mid(5,5).toDouble(),'f',2);
-                    m_mesureKerato["DioptrKOD"]   = DioptrAstCornOD;
+                    map_mesureKerato["DioptrK1OD"]  = QString::number(mesureOD.mid(0,5).toDouble(),'f',2);
+                    map_mesureKerato["DioptrK2OD"]  = QString::number(mesureOD.mid(5,5).toDouble(),'f',2);
+                    map_mesureKerato["DioptrKOD"]   = DioptrAstCornOD;
                 }
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -4840,17 +4840,17 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 {
                     mesureOG            = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
                     DioptrAstCornOG     = QString::number(mesureOG.mid(0,5).toDouble() - mesureOG.mid(5,5).toDouble(),'f',2);
-                    m_mesureKerato["DioptrK1OG"]  = QString::number(mesureOG.mid(0,5).toDouble(),'f',2);
-                    m_mesureKerato["DioptrK2OG"]  = QString::number(mesureOG.mid(5,5).toDouble(),'f',2);
-                    m_mesureKerato["DioptrKOG"]   = DioptrAstCornOG;
+                    map_mesureKerato["DioptrK1OG"]  = QString::number(mesureOG.mid(0,5).toDouble(),'f',2);
+                    map_mesureKerato["DioptrK2OG"]  = QString::number(mesureOG.mid(5,5).toDouble(),'f',2);
+                    map_mesureKerato["DioptrKOG"]   = DioptrAstCornOG;
                 }
             }
-            m_mesureKerato["K1OD"]        = K1OD;
-            m_mesureKerato["K2OD"]        = K2OD;
-            m_mesureKerato["AxeKOD"]      = AxeKOD;
-            m_mesureKerato["K1OG"]        = K1OG;
-            m_mesureKerato["K2OG"]        = K2OG;
-            m_mesureKerato["AxeKOG"]      = AxeKOG;
+            map_mesureKerato["K1OD"]        = K1OD;
+            map_mesureKerato["K2OD"]        = K2OD;
+            map_mesureKerato["AxeKOD"]      = AxeKOD;
+            map_mesureKerato["K1OG"]        = K1OG;
+            map_mesureKerato["K2OG"]        = K2OG;
+            map_mesureKerato["AxeKOG"]      = AxeKOG;
         }
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
@@ -4862,8 +4862,8 @@ void Procedures::setDonneesRefracteur(QString Mesure)
 
             // les données subjectives --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
-            m_mesureRefracteurSubjectif.clear();
-            m_mesureRefracteurSubjectif["PD"]          = PD;
+            map_mesureRefracteurSubjectif.clear();
+            map_mesureRefracteurSubjectif["PD"]          = PD;
             if (SectionRefracteur.contains("fR"))
                 {
                mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("fR")+2,15)   .replace(" ","0");
@@ -4876,13 +4876,13 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("vR")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("yR")>-1)
                     AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("yR")+2,5)    .replace(" ","0");
-                m_mesureRefracteurSubjectif["SphereOD"]    = mSphereOD;
-                m_mesureRefracteurSubjectif["CylOD"]       = mCylOD;
-                m_mesureRefracteurSubjectif["AxeOD"]       = mAxeOD;
-                m_mesureRefracteurSubjectif["AddOD"]       = mAddOD;
-                m_mesureRefracteurSubjectif["AVLOD"]       = AVLOD;
-                m_mesureRefracteurSubjectif["AVPOD"]       = AVPOD;
-                m_mesureRefracteurSubjectif["Type"]        = "Subjectif";
+                map_mesureRefracteurSubjectif["SphereOD"]    = mSphereOD;
+                map_mesureRefracteurSubjectif["CylOD"]       = mCylOD;
+                map_mesureRefracteurSubjectif["AxeOD"]       = mAxeOD;
+                map_mesureRefracteurSubjectif["AddOD"]       = mAddOD;
+                map_mesureRefracteurSubjectif["AVLOD"]       = AVLOD;
+                map_mesureRefracteurSubjectif["AVPOD"]       = AVPOD;
+                map_mesureRefracteurSubjectif["Type"]        = "Subjectif";
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
             if (SectionRefracteur.contains("fL"))
@@ -4897,19 +4897,19 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("vL")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("yL")>-1)
                     AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("yL")+2,5)    .replace(" ","0");
-                m_mesureRefracteurSubjectif["SphereOG"]    = mSphereOG;
-                m_mesureRefracteurSubjectif["CylOG"]       = mCylOG;
-                m_mesureRefracteurSubjectif["AxeOG"]       = mAxeOG;
-                m_mesureRefracteurSubjectif["AddOG"]       = mAddOG;
-                m_mesureRefracteurSubjectif["AVLOG"]       = AVLOG;
-                m_mesureRefracteurSubjectif["AVPOG"]       = AVPOG;
-                m_mesureRefracteurSubjectif["Type"]        = "Subjectif";
+                map_mesureRefracteurSubjectif["SphereOG"]    = mSphereOG;
+                map_mesureRefracteurSubjectif["CylOG"]       = mCylOG;
+                map_mesureRefracteurSubjectif["AxeOG"]       = mAxeOG;
+                map_mesureRefracteurSubjectif["AddOG"]       = mAddOG;
+                map_mesureRefracteurSubjectif["AVLOG"]       = AVLOG;
+                map_mesureRefracteurSubjectif["AVPOG"]       = AVPOG;
+                map_mesureRefracteurSubjectif["Type"]        = "Subjectif";
             }
 
             // les données finales --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
             if (SectionRefracteur.contains("FR") || SectionRefracteur.contains("FL"))
-                m_mesureRefracteurSubjectif.clear();
+                map_mesureRefracteurSubjectif.clear();
             if (SectionRefracteur.contains("FR"))
             {
                 mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("FR")+2,15)   .replace(" ","0");
@@ -4922,13 +4922,13 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("VR")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("YR")>-1)
                     AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("YR")+2,5)    .replace(" ","0");
-                m_mesureRefracteurFinal["SphereOD"]    = mSphereOD;
-                m_mesureRefracteurFinal["CylOD"]       = mCylOD;
-                m_mesureRefracteurFinal["AxeOD"]       = mAxeOD;
-                m_mesureRefracteurFinal["AddOD"]       = mAddOD;
-                m_mesureRefracteurFinal["AVLOD"]       = AVLOD;
-                m_mesureRefracteurFinal["AVPOD"]       = AVPOD;
-                m_mesureRefracteurFinal["Type"]        = "Final";
+                map_mesureRefracteurFinal["SphereOD"]    = mSphereOD;
+                map_mesureRefracteurFinal["CylOD"]       = mCylOD;
+                map_mesureRefracteurFinal["AxeOD"]       = mAxeOD;
+                map_mesureRefracteurFinal["AddOD"]       = mAddOD;
+                map_mesureRefracteurFinal["AVLOD"]       = AVLOD;
+                map_mesureRefracteurFinal["AVPOD"]       = AVPOD;
+                map_mesureRefracteurFinal["Type"]        = "Final";
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
             if (SectionRefracteur.contains("FR"))
@@ -4943,19 +4943,19 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("VL")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("YL")>-1)
                     AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("YL")+2,5)    .replace(" ","0");
-                m_mesureRefracteurFinal["SphereOG"]    = mSphereOG;
-                m_mesureRefracteurFinal["CylOG"]       = mCylOG;
-                m_mesureRefracteurFinal["AxeOG"]       = mAxeOG;
-                m_mesureRefracteurFinal["AddOG"]       = mAddOG;
-                m_mesureRefracteurFinal["AVLOG"]       = AVLOG;
-                m_mesureRefracteurFinal["AVPOG"]       = AVPOG;
-                m_mesureRefracteurFinal["Type"]        = "Final";
+                map_mesureRefracteurFinal["SphereOG"]    = mSphereOG;
+                map_mesureRefracteurFinal["CylOG"]       = mCylOG;
+                map_mesureRefracteurFinal["AxeOG"]       = mAxeOG;
+                map_mesureRefracteurFinal["AddOG"]       = mAddOG;
+                map_mesureRefracteurFinal["AVLOG"]       = AVLOG;
+                map_mesureRefracteurFinal["AVPOG"]       = AVPOG;
+                map_mesureRefracteurFinal["Type"]        = "Final";
             }
         }
         // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
         {
-            m_mesureTono.clear();
+            map_mesureTono.clear();
             idx                     = Mesure.indexOf("@NT");
             QString SectionTono     = Mesure.right(Mesure.length()-idx-5);
             SectionTono             = SectionTono.left(SectionTono.indexOf("@"));
@@ -4964,8 +4964,8 @@ void Procedures::setDonneesRefracteur(QString Mesure)
             mTOOD                   = SectionTono.mid(SectionTono.indexOf("TR")+2,4)   .replace(" ","0");
             // OEIL GAUCHE ---------------------------------------------------------------------------
             mTOOG                   = SectionTono.mid(SectionTono.indexOf("TL")+2,4)   .replace(" ","0");
-            m_mesureTono["TOOD"]      = mTOOD;
-            m_mesureTono["TOOG"]      = mTOOG;
+            map_mesureTono["TOOD"]      = mTOOD;
+            map_mesureTono["TOOG"]      = mTOOG;
         }
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
@@ -4973,12 +4973,12 @@ void Procedures::setDonneesRefracteur(QString Mesure)
 
 QMap<QString,QVariant>  Procedures::DonneesRefracteurSubj()
 {
-    return m_mesureRefracteurSubjectif;
+    return map_mesureRefracteurSubjectif;
 }
 
 QMap<QString,QVariant>  Procedures::DonneesRefracteurFin()
 {
-    return m_mesureRefracteurFinal;
+    return map_mesureRefracteurFinal;
 }
 
 // -------------------------------------------------------------------------------------
@@ -4987,35 +4987,35 @@ QMap<QString,QVariant>  Procedures::DonneesRefracteurFin()
 void Procedures::setHtmlRefracteur()
 {
    // CALCUL DE HtmlMesureFronto ====================================================================================================================================
-    if (!m_mesureFronto.isEmpty() && m_isnewMesureFronto)
+    if (!map_mesureFronto.isEmpty() && m_isnewMesureFronto)
         setHtmlFronto();
     // CALCUL DE HtmlMesureAutoref ===================================================================================================================================
-    if (!m_mesureAutoref.isEmpty() && m_isnewMesureAutoref)
+    if (!map_mesureAutoref.isEmpty() && m_isnewMesureAutoref)
         setHtmlAutoref();
     // CALCUL DE HtmlMesureKerato ====================================================================================================================================
-    if (!m_mesureKerato.isEmpty())
-        setHtmlKerato(m_mesureKerato);
+    if (!map_mesureKerato.isEmpty())
+        setHtmlKerato(map_mesureKerato);
     // CALCUL DE HtmlMesureRefracteurSubjectif =======================================================================================================================
     QString Resultat = "";
-    if(!m_mesureRefracteurSubjectif.isEmpty())
+    if(!map_mesureRefracteurSubjectif.isEmpty())
     {
         // - 1 - détermination des verres
-        QString mSphereOD   = Utils::PrefixePlus(m_mesureRefracteurSubjectif["SphereOD"].toString());
-        QString mCylOD      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["CylOD"].toString());
-        QString mAxeOD      = QString::number(m_mesureRefracteurSubjectif["AxeOD"].toInt());
-        QString mAddOD      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["AddOD"].toString());
+        QString mSphereOD   = Utils::PrefixePlus(map_mesureRefracteurSubjectif["SphereOD"].toString());
+        QString mCylOD      = Utils::PrefixePlus(map_mesureRefracteurSubjectif["CylOD"].toString());
+        QString mAxeOD      = QString::number(map_mesureRefracteurSubjectif["AxeOD"].toInt());
+        QString mAddOD      = Utils::PrefixePlus(map_mesureRefracteurSubjectif["AddOD"].toString());
         QString mAVLOD ("");
-        if (m_mesureRefracteurSubjectif["AVLOD"].toDouble()>0)
-            mAVLOD      = QLocale().toString(m_mesureRefracteurSubjectif["AVLOD"].toDouble()*10) + "/10";
-        QString mAVPOD      = m_mesureRefracteurSubjectif["AVPOD"].toString();
-        QString mSphereOG   = Utils::PrefixePlus(m_mesureRefracteurSubjectif["SphereOG"].toString());
-        QString mCylOG      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["CylOG"].toString());
-        QString mAxeOG      = QString::number(m_mesureRefracteurSubjectif["AxeOG"].toInt());
-        QString mAddOG      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["AddOG"].toString());
+        if (map_mesureRefracteurSubjectif["AVLOD"].toDouble()>0)
+            mAVLOD      = QLocale().toString(map_mesureRefracteurSubjectif["AVLOD"].toDouble()*10) + "/10";
+        QString mAVPOD      = map_mesureRefracteurSubjectif["AVPOD"].toString();
+        QString mSphereOG   = Utils::PrefixePlus(map_mesureRefracteurSubjectif["SphereOG"].toString());
+        QString mCylOG      = Utils::PrefixePlus(map_mesureRefracteurSubjectif["CylOG"].toString());
+        QString mAxeOG      = QString::number(map_mesureRefracteurSubjectif["AxeOG"].toInt());
+        QString mAddOG      = Utils::PrefixePlus(map_mesureRefracteurSubjectif["AddOG"].toString());
         QString mAVLOG ("");
-        if (m_mesureRefracteurSubjectif["AVLOG"].toDouble()>0)
-            mAVLOG      = QLocale().toString(m_mesureRefracteurSubjectif["AVLOG"].toDouble()*10) + "/10";
-        QString mAVPOG      = m_mesureRefracteurSubjectif["AVPOG"].toString();
+        if (map_mesureRefracteurSubjectif["AVLOG"].toDouble()>0)
+            mAVLOG      = QLocale().toString(map_mesureRefracteurSubjectif["AVLOG"].toDouble()*10) + "/10";
+        QString mAVPOG      = map_mesureRefracteurSubjectif["AVPOG"].toString();
         QString ResultatVLOD, ResultatVLOG,ResultatVPOD, ResultatVPOG, ResultatOD, ResultatOG;
 
         // détermination OD
@@ -5088,7 +5088,7 @@ void Procedures::setHtmlRefracteur()
         mAVPOG = (mAVPOG==""? "" : "> P" + mAVPOG.replace("<","&lt;"));
 
         // Détermination de Resultat
-        if (m_mesureRefracteurSubjectif["AddOD"].toString()!="" || m_mesureRefracteurSubjectif["AddOG"].toString()!="")  // il y a eu mesure de près et de loin
+        if (map_mesureRefracteurSubjectif["AddOD"].toString()!="" || map_mesureRefracteurSubjectif["AddOG"].toString()!="")  // il y a eu mesure de près et de loin
         {
             if (ResultatOD != "Rien" && QLocale().toDouble(mAddOD) == 0.0  && ResultatOG == "Rien")
                 Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD");
@@ -5139,13 +5139,13 @@ void Procedures::setHtmlRefracteur()
     }
     m_htmlMesureRefracteurSubjectif = Resultat;
     // CALCUL DE HtmlMesureTono ======================================================================================================================================
-    if (!m_mesureTono.isEmpty())
+    if (!map_mesureTono.isEmpty())
         setHtmlTono();
 }
 
 QString Procedures::HtmlRefracteur()
 {
-    if (! m_mesureRefracteurFinal.isEmpty() )
+    if (! map_mesureRefracteurFinal.isEmpty() )
         return m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureKerato + m_htmlMesureRefracteurSubjectif + m_htmlMesureTono;
     else
         return m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureKerato + m_htmlMesureTono;
@@ -5234,7 +5234,7 @@ void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
     }
     setDonneesFronto(m_mesureSerie);
     m_isnewMesureFronto    = true;
-    if (m_mesureFronto.isEmpty())
+    if (map_mesureFronto.isEmpty())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
@@ -5350,20 +5350,20 @@ void Procedures::setDonneesFronto(QString Mesure)
         if (Mesure.indexOf("AL")>0)
             mAddOG           = Mesure.mid(Mesure.indexOf("AL")+2,5);
     }
-    m_mesureFronto.clear();
-    m_mesureFronto["SphereOD"]    = mSphereOD;
-    m_mesureFronto["CylOD"]       = mCylOD;
-    m_mesureFronto["AxeOD"]       = mAxeOD;
-    m_mesureFronto["AddOD"]       = mAddOD;
-    m_mesureFronto["SphereOG"]    = mSphereOG;
-    m_mesureFronto["CylOG"]       = mCylOG;
-    m_mesureFronto["AxeOG"]       = mAxeOG;
-    m_mesureFronto["AddOG"]       = mAddOG;
+    map_mesureFronto.clear();
+    map_mesureFronto["SphereOD"]    = mSphereOD;
+    map_mesureFronto["CylOD"]       = mCylOD;
+    map_mesureFronto["AxeOD"]       = mAxeOD;
+    map_mesureFronto["AddOD"]       = mAddOD;
+    map_mesureFronto["SphereOG"]    = mSphereOG;
+    map_mesureFronto["CylOG"]       = mCylOG;
+    map_mesureFronto["AxeOG"]       = mAxeOG;
+    map_mesureFronto["AddOG"]       = mAddOG;
 }
 
 QMap<QString,QVariant>  Procedures::DonneesFronto()
 {
-    return m_mesureFronto;
+    return map_mesureFronto;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5371,14 +5371,14 @@ QMap<QString,QVariant>  Procedures::DonneesFronto()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlFronto()
 {
-    QString mSphereOD   = Utils::PrefixePlus(m_mesureFronto["SphereOD"].toString());
-    QString mCylOD      = Utils::PrefixePlus(m_mesureFronto["CylOD"].toString());
-    QString mAxeOD      = QString::number(m_mesureFronto["AxeOD"].toInt());
-    QString mAddOD      = Utils::PrefixePlus(m_mesureFronto["AddOD"].toString());
-    QString mSphereOG   = Utils::PrefixePlus(m_mesureFronto["SphereOG"].toString());
-    QString mCylOG      = Utils::PrefixePlus(m_mesureFronto["CylOG"].toString());
-    QString mAxeOG      = QString::number(m_mesureFronto["AxeOG"].toInt());
-    QString mAddOG      = Utils::PrefixePlus(m_mesureFronto["AddOG"].toString());
+    QString mSphereOD   = Utils::PrefixePlus(map_mesureFronto["SphereOD"].toString());
+    QString mCylOD      = Utils::PrefixePlus(map_mesureFronto["CylOD"].toString());
+    QString mAxeOD      = QString::number(map_mesureFronto["AxeOD"].toInt());
+    QString mAddOD      = Utils::PrefixePlus(map_mesureFronto["AddOD"].toString());
+    QString mSphereOG   = Utils::PrefixePlus(map_mesureFronto["SphereOG"].toString());
+    QString mCylOG      = Utils::PrefixePlus(map_mesureFronto["CylOG"].toString());
+    QString mAxeOG      = QString::number(map_mesureFronto["AxeOG"].toInt());
+    QString mAddOG      = Utils::PrefixePlus(map_mesureFronto["AddOG"].toString());
 
     QString ResultatOD, ResultatVLOD, ResultatVPOD;
     QString ResultatOG, ResultatVLOG, ResultatVPOG;
@@ -5548,7 +5548,7 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
     }
     setDonneesAutoref(m_mesureSerie);
     m_isnewMesureAutoref = true;
-    if (m_mesureAutoref.isEmpty())
+    if (map_mesureAutoref.isEmpty())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
@@ -5567,7 +5567,7 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
              || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
              || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
-                setHtmlKerato(m_mesureKerato);
+                setHtmlKerato(map_mesureKerato);
                 setTypeMesureRefraction(Kerato);
                 emit NouvMesureRefraction();
             }
@@ -5607,7 +5607,7 @@ void Procedures::setDonneesAutoref(QString Mesure)
     ClearMesures();
     ClearHtmlMesures();
     //Edit(Mesure);
-    m_mesureAutoref.clear();
+    map_mesureAutoref.clear();
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
     QString mAxeOD      = "000";
@@ -5882,14 +5882,14 @@ PL04.7N
                         AxeKOD              = KOD.mid(10,3).toInt();
                         //KOD                 = K.mid(K.indexOf("DR")+2,24);
                         //DioptrAstCornOD     = KOD.mid(18,6);
-                        m_mesureKerato["K1OD"]        = K1OD;
-                        m_mesureKerato["K2OD"]        = K2OD;
-                        m_mesureKerato["AxeKOD"]      = AxeKOD;
+                        map_mesureKerato["K1OD"]        = K1OD;
+                        map_mesureKerato["K2OD"]        = K2OD;
+                        map_mesureKerato["AxeKOD"]      = AxeKOD;
                         QString mOD                 = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
                         DioptrAstCornOD             = QString::number(mOD.mid(0,5).toDouble() - mOD.mid(5,5).toDouble(),'f',2);
-                        m_mesureKerato["DioptrK1OD"]  = QString::number(mOD.mid(0,5).toDouble(),'f',2);
-                        m_mesureKerato["DioptrK2OD"]  = QString::number(mOD.mid(5,5).toDouble(),'f',2);
-                        m_mesureKerato["DioptrKOD"]   = DioptrAstCornOD;
+                        map_mesureKerato["DioptrK1OD"]  = QString::number(mOD.mid(0,5).toDouble(),'f',2);
+                        map_mesureKerato["DioptrK2OD"]  = QString::number(mOD.mid(5,5).toDouble(),'f',2);
+                        map_mesureKerato["DioptrKOD"]   = DioptrAstCornOD;
                     }
                     // OEIL GAUCHE ---------------------------------------------------------------------------
                     a  = Ref.indexOf(" L");
@@ -5899,14 +5899,14 @@ PL04.7N
                         K1OG                        = KOG.mid(0,5);
                         K2OG                        = KOG.mid(5,5);
                         AxeKOG                      = KOG.mid(10,3).toInt();
-                        m_mesureKerato["K1OG"]        = K1OG;
-                        m_mesureKerato["K2OG"]        = K2OG;
-                        m_mesureKerato["AxeKOG"]      = AxeKOG;
+                        map_mesureKerato["K1OG"]        = K1OG;
+                        map_mesureKerato["K2OG"]        = K2OG;
+                        map_mesureKerato["AxeKOG"]      = AxeKOG;
                         QString mOG                 = K.mid(K.indexOf("DL")+2,10).replace(" ","0");
                         DioptrAstCornOG             = QString::number(mOG.mid(0,5).toDouble() - mOG.mid(5,5).toDouble(),'f',2);
-                        m_mesureKerato["DioptrK1OG"]  = QString::number(mOG.mid(0,5).toDouble(),'f',2);
-                        m_mesureKerato["DioptrK2OG"]  = QString::number(mOG.mid(5,5).toDouble(),'f',2);
-                        m_mesureKerato["DioptrKOG"]   = DioptrAstCornOG;
+                        map_mesureKerato["DioptrK1OG"]  = QString::number(mOG.mid(0,5).toDouble(),'f',2);
+                        map_mesureKerato["DioptrK2OG"]  = QString::number(mOG.mid(5,5).toDouble(),'f',2);
+                        map_mesureKerato["DioptrKOG"]   = DioptrAstCornOG;
                     }
                  }
             }
@@ -5937,8 +5937,8 @@ PL04.7N
                     b               = TonoOG.indexOf("AV");
                     TonoOG          = TonoOG.mid(b+2,2).replace(" ","0");
                 }
-                m_mesureTono["TOOD"]      = TonoOD;
-                m_mesureTono["TOOG"]      = TonoOG;
+                map_mesureTono["TOOD"]      = TonoOD;
+                map_mesureTono["TOOG"]      = TonoOG;
             }
             // Données de PACHYMETRIE --------------------------------------------------------------------------------------------------------
             if (Mesure.contains("DPM"))                 //=> il y a une mesure de pachymetrie
@@ -5951,30 +5951,30 @@ PL04.7N
                     PachyOD         = Pachy.mid(Pachy.indexOf(" R")+6,3);
                 if (Pachy.indexOf(" L")>=0)
                     PachyOG         = Pachy.mid(Pachy.indexOf(" L")+6,3);
-                m_mesurePachy["PachyOD"]  = PachyOD;
-                m_mesurePachy["PachyOG"]  = PachyOG;
+                map_mesurePachy["PachyOD"]  = PachyOD;
+                map_mesurePachy["PachyOG"]  = PachyOG;
             }
         }
     }
-    m_mesureAutoref["SphereOD"]    = mSphereOD;
-    m_mesureAutoref["CylOD"]       = mCylOD;
-    m_mesureAutoref["AxeOD"]       = mAxeOD;
-    m_mesureAutoref["SphereOG"]    = mSphereOG;
-    m_mesureAutoref["CylOG"]       = mCylOG;
-    m_mesureAutoref["AxeOG"]       = mAxeOG;
-    m_mesureAutoref["PD"]          = PD;
+    map_mesureAutoref["SphereOD"]    = mSphereOD;
+    map_mesureAutoref["CylOD"]       = mCylOD;
+    map_mesureAutoref["AxeOD"]       = mAxeOD;
+    map_mesureAutoref["SphereOG"]    = mSphereOG;
+    map_mesureAutoref["CylOG"]       = mCylOG;
+    map_mesureAutoref["AxeOG"]       = mAxeOG;
+    map_mesureAutoref["PD"]          = PD;
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
 }
 
 
 QMap<QString,QVariant>  Procedures::DonneesAutoref()
 {
-    return m_mesureAutoref;
+    return map_mesureAutoref;
 }
 
 QMap<QString,QVariant>  Procedures::DonneesKerato()
 {
-    return m_mesureKerato;
+    return map_mesureKerato;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5982,12 +5982,12 @@ QMap<QString,QVariant>  Procedures::DonneesKerato()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlAutoref()
 {
-    QString mSphereOD   = Utils::PrefixePlus(m_mesureAutoref["SphereOD"].toString());
-    QString mCylOD      = Utils::PrefixePlus(m_mesureAutoref["CylOD"].toString());
-    QString mAxeOD      = QString::number(m_mesureAutoref["AxeOD"].toInt());
-    QString mSphereOG   = Utils::PrefixePlus(m_mesureAutoref["SphereOG"].toString());
-    QString mCylOG      = Utils::PrefixePlus(m_mesureAutoref["CylOG"].toString());
-    QString mAxeOG      = QString::number(m_mesureAutoref["AxeOG"].toInt());
+    QString mSphereOD   = Utils::PrefixePlus(map_mesureAutoref["SphereOD"].toString());
+    QString mCylOD      = Utils::PrefixePlus(map_mesureAutoref["CylOD"].toString());
+    QString mAxeOD      = QString::number(map_mesureAutoref["AxeOD"].toInt());
+    QString mSphereOG   = Utils::PrefixePlus(map_mesureAutoref["SphereOG"].toString());
+    QString mCylOG      = Utils::PrefixePlus(map_mesureAutoref["CylOG"].toString());
+    QString mAxeOG      = QString::number(map_mesureAutoref["AxeOG"].toInt());
 
     QString ResultatOD("");
     QString ResultatOG("");
@@ -6000,7 +6000,7 @@ void Procedures::setHtmlAutoref()
     //TagAncre = "<a name=\"" + numIDref + "\"></a>" "<span ><a href=\""+ numIDref + "\" style=\"text-decoration:none\" style=\"color:#000000\"> ";
     // - 1 - détermination des verres
     // détermination OD
-    if (m_mesureAutoref["SphereOD"].toString()!="")
+    if (map_mesureAutoref["SphereOD"].toString()!="")
     {
         if (QLocale().toDouble(mCylOD) != 0.0 && QLocale().toDouble(mSphereOD) != 0.0)
             ResultatOD = mSphereOD + " (" + mCylOD + tr(" à ") + mAxeOD + "°)";
@@ -6014,7 +6014,7 @@ void Procedures::setHtmlAutoref()
 
 
     // détermination OG
-    if (m_mesureAutoref["SphereOD"].toString()!="")
+    if (map_mesureAutoref["SphereOD"].toString()!="")
     {
         if (QLocale().toDouble(mCylOG) != 0.0 && QLocale().toDouble(mSphereOG) != 0.0)
             ResultatOG = mSphereOG + " (" + mCylOG + tr(" à ") + mAxeOG + "°)";
@@ -6096,8 +6096,8 @@ void Procedures::setHtmlKerato(QMap<QString,QVariant>  MKer)
 void Procedures::setHtmlTono()
 {
     m_htmlMesureTono = "";
-    QString mTOD        = QLocale().toString(m_mesureTono["TOOD"].toDouble(),'f',0);
-    QString mTOG        = QLocale().toString(m_mesureTono["TOOG"].toDouble(),'f',0);
+    QString mTOD        = QLocale().toString(map_mesureTono["TOOD"].toDouble(),'f',0);
+    QString mTOG        = QLocale().toString(map_mesureTono["TOOG"].toDouble(),'f',0);
     QString Methode     = tr("Air");
     QString Tono        ="";
     QString TODcolor, TOGcolor;
@@ -6131,8 +6131,8 @@ void Procedures::setHtmlTono()
 void Procedures::setHtmlPachy()
 {
     m_htmlMesureTono = "";
-    QString mPachyOD        = QLocale().toString(m_mesurePachy["PachyOD"].toInt());
-    QString mPachyOG        = QLocale().toString(m_mesurePachy["PachyOG"].toInt());
+    QString mPachyOD        = QLocale().toString(map_mesurePachy["PachyOD"].toInt());
+    QString mPachyOG        = QLocale().toString(map_mesurePachy["PachyOG"].toInt());
     QString Pachy        ="";
     int a = mPachyOD.toInt();
     int b = mPachyOG.toInt();
@@ -6196,9 +6196,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
 {
     QString                 zQuelleMesure;
     QMap<QString,QVariant>  MapMesure;
-    if (!m_mesureFronto.isEmpty() && Mesure == Fronto && m_isnewMesureFronto)
+    if (!map_mesureFronto.isEmpty() && Mesure == Fronto && m_isnewMesureFronto)
     {
-        MapMesure = m_mesureFronto;
+        MapMesure = map_mesureFronto;
         bool a =
                (MapMesure["SphereOD"].toDouble()== 0.0
             &&  MapMesure["CylOD"].toDouble()   == 0.0
@@ -6254,9 +6254,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + TBL_REFRACTIONS);
         }
     }
-    if (!m_mesureAutoref.isEmpty() && Mesure == Autoref && m_isnewMesureAutoref)
+    if (!map_mesureAutoref.isEmpty() && Mesure == Autoref && m_isnewMesureAutoref)
     {
-        MapMesure = m_mesureAutoref;
+        MapMesure = map_mesureAutoref;
         bool a =
                (MapMesure["SphereOD"].toDouble()== 0.0
             &&  MapMesure["CylOD"].toDouble()   == 0.0
@@ -6350,9 +6350,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    if (!m_mesureKerato.isEmpty() && Mesure == Kerato)
+    if (!map_mesureKerato.isEmpty() && Mesure == Kerato)
     {
-        MapMesure = m_mesureKerato;
+        MapMesure = map_mesureKerato;
         bool a =
                (MapMesure["K1OD"].toDouble()== 0.0
             &&  MapMesure["K1OG"].toDouble()== 0.0
@@ -6403,9 +6403,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    if (!m_mesureRefracteurSubjectif.isEmpty() && Mesure == Subjectif)
+    if (!map_mesureRefracteurSubjectif.isEmpty() && Mesure == Subjectif)
     {
-        MapMesure = m_mesureRefracteurSubjectif;
+        MapMesure = map_mesureRefracteurSubjectif;
         bool a =
                (MapMesure["AVLOD"].toDouble() == 0.0
             &&  MapMesure["AVLOG"].toDouble() == 0.0

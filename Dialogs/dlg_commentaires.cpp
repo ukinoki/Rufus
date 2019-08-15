@@ -74,7 +74,6 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     ui->upTextEdit  ->installEventFilter(this);
     ui->ComupTableWidget->installEventFilter(this);
 
-    m_modesurvol = true;
     Remplir_TableView();
     if (ui->ComupTableWidget->rowCount() > 0)
         ConfigMode(Selection);

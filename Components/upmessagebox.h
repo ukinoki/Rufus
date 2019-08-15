@@ -41,8 +41,8 @@ public:
     void            addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton);
     void            addButton(UpPushButton *button);
     void            removeButton(UpSmallButton *);
-    UpSmallButton*  clickedButton();
-    UpPushButton*   clickedpushbutton();
+    UpSmallButton*  clickedButton() const;
+    UpPushButton*   clickedpushbutton() const;
     void            setIcon(enum Icon icn);
     void            setIconPixmap(QPixmap);
     void            setText(QString);

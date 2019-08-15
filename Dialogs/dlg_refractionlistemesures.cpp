@@ -168,7 +168,7 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
     Datas::I()->refractions->SupprimeRefraction(ref);
 }
 
-int dlg_listemesures::idRefractionAOuvrir()
+int dlg_listemesures::idRefractionAOuvrir() const
 {
     return m_idrefselectionne;
 }

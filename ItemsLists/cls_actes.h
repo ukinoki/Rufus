@@ -30,11 +30,10 @@ class Actes: public ItemsList
 
 {
 private:
-    QMap<int, Acte*> *m_actes = Q_NULLPTR; //!< une liste d'actes
+    QMap<int, Acte*> *map_actes = Q_NULLPTR; //!< une liste d'actes
     QSortFilterProxyModel* m_actesortmodel;
     QSortFilterProxyModel* m_heuresortmodel;
     QStandardItemModel *m_actesmodel;
-//    void    addList(QList<Acte*> listActes, Item::UPDATE upd = Item::NoUpdate);
 
 public:
     explicit Actes(QObject *parent = Q_NULLPTR);

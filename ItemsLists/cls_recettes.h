@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Recettes : public ItemsList
 {
 private:
-    QMap<int, Recette*> *m_recettes = Q_NULLPTR; //!< la liste des recettes
+    QMap<int, Recette*> *map_recettes = Q_NULLPTR; //!< la liste des recettes
 
 public:
     explicit Recettes(QObject *parent = Q_NULLPTR);

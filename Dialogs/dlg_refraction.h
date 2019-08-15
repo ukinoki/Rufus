@@ -44,8 +44,9 @@ public:
     dlg_listemesures        *Dlg_ListeMes;
     dlg_commentaires        *Dlg_Comments;
 
-    QString                 ResultatPrescription(), ResultatObservation();
-    int                     getidRefraction();
+    QString                 ResultatPrescription() const;
+    QString                 ResultatObservation() const;
+    int                     idrefraction() const;
 
 private slots:
 

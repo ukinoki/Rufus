@@ -19,18 +19,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 TiersPayants::TiersPayants(QObject *parent) : ItemsList(parent)
 {
-    m_tierspayants = new QMap<int, Tiers *>();
+    map_tierspayants = new QMap<int, Tiers *>();
 }
 
 QMap<int, Tiers *> *TiersPayants::tierspayants() const
 {
-    return m_tierspayants;
+    return map_tierspayants;
 }
 
 Tiers* TiersPayants::getById(int id)
 {
-    QMap<int, Tiers*>::const_iterator itcpt = m_tierspayants->find(id);
-    if( itcpt == m_tierspayants->constEnd() )
+    QMap<int, Tiers*>::const_iterator itcpt = map_tierspayants->find(id);
+    if( itcpt == map_tierspayants->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
@@ -43,6 +43,6 @@ Tiers* TiersPayants::getById(int id)
 void TiersPayants::initListe()
 {
     QList<Tiers*> listtiers = DataBase::I()->loadTiersPayants();
-    epurelist(m_tierspayants, &listtiers);
-    addList(m_tierspayants, &listtiers);
+    epurelist(map_tierspayants, &listtiers);
+    addList(map_tierspayants, &listtiers);
 }

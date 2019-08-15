@@ -20,12 +20,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Cotations::Cotations(QObject *parent) : ItemsList(parent)
 {
-    m_cotations = new QMap<int, Cotation*>();
+    map_cotations = new QMap<int, Cotation*>();
 }
 
 QMap<int, Cotation *> *Cotations::cotations() const
 {
-    return m_cotations;
+    return map_cotations;
 }
 
 /*!
@@ -36,7 +36,7 @@ QMap<int, Cotation *> *Cotations::cotations() const
 void Cotations::initListeByUser(int iduser)
 {
     QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(iduser);
-    epurelist(m_cotations, &listcotations);
-    addList(m_cotations, &listcotations);
+    epurelist(map_cotations, &listcotations);
+    addList(map_cotations, &listcotations);
 }
 

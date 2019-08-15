@@ -93,9 +93,9 @@ public:
 
     void                    setTCP(bool tcp);
 
-    int                     flagCorrespondants();               //!> flag de mise à jour de la liste des corresondants
-    int                     flagMessages();                     //!> flag de vérification des messages
-    int                     flagSalleDAttente();                //!> flag de mise à jour de la salle d'attente
+    int                     flagCorrespondants() const;               //!> flag de mise à jour de la liste des corresondants
+    int                     flagMessages() const;                     //!> flag de vérification des messages
+    int                     flagSalleDAttente() const;                //!> flag de mise à jour de la salle d'attente
 
     void                    MAJflagCorrespondants();            //!<  MAJ du flag de la liste des correspondants
     void                    MAJflagMessages();                  //!<  MAJ du flag de la messagerie

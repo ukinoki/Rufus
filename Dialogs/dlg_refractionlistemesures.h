@@ -19,8 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_REFRACTIONLISTEMESURES_H
 
 #include "procedures.h"
-#include <QTableView>
-
 
 class dlg_listemesures : public UpDialog
 {
@@ -29,7 +27,7 @@ class dlg_listemesures : public UpDialog
 public:
     explicit                dlg_listemesures(QString mode, QWidget *parent = Q_NULLPTR);
     ~dlg_listemesures();
-    int                     idRefractionAOuvrir();
+    int                     idRefractionAOuvrir() const;
     enum Mode               {Supprimer, Recuperer};   Q_ENUM(Mode)
 
 private:

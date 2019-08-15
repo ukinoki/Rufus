@@ -154,7 +154,7 @@ void dlg_fontdialog::Slot_Redessinelabel(QTreeWidgetItem *item)
     wdg_lbl->setFont(fontlabel);
 }
 
-QFont   dlg_fontdialog::getFont() const
+QFont   dlg_fontdialog::font() const
 {
     return m_font;
 }
@@ -164,7 +164,7 @@ void    dlg_fontdialog::setFont(QFont font)
     m_font = font;
 }
 
-QString   dlg_fontdialog::getFontAttribut() const
+QString   dlg_fontdialog::fontAttribut() const
 {
     return m_fontattribut;
 }

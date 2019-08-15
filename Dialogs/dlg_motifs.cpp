@@ -24,7 +24,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    m_motifs = Datas::I()->motifs->motifs();
+    map_motifs = Datas::I()->motifs->motifs();
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
     wdg_buttonframe             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
@@ -593,8 +593,8 @@ void dlg_motifs::RemplirTableWidget()
     QList<Motif*> listMotifs;
 
     int i=0;
-    ui->MotifsupTableWidget->setRowCount(m_motifs->size());
-    foreach (Motif *mtf, *m_motifs)
+    ui->MotifsupTableWidget->setRowCount(map_motifs->size());
+    foreach (Motif *mtf, *map_motifs)
     {
         SetMotifToRow(mtf, i);
         ++i;

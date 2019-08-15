@@ -61,8 +61,8 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     restoreGeometry(proc->m_settings->value("PositionsFiches/PositionPaiement").toByteArray());
 
-    m_listeComptables         = Datas::I()->users->comptables();
-    if( m_listeComptables->size() == 0 )
+    map_comptables         = Datas::I()->users->comptables();
+    if( map_comptables->size() == 0 )
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("L'utilisateur n'est pas valide"));
         m_initok = false;
@@ -114,7 +114,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
     ui->TierscomboBox->lineEdit()->setMaxLength(30);
 
-    m_banques = Datas::I()->banques->banques();
+    map_banques = Datas::I()->banques->banques();
     ReconstruitListeBanques();
     m_typestiers = Datas::I()->typestiers->typestiers();
     ReconstruitListeTiers();
@@ -146,15 +146,15 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     ui->RecImageLabel->setPixmap( Icons::pxEnregistrer() );
 
-    ui->ComptablescomboBox->setEnabled(m_userConnected->comptable()==Q_NULLPTR && m_listeComptables->size()>1);
+    ui->ComptablescomboBox->setEnabled(m_userConnected->comptable()==Q_NULLPTR && map_comptables->size()>1);
 
     // On reconstruit le combobox des utilisateurs avec la liste des comptables
-    if( m_listeComptables->size() > 1 )
+    if( map_comptables->size() > 1 )
     {
         int nulitem = -2;
         ui->ComptablescomboBox->addItem(tr("Tout le monde"), nulitem);
     }
-    foreach (User* usr, m_listeComptables->values())
+    foreach (User* usr, map_comptables->values())
         ui->ComptablescomboBox->addItem(usr->login(), QString::number(usr->id()) );
     // on cherche le comptable à créditer
     if (m_listidactes.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
@@ -164,7 +164,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
     else                                            // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
-        m_useracrediter = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+        m_useracrediter = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
 
     if( m_useracrediter == Q_NULLPTR)
     {
@@ -883,7 +883,7 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
     ui->ComptablescomboBox          ->setVisible(m_mode!=Accueil);
     ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
                                                  && (m_mode == VoirListeActes || (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
-                                                 && m_listeComptables->size()>1);
+                                                 && map_comptables->size()>1);
     ui->SupprimerupPushButton       ->setVisible(false);
     ui->CherchePatientupLineEdit    ->clear();
 
@@ -1400,7 +1400,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 m_useracrediter = Q_NULLPTR;
                 RemplitLesTables();
             }
-            m_useracrediter   = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
             ui->TireurChequelineEdit->setText("");
         }
         else
@@ -1415,7 +1415,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         ui->ComptablescomboBox->setEnabled(m_userConnected->isSecretaire() && (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
         ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
                                                      && ui->DetailupTableWidget->rowCount()==0
-                                                     && m_listeComptables->size()>1);
+                                                     && map_comptables->size()>1);
         break;
     }
     case VoirListeActes:                // La table est remplie par la sélection d'une ligne dans listuptablewidget ou salleDAttenteupTablewidget
@@ -1582,7 +1582,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Définit l'architecture des TableView (SelectionMode, nombre de colonnes, avec Widgets UpcheckBox et UplineBox) ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, int TypeTable)
+void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, TypeTable typetable)
 {
     QStringList         LabelARemplir;
     QString             A;
@@ -1599,7 +1599,7 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
     TableARemplir->setRowCount(0);
     TableARemplir->setColumnCount(0);
 
-    switch (TypeTable) {
+    switch (typetable) {
     case Paiements:
     {
         ColCount = 7;
@@ -1638,7 +1638,7 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
         if (TableARemplir == ui->DetailupTableWidget)
         {
             ColCount = 9;
-            if (m_mode != EnregistrePaiement && !(m_mode == VoirListeActes && TypeTable == ActesDirects))  ColCount = 10;
+            if (m_mode != EnregistrePaiement && !(m_mode == VoirListeActes && typetable == ActesDirects))  ColCount = 10;
             TableARemplir->setColumnCount(ColCount);
             TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
 
@@ -1648,9 +1648,9 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
             LabelARemplir << tr("Nom Prénom");
             LabelARemplir << tr("Cotation");
             LabelARemplir << tr("Montant");
-            if (m_mode != EnregistrePaiement && !(m_mode == VoirListeActes && TypeTable == ActesDirects))
+            if (m_mode != EnregistrePaiement && !(m_mode == VoirListeActes && typetable == ActesDirects))
             {
-                if (TypeTable == ActesTiers)
+                if (typetable == ActesTiers)
                     LabelARemplir << tr("Type tiers");
                 else
                     LabelARemplir << tr("Mode paiement");
@@ -1683,7 +1683,7 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
             {
                 TableARemplir->setColumnWidth(li,75);                                               // 5 - Montant
                 li++;
-                if (TypeTable == ActesTiers)                                                        // 6 - Type tiers
+                if (typetable == ActesTiers)                                                        // 6 - Type tiers
                 {
                     TableARemplir->setColumnWidth(li,120);                                          // 7 -Type tiers
                     li ++;
@@ -1695,12 +1695,12 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
             {
                 TableARemplir->setColumnWidth(li,75);                                               // 5 - Montant
                 li++;
-                if (TypeTable == ActesTiers)                                                        // 6 -Type tiers
+                if (typetable == ActesTiers)                                                        // 6 -Type tiers
                 {
                     TableARemplir->setColumnWidth(li,100);
                     li ++;
                 }
-                if (m_mode == VoirListeActes && TypeTable == ActesDirects)                           // Mode de paiement
+                if (m_mode == VoirListeActes && typetable == ActesDirects)                           // Mode de paiement
                 {
                     TableARemplir->setColumnWidth(li,120);
                     li ++;
@@ -1800,8 +1800,8 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
             {
                 TableARemplir->setColumnWidth(li,75);                                               // Montant
                 li++;
-                if ((TypeTable == ActesTiers)                                                       // Mode de paiement ou Type tiers
-                        || (m_mode == VoirListeActes && TypeTable == ActesDirects))
+                if ((typetable == ActesTiers)                                                       // Mode de paiement ou Type tiers
+                        || (m_mode == VoirListeActes && typetable == ActesDirects))
                 {
                     TableARemplir->setColumnWidth(li,120);
                     li ++;
@@ -1812,12 +1812,12 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
             {
                 TableARemplir->setColumnWidth(li,75);                                               // Montant
                 li++;
-                if (TypeTable == ActesTiers)                                                        // Type tiers
+                if (typetable == ActesTiers)                                                        // Type tiers
                 {
                     TableARemplir->setColumnWidth(li,100);
                     li ++;
                 }
-                if (m_mode == VoirListeActes && TypeTable == ActesDirects)                           // Mode de paiement
+                if (m_mode == VoirListeActes && typetable == ActesDirects)                           // Mode de paiement
                 {
                     TableARemplir->setColumnWidth(li,120);
                     li ++;
@@ -1846,7 +1846,7 @@ void dlg_paiementdirect::ReconstruitListeBanques()
     ui->BanqueChequecomboBox->clear();
     // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
-    foreach (Banque* bq, m_banques->values())
+    foreach (Banque* bq, map_banques->values())
     {
         QList<QStandardItem *> items;
         items << new QStandardItem(bq->nomabrege()) << new QStandardItem(QString::number(bq->id()));
@@ -3112,7 +3112,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
     return OK;
 }
 
-bool dlg_paiementdirect::getInitOK()
+bool dlg_paiementdirect::initOK() const
 {
     return m_initok;
 }

@@ -35,18 +35,18 @@ public:
                              DONOTRECORDBUTTON, EDITBUTTON, HOMEBUTTON, LOUPEBUTTON, NOBUTTON, OUPSBUTTON, QWANTBUTTON, PRINTBUTTON ,RECEPTIONBUTTON, RECORDBUTTON, STARTBUTTON, SUPPRBUTTON};
                 Q_ENUM(StyleBouton)
     void        setUpButtonStyle(enum StyleBouton);
-    StyleBouton m_style;
-    StyleBouton ButtonStyle();
+    StyleBouton ButtonStyle() const;
     void        setiD(int);
-    int         iD();
+    int         iD() const;
     void        setText(QString);
     void        setdata(QVariant var);
-    QVariant    data();
+    QVariant    data() const;
     void        setImmediateToolTip(QString Msg, bool  affichettipmemesidisabled = false);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     int         m_id;
+    StyleBouton m_style;
     QVariant    m_luggage;
     void        AfficheToolTip();
     bool        AfficheToolTipMemeSiDisabled = false;

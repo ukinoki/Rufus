@@ -54,7 +54,7 @@ bool UpSwitch::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-int UpSwitch::PosSwitch()
+int UpSwitch::PosSwitch() const
 {
     return pos;
 }
