@@ -54,7 +54,7 @@ private:
     QString                     m_pathdirechectransfer;
     QString                     m_datetransfer;
     QStringList                 m_listemessages;
-    QFile                       m_fichierimage, m_fichierorigine;
+    QFile                       file_image, file_origine;
 
     QThread                     m_thread;
     Acces                       m_acces;

@@ -45,36 +45,36 @@ public:
                 };
     Q_DECLARE_FLAGS(Buttons, Button)
     Q_ENUM(Button)
+    enum Mode {NullMode, Modification,  Creation}; Q_ENUM(Mode)
 
 private:
-    bool            EnregPosition;
-    QString         Position;
-    QString         gMode;
-    QString         Boutons;
-    QString         NomFichIni;
-    QSettings       *SettingsIni;
-    QHBoxLayout     *laybuttons;
-    QWidget         *widgbuttons;
+    bool            m_enregistreposition;
+    QString         m_position;
+    Mode            m_mode;
+    QString         m_nomfichierini;
+    QSettings       *m_settings;
+    QHBoxLayout     *wdg_buttonslayout;
+    QWidget         *wdg_buttonswidget;
     void            AjouteLay();
     void            closeEvent(QCloseEvent *);
     void            UpdateTabOrder();
-    double          stageheight = 35;
-    QObject*        mData;
+    double          m_stageheight = 35;
+    QObject*        obj_data;
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton;
     void            setEnregPosition(bool);
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
-    void            setMode(QString);
+    void            setMode(Mode mode);
     void            TuneSize(bool fix = true);
-    QString         mode();
+    Mode            mode() const;
     QVBoxLayout*    dlglayout();
-    QHBoxLayout*    buttonslayout();
-    QWidget*        widgetbuttons();
+    QHBoxLayout*    buttonslayout() const;
+    QWidget*        widgetbuttons() const;
     void            setStageCount(double stage =  0);
-    QObject*        data() { return mData; }
-    void            setdata(QObject* data) { mData = data; }
+    QObject*        data() const { return obj_data; }
+    void            setdata(QObject* data) { obj_data = data; }
 
 };
 

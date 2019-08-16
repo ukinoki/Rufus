@@ -100,7 +100,7 @@ void UpLineEdit::setiD(int Id)
 {
     m_id = Id;
 }
-int UpLineEdit::iD()
+int UpLineEdit::iD() const
 {
     return m_id;
 }

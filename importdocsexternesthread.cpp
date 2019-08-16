@@ -73,14 +73,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                 QFile   jnaltrsferfile(m_pathdirOKtransfer + "/0JournalTransferts - " + m_datetransfer + ".txt");
                 QString commentechec;
 
-                m_fichierorigine.setFileName(CheminFichierImage);
-                QString datetimecreation = QFileInfo(m_fichierorigine).created().toString("yyyyMMdd-HHmmss");
+                file_origine.setFileName(CheminFichierImage);
+                QString datetimecreation = QFileInfo(file_origine).created().toString("yyyyMMdd-HHmmss");
 
                 // Date et type du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QString datestring  = "";
                 if (Appareil == "TOPCON ALADDIN")
                 {
-                    QDateTime datefic   = QFileInfo(m_fichierorigine).created();
+                    QDateTime datefic   = QFileInfo(file_origine).created();
                     datestring          = datefic.toString("yyyyMMdd");
                     Titredoc            = "Biométrie - Aladdin";
                     Typedoc             = "Biométrie";
@@ -318,27 +318,27 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
                     QFile(CheminFichierResize).remove();
                 }
-                if (m_fichierorigine.open(QIODevice::ReadOnly))
+                if (file_origine.open(QIODevice::ReadOnly))
                 {
-                    double sz = m_fichierorigine.size();
+                    double sz = file_origine.size();
                     if (sz/(1024*1024) > 1)
                         szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
                     else
                         szorigin = QString::number(sz/1024,'f',1) + "Ko";
                     szfinal = szorigin;
-                    m_fichierorigine.copy(nomfichresize);
-                    m_fichierimage.setFileName(nomfichresize);
+                    file_origine.copy(nomfichresize);
+                    file_image.setFileName(nomfichresize);
                     if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
                     {
                         QImage  img(nomfichresize);
-                        m_fichierimage.remove();
+                        file_image.remove();
                         QPixmap pixmap;
                         pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
                         int     tauxcompress = 90;
                         while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
                         {
                             pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                            sz = m_fichierimage.size();
+                            sz = file_image.size();
                             tauxcompress -= 10;
                         }
                         if (sz/(1024*1024) > 1)
@@ -346,8 +346,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         else
                             szfinal = QString::number(sz/1024,'f',0) + "Ko";
                     }
-                    m_fichierimage.open(QIODevice::ReadOnly);
-                    ba = m_fichierimage.readAll();
+                    file_image.open(QIODevice::ReadOnly);
+                    ba = file_image.readAll();
                 }
                 else
                 {
@@ -493,15 +493,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     {
                         QString CheminOKTransfrDoc          = m_pathdirOKtransfer + "/" + NomFileDoc;
                         QString CheminOKTransfrDocOrigin    = m_pathdiroriginOKtransfer + "/" + nomdoc;
-                        m_fichierimage.copy(CheminOKTransfrDoc);
+                        file_image.copy(CheminOKTransfrDoc);
                         QFile CC(CheminOKTransfrDoc);
                         CC.open(QIODevice::ReadWrite);
                         CC.setPermissions(QFileDevice::ReadOther
                                           | QFileDevice::ReadGroup
                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                        m_fichierimage.remove();
-                        m_fichierorigine.copy(CheminOKTransfrDocOrigin);
+                        file_image.remove();
+                        file_origine.copy(CheminOKTransfrDocOrigin);
                         QFile CO(CheminOKTransfrDocOrigin);
                         CO.open(QIODevice::ReadWrite);
                         CO.setPermissions(QFileDevice::ReadOther
@@ -514,7 +514,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                             jnaltrsferfile.close();
                         }
-                        if (m_fichierorigine.remove())
+                        if (file_origine.remove())
                         {
                             QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                                           " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
@@ -559,9 +559,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     if(doc != Q_NULLPTR)
                     {
                         delete doc;
-                        m_fichierimage.remove();
+                        file_image.remove();
                         QString CheminOKTransfrDocOrigin    = m_pathdiroriginOKtransfer + "/" + nomdoc;
-                        m_fichierorigine.copy(CheminOKTransfrDocOrigin);
+                        file_origine.copy(CheminOKTransfrDocOrigin);
                         QFile CO(CheminOKTransfrDocOrigin);
                         CO.open(QIODevice::ReadWrite);
                         CO.setPermissions(QFileDevice::ReadOther
@@ -574,7 +574,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                             jnaltrsferfile.close();
                         }
-                        if (m_fichierorigine.remove())
+                        if (file_origine.remove())
                         {
                             QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                                           " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
@@ -668,14 +668,14 @@ bool ImportDocsExternesThread::DefinitDossiers()
 
 void ImportDocsExternesThread::EchecImport(QString txt)
 {
-    QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(m_fichierorigine).fileName() + "</b></font>" + tr(" dans la base de données");
+    QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(file_origine).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;
     listmsg << msg;
     emit emitmsg(listmsg, 3000, false);
 
-    QString CheminEchecTransfrDoc   = m_pathdirechectransfer + "/" + QFileInfo(m_fichierorigine).fileName();
-    m_fichierorigine.copy(CheminEchecTransfrDoc);
-    m_fichierorigine.remove();
+    QString CheminEchecTransfrDoc   = m_pathdirechectransfer + "/" + QFileInfo(file_origine).fileName();
+    file_origine.copy(CheminEchecTransfrDoc);
+    file_origine.remove();
     QString echectrsfername         = m_pathdirechectransfer + "/0EchecTransferts - " + m_datetransfer + ".txt";
     QFile   echectrsfer(echectrsfername);
     if (echectrsfer.open(QIODevice::Append))

@@ -21,8 +21,8 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
-    gMode           = mode;
-    if (gMode == Document)
+    m_mode           = mode;
+    if ( m_mode == Document)
         m_iditem = static_cast<Patient*>(item)->id();
     else
         m_iditem = static_cast<Depense*>(item)->id();
@@ -78,7 +78,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     wdg_linetitre       = new UpLineEdit(this);
     wdg_editdate        = new QDateEdit(this);
     wdg_typedoccombobx    = new UpComboBox(this);
-    switch (gMode) {
+    switch ( m_mode) {
     case Document:
         m_listtypesexamen   << COURRIER
                         << tr("CV")
@@ -330,13 +330,13 @@ void dlg_docsscanner::ValideFiche()
 
     QString datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
     QString user("");
-    if (gMode != Document)
+    if ( m_mode != Document)
         user = Datas::I()->users->getLoginById(Datas::I()->depenses->getById(m_iditem)->iduser());
-    QString CheminBackup = m_pathdirstockageimagerie + DIR_ORIGINAUX + (gMode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
+    QString CheminBackup = m_pathdirstockageimagerie + DIR_ORIGINAUX + ( m_mode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + m_nomfichierimageencours);
 
-    QString CheminOKTransfrDir  = m_pathdirstockageimagerie + (gMode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
+    QString CheminOKTransfrDir  = m_pathdirstockageimagerie + ( m_mode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
@@ -366,7 +366,7 @@ void dlg_docsscanner::ValideFiche()
     bool ok;
     QString lien;
 
-    if (gMode == Document)      // c'est un document scanné
+    if ( m_mode == Document)      // c'est un document scanné
     {
         DataBase::I()->locktables(QStringList() << TBL_DOCSEXTERNES);
         idimpr =  db->selectMaxFromTable("idimpression", TBL_DOCSEXTERNES, ok) + 1;
@@ -425,15 +425,15 @@ void dlg_docsscanner::ValideFiche()
                 + wdg_typedoccombobx->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
                 + wdg_editdate->dateTime().toString("yyyy-MM-dd");
-        lien = "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
+        lien = "/" + user + "/" + NomFileDoc  + ( m_mode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
         if (!m_accesdistant)
         {
             listbinds["idFacture"] =        idimpr;
             listbinds["DateFacture"] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
             listbinds["LienFichier"] =      lien;
-            listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
-            listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
+            listbinds["Echeancier"] =       ( m_mode== Echeancier? "1" : QVariant(QVariant::String));
+            listbinds["idDepense"] =        ( m_mode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
             map_datafacture["lien"] =           lien;
         }
         else
@@ -441,8 +441,8 @@ void dlg_docsscanner::ValideFiche()
             listbinds["idFacture"] =        idimpr;
             listbinds["DateFacture"] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
-            listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
-            listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
+            listbinds["Echeancier"] =       ( m_mode== Echeancier? "1" : QVariant(QVariant::String));
+            listbinds["idDepense"] =        ( m_mode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
             listbinds[suffixe] =            ba;
             map_datafacture["lien"] =           "";
         }
@@ -450,8 +450,8 @@ void dlg_docsscanner::ValideFiche()
         if(!b)
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
         map_datafacture["idfacture"] = idimpr;
-        map_datafacture["echeancier"] = (gMode == Echeancier);
-        map_datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
+        map_datafacture["echeancier"] = ( m_mode == Echeancier);
+        map_datafacture["objetecheancier"] = ( m_mode == Echeancier? sstypedoc : "");
     }
     if(!b)
     {
@@ -461,7 +461,7 @@ void dlg_docsscanner::ValideFiche()
     }
     else if (!m_accesdistant)
     {
-        QString CheminOKTransfrDoc = m_pathdirstockageimagerie + (gMode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
+        QString CheminOKTransfrDoc = m_pathdirstockageimagerie + ( m_mode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);
@@ -478,7 +478,7 @@ void dlg_docsscanner::ValideFiche()
     }
     qFileOrigin.remove();
     QString msg;
-    switch (gMode) {
+    switch ( m_mode) {
     case Document:      msg = tr("Document ") + sstypedoc +  tr(" enregistré");     break;
     case Facture:       msg = tr("Facture ") + sstypedoc +  tr(" enregistrée");     break;
     case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;

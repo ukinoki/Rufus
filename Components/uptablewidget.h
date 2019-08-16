@@ -37,8 +37,6 @@ public:
     void            clearSelection();
     void            clearAllRowsExceptHeader();                 //! supprime toutes les rangées d'une table (clearContents() vide le contenu des rangées mais ne supprime pas les rangées)
     int             FixLargeurTotale();
-    QString         Attribut() const;
-    void            setAttribut(QString attrib);
     int             rowNoHiddenCount() const;
     int             FirstRowNoHidden() const;
     int             LastRowNoHidden() const;
@@ -47,8 +45,7 @@ public:
     QByteArray      dropData();
 
 private:
-    QString         Attrib;
-    QByteArray      encodedData;
+    QByteArray      m_encodedData;
 
 protected:
     void            dropEvent(QDropEvent *) Q_DECL_OVERRIDE;

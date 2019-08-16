@@ -32,16 +32,17 @@ public:
                 PlusButton              = 0x1,
                 MoinsButton             = 0x2,
                 ModifButton             = 0x4
-                };  Q_ENUM(Button)
+                };
+    Q_ENUM(Button)
     Q_DECLARE_FLAGS(Buttons, Button)
     void            AddButtons(Buttons);
     void            replace();
     UpSmallButton   *wdg_plusBouton;
     UpSmallButton   *wdg_moinsBouton;
     UpSmallButton   *wdg_modifBouton;
-    QWidget*        widgButtonParent();
-    QHBoxLayout*    layButtons();
-    int             Reponse();
+    QWidget*        widgButtonParent() const;
+    QHBoxLayout*    layButtons() const;
+    int             Reponse() const;
 
 private:
     int             m_reponse;

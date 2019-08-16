@@ -27,7 +27,7 @@ class dlg_fontdialog : public UpDialog
     Q_OBJECT
 
 public:
-    explicit            dlg_fontdialog(QString nomSettings, QString Position, QWidget *parent = Q_NULLPTR);
+    explicit            dlg_fontdialog(QString nomSettings, QString m_position, QWidget *parent = Q_NULLPTR);
                         ~dlg_fontdialog();
     void                setFont(QFont);
     QFont               font() const;

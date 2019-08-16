@@ -20,23 +20,23 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
 {
-    lblIcon             = new UpLabel();
-    Textedt             = new UpLabel();
-    InfoLabel           = new UpLabel();
-    textlayout          = new QVBoxLayout();
-    infolayout          = new QHBoxLayout();
-    ReponsSmallButton   = Q_NULLPTR;
-    ReponsPushButton    = Q_NULLPTR;
-    Textedt             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
-    InfoLabel           ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+    wdg_iconlbl             = new UpLabel();
+    wdg_texteditlbl             = new UpLabel();
+    wdg_infolbl           = new UpLabel();
+    wdg_textlayout          = new QVBoxLayout();
+    wdg_infolayout          = new QHBoxLayout();
+    wdg_ReponsSmallButton   = Q_NULLPTR;
+    wdg_ReponsPushButton    = Q_NULLPTR;
+    wdg_texteditlbl             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+    wdg_infolbl           ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
 
-    textlayout      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-    textlayout      ->addSpacerItem(new QSpacerItem(350,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-    infolayout      ->addLayout(textlayout);
-    infolayout      ->setSpacing(30);
-    textlayout      ->setSpacing(5);
-    textlayout      ->setContentsMargins(0,0,0,0);
-    dlglayout()     ->insertLayout(0,infolayout);
+    wdg_textlayout      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    wdg_textlayout      ->addSpacerItem(new QSpacerItem(350,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    wdg_infolayout      ->addLayout(wdg_textlayout);
+    wdg_infolayout      ->setSpacing(30);
+    wdg_textlayout      ->setSpacing(5);
+    wdg_textlayout      ->setContentsMargins(0,0,0,0);
+    dlglayout()     ->insertLayout(0,wdg_infolayout);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
 
     setModal(true);
@@ -77,76 +77,76 @@ void UpMessageBox::Repons(QPushButton *button)
 {
     UpSmallButton *but = dynamic_cast<UpSmallButton*>(button);
     if (but != Q_NULLPTR)
-        ReponsSmallButton = but;
+        wdg_ReponsSmallButton = but;
     else
-        ReponsPushButton = static_cast<UpPushButton*>(button);
+        wdg_ReponsPushButton = static_cast<UpPushButton*>(button);
     accept();
 }
 
 UpSmallButton* UpMessageBox::clickedButton() const
 {
-    return ReponsSmallButton;
+    return wdg_ReponsSmallButton;
 }
 
 UpPushButton* UpMessageBox::clickedpushbutton() const
 {
-    return ReponsPushButton;
+    return wdg_ReponsPushButton;
 }
 
 void UpMessageBox::setIcon(enum Icon icn)
 {
     switch (icn) {
     case Warning:
-        lblIcon     ->setPixmap(QPixmap("://damn-icon.png").scaled(80,80));
+        wdg_iconlbl     ->setPixmap(QPixmap("://damn-icon.png").scaled(80,80));
         break;
     case Quest:
-        lblIcon     ->setPixmap(QPixmap("://question.png").scaled(80,80));
+        wdg_iconlbl     ->setPixmap(QPixmap("://question.png").scaled(80,80));
         break;
     case Info:
-        lblIcon     ->setPixmap(QPixmap("://information.png").scaled(80,80));
+        wdg_iconlbl     ->setPixmap(QPixmap("://information.png").scaled(80,80));
         break;
     case Critical:
-        lblIcon     ->setPixmap(QPixmap("://cancel.png").scaled(80,80));
+        wdg_iconlbl     ->setPixmap(QPixmap("://cancel.png").scaled(80,80));
         break;
     case Print:
-        lblIcon     ->setPixmap(QPixmap("://11865.png").scaled(80,80));
+        wdg_iconlbl     ->setPixmap(QPixmap("://11865.png").scaled(80,80));
         break;
     }
-    lblIcon     ->setFixedSize(80,80);
-    infolayout  ->insertWidget(0,lblIcon);
+    wdg_iconlbl     ->setFixedSize(80,80);
+    wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
 }
 
 void UpMessageBox::setIconPixmap(QPixmap pix)
 {
-    lblIcon     ->setPixmap(pix);
-    lblIcon     ->setFixedSize(pix.width(),pix.height());
-    infolayout  ->insertWidget(0,lblIcon);
+    wdg_iconlbl     ->setPixmap(pix);
+    wdg_iconlbl     ->setFixedSize(pix.width(),pix.height());
+    wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
 }
 
 void UpMessageBox::UpMessageBox::setText(QString Text)
 {
     if (Text == "")
         return;
-    Textedt         ->setStyleSheet("border: 0px solid; background-color: rgb(200,200,200,0)");
-    Textedt         ->setText("<b>" + Text + "</b>");
-    Textedt         ->setWordWrap(true);
-    Textedt         ->setFixedSize(Utils::CalcSize(Text));
-    textlayout      ->insertWidget(1,Textedt);
+    wdg_texteditlbl         ->setStyleSheet("border: 0px solid; background-color: rgb(200,200,200,0)");
+    wdg_texteditlbl         ->setText("<b>" + Text + "</b>");
+    wdg_texteditlbl         ->setWordWrap(true);
+    wdg_texteditlbl         ->setFixedSize(Utils::CalcSize(Text));
+    wdg_textlayout      ->insertWidget(1,wdg_texteditlbl);
 }
 
 void UpMessageBox::setInformativeText(QString Text)
 {
     if (Text == "")
         return;
-    InfoLabel     ->setStyleSheet("border: 0px solid; background-color: rgb(200,200,200,0)");
-    InfoLabel     ->setText(Text);
-    InfoLabel     ->setWordWrap(true);
+    wdg_infolbl     ->setStyleSheet("border: 0px solid; background-color: rgb(200,200,200,0)");
+    wdg_infolbl     ->setText(Text);
+    wdg_infolbl     ->setWordWrap(true);
     int position = 1;
-    if (dynamic_cast<QLabel*>(textlayout->itemAt(1)->widget()) != Q_NULLPTR)
+    if (dynamic_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != Q_NULLPTR)
         position += 1;
-    InfoLabel     ->setFixedSize(Utils::CalcSize(Text));
-    textlayout      ->insertWidget(position,InfoLabel);
-    textlayout      ->setSizeConstraint(QLayout::SetFixedSize);
+    wdg_infolbl     ->setFixedSize(Utils::CalcSize(Text));
+    wdg_textlayout      ->insertWidget(position,wdg_infolbl);
+    wdg_textlayout      ->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 void UpMessageBox::setDefaultButton(QPushButton *butt)
@@ -165,8 +165,8 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
     msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    msgbox  ->Textedt           ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->InfoLabel       ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->wdg_texteditlbl           ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
 
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
@@ -205,8 +205,8 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
     }
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    msgbox  ->Textedt           ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->InfoLabel       ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->wdg_texteditlbl           ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
     if (msgbox  ->exec()>0)
         return msgbox->clickedButton()->ButtonStyle();
     else return UpSmallButton::CANCELBUTTON;
@@ -233,8 +233,8 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
             connect(butt, &QPushButton::clicked, msgbox, [=] {msgbox->Repons(butt);});
         }
     }
-    msgbox  ->Textedt           ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->InfoLabel         ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->wdg_texteditlbl           ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl         ->setFixedSize(Utils::CalcSize(InfoText));
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
     int a = msgbox  ->exec();
@@ -255,8 +255,8 @@ void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)
 
     msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
     connect (msgbox->OKButton, &QPushButton::clicked, msgbox, [=] {msgbox->accept();});
-    msgbox  ->Textedt       ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->InfoLabel   ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->wdg_texteditlbl       ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl   ->setFixedSize(Utils::CalcSize(InfoText));
     msgbox  ->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->exec();
 }

@@ -34,7 +34,7 @@ public:
     QAction*            Reload() const;
     QString             choix() const;
 private:
-    QString             action;
+    QString             m_action;
     QAction             *debut, *prec, *suiv, *fin, *reload;
     void                TBChoix(QAction *choix);
 signals:

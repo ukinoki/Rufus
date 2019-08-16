@@ -107,10 +107,10 @@ void dlg_listemotscles::CreationModifMC(Mode mode)
     if (mode == Modif)
     {
         Line        ->setText(m_model->itemFromIndex(m_selectionmodel->currentIndex())->text());
-        dlg_ask  ->setMode("Modif");
+        dlg_ask  ->setMode(UpDialog::Modification);
     }
     else
-        dlg_ask  ->setMode("Creation");
+        dlg_ask  ->setMode(UpDialog::Creation);
     dlg_ask->exec();
     delete dlg_ask;
 }
@@ -130,12 +130,12 @@ void dlg_listemotscles::Slot_VerifMC()
             wdg_bigtable->scrollTo(m_model->findItems(nouvMC, Qt::MatchExactly).at(0)->index());
         return;
     }
-    if (dlg_ask->mode()=="Creation")
+    if (dlg_ask->mode()==UpDialog::Creation)
     {
         QString req = "insert into " TBL_MOTSCLES " (MotCle) values('" + Utils::correctquoteSQL(nouvMC) + "')";
         db->StandardSQL(req);
     }
-    else if (dlg_ask->mode()=="Modif")
+    else if (dlg_ask->mode()==UpDialog::Modification)
     {
         QString req = "update " TBL_MOTSCLES " set MotCle = '" + Utils::correctquoteSQL(nouvMC) + "' where MotCle = '"
                    + m_model->itemFromIndex(m_selectionmodel->currentIndex())->text() + "'";

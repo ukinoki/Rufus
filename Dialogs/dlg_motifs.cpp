@@ -601,7 +601,7 @@ void dlg_motifs::RemplirTableWidget()
     }
 }
 
-UpCheckBox* dlg_motifs::UpchkFromTableW(QTableWidget *Table, int row, int col)
+UpCheckBox* dlg_motifs::UpchkFromTableW(QTableWidget *Table, int row, int col) const
 {
     QWidget *w = dynamic_cast<QWidget*>(Table->cellWidget(row,col));
     if (w)
@@ -613,7 +613,7 @@ UpCheckBox* dlg_motifs::UpchkFromTableW(QTableWidget *Table, int row, int col)
     return Q_NULLPTR;
 }
 
-Motif* dlg_motifs::getMotifFromRow(int row)
+Motif* dlg_motifs::getMotifFromRow(int row) const
 {
     Motif *mtf = Datas::I()->motifs->getById(ui->MotifsupTableWidget->item(row,3)->text().toInt());
     return mtf;

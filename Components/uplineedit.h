@@ -33,7 +33,7 @@ public:
     void        setRow(int val);
     int         Row() const;
     void        setiD(int m_id);
-    int         iD();
+    int         iD() const;
     void        setColumn(int val);
     int         Column() const;
     void        setdatas(QVariant data);

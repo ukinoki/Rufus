@@ -57,11 +57,11 @@ UpToolBar::~UpToolBar()
 }
 QString UpToolBar::choix() const
 {
-    return action;
+    return m_action;
 }
 void UpToolBar::TBChoix(QAction *choix)
 {
-    action = choix->text();
+    m_action = choix->text();
     emit TBSignal();
 }
 

@@ -105,17 +105,17 @@ void WidgetButtonFrame::Reponse(int id)
     emit choix(m_reponse);
 }
 
-int WidgetButtonFrame::Reponse()
+int WidgetButtonFrame::Reponse() const
 {
     return m_reponse;
 }
 
-QWidget* WidgetButtonFrame::widgButtonParent()
+QWidget* WidgetButtonFrame::widgButtonParent() const
 {
     return widg_parent;
 }
 
-QHBoxLayout* WidgetButtonFrame::layButtons()
+QHBoxLayout* WidgetButtonFrame::layButtons() const
 {
     return wdg_buttonwidglayout;
 }

@@ -23,12 +23,11 @@ UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
     horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     setContextMenuPolicy(Qt::NoContextMenu);
-    Attrib  = "";
 }
 
 void UpTableWidget::dropEvent(QDropEvent *drop)
 {
-    encodedData = drop->mimeData()->data("application/x-qabstractitemmodeldatalist");
+    m_encodedData = drop->mimeData()->data("application/x-qabstractitemmodeldatalist");
 //    for (int j=0; j<drop->mimeData()->formats().size(); j++)
 //        qDebug() << drop->mimeData()->formats().at(j) + "\n";
 
@@ -44,7 +43,7 @@ void UpTableWidget::dropEvent(QDropEvent *drop)
 //        qDebug() << ab;
 //    }
     drop->acceptProposedAction();
-    emit dropsignal(encodedData);
+    emit dropsignal(m_encodedData);
 }
 
 /*!
@@ -136,7 +135,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
 
 QByteArray UpTableWidget::dropData()
 {
-    return encodedData;
+    return m_encodedData;
 }
 
 void UpTableWidget::clearSelection()
@@ -210,14 +209,3 @@ void UpTableWidget::selectRow(int row)
         setRangeSelected(QTableWidgetSelectionRange(row,0,row,columnCount()-1),true);
     }
 }
-
-void UpTableWidget::setAttribut(QString attrib)
-{
-    Attrib = attrib;
-}
-
-QString UpTableWidget::Attribut() const
-{
-    return Attrib;
-}
-
