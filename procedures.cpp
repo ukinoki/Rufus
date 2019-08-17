@@ -6222,17 +6222,21 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             mAxeOG          = QString::number(MapMesure["AxeOG"].toInt());
             mAddOG          = Utils::PrefixePlus(MapMesure["AddOG"].toString());
             zQuelleMesure = "P";
-            foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
+                Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe
                         && ref->mesure() == Refraction::Fronto
                         && ref->formuleOD() == Utils::CalculeFormule(MapMesure,"D")
                         && ref->formuleOG() == Utils::CalculeFormule(MapMesure,"G"))
                 {
-                    Datas::I()->refractions->SupprimeRefraction(ref);
-                    break;
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                    delete ref;
                 }
-            }
+                else
+                    ++it;
+             }
 
             QHash<QString, QVariant> listbinds;
             listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
@@ -6283,14 +6287,18 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (PD == "")
                 PD = "null";
             zQuelleMesure = "A";
-            foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
+                Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe && ref->mesure() == Refraction::Autoref)
                 {
-                    Datas::I()->refractions->SupprimeRefraction(ref);
-                    break;
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                    delete ref;
                 }
-            }
+                else
+                    ++it;
+             }
 
             QHash<QString, QVariant> listbinds;
             listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
@@ -6439,14 +6447,18 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (PD == "")
                 PD = "null";
             zQuelleMesure = "R";
-            foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
+                Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe && ref->mesure() == Refraction::Acuite)
                 {
-                    Datas::I()->refractions->SupprimeRefraction(ref);
-                    break;
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                    delete ref;
                 }
-            }
+                else
+                    ++it;
+             }
 
             QHash<QString, QVariant> listbinds;
             listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
