@@ -164,8 +164,8 @@ public:
     /*
      * Parametres système
     */
-    void initParametres();                           //! charge les parametres susteme
-    ParametresSysteme*      parametres();                               //! renvoie les parametres système
+    void initParametres();                                      //! charge les parametres susteme
+    ParametresSysteme*      parametres();                       //! renvoie les parametres système
     void setmdpadmin(QString mdp = "");
     void setnumcentre(int id);
     void setidlieupardefaut(int id);
@@ -332,7 +332,7 @@ public:
 private:
     QJsonObject             loadRefractionData(QVariantList refdata);           //! attribue le liste des datas à une refraction
 public:
-    QList<Refraction*>      loadRefractionByPatId(int id);                      //! charge toutes les refractions d'un patient
+    QList<Refraction*>      loadRefractionsByPatId(int id);                     //! charge toutes les refractions d'un patient
     Refraction*             loadRefractionById(int idref);                      //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 };
 

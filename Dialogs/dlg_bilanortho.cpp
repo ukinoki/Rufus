@@ -293,19 +293,19 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (aa)
     {
         QHash<QString, QVariant> listbinds;
-        listbinds[CP_IDUSER_IMPRESSIONS] =           Datas::I()->users->userconnected()->id();
-        listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentact->idPatient();
-        listbinds[CP_TYPEDOC_IMPRESSIONS] =          "Orthoptie";
-        listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      "Bilan";
-        listbinds[CP_TITRE_IMPRESSIONS] =            "Bilan orthoptique";
-        listbinds[CP_TEXTENTETE_IMPRESSIONS] =       Entete;
-        listbinds[CP_TEXTCORPS_IMPRESSIONS] =        textHtml->toHtml();
-        listbinds[CP_TEXTPIED_IMPRESSIONS] =         Pied;
-        listbinds[CP_DATE_IMPRESSIONS] =             m_currentact->date().toString("yyyy-MM-dd");
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
-        listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
-        listbinds[CP_FORMATDOC_IMPRESSIONS] =        BILANORTHOPTIQUE;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
+        listbinds[CP_IDUSER_DOCSEXTERNES] =           Datas::I()->users->userconnected()->id();
+        listbinds[CP_IDPAT_DOCSEXTERNES] =            m_currentact->idPatient();
+        listbinds[CP_TYPEDOC_DOCSEXTERNES] =          "Orthoptie";
+        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      "Bilan";
+        listbinds[CP_TITRE_DOCSEXTERNES] =            "Bilan orthoptique";
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textHtml->toHtml();
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied;
+        listbinds[CP_DATE_DOCSEXTERNES] =             m_currentact->date().toString("yyyy-MM-dd");
+        listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
+        listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";
+        listbinds[CP_FORMATDOC_DOCSEXTERNES] =        BILANORTHOPTIQUE;
+        listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if(doc != Q_NULLPTR)
             delete doc;

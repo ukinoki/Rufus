@@ -113,18 +113,18 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     if (table == TBL_DOCSEXTERNES)
     {
         ok = true;
-        clause = CP_IDIMPRESSION_IMPRESSIONS " = " + QString::number(item->id());
-        if (field == CP_SOUSTYPEDOC_IMPRESSIONS )
+        clause = CP_ID_DOCSEXTERNES " = " + QString::number(item->id());
+        if (field == CP_SOUSTYPEDOC_DOCSEXTERNES )
         {
             doc->setsoustype(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
-        else if (field == CP_IMPORTANCE_IMPRESSIONS )
+        else if (field == CP_IMPORTANCE_DOCSEXTERNES )
         {
             doc->setimportance(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
-        else if (field == CP_DATE_IMPRESSIONS )
+        else if (field == CP_DATE_DOCSEXTERNES )
         {
             doc->setdate(newvalue.toDateTime());
             Utils::CalcDateTimeValueSQL(newvalue);

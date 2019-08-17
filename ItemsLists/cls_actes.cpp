@@ -154,7 +154,6 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     if (pat == Q_NULLPTR)
         return Q_NULLPTR;
     Acte *act = Q_NULLPTR;
-    bool ok;
     User* usr = DataBase::I()->getUserConnected();
     QString rempla = (usr->modeenregistrementhonoraires() == User::Retrocession? "1" : "null");
     QString creerrequete =
@@ -178,8 +177,8 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
         DataBase::I()->unlocktables();
         return Q_NULLPTR;
     }
-    int idacte = DataBase::I()->selectMaxFromTable("idActe", TBL_ACTES, ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
-    if (!ok || idacte == 0)
+    int idacte = DataBase::I()->selectMaxFromTable("idActe", TBL_ACTES, m_ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
+    if (!m_ok || idacte == 0)
     {
         DataBase::I()->unlocktables();
         return Q_NULLPTR;

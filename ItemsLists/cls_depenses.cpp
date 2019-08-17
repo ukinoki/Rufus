@@ -72,7 +72,6 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
                                    QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture)
 {
     Depense *dep = Q_NULLPTR;
-    bool ok;
     QString idusr           = (idUser == 0?                 "null" : QString::number(idUser));
     QString date            = (!DateDep.isValid()?          "NOW()" : "'" + DateDep.toString("yyyy-MM-dd") + "'");
     QString ref             = (RefFiscale == ""?            "" : "'" + Utils::correctquoteSQL(RefFiscale) + "'");
@@ -109,7 +108,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
         return Q_NULLPTR;
     }
     // Récupération de l'idMotif créé ------------------------------------
-    int iddep = DataBase::I()->selectMaxFromTable(CP_IDDEPENSE_DEPENSES, TBL_DEPENSES, ok, tr("Impossible de sélectionner les enregistrements"));
+    int iddep = DataBase::I()->selectMaxFromTable(CP_IDDEPENSE_DEPENSES, TBL_DEPENSES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
     dep = new Depense();
     dep->setid(iddep);

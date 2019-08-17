@@ -63,28 +63,28 @@ void DocExterne::setData(QJsonObject data)
         return;
     setDataBool(data, CP_ISALLLOADED, m_isAllLoaded);
 
-    setDataInt(data, CP_IDIMPRESSION_IMPRESSIONS, m_id);
-    setDataInt(data, CP_IDUSER_IMPRESSIONS, m_iduser);
-    setDataInt(data, CP_IDPAT_IMPRESSIONS, m_idpatient);
-    setDataString(data, CP_TYPEDOC_IMPRESSIONS, m_typedoc);
-    setDataString(data, CP_SOUSTYPEDOC_IMPRESSIONS, m_soustypedoc);
+    setDataInt(data, CP_ID_DOCSEXTERNES, m_id);
+    setDataInt(data, CP_IDUSER_DOCSEXTERNES, m_iduser);
+    setDataInt(data, CP_IDPAT_DOCSEXTERNES, m_idpatient);
+    setDataString(data, CP_TYPEDOC_DOCSEXTERNES, m_typedoc);
+    setDataString(data, CP_SOUSTYPEDOC_DOCSEXTERNES, m_soustypedoc);
 
-    setDataString(data, CP_TITRE_IMPRESSIONS, m_titre);
-    setDataString(data, CP_TEXTENTETE_IMPRESSIONS, m_textentete);
-    setDataString(data, CP_TEXTCORPS_IMPRESSIONS, m_textcorps);
-    setDataString(data, CP_TEXTORIGINE_IMPRESSIONS, m_textorigine);
-    setDataString(data, CP_TEXTPIED_IMPRESSIONS, m_textpied);
+    setDataString(data, CP_TITRE_DOCSEXTERNES, m_titre);
+    setDataString(data, CP_TEXTENTETE_DOCSEXTERNES, m_textentete);
+    setDataString(data, CP_TEXTCORPS_DOCSEXTERNES, m_textcorps);
+    setDataString(data, CP_TEXTORIGINE_DOCSEXTERNES, m_textorigine);
+    setDataString(data, CP_TEXTPIED_DOCSEXTERNES, m_textpied);
 
-    setDataDateTime(data, CP_DATE_IMPRESSIONS, m_dateimpression);
-    setDataInt(data, CP_COMPRESSION_IMPRESSIONS, m_compression);
-    setDataString(data, CP_LIENFICHIER_IMPRESSIONS, m_lienversfichier);
-    setDataInt(data, CP_ALD_IMPRESSIONS, m_ald);
-    setDataInt(data, CP_IDEMETTEUR_IMPRESSIONS, m_useremetteur);
+    setDataDateTime(data, CP_DATE_DOCSEXTERNES, m_dateimpression);
+    setDataInt(data, CP_COMPRESSION_DOCSEXTERNES, m_compression);
+    setDataString(data, CP_LIENFICHIER_DOCSEXTERNES, m_lienversfichier);
+    setDataInt(data, CP_ALD_DOCSEXTERNES, m_ald);
+    setDataInt(data, CP_IDEMETTEUR_DOCSEXTERNES, m_useremetteur);
 
-    setDataString(data, CP_FORMATDOC_IMPRESSIONS, m_formatdoc);
-    setDataInt(data, CP_IMPORTANCE_IMPRESSIONS, m_importance);
-    setDataInt(data, CP_EMISORRECU_IMPRESSIONS, m_emisrecu);
-    setDataInt(data, CP_IDLIEU_IMPRESSIONS, m_idlieu);
-    setDataInt(data, CP_IDREFRACTION_IMPRESSIONS, m_idrefraction);
+    setDataString(data, CP_FORMATDOC_DOCSEXTERNES, m_formatdoc);
+    setDataInt(data, CP_IMPORTANCE_DOCSEXTERNES, m_importance);
+    setDataInt(data, CP_EMISORRECU_DOCSEXTERNES, m_emisrecu);
+    setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idlieu);
+    setDataInt(data, CP_IDREFRACTION_DOCSEXTERNES, m_idrefraction);
 }
 

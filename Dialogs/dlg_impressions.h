@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_DOCUMENTS_H
-#define DLG_DOCUMENTS_H
+#ifndef DLG_IMPRESSIONS_H
+#define DLG_IMPRESSIONS_H
 
 #include "procedures.h"
 #include "upcheckbox.h"
@@ -32,17 +32,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 namespace Ui {
-class dlg_documents;
+class dlg_impressions;
 }
 
-class dlg_documents : public QDialog
+class dlg_impressions : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit                                    dlg_documents(Patient *pat, QWidget *parent = Q_NULLPTR);
-    ~dlg_documents();
-    Ui::dlg_documents                           *ui;
+    explicit                                    dlg_impressions(Patient *pat, QWidget *parent = Q_NULLPTR);
+    ~dlg_impressions();
+    Ui::dlg_impressions                         *ui;
     enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                                     Q_ENUM(DATASAIMPRIMER)
     enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};  Q_ENUM(Mode)
     User*                                       userentete() const;
@@ -62,7 +62,9 @@ private:
     bool                        m_ok;
     QMap<QString,QString>       map_champs;
     QStringList                 m_listid;
-    QStringList                 m_listtexts;   //! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires -> le texte varie légèrement d'un destinataire à l'autre -> la variable correspond à la lite des textes
+    QStringList                 m_listtexts;   /*! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires
+                                                -> le texte varie légèrement d'un destinataire à l'autre en ce qui concerne le nom du correspondant
+                                                -> la variable correspond à la lite des textes */
     QGraphicsOpacityEffect      *m_opacityeffect;
     QMenu                       *m_menucontextuel;
     QTimer                      *t_timerefface;

@@ -538,23 +538,23 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                 else if (m_acces == Distant)
                 {
                     if (formatdoc == "pdf")
-                        formatdoc = CP_PDF_IMPRESSIONS;
+                        formatdoc = CP_PDF_DOCSEXTERNES;
                     else if (formatdoc== "jpg" || formatdoc == "jpeg")
-                        formatdoc = CP_JPG_IMPRESSIONS;
+                        formatdoc = CP_JPG_DOCSEXTERNES;
                     // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
                     QHash<QString, QVariant> listbinds;
-                    listbinds[CP_IDIMPRESSION_IMPRESSIONS] =    idimpr;
-                    listbinds[CP_IDUSER_IMPRESSIONS] =          Datas::I()->users->userconnected()->id();
-                    listbinds[CP_IDPAT_IMPRESSIONS] =           idPatient;
-                    listbinds[CP_TYPEDOC_IMPRESSIONS] =         Typedoc;
-                    listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =     SousTypeDoc;
-                    listbinds[CP_TITRE_IMPRESSIONS] =           Titredoc;
-                    listbinds[CP_DATE_IMPRESSIONS] =            datestring + " " + QTime::currentTime().toString("HH:mm:ss");
-                    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =      Datas::I()->users->userconnected()->id();
+                    listbinds[CP_ID_DOCSEXTERNES] =    idimpr;
+                    listbinds[CP_IDUSER_DOCSEXTERNES] =          Datas::I()->users->userconnected()->id();
+                    listbinds[CP_IDPAT_DOCSEXTERNES] =           idPatient;
+                    listbinds[CP_TYPEDOC_DOCSEXTERNES] =         Typedoc;
+                    listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =     SousTypeDoc;
+                    listbinds[CP_TITRE_DOCSEXTERNES] =           Titredoc;
+                    listbinds[CP_DATE_DOCSEXTERNES] =            datestring + " " + QTime::currentTime().toString("HH:mm:ss");
+                    listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =      Datas::I()->users->userconnected()->id();
                     listbinds[formatdoc] =                      ba;
-                    listbinds[CP_EMISORRECU_IMPRESSIONS] =      "0";
-                    listbinds[CP_FORMATDOC_IMPRESSIONS] =       IMAGERIE;
-                    listbinds[CP_IDLIEU_IMPRESSIONS] =          m_idlieuexercice;
+                    listbinds[CP_EMISORRECU_DOCSEXTERNES] =      "0";
+                    listbinds[CP_FORMATDOC_DOCSEXTERNES] =       IMAGERIE;
+                    listbinds[CP_IDLIEU_DOCSEXTERNES] =          m_idlieuexercice;
                     DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
                     if(doc != Q_NULLPTR)
                     {

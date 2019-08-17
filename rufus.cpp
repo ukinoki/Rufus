@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("16-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("17-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7562,22 +7562,22 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
 
         QHash<QString, QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        listbinds[CP_IDUSER_IMPRESSIONS]        = user->id();
-        listbinds[CP_IDPAT_IMPRESSIONS]         = idpat;
-        listbinds[CP_TYPEDOC_IMPRESSIONS]       = (Prescription? "Prescription" : "Courrier");
-        listbinds[CP_SOUSTYPEDOC_IMPRESSIONS]   = titre;
-        listbinds[CP_TITRE_IMPRESSIONS]         = titre;
-        listbinds[CP_TEXTENTETE_IMPRESSIONS]    = Entete;
-        listbinds[CP_TEXTCORPS_IMPRESSIONS]     = Corps;
-        listbinds[CP_TEXTORIGINE_IMPRESSIONS]   = text;
-        listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
-        listbinds[CP_DATE_IMPRESSIONS]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
-        listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1": QVariant(QVariant::String));
-        listbinds[CP_EMISORRECU_IMPRESSIONS]    = "0";
-        listbinds[CP_FORMATDOC_IMPRESSIONS]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->idsitedetravail();
-        listbinds[CP_IMPORTANCE_IMPRESSIONS]    = (Administratif? "0" : "1");
+        listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
+        listbinds[CP_IDPAT_DOCSEXTERNES]         = idpat;
+        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
+        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
+        listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
+        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = text;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+        listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = m_currentuser->id();
+        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QVariant::String));
+        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
+        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
+        listbinds[CP_IDLIEU_DOCSEXTERNES]        = m_currentuser->idsitedetravail();
+        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         ui->OuvreDocsExternespushButton->setEnabled(doc != Q_NULLPTR);
         if(doc != Q_NULLPTR)
@@ -8102,42 +8102,42 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     {
         nom         = Datas::I()->patients->currentpatient()->nom();
         prenom      = Datas::I()->patients->currentpatient()->prenom();
-        Dlg_Docs    = new dlg_documents(Datas::I()->patients->currentpatient());
+        Dlg_Imprs   = new dlg_impressions(Datas::I()->patients->currentpatient());
     }
     else
     {
         nom         = Datas::I()->patients->dossierpatientaouvrir()->nom();
         prenom      = Datas::I()->patients->dossierpatientaouvrir()->prenom();
-        Dlg_Docs    = new dlg_documents(Datas::I()->patients->dossierpatientaouvrir(), this);
+        Dlg_Imprs   = new dlg_impressions(Datas::I()->patients->dossierpatientaouvrir(), this);
     }
-    Dlg_Docs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
-    Dlg_Docs->setWindowIcon(Icons::icLoupe());
+    Dlg_Imprs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
+    Dlg_Imprs->setWindowIcon(Icons::icLoupe());
     bool aa = true;
-    if (Dlg_Docs->exec() > 0)
+    if (Dlg_Imprs->exec() > 0)
     {
-        User *userEntete = Dlg_Docs->userentete();
+        User *userEntete = Dlg_Imprs->userentete();
         if (userEntete == Q_NULLPTR)
             return;
 
         QString     Entete;
-        QDate DateDoc = Dlg_Docs->ui->dateEdit->date();
+        QDate DateDoc = Dlg_Imprs->ui->dateEdit->date();
         //création de l'entête
         QMap<QString,QString> EnteteMap = proc->ImpressionEntete(DateDoc, userEntete);
 
         bool ALD;
         QString imprimante = "";
-        QMap<dlg_documents::DATASAIMPRIMER, QString> mapdoc;
-        foreach (mapdoc, Dlg_Docs->mapdocsaimprimer())
+        QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
+        foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
         {
-            bool Prescription           = (mapdoc.find(dlg_documents::Prescription).value() == "1");
-            bool AvecDupli              = (mapdoc.find(dlg_documents::Dupli).value() == "1");
-            bool Administratif          = (mapdoc.find(dlg_documents::Administratif).value() == "1");
-            QString Titre               =  mapdoc.find(dlg_documents::Titre).value();
-            QString TxtDocument         =  mapdoc.find(dlg_documents::Texte).value();
+            bool Prescription           = (mapdoc.find(dlg_impressions::Prescription).value() == "1");
+            bool AvecDupli              = (mapdoc.find(dlg_impressions::Dupli).value() == "1");
+            bool Administratif          = (mapdoc.find(dlg_impressions::Administratif).value() == "1");
+            QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
+            QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
 
-            bool AvecChoixImprimante    = (mapdoc == Dlg_Docs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
+            bool AvecChoixImprimante    = (mapdoc == Dlg_Imprs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
-            ALD                         = Dlg_Docs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
+            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
             Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
             if (Entete == "") return;
             Entete.replace("{{TITRE1}}"        , "");
@@ -8150,7 +8150,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
             imprimante = proc->getNomImprimante();
         }
     }
-    delete Dlg_Docs;
+    delete Dlg_Imprs;
     if (aa && AffichDocsExternes)
         MAJDocsExternes();              // depuis dlg_documents
 }
@@ -8432,7 +8432,6 @@ void    Rufus::RefractionMesure()
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
 
-    Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     Dlg_Refraction     = new dlg_refraction(m_currentact, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();

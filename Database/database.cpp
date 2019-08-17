@@ -887,17 +887,17 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     {
         QJsonObject jData{};
         jData[CP_ISALLLOADED]                  = false;
-        jData[CP_IDIMPRESSION_IMPRESSIONS]     = doclist.at(i).at(0).toInt();
-        jData[CP_IDPAT_IMPRESSIONS]            = pat->id();
-        jData[CP_TYPEDOC_IMPRESSIONS]          = doclist.at(i).at(1).toString();
-        jData[CP_SOUSTYPEDOC_IMPRESSIONS]      = doclist.at(i).at(2).toString();
+        jData[CP_ID_DOCSEXTERNES]     = doclist.at(i).at(0).toInt();
+        jData[CP_IDPAT_DOCSEXTERNES]            = pat->id();
+        jData[CP_TYPEDOC_DOCSEXTERNES]          = doclist.at(i).at(1).toString();
+        jData[CP_SOUSTYPEDOC_DOCSEXTERNES]      = doclist.at(i).at(2).toString();
 
-        jData[CP_TITRE_IMPRESSIONS]            = doclist.at(i).at(3).toString();
-        jData[CP_DATE_IMPRESSIONS]             = QDateTime(doclist.at(i).at(4).toDate(), doclist.at(i).at(4).toTime()).toMSecsSinceEpoch();
-        jData[CP_COMPRESSION_IMPRESSIONS]      = doclist.at(i).at(5).toInt();
-        jData[CP_LIENFICHIER_IMPRESSIONS]      = doclist.at(i).at(6).toString();
-        jData[CP_FORMATDOC_IMPRESSIONS]        = doclist.at(i).at(7).toString();
-        jData[CP_IMPORTANCE_IMPRESSIONS]       = doclist.at(i).at(8).toInt();
+        jData[CP_TITRE_DOCSEXTERNES]            = doclist.at(i).at(3).toString();
+        jData[CP_DATE_DOCSEXTERNES]             = QDateTime(doclist.at(i).at(4).toDate(), doclist.at(i).at(4).toTime()).toMSecsSinceEpoch();
+        jData[CP_COMPRESSION_DOCSEXTERNES]      = doclist.at(i).at(5).toInt();
+        jData[CP_LIENFICHIER_DOCSEXTERNES]      = doclist.at(i).at(6).toString();
+        jData[CP_FORMATDOC_DOCSEXTERNES]        = doclist.at(i).at(7).toString();
+        jData[CP_IMPORTANCE_DOCSEXTERNES]       = doclist.at(i).at(8).toInt();
         DocExterne *doc = new DocExterne(jData);
         if (doc != Q_NULLPTR)
             docsexternes << doc;
@@ -918,27 +918,27 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
         return jData;
     jData[CP_ISALLLOADED]                  = true;
 
-    jData[CP_IDIMPRESSION_IMPRESSIONS]     = docdata.at(0).toInt();
-    jData[CP_IDUSER_IMPRESSIONS]           = docdata.at(1).toInt();
-    jData[CP_IDPAT_IMPRESSIONS]            = docdata.at(2).toInt();
-    jData[CP_TYPEDOC_IMPRESSIONS]          = docdata.at(3).toString();
-    jData[CP_SOUSTYPEDOC_IMPRESSIONS]      = docdata.at(4).toString();
+    jData[CP_ID_DOCSEXTERNES]     = docdata.at(0).toInt();
+    jData[CP_IDUSER_DOCSEXTERNES]           = docdata.at(1).toInt();
+    jData[CP_IDPAT_DOCSEXTERNES]            = docdata.at(2).toInt();
+    jData[CP_TYPEDOC_DOCSEXTERNES]          = docdata.at(3).toString();
+    jData[CP_SOUSTYPEDOC_DOCSEXTERNES]      = docdata.at(4).toString();
 
-    jData[CP_TITRE_IMPRESSIONS]            = docdata.at(5).toString();
-    jData[CP_TEXTENTETE_IMPRESSIONS]       = docdata.at(6).toString();
-    jData[CP_TEXTCORPS_IMPRESSIONS]        = docdata.at(7).toString();
-    jData[CP_TEXTORIGINE_IMPRESSIONS]      = docdata.at(8).toString();
-    jData[CP_TEXTPIED_IMPRESSIONS]         = docdata.at(9).toString();
+    jData[CP_TITRE_DOCSEXTERNES]            = docdata.at(5).toString();
+    jData[CP_TEXTENTETE_DOCSEXTERNES]       = docdata.at(6).toString();
+    jData[CP_TEXTCORPS_DOCSEXTERNES]        = docdata.at(7).toString();
+    jData[CP_TEXTORIGINE_DOCSEXTERNES]      = docdata.at(8).toString();
+    jData[CP_TEXTPIED_DOCSEXTERNES]         = docdata.at(9).toString();
 
-    jData[CP_DATE_IMPRESSIONS]             = QDateTime(docdata.at(10).toDate(), docdata.at(10).toTime()).toMSecsSinceEpoch();
-    jData[CP_COMPRESSION_IMPRESSIONS]      = docdata.at(11).toInt();
-    jData[CP_LIENFICHIER_IMPRESSIONS]      = docdata.at(12).toString();
-    jData[CP_ALD_IMPRESSIONS]              = docdata.at(13).toInt();
-    jData[CP_IDEMETTEUR_IMPRESSIONS]       = docdata.at(14).toString();
+    jData[CP_DATE_DOCSEXTERNES]             = QDateTime(docdata.at(10).toDate(), docdata.at(10).toTime()).toMSecsSinceEpoch();
+    jData[CP_COMPRESSION_DOCSEXTERNES]      = docdata.at(11).toInt();
+    jData[CP_LIENFICHIER_DOCSEXTERNES]      = docdata.at(12).toString();
+    jData[CP_ALD_DOCSEXTERNES]              = docdata.at(13).toInt();
+    jData[CP_IDEMETTEUR_DOCSEXTERNES]       = docdata.at(14).toString();
 
-    jData[CP_FORMATDOC_IMPRESSIONS]        = docdata.at(15).toString();
-    jData[CP_IMPORTANCE_IMPRESSIONS]       = docdata.at(16).toInt();
-    jData[CP_IDREFRACTION_IMPRESSIONS]     = docdata.at(17).toInt();
+    jData[CP_FORMATDOC_DOCSEXTERNES]        = docdata.at(15).toString();
+    jData[CP_IMPORTANCE_DOCSEXTERNES]       = docdata.at(16).toInt();
+    jData[CP_IDREFRACTION_DOCSEXTERNES]     = docdata.at(17).toInt();
 
     return jData;
 }
@@ -2210,7 +2210,7 @@ QJsonObject             DataBase::loadRefractionData(QVariantList refdata)      
     return data;
 }
 
-QList<Refraction*> DataBase::loadRefractionByPatId(int id)                  //! charge toutes les refractions d'un patient
+QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //! charge toutes les refractions d'un patient
 {
     QList<Refraction*> list = QList<Refraction*> ();
     QString req = "SELECT  idRefraction, idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4-5

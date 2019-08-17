@@ -12,7 +12,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_docsexternes.cpp \
     $$PWD/dlg_docsscanner.cpp \
     $$PWD/dlg_docsvideo.cpp \
-    $$PWD/dlg_documents.cpp \
     $$PWD/dlg_fontdialog.cpp \
     $$PWD/dlg_gestioncomptes.cpp \
     $$PWD/dlg_gestionlieux.cpp \
@@ -20,6 +19,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_identificationcorresp.cpp \
     $$PWD/dlg_identificationpatient.cpp \
     $$PWD/dlg_identificationuser.cpp \
+    $$PWD/dlg_impressions.cpp \
     $$PWD/dlg_listecorrespondants.cpp \
     $$PWD/dlg_listemotscles.cpp \
     $$PWD/dlg_message.cpp \
@@ -47,7 +47,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_docsexternes.h \
     $$PWD/dlg_docsscanner.h \
     $$PWD/dlg_docsvideo.h \
-    $$PWD/dlg_documents.h \
     $$PWD/dlg_fontdialog.h \
     $$PWD/dlg_gestioncomptes.h \
     $$PWD/dlg_gestionlieux.h \
@@ -55,6 +54,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_identificationcorresp.h \
     $$PWD/dlg_identificationpatient.h \
     $$PWD/dlg_identificationuser.h \
+    $$PWD/dlg_impressions.h \
     $$PWD/dlg_listecorrespondants.h \
     $$PWD/dlg_listemotscles.h \
     $$PWD/dlg_message.h \
@@ -78,12 +78,12 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_commentaires.ui \
     $$PWD/dlg_comptes.ui \
     $$PWD/dlg_depenses.ui \
-    $$PWD/dlg_documents.ui \
     $$PWD/dlg_gestioncomptes.ui \
     $$PWD/dlg_gestionusers.ui \
     $$PWD/dlg_identificationcorresp.ui \
     $$PWD/dlg_identificationpatient.ui \
     $$PWD/dlg_identificationuser.ui \
+    $$PWD/dlg_impressions.ui \
     $$PWD/dlg_motifs.ui \
     $$PWD/dlg_paramconnexion.ui \
     $$PWD/dlg_param.ui \

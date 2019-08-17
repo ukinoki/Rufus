@@ -1552,21 +1552,21 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     if (a)
     {
         QHash<QString, QVariant> listbinds;
-        listbinds[CP_IDUSER_IMPRESSIONS] =           Datas::I()->users->userconnected()->id();
-        listbinds[CP_IDPAT_IMPRESSIONS] =            Datas::I()->patients->currentpatient()->id();
-        listbinds[CP_TYPEDOC_IMPRESSIONS] =          PRESCRIPTION;
-        listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      CORRECTION;
-        listbinds[CP_TITRE_IMPRESSIONS] =            "Prescription correction";
-        listbinds[CP_TEXTENTETE_IMPRESSIONS] =       Entete;
-        listbinds[CP_TEXTCORPS_IMPRESSIONS] =        Corps;
-        listbinds[CP_TEXTORIGINE_IMPRESSIONS] =      ui->ResumePrescriptionTextEdit->toPlainText();
-        listbinds[CP_TEXTPIED_IMPRESSIONS] =         Pied;
-        listbinds[CP_DATE_IMPRESSIONS] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
-        listbinds[CP_ALD_IMPRESSIONS] =              QVariant(QVariant::String);
-        listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
-        listbinds[CP_FORMATDOC_IMPRESSIONS] =        PRESCRIPTIONLUNETTES;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
+        listbinds[CP_IDUSER_DOCSEXTERNES] =           Datas::I()->users->userconnected()->id();
+        listbinds[CP_IDPAT_DOCSEXTERNES] =            Datas::I()->patients->currentpatient()->id();
+        listbinds[CP_TYPEDOC_DOCSEXTERNES] =          PRESCRIPTION;
+        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      CORRECTION;
+        listbinds[CP_TITRE_DOCSEXTERNES] =            "Prescription correction";
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        Corps;
+        listbinds[CP_TEXTORIGINE_DOCSEXTERNES] =      ui->ResumePrescriptionTextEdit->toPlainText();
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied;
+        listbinds[CP_DATE_DOCSEXTERNES] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+        listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
+        listbinds[CP_ALD_DOCSEXTERNES] =              QVariant(QVariant::String);
+        listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";
+        listbinds[CP_FORMATDOC_DOCSEXTERNES] =        PRESCRIPTIONLUNETTES;
+        listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;
@@ -1685,23 +1685,16 @@ void dlg_refraction::Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double
 //---------------------------------------------------------------------------------
 void dlg_refraction::InscriptRefraction()
 {
-    bool a = InsertRefraction();
-    QString req = "select max(idrefraction) from " TBL_REFRACTIONS " where idpat = " + QString::number(Datas::I()->patients->currentpatient()->id());
-    QVariantList refractdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-    if (m_ok && refractdata.size()>0)
-        m_idrefraction = refractdata.at(0).toInt();
-    if ((m_mode == Refraction::Autoref || m_mode == Refraction::Acuite) && a)
+    Refraction *ref = InsertRefraction();
+    if (ref == Q_NULLPTR)
+        return;
+    m_idrefraction = ref->id();
+    if (m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
         MajDonneesOphtaPatient();
-    if (m_mode == Refraction::Prescription && a)
+    else if (m_mode == Refraction::Prescription)
     {
-        bool ok;
-        req = "select max(idimpression) from " TBL_DOCSEXTERNES " where idpat = " + QString::number(Datas::I()->patients->currentpatient()->id());
-        QVariantList imprdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (ok && imprdata.size()>0)
-        {
-            int idimp = imprdata.at(0).toInt();
-            db->StandardSQL("update " TBL_DOCSEXTERNES " set idRefraction = " + QString::number(m_idrefraction) + " where idimpression = " + QString::number(idimp));
-        }
+        int idimp = db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, m_ok);
+        db->StandardSQL("update " TBL_DOCSEXTERNES " set idRefraction = " + QString::number(m_idrefraction) + " where idimpression = " + QString::number(idimp));
     }
 }
 
@@ -1790,86 +1783,85 @@ void dlg_refraction::InsertDonneesOphtaPatient()
 //---------------------------------------------------------------------------------
 // Enregistre la mesure qui vient d'être validée dans la table Refractions
 //---------------------------------------------------------------------------------
-bool dlg_refraction::InsertRefraction()
+Refraction* dlg_refraction::InsertRefraction()
 {
     QHash<QString, QVariant> listbinds;
-    listbinds["idPat"]              = Datas::I()->patients->currentpatient()->id();
-    listbinds["idActe"]             = m_currentacte->id();
-    listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
-    listbinds["QuelleMesure"]       = ConvertMesure(m_mode);
+    listbinds[CP_IDPAT_REFRACTIONS]                 = Datas::I()->patients->currentpatient()->id();
+    listbinds[CP_IDACTE_REFRACTIONS]                = m_currentacte->id();
+    listbinds[CP_DATE_REFRACTIONS]                  = ui->DateDateEdit->date().toString("yyyy-MM-dd");
+    listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(m_mode);
     if(m_mode != Refraction::Autoref)
-        listbinds["QuelleDistance"]  = QuelleDistance();
+        listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = QuelleDistance();
     if(m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
-        listbinds["Cycloplegie"]    = ui->CycloplegieCheckBox->isChecked()? 1 : 0;
+        listbinds[CP_CYCLOPLEGIE_REFRACTIONS]       = ui->CycloplegieCheckBox->isChecked()? 1 : 0;
 
-    listbinds["ODcoche"]            = ui->ODCheckBox->isChecked()? 1 : 0;
+    listbinds[CP_ODMESURE_REFRACTIONS]              = ui->ODCheckBox->isChecked()? 1 : 0;
     if(ui->ODCheckBox->isChecked())
     {
-        listbinds["SphereOD"]       = ui->SphereOD->value();
+        listbinds[CP_SPHEREOD_REFRACTIONS]          = ui->SphereOD->value();
         if (ui->CylindreOD->value() != 0.0)
         {
-            listbinds["CylindreOD"]      = ui->CylindreOD->value();
-            listbinds["AxeCylindreOD"]   = ui->AxeCylindreOD->value();
+            listbinds[CP_CYLINDREOD_REFRACTIONS]    = ui->CylindreOD->value();
+            listbinds[CP_AXECYLOD_REFRACTIONS]      = ui->AxeCylindreOD->value();
         }
     }
     if(wdg_AVLOD->isVisible())
-        listbinds["AVLOD"]   = wdg_AVLOD->text();
+        listbinds[CP_AVLOD_REFRACTIONS]             = wdg_AVLOD->text();
     if(ui->AddVPOD->isVisible())
-        listbinds["AddVPOD"] = ui->AddVPOD->value();
+        listbinds[CP_ADDVPOD_REFRACTIONS]           = ui->AddVPOD->value();
     if(wdg_AVPOD->isVisible())
-        listbinds["AVPOD"]   = wdg_AVPOD->text();
+        listbinds[CP_AVPOD_REFRACTIONS]             = wdg_AVPOD->text();
     if(ui->PrismeOD->isVisible() && ui->PrismeOD->text().toDouble() > 0)
     {
-        listbinds["PrismeOD"]           = ui->PrismeOD->value();
-        listbinds["BasePrismeOD"]       = ui->BasePrismeOD->value();
-        listbinds["BasePrismeTextOD"]   = ui->BasePrismeTextODComboBox->currentText();
-        listbinds["PressOnOD"]          = ui->PressonODCheckBox->isChecked()? 1 : 0;
+        listbinds[CP_PRISMEOD_REFRACTIONS]          = ui->PrismeOD->value();
+        listbinds[CP_BASEPRISMEOD_REFRACTIONS]      = ui->BasePrismeOD->value();
+        listbinds[CP_BASEPRISMETEXTOD_REFRACTIONS]  = ui->BasePrismeTextODComboBox->currentText();
+        listbinds[CP_PRESSONOD_REFRACTIONS]         = ui->PressonODCheckBox->isChecked()? 1 : 0;
     }
-    listbinds["DepoliOD"]               = ui->DepoliODCheckBox->isChecked()? 1 : 0;
-    listbinds["PlanOD"]                 = ui->PlanODCheckBox->isChecked()? 1 : 0;
+    listbinds[CP_DEPOLIOD_REFRACTIONS]              = ui->DepoliODCheckBox->isChecked()? 1 : 0;
+    listbinds[CP_PLANOD_REFRACTIONS]                = ui->PlanODCheckBox->isChecked()? 1 : 0;
     if(ui->RyserODCheckBox->isChecked())
-        listbinds["RyserOD"]            = ui->RyserSpinBox->value();
-    listbinds["FormuleOD"]              = CalculFormule_OD();
+        listbinds[CP_RYSEROD_REFRACTIONS]           = ui->RyserSpinBox->value();
+    listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculFormule_OD();
 
-    listbinds["OGcoche"]            = ui->OGCheckBox->isChecked()? 1 : 0;
+    listbinds[CP_OGMESURE_REFRACTIONS]              = ui->OGCheckBox->isChecked()? 1 : 0;
     if(ui->OGCheckBox->isChecked())
     {
-        listbinds["SphereOG"]       = ui->SphereOG->value();
+        listbinds[CP_SPHEREOG_REFRACTIONS]          = ui->SphereOG->value();
         if (ui->CylindreOG->value() != 0.0)
         {
-            listbinds["CylindreOG"]      = ui->CylindreOG->value();
-            listbinds["AxeCylindreOG"]   = ui->AxeCylindreOG->value();
+            listbinds[CP_CYLINDREOG_REFRACTIONS]    = ui->CylindreOG->value();
+            listbinds[CP_AXECYLOG_REFRACTIONS]      = ui->AxeCylindreOG->value();
         }
     }
     if(wdg_AVLOG->isVisible())
-        listbinds["AVLOG"]   = wdg_AVLOG->text();
+        listbinds[CP_AVLOG_REFRACTIONS]             = wdg_AVLOG->text();
     if(ui->AddVPOG->isVisible())
-        listbinds["AddVPOG"] = ui->AddVPOG->value();
+        listbinds[CP_ADDVPOG_REFRACTIONS]           = ui->AddVPOG->value();
     if(wdg_AVPOG->isVisible())
-        listbinds["AVPOG"]   = wdg_AVPOG->text();
+        listbinds[CP_AVPOG_REFRACTIONS]             = wdg_AVPOG->text();
     if(ui->PrismeOG->isVisible() && ui->PrismeOG->text().toDouble() > 0)
     {
-        listbinds["PrismeOG"]           = ui->PrismeOG->value();
-        listbinds["BasePrismeOG"]       = ui->BasePrismeOG->value();
-        listbinds["BasePrismeTextOG"]   = ui->BasePrismeTextOGComboBox->currentText();
-        listbinds["PressOnOG"]          = ui->PressonOGCheckBox->isChecked()? 1 : 0;
+        listbinds[CP_PRISMEOG_REFRACTIONS]          = ui->PrismeOG->value();
+        listbinds[CP_BASEPRISMEOG_REFRACTIONS]      = ui->BasePrismeOG->value();
+        listbinds[CP_BASEPRISMETEXTOG_REFRACTIONS]  = ui->BasePrismeTextOGComboBox->currentText();
+        listbinds[CP_PRESSONOG_REFRACTIONS]         = ui->PressonOGCheckBox->isChecked()? 1 : 0;
     }
-    listbinds["DepoliOG"]               = ui->DepoliOGCheckBox->isChecked()? 1 : 0;
-    listbinds["PlanOG"]                 = ui->PlanOGCheckBox->isChecked()? 1 : 0;
+    listbinds[CP_DEPOLIOG_REFRACTIONS]              = ui->DepoliOGCheckBox->isChecked()? 1 : 0;
+    listbinds[CP_PLANOG_REFRACTIONS]                = ui->PlanOGCheckBox->isChecked()? 1 : 0;
     if(ui->RyserOGCheckBox->isChecked())
-        listbinds["RyserOG"]            = ui->RyserSpinBox->value();
-    listbinds["FormuleOG"]              = CalculFormule_OG();
+        listbinds[CP_RYSEROG_REFRACTIONS]           = ui->RyserSpinBox->value();
+    listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculFormule_OG();
 
     if(m_mode == Refraction::Prescription)
     {
-        listbinds["CommentaireOrdoLunettes"]    = CalculCommentaire();
-        listbinds["QuelsVerres"]                = QuelsVerres();
-        listbinds["QuelOeil"]                   = QuelsYeux();
-        listbinds["Monture"]                    = QuelleMonture();
-        listbinds["VerreTeinte"]                = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
+        listbinds[CP_COMMENTAIREORDO_REFRACTIONS]   = CalculCommentaire();
+        listbinds[CP_TYPEVERRES_REFRACTIONS]        = QuelsVerres();
+        listbinds[CP_OEIL_REFRACTIONS]              = QuelsYeux();
+        listbinds[CP_MONTURE_REFRACTIONS]           = QuelleMonture();
+        listbinds[CP_VERRETEINTE_REFRACTIONS]       = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
     }
-    bool a = db->InsertSQLByBinds(TBL_REFRACTIONS, listbinds, tr("Erreur de création dans ") + TBL_REFRACTIONS);
-    return a;
+    return Datas::I()->refractions->CreationRefraction(listbinds);
 }
 
 /*! ---------------------------------------------------------------------------------

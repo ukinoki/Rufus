@@ -6222,36 +6222,40 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             mAxeOG          = QString::number(MapMesure["AxeOG"].toInt());
             mAddOG          = Utils::PrefixePlus(MapMesure["AddOG"].toString());
             zQuelleMesure = "P";
-            QString requete = "delete from " TBL_REFRACTIONS
-                    " where idPat = " + QString::number(idPatient) +
-                    " and idacte = " + QString::number(idActe) +
-                    " and QuelleMesure = 'P'" +
-                    " and FormuleOD = '" + Utils::CalculeFormule(MapMesure,"D") + "'" +
-                    " and FormuleOG = '" + Utils::CalculeFormule(MapMesure,"G") + "'";
-            db->StandardSQL(requete);
+            foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            {
+                if (ref->idacte() == idActe
+                        && ref->mesure() == Refraction::Fronto
+                        && ref->formuleOD() == Utils::CalculeFormule(MapMesure,"D")
+                        && ref->formuleOG() == Utils::CalculeFormule(MapMesure,"G"))
+                {
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                    break;
+                }
+            }
 
-            requete = "INSERT INTO " TBL_REFRACTIONS
-                    " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
-                    " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, FormuleOD,"
-                    " SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, FormuleOG)"
-                    " VALUES (" +
-                    QString::number(idPatient)  + ", " +
-                    QString::number(idActe)     + ", " +
-                    "NOW(), '" +
-                    zQuelleMesure               + "'," +
-                    ((QLocale().toDouble(mAddOD)>0 || QLocale().toDouble(mAddOG)>0)? "'2'" : "null") + "," +
-                    QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                    QString::number(QLocale().toDouble(mCylOD))     + "," +
-                    mAxeOD     + "," +
-                    (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + ",'" +
-                    Utils::CalculeFormule(MapMesure,"D") + "'," +
-                    QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                    QString::number(QLocale().toDouble(mCylOG))     + "," +
-                    mAxeOG     + "," +
-                    (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
-                    Utils::CalculeFormule(MapMesure,"G") + "')";
+            QHash<QString, QVariant> listbinds;
+            listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
+            listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
+            listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
+            listbinds[CP_TYPEMESURE_REFRACTIONS]            = zQuelleMesure;
+            if (QLocale().toDouble(mAddOD)>0 || QLocale().toDouble(mAddOG)>0)
+                listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = "2";
 
-            db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + TBL_REFRACTIONS);
+            listbinds[CP_SPHEREOD_REFRACTIONS]              = QLocale().toDouble(mSphereOD);
+            listbinds[CP_CYLINDREOD_REFRACTIONS]            = QLocale().toDouble(mCylOD);
+            listbinds[CP_AXECYLOD_REFRACTIONS]              = MapMesure["AxeOD"].toInt();
+            if (QLocale().toDouble(mAddOD)>0)
+                listbinds[CP_ADDVPOD_REFRACTIONS]           = QLocale().toDouble(mAddOD);
+            listbinds[CP_FORMULEOD_REFRACTIONS]             = Utils::CalculeFormule(MapMesure,"D");
+
+            listbinds[CP_SPHEREOG_REFRACTIONS]              = QLocale().toDouble(mSphereOD);
+            listbinds[CP_CYLINDREOG_REFRACTIONS]            = QLocale().toDouble(mCylOD);
+            listbinds[CP_AXECYLOG_REFRACTIONS]              = MapMesure["AxeOD"].toInt();
+            if (QLocale().toDouble(mAddOD)>0)
+                listbinds[CP_ADDVPOG_REFRACTIONS]           = QLocale().toDouble(mAddOD);
+            listbinds[CP_FORMULEOG_REFRACTIONS]             = Utils::CalculeFormule(MapMesure,"D");
+            Datas::I()->refractions->CreationRefraction(listbinds);
         }
     }
     if (!map_mesureAutoref.isEmpty() && Mesure == Autoref && m_isnewMesureAutoref)
@@ -6279,33 +6283,33 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (PD == "")
                 PD = "null";
             zQuelleMesure = "A";
-            QString requete = "delete from " TBL_REFRACTIONS
-                    " where idPat = " + QString::number(idPatient) +
-                    " and idacte = " + QString::number(idActe) +
-                    " and QuelleMesure = 'A'" ;
-            db->StandardSQL(requete);
+            foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            {
+                if (ref->idacte() == idActe && ref->mesure() == Refraction::Autoref)
+                {
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                    break;
+                }
+            }
 
-            requete = "INSERT INTO " TBL_REFRACTIONS
-                    " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
-                    " SphereOD, CylindreOD, AxeCylindreOD, FormuleOD,"
-                    " SphereOG, CylindreOG, AxeCylindreOG, FormuleOG, PD)"
-                    " VALUES (" +
-                    QString::number(idPatient)  + ", " +
-                    QString::number(idActe)     + ", " +
-                    "NOW(), '" +
-                    zQuelleMesure               + "'," +
-                    "null" + "," +
-                    QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                    QString::number(QLocale().toDouble(mCylOD))     + "," +
-                    mAxeOD     + ",'" +
-                    Utils::CalculeFormule(MapMesure,"D") + "'," +
-                    QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                    QString::number(QLocale().toDouble(mCylOG))     + "," +
-                    mAxeOG     + ",'" +
-                    Utils::CalculeFormule(MapMesure,"G") + "', " + PD + ")";
+            QHash<QString, QVariant> listbinds;
+            listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
+            listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
+            listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
+            listbinds[CP_TYPEMESURE_REFRACTIONS]            = zQuelleMesure;
 
-            db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + TBL_REFRACTIONS);
-            requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
+            listbinds[CP_SPHEREOD_REFRACTIONS]              = QLocale().toDouble(mSphereOD);
+            listbinds[CP_CYLINDREOD_REFRACTIONS]            = QLocale().toDouble(mCylOD);
+            listbinds[CP_AXECYLOD_REFRACTIONS]              = MapMesure["AxeOD"].toInt();
+            listbinds[CP_FORMULEOD_REFRACTIONS]             = Utils::CalculeFormule(MapMesure,"D");
+
+            listbinds[CP_SPHEREOG_REFRACTIONS]              = QLocale().toDouble(mSphereOD);
+            listbinds[CP_CYLINDREOG_REFRACTIONS]            = QLocale().toDouble(mCylOD);
+            listbinds[CP_AXECYLOG_REFRACTIONS]              = MapMesure["AxeOD"].toInt();
+            listbinds[CP_FORMULEOG_REFRACTIONS]             = Utils::CalculeFormule(MapMesure,"D");
+            Datas::I()->refractions->CreationRefraction(listbinds);
+
+            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
             QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
             if (!m_ok)
                 return;
@@ -6435,39 +6439,45 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (PD == "")
                 PD = "null";
             zQuelleMesure = "R";
-            QString requete = "delete from " TBL_REFRACTIONS
-                    " where idPat = " + QString::number(idPatient) +
-                    " and idacte = " + QString::number(idActe) +
-                    " and QuelleMesure = 'R'" ;
-            db->StandardSQL(requete);
-            requete = "INSERT INTO " TBL_REFRACTIONS
-                    " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
-                    " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, FormuleOD, AVLOD, AVPOD,"
-                    " SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, FormuleOG, AVLOG, AVPOG, PD)"
-                    " VALUES (" +
-                    QString::number(idPatient)  + ", " +
-                    QString::number(idActe)     + ", " +
-                    "NOW(), '" +
-                    zQuelleMesure               + "','" +
-                    ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "'," +
-                    QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                    QString::number(QLocale().toDouble(mCylOD))     + "," +
-                    mAxeOD     + "," +
-                    (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + ",'" +
-                    Utils::CalculeFormule(MapMesure,"D") + "','" +
-                    mAVLOD + "','" +
-                    mAVPOD + "'," +
-                    QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                    QString::number(QLocale().toDouble(mCylOG))     + "," +
-                    mAxeOG     + "," +
-                    (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
-                    Utils::CalculeFormule(MapMesure,"G") + "','" +
-                    mAVLOG + "','" +
-                    mAVPOG + "'," +
-                    PD + ")";
+            foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            {
+                if (ref->idacte() == idActe && ref->mesure() == Refraction::Acuite)
+                {
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                    break;
+                }
+            }
 
-            db->StandardSQL(requete, tr("Erreur de création  de données de refraction dans ") + TBL_REFRACTIONS);
-            requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
+            QHash<QString, QVariant> listbinds;
+            listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
+            listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
+            listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
+            listbinds[CP_TYPEMESURE_REFRACTIONS]            = zQuelleMesure;
+            listbinds[CP_DISTANCEMESURE_REFRACTIONS]        = ((mAVPOD!="" || mAVPOG!="")? "2" : "L");
+
+            listbinds[CP_SPHEREOD_REFRACTIONS]              = QLocale().toDouble(mSphereOD);
+            listbinds[CP_CYLINDREOD_REFRACTIONS]            = QLocale().toDouble(mCylOD);
+            listbinds[CP_AXECYLOD_REFRACTIONS]              = MapMesure["AxeOD"].toInt();
+            if (QLocale().toDouble(mAddOD)>0)
+                listbinds[CP_ADDVPOD_REFRACTIONS]           = QLocale().toDouble(mAddOD);
+            listbinds[CP_FORMULEOD_REFRACTIONS]             = Utils::CalculeFormule(MapMesure,"D");
+            listbinds[CP_AVLOD_REFRACTIONS]                 = mAVLOD;
+            listbinds[CP_AVPOD_REFRACTIONS]                 = mAVPOD;
+
+            listbinds[CP_SPHEREOG_REFRACTIONS]              = QLocale().toDouble(mSphereOD);
+            listbinds[CP_CYLINDREOG_REFRACTIONS]            = QLocale().toDouble(mCylOD);
+            listbinds[CP_AXECYLOG_REFRACTIONS]              = MapMesure["AxeOD"].toInt();
+            if (QLocale().toDouble(mAddOD)>0)
+                listbinds[CP_ADDVPOG_REFRACTIONS]           = QLocale().toDouble(mAddOD);
+            listbinds[CP_FORMULEOG_REFRACTIONS]             = Utils::CalculeFormule(MapMesure,"D");
+            listbinds[CP_AVLOG_REFRACTIONS]                 = mAVLOD;
+            listbinds[CP_AVPOG_REFRACTIONS]                 = mAVPOD;
+
+            listbinds[CP_PD_REFRACTIONS]                    = MapMesure["PD"].toInt();
+
+            Datas::I()->refractions->CreationRefraction(listbinds);
+
+            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
             QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
             if (!m_ok)
                 return;
@@ -6522,5 +6532,4 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    Datas::I()->refractions->initListebyPatId(idPatient);
 }

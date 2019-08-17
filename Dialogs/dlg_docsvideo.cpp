@@ -269,19 +269,19 @@ void dlg_docsvideo::ValideFiche()
 
     QHash<QString, QVariant> listbinds;
     bool ok;
-    int idimpr =  db->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_DOCSEXTERNES, ok) + 1;
+    int idimpr =  db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
-    listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentpatient->id();
-    listbinds[CP_TYPEDOC_IMPRESSIONS] =          wdg_typedoccombobx->currentText();
-    listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
-    listbinds[CP_TITRE_IMPRESSIONS] =            sstypedoc;
-    listbinds[CP_DATE_IMPRESSIONS] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
-    listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
-    listbinds[CP_FORMATAUTRE_IMPRESSIONS] =      VIDEO;
-    listbinds[CP_LIENFICHIER_IMPRESSIONS] =      NomFileVideoDoc;
-    listbinds[CP_FORMATDOC_IMPRESSIONS] =        VIDEO;
+    listbinds[CP_IDPAT_DOCSEXTERNES] =            m_currentpatient->id();
+    listbinds[CP_TYPEDOC_DOCSEXTERNES] =          wdg_typedoccombobx->currentText();
+    listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      sstypedoc;
+    listbinds[CP_TITRE_DOCSEXTERNES] =            sstypedoc;
+    listbinds[CP_DATE_DOCSEXTERNES] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+    listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
+    listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";
+    listbinds[CP_FORMATAUTRE_DOCSEXTERNES] =      VIDEO;
+    listbinds[CP_LIENFICHIER_DOCSEXTERNES] =      NomFileVideoDoc;
+    listbinds[CP_FORMATDOC_DOCSEXTERNES] =        VIDEO;
 
     DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
     bool b = (doc != Q_NULLPTR);

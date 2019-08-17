@@ -322,7 +322,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     item = m_tripartypemodel->itemFromIndex(getIndexFromId(m_tripartypemodel,id));
     if (item != Q_NULLPTR)
         modifieitem(item, docmt, imp, m_font);
-    ItemsList::update(docmt, CP_IMPORTANCE_IMPRESSIONS, imp);
+    ItemsList::update(docmt, CP_IMPORTANCE_DOCSEXTERNES, imp);
 
     bool hasimportants = false;
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
@@ -805,21 +805,21 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         Utils::nettoieHTML(Corps);
 
         QHash<QString, QVariant> listbinds;
-        listbinds[CP_IDUSER_IMPRESSIONS]        = docmt->iduser();
-        listbinds[CP_IDPAT_IMPRESSIONS]         = docmt->idpatient();
-        listbinds[CP_TYPEDOC_IMPRESSIONS]       = docmt->typedoc();
-        listbinds[CP_SOUSTYPEDOC_IMPRESSIONS]   = docmt->soustypedoc();
-        listbinds[CP_TITRE_IMPRESSIONS]         = docmt->titre();
-        listbinds[CP_TEXTENTETE_IMPRESSIONS]    = Entete;
-        listbinds[CP_TEXTCORPS_IMPRESSIONS]     = Corps;
-        listbinds[CP_TEXTORIGINE_IMPRESSIONS]   = txt;
-        listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
-        listbinds[CP_DATE_IMPRESSIONS]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
-        listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->idsitedetravail();
-        listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
-        listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();
+        listbinds[CP_IDUSER_DOCSEXTERNES]        = docmt->iduser();
+        listbinds[CP_IDPAT_DOCSEXTERNES]         = docmt->idpatient();
+        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = docmt->typedoc();
+        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = docmt->soustypedoc();
+        listbinds[CP_TITRE_DOCSEXTERNES]         = docmt->titre();
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
+        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = txt;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+        listbinds[CP_DATE_DOCSEXTERNES]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = docmt->format();
+        listbinds[CP_IDLIEU_DOCSEXTERNES]        = m_currentuser->idsitedetravail();
+        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1" : QVariant(QVariant::String));
+        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = m_currentuser->id();
+        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = docmt->importance();
         DocExterne * doc = m_docsexternes->CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
         {
@@ -947,7 +947,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     {
         if (dateedit->date().isValid())
         {
-            ItemsList::update(docmt, CP_DATE_IMPRESSIONS, QDateTime(dateedit->date()));
+            ItemsList::update(docmt, CP_DATE_DOCSEXTERNES, QDateTime(dateedit->date()));
             RemplirTreeView();
             dlg->accept();
         }
@@ -986,7 +986,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     {
         if (Line->text()!="")
         {
-            ItemsList::update(docmt, CP_SOUSTYPEDOC_IMPRESSIONS, Line->text());
+            ItemsList::update(docmt, CP_SOUSTYPEDOC_DOCSEXTERNES, Line->text());
             QString titre = CalcTitre(docmt);
             m_modele->itemFromIndex(idx)->setText(titre);
             int id = docmt->id();

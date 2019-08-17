@@ -114,58 +114,50 @@ void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
 
 DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
 {
+    bool ok;
     DocExterne *doc = Q_NULLPTR;
-    DataBase::I()->locktables(QStringList() << TBL_DOCSEXTERNES);
-    bool result = DataBase::I()->InsertSQLByBinds(TBL_DOCSEXTERNES, sets);
+    int iddoc = 0;
+    DataBase::I()->locktable(TBL_DOCSEXTERNES);
+    iddoc = DataBase::I()->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, ok);
+    bool result = (ok && iddoc  > 0);
+    if (result)
+    {
+        ++ iddoc;
+        sets[CP_ID_DOCSEXTERNES] = iddoc;
+        result = DataBase::I()->InsertSQLByBinds(TBL_DOCSEXTERNES, sets);
+    }
+    DataBase::I()->unlocktables();
     if (!result)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce document dans la base!"));
-        DataBase::I()->unlocktables();
         return doc;
     }
-    // Récupération de l'iddocument créé ------------------------------------
-    int iddoc = 0;
-    QHash<QString, QVariant>::const_iterator itx = sets.find(CP_IDIMPRESSION_IMPRESSIONS);
-    if (itx != sets.constEnd())
-        iddoc = itx.value().toInt();
-    else
-    {
-        bool ok;
-        iddoc = DataBase::I()->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_DOCSEXTERNES, ok, tr("Impossible de sélectionner les enregistrements"));
-        if (!ok)
-        {
-            DataBase::I()->unlocktables();
-            return Q_NULLPTR;
-        }
-    }
-    DataBase::I()->unlocktables();
-    if (iddoc == 0)
-        return Q_NULLPTR;
+
     QJsonObject  data = QJsonObject{};
-    data[CP_IDIMPRESSION_IMPRESSIONS] = iddoc;
+    data[CP_ID_DOCSEXTERNES] = iddoc;
     QString champ;
     QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
-        if (champ == CP_IDUSER_IMPRESSIONS)                 data[champ] = itset.value().toInt();
-        else if (champ == CP_IDPAT_IMPRESSIONS)             data[champ] = itset.value().toInt();
-        else if (champ == CP_TYPEDOC_IMPRESSIONS)           data[champ] = itset.value().toString();
-        else if (champ == CP_SOUSTYPEDOC_IMPRESSIONS)       data[champ] = itset.value().toString();
-        else if (champ == CP_TITRE_IMPRESSIONS)             data[champ] = itset.value().toString();
-        else if (champ == CP_TEXTENTETE_IMPRESSIONS)        data[champ] = itset.value().toString();
-        else if (champ == CP_TEXTCORPS_IMPRESSIONS)         data[champ] = itset.value().toString();
-        else if (champ == CP_TEXTORIGINE_IMPRESSIONS)       data[champ] = itset.value().toString();
-        else if (champ == CP_TEXTPIED_IMPRESSIONS)          data[champ] = itset.value().toString();
-        else if (champ == CP_DATE_IMPRESSIONS)              data[champ] = QDateTime(itset.value().toDate(), itset.value().toTime()).toMSecsSinceEpoch();
-        else if (champ == CP_COMPRESSION_IMPRESSIONS)       data[champ] = itset.value().toInt();
-        else if (champ == CP_LIENFICHIER_IMPRESSIONS)       data[champ] = itset.value().toString();
-        else if (champ == CP_ALD_IMPRESSIONS)               data[champ] = itset.value().toInt();
-        else if (champ == CP_IDEMETTEUR_IMPRESSIONS)        data[champ] = itset.value().toInt();
-        else if (champ == CP_FORMATDOC_IMPRESSIONS)         data[champ] = itset.value().toString();
-        else if (champ == CP_IMPORTANCE_IMPRESSIONS)        data[champ] = itset.value().toInt();
-        else if (champ == CP_EMISORRECU_IMPRESSIONS)        data[champ] = itset.value().toInt();
-        else if (champ == CP_IDLIEU_IMPRESSIONS)            data[champ] = itset.value().toInt();
+        if (champ == CP_IDUSER_DOCSEXTERNES)                 data[champ] = itset.value().toInt();
+        else if (champ == CP_IDPAT_DOCSEXTERNES)             data[champ] = itset.value().toInt();
+        else if (champ == CP_TYPEDOC_DOCSEXTERNES)           data[champ] = itset.value().toString();
+        else if (champ == CP_SOUSTYPEDOC_DOCSEXTERNES)       data[champ] = itset.value().toString();
+        else if (champ == CP_TITRE_DOCSEXTERNES)             data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTENTETE_DOCSEXTERNES)        data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTCORPS_DOCSEXTERNES)         data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTORIGINE_DOCSEXTERNES)       data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTPIED_DOCSEXTERNES)          data[champ] = itset.value().toString();
+        else if (champ == CP_DATE_DOCSEXTERNES)              data[champ] = QDateTime(itset.value().toDate(), itset.value().toTime()).toMSecsSinceEpoch();
+        else if (champ == CP_COMPRESSION_DOCSEXTERNES)       data[champ] = itset.value().toInt();
+        else if (champ == CP_LIENFICHIER_DOCSEXTERNES)       data[champ] = itset.value().toString();
+        else if (champ == CP_ALD_DOCSEXTERNES)               data[champ] = itset.value().toInt();
+        else if (champ == CP_IDEMETTEUR_DOCSEXTERNES)        data[champ] = itset.value().toInt();
+        else if (champ == CP_FORMATDOC_DOCSEXTERNES)         data[champ] = itset.value().toString();
+        else if (champ == CP_IMPORTANCE_DOCSEXTERNES)        data[champ] = itset.value().toInt();
+        else if (champ == CP_EMISORRECU_DOCSEXTERNES)        data[champ] = itset.value().toInt();
+        else if (champ == CP_IDLIEU_DOCSEXTERNES)            data[champ] = itset.value().toInt();
     }
     doc = new DocExterne(data);
     return doc;

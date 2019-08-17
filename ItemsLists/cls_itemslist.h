@@ -43,6 +43,7 @@ void clearAll(QMap<K, T*> *m_map)
 
 protected:
 
+    bool m_ok;
 /*!
 * \brief ItemsList::addList
 * Cette fonction rajoute une liste d'items à un QMap
@@ -266,7 +267,7 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
         if (dynamic_cast<DocExterne*>(item) != Q_NULLPTR)
         {
             table = TBL_DOCSEXTERNES;
-            idname = CP_IDIMPRESSION_IMPRESSIONS;
+            idname = CP_ID_DOCSEXTERNES;
             loop = true;
             break;
         }

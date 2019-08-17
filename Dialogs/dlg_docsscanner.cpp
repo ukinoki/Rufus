@@ -379,39 +379,39 @@ void dlg_docsscanner::ValideFiche()
 //        qDebug() << "val" << val;
         if (!m_accesdistant)
         {
-            listbinds[CP_IDIMPRESSION_IMPRESSIONS] =     idimpr;
-            listbinds[CP_IDPAT_IMPRESSIONS] =            m_iditem;
-            listbinds[CP_TYPEDOC_IMPRESSIONS] =          wdg_typedoccombobx->currentText();
-            listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
-            listbinds[CP_TITRE_IMPRESSIONS] =            wdg_typedoccombobx->currentText();
-            listbinds[CP_DATE_IMPRESSIONS] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
-            listbinds[CP_LIENFICHIER_IMPRESSIONS] =      lien;
-            listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
-            listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
+            listbinds[CP_ID_DOCSEXTERNES] =     idimpr;
+            listbinds[CP_IDPAT_DOCSEXTERNES] =            m_iditem;
+            listbinds[CP_TYPEDOC_DOCSEXTERNES] =          wdg_typedoccombobx->currentText();
+            listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      sstypedoc;
+            listbinds[CP_TITRE_DOCSEXTERNES] =            wdg_typedoccombobx->currentText();
+            listbinds[CP_DATE_DOCSEXTERNES] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+            listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
+            listbinds[CP_LIENFICHIER_DOCSEXTERNES] =      lien;
+            listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "1";
+            listbinds[CP_FORMATDOC_DOCSEXTERNES] =        DOCUMENTRECU;
+            listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
         }
         else
         {
             if (suffixe == "pdf")
-                suffixe = CP_PDF_IMPRESSIONS;
+                suffixe = CP_PDF_DOCSEXTERNES;
             else if (suffixe== "jpg" || suffixe == "jpeg")
-                suffixe = CP_JPG_IMPRESSIONS;
-            listbinds[CP_IDIMPRESSION_IMPRESSIONS] =     idimpr;
-            listbinds[CP_IDPAT_IMPRESSIONS] =            m_iditem;
-            listbinds[CP_TYPEDOC_IMPRESSIONS] =          wdg_typedoccombobx->currentText();
-            listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
-            listbinds[CP_TITRE_IMPRESSIONS] =            wdg_typedoccombobx->currentText();
-            listbinds[CP_DATE_IMPRESSIONS] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
+                suffixe = CP_JPG_DOCSEXTERNES;
+            listbinds[CP_ID_DOCSEXTERNES] =     idimpr;
+            listbinds[CP_IDPAT_DOCSEXTERNES] =            m_iditem;
+            listbinds[CP_TYPEDOC_DOCSEXTERNES] =          wdg_typedoccombobx->currentText();
+            listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      sstypedoc;
+            listbinds[CP_TITRE_DOCSEXTERNES] =            wdg_typedoccombobx->currentText();
+            listbinds[CP_DATE_DOCSEXTERNES] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+            listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
             //QJsonValue val = QJsonDocument::fromBinaryData(ba)[suffixe];
             //            if (val.isObject())
             //                QJsonDocument doc(val.toObject());
             //listbinds[suffixe] =                         val;
             listbinds[suffixe] =                         ba;
-            listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
-            listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
+            listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "1";
+            listbinds[CP_FORMATDOC_DOCSEXTERNES] =        DOCUMENTRECU;
+            listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
         }
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         b = (doc != Q_NULLPTR);

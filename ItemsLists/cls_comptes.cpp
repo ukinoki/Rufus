@@ -82,7 +82,6 @@ QMap<int, bool> Comptes::initListeComptesByIdUser(int id)
 Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString IntituleCompte, QString NomCompteAbrege, double SoldeSurDernierReleve, bool Partage, bool Desactive)
 {
     Compte *cpt = Q_NULLPTR;
-    bool ok;
     QString idbq            = (idBanque == 0?               "null" : QString::number(idBanque));
     QString idusr           = (idUser == 0?                 "null" : QString::number(idUser));
     QString iban            = (IBAN == ""?                  "null" : "'" + Utils::correctquoteSQL(IBAN) + "'");
@@ -109,7 +108,7 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
         return Q_NULLPTR;
     }
     // Récupération de l'idMotif créé ------------------------------------
-    int idcpt = DataBase::I()->selectMaxFromTable(CP_IDCOMPTE_COMPTES, TBL_COMPTES, ok, tr("Impossible de sélectionner les enregistrements"));
+    int idcpt = DataBase::I()->selectMaxFromTable(CP_IDCOMPTE_COMPTES, TBL_COMPTES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
     cpt = new Compte();
     cpt->setid(idcpt);

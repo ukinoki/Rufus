@@ -41,8 +41,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsexternes.h"
 #include "dlg_docsscanner.h"
 #include "dlg_docsvideo.h"
-#include "dlg_documents.h"
-#include "ui_dlg_documents.h"
+#include "dlg_impressions.h"
+#include "ui_dlg_impressions.h"
 #include "dlg_gestionlieux.h"
 #include "dlg_identificationcorresp.h"
 #include "ui_dlg_identificationcorresp.h"
@@ -98,7 +98,7 @@ private:
     dlg_docsexternes                *Dlg_DocsExt;
     dlg_docsscanner                 *Dlg_DocsScan;
     dlg_docsvideo                   *Dlg_DocsVideo;
-    dlg_documents                   *Dlg_Docs;
+    dlg_impressions                   *Dlg_Imprs;
     dlg_identificationcorresp       *Dlg_IdentCorresp;
     dlg_identificationpatient       *Dlg_IdentPatient;
     dlg_listecorrespondants         *Dlg_ListCor;

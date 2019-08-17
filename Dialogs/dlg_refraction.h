@@ -152,7 +152,7 @@ private:
     void                    Init_variables();
     void                    InscriptRefraction();
     void                    InsertDonneesOphtaPatient();
-    bool                    InsertRefraction();
+    Refraction*             InsertRefraction();
     int                     LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD = "", QString FormuleOG = "");
     void                    OuvrirListeMesures(QString SupOuRecup);
     void                    MajDonneesOphtaPatient();

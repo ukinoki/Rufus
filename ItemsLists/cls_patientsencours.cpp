@@ -77,7 +77,6 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
                                                  int idUserEnCours, int idSalDat)
 
 {
-    bool ok;
     QString iduser          = (idUser == 0?             QString::number(DataBase::I()->getUserConnected()->idsuperviseur()) : QString::number(idUser));
     QString statut          = (Statut == ""?            "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
     QString heurestatut     = (heureStatut == QTime()?  "null" : "'" + heureStatut.toString("hh:mm:ss") + "'");
@@ -123,9 +122,9 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
         return Q_NULLPTR;
     }
     // Récupération de l'idPatient créé ------------------------------------
-    int idpat = DataBase::I()->selectMaxFromTable("idPat", TBL_SALLEDATTENTE, ok, tr("Impossible de sélectionner les enregistrements"));
+    int idpat = DataBase::I()->selectMaxFromTable("idPat", TBL_SALLEDATTENTE, m_ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
-    if (!ok ||  idpat == 0)
+    if (!m_ok ||  idpat == 0)
         return Q_NULLPTR;
     PatientEnCours *pat = new PatientEnCours();
     pat->setid(idpat);

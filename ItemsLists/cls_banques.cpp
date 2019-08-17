@@ -55,7 +55,7 @@ void Banques::SupprimeBanque(Banque *bq)
  Banque* Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)
 {
     Banque *bq = Q_NULLPTR;
-    bool ok;
+
     QString idabrege        = (idBanqueAbrege == ""?    "null" : "'" + Utils::correctquoteSQL(idBanqueAbrege) + "'");
     QString nombq           = (NomBanque == ""?         "null" : "'" + Utils::correctquoteSQL(NomBanque) + "'");
     QString codebq          = (CodeBanque == 0?         "null" : QString::number(CodeBanque));
@@ -69,7 +69,7 @@ void Banques::SupprimeBanque(Banque *bq)
         return Q_NULLPTR;
     }
     // Récupération de l'idMotif créé ------------------------------------
-    int idbq = DataBase::I()->selectMaxFromTable(CP_IDBANQUE_BANQUES, TBL_BANQUES, ok, tr("Impossible de sélectionner les enregistrements"));
+    int idbq = DataBase::I()->selectMaxFromTable(CP_IDBANQUE_BANQUES, TBL_BANQUES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
     bq = new Banque();
     bq->setid(idbq);

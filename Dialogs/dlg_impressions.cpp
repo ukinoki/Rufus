@@ -15,12 +15,12 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dlg_documents.h"
-#include "ui_dlg_documents.h"
+#include "dlg_impressions.h"
+#include "ui_dlg_impressions.h"
 
-dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
+dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::dlg_documents)
+    ui(new Ui::dlg_impressions)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -46,18 +46,18 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     // Initialisation des slots.
     connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe();});
-    connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_documents::Validation);
-    connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_documents::Annulation);
+    connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::Validation);
+    connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
     connect (ui->PrescriptioncheckBox,          &QPushButton::clicked,                  this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
     connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(ui->upTextEdit);});
     connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
-    connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_documents::dblClicktextEdit);
+    connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_impressions::dblClicktextEdit);
     connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
-    connect (wdg_docsbuttonframe,                   &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe->Reponse(), wdg_docsbuttonframe);});
-    connect (wdg_dossiersbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe->Reponse(), wdg_dossiersbuttonframe);});
+    connect (wdg_docsbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe->Reponse(), wdg_docsbuttonframe);});
+    connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe->Reponse(), wdg_dossiersbuttonframe);});
 
     // Mise en forme de la table Documents
     ui->DocupTableWidget->setPalette(QPalette(Qt::white));
@@ -183,11 +183,11 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     map_champs[SEXEPAT]         = tr("Sexe du patient");
 }
 
-dlg_documents::~dlg_documents()
+dlg_impressions::~dlg_impressions()
 {
 }
 
-QMap<int, QMap<dlg_documents::DATASAIMPRIMER, QString> > dlg_documents::mapdocsaimprimer() const
+QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString> > dlg_impressions::mapdocsaimprimer() const
 {
     return map_docsaimprimer;
 }
@@ -196,7 +196,7 @@ QMap<int, QMap<dlg_documents::DATASAIMPRIMER, QString> > dlg_documents::mapdocsa
 // Clic sur le bouton ANNULER.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_documents::Annulation()
+void dlg_impressions::Annulation()
 {
     if (m_mode == CreationDOC || m_mode == ModificationDOC || m_mode == ModificationDOSS || m_mode == CreationDOSS)
     {
@@ -243,7 +243,7 @@ void dlg_documents::Annulation()
         reject();
 }
 
-void dlg_documents::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
+void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
 {
     UpLineEdit *line = new UpLineEdit();
     int row = 0;
@@ -312,7 +312,7 @@ void dlg_documents::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
     }
 }
 
-void dlg_documents::CheckPublicEditablAdmin(QCheckBox *check)
+void dlg_impressions::CheckPublicEditablAdmin(QCheckBox *check)
 {
     UpLineEdit *line =new UpLineEdit(this);
     bool a = false;
@@ -350,7 +350,7 @@ void dlg_documents::CheckPublicEditablAdmin(QCheckBox *check)
         static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),colonnelbl))->clear();
 }
 
-void dlg_documents::dblClicktextEdit()
+void dlg_impressions::dblClicktextEdit()
 {
     if (m_mode == Selection)
     {
@@ -373,7 +373,7 @@ void dlg_documents::dblClicktextEdit()
 // ----------------------------------------------------------------------------------
 // On entre sur une ligne de comm. On affiche le tooltip
 // ----------------------------------------------------------------------------------
-void dlg_documents::DocCellEnter(UpLineEdit *line)
+void dlg_impressions::DocCellEnter(UpLineEdit *line)
 {
     QPoint pos = cursor().pos();
     QRect rect = QRect(pos,QSize(10,10));
@@ -465,7 +465,7 @@ void dlg_documents::DocCellEnter(UpLineEdit *line)
 // ----------------------------------------------------------------------------------
 // On a cliqué une ligne. On affiche le détail
 // ----------------------------------------------------------------------------------
-void dlg_documents::DocCellDblClick(UpLineEdit *line)
+void dlg_impressions::DocCellDblClick(UpLineEdit *line)
 {
     if (ui->DocupTableWidget->isAncestorOf(line))
         ConfigMode(ModificationDOC, line->Row());
@@ -476,7 +476,7 @@ void dlg_documents::DocCellDblClick(UpLineEdit *line)
 // ----------------------------------------------------------------------------------
 // Enable OKpushbutton
 // ----------------------------------------------------------------------------------
-void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
+void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
 {
     ui->OKupPushButton->setShortcut(QKeySequence());
     if (m_mode == CreationDOC || m_mode == ModificationDOC)
@@ -593,7 +593,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
     }
 }
 
-void dlg_documents::FiltreListe()
+void dlg_impressions::FiltreListe()
 {
     Remplir_TableWidget();
     EnableLines();
@@ -613,7 +613,7 @@ void dlg_documents::FiltreListe()
     }
 }
 
-void dlg_documents::MenuContextuel(QWidget *widg)
+void dlg_impressions::MenuContextuel(QWidget *widg)
 {
     m_menucontextuel = new QMenu(this);
     QAction *pAction_ModifDossier;
@@ -808,7 +808,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
     delete m_menucontextuel;
 }
 
-void dlg_documents::ChoixMenuContextuel(QString choix)
+void dlg_impressions::ChoixMenuContextuel(QString choix)
 {
     bool a = false;
     QPoint pos = ui->DocupTableWidget->viewport()->mapFromGlobal(m_menucontextuel->pos());
@@ -1205,7 +1205,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
 // Clic sur le bouton OK.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_documents::Validation()
+void dlg_impressions::Validation()
 {
     UpLineEdit *line = new UpLineEdit();
     int         c = 0;
@@ -1627,7 +1627,7 @@ void dlg_documents::Validation()
     }
 }
 
-void dlg_documents::OrdoAvecDupli(bool a)
+void dlg_impressions::OrdoAvecDupli(bool a)
 {
     proc->m_settings->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
 }
@@ -1636,7 +1636,7 @@ void dlg_documents::OrdoAvecDupli(bool a)
 /* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Vérifie que les champs sont remplis avant la fermeture de dlg_ask ------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_documents::VerifCoherencedlg_ask()
+void dlg_impressions::VerifCoherencedlg_ask()
 {
     QList<UpLineEdit*> listUpline = dlg_ask->findChildren<UpLineEdit*>();
     bool a = true;
@@ -1665,7 +1665,7 @@ void dlg_documents::VerifCoherencedlg_ask()
     if (a) dlg_ask->accept();
 }
 
-bool dlg_documents::event(QEvent *event)
+bool dlg_impressions::event(QEvent *event)
 {
 /*    if (event->type() == QEvent::ToolTip)
     {
@@ -1707,7 +1707,7 @@ bool dlg_documents::event(QEvent *event)
     }*/
     return QWidget::event(event);
 }
-void dlg_documents::closeEvent(QCloseEvent *event)
+void dlg_impressions::closeEvent(QCloseEvent *event)
 {
     proc->m_settings->setValue("PositionsFiches/PositionDocuments",saveGeometry());
     event->accept();
@@ -1716,7 +1716,7 @@ void dlg_documents::closeEvent(QCloseEvent *event)
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Interception des évènements internes -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-bool dlg_documents::eventFilter(QObject *obj, QEvent *event)
+bool dlg_impressions::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::FocusIn)
     {
@@ -1793,7 +1793,7 @@ bool dlg_documents::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void dlg_documents::keyPressEvent(QKeyEvent * event )
+void dlg_impressions::keyPressEvent(QKeyEvent * event )
 {
     switch (event->key()) {
     case Qt::Key_Escape:
@@ -1826,7 +1826,7 @@ void dlg_documents::keyPressEvent(QKeyEvent * event )
     }
 }
 
-int dlg_documents::AskDialog(QString titre)
+int dlg_impressions::AskDialog(QString titre)
 {
     dlg_askdialog               = new UpDialog(this);
     dlg_askdialog               ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
@@ -1860,7 +1860,7 @@ int dlg_documents::AskDialog(QString titre)
 // ----------------------------------------------------------------------------------
 // Recherche de doublon après création ou modification de document
 // ----------------------------------------------------------------------------------
-bool dlg_documents::ChercheDoublon(QString str, int row)
+bool dlg_impressions::ChercheDoublon(QString str, int row)
 {
     QString req, nom;
     switch (m_mode) {
@@ -1908,7 +1908,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
 // ----------------------------------------------------------------------------------
 // On a clique sur une ligne de dossiers . on coche-décoche les docs correspondants
 // ----------------------------------------------------------------------------------
-void dlg_documents::CocheLesDocs(int iddoss, bool A)
+void dlg_impressions::CocheLesDocs(int iddoss, bool A)
 {
     bool ok;
     QString req = "select idDocument from " TBL_JOINTURESDOCS " where idMetaDocument = " + QString::number(iddoss);
@@ -1987,7 +1987,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
 // ----------------------------------------------------------------------------------
 // Configuration de le fiche en fonction du mode de fonctionnement
 // ----------------------------------------------------------------------------------
-void dlg_documents::ConfigMode(Mode mode, int row)
+void dlg_impressions::ConfigMode(Mode mode, int row)
 {
     m_mode = mode;
     ui->ChercheupLineEdit->setEnabled       (m_mode == Selection);
@@ -2327,7 +2327,7 @@ void dlg_documents::ConfigMode(Mode mode, int row)
 // --------------------------------------------------------------------------------------------------
 // SetEnabled = false et disconnect toutes les lignes des UpTableWidget - SetEnabled = false checkBox
 // --------------------------------------------------------------------------------------------------
-void dlg_documents::DisableLines()
+void dlg_impressions::DisableLines()
 {
     ui->ChercheupLineEdit->clear();
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
@@ -2374,7 +2374,7 @@ void dlg_documents::DisableLines()
 // -------------------------------------------------------------------------------------------
 // SetEnabled = true, connect toutes les lignes des UpTableWidget - SetEnabled = true checkBox
 // -------------------------------------------------------------------------------------------
-void dlg_documents::EnableLines()
+void dlg_impressions::EnableLines()
 {
     wdg_dossiersbuttonframe->setEnabled(true);
     wdg_docsbuttonframe->setEnabled(true);
@@ -2429,7 +2429,7 @@ void dlg_documents::EnableLines()
 // ----------------------------------------------------------------------------------
 // Effacement progressif d'un textEdit.
 // ----------------------------------------------------------------------------------
-void dlg_documents::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
+void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 {
     QTime DebutTimer     = QTime::currentTime();
     m_opacity = 1;
@@ -2458,24 +2458,24 @@ void dlg_documents::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     });
 }
 
-Impression* dlg_documents::getDocumentFromRow(int row)
+Impression* dlg_impressions::getDocumentFromRow(int row)
 {
     return Datas::I()->documents->getById(ui->DocupTableWidget->item(row,2)->text().toInt());
 }
 
-DossierImpression* dlg_documents::getMetaDocumentFromRow(int row)
+DossierImpression* dlg_impressions::getMetaDocumentFromRow(int row)
 {
     return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,3)->text().toInt());
 }
 
-User* dlg_documents::userentete() const
+User* dlg_impressions::userentete() const
 {
     return m_userentete;
 }
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_documents::InsertDocument(int row)
+void dlg_impressions::InsertDocument(int row)
 {
     // controle validate des champs
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(row,1));
@@ -2544,7 +2544,7 @@ void dlg_documents::InsertDocument(int row)
 // ----------------------------------------------------------------------------------
 // Creation du Dossier dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_documents::InsertDossier(int row)
+void dlg_impressions::InsertDossier(int row)
 {
     // controle validité des champs
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(row,1));
@@ -2628,7 +2628,7 @@ void dlg_documents::InsertDossier(int row)
 // ----------------------------------------------------------------------------------
 // On sélectionne une ligne. On affiche le détail et on met en édition
 // ----------------------------------------------------------------------------------
-void dlg_documents::LineSelect(UpTableWidget *table, int row)
+void dlg_impressions::LineSelect(UpTableWidget *table, int row)
 {
     if (table->rowCount() == 0) return;
     if (row < 0) row = 0;
@@ -2679,7 +2679,7 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
 // ----------------------------------------------------------------------------------
 // Met à jour les champs du texte à afficher
 // ----------------------------------------------------------------------------------
-void dlg_documents::MetAJour(QString texte, bool pourVisu)
+void dlg_impressions::MetAJour(QString texte, bool pourVisu)
 {
     m_listedestinataires.clear();
     m_listtexts.clear();
@@ -2930,7 +2930,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
         m_listtexts << texte;
 }
 
-void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
+void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
 {
     m_listedestinataires.clear();
     dlg_askcorrespondant                 = new UpDialog(this);
@@ -2988,7 +2988,7 @@ void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
     dlg_askcorrespondant ->exec();
 }
 
-void dlg_documents::ListidCor()
+void dlg_impressions::ListidCor()
 {
     QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(dlg_askcorrespondant->findChildren<QTableView *>().at(0)->model());
     for (int i=0; i< model->rowCount(); i++)
@@ -3005,7 +3005,7 @@ void dlg_documents::ListidCor()
 // ----------------------------------------------------------------------------------
 // Remplissage des UpTableWidget avec les documents de la base.
 // ----------------------------------------------------------------------------------
-void dlg_documents::Remplir_TableWidget()
+void dlg_impressions::Remplir_TableWidget()
 {
     UpLineEdit  *upLine0 = Q_NULLPTR;
     int         i = 0;
@@ -3048,7 +3048,7 @@ void dlg_documents::Remplir_TableWidget()
     TriDossiersupTableWidget();
 }
 
-void dlg_documents::SetDocumentToRow(Impression*doc, int row)
+void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
 {
     UpLineEdit          *upLine0;
     QTableWidgetItem    *pItem1;
@@ -3122,7 +3122,7 @@ void dlg_documents::SetDocumentToRow(Impression*doc, int row)
     ui->DocupTableWidget->setRowHeight(row,int(fm.height()*1.3));
 }
 
-void dlg_documents::SetMetaDocumentToRow(DossierImpression*dossier, int row)
+void dlg_impressions::SetMetaDocumentToRow(DossierImpression*dossier, int row)
 {
     UpLineEdit          *upLine0;
     QTableWidgetItem    *pItem1;
@@ -3191,7 +3191,7 @@ void dlg_documents::SetMetaDocumentToRow(DossierImpression*dossier, int row)
 // ----------------------------------------------------------------------------------
 // Supprime Document
 // ----------------------------------------------------------------------------------
-void dlg_documents::SupprimmDocument(int row)
+void dlg_impressions::SupprimmDocument(int row)
 {
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + getDocumentFromRow(row)->resume() + "?";
@@ -3224,7 +3224,7 @@ void dlg_documents::SupprimmDocument(int row)
 // ----------------------------------------------------------------------------------
 // Supprime Dossier
 // ----------------------------------------------------------------------------------
-void dlg_documents::SupprimmDossier(int row)
+void dlg_impressions::SupprimmDossier(int row)
 {
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + getMetaDocumentFromRow(row)->resume() + "?";
@@ -3260,7 +3260,7 @@ void dlg_documents::SupprimmDossier(int row)
 // ----------------------------------------------------------------------------------
 // Tri de la table documents.
 // ----------------------------------------------------------------------------------
-void dlg_documents::TriDocupTableWidget()
+void dlg_impressions::TriDocupTableWidget()
 {
     ui->DocupTableWidget->sortByColumn(6,Qt::AscendingOrder);
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
@@ -3273,7 +3273,7 @@ void dlg_documents::TriDocupTableWidget()
 // ----------------------------------------------------------------------------------
 // Tri de la table dossiers.
 // ----------------------------------------------------------------------------------
-void dlg_documents::TriDossiersupTableWidget()
+void dlg_impressions::TriDossiersupTableWidget()
 {
     ui->DossiersupTableWidget->sortByColumn(4,Qt::AscendingOrder);
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
@@ -3286,7 +3286,7 @@ void dlg_documents::TriDossiersupTableWidget()
 // ----------------------------------------------------------------------------------
 // Modification du Document dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_documents::UpdateDocument(int row)
+void dlg_impressions::UpdateDocument(int row)
 {
     // recherche de l'enregistrement modifié
     // controle validate des champs
@@ -3353,7 +3353,7 @@ void dlg_documents::UpdateDocument(int row)
 // ----------------------------------------------------------------------------------
 // Modification du Dossier dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_documents::UpdateDossier(int row)
+void dlg_impressions::UpdateDossier(int row)
 {
     QStringList listid;
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(row,1));
@@ -3425,7 +3425,7 @@ void dlg_documents::UpdateDossier(int row)
 // ----------------------------------------------------------------------------------
 // Verifie qu'un document peut devenir privé
 // ----------------------------------------------------------------------------------
-bool dlg_documents::VerifDocumentPublic(int row, bool msg)
+bool dlg_impressions::VerifDocumentPublic(int row, bool msg)
 {
     bool ok;
     int iddoc = getDocumentFromRow(row)->id();
@@ -3448,7 +3448,7 @@ bool dlg_documents::VerifDocumentPublic(int row, bool msg)
 // ----------------------------------------------------------------------------------
 // Verifie qu'un dossier ne reste pas coché pour rien
 // ----------------------------------------------------------------------------------
-void dlg_documents::VerifDossiers()
+void dlg_impressions::VerifDossiers()
 {
     bool ok;
     for (int j=0; j<ui->DossiersupTableWidget->rowCount(); j++)
@@ -3493,7 +3493,7 @@ void dlg_documents::VerifDossiers()
 // ----------------------------------------------------------------------------------
 // Verifie qu'un dossier peut être rendu public
 // ----------------------------------------------------------------------------------
-bool dlg_documents::VerifDossierPublic(int row, bool msg)
+bool dlg_impressions::VerifDossierPublic(int row, bool msg)
 {
     bool ok;
     int iddossier = getMetaDocumentFromRow(row)->id();
