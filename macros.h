@@ -160,7 +160,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_NUMCENTRE_ACTES                           "NumCentre"
 #define CP_IDLIEU_ACTES                              "idLieu"
 #define CP_IMPORTANT_ACTES                           "PointImportant"
-#define CP_YEXTIMPORTANT_ACTES                       "CommentPointImportant"
+#define CP_TEXTIMPORTANT_ACTES                       "CommentPointImportant"
 #define CP_NOCOTATION_ACTES                          "SansCotation"
 
                             //! Table Rufus.Impressions

@@ -82,8 +82,6 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     connect (ui->SupprimerupPushButton,     SIGNAL(clicked()),                          this,   SLOT (Slot_SupprimerPaiement()));
 
     connect (ui->BanqueChequecomboBox,      SIGNAL(editTextChanged(QString)),           this,   SLOT (Slot_EnableOKButton()));
-    connect (ui->CommissionlineEdit,        SIGNAL(editingFinished()),                  this,   SLOT (Slot_ConvertitDoubleMontant()));
-    connect (ui->CommissionlineEdit,        SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKButton()));
     connect (ui->ComptesupComboBox,         SIGNAL(currentIndexChanged(int)),           this,   SLOT (Slot_EnableOKButton()));
     connect (ui->dateEdit,                  SIGNAL(dateChanged(QDate)),                 this,   SLOT (Slot_EnableOKButton()));
     connect (ui->EnAttentecheckBox,         SIGNAL(toggled(bool)),                      this,   SLOT (Slot_EnableOKButton()));
@@ -109,7 +107,6 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     val->setDecimals(2);
     ui->MontantlineEdit->setValidator(val);
     ui->CommissionlineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-    ui->CommissionlineEdit->setValidator(val);
     ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
     ui->TierscomboBox->lineEdit()->setMaxLength(30);
@@ -2766,7 +2763,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
             QString idCompte = "";
             // Mise à jour lignesRecettes
             QString EnregRecetterequete = "INSERT INTO " TBL_RECETTES
-                    " (idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, BanqueCheque, EnAttente, CompteVirement, EnregistrePar, TypeRecette, NomTiers, Commission) VALUES (";
+                    " (idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, BanqueCheque, EnAttente, CompteVirement, EnregistrePar, TypeRecette, NomTiers) VALUES (";
             EnregRecetterequete +=  QString::number(m_useracrediter->id());                                      // idUser
             EnregRecetterequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                // DatePaiement
             EnregRecetterequete +=  "', DATE(NOW())";                                                                   // DateEnregistrement
@@ -2822,11 +2819,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
             }
 
             }
-            EnregRecetterequete += ",'" + Utils::correctquoteSQL(NomTiers);
-            if (ui->CommissionlineEdit->text() =="")
-                EnregRecetterequete += "',null)";
-            else
-                EnregRecetterequete += "'," + QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())) +")";
+            EnregRecetterequete += ",'" + Utils::correctquoteSQL(NomTiers) + "')";
             //proc->Edit(EnregRecetterequete);
             if (!db->StandardSQL(EnregRecetterequete, tr("Impossible d'enregistrer cette ligne de recette")))
             {
@@ -2858,64 +2851,6 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                 }
 
             }
-            //3. Mise à hour Depenses et LignesComptes s'il y a eu une commission sur le virement ==============================================================================================
-            if (QLocale().toDouble(ui->CommissionlineEdit->text()) > 0)
-            {
-                QString SelectMaxrequete = "select max(iddep) + 1 from " TBL_DEPENSES;
-                QVariantList maxdata = db->getFirstRecordFromStandardSelectSQL(SelectMaxrequete, m_ok);
-                if (!m_ok)
-                {
-                    db->rollback();
-                    return Impossible;
-                }
-                QString max = maxdata.at(0).toString();
-
-                QString InsertDeprequete = "INSERT INTO " TBL_DEPENSES "(iddep, idUser, DateDep, RefFiscale, Objet, Montant, FamFiscale, idRec, ModePaiement,Compte) VALUES (";
-                InsertDeprequete += max;                                                                                        // idDep
-                InsertDeprequete +=  "," + QString::number(m_useracrediter->id());                                       // idUser
-                InsertDeprequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                       // DateDep
-                // on va rechercher l'id2035:
-                // si c'est une carte de crédit, l'id2035 correspondra à "frais financiers", sinon, ce sera "honoraires rétrocédés"
-                QString intitule2035 = "Honoraires rétrocédés";
-                if (ui->TierscomboBox->currentText() == "CB")
-                    intitule2035= "Frais financiers";
-                InsertDeprequete +=  "', '" + Utils::correctquoteSQL(intitule2035);                                            // RefFiscale
-                InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TierscomboBox->currentText());             // Objet
-                InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
-                QString chercheFamFiscale = "select Famfiscale from " TBL_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
-                QVariantList famfiscdata = db->getFirstRecordFromStandardSelectSQL(InsertDeprequete, m_ok);
-                if (!m_ok)
-                {
-                    db->rollback();
-                    return Impossible;
-                }
-                if (famfiscdata.size() > 0)
-                    InsertDeprequete += ", '" + Utils::correctquoteSQL(famfiscdata.at(0).toString()) + "'";
-                else
-                    InsertDeprequete += ",''";                                                                                  // Famfiscale
-                InsertDeprequete += ", " + QString::number(m_idrecette);                                                          // idRec
-                InsertDeprequete += ", 'P'";                                                                                    // ModePaiement = P pour prélèvement
-                InsertDeprequete += ", " + idCompte + ")";
-                if (!db->StandardSQL(InsertDeprequete))
-                {
-                    db->rollback();
-                    return Impossible;
-                }
-                if (ui->VirementradioButton->isChecked())
-                {
-                    QString Commission = "Commission";
-                    if (ui->TierscomboBox->currentText() == "CB")
-                        Commission += " CB";
-                    QString InsertComrequete = "INSERT INTO " TBL_LIGNESCOMPTES "(idCompte, idDep, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
-                            + idCompte + "," + max + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
-                            + "', '" + Commission + "'," + QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())) + ",0,'Prélèvement')";
-                    if (!db->StandardSQL(InsertComrequete))
-                    {
-                        db->rollback();
-                        return Impossible;
-                    }
-                }
-             }
         }
         else
         {
@@ -3384,22 +3319,6 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
             Msg = tr("Il manque le type de tiers payant!");
             ui->TypeTierscomboBox->setFocus();
             ui->TypeTierscomboBox->showPopup();
-            A = false;
-            break;
-        }
-        // On a coché Virement, le tiers est carte de crédit et on a oublié de renseigner la commission
-        if (m_modiflignerecettepossible && (ui->TierscomboBox->currentText() == "CB" && QLocale().toDouble(ui->CommissionlineEdit->text()) ==  0.0 && ui->VirementradioButton->isChecked()))
-        {
-            Msg = tr("Vous avez oublié de mentionner le montant de la comission bancaire pour ce paiement par carte de crédit!");
-            ui->Commissionlabel->setFocus();
-            A = false;
-            break;
-        }
-        // Le montant de la commission dépasse le montant du paiement commission
-        if (m_modiflignerecettepossible && (QLocale().toDouble(ui->CommissionlineEdit->text()) > QLocale().toDouble(ui->MontantlineEdit->text())))
-        {
-            Msg = tr("Vous avez mentionné un montant pour la comission bancaire supérieur au montant du paiement!");
-            ui->Commissionlabel->setFocus();
             A = false;
             break;
         }

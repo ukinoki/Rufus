@@ -730,7 +730,7 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
 
 /*!
  *  \brief InitBackupAuto()
- *  lance une sauvegarde immédiate de la base
+ *  rafraichit le paramétrage du backup automatique en fonction des paramètres enregistrés dans la base
  */
 void Procedures::InitBackupAuto()
 {
@@ -753,7 +753,7 @@ void Procedures::InitBackupAuto()
     ParamAutoBackup(dirdestination, dirimagerie, timebackup, days);
 }
 
-void Procedures::EffaceAutoBackup()
+void Procedures::EffaceBDDDataBackup()
 {
     QString Base = db->getBase();
     if (Base == "")
@@ -767,10 +767,10 @@ void Procedures::EffaceAutoBackup()
     db->setdimanchebkup(false);
     db->setheurebkup();
     db->setdirbkup();
-    EffaceScriptsBackup();
+    EffaceProgrammationBackup();
 }
 
-void Procedures::EffaceScriptsBackup()
+void Procedures::EffaceProgrammationBackup()
 {
 #ifdef Q_OS_LINUX
     t_timerbackup.stop();
@@ -792,9 +792,9 @@ void Procedures::EffaceScriptsBackup()
 
 void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days)
 {
-    if (!VerifParamBackup(dirdestination, timebackup, days))
+    if (!QDir(dirdestination).exists() || !timebackup.isValid() || days<1)
     {
-        EffaceScriptsBackup();
+        EffaceProgrammationBackup();
         return;
     }
     DefinitScriptBackup(dirdestination, dirimagerie);
@@ -894,16 +894,6 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
     db->StandardSQL(req);
 }
 
-bool Procedures::VerifParamBackup(QString dirdestination, QTime time, Days days)
-{
-    if (!QDir(dirdestination).exists())
-        return false;
-    if (!time.isValid())
-        return false;
-    if (days<1)
-        return false;
-    return true;
-}
 //--------------------------------------------------------------------------------------------------------
 // fin sauvegardes
 //--------------------------------------------------------------------------------------------------------

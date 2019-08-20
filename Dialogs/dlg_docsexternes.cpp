@@ -42,37 +42,36 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
     d=2;
 #endif
     m_font.setPointSize(m_font.pointSize()-d);
-
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
-    m_printer             = new QPrinter(QPrinter::HighResolution);
-    m_printer             ->setFullPage(true);
-    m_rect                = m_printer->paperRect();
+    m_printer           = new QPrinter(QPrinter::HighResolution);
+    m_printer           ->setFullPage(true);
+    m_rect              = m_printer->paperRect();
 
     m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
                 Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
                 -Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
                 -Utils::mmToInches(margemm) * m_printer->logicalDpiY());
 
-    obj_graphicscene               = new QGraphicsScene(this);
+    obj_graphicscene        = new QGraphicsScene(this);
     wdg_listdocstreewiew    = new QTreeView(this);
     wdg_inflabel            = new QLabel();
     wdg_inflabel            ->setFont(font);
 
 
-    wdg_scrolltablewidget         = new UpTableWidget(this);                      // utilisé pour afficher les pdf qui ont parfois plusieurs pages
+    wdg_scrolltablewidget   = new UpTableWidget(this);                      // utilisé pour afficher les pdf qui ont parfois plusieurs pages
     wdg_scrolltablewidget->horizontalHeader() ->setVisible(false);
     wdg_scrolltablewidget->verticalHeader()   ->setVisible(false);
-    wdg_scrolltablewidget         ->installEventFilter(this);
-    wdg_scrolltablewidget         ->setFocusPolicy(Qt::NoFocus);
-    wdg_scrolltablewidget         ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-    wdg_scrolltablewidget         ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    wdg_scrolltablewidget         ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    wdg_scrolltablewidget   ->installEventFilter(this);
+    wdg_scrolltablewidget   ->setFocusPolicy(Qt::NoFocus);
+    wdg_scrolltablewidget   ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+    wdg_scrolltablewidget   ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    wdg_scrolltablewidget   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
-    graphview_view         = new QGraphicsView(obj_graphicscene, this);               // utilisé pour afficher les jpg et les video
-    graphview_view         ->installEventFilter(this);
-    graphview_view         ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    graphview_view         ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    graphview_view         ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    graphview_view          = new QGraphicsView(obj_graphicscene, this);               // utilisé pour afficher les jpg et les video
+    graphview_view          ->installEventFilter(this);
+    graphview_view          ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphview_view          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    graphview_view          ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
     wdg_listdocstreewiew    ->setFixedWidth(185);
     wdg_listdocstreewiew    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -96,24 +95,23 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
     wdg_playctrl            = new PlayerControls(this);
     AjouteWidgetLayButtons(wdg_playctrl, false);
     buttonslayout()->insertSpacerItem(0, new QSpacerItem(20,20,QSizePolicy::Fixed, QSizePolicy::Fixed));
-    wdg_alldocsupcheckbox           = new UpCheckBox(tr("Tous"));
-    wdg_onlyimportantsdocsupcheckbox = new UpCheckBox(tr("Importants"));
-    wdg_alldocsupcheckbox           ->setImmediateToolTip(tr("Afficher tous les documents\ny compris les documents d'importance minime"));
-    wdg_onlyimportantsdocsupcheckbox ->setImmediateToolTip(tr("N'afficher que les documents marqués importants"));
+    wdg_alldocsupcheckbox               = new UpCheckBox(tr("Tous"));
+    wdg_onlyimportantsdocsupcheckbox    = new UpCheckBox(tr("Importants"));
+    wdg_alldocsupcheckbox               ->setImmediateToolTip(tr("Afficher tous les documents\ny compris les documents d'importance minime"));
+    wdg_onlyimportantsdocsupcheckbox    ->setImmediateToolTip(tr("N'afficher que les documents marqués importants"));
     AjouteWidgetLayButtons(wdg_alldocsupcheckbox, false);
     AjouteWidgetLayButtons(wdg_onlyimportantsdocsupcheckbox, false);
-    wdg_alldocsupcheckbox->setChecked(true);
+    wdg_alldocsupcheckbox               ->setChecked(true);
 
-    wdg_upswitch                  = new UpSwitch(this);
+    wdg_upswitch        = new UpSwitch(this);
     AjouteWidgetLayButtons(wdg_upswitch, false);
     AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
     //setStageCount(1);
 
-
-    m_hdelta          = 0;
-    m_wdelta          = 0;
-    m_hdeltaframe     = 0;
-    m_wdeltaframe     = 0;
+    m_hdelta            = 0;
+    m_wdelta            = 0;
+    m_hdeltaframe       = 0;
+    m_wdeltaframe       = 0;
     m_avecprevisu = proc  ->ApercuAvantImpression();
 
     /*Gestion des XML - exemple
@@ -131,30 +129,30 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
     }*/
 
 
-    connect (wdg_upswitch,                            &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch());});
-    connect (SupprButton,                   &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
+    connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch());});
+    connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_alldocsupcheckbox);});
-    connect (wdg_onlyimportantsdocsupcheckbox,   &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
+    connect (wdg_onlyimportantsdocsupcheckbox,  &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
     connect (wdg_playctrl,                      &PlayerControls::ctrl,          this,   [=] (PlayerControls::State  state) {    switch (state){
                                                                                                                                 case PlayerControls::Stop:  medplay_player->stop();     break;
                                                                                                                                 case PlayerControls::Pause: medplay_player->pause();    break;
                                                                                                                                 case PlayerControls::Play:  medplay_player->play();
                                                                                                                                 }
                                                                                                                         });
-    connect (proc,                          &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
-    connect (PrintButton,                   &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
+    connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
+    connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
 
     if (!UtiliseTCP)
     {
-        QTimer *TimerActualiseDocsExternes    = new QTimer(this);
-        TimerActualiseDocsExternes    ->start(10000);
-        connect (TimerActualiseDocsExternes,    &QTimer::timeout,           this,   &dlg_docsexternes::ActualiseDocsExternes);
+        QTimer *TimerActualiseDocsExternes      = new QTimer(this);
+        TimerActualiseDocsExternes              ->start(10000);
+        connect (TimerActualiseDocsExternes,    &QTimer::timeout,               this,   &dlg_docsexternes::ActualiseDocsExternes);
     }
 
-    m_mode               = Normal;
-    m_modetri            = parDate;
-    m_docsexternes      = Docs;
-    m_docsexternes->setNouveauDocumentExterneFalse();
+    m_mode          = Normal;
+    m_modetri       = parDate;
+    m_docsexternes  = Docs;
+    m_docsexternes  ->setNouveauDocumentExterneFalse();
     RemplirTreeView();
 }
 

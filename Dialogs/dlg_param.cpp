@@ -1798,7 +1798,7 @@ void dlg_param::Slot_EffacePrgSauvegarde()
        listbutton2.at(i)->setChecked(false);
     ui->DirBackupuplineEdit->setText("");
     ui->HeureBackuptimeEdit->setTime(QTime(0,0));
-    proc->EffaceAutoBackup();
+    proc->EffaceBDDDataBackup();
     ui->EffacePrgSauvupPushButton->setEnabled(false);
 }
 
@@ -1913,7 +1913,7 @@ void dlg_param::ModifParamAutoBackup()
     if (NoDayBupDefined || NoDirBupDefined || IncorrectDirBupDefined)
     {
         ui->EffacePrgSauvupPushButton->setEnabled(false);
-        proc->EffaceScriptsBackup();
+        proc->EffaceProgrammationBackup();
         return;
     }
 

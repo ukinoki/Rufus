@@ -124,6 +124,36 @@ public:
     //--------------------------------------------------------------------------------------------------------
     // les sauvegardes
     //--------------------------------------------------------------------------------------------------------
+    /*! LA SAUVEGARDE DE LA BASE DE DONNEES
+
+      La sauvegarde de la BDD peut-être planifiée dans le Qframe ui->Sauvegardeframe.
+      On peut planifier l'emplacement du fichier de sauvegarde, l'heure de la sauvegarde, et les jours de la sauvegarde.
+      La sauvegarde ne peut se programmer que sur le serveur et pas ailleurs. Il faut donc installer une instance de RufusAdmin sur le serveur.
+      Les éléments du cadre ui->Sauvegardeframe sont donc désactivés si on n'est pas en mode Poste, autrement dit, sur le serveur.
+
+      Les paramètres de programmation de la sauvegarde sont sauvegardés dans la base de données dans la table ParametresSyteme
+
+      La sauvegarde se fait par un script qui lance le prg mysqldump de sauvegarde des données et recopie les fichiers d'imagerie, les factures et les videos vers l'emplacement de sauvegarde.
+      Ce script définit l'emplacement de la sauvegarde, le nom de la sauvegarde et détruit les sauvegardes datant de plus de 14 jours
+      . pour Mac c'est le script RufusBackupScript.sh situé dans le dossier /Users/nomdutilisateur/Documents/Rufus
+
+      Le lancement de la sauvegarde au moment programmé se fait
+        . Sous Mac,  par un autre script -> c'est le fichier xml rufus.bup.plist situé dans /Users/nomutilisateur/Library/LaunchAgents. Ce fichier est chargé au démarrage par le launchd Apple.
+        . Sous Linux, c'est un timer t_timerbackup qui lance la sauvegarde et la fonction BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days)
+
+      Au chargement de Rufus, les données de Rufus.ini sont récupérées pour régler l'affichage des données dans  ui->Sauvegardeframe.
+
+      Une modification de l'emplacement de sauvegarde se fait par un clic sur le bouton ui->DirBackuppushButton qui va lancer le slot Slot_ModifDirBachup()
+            * ce slot va créer le fichier RufusScriptBackup.sh et enregistrer l'emplacement de sauvegarde dans rufus.ini
+      Un changement d'heure ou de jour lance le slot Slot_ModifScriptList().
+            * ce slot va modifier le fichier xml rufus.bup.plist, recharger ce fichier dans le launchd et enregistrer les données de programmation dans le rufusadmin.ini.
+      Le bouton ui->EffacePrgSauvupPushButton réinitialise la programmation en déclenchant la fonction EffaceAutoBackup():
+            * annule les données de programmation dans rufus.ini,`
+            * réinitialise l'affichage dans ui->Sauvegardeframe,`
+            * supprime le script de sauvegarde RufusBackupScript.sh
+            * sous Mac, supprime le script de programmation rufus.bup.plist et le décharge du launchd
+            * sous Linux, arrête le timer t_timerbackup
+     */
     enum Day {
                 Lundi       = 0x1,
                 Mardi       = 0x2,
@@ -136,19 +166,36 @@ public:
     Q_DECLARE_FLAGS(Days, Day)
     QTimer                  t_timerbackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
+                            /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
     bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
-    void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
+                            /*! utilisée par ImmediateBackup() pour sauvegarder la base et:ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore() */
+    void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);
+                            /*! sous Linux, déclenche le backup au moment programmé */
     void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
+                            /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
     void                    DefinitScriptRestore(QStringList ListNomFiles);
-    void                    EffaceAutoBackup();
-    void                    EffaceScriptsBackup();
+                            /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL et le lance */
+    void                    EffaceBDDDataBackup();
+                            /*! efface les données de sauvegarde (moment et emplacement) dans la base de données */
+    void                    EffaceProgrammationBackup();
+                            /*! efface le paramétrage de la sauvegarde
+                            * suppression de RufusScriptBackup.sh
+                            * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
+                            * effacement des lignes correspondantes dans rufus.ini
+                            */
     bool                    ImmediateBackup(QString dirSauv = "", bool verifposteconnecte = true, bool full=false);
+                            /*! lance un backup immédiat */
     void                    InitBackupAuto();
+                            /*! sous Linux, charge le paramétrage du backup automatique en fonction des paramètres enregistrés dans la base au moment du lancement du programme*/
     void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days);
-    bool                    VerifParamBackup(QString dirdestination, QTime time, Days days);
+                            /*! paramètre le moment et l'emplacement de la sauvegarde
+                             * sous Mac, crée le fichier xml rufus.bup.plist
+                             * sous Linux, lance le timer t_timerbackup
+                            */
 
 private slots:
     void                    Slot_CalcTimeBupRestore();
+                            /*! calcule la durée approximative du backup */
     //--------------------------------------------------------------------------------------------------------
     // fin sauvegardes
     //--------------------------------------------------------------------------------------------------------
