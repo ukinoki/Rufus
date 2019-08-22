@@ -789,7 +789,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         return false;
     }
     int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
-    bool AvecDupli          = (proc->m_settings->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES"
+    bool AvecDupli          = (proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
     bool AvecChoixImprimante = true;
 

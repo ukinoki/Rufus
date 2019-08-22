@@ -30,7 +30,7 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
         Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
 
 
-    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionDocuments").toByteArray());
+    restoreGeometry(proc->settings()->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
@@ -136,7 +136,7 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     ui->dateEdit->setDate(QDate::currentDate());
     ui->dateEdit->setMaximumDate(QDate::currentDate());
 
-    ui->DupliOrdocheckBox->setChecked(proc->m_settings->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
+    ui->DupliOrdocheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
     ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
     ui->ChercheupLineEdit->setStyleSheet(
     "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
@@ -1629,7 +1629,7 @@ void dlg_impressions::Validation()
 
 void dlg_impressions::OrdoAvecDupli(bool a)
 {
-    proc->m_settings->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
+    proc->settings()->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
 }
 
 
@@ -1709,7 +1709,7 @@ bool dlg_impressions::event(QEvent *event)
 }
 void dlg_impressions::closeEvent(QCloseEvent *event)
 {
-    proc->m_settings->setValue("PositionsFiches/PositionDocuments",saveGeometry());
+    proc->settings()->setValue("PositionsFiches/PositionDocuments",saveGeometry());
     event->accept();
 }
 

@@ -145,14 +145,14 @@ private slots:
 signals:
     void                click(QWidget *obj);
 
-    /*LA SAUVEGARDE DE LA BASE DE DONNEES
+    /*! LA SAUVEGARDE DE LA BASE DE DONNEES
 
       La sauvegarde de la BDD peut-être planifiée dans le Qframe ui->Sauvegardeframe qui est en haut de l'onglet ui->GeneralParamtab.
       On peut planifier l'emplacement du fichier de sauvegarde, l'heure de la sauvegarde, et les jours de la sauvegarde.
       La sauvegarde ne peut se programmer que sur le serveur et pas ailleurs. Il faut donc installer une instance de Rufus sur le serveur même si elle ne sert qu'à ça.
       Les éléments du cadre ui->Sauvegardeframe sont donc désactivés si on n'est pas en mode Poste, autrement dit, sur le serveur.
 
-      La sauvegarde se fait par un script qui lance le prg mysqldump de sauvegarde des données.
+      La sauvegarde se fait par un script qui lance le prg mysqldump de sauvegarde des données et recopie les fichiers d'imagerie, les factures et les videos vers l'emplacement de sauvegarde.
       Ce script définit l'emplacement de la sauvegarde, le nom de la sauvegarde et détruit les sauvegardes datant de plus de 14 jours
       . C'est le script RufusBackupScript.sh situé dans /Users/nomdutlisateur/Documents/Rufus
       Sous MacOS, la programmation de l'éxécution de ce script se fait par un fichier xml qui va déterminer les jours de la semaine et l'heure de la sauvegarde.
@@ -181,13 +181,14 @@ signals:
       Après vérification de l'absence d'autres utilisateurs connectés, cette fonction lance la fonction Procedures::ImmediateBackup()
       Cette fonction redéfinit un script de sauvegarde temporaire après une boîte de dialogue de sélection des éléments à sauvegarder
       puis elle rétablit le script original s'il y en avait un.
+      le fonctionnement interne de la sauvegarde est expliqué dans procedures.h
      */
 private slots:
     void                    Slot_ModifDirBackup();
-    void                    Slot_ModifDateBackup();
     void                    Slot_EffacePrgSauvegarde();
 private:
     void                    ModifParamAutoBackup();
+    void                    ModifDateHeureBackup();
     bool                    m_modifbackup;
 };
 #endif // DLG_PARAM_H

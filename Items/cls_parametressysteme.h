@@ -30,24 +30,24 @@ class ParametresSysteme : public Item
 {
 
 private:
-    QString m_mdpdmin;                  //!> le mdp administrateur
-    int m_numcentre;                    //!> l'id de l'installation de la base de données - spécifique d'une base Rufus - pas utilisé pour le moment - fixé à 1
-    int m_idlieupardefaut;              //!> l'id du lieu principal de l'installation, où se trouve le serveur
-    bool m_docscomprimes;               //!> utilise la compression des pdf - pas utilisé
-    int m_versionbase;                  //!> la version de la base de données
-    bool m_aveccompta;                  //!> utilise ou non la compta
-    QString m_adresseserveurlocal;      //!> l'adresse du serveur dans le réseau local
-    QString m_adresseserveurdistant;    //!> l'adresse IP ou DNS du lieu où se trouve le serveur
-    QString m_dirimagerie;              //!> adresse du dossier d'imagerie depuis le serveur
-    bool m_lundibkup;                   //!> sauvegarde le lundi
-    bool m_mardibkup;                   //!> sauvegarde le mardi
-    bool m_credibkup;                   //!> sauvegarde le credi
-    bool m_jeudibkup;                   //!> sauvegarde le jeudi
-    bool m_dredibkup;                   //!> sauvegarde le dredi
-    bool m_medibkup;                    //!> sauvegarde le medi
-    bool m_dimanchebkup;                //!> sauvegarde le dimanche
-    QTime m_heurebkup;                  //!> heure de la sauvegarde
-    QString m_dirbkup;                  //!> adresse du dossier de sauvegarde depuis le serveur
+    QString m_mdpdmin = "";                 //!> le mdp administrateur
+    int m_numcentre = 0;                    //!> l'id de l'installation de la base de données - spécifique d'une base Rufus - pas utilisé pour le moment - fixé à 1
+    int m_idlieupardefaut = 0;              //!> l'id du lieu principal de l'installation, où se trouve le serveur
+    bool m_docscomprimes = false;           //!> utilise la compression des pdf - pas utilisé
+    int m_versionbase = 0;                  //!> la version de la base de données
+    bool m_aveccompta = true;               //!> utilise ou non la compta
+    QString m_adresseserveurlocal = "";     //!> l'adresse du serveur dans le réseau local
+    QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
+    QString m_dirimagerie = "";             //!> adresse du dossier d'imagerie depuis le serveur
+    bool m_lundibkup = false;               //!> sauvegarde le lundi
+    bool m_mardibkup = false;               //!> sauvegarde le mardi
+    bool m_credibkup = false;               //!> sauvegarde le credi
+    bool m_jeudibkup = false;               //!> sauvegarde le jeudi
+    bool m_dredibkup = false;               //!> sauvegarde le dredi
+    bool m_medibkup = false;                //!> sauvegarde le medi
+    bool m_dimanchebkup = false;            //!> sauvegarde le dimanche
+    QTime m_heurebkup = QTime(0,0);         //!> heure de la sauvegarde
+    QString m_dirbkup = "";                 //!> adresse du dossier de sauvegarde depuis le serveur
 
 public:
     explicit ParametresSysteme(QJsonObject data = {}, QObject *parent = Q_NULLPTR);

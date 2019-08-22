@@ -32,7 +32,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     ui->Userlabel->setText(tr("Recettes spéciales de ") + Datas::I()->users->userconnected()->login());
 
-    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionDepenses").toByteArray());
+    restoreGeometry(proc->settings()->value("PositionsFiches/PositionDepenses").toByteArray());
 
     m_initok = initializeUserSelected();
     if( !m_initok )
@@ -821,7 +821,7 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
 
 void dlg_recettesspeciales::closeEvent(QCloseEvent *event)
 {
-    proc->m_settings->setValue("PositionsFiches/PositionDepenses",saveGeometry());
+    proc->settings()->setValue("PositionsFiches/PositionDepenses",saveGeometry());
     event->accept();
 }
 

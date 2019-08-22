@@ -298,7 +298,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             lblvolvid->setText(Utils::getExpressionSize(m_videossize));
             layVideos->addWidget(lblvolvid);
             dlg_buprestore->dlglayout()->insertLayout(0, layVideos);
-            connect(Videoschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
+            connect(Videoschk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
         }
     }
     if (OKimages)
@@ -324,7 +324,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             lblvolimg->setText(Utils::getExpressionSize(m_imagessize));
             layImges->addWidget(lblvolimg);
             dlg_buprestore->dlglayout()->insertLayout(0, layImges);
-            connect(Imgeschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
+            connect(Imgeschk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
         }
     }
     if (OKfactures)
@@ -350,7 +350,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             lblvolfct->setText(Utils::getExpressionSize(m_facturessize));
             layFctures->addWidget(lblvolfct);
             dlg_buprestore->dlglayout()->insertLayout(0, layFctures);
-            connect(Fctureschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
+            connect(Fctureschk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
         }
     }
 
@@ -381,12 +381,12 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     layVolumeLibre->addWidget(wdg_volumelibrelbl);
     dlg_buprestore->dlglayout()->insertLayout(dlg_buprestore->dlglayout()->count()-1, layVolumeLibre);
 
-    connect(BDDchk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
+    connect(BDDchk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
 
     dlg_buprestore->setFixedWidth(400);
     dlg_buprestore->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(dlg_buprestore->OKButton,    SIGNAL(clicked(bool)), dlg_buprestore, SLOT(accept()));
-    Slot_CalcTimeBupRestore();
+    connect(dlg_buprestore->OKButton,  &UpCheckBox::clicked, dlg_buprestore, &UpDialog::accept);
+    CalcTimeBupRestore();
 }
 
 bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie, bool OKImages, bool OKVideos, bool OKFactures)
@@ -669,7 +669,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
  *  \brief ImmediateBackup()
  *  lance une sauvegarde immédiate de la base
  */
-bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool full)
+bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte, bool full)
 {
     if (!verifposteconnecte)
         if (AutresPostesConnectes())
@@ -679,7 +679,7 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
     QString NomDirDestination ("");
     NomDirStockageImagerie = m_parametres->dirimagerie();
     NomDirDestination = m_parametres->dirbkup();
-    if (dirSauv == "")
+    if (dirdestination == "")
     {
         QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,
                                                             tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base") + "\n" + tr("Le nom de dossier ne doit pas contenir d'espace"),
@@ -691,9 +691,10 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
         NomDirDestination = dirSauv;
     }
     else
-        NomDirDestination = dirSauv;
+        NomDirDestination = dirdestination;
     if (!QDir(NomDirDestination).exists())
         return false;
+
     bool OKbase     = false;
     bool OKImages   = false;
     bool OKVideos   = false;
@@ -730,7 +731,8 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
 
 /*!
  *  \brief InitBackupAuto()
- *  rafraichit le paramétrage du backup automatique en fonction des paramètres enregistrés dans la base
+ * prépare le paramétrage de la fonction ParamAutoBackup() en fonction des paramètres enregistrés dans la base
+ * utilisé au moment du lancement du programme
  */
 void Procedures::InitBackupAuto()
 {
@@ -739,9 +741,8 @@ void Procedures::InitBackupAuto()
     Days days;
     QString dirdestination ("");
     QString dirimagerie("");
-    QTime timebackup = QTime(0,0,0);
+    QTime timebackup = m_parametres->heurebkup();
     dirdestination  = m_parametres->dirbkup();
-    timebackup      = m_parametres->heurebkup();
     if (m_parametres->lundibkup())      days.setFlag(Procedures::Lundi);
     if (m_parametres->mardibkup())      days.setFlag(Procedures::Mardi);
     if (m_parametres->mercredibkup())   days.setFlag(Procedures::Mercredi);
@@ -772,27 +773,25 @@ void Procedures::EffaceBDDDataBackup()
 
 void Procedures::EffaceProgrammationBackup()
 {
+    if (QFile::exists(QDir::homePath() + SCRIPTBACKUPFILE))
+        QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
 #ifdef Q_OS_LINUX
     t_timerbackup.stop();
 #endif
 #ifdef Q_OS_MACX
-    QString file = QDir::homePath() + SCRIPTPLISTFILE;                                  /* file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist" */
+    QString file = QDir::homePath() + SCRIPT_MACOS_PLIST_FILE;                          /*! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist" */
     if (!QFile::exists(file))
         return;
-    QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             /* unload = bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"" */
+    QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             /*! unload = bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"" */
     QProcess dumpProcess(parent());
     dumpProcess.start(unload);
     dumpProcess.waitForFinished();
-    if (QFile::exists(QDir::homePath() + SCRIPTPLISTFILE))
-        QFile::remove(QDir::homePath() + SCRIPTPLISTFILE);
 #endif
-    if (QFile::exists(QDir::homePath() + SCRIPTBACKUPFILE))
-        QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
 }
 
 void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days)
 {
-    if (!QDir(dirdestination).exists() || !timebackup.isValid() || days<1)
+    if (!QDir(dirdestination).exists() || !timebackup.isValid() || !days)
     {
         EffaceProgrammationBackup();
         return;
@@ -857,9 +856,9 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
                             + jourprg +
                         "\t</dict>\n"
                     "</plist>\n";
-    if (QFile::exists(QDir::homePath() + SCRIPTPLISTFILE))
-        QFile::remove(QDir::homePath() + SCRIPTPLISTFILE);
-    QFile fplist(QDir::homePath() + SCRIPTPLISTFILE);
+    if (QFile::exists(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE))
+        QFile::remove(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE);
+    QFile fplist(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE);
     if (fplist.open(QIODevice::ReadWrite))
     {
         QTextStream out(&fplist);
@@ -869,15 +868,19 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
 
     // relance du launchd
     QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
-    unload += SCRIPTPLISTFILE "\"\"";
+    unload += SCRIPT_MACOS_PLIST_FILE "\"\"";
     QString load    = "bash -c \"/bin/launchctl load \""   + QDir::homePath();
-    load += SCRIPTPLISTFILE "\"\"";
+    load += SCRIPT_MACOS_PLIST_FILE "\"\"";
     QProcess dumpProcess(parent());
     dumpProcess.start(unload);
     dumpProcess.waitForFinished();
     dumpProcess.start(load);
     dumpProcess.waitForFinished();
 #endif
+}
+
+void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup)
+{
     //programmation de l'effacement du contenu de la table ImagesEchange
     db->StandardSQL("Use " DB_IMAGES);
     db->StandardSQL("DROP EVENT IF EXISTS VideImagesEchange");
@@ -2139,7 +2142,7 @@ qint64 Procedures::CalcBaseSize()
     return basesize;
 }
 
-void Procedures::Slot_CalcTimeBupRestore()
+void Procedures::CalcTimeBupRestore()
 {
     double time(0), volume(0);
     QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();

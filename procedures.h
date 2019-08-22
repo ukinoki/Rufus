@@ -78,16 +78,23 @@ private:
     static Procedures *instance;
     bool                eventFilter(QObject *obj, QEvent *event)  ;
 
-public:
-    static Procedures   *I();
-    DataBase            *db;
-    bool                m_connexionbaseOK;
-    bool                m_dlgrefractionouverte;
-    DataBase::ModeAcces m_modeacces;
-    bool                m_ok;
-
+    DataBase                *db;
+    bool                    m_connexionbaseOK;
+    bool                    m_dlgrefractionouverte;
+    DataBase::ModeAcces     m_modeacces;
+    bool                    m_ok;
+    bool                    m_initok;
+    QFont                   m_applicationfont;
+    User                    *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
     QSettings               *m_settings;
+    ParametresSysteme       *m_parametres;
+    dlg_choixdate           *Dlg_ChxDate;
+    dlg_gestionusers        *Dlg_GestUsr;
+    dlg_paramconnexion      *Dlg_ParamConnex;
 
+public:
+    static Procedures       *I();
+    QSettings*              settings() const { return m_settings; }
     void                    ab(int i = 1);
 
     void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
@@ -126,19 +133,21 @@ public:
     //--------------------------------------------------------------------------------------------------------
     /*! LA SAUVEGARDE DE LA BASE DE DONNEES
 
-      La sauvegarde de la BDD peut-être planifiée dans le Qframe ui->Sauvegardeframe.
+      La sauvegarde de la BDD peut-être planifiée dans le Qframe ui->Sauvegardeframe de la fiche dlg_param
       On peut planifier l'emplacement du fichier de sauvegarde, l'heure de la sauvegarde, et les jours de la sauvegarde.
-      La sauvegarde ne peut se programmer que sur le serveur et pas ailleurs. Il faut donc installer une instance de RufusAdmin sur le serveur.
+      La sauvegarde ne peut se programmer que sur le serveur et pas ailleurs. Il faut donc installer une instance de Rufus sur le serveur.
       Les éléments du cadre ui->Sauvegardeframe sont donc désactivés si on n'est pas en mode Poste, autrement dit, sur le serveur.
 
       Les paramètres de programmation de la sauvegarde sont sauvegardés dans la base de données dans la table ParametresSyteme
 
-      La sauvegarde se fait par un script qui lance le prg mysqldump de sauvegarde des données et recopie les fichiers d'imagerie, les factures et les videos vers l'emplacement de sauvegarde.
+      La sauvegarde se fait par le script RufusBackupScript.sh qui lance le prg mysqldump de sauvegarde des données et recopie les fichiers d'imagerie, les factures et les videos vers l'emplacement de sauvegarde.
       Ce script définit l'emplacement de la sauvegarde, le nom de la sauvegarde et détruit les sauvegardes datant de plus de 14 jours
-      . pour Mac c'est le script RufusBackupScript.sh situé dans le dossier /Users/nomdutilisateur/Documents/Rufus
+      Le script RufusBackupScript.sh est situé dans le dossier /Users/nomdutilisateur/Documents/Rufus
 
       Le lancement de la sauvegarde au moment programmé se fait
-        . Sous Mac,  par un autre script -> c'est le fichier xml rufus.bup.plist situé dans /Users/nomutilisateur/Library/LaunchAgents. Ce fichier est chargé au démarrage par le launchd Apple.
+        . Sous Mac,  par un autre script -> c'est le fichier xml rufus.bup.plist situé dans /Users/nomutilisateur/Library/LaunchAgents.
+          Ce fichier est chargé au démarrage par le launchd Apple.
+          Il est donc éxécuté même quand Rufus ne tourne pas
         . Sous Linux, c'est un timer t_timerbackup qui lance la sauvegarde et la fonction BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days)
 
       Au chargement de Rufus, les données de Rufus.ini sont récupérées pour régler l'affichage des données dans  ui->Sauvegardeframe.
@@ -154,6 +163,8 @@ public:
             * sous Mac, supprime le script de programmation rufus.bup.plist et le décharge du launchd
             * sous Linux, arrête le timer t_timerbackup
      */
+
+public:
     enum Day {
                 Lundi       = 0x1,
                 Mardi       = 0x2,
@@ -164,6 +175,24 @@ public:
                 Dimanche    = 0x40
               };    Q_ENUM(Day)
     Q_DECLARE_FLAGS(Days, Day)
+    void                    EffaceBDDDataBackup();
+                            /*! efface les données de sauvegarde (moment et emplacement) dans la base de données */
+    void                    EffaceProgrammationBackup();
+                            /*! efface le paramétrage de la sauvegarde
+                            * suppression de RufusScriptBackup.sh
+                            * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
+                            */
+    bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full=false);
+                            /*! lance un backup immédiat */
+    void                    InitBackupAuto();
+                            /*! prépare le paramétrage de la fonction ParamAutoBackup() en fonction des paramètres enregistrés dans la base
+                             * utilisé au moment du lancement du programme */
+    void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days);
+                            /*! paramètre le moment et l'emplacement de la sauvegarde
+                             * sous Mac, crée le fichier xml rufus.bup.plist
+                             * sous Linux, lance le timer t_timerbackup
+                            */
+private:
     QTimer                  t_timerbackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                             /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
@@ -171,31 +200,12 @@ public:
                             /*! utilisée par ImmediateBackup() pour sauvegarder la base et:ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore() */
     void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);
                             /*! sous Linux, déclenche le backup au moment programmé */
+    void                    CalcTimeBupRestore();
+                            /*! calcule la durée approximative du backup */
     void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
                             /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
     void                    DefinitScriptRestore(QStringList ListNomFiles);
                             /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL et le lance */
-    void                    EffaceBDDDataBackup();
-                            /*! efface les données de sauvegarde (moment et emplacement) dans la base de données */
-    void                    EffaceProgrammationBackup();
-                            /*! efface le paramétrage de la sauvegarde
-                            * suppression de RufusScriptBackup.sh
-                            * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
-                            * effacement des lignes correspondantes dans rufus.ini
-                            */
-    bool                    ImmediateBackup(QString dirSauv = "", bool verifposteconnecte = true, bool full=false);
-                            /*! lance un backup immédiat */
-    void                    InitBackupAuto();
-                            /*! sous Linux, charge le paramétrage du backup automatique en fonction des paramètres enregistrés dans la base au moment du lancement du programme*/
-    void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days);
-                            /*! paramètre le moment et l'emplacement de la sauvegarde
-                             * sous Mac, crée le fichier xml rufus.bup.plist
-                             * sous Linux, lance le timer t_timerbackup
-                            */
-
-private slots:
-    void                    Slot_CalcTimeBupRestore();
-                            /*! calcule la durée approximative du backup */
     //--------------------------------------------------------------------------------------------------------
     // fin sauvegardes
     //--------------------------------------------------------------------------------------------------------
@@ -232,6 +242,11 @@ public:
 
 public:
     bool                    Connexion_A_La_Base();
+    bool                    ConnexionBaseOK() const { return m_connexionbaseOK; }
+    void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imageire
+                                                                             * vide la table EchangeImages
+                                                                             * purge les champs jpg et pdf de la table Factures
+                                                                             */
     bool                    ReinitBase();
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
 
@@ -284,14 +299,6 @@ signals:
     void                    CloseEditDocument();
 
 private:
-    bool                    m_initok;
-    QFont                   m_applicationfont;
-    User                    *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
-    ParametresSysteme       *m_parametres;
-    dlg_choixdate           *Dlg_ChxDate;
-    dlg_gestionusers        *Dlg_GestUsr;
-    dlg_paramconnexion      *Dlg_ParamConnex;
-
     QString                 m_pathDirStockageImage, m_pathDirStockageImagesServeur;
     QString                 m_CPpardefaut, m_Villepardefaut;
     QString                 m_nomFichierIni;

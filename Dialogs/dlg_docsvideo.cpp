@@ -39,7 +39,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
         break;
     }
 
-    m_docpath = proc->m_settings->value(Base + "/DossiersVideos").toString();
+    m_docpath = proc->settings()->value(Base + "/DossiersVideos").toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_visuvideowdg          = new QVideoWidget(this);
@@ -181,7 +181,7 @@ void dlg_docsvideo::ChangeFile()
             Base = "BDD_LOCAL";
         else if (db->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
-        proc->m_settings->setValue(Base + "/DossiersVideos", m_docpath);
+        proc->settings()->setValue(Base + "/DossiersVideos", m_docpath);
     }
 }
 
@@ -244,7 +244,7 @@ void dlg_docsvideo::ValideFiche()
     QString Base, NomOnglet;
     if (db->getMode() == DataBase::Poste)          {Base = "BDD_POSTE";     NomOnglet = tr("Monoposte");}
     if (db->getMode() == DataBase::ReseauLocal)    {Base = "BDD_LOCAL";     NomOnglet = tr("Réseau local");}
-    QString NomDirStockageImagerie  = proc->m_settings->value(Base + "/DossierImagerie").toString();
+    QString NomDirStockageImagerie  = proc->settings()->value(Base + "/DossierImagerie").toString();
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");

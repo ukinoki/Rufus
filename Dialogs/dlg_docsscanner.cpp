@@ -70,7 +70,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         return;
     }
 
-    m_docpath = proc->m_settings->value(Base + "/DossiersDocsScannes").toString();
+    m_docpath = proc->settings()->value(Base + "/DossiersDocsScannes").toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_uptable         = new UpTableWidget(this);
@@ -270,7 +270,7 @@ void dlg_docsscanner::ChangeFile()
             Base = "BDD_LOCAL";
         else if (db->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
-        proc->m_settings->setValue(Base + "/DossiersDocsScannes", m_docpath);
+        proc->settings()->setValue(Base + "/DossiersDocsScannes", m_docpath);
     }
 }
 

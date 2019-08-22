@@ -7,7 +7,7 @@ USE `Images`;
 -- programmation de l'effacement du contenu de la table ImagesEchange
 DROP EVENT IF EXISTS VideImagesEchange;
 CREATE EVENT VideImagesEchange
-    ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23  00:00:00'
+    ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 00:00:00'
     DO DELETE FROM `EchangeImages`;
 
 DROP TABLE IF EXISTS `EchangeImages`;
@@ -263,7 +263,7 @@ USE `ComptaMedicale`;
 -- programmation de l'effacement des pdf et jpg contenus dans Factures
 DROP EVENT IF EXISTS VideFactures;
 CREATE EVENT VideFactures
-    ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23  00:00:00'
+    ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 00:00:00'
     DO UPDATE Factures SET jpg = null, pdf = null;
 
 DROP TABLE IF EXISTS `archivesbanques`;

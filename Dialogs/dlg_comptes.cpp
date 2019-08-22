@@ -29,7 +29,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     db = DataBase::I();
     m_intervalledate = 180;
     m_dateencours = QDate::currentDate();
-    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionComptes").toByteArray());
+    restoreGeometry(proc->settings()->value("PositionsFiches/PositionComptes").toByteArray());
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
@@ -626,7 +626,7 @@ void dlg_comptes::ChangeCompte(int idx)
 
 void dlg_comptes::closeEvent(QCloseEvent *event)
 {
-    proc->m_settings->setValue("PositionsFiches/PositionComptes",saveGeometry());
+    proc->settings()->setValue("PositionsFiches/PositionComptes",saveGeometry());
     event->accept();
 }
 

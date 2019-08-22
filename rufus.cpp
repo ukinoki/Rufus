@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("20-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -38,13 +38,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);                                                        //! choisit le mode de connexion au serveur
 
     //0. Connexion à la base et récupération des données utilisateur
-    if (!proc->m_connexionbaseOK)
+    if (!proc->ConnexionBaseOK())
     {
         int     b = 0;
         bool    a;
-        if (proc->m_settings->value("BDD_POSTE/Active").toString()    == "YES")       b += 1;
-        if (proc->m_settings->value("BDD_LOCAL/Active").toString()    == "YES")       b += 1;
-        if (proc->m_settings->value("BDD_DISTANT/Active").toString()  == "YES")       b += 1;
+        if (proc->settings()->value("BDD_POSTE/Active").toString()    == "YES")       b += 1;
+        if (proc->settings()->value("BDD_LOCAL/Active").toString()    == "YES")       b += 1;
+        if (proc->settings()->value("BDD_DISTANT/Active").toString()  == "YES")       b += 1;
         a = (b>1);
         if (b==1)
             if (!proc->Connexion_A_La_Base())
@@ -61,7 +61,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->setDirImagerie();                                //! lit l'emplacement du dossier d'imagerie sur le serveur
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
-    restoreGeometry(proc->m_settings->value("PositionsFiches/Rufus").toByteArray());
+    restoreGeometry(proc->settings()->value("PositionsFiches/Rufus").toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
@@ -236,10 +236,18 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ui->CreerBOpushButton   ->setVisible(m_currentuser->isOrthoptist());
     ui->CreerBOpushButton_2 ->setVisible(m_currentuser->isOrthoptist());
 
-    //! 13 - mise à jour du programmateur de sauvegardes
+    //! 13 - mise à jour du programmateur de sauvegarde et de l'effacement des fichiers images provisoires
 #ifdef Q_OS_LINUX
     proc->InitBackupAuto();
 #endif
+#ifdef Q_OS_MACX
+    if (db->getMode() != DataBase::Poste)
+        proc->EffaceProgrammationBackup();
+    else
+        proc->InitBackupAuto();
+#endif
+    if (db->getMode() == DataBase::Poste)
+        proc->ProgrammeSQLVideImagesTemp(m_parametres->heurebkup());
 
     //! 14 - choix mode (création dossier ou sélection de patient)
     if (m_listepatientsmodel->rowCount() == 0)
@@ -3661,7 +3669,7 @@ void Rufus::MAJPosteConnecte()
 {
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
-    proc->m_settings->setValue("PositionsFiches/Rufus", saveGeometry());
+    proc->settings()->setValue("PositionsFiches/Rufus", saveGeometry());
     if (Datas::I()->postesconnectes->currentpost() != Q_NULLPTR)
         ItemsList::update(Datas::I()->postesconnectes->currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     else
@@ -4503,7 +4511,7 @@ void Rufus::setTitre()
     if (db->getMode() == DataBase::Distant)
     {
         modeconnexion = tr("accès distant - connexion ");
-        if (proc->m_settings->value("BDD_DISTANT/SSL").toString() != "NO")
+        if (proc->settings()->value("BDD_DISTANT/SSL").toString() != "NO")
             modeconnexion += tr("cryptée (SSL)");
         else
             modeconnexion += tr("non cryptée");
@@ -5568,14 +5576,14 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     QString ImportateurDocs = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
-        if ((proc->m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
+        if ((proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
                 && db->getMode() != DataBase::Distant)
              proc->setPosteImportDocs();
     }
     else
     {
         QString Adr = "";
-        QString B = proc->m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
+        QString B = proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
         if (B=="YES")
             Adr = QHostInfo::localHostName() + " - prioritaire";
         else if (B=="NORM")
@@ -5622,7 +5630,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         {
             connect(t_timerExportDocs,           &QTimer::timeout,   this,   &Rufus::ExporteDocs);
             if (ImportDocsExtThread == Q_NULLPTR)
-                if (proc->m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
+                if (proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
                 {
                     ImportDocsExtThread = new ImportDocsExternesThread(proc);
                     connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
@@ -6516,7 +6524,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::SortieAppli()
 {
-    if (!proc->m_connexionbaseOK)
+    if (!proc->ConnexionBaseOK())
         exit(0);
     QList<dlg_paiementtiers *> PaimtList = findChildren<dlg_paiementtiers*>();
     if (PaimtList.size()>0)

@@ -234,14 +234,14 @@ dlg_param::dlg_param(QWidget *parent) :
             Listapp << listtono.at(i).at(0).toString() + " " + listtono.at(i).at(1).toString();
     ui->TonometreupComboBox->insertItems(0,Listapp);
 
-    ui->AutorefupComboBox           ->setCurrentText(proc->m_settings->value("Param_Poste/Autoref").toString());
-    ui->PortAutorefupComboBox       ->setCurrentText(proc->m_settings->value("Param_Poste/PortAutoref").toString());
-    ui->FrontoupComboBox            ->setCurrentText(proc->m_settings->value("Param_Poste/Fronto").toString());
-    ui->TonometreupComboBox         ->setCurrentText(proc->m_settings->value("Param_Poste/Tonometre").toString());
-    ui->PortFrontoupComboBox        ->setCurrentText(proc->m_settings->value("Param_Poste/PortFronto").toString());
-    ui->RefracteurupComboBox        ->setCurrentText(proc->m_settings->value("Param_Poste/Refracteur").toString());
-    ui->PortRefracteurupComboBox    ->setCurrentText(proc->m_settings->value("Param_Poste/PortRefracteur").toString());
-    ui->PortTonometreupComboBox     ->setCurrentText(proc->m_settings->value("Param_Poste/PortTonometre").toString());
+    ui->AutorefupComboBox           ->setCurrentText(proc->settings()->value("Param_Poste/Autoref").toString());
+    ui->PortAutorefupComboBox       ->setCurrentText(proc->settings()->value("Param_Poste/PortAutoref").toString());
+    ui->FrontoupComboBox            ->setCurrentText(proc->settings()->value("Param_Poste/Fronto").toString());
+    ui->TonometreupComboBox         ->setCurrentText(proc->settings()->value("Param_Poste/Tonometre").toString());
+    ui->PortFrontoupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/PortFronto").toString());
+    ui->RefracteurupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/Refracteur").toString());
+    ui->PortRefracteurupComboBox    ->setCurrentText(proc->settings()->value("Param_Poste/PortRefracteur").toString());
+    ui->PortTonometreupComboBox     ->setCurrentText(proc->settings()->value("Param_Poste/PortTonometre").toString());
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
@@ -250,11 +250,11 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_villeCP   ->move(15,10);
        wdg_villeCP->ui->CPlabel      ->setText(tr("Code postal par défaut"));
        wdg_villeCP->ui->Villelabel   ->setText(tr("Ville par défaut"));
-       wdg_VilleDefautlineEdit                 ->setText(proc->m_settings->value("Param_Poste/VilleParDefaut").toString());
-       wdg_CPDefautlineEdit                    ->completer()->setCurrentRow(proc->m_settings->value("Param_Poste/CodePostalParDefaut").toInt());
+       wdg_VilleDefautlineEdit                 ->setText(proc->settings()->value("Param_Poste/VilleParDefaut").toString());
+       wdg_CPDefautlineEdit                    ->completer()->setCurrentRow(proc->settings()->value("Param_Poste/CodePostalParDefaut").toInt());
        // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
        // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-       wdg_CPDefautlineEdit                    ->setText(proc->m_settings->value("Param_Poste/CodePostalParDefaut").toString());
+       wdg_CPDefautlineEdit                    ->setText(proc->settings()->value("Param_Poste/CodePostalParDefaut").toString());
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
@@ -308,7 +308,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     QString Base;
     Base = "BDD_POSTE";
-    a = (proc->m_settings->value(Base + "/Active").toString() == "YES");
+    a = (proc->settings()->value(Base + "/Active").toString() == "YES");
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
     ui->MonoConnexionupLabel        ->setVisible(a);
@@ -319,11 +319,11 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PosteStockageupPushButton   ->setVisible(a);
     if (a)
     {
-        ui->SQLPortPostecomboBox    ->setCurrentText(proc->m_settings->value(Base + "/Port").toString());
+        ui->SQLPortPostecomboBox    ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
         ui->PosteStockageupLineEdit->setText(m_parametres->dirimagerie());
     }
     Base = "BDD_LOCAL";
-    b = (proc->m_settings->value(Base + "/Active").toString() == "YES");
+    b = (proc->settings()->value(Base + "/Active").toString() == "YES");
     ui->LocalServcheckBox           ->setChecked(b);
     ui->Localframe                  ->setVisible(b);
     ui->LocalConnexionupLabel       ->setVisible(b);
@@ -334,12 +334,12 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->LocalStockageupPushButton   ->setVisible(b);
     if (b)
     {
-        ui->EmplacementLocaluplineEdit  ->setText(proc->m_settings->value(Base + "/Serveur").toString());
-        ui->SQLPortLocalcomboBox        ->setCurrentText(proc->m_settings->value(Base + "/Port").toString());
-        ui->LocalStockageupLineEdit     ->setText(proc->m_settings->value("BDD_LOCAL/DossierImagerie").toString());
+        ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + "/Serveur").toString());
+        ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
+        ui->LocalStockageupLineEdit     ->setText(proc->settings()->value("BDD_LOCAL/DossierImagerie").toString());
     }
     Base = "BDD_DISTANT";
-    c = (proc->m_settings->value(Base + "/Active").toString() == "YES");
+    c = (proc->settings()->value(Base + "/Active").toString() == "YES");
     ui->DistantServcheckBox         ->setChecked(c);
     ui->Distantframe                ->setVisible(c);
     ui->DistantConnexionupLabel     ->setVisible(c);
@@ -350,9 +350,9 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DistantStockageupPushButton ->setVisible(c);
     if (c)
     {
-        ui->EmplacementDistantuplineEdit->setText(proc->m_settings->value(Base + "/Serveur").toString());
-        ui->SQLPortDistantcomboBox      ->setCurrentText(proc->m_settings->value(Base + "/Port").toString());
-        ui->DistantStockageupLineEdit   ->setText(proc->m_settings->value("BDD_DISTANT/DossierImagerie").toString());
+        ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + "/Serveur").toString());
+        ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
+        ui->DistantStockageupLineEdit   ->setText(proc->settings()->value("BDD_DISTANT/DossierImagerie").toString());
     }
 
     if (db->getMode() == DataBase::Poste)
@@ -364,14 +364,14 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->ParamtabWidget->setCurrentIndex(0);
 
-    ui->EntetespinBox->setValue(proc->m_settings->value("Param_Imprimante/TailleEnTete").toInt());
-    ui->EnteteALDspinBox->setValue(proc->m_settings->value("Param_Imprimante/TailleEnTeteALD").toInt());
-    ui->PiedDePagespinBox->setValue(proc->m_settings->value("Param_Imprimante/TaillePieddePage").toInt());
-    ui->PiedDePageOrdoLunettesspinBox->setValue(proc->m_settings->value("Param_Imprimante/TaillePieddePageOrdoLunettes").toInt());
-    ui->TopMargespinBox->setValue(proc->m_settings->value("Param_Imprimante/TailleTopMarge").toInt());
-    ui->ApercuImpressioncheckBox->setChecked(proc->m_settings->value("Param_Imprimante/ApercuAvantImpression").toString() ==  "YES");
-    ui->OrdoAvecDuplicheckBox->setChecked(proc->m_settings->value("Param_Imprimante/OrdoAvecDupli").toString() ==  "YES");
-    QString A = proc->m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
+    ui->EntetespinBox->setValue(proc->settings()->value("Param_Imprimante/TailleEnTete").toInt());
+    ui->EnteteALDspinBox->setValue(proc->settings()->value("Param_Imprimante/TailleEnTeteALD").toInt());
+    ui->PiedDePagespinBox->setValue(proc->settings()->value("Param_Imprimante/TaillePieddePage").toInt());
+    ui->PiedDePageOrdoLunettesspinBox->setValue(proc->settings()->value("Param_Imprimante/TaillePieddePageOrdoLunettes").toInt());
+    ui->TopMargespinBox->setValue(proc->settings()->value("Param_Imprimante/TailleTopMarge").toInt());
+    ui->ApercuImpressioncheckBox->setChecked(proc->settings()->value("Param_Imprimante/ApercuAvantImpression").toString() ==  "YES");
+    ui->OrdoAvecDuplicheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() ==  "YES");
+    QString A = proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
     if (A=="YES")
         ui->PrioritaireImportDocscheckBox->setChecked(true);
     else if (A=="NO")
@@ -379,7 +379,7 @@ dlg_param::dlg_param(QWidget *parent) :
     else
     {
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
-        proc->m_settings->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
+        proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
     }
     t_timerverifimportdocs.start(500);
     connect (&t_timerverifimportdocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
@@ -631,7 +631,7 @@ void dlg_param::Slot_ChoixDossierStockageApp()
         default:
             break;
         }
-        proc->m_settings->setValue(Base + "/DossiersDocuments/" + exam, dockdir.path());
+        proc->settings()->setValue(Base + "/DossiersDocuments/" + exam, dockdir.path());
     }
 }
 
@@ -683,7 +683,7 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
     if (ok && appdata.size()>0)
         app = appdata.at(0).toString();
     if (app != "")
-        proc->m_settings->setValue(Base + "/DossiersDocuments/" + app, dir);
+        proc->settings()->setValue(Base + "/DossiersDocuments/" + app, dir);
     else
         UpMessageBox::Watch(this,tr("Impossible de retrouver le nom de l'appareil"));
 
@@ -1410,7 +1410,7 @@ void dlg_param::SupprAppareil()
             Base = "BDD_LOCAL";
         else if (db->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
-        proc->m_settings->remove(Base + "/DossiersDocuments/" + appdata.at(1).toString());
+        proc->settings()->remove(Base + "/DossiersDocuments/" + appdata.at(1).toString());
         Remplir_Tables();
     }
 }
@@ -1719,7 +1719,7 @@ void dlg_param::Slot_ModifDirBackup()
     ModifParamAutoBackup();
 }
 
-void dlg_param::Slot_ModifDateBackup()    //Modification de la date ou de l'heure et date du backup
+void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heure et date du backup
 {
     db->setheurebkup(ui->HeureBackuptimeEdit->time());
     db->setlundibkup(ui->LundiradioButton->isChecked());
@@ -1734,7 +1734,7 @@ void dlg_param::Slot_ModifDateBackup()    //Modification de la date ou de l'heur
 
 void dlg_param::Slot_DirLocalStockage()
 {
-    QString dir = proc->m_settings->value("BDD_LOCAL/DossierImagerie").toString();
+    QString dir = proc->settings()->value("BDD_LOCAL/DossierImagerie").toString();
     if (dir == "")
         dir = QDir::homePath() + DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
@@ -1744,13 +1744,13 @@ void dlg_param::Slot_DirLocalStockage()
     {
         QDir dockdir = dialog.directory();
         ui->LocalStockageupLineEdit->setText(dockdir.path());
-        proc->m_settings->setValue("BDD_LOCAL/DossierImagerie", dockdir.path());
+        proc->settings()->setValue("BDD_LOCAL/DossierImagerie", dockdir.path());
     }
 }
 
 void dlg_param::Slot_DirDistantStockage()
 {
-    QString dir = proc->m_settings->value("BDD_DISTANT/DossierImagerie").toString();
+    QString dir = proc->settings()->value("BDD_DISTANT/DossierImagerie").toString();
     if (dir == "")
         dir = QDir::homePath() + DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
@@ -1760,7 +1760,7 @@ void dlg_param::Slot_DirDistantStockage()
     {
         QDir dockdir = dialog.directory();
         ui->DistantStockageupLineEdit->setText(dockdir.path());
-        proc->m_settings->setValue("BDD_DISTANT/DossierImagerie", dockdir.path());
+        proc->settings()->setValue("BDD_DISTANT/DossierImagerie", dockdir.path());
     }
 }
 
@@ -1897,47 +1897,29 @@ void dlg_param::ModifParamAutoBackup()
 {
     if (db->getMode() != DataBase::Poste)
         return;
-
-    QString NomDirStockageImagerie ("");
-    NomDirStockageImagerie      = m_parametres->dirimagerie();
-    bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");
-    bool IncorrectDirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists() && !NoDirBupDefined;
-    bool NoDayBupDefined        = true;
-    QList<QRadioButton*> listbut= ui->JourSauvegardeframe->findChildren<QRadioButton*>();
-    for (int i=0; i<listbut.size(); i++)
-        if (listbut.at(i)->isChecked())
-        {
-            NoDayBupDefined = false;
-            break;
-        }
-    if (NoDayBupDefined || NoDirBupDefined || IncorrectDirBupDefined)
+    Procedures::Days days;
+    if (m_parametres->lundibkup())
+        days.setFlag(Procedures::Lundi);
+    if (m_parametres->mardibkup())
+        days.setFlag(Procedures::Mardi);
+    if (m_parametres->mercredibkup())
+        days.setFlag(Procedures::Mercredi);
+    if (m_parametres->jeudibkup())
+        days.setFlag(Procedures::Jeudi);
+    if (m_parametres->vendredibkup())
+        days.setFlag(Procedures::Vendredi);
+    if (m_parametres->samedibkup())
+        days.setFlag(Procedures::Samedi);
+    if (m_parametres->dimanchebkup())
+        days.setFlag(Procedures::Dimanche);
+    if (!days || m_parametres->dirimagerie() == "" || m_parametres->dirbkup() == "" || !QDir(m_parametres->dirbkup()).exists())
     {
         ui->EffacePrgSauvupPushButton->setEnabled(false);
         proc->EffaceProgrammationBackup();
         return;
     }
-
     // ENREGISTREMENT DES PARAMETRES DE SAUVEGARDE
-    QString NomDirDestination;
-    NomDirDestination = m_parametres->dirbkup();
-    if (!QDir(NomDirDestination).exists())
-        return;
-    Procedures::Days days;
-    if (ui->LundiradioButton->isChecked())
-        days.setFlag(Procedures::Lundi);
-    if (ui->MardiradioButton->isChecked())
-        days.setFlag(Procedures::Mardi);
-    if (ui->MercrediradioButton->isChecked())
-        days.setFlag(Procedures::Mercredi);
-    if (ui->JeudiradioButton->isChecked())
-        days.setFlag(Procedures::Jeudi);
-    if (ui->VendrediradioButton->isChecked())
-        days.setFlag(Procedures::Vendredi);
-    if (ui->SamediradioButton->isChecked())
-        days.setFlag(Procedures::Samedi);
-    if (ui->DimancheradioButton->isChecked())
-        days.setFlag(Procedures::Dimanche);
-    proc->ParamAutoBackup(NomDirDestination, NomDirStockageImagerie, ui->HeureBackuptimeEdit->time(), days);
+    proc->ParamAutoBackup(m_parametres->dirbkup(), m_parametres->dirimagerie(), m_parametres->heurebkup(), days);
     ui->EffacePrgSauvupPushButton->setEnabled(true);
 }
 
@@ -2131,8 +2113,8 @@ void dlg_param::ConnectSlots()
         connect(listspin.at(i),                     SIGNAL(valueChanged(int)),          this,   SLOT(Slot_EnableOKModifPosteButton()));
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
     for (int i=0; i<listbutton2.size(); i++)
-        connect(listbutton2.at(i),                  SIGNAL(clicked(bool)),              this,   SLOT(Slot_ModifDateBackup()));
-    connect(ui->HeureBackuptimeEdit,                SIGNAL(timeChanged(QTime)),         this,   SLOT(Slot_ModifDateBackup()));
+        connect(listbutton2.at(i),                  &QPushButton::clicked,              this,   &dlg_param::ModifDateHeureBackup);
+    connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifDateHeureBackup);
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -2931,59 +2913,59 @@ bool dlg_param::Valide_Modifications()
         }
         QString Base = "BDD_POSTE";
         if (ui->PosteServcheckBox->isChecked())
-            proc->m_settings->setValue(Base + "/Active","YES");
+            proc->settings()->setValue(Base + "/Active","YES");
         else
-            proc->m_settings->setValue(Base + "/Active","NO");
-        proc->m_settings->setValue(Base + "/Port",ui->SQLPortPostecomboBox->currentText());
+            proc->settings()->setValue(Base + "/Active","NO");
+        proc->settings()->setValue(Base + "/Port",ui->SQLPortPostecomboBox->currentText());
 
         Base = "BDD_LOCAL";
         if (ui->LocalServcheckBox->isChecked())
-            proc->m_settings->setValue(Base + "/Active","YES");
+            proc->settings()->setValue(Base + "/Active","YES");
         else
-            proc->m_settings->setValue(Base + "/Active","NO");
-        proc->m_settings->setValue(Base + "/Serveur",ui->EmplacementLocaluplineEdit->text());
+            proc->settings()->setValue(Base + "/Active","NO");
+        proc->settings()->setValue(Base + "/Serveur",ui->EmplacementLocaluplineEdit->text());
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
-        proc->m_settings->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
+        proc->settings()->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
 
         Base = "BDD_DISTANT";
         if (ui->DistantServcheckBox->isChecked())
-            proc->m_settings->setValue(Base + "/Active","YES");
+            proc->settings()->setValue(Base + "/Active","YES");
         else
-            proc->m_settings->setValue(Base + "/Active","NO");
-        proc->m_settings->setValue(Base + "/Serveur",ui->EmplacementDistantuplineEdit->text());
+            proc->settings()->setValue(Base + "/Active","NO");
+        proc->settings()->setValue(Base + "/Serveur",ui->EmplacementDistantuplineEdit->text());
         db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());
-        proc->m_settings->setValue(Base + "/Port",ui->SQLPortDistantcomboBox->currentText());
-        proc->m_settings->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->value());
-        proc->m_settings->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->value());
-        proc->m_settings->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->value());
-        proc->m_settings->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->value());
+        proc->settings()->setValue(Base + "/Port",ui->SQLPortDistantcomboBox->currentText());
+        proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->value());
+        proc->settings()->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->value());
+        proc->settings()->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->value());
+        proc->settings()->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->value());
         QString OK = (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO");
-        proc->m_settings->setValue("Param_Imprimante/ApercuAvantImpression", OK);
+        proc->settings()->setValue("Param_Imprimante/ApercuAvantImpression", OK);
         OK = (ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO");
-        proc->m_settings->setValue("Param_Imprimante/OrdoAvecDupli",OK);
+        proc->settings()->setValue("Param_Imprimante/OrdoAvecDupli",OK);
         if (ui->PrioritaireImportDocscheckBox->isChecked())
-            proc->m_settings->setValue("BDD_LOCAL/PrioritaireGestionDocs","YES");
+            proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","YES");
         else if (ui->NonImportDocscheckBox->isChecked())
-            proc->m_settings->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
+            proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
         else
-            proc->m_settings->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
-        proc->m_settings->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->text());
-        proc->m_settings->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->text());
-        proc->m_settings->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->text());
-        proc->m_settings->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->text());
-        proc->m_settings->setValue("Param_Imprimante/TailleTopMarge",ui->TopMargespinBox->text());
+            proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
+        proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->text());
+        proc->settings()->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->text());
+        proc->settings()->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->text());
+        proc->settings()->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->text());
+        proc->settings()->setValue("Param_Imprimante/TailleTopMarge",ui->TopMargespinBox->text());
 
-        proc->m_settings->setValue("Param_Poste/Fronto",ui->FrontoupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/PortFronto",ui->PortFrontoupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/Autoref",ui->AutorefupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/PortAutoref",ui->PortAutorefupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/Refracteur",ui->RefracteurupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/PortRefracteur",ui->PortRefracteurupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/Tonometre",ui->TonometreupComboBox->currentText());
-        proc->m_settings->setValue("Param_Poste/PortTonometre",ui->PortTonometreupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/Fronto",ui->FrontoupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/PortFronto",ui->PortFrontoupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/Autoref",ui->AutorefupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/PortAutoref",ui->PortAutorefupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/Refracteur",ui->RefracteurupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/PortRefracteur",ui->PortRefracteurupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/Tonometre",ui->TonometreupComboBox->currentText());
+        proc->settings()->setValue("Param_Poste/PortTonometre",ui->PortTonometreupComboBox->currentText());
 
-        proc->m_settings->setValue("Param_Poste/VilleParDefaut",wdg_VilleDefautlineEdit->text());
-        proc->m_settings->setValue("Param_Poste/CodePostalParDefaut",wdg_CPDefautlineEdit->text());
+        proc->settings()->setValue("Param_Poste/VilleParDefaut",wdg_VilleDefautlineEdit->text());
+        proc->settings()->setValue("Param_Poste/CodePostalParDefaut",wdg_CPDefautlineEdit->text());
 
         m_modifposte = false;
     }
