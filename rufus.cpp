@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("23-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -236,7 +236,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ui->CreerBOpushButton   ->setVisible(m_currentuser->isOrthoptist());
     ui->CreerBOpushButton_2 ->setVisible(m_currentuser->isOrthoptist());
 
-    //! 13 - mise à jour du programmateur de sauvegarde et de l'effacement des fichiers images provisoires
+    //! 13 - mise à jour du programmateur de sauvegarde
 #ifdef Q_OS_LINUX
     proc->InitBackupAuto();
 #endif
@@ -246,10 +246,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
         proc->InitBackupAuto();
 #endif
+
+    //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires
     if (db->getMode() == DataBase::Poste)
         proc->ProgrammeSQLVideImagesTemp(m_parametres->heurebkup());
 
-    //! 14 - choix mode (création dossier ou sélection de patient)
+    //! 15 - choix mode (création dossier ou sélection de patient)
     if (m_listepatientsmodel->rowCount() == 0)
     {
         ModeCreationDossier();

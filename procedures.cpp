@@ -412,6 +412,8 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
     {
         QFile precBup(QDir::homePath() + SCRIPTBACKUPFILE);
         bool b = precBup.exists();
+        if (b)
+            precBup.copy(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE);
         DefinitScriptBackup(dirSauv, NomDirStockageImagerie, OKImages, OKVideos);
         QString msg = "sh " + QDir::homePath() + SCRIPTBACKUPFILE;
         QProcess dumpProcess(parent());
@@ -425,19 +427,12 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
         else
             msg = tr("Incident pendant la sauvegarde");
         dlg_message(msg,3000,false);
+        QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
         if (b)
         {
-            QString NomDirDestination;
-            NomDirDestination = m_parametres->dirbkup();
-            if (!QDir(NomDirDestination).exists())
-            {
-                QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
-                return false;
-            }
-            DefinitScriptBackup(NomDirDestination, NomDirStockageImagerie);
+            QFile(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE).copy(QDir::homePath() + SCRIPTBACKUPFILE);
+            QFile::remove(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE);
         }
-        else
-            QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
         result = (a==0);
     }
     else
@@ -500,10 +495,7 @@ void Procedures::BackupWakeUp(QString NomDirDestination, QTime timebkup, Days da
             return;
         bool autresposteconnectes = AutresPostesConnectes(false);
         if (!autresposteconnectes)
-        {
-            bool full = true;
-            ImmediateBackup(NomDirDestination, autresposteconnectes, full);
-        }
+            Backup(m_parametres->dirbkup(), true, m_parametres->dirimagerie(), true, true, true);
     }
 }
 
@@ -736,13 +728,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
  */
 void Procedures::InitBackupAuto()
 {
-    if (db->getMode() != DataBase::Poste)
-        return;
     Days days;
-    QString dirdestination ("");
-    QString dirimagerie("");
-    QTime timebackup = m_parametres->heurebkup();
-    dirdestination  = m_parametres->dirbkup();
     if (m_parametres->lundibkup())      days.setFlag(Procedures::Lundi);
     if (m_parametres->mardibkup())      days.setFlag(Procedures::Mardi);
     if (m_parametres->mercredibkup())   days.setFlag(Procedures::Mercredi);
@@ -750,8 +736,7 @@ void Procedures::InitBackupAuto()
     if (m_parametres->vendredibkup())   days.setFlag(Procedures::Vendredi);
     if (m_parametres->samedibkup())     days.setFlag(Procedures::Samedi);
     if (m_parametres->dimanchebkup())   days.setFlag(Procedures::Dimanche);
-
-    ParamAutoBackup(dirdestination, dirimagerie, timebackup, days);
+    ParamAutoBackup(m_parametres->dirbkup(), m_parametres->dirimagerie(), m_parametres->heurebkup(), days);
 }
 
 void Procedures::EffaceBDDDataBackup()
@@ -797,11 +782,11 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
         return;
     }
     DefinitScriptBackup(dirdestination, dirimagerie);
-//#ifdef Q_OS_LINUX
+#ifdef Q_OS_LINUX
     t_timerbackup.stop();
     t_timerbackup.start(1000);
     connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp(dirdestination, timebackup, days);});
-//#endif
+#endif
 #ifdef Q_OS_MACX
     // elaboration de rufus.bup.plist
     QString heure   = timebackup.toString("H");
@@ -2109,7 +2094,7 @@ bool Procedures::ReinitBase()
     msgbox      .exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        if (!ImmediateBackup("", false, true))
+        if (!ImmediateBackup("", true, true))
             return false;
         QFile FichierIni(m_nomFichierIni);
         if (FichierIni.exists())
@@ -2610,7 +2595,7 @@ bool Procedures::VerifBaseEtRessources()
                 msgbox.addButton(&AnnulBouton, UpSmallButton::STARTBUTTON);
                 msgbox.exec();
                 if (msgbox.clickedButton() != &AnnulBouton)
-                    if (!ImmediateBackup("", false, false))
+                    if (!ImmediateBackup("", true, false))
                         return false;
                 BupDone = true;
             }

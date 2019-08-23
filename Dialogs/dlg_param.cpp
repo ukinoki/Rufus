@@ -1130,7 +1130,7 @@ void dlg_param::NouvAppareil()
     delete dlg_askappareil;
 }
 
-void dlg_param::Slot_ImmediateBackup()
+void dlg_param::startImmediateBackup()
 {
     if (proc->AutresPostesConnectes())
         return;
@@ -1702,7 +1702,7 @@ void dlg_param::Slot_ParamMotifs()
     delete Dlg_motifs;
 }
 
-void dlg_param::Slot_ModifDirBackup()
+void dlg_param::ModifDirBackup()
 {
     if (db->getMode() != DataBase::Poste)
         return;
@@ -1716,7 +1716,7 @@ void dlg_param::Slot_ModifDirBackup()
 
     ui->DirBackupuplineEdit ->setText(dirSauv);
     db->setdirbkup(dirSauv);
-    ModifParamAutoBackup();
+    proc->InitBackupAuto();
 }
 
 void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heure et date du backup
@@ -1729,7 +1729,7 @@ void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heur
     db->setvendredibkup(ui->VendrediradioButton->isChecked());
     db->setsamedibkup(ui->SamediradioButton->isChecked());
     db->setdimanchebkup(ui->DimancheradioButton->isChecked());
-    ModifParamAutoBackup();
+    proc->InitBackupAuto();
 }
 
 void dlg_param::Slot_DirLocalStockage()
@@ -1893,36 +1893,6 @@ bool dlg_param::VerifDirStockageImagerie()
     return true;
 }
 
-void dlg_param::ModifParamAutoBackup()
-{
-    if (db->getMode() != DataBase::Poste)
-        return;
-    Procedures::Days days;
-    if (m_parametres->lundibkup())
-        days.setFlag(Procedures::Lundi);
-    if (m_parametres->mardibkup())
-        days.setFlag(Procedures::Mardi);
-    if (m_parametres->mercredibkup())
-        days.setFlag(Procedures::Mercredi);
-    if (m_parametres->jeudibkup())
-        days.setFlag(Procedures::Jeudi);
-    if (m_parametres->vendredibkup())
-        days.setFlag(Procedures::Vendredi);
-    if (m_parametres->samedibkup())
-        days.setFlag(Procedures::Samedi);
-    if (m_parametres->dimanchebkup())
-        days.setFlag(Procedures::Dimanche);
-    if (!days || m_parametres->dirimagerie() == "" || m_parametres->dirbkup() == "" || !QDir(m_parametres->dirbkup()).exists())
-    {
-        ui->EffacePrgSauvupPushButton->setEnabled(false);
-        proc->EffaceProgrammationBackup();
-        return;
-    }
-    // ENREGISTREMENT DES PARAMETRES DE SAUVEGARDE
-    proc->ParamAutoBackup(m_parametres->dirbkup(), m_parametres->dirimagerie(), m_parametres->heurebkup(), days);
-    ui->EffacePrgSauvupPushButton->setEnabled(true);
-}
-
 void dlg_param::Slot_RestaureBase()
 {
     if (proc->RestaureBase())
@@ -2075,14 +2045,12 @@ void dlg_param::ConnectSlots()
     connect(ui->ModifDataUserpushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionDatasCurrentUser()));
     connect(ui->GestionBanquespushButton,           SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionBanques()));
     connect(ui->OupspushButton,                     SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ResetImprimante()));
-    connect(ui->DirBackuppushButton,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ModifDirBackup()));
     connect(ui->LocalStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirLocalStockage()));
     connect(ui->DistantStockageupPushButton,        SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirDistantStockage()));
     connect(ui->PosteStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirPosteStockage()));
     connect(ui->ReinitBaseupPushButton,             SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ReinitBase()));
     connect(ui->RestaurBaseupPushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_RestaureBase()));
     connect(ui->EffacePrgSauvupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EffacePrgSauvegarde()));
-    connect(ui->ImmediatBackupupPushButton,         SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ImmediateBackup()));
     connect(ui->AppareilsConnectesupTableWidget,    SIGNAL(itemSelectionChanged()),         this,   SLOT(Slot_EnableAppBoutons()));
     connect(ui->AutorefupComboBox,                  SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
     connect(ui->TonometreupComboBox,                SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
@@ -2111,10 +2079,11 @@ void dlg_param::ConnectSlots()
      QList<QSpinBox*> listspin = ui->PosteParamtab->findChildren<QSpinBox*>();
     for (int i=0; i<listspin.size(); i++)
         connect(listspin.at(i),                     SIGNAL(valueChanged(int)),          this,   SLOT(Slot_EnableOKModifPosteButton()));
-    QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
-    for (int i=0; i<listbutton2.size(); i++)
-        connect(listbutton2.at(i),                  &QPushButton::clicked,              this,   &dlg_param::ModifDateHeureBackup);
+    foreach(QRadioButton *butt, ui->JourSauvegardeframe->findChildren<QRadioButton*>())
+        connect(butt,                               &QPushButton::clicked,              this,   &dlg_param::ModifDateHeureBackup);
     connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifDateHeureBackup);
+    connect(ui->DirBackuppushButton,                &QPushButton::clicked,              this,   &dlg_param::ModifDirBackup);
+    connect(ui->ImmediatBackupupPushButton,         &QPushButton::clicked,              this,   &dlg_param::startImmediateBackup);
 }
 
 bool dlg_param::CotationsModifiees() const
