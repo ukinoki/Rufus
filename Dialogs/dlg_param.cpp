@@ -1893,7 +1893,7 @@ bool dlg_param::VerifDirStockageImagerie()
     return true;
 }
 
-void dlg_param::Slot_RestaureBase()
+void dlg_param::RestaureBase()
 {
     if (proc->RestaureBase())
     {
@@ -1901,11 +1901,6 @@ void dlg_param::Slot_RestaureBase()
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         exit(0);
     }
-}
-
-void dlg_param::Slot_ReinitBase()
-{
-    proc->ReinitBase();
 }
 
 void dlg_param::VerifPosteImportDocs()
@@ -2048,8 +2043,6 @@ void dlg_param::ConnectSlots()
     connect(ui->LocalStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirLocalStockage()));
     connect(ui->DistantStockageupPushButton,        SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirDistantStockage()));
     connect(ui->PosteStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirPosteStockage()));
-    connect(ui->ReinitBaseupPushButton,             SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ReinitBase()));
-    connect(ui->RestaurBaseupPushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_RestaureBase()));
     connect(ui->EffacePrgSauvupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EffacePrgSauvegarde()));
     connect(ui->AppareilsConnectesupTableWidget,    SIGNAL(itemSelectionChanged()),         this,   SLOT(Slot_EnableAppBoutons()));
     connect(ui->AutorefupComboBox,                  SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
@@ -2084,6 +2077,8 @@ void dlg_param::ConnectSlots()
     connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifDateHeureBackup);
     connect(ui->DirBackuppushButton,                &QPushButton::clicked,              this,   &dlg_param::ModifDirBackup);
     connect(ui->ImmediatBackupupPushButton,         &QPushButton::clicked,              this,   &dlg_param::startImmediateBackup);
+    connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,              this,   &dlg_param::RestaureBase);
+    connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,              proc,   &Procedures::ReinitBase);
 }
 
 bool dlg_param::CotationsModifiees() const

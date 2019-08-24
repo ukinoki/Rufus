@@ -193,6 +193,11 @@ public:
         * la fonction startImmediateBackup déclenchée par un click sur le bouton ui->ImmediatBackupupPushButton de dlg_param.cpp
         * une demande de réintialisation de la BDD
         * une mise à jour de la BDD
+
+     La fonction DefinitScriptBackup() crée le fichier RufusScriptBackup.sh qui va éxécuter la sauvegarde.
+     Elle est lancée par
+        * ParamAutoBackup() sous Mac
+        * Backup() utilisée pour un backup immédiat de la base (ImmediateBackup() ou backup auto sous Linux (BackupWakeUp())
      */
 
 public:
@@ -207,35 +212,40 @@ public:
               };    Q_ENUM(Day)
     Q_DECLARE_FLAGS(Days, Day)
     void                    EffaceBDDDataBackup();
-                            /*! efface les données de sauvegarde (moment et emplacement) dans la base de données */
+                            /*! efface le paramétrage de la sauvegarde (moment et emplacement) dans la base de données */
     void                    EffaceProgrammationBackup();
-                            /*! efface le paramétrage de la sauvegarde
-                            * suppression de RufusScriptBackup.sh
+                            /*! efface la programmation de la sauvegarde qui a étée créé sur le poste à partir du paramètrage enregistré dans la base de données
+                            * n'efface pas le paramètrage de sauvegarde (moment et emplacement) dans la base de données
                             * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
                             */
-    bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full=false);
+    bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full = false);
                             /*! lance un backup immédiat */
     void                    InitBackupAuto();
                             /*! prépare le paramétrage de la fonction ParamAutoBackup() en fonction des paramètres enregistrés dans la base */
-    void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days);
+    void                    ParamAutoBackup(QString dirdestination, QTime timebackup, Days days);
                             /*! paramètre le moment et l'emplacement de la sauvegarde
                              * sous Mac, crée le fichier xml rufus.bup.plist
                              * sous Linux, lance le timer t_timerbackup
                             */
+    bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
+    bool                    ReinitBase();
+
 private:
     QTimer                  t_timerbackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                             /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-    bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
+    bool                    Backup(QString dirSauv, bool OKBase, bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
                             /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore() */
-    void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);
+    void                    BackupWakeUp(QTime timebkup, Days days);
                             /*! sous Linux, déclenche le backup au moment programmé */
+    qint64                  CalcBaseSize();
+                            /*! calcule le volume de la base */
     void                    CalcTimeBupRestore();
                             /*! calcule la durée approximative du backup */
-    void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
+    void                    DefinitScriptBackup(QString NomDirDestination, bool AvecImages= true, bool AvecVideos = true);
                             /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
     void                    DefinitScriptRestore(QStringList ListNomFiles);
-                            /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL et le lance */
+                            /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL */
     //--------------------------------------------------------------------------------------------------------
     // fin sauvegardes
     //--------------------------------------------------------------------------------------------------------
@@ -277,18 +287,14 @@ public:
                                                                              * vide la table EchangeImages
                                                                              * purge les champs jpg et pdf de la table Factures
                                                                              */
-    bool                    ReinitBase();
-    bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
 
 private:
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
     UpDialog                *dlg_buprestore;
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
     QList<QImage>           m_listeimages;
-    qint64                  CalcBaseSize();
     bool                    VerifBaseEtRessources();
     bool                    VerifRessources(QString Nomfile = "");
-    void                    VideDatabases();
 
 public:
     bool                    Init();

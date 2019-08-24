@@ -138,8 +138,7 @@ private slots:
     void                Slot_EnregistreAppareil();
     void                Slot_EnregistreEmplacementServeur(int);
 
-    void                Slot_RestaureBase();
-    void                Slot_ReinitBase();
+    void                RestaureBase();
 
 signals:
     void                click(QWidget *obj);

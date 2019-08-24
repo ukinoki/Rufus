@@ -161,6 +161,7 @@ public:
                                                                 /*! renvoie la première réponse de la requête SQL SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QVariantList
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
+    void                    VideDatabases();                    /*! vide la base de données */
     /*
      * Parametres système
     */
