@@ -1716,7 +1716,7 @@ void dlg_param::ModifDirBackup()
 
     ui->DirBackupuplineEdit ->setText(dirSauv);
     db->setdirbkup(dirSauv);
-    proc->InitBackupAuto();
+    proc->ParamAutoBackup();
 }
 
 void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heure et date du backup
@@ -1729,7 +1729,7 @@ void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heur
     db->setvendredibkup(ui->VendrediradioButton->isChecked());
     db->setsamedibkup(ui->SamediradioButton->isChecked());
     db->setdimanchebkup(ui->DimancheradioButton->isChecked());
-    proc->InitBackupAuto();
+    proc->ParamAutoBackup();
 }
 
 void dlg_param::Slot_DirLocalStockage()

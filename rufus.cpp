@@ -238,13 +238,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! 13 - mise à jour du programmateur de sauvegarde
 #ifdef Q_OS_LINUX
-    proc->InitBackupAuto();
+    proc->ParamAutoBackup();
 #endif
 #ifdef Q_OS_MACX
     if (db->getMode() != DataBase::Poste)
         proc->EffaceProgrammationBackup();
     else
-        proc->InitBackupAuto();
+        proc->ParamAutoBackup();
 #endif
 
     //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires

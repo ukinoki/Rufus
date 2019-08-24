@@ -175,15 +175,15 @@ public:
 
       Une modification de l'heure ou du jour du backup dans dlg_param.cpp
       lance la fonction ModifDateHeureBackup() qui va modifier les paramètres de backup en BDD
-      puis lancer InitBackupAuto() qui va créer les paramètres de la fonction ParamAutoBackup() et la lancer
+      puis lancer ParamAutoBackup()
 
       Une modification de l'heure ou du jour du backup dans dlg.param.cpp
       lance la fonction ModifDateHeureBackup() de dlg_param.cpp qui va modifier les paramètres de backup en BDD
-      puis lancer InitBackupAuto() qui va créer les paramètres de la fonction ParamAutoBackup() et la lancer
+      puis lancer ParamBackupAuto()
 
       Une modification du dossier de destination du backup dans dlg.param.cpp
       lance la fonction ModifDirBackup() qui va modifier les paramètres de backup en BDD
-      puis lancer InitBackupAuto() qui va créer les paramètres de la fonction ParamAutoBackup() et la lancer
+      puis lancer ParamAutoBackup()
 
       Le  bouton ui->ImmediatBackupupPushButton de dlg_param.cpp lance la fonction startImmediateBackup() qui va
         * vérifier qu'il n'y a pas d'autres postes connectés
@@ -201,17 +201,7 @@ public:
      */
 
 public:
-    enum Day {
-                Lundi       = 0x1,
-                Mardi       = 0x2,
-                Mercredi    = 0x4,
-                Jeudi       = 0x8,
-                Vendredi    = 0x10,
-                Samedi      = 0x20,
-                Dimanche    = 0x40
-              };    Q_ENUM(Day)
-    Q_DECLARE_FLAGS(Days, Day)
-    void                    EffaceBDDDataBackup();
+   void                    EffaceBDDDataBackup();
                             /*! efface le paramétrage de la sauvegarde (moment et emplacement) dans la base de données */
     void                    EffaceProgrammationBackup();
                             /*! efface la programmation de la sauvegarde qui a étée créé sur le poste à partir du paramètrage enregistré dans la base de données
@@ -220,9 +210,7 @@ public:
                             */
     bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full = false);
                             /*! lance un backup immédiat */
-    void                    InitBackupAuto();
-                            /*! prépare le paramétrage de la fonction ParamAutoBackup() en fonction des paramètres enregistrés dans la base */
-    void                    ParamAutoBackup(Days days);
+    void                    ParamAutoBackup();
                             /*! paramètre le moment et l'emplacement de la sauvegarde
                              * sous Mac, crée le fichier xml rufus.bup.plist
                              * sous Linux, lance le timer t_timerbackup
@@ -236,7 +224,7 @@ private:
                             /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
     bool                    Backup(QString dirSauv, bool OKBase, bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
                             /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore() */
-    void                    BackupWakeUp(Days days);
+    void                    BackupWakeUp();
                             /*! sous Linux, déclenche le backup au moment programmé */
     qint64                  CalcBaseSize();
                             /*! calcule le volume de la base */
@@ -464,6 +452,5 @@ private slots:
     void                    Slot_ReponsePortSerie_Fronto(const QString &s);
     void                    Slot_ReponsePortSerie_Refracteur(const QString &s);
 };
-Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::Days)
 
 #endif // PROCEDURES_H

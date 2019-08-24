@@ -46,6 +46,7 @@ private:
     bool m_dredibkup = false;               //!> sauvegarde le dredi
     bool m_medibkup = false;                //!> sauvegarde le medi
     bool m_dimanchebkup = false;            //!> sauvegarde le dimanche
+    Utils::Days m_daysbkup;                 //! la programmation de la sauvegarde
     QTime m_heurebkup = QTime(0,0);         //!> heure de la sauvegarde
     QString m_dirbkup = "";                 //!> adresse du dossier de sauvegarde depuis le serveur
 
@@ -69,6 +70,7 @@ public:
     bool vendredibkup() const;
     bool samedibkup() const;
     bool dimanchebkup() const;
+    Utils::Days daysbkup() const;
     QTime heurebkup() const;
     QString dirbkup() const;
 
@@ -90,6 +92,8 @@ public:
     void setdimanchebkup(bool one);
     void setheurebkup(QTime time);
     void setdirbkup(QString adress);
+    void setdaysbkup(Utils::Days days);
+    void Regledaysbkupflag();
 };
 
 #endif // CLS_PARAMETRESSYSTEME_H

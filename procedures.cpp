@@ -181,13 +181,11 @@ void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
 bool Procedures::AutresPostesConnectes(bool msg)
 {
     PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getById(Utils::getMACAdress());
-    bool autrespostesconnectes = false;
     QString nomposte = "";
     foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
     {
         if (post->stringid() != m_currentposteconnecte->stringid())
         {
-            autrespostesconnectes = true;
             nomposte = post->nomposte();
             if (msg)
                 UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
@@ -478,20 +476,20 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
 }
 
 
-void Procedures::BackupWakeUp(Days days)
+void Procedures::BackupWakeUp()
 {
 
     if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm")+ ":00")
     {
         int day = QDate::currentDate().dayOfWeek();
-        Day daybkup = Lundi;
-        if (day==2)      daybkup = Mardi;
-        else if (day==3) daybkup = Mercredi;
-        else if (day==4) daybkup = Jeudi;
-        else if (day==5) daybkup = Vendredi;
-        else if (day==6) daybkup = Samedi;
-        else if (day==7) daybkup = Dimanche;
-        if (!days.testFlag(daybkup))
+        Utils::Day daybkup = Utils::Lundi;
+        if (day==2)      daybkup = Utils::Mardi;
+        else if (day==3) daybkup = Utils::Mercredi;
+        else if (day==4) daybkup = Utils::Jeudi;
+        else if (day==5) daybkup = Utils::Vendredi;
+        else if (day==6) daybkup = Utils::Samedi;
+        else if (day==7) daybkup = Utils::Dimanche;
+        if (!m_parametres->daysbkup().testFlag(daybkup))
             return;
         if (!AutresPostesConnectes(false))
             Backup(m_parametres->dirbkup(), true, true, true, true);
@@ -721,24 +719,6 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures);
 }
 
-/*!
- *  \brief InitBackupAuto()
- * prépare le paramétrage de la fonction ParamAutoBackup() en fonction des paramètres enregistrés dans la base
- * utilisé au moment du lancement du programme
- */
-void Procedures::InitBackupAuto()
-{
-    Days days;
-    if (m_parametres->lundibkup())      days.setFlag(Procedures::Lundi);
-    if (m_parametres->mardibkup())      days.setFlag(Procedures::Mardi);
-    if (m_parametres->mercredibkup())   days.setFlag(Procedures::Mercredi);
-    if (m_parametres->jeudibkup())      days.setFlag(Procedures::Jeudi);
-    if (m_parametres->vendredibkup())   days.setFlag(Procedures::Vendredi);
-    if (m_parametres->samedibkup())     days.setFlag(Procedures::Samedi);
-    if (m_parametres->dimanchebkup())   days.setFlag(Procedures::Dimanche);
-    ParamAutoBackup(days);
-}
-
 void Procedures::EffaceBDDDataBackup()
 {
     QString Base = db->getBase();
@@ -774,9 +754,9 @@ void Procedures::EffaceProgrammationBackup()
 #endif
 }
 
-void Procedures::ParamAutoBackup(Days days)
+void Procedures::ParamAutoBackup()
 {
-    if (m_parametres->dirbkup() == "" || !QDir(m_parametres->dirbkup()).exists() || !m_parametres->heurebkup().isValid() || !days)
+    if (m_parametres->dirbkup() == "" || !QDir(m_parametres->dirbkup()).exists() || !m_parametres->heurebkup().isValid() || !m_parametres->daysbkup())
     {
         EffaceProgrammationBackup();
         return;
@@ -784,7 +764,7 @@ void Procedures::ParamAutoBackup(Days days)
 #ifdef Q_OS_LINUX
     t_timerbackup.stop();
     t_timerbackup.start(1000);
-    connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp(days);});
+    connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp();});
 #endif
 #ifdef Q_OS_MACX
     DefinitScriptBackup(m_parametres->dirbkup());
@@ -792,8 +772,8 @@ void Procedures::ParamAutoBackup(Days days)
     QString heure   = m_parametres->heurebkup().toString("H");
     QString minute  = m_parametres->heurebkup().toString("m");
     QString jourprg;
-    QString a = (days>1? "\t": "");
-    if (days>1)
+    QString a = (m_parametres->daysbkup()>1? "\t": "");
+    if (m_parametres->daysbkup()>1)
         jourprg += "\t\t<array>\n";
 
     QString debutjour =
@@ -807,21 +787,21 @@ void Procedures::ParamAutoBackup(Days days)
         a + "\t\t\t<key>Minute</key>\n" +
         a + "\t\t\t<integer>" + minute + "</integer>\n" +
         a + "\t\t</dict>\n";
-    if (days.testFlag(Procedures::Lundi))
+    if (m_parametres->daysbkup().testFlag(Utils::Lundi))
         jourprg += debutjour + "1" + finjour;
-    if (days.testFlag(Procedures::Mardi))
+    if (m_parametres->daysbkup().testFlag(Utils::Mardi))
         jourprg += debutjour + "2" + finjour;
-    if (days.testFlag(Procedures::Mercredi))
+    if (m_parametres->daysbkup().testFlag(Utils::Mercredi))
         jourprg += debutjour + "3" + finjour;
-    if (days.testFlag(Procedures::Jeudi))
+    if (m_parametres->daysbkup().testFlag(Utils::Jeudi))
         jourprg += debutjour + "4" + finjour;
-    if (days.testFlag(Procedures::Vendredi))
+    if (m_parametres->daysbkup().testFlag(Utils::Vendredi))
         jourprg += debutjour + "5" + finjour;
-    if (days.testFlag(Procedures::Samedi))
+    if (m_parametres->daysbkup().testFlag(Utils::Samedi))
         jourprg += debutjour + "6" + finjour;
-    if (days.testFlag(Procedures::Dimanche))
+    if (m_parametres->daysbkup().testFlag(Utils::Dimanche))
         jourprg += debutjour + "7" + finjour;
-    if (days>1)
+    if (m_parametres->daysbkup()>1)
         jourprg += "\t\t</array>\n";
 
     QString plist = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"

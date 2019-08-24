@@ -44,6 +44,7 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataBool(data, "dimanchebkup", m_dimanchebkup);
     setDataTime(data, "heurebkup", m_heurebkup);
     setDataString(data, "dirbkup", m_dirbkup);
+    Regledaysbkupflag();
     m_data = data;
 }
 
@@ -63,6 +64,7 @@ bool ParametresSysteme::jeudibkup() const                       { return m_jeudi
 bool ParametresSysteme::vendredibkup() const                    { return m_dredibkup; }
 bool ParametresSysteme::samedibkup() const                      { return m_medibkup; }
 bool ParametresSysteme::dimanchebkup() const                    { return m_dimanchebkup; }
+Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
 
@@ -75,12 +77,24 @@ void ParametresSysteme::setaveccompta(bool one)                 { m_aveccompta =
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress; }
 void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress; }
 void ParametresSysteme::setdirimagerie(QString adress)          { m_dirimagerie = adress; }
-void ParametresSysteme::setlundibkup(bool one)                  { m_lundibkup = one; }
-void ParametresSysteme::setmardibkup(bool one)                  { m_mardibkup = one; }
-void ParametresSysteme::setmercredibkup(bool one)               { m_credibkup = one; }
-void ParametresSysteme::setjeudibkup(bool one)                  { m_jeudibkup = one; }
-void ParametresSysteme::setvendredibkup(bool one)               { m_dredibkup = one; }
-void ParametresSysteme::setsamedibkup(bool one)                 { m_medibkup = one; }
-void ParametresSysteme::setdimanchebkup(bool one)               { m_dimanchebkup = one; }
+void ParametresSysteme::setlundibkup(bool one)                  { m_lundibkup = one; Regledaysbkupflag(); }
+void ParametresSysteme::setmardibkup(bool one)                  { m_mardibkup = one; Regledaysbkupflag(); }
+void ParametresSysteme::setmercredibkup(bool one)               { m_credibkup = one; Regledaysbkupflag(); }
+void ParametresSysteme::setjeudibkup(bool one)                  { m_jeudibkup = one; Regledaysbkupflag(); }
+void ParametresSysteme::setvendredibkup(bool one)               { m_dredibkup = one; Regledaysbkupflag(); }
+void ParametresSysteme::setsamedibkup(bool one)                 { m_medibkup = one; Regledaysbkupflag(); }
+void ParametresSysteme::setdimanchebkup(bool one)               { m_dimanchebkup = one; Regledaysbkupflag(); }
 void ParametresSysteme::setheurebkup(QTime time)                { m_heurebkup = time; }
 void ParametresSysteme::setdirbkup(QString adress)              { m_dirbkup = adress; }
+void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = days; }
+
+void ParametresSysteme::Regledaysbkupflag()
+{
+    m_daysbkup.setFlag(Utils::Lundi, m_lundibkup);
+    m_daysbkup.setFlag(Utils::Mardi, m_mardibkup);
+    m_daysbkup.setFlag(Utils::Mercredi, m_credibkup);
+    m_daysbkup.setFlag(Utils::Jeudi, m_jeudibkup);
+    m_daysbkup.setFlag(Utils::Vendredi, m_dredibkup);
+    m_daysbkup.setFlag(Utils::Samedi, m_medibkup);
+    m_daysbkup.setFlag(Utils::Dimanche, m_dimanchebkup);
+}

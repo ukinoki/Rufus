@@ -41,6 +41,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Utils
 {
 public:
+    enum Day {
+                Lundi       = 0x1,
+                Mardi       = 0x2,
+                Mercredi    = 0x4,
+                Jeudi       = 0x8,
+                Vendredi    = 0x10,
+                Samedi      = 0x20,
+                Dimanche    = 0x40,
+              };
+    Q_DECLARE_FLAGS(Days, Day)
+
     static QRegExp const rgx_rx;
     static QRegExp const rgx_AlphaNumeric;
     static QRegExp const rgx_AlphaNumeric_3_12;
@@ -122,5 +133,6 @@ public:
     //! renvoie la valeur littérale d'un enum (à condition d'avoir placé la macro Q_ENUM(nomdelenum) dans la définition de l'enum
     static QString EnumDescription(QMetaEnum metaEnum, int val);
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 
 #endif // UTILS_H
