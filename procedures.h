@@ -222,7 +222,7 @@ public:
                             /*! lance un backup immédiat */
     void                    InitBackupAuto();
                             /*! prépare le paramétrage de la fonction ParamAutoBackup() en fonction des paramètres enregistrés dans la base */
-    void                    ParamAutoBackup(QString dirdestination, QTime timebackup, Days days);
+    void                    ParamAutoBackup(Days days);
                             /*! paramètre le moment et l'emplacement de la sauvegarde
                              * sous Mac, crée le fichier xml rufus.bup.plist
                              * sous Linux, lance le timer t_timerbackup
@@ -236,7 +236,7 @@ private:
                             /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
     bool                    Backup(QString dirSauv, bool OKBase, bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
                             /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore() */
-    void                    BackupWakeUp(QTime timebkup, Days days);
+    void                    BackupWakeUp(Days days);
                             /*! sous Linux, déclenche le backup au moment programmé */
     qint64                  CalcBaseSize();
                             /*! calcule le volume de la base */

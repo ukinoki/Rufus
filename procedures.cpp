@@ -478,10 +478,10 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
 }
 
 
-void Procedures::BackupWakeUp(QTime timebkup, Days days)
+void Procedures::BackupWakeUp(Days days)
 {
 
-    if (QTime::currentTime().toString("HH:mm:ss") == timebkup.toString("HH:mm")+ ":00")
+    if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm")+ ":00")
     {
         int day = QDate::currentDate().dayOfWeek();
         Day daybkup = Lundi;
@@ -493,8 +493,7 @@ void Procedures::BackupWakeUp(QTime timebkup, Days days)
         else if (day==7) daybkup = Dimanche;
         if (!days.testFlag(daybkup))
             return;
-        bool autresposteconnectes = AutresPostesConnectes(false);
-        if (!autresposteconnectes)
+        if (!AutresPostesConnectes(false))
             Backup(m_parametres->dirbkup(), true, true, true, true);
     }
 }
@@ -737,7 +736,7 @@ void Procedures::InitBackupAuto()
     if (m_parametres->vendredibkup())   days.setFlag(Procedures::Vendredi);
     if (m_parametres->samedibkup())     days.setFlag(Procedures::Samedi);
     if (m_parametres->dimanchebkup())   days.setFlag(Procedures::Dimanche);
-    ParamAutoBackup(m_parametres->dirbkup(), m_parametres->heurebkup(), days);
+    ParamAutoBackup(days);
 }
 
 void Procedures::EffaceBDDDataBackup()
@@ -775,9 +774,9 @@ void Procedures::EffaceProgrammationBackup()
 #endif
 }
 
-void Procedures::ParamAutoBackup(QString dirdestination, QTime timebackup, Days days)
+void Procedures::ParamAutoBackup(Days days)
 {
-    if (dirdestination == "" || !QDir(dirdestination).exists() || !timebackup.isValid() || !days)
+    if (m_parametres->dirbkup() == "" || !QDir(m_parametres->dirbkup()).exists() || !m_parametres->heurebkup().isValid() || !days)
     {
         EffaceProgrammationBackup();
         return;
@@ -785,13 +784,13 @@ void Procedures::ParamAutoBackup(QString dirdestination, QTime timebackup, Days 
 #ifdef Q_OS_LINUX
     t_timerbackup.stop();
     t_timerbackup.start(1000);
-    connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp(dirdestination, timebackup, days);});
+    connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp(days);});
 #endif
 #ifdef Q_OS_MACX
-    DefinitScriptBackup(dirdestination);
+    DefinitScriptBackup(m_parametres->dirbkup());
     // elaboration de rufus.bup.plist
-    QString heure   = timebackup.toString("H");
-    QString minute  = timebackup.toString("m");
+    QString heure   = m_parametres->heurebkup().toString("H");
+    QString minute  = m_parametres->heurebkup().toString("m");
     QString jourprg;
     QString a = (days>1? "\t": "");
     if (days>1)
