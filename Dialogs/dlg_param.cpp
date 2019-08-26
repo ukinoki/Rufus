@@ -481,13 +481,13 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DirBackupuplineEdit->setText(m_parametres->dirbkup());
     if (m_parametres->heurebkup().isValid())
         ui->HeureBackuptimeEdit->setTime(m_parametres->heurebkup());
-    ui->LundiradioButton    ->setChecked(m_parametres->lundibkup());
-    ui->MardiradioButton    ->setChecked(m_parametres->mardibkup());
-    ui->MercrediradioButton ->setChecked(m_parametres->mercredibkup());
-    ui->JeudiradioButton    ->setChecked(m_parametres->jeudibkup());
-    ui->VendrediradioButton ->setChecked(m_parametres->vendredibkup());
-    ui->SamediradioButton   ->setChecked(m_parametres->samedibkup());
-    ui->DimancheradioButton ->setChecked(m_parametres->dimanchebkup());
+    ui->LundiradioButton    ->setChecked(m_parametres->daysbkup().testFlag(Utils::Lundi));
+    ui->MardiradioButton    ->setChecked(m_parametres->daysbkup().testFlag(Utils::Mardi));
+    ui->MercrediradioButton ->setChecked(m_parametres->daysbkup().testFlag(Utils::Mercredi));
+    ui->JeudiradioButton    ->setChecked(m_parametres->daysbkup().testFlag(Utils::Jeudi));
+    ui->VendrediradioButton ->setChecked(m_parametres->daysbkup().testFlag(Utils::Vendredi));
+    ui->SamediradioButton   ->setChecked(m_parametres->daysbkup().testFlag(Utils::Samedi));
+    ui->DimancheradioButton ->setChecked(m_parametres->daysbkup().testFlag(Utils::Dimanche));
     if (Datas::I()->postesconnectes->admin() != Q_NULLPTR)
         ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
                             + "<font color=\"green\"><b>" + Datas::I()->postesconnectes->admin()->ipadress() + "</b></font>"
@@ -1717,6 +1717,10 @@ void dlg_param::ModifDirBackup()
     ui->DirBackupuplineEdit ->setText(dirSauv);
     db->setdirbkup(dirSauv);
     proc->ParamAutoBackup();
+    ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
+                                           && QDir(m_parametres->dirbkup()).exists()
+                                           && m_parametres->dirbkup() != ""
+                                           && m_parametres->heurebkup() != QTime());
 }
 
 void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heure et date du backup
@@ -1730,6 +1734,10 @@ void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heur
     db->setsamedibkup(ui->SamediradioButton->isChecked());
     db->setdimanchebkup(ui->DimancheradioButton->isChecked());
     proc->ParamAutoBackup();
+    ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
+                                           && QDir(m_parametres->dirbkup()).exists()
+                                           && m_parametres->dirbkup() != ""
+                                           && m_parametres->heurebkup() != QTime());
 }
 
 void dlg_param::Slot_DirLocalStockage()
@@ -2163,18 +2171,10 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
     {
         ui->ModifBaselabel->setVisible(db->getMode() != DataBase::Poste);
         if (db->getMode() == DataBase::Poste)
-        {
-            bool DirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists();
-            bool DayBupDefined = false;
-            QList<QRadioButton*> listbut= ui->JourSauvegardeframe->findChildren<QRadioButton*>();
-            for (int i=0; i<listbut.size(); i++)
-                if (listbut.at(i)->isChecked())
-                {
-                    DayBupDefined = true;
-                    break;
-                }
-            ui->EffacePrgSauvupPushButton->setEnabled(DayBupDefined && DirBupDefined);
-        }
+            ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
+                                                   && QDir(m_parametres->dirbkup()).exists()
+                                                   && m_parametres->dirbkup() != ""
+                                                   && m_parametres->heurebkup() != QTime());
         else
             ui->ModifBaselabel->setEnabled(true);
     }

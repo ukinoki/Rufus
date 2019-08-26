@@ -387,7 +387,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     CalcTimeBupRestore();
 }
 
-bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures)
+bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool isbkupauto)
 {
     if (QDir(m_parametres->dirimagerie()).exists())
     {
@@ -471,7 +471,8 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
     if (OKVideos)
         Utils::cleanfolder(dirSauv + DIR_VIDEOS);
     emit ConnectTimers(true);
-    UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde terminée"));
+    if (!isbkupauto)
+        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde terminée"));
     return result;
 }
 
@@ -492,7 +493,7 @@ void Procedures::BackupWakeUp()
         if (!m_parametres->daysbkup().testFlag(daybkup))
             return;
         if (!AutresPostesConnectes(false))
-            Backup(m_parametres->dirbkup(), true, true, true, true);
+            Backup(m_parametres->dirbkup(), true, true, true, true, true);
     }
 }
 
@@ -716,7 +717,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     }
     if (!OKbase && !OKImages && !OKVideos && !OKFactures)
         return false;
-    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures);
+    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures, false);
 }
 
 void Procedures::EffaceBDDDataBackup()
@@ -747,10 +748,11 @@ void Procedures::EffaceProgrammationBackup()
     QString file = QDir::homePath() + SCRIPT_MACOS_PLIST_FILE;                          /*! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist" */
     if (!QFile::exists(file))
         return;
-    QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             /*! unload = bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"" */
+    QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             /*! unload = "bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"" */
     QProcess dumpProcess(parent());
     dumpProcess.start(unload);
     dumpProcess.waitForFinished();
+    QFile::remove(file);
 #endif
 }
 
@@ -771,22 +773,18 @@ void Procedures::ParamAutoBackup()
     // elaboration de rufus.bup.plist
     QString heure   = m_parametres->heurebkup().toString("H");
     QString minute  = m_parametres->heurebkup().toString("m");
-    QString jourprg;
-    QString a = (m_parametres->daysbkup()>1? "\t": "");
-    if (m_parametres->daysbkup()>1)
-        jourprg += "\t\t<array>\n";
-
+    QString jourprg = "\t\t<array>\n";
     QString debutjour =
-        a + "\t\t<dict>\n" +
-        a + "\t\t\t<key>Weekday</key>\n" +
-        a + "\t\t\t<integer>";
+        "\t\t\t<dict>\n"
+        "\t\t\t\t<key>Weekday</key>\n"
+        "\t\t\t\t<integer>";
     QString finjour =
-        "</integer>\n" +
-        a + "\t\t\t<key>Hour</key>\n" +
-        a + "\t\t\t<integer>"+ heure + "</integer>\n" +
-        a + "\t\t\t<key>Minute</key>\n" +
-        a + "\t\t\t<integer>" + minute + "</integer>\n" +
-        a + "\t\t</dict>\n";
+        "</integer>\n"
+        "\t\t\t\t<key>Hour</key>\n"
+        "\t\t\t\t<integer>"+ heure + "</integer>\n"
+        "\t\t\t\t<key>Minute</key>\n"
+        "\t\t\t\t<integer>" + minute + "</integer>\n"
+        "\t\t\t</dict>\n";
     if (m_parametres->daysbkup().testFlag(Utils::Lundi))
         jourprg += debutjour + "1" + finjour;
     if (m_parametres->daysbkup().testFlag(Utils::Mardi))
@@ -801,8 +799,7 @@ void Procedures::ParamAutoBackup()
         jourprg += debutjour + "6" + finjour;
     if (m_parametres->daysbkup().testFlag(Utils::Dimanche))
         jourprg += debutjour + "7" + finjour;
-    if (m_parametres->daysbkup()>1)
-        jourprg += "\t\t</array>\n";
+    jourprg += "\t\t</array>\n";
 
     QString plist = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
                     "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"

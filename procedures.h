@@ -148,7 +148,7 @@ public:
         . Sous Mac,  par un autre script -> c'est le fichier xml rufus.bup.plist situé dans /Users/nomutilisateur/Library/LaunchAgents.
           Ce fichier est chargé au démarrage par le launchd Apple.
           Il est donc éxécuté même quand Rufus ne tourne pas
-        . Sous Linux, c'est un timer t_timerbackup qui lance la sauvegarde et la fonction BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days)
+        . Sous Linux, c'est un timer t_timerbackup qui lance la sauvegarde et la fonction BackupWakeUp()
 
       Au chargement de Rufus, les données de Rufus.ini sont récupérées pour régler l'affichage des données dans  ui->Sauvegardeframe.
 
@@ -164,12 +164,12 @@ public:
             * sous Linux, arrête le timer t_timerbackup
 
       Au lancement du programme, depuis rufus.cpp,
-      si le programme est utilisé sur le  serveur,
-      la programmation de sauvegarde est créée avec la fonction InitBackupAuto()
-      qui va créer les paramètres de la fonction ParamAutoBackup() et la lancer
-            * en recréant le fichier rufus.bup.plist sous MacOS
-            * en lançant le timer t_timerbackup sous Linux
-      dans le cas contraire le fichier rufus.bup.plist est effacé ou le timer t_timerbackup n'est pas lancé - EffaceProgrammationBackup()
+            * les paramètres de sauvegarde automatique sont récupérés pour régler l'affichage des données dans  ui->Sauvegardeframe.
+            * si le programme est utilisé sur le  serveur, et s'il y a une programmation valide des sauvegardes automatiques
+            * la programmation de sauvegarde va lancer la fonction ParamAutoBackup()
+                * en recréant le fichier rufus.bup.plist sous MacOS
+                * en lançant le timer t_timerbackup sous Linux
+            * dans le cas contraire, la fonction EffaceProgrammationBackup() efface le fichier rufus.bup.plist sous MacOS
 
       Si le programme s'éxécute sur le serveur le QFrame ui->Sauvegardeframe de dlg_param.cpp est enabled, pas dans le cas contraire
 
@@ -197,7 +197,7 @@ public:
      La fonction DefinitScriptBackup() crée le fichier RufusScriptBackup.sh qui va éxécuter la sauvegarde.
      Elle est lancée par
         * ParamAutoBackup() sous Mac
-        * Backup() utilisée pour un backup immédiat de la base (ImmediateBackup() ou backup auto sous Linux (BackupWakeUp())
+        * Backup() utilisée pour un backup immédiat de la base (ImmediateBackup() ou backup auto sous Linux avec BackupWakeUp())
      */
 
 public:
@@ -222,8 +222,9 @@ private:
     QTimer                  t_timerbackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                             /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-    bool                    Backup(QString dirSauv, bool OKBase, bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
-                            /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore() */
+    bool                    Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool isbkupauto);
+                            /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
+                            * et par le timer t_timerbackup sous Linux pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
     void                    BackupWakeUp();
                             /*! sous Linux, déclenche le backup au moment programmé */
     qint64                  CalcBaseSize();
