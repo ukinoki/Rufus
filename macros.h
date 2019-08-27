@@ -191,6 +191,26 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDLIEU_DOCSEXTERNES                        "idLieu"
 #define CP_IMPORTANCE_DOCSEXTERNES                    "Importance"
 
+                            //! Table Rufus.ParametresSysteme
+#define CP_MDPADMIN_PARAMSYSTEME                      "MDPAdmin"
+#define CP_NUMCENTRE_PARAMSYSTEME                     "NumCentre"
+#define CP_IDLIEUPARDEFAUT_PARAMSYSTEME               "idLieuParDefaut"
+#define CP_DOCSCOMPRIMES_PARAMSYSTEME                 "DocsComprimes"
+#define CP_VERSIONBASE_PARAMSYSTEME                   "VersionBase"
+#define CP_SANSCOMPTA_PARAMSYSTEME                    "SansCompta"
+#define CP_ADRESSELOCALSERVEUR_PARAMSYSTEME           "AdresseServeurLocal"
+#define CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME         "AdresseServeurDistant"
+#define CP_DIRIMAGERIE_PARAMSYSTEME                   "DirImagerie"
+#define CP_LUNDIBKUP_PARAMSYSTEME                     "LundiBkup"
+#define CP_MARDIBKUP_PARAMSYSTEME                     "MardiBkup"
+#define CP_MERCREDIBKUP_PARAMSYSTEME                  "MercrediBkup"
+#define CP_JEUDIBKUP_PARAMSYSTEME                     "JeudiBkup"
+#define CP_VENDREDIBKUP_PARAMSYSTEME                  "VendrediBkup"
+#define CP_SAMEDIBKUP_PARAMSYSTEME                    "SamediBkup"
+#define CP_DIMANCHEBKUP_PARAMSYSTEME                  "DimancheBkup"
+#define CP_HEUREBKUP_PARAMSYSTEME                     "HeureBkup"
+#define CP_DIRBKUP_PARAMSYSTEME                       "DirBkup"
+
                             //! Table Rufus.Messagerie
 #define CP_TEXTMSG_MESSAGERIE                        "TexteMessage"
 

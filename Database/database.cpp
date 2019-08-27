@@ -401,24 +401,24 @@ void DataBase::initParametres()
         m_parametres = Q_NULLPTR;
         return ;
     }
-    paramData["mdpadmin"]               = paramdata.at(0).toString();
-    paramData["numcentre"]              = paramdata.at(1).toInt();
-    paramData["idlieupardefaut"]        = paramdata.at(2).toInt();
-    paramData["docscomprimes"]          = (paramdata.at(3).toInt() == 1);
-    paramData["versionbase"]            = paramdata.at(4).toInt();
-    paramData["aveccompta"]             = (paramdata.at(5).toInt() == 1);
-    paramData["adresseserveurlocal"]    = paramdata.at(6).toString();
-    paramData["adresseserveurdistant"]  = paramdata.at(7).toString();
-    paramData["dirimagerie"]            = paramdata.at(8).toString();
-    paramData["lundibkup"]              = (paramdata.at(9).toInt() == 1);
-    paramData["mardibkup"]              = (paramdata.at(10).toInt() == 1);
-    paramData["mercredibkup"]           = (paramdata.at(11).toInt() == 1);
-    paramData["jeudibkup"]              = (paramdata.at(12).toInt() == 1);
-    paramData["vendredibkup"]           = (paramdata.at(13).toInt() == 1);
-    paramData["samedibkup"]             = (paramdata.at(14).toInt() == 1);
-    paramData["dimanchebkup"]           = (paramdata.at(15).toInt() == 1);
-    paramData["heurebkup"]              = paramdata.at(16).toTime().toString("HH:mm:ss");
-    paramData["dirbkup"]                = paramdata.at(17).toString();
+    paramData[CP_MDPADMIN_PARAMSYSTEME]               = paramdata.at(0).toString();
+    paramData[CP_NUMCENTRE_PARAMSYSTEME]              = paramdata.at(1).toInt();
+    paramData[CP_IDLIEUPARDEFAUT_PARAMSYSTEME]        = paramdata.at(2).toInt();
+    paramData[CP_DOCSCOMPRIMES_PARAMSYSTEME]          = (paramdata.at(3).toInt() == 1);
+    paramData[CP_VERSIONBASE_PARAMSYSTEME]            = paramdata.at(4).toInt();
+    paramData[CP_SANSCOMPTA_PARAMSYSTEME]             = (paramdata.at(5).toInt() == 1);
+    paramData[CP_ADRESSELOCALSERVEUR_PARAMSYSTEME]    = paramdata.at(6).toString();
+    paramData[CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME]  = paramdata.at(7).toString();
+    paramData[CP_DIRIMAGERIE_PARAMSYSTEME]            = paramdata.at(8).toString();
+    paramData[CP_LUNDIBKUP_PARAMSYSTEME]              = (paramdata.at(9).toInt() == 1);
+    paramData[CP_MARDIBKUP_PARAMSYSTEME]              = (paramdata.at(10).toInt() == 1);
+    paramData[CP_MERCREDIBKUP_PARAMSYSTEME]           = (paramdata.at(11).toInt() == 1);
+    paramData[CP_JEUDIBKUP_PARAMSYSTEME]              = (paramdata.at(12).toInt() == 1);
+    paramData[CP_VENDREDIBKUP_PARAMSYSTEME]           = (paramdata.at(13).toInt() == 1);
+    paramData[CP_SAMEDIBKUP_PARAMSYSTEME]             = (paramdata.at(14).toInt() == 1);
+    paramData[CP_DIMANCHEBKUP_PARAMSYSTEME]           = (paramdata.at(15).toInt() == 1);
+    paramData[CP_HEUREBKUP_PARAMSYSTEME]              = paramdata.at(16).toTime().toString("HH:mm:ss");
+    paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(17).toString();
     m_parametres->setData(paramData);
     return;
 }
@@ -432,106 +432,85 @@ ParametresSysteme* DataBase::parametres()
 void DataBase::setmdpadmin(QString mdp)
 {
     QString value = (mdp != ""? "'" + Utils::correctquoteSQL(mdp) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set MDPAdmin = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = " + value);
     m_parametres->setmdpadmin(mdp);
 }
 void DataBase::setnumcentre(int id)
 {
-    StandardSQL("update " TBL_PARAMSYSTEME " set NumCentre = " + QString::number(id));
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_NUMCENTRE_PARAMSYSTEME " = " + QString::number(id));
     m_parametres->setnumcentre(id);
 }
 void DataBase::setidlieupardefaut(int id)
 {
-    StandardSQL("update " TBL_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(id));
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_IDLIEUPARDEFAUT_PARAMSYSTEME " = " + QString::number(id));
     m_parametres->setidlieupardefaut(id);
 }
 void DataBase::setdocscomprimes(bool one)
 {
     QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set DocsComprimes = " + a);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DOCSCOMPRIMES_PARAMSYSTEME " = " + a);
     m_parametres->setdocscomprimes(one);
 }
 void DataBase::setversionbase(int version)
 {
-    StandardSQL("update " TBL_PARAMSYSTEME " set VersionBase = " + QString::number(version));
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONBASE_PARAMSYSTEME " = " + QString::number(version));
     m_parametres->setversionbase(version);
 }
-void DataBase::setaveccompta(bool one)
+void DataBase::setsanscompta(bool one)
 {
     QString a = (!one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set SansCompta = " + a);
-    m_parametres->setaveccompta(one);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_SANSCOMPTA_PARAMSYSTEME " = " + a);
+    m_parametres->setsanscompta(one);
 }
 void DataBase::setadresseserveurlocal(QString  adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set AdresseServeurLocal = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME " = " + value);
     m_parametres->setadresseserveurlocal(adress);
 }
 void DataBase::setadresseserveurdistant(QString adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set AdresseServeurDistant = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME " = " + value);
     m_parametres->setadresseserveurdistant(adress);
 }
 void DataBase::setdirimagerie(QString adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set DirImagerie = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRIMAGERIE_PARAMSYSTEME " = " + value);
     m_parametres->setdirimagerie(adress);
 }
-void DataBase::setlundibkup(bool one)
+void DataBase::setdaysbkup(Utils::Days days)
 {
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set LundiBkup = " + a);
-    m_parametres->setlundibkup(one);
-}
-void DataBase::setmardibkup(bool one)
-{
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set MardiBkup = " + a);
-    m_parametres->setmardibkup(one);
-}
-void DataBase::setmercredibkup(bool one)
-{
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set MercrediBkup = " + a);
-    m_parametres->setmercredibkup(one);
-}
-void DataBase::setjeudibkup(bool one)
-{
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set JeudiBkup = " + a);
-    m_parametres->setjeudibkup(one);
-}
-void DataBase::setvendredibkup(bool one)
-{
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set VendrediBkup = " + a);
-    m_parametres->setvendredibkup(one);
-}
-void DataBase::setsamedibkup(bool one)
-{
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set SamediBkup = " + a);
-    m_parametres->setsamedibkup(one);
-}
-void DataBase::setdimanchebkup(bool one)
-{
-    QString a = (one? "'1'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set DimancheBkup = " + a);
-    m_parametres->setdimanchebkup(one);
+    QString val;
+    QString req = "update " TBL_PARAMSYSTEME " set ";
+    val = (days.testFlag(Utils::Lundi)?     "'1'" : "null");
+    req += CP_LUNDIBKUP_PARAMSYSTEME " = " + val + ", ";
+    val = (days.testFlag(Utils::Mardi)?     "'1'" : "null");
+    req += CP_MARDIBKUP_PARAMSYSTEME " = " + val + ", ";
+    val = (days.testFlag(Utils::Mercredi)?  "'1'" : "null");
+    req += CP_MERCREDIBKUP_PARAMSYSTEME " = " + val + ", ";
+    val = (days.testFlag(Utils::Jeudi)?     "'1'" : "null");
+    req += CP_JEUDIBKUP_PARAMSYSTEME " = " + val + ", ";
+    val = (days.testFlag(Utils::Vendredi)?  "'1'" : "null");
+    req += CP_VENDREDIBKUP_PARAMSYSTEME " = " + val + ", ";
+    val = (days.testFlag(Utils::Samedi)?    "'1'" : "null");
+    req += CP_SAMEDIBKUP_PARAMSYSTEME " = " + val + ", ";
+    val = (days.testFlag(Utils::Dimanche)?  "'1'" : "null");
+    req += CP_DIMANCHEBKUP_PARAMSYSTEME " = " + val;
+    StandardSQL(req);
+    m_parametres->setdaysbkup(days);
 }
 void DataBase::setheurebkup(QTime time)
 {
     QString value = (time != QTime()? "'" + time.toString("HH:mm:ss") + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set HeureBkup = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_HEUREBKUP_PARAMSYSTEME " = " + value);
     m_parametres->setheurebkup(time);
 }
 void DataBase::setdirbkup(QString adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set DirBkup = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRBKUP_PARAMSYSTEME " = " + value);
     m_parametres->setdirbkup(adress);
 }
 

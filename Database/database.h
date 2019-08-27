@@ -172,18 +172,12 @@ public:
     void setidlieupardefaut(int id);
     void setdocscomprimes(bool one);
     void setversionbase(int version);
-    void setaveccompta(bool one);
+    void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
     void setporttcp(int port);
     void setdirimagerie(QString adress = "");
-    void setlundibkup(bool one);
-    void setmardibkup(bool one);
-    void setmercredibkup(bool one);
-    void setjeudibkup(bool one);
-    void setvendredibkup(bool one);
-    void setsamedibkup(bool one);
-    void setdimanchebkup(bool one);
+    void setdaysbkup(Utils::Days days);
     void setheurebkup(QTime time = QTime());
     void setdirbkup(QString adress = "");
 

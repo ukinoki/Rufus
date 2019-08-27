@@ -26,25 +26,24 @@ void ParametresSysteme::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataString(data, "mdpadmin", m_mdpdmin);
-    setDataInt(data, "numcentre", m_numcentre);
-    setDataInt(data, "idlieupardefaut", m_idlieupardefaut);
-    setDataBool(data, "docscomprimes", m_docscomprimes);
-    setDataInt(data, "versionbase", m_versionbase);
-    setDataBool(data, "aveccompta", m_aveccompta);
-    setDataString(data, "adresseserveurlocal", m_adresseserveurlocal);
-    setDataString(data, "adresseserveurdistant", m_adresseserveurdistant);
-    setDataString(data, "dirimagerie", m_dirimagerie);
-    setDataBool(data, "lundibkup", m_lundibkup);
-    setDataBool(data, "mardibkup", m_mardibkup);
-    setDataBool(data, "mercredibkup", m_credibkup);
-    setDataBool(data, "jeudibkup", m_jeudibkup);
-    setDataBool(data, "vendredibkup", m_dredibkup);
-    setDataBool(data, "samedibkup", m_medibkup);
-    setDataBool(data, "dimanchebkup", m_dimanchebkup);
-    setDataTime(data, "heurebkup", m_heurebkup);
-    setDataString(data, "dirbkup", m_dirbkup);
-    Regledaysbkupflag();
+    setDataString(data, CP_MDPADMIN_PARAMSYSTEME, m_mdpdmin);
+    setDataInt(data, CP_NUMCENTRE_PARAMSYSTEME, m_numcentre);
+    setDataInt(data, CP_IDLIEUPARDEFAUT_PARAMSYSTEME, m_idlieupardefaut);
+    setDataBool(data, CP_DOCSCOMPRIMES_PARAMSYSTEME, m_docscomprimes);
+    setDataInt(data, CP_VERSIONBASE_PARAMSYSTEME, m_versionbase);
+    setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
+    setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
+    setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
+    setDataString(data, CP_DIRIMAGERIE_PARAMSYSTEME, m_dirimagerie);
+    setDataTime(data, CP_HEUREBKUP_PARAMSYSTEME, m_heurebkup);
+    setDataString(data, CP_DIRBKUP_PARAMSYSTEME, m_dirbkup);
+    m_daysbkup.setFlag(Utils::Lundi,    data[CP_LUNDIBKUP_PARAMSYSTEME].toBool());
+    m_daysbkup.setFlag(Utils::Mardi,    data[CP_MARDIBKUP_PARAMSYSTEME].toBool());
+    m_daysbkup.setFlag(Utils::Mercredi, data[CP_MERCREDIBKUP_PARAMSYSTEME].toBool());
+    m_daysbkup.setFlag(Utils::Jeudi,    data[CP_JEUDIBKUP_PARAMSYSTEME].toBool());
+    m_daysbkup.setFlag(Utils::Vendredi, data[CP_VENDREDIBKUP_PARAMSYSTEME].toBool());
+    m_daysbkup.setFlag(Utils::Samedi,   data[CP_SAMEDIBKUP_PARAMSYSTEME].toBool());
+    m_daysbkup.setFlag(Utils::Dimanche, data[CP_DIMANCHEBKUP_PARAMSYSTEME].toBool());
     m_data = data;
 }
 
@@ -53,17 +52,10 @@ int ParametresSysteme::numcentre() const                        { return m_numce
 int ParametresSysteme::idlieupardefaut() const                  { return m_idlieupardefaut; }
 bool ParametresSysteme::docscomprimes() const                   { return m_docscomprimes; }
 int ParametresSysteme::versionbase() const                      { return m_versionbase; }
-bool ParametresSysteme::aveccompta() const                      { return m_aveccompta; }
+bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
 QString ParametresSysteme::dirimagerie() const                  { return m_dirimagerie; }
-bool ParametresSysteme::lundibkup() const                       { return m_lundibkup; }
-bool ParametresSysteme::mardibkup() const                       { return m_mardibkup; }
-bool ParametresSysteme::mercredibkup() const                    { return m_credibkup; }
-bool ParametresSysteme::jeudibkup() const                       { return m_jeudibkup; }
-bool ParametresSysteme::vendredibkup() const                    { return m_dredibkup; }
-bool ParametresSysteme::samedibkup() const                      { return m_medibkup; }
-bool ParametresSysteme::dimanchebkup() const                    { return m_dimanchebkup; }
 Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
@@ -73,28 +65,10 @@ void ParametresSysteme::setnumcentre(int id)                    { m_numcentre = 
 void ParametresSysteme::setidlieupardefaut(int id)              { m_idlieupardefaut = id; }
 void ParametresSysteme::setdocscomprimes(bool one)              { m_docscomprimes = one; }
 void ParametresSysteme::setversionbase(int version)             { m_versionbase = version; }
-void ParametresSysteme::setaveccompta(bool one)                 { m_aveccompta = one; }
+void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one; }
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress; }
 void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress; }
 void ParametresSysteme::setdirimagerie(QString adress)          { m_dirimagerie = adress; }
-void ParametresSysteme::setlundibkup(bool one)                  { m_lundibkup = one; Regledaysbkupflag(); }
-void ParametresSysteme::setmardibkup(bool one)                  { m_mardibkup = one; Regledaysbkupflag(); }
-void ParametresSysteme::setmercredibkup(bool one)               { m_credibkup = one; Regledaysbkupflag(); }
-void ParametresSysteme::setjeudibkup(bool one)                  { m_jeudibkup = one; Regledaysbkupflag(); }
-void ParametresSysteme::setvendredibkup(bool one)               { m_dredibkup = one; Regledaysbkupflag(); }
-void ParametresSysteme::setsamedibkup(bool one)                 { m_medibkup = one; Regledaysbkupflag(); }
-void ParametresSysteme::setdimanchebkup(bool one)               { m_dimanchebkup = one; Regledaysbkupflag(); }
 void ParametresSysteme::setheurebkup(QTime time)                { m_heurebkup = time; }
 void ParametresSysteme::setdirbkup(QString adress)              { m_dirbkup = adress; }
 void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = days; }
-
-void ParametresSysteme::Regledaysbkupflag()
-{
-    m_daysbkup.setFlag(Utils::Lundi, m_lundibkup);
-    m_daysbkup.setFlag(Utils::Mardi, m_mardibkup);
-    m_daysbkup.setFlag(Utils::Mercredi, m_credibkup);
-    m_daysbkup.setFlag(Utils::Jeudi, m_jeudibkup);
-    m_daysbkup.setFlag(Utils::Vendredi, m_dredibkup);
-    m_daysbkup.setFlag(Utils::Samedi, m_medibkup);
-    m_daysbkup.setFlag(Utils::Dimanche, m_dimanchebkup);
-}

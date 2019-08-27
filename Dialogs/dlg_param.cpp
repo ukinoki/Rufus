@@ -1723,16 +1723,27 @@ void dlg_param::ModifDirBackup()
                                            && m_parametres->heurebkup() != QTime());
 }
 
-void dlg_param::ModifDateHeureBackup()    //Modification de la date ou de l'heure et date du backup
+void dlg_param::ModifDateBackup()    //Modification de la date du backup
+{
+    Utils::Days days;
+    days.setFlag(Utils::Lundi,      ui->LundiradioButton->isChecked());
+    days.setFlag(Utils::Mardi,      ui->MardiradioButton->isChecked());
+    days.setFlag(Utils::Mercredi,   ui->MercrediradioButton->isChecked());
+    days.setFlag(Utils::Jeudi,      ui->JeudiradioButton->isChecked());
+    days.setFlag(Utils::Vendredi,   ui->VendrediradioButton->isChecked());
+    days.setFlag(Utils::Samedi,     ui->SamediradioButton->isChecked());
+    days.setFlag(Utils::Dimanche,   ui->DimancheradioButton->isChecked());
+    db->setdaysbkup(days);
+    proc->ParamAutoBackup();
+    ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
+                                           && QDir(m_parametres->dirbkup()).exists()
+                                           && m_parametres->dirbkup() != ""
+                                           && m_parametres->heurebkup() != QTime());
+}
+
+void dlg_param::ModifHeureBackup()    //Modification de la date du backup
 {
     db->setheurebkup(ui->HeureBackuptimeEdit->time());
-    db->setlundibkup(ui->LundiradioButton->isChecked());
-    db->setmardibkup(ui->MardiradioButton->isChecked());
-    db->setmercredibkup(ui->MercrediradioButton->isChecked());
-    db->setjeudibkup(ui->JeudiradioButton->isChecked());
-    db->setvendredibkup(ui->VendrediradioButton->isChecked());
-    db->setsamedibkup(ui->SamediradioButton->isChecked());
-    db->setdimanchebkup(ui->DimancheradioButton->isChecked());
     proc->ParamAutoBackup();
     ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
                                            && QDir(m_parametres->dirbkup()).exists()
@@ -1799,7 +1810,7 @@ void dlg_param::Slot_DirPosteStockage()
     }
 }
 
-void dlg_param::Slot_EffacePrgSauvegarde()
+void dlg_param::EffaceProgrammationDataBackup()
 {
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
     for (int i=0; i<listbutton2.size(); i++)
@@ -2051,7 +2062,6 @@ void dlg_param::ConnectSlots()
     connect(ui->LocalStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirLocalStockage()));
     connect(ui->DistantStockageupPushButton,        SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirDistantStockage()));
     connect(ui->PosteStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirPosteStockage()));
-    connect(ui->EffacePrgSauvupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EffacePrgSauvegarde()));
     connect(ui->AppareilsConnectesupTableWidget,    SIGNAL(itemSelectionChanged()),         this,   SLOT(Slot_EnableAppBoutons()));
     connect(ui->AutorefupComboBox,                  SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
     connect(ui->TonometreupComboBox,                SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
@@ -2081,12 +2091,13 @@ void dlg_param::ConnectSlots()
     for (int i=0; i<listspin.size(); i++)
         connect(listspin.at(i),                     SIGNAL(valueChanged(int)),          this,   SLOT(Slot_EnableOKModifPosteButton()));
     foreach(QRadioButton *butt, ui->JourSauvegardeframe->findChildren<QRadioButton*>())
-        connect(butt,                               &QPushButton::clicked,              this,   &dlg_param::ModifDateHeureBackup);
-    connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifDateHeureBackup);
+        connect(butt,                               &QPushButton::clicked,              this,   &dlg_param::ModifDateBackup);
+    connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifHeureBackup);
     connect(ui->DirBackuppushButton,                &QPushButton::clicked,              this,   &dlg_param::ModifDirBackup);
     connect(ui->ImmediatBackupupPushButton,         &QPushButton::clicked,              this,   &dlg_param::startImmediateBackup);
     connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,              this,   &dlg_param::RestaureBase);
     connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,              proc,   &Procedures::ReinitBase);
+    connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,              this,   &dlg_param::EffaceProgrammationDataBackup);
 }
 
 bool dlg_param::CotationsModifiees() const

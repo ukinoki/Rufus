@@ -35,20 +35,13 @@ private:
     int m_idlieupardefaut = 0;              //!> l'id du lieu principal de l'installation, où se trouve le serveur
     bool m_docscomprimes = false;           //!> utilise la compression des pdf - pas utilisé
     int m_versionbase = 0;                  //!> la version de la base de données
-    bool m_aveccompta = true;               //!> utilise ou non la compta
-    QString m_adresseserveurlocal = "";     //!> l'adresse du serveur dans le réseau local
+    bool m_sanscompta = true;               //!> utilise ou non la compta
+    QString m_adresseserveurlocal = "";     //!> l'adresse IP du serveur dans le réseau local
     QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
-    QString m_dirimagerie = "";             //!> adresse du dossier d'imagerie depuis le serveur
-    bool m_lundibkup = false;               //!> sauvegarde le lundi
-    bool m_mardibkup = false;               //!> sauvegarde le mardi
-    bool m_credibkup = false;               //!> sauvegarde le credi
-    bool m_jeudibkup = false;               //!> sauvegarde le jeudi
-    bool m_dredibkup = false;               //!> sauvegarde le dredi
-    bool m_medibkup = false;                //!> sauvegarde le medi
-    bool m_dimanchebkup = false;            //!> sauvegarde le dimanche
-    Utils::Days m_daysbkup;                 //! la programmation de la sauvegarde
-    QTime m_heurebkup = QTime(0,0);         //!> heure de la sauvegarde
-    QString m_dirbkup = "";                 //!> adresse du dossier de sauvegarde depuis le serveur
+    QString m_dirimagerie = "";             //!> l'adresse du dossier d'imagerie vue depuis le serveur
+    Utils::Days m_daysbkup;                 //!> les jours de la sauvegarde
+    QTime m_heurebkup = QTime(0,0);         //!> l'heure de la sauvegarde
+    QString m_dirbkup = "";                 //!> l'adresse du dossier de sauvegarde vue depuis le serveur
 
 public:
     explicit ParametresSysteme(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -59,17 +52,10 @@ public:
     int idlieupardefaut() const;
     bool docscomprimes() const;
     int versionbase() const;
-    bool aveccompta() const;
+    bool sanscompta() const;
     QString adresseserveurlocal() const;
     QString adresseserveurdistant() const;
     QString dirimagerie() const;
-    bool lundibkup() const;
-    bool mardibkup() const;
-    bool mercredibkup() const;
-    bool jeudibkup() const;
-    bool vendredibkup() const;
-    bool samedibkup() const;
-    bool dimanchebkup() const;
     Utils::Days daysbkup() const;
     QTime heurebkup() const;
     QString dirbkup() const;
@@ -79,21 +65,13 @@ public:
     void setidlieupardefaut(int id);
     void setdocscomprimes(bool one);
     void setversionbase(int version);
-    void setaveccompta(bool one);
+    void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress);
     void setadresseserveurdistant(QString adress);
     void setdirimagerie(QString adress);
-    void setlundibkup(bool one);
-    void setmardibkup(bool one);
-    void setmercredibkup(bool one);
-    void setjeudibkup(bool one);
-    void setvendredibkup(bool one);
-    void setsamedibkup(bool one);
-    void setdimanchebkup(bool one);
-    void setheurebkup(QTime time);
     void setdirbkup(QString adress);
     void setdaysbkup(Utils::Days days);
-    void Regledaysbkupflag();
+    void setheurebkup(QTime time);
 };
 
 #endif // CLS_PARAMETRESSYSTEME_H

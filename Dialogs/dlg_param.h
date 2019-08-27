@@ -146,11 +146,15 @@ signals:
     /*! LA SAUVEGARDE DE LA BASE DE DONNEES
       le fonctionnement interne de la sauvegarde est expliqué dans procedures.h
      */
-private slots:
-    void                Slot_EffacePrgSauvegarde();
 private:
-    void                ModifDateHeureBackup();
+    void                EffaceProgrammationDataBackup();
+                        /*! efface les paramètres et la programmation de la sauvegarde automatique et réinitialise l'affichage */
+    void                ModifHeureBackup();
+                        /*! modifie l'heure du backup automatique et relance ParamAutoBackup() */
+    void                ModifDateBackup();
+                        /*! modifie la date du backup automatique et relance ParamAutoBackup() */
     void                ModifDirBackup();
+                        /*! modifie le dossier de destination du backup automatique et relance ParamAutoBackup() */
     void                startImmediateBackup();
 
 };

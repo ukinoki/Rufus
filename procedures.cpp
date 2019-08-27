@@ -725,13 +725,7 @@ void Procedures::EffaceBDDDataBackup()
     QString Base = db->getBase();
     if (Base == "")
         return;
-    db->setlundibkup(false);
-    db->setmardibkup(false);
-    db->setmercredibkup(false);
-    db->setjeudibkup(false);
-    db->setvendredibkup(false);
-    db->setsamedibkup(false);
-    db->setdimanchebkup(false);
+    db->setdaysbkup(nullptr);
     db->setheurebkup();
     db->setdirbkup();
     EffaceProgrammationBackup();

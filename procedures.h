@@ -154,8 +154,6 @@ public:
 
       Une modification de l'emplacement de sauvegarde se fait par un clic sur le bouton ui->DirBackuppushButton qui va lancer le slot Slot_ModifDirBachup()
             * ce slot va créer le fichier RufusScriptBackup.sh et enregistrer l'emplacement de sauvegarde dans rufus.ini
-      Un changement d'heure ou de jour lance le slot Slot_ModifScriptList().
-            * ce slot va modifier le fichier xml rufus.bup.plist, recharger ce fichier dans le launchd et enregistrer les données de programmation dans le rufusadmin.ini.
       Le bouton ui->EffacePrgSauvupPushButton réinitialise la programmation en déclenchant la fonction EffaceAutoBackup():
             * annule les données de programmation dans rufus.ini,`
             * réinitialise l'affichage dans ui->Sauvegardeframe,`
@@ -177,8 +175,8 @@ public:
       lance la fonction ModifDateHeureBackup() qui va modifier les paramètres de backup en BDD
       puis lancer ParamAutoBackup()
 
-      Une modification de l'heure ou du jour du backup dans dlg.param.cpp
-      lance la fonction ModifDateHeureBackup() de dlg_param.cpp qui va modifier les paramètres de backup en BDD
+      Une modification de jour de backup dans dlg.param.cpp
+      lance la fonction ModifDateBackup() de dlg_param.cpp qui va modifier les paramètres de backup en BDD
       puis lancer ParamBackupAuto()
 
       Une modification du dossier de destination du backup dans dlg.param.cpp
@@ -204,7 +202,7 @@ public:
    void                    EffaceBDDDataBackup();
                             /*! efface le paramétrage de la sauvegarde (moment et emplacement) dans la base de données */
     void                    EffaceProgrammationBackup();
-                            /*! efface la programmation de la sauvegarde qui a étée créé sur le poste à partir du paramètrage enregistré dans la base de données
+                            /*! efface la programmation de la sauvegarde qui a été créé sur le poste à partir du paramètrage enregistré dans la base de données
                             * n'efface pas le paramètrage de sauvegarde (moment et emplacement) dans la base de données
                             * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
                             */
