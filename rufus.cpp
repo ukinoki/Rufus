@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("27-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("28-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -58,7 +58,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     db = DataBase::I();
     m_parametres = db->parametres();
-    proc->setDirImagerie();                                //! lit l'emplacement du dossier d'imagerie sur le serveur
+    proc->setAbsolutePathDirImagerie();                                //! lit l'emplacement du dossier d'imagerie sur le serveur
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->settings()->value("PositionsFiches/Rufus").toByteArray());
@@ -1841,7 +1841,7 @@ void Rufus::ExporteDocs()
         return;
     if (m_pasDExportPourLeMoment)
         return;
-    QString NomDirStockageImagerie = proc->DirImagerie();
+    QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
 
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
@@ -1955,7 +1955,7 @@ void Rufus::ExporteDocs()
                     qDebug() << "erreur";
                     return;
                 }
-                if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->DirImagerie()))
+                if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->AbsolutePathDirImagerie()))
                 {
                     db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
                     continue;
@@ -2185,7 +2185,7 @@ void Rufus::ExporteDocs()
                 qDebug() << "erreur";
                 return;
             }
-            if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->DirImagerie()))
+            if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->AbsolutePathDirImagerie()))
             {
                 db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
                 continue;
@@ -4701,7 +4701,7 @@ void Rufus::SupprimerDocsEtFactures()
 {
     if (!isPosteImport())
         return;
-    QString NomDirStockageImagerie = proc->DirImagerie();
+    QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
 
     /* Supprimer les documents en attente de suppression*/
     QString req = "Select filepath from " TBL_DOCSASUPPRIMER;
@@ -7273,7 +7273,7 @@ void Rufus::ExporteActe(Acte *act)
             {
                 if (db->getMode() != DataBase::Distant)
                 {
-                    QString fileorigin = proc->DirImagerie() + DIR_IMAGES + docmt->lienversfichier();
+                    QString fileorigin = proc->AbsolutePathDirImagerie() + DIR_IMAGES + docmt->lienversfichier();
                     QFile origin(fileorigin);
                     origin.copy(nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
                 }
@@ -8159,7 +8159,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
             aa                          = Imprimer_Document(userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!aa)
                 break;
-            imprimante = proc->getNomImprimante();
+            imprimante = proc->nomImprimante();
         }
     }
     delete Dlg_Imprs;
@@ -9232,7 +9232,7 @@ void Rufus::Remplir_SalDat()
 void Rufus::ResumeStatut()
 {
     // le statut utilisateur
-    m_resumeStatut = proc->getSessionStatus() + "\n\n";
+    m_resumeStatut = proc->SessionStatus() + "\n\n";
 
     // les socket
     if (m_utiliseTCP)

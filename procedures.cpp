@@ -206,11 +206,12 @@ bool Procedures::AutresPostesConnectes(bool msg)
  *  la fiche qui permet de paramètrer une opération de sauvegarde ou de restauration
  *  \param restore :            true = restauration - false = backup
  *  \param pathorigin :         le dossier de stockage de l'imagerie sur le serveur
- *  \param pathdestination :    le dossier où se trouve la backup
+ *  \param pathdestination :    le dossier où se trouve le backup
  *  \param OKini :              le rufus.ini est sauvegardé
- *  \param OKRssces :           les fichiers ressources sont sauvegardé
+ *  \param OKRssces :           les fichiers ressources sont sauvegardés
  *  \param OKimages :           les fichiers images sont sauvegardés
  *  \param OKvideos :           les fichiers videos sont sauvegardés
+ *  \param OKfactures :         les factures sont sauvegardées
  *
  */
 void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos, bool OKfactures)
@@ -534,7 +535,7 @@ void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages,
     scriptbackup += "\n";
     scriptbackup += "MYSQL_USER=\"dumprufus\"";
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_PASSWORD=\"" + getMDPAdmin() + "\"";
+    scriptbackup += "MYSQL_PASSWORD=\"" + MDPAdmin() + "\"";
     //# Commandes MySQL
     QDir Dir(QCoreApplication::applicationDirPath());
     Dir.cdUp();
@@ -1183,20 +1184,6 @@ bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QStr
     return a;
 }
 
-//----------------------------Exemple  pour Imprimer un etat  ---------------------------------------------------------------
-void Procedures::Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat)
-{
-    #ifndef QT_NO_PRINTER
-    QPrinter printer(QPrinter::HighResolution);
-    QPrintDialog *dlg = new QPrintDialog(&printer, Formu);
-    dlg->setWindowTitle(tr("titre"));
-    if (dlg->exec() == QDialog::Accepted) {
-        Etat->print(&printer);
-        }
-    delete dlg;
-    #endif
-}
-
 void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
 {
     /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
@@ -1662,6 +1649,7 @@ void Procedures::Print(QPrinter *Imprimante, QImage image)
     QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
+
 void Procedures::PrintPdf(QPrinter *Imprimante, Poppler::Document* document, bool &printok)
 {
     for (int i=0; i<document->numPages() ;i++)
@@ -1704,7 +1692,7 @@ QString Procedures::CodePostalParDefaut()
     return set.value("Param_Poste/CodePostalParDefaut").toString();
 }
 
-QString Procedures::getSessionStatus()
+QString Procedures::SessionStatus()
 {
     // statut de l'utilisateur pour cette session
 
@@ -1832,24 +1820,24 @@ QString Procedures::getSessionStatus()
     DirStockageImagesServeur    = l'emplacement du dossier de l'imagerie sur le serveur - correspond au champ dirimagerie de la table parametressysteme
                                 -> utilisé par les requêtes SQL pour réintégrer le contenu de ficiers images dans la base
     ------------------------------------------------------------------------------------------------------------------------------------*/
-void Procedures::setDirImagerie()
+void Procedures::setAbsolutePathDirImagerie()
 {
-    m_pathDirStockageImage = "";
+    m_absolutepathDirStockageImage = "";
     m_pathDirStockageImagesServeur = m_parametres->dirimagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
     {
-        m_pathDirStockageImage = m_pathDirStockageImagesServeur;
+        m_absolutepathDirStockageImage = m_pathDirStockageImagesServeur;
         break;
     }
     case DataBase::Distant:
     {
-        m_pathDirStockageImage  = m_settings->value("BDD_DISTANT/DossierImagerie").toString();
+        m_absolutepathDirStockageImage  = m_settings->value("BDD_DISTANT/DossierImagerie").toString();
         break;
     }
     case DataBase::ReseauLocal:
     {
-        m_pathDirStockageImage  = m_settings->value("BDD_LOCAL/DossierImagerie").toString();
+        m_absolutepathDirStockageImage  = m_settings->value("BDD_LOCAL/DossierImagerie").toString();
         break;
     }
     default:
@@ -1860,9 +1848,9 @@ void Procedures::setDirImagerie()
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- renvoie la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
-QString Procedures::DirImagerie()
+QString Procedures::AbsolutePathDirImagerie()
 {
-    return m_pathDirStockageImage;
+    return m_absolutepathDirStockageImage;
 }
 
 QString Procedures::DirImagerieServeur()
@@ -1926,7 +1914,7 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::
 }
 
 //Pas normal, les mots de passes doivent etre chiffrés
-QString Procedures::getMDPAdmin()
+QString Procedures::MDPAdmin()
 {
     if (m_parametres->mdpadmin() == "")
         db->setmdpadmin(NOM_MDPADMINISTRATEUR);
@@ -1938,7 +1926,7 @@ void Procedures::setNomImprimante(QString NomImprimante)
     m_nomImprimante = NomImprimante;
 }
 
-QString Procedures::getNomImprimante()
+QString Procedures::nomImprimante()
 {
     return m_nomImprimante;
 }
@@ -2172,7 +2160,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (msgbox.clickedButton() != &OKBouton)
             return false;
 
-        if (!Utils::VerifMDP((PremierDemarrage? NOM_MDPADMINISTRATEUR : getMDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP((PremierDemarrage? NOM_MDPADMINISTRATEUR : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
         QFile BaseViergeFile(QStringLiteral("://basevierge.sql"));
@@ -2246,7 +2234,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
             return false;
         }
-        if (!Utils::VerifMDP(getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
 
@@ -2719,7 +2707,7 @@ bool Procedures::Connexion_A_La_Base()
 
     //initListeUsers();
 
-    m_currentuser->setidSite(DetermineLieuExercice()->id());
+    m_currentuser->setidSite(CalcLieuExercice()->id());
     if (m_currentuser->idsitedetravail() == 0)
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
@@ -2737,7 +2725,7 @@ bool Procedures::Connexion_A_La_Base()
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
     ----------------------------------------------------------------------------------------------------------------- */
-Site* Procedures::DetermineLieuExercice()
+Site* Procedures::CalcLieuExercice()
 {
     QList<Site*> listEtab = Datas::I()->sites->initListeByUser(m_currentuser->id());
     if( listEtab.size() == 1 )
@@ -3632,7 +3620,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
-            m_currentuser->setidSite(DetermineLieuExercice()->id());
+            m_currentuser->setidSite(CalcLieuExercice()->id());
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
@@ -3664,7 +3652,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
-            m_currentuser->setidSite(DetermineLieuExercice()->id());
+            m_currentuser->setidSite(CalcLieuExercice()->id());
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
@@ -3698,7 +3686,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_connexionbaseOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
             db->login(m_currentuser->login(), m_currentuser->password());
             SetUserAllData(m_currentuser);
-            m_currentuser->setidSite(DetermineLieuExercice()->id());
+            m_currentuser->setidSite(CalcLieuExercice()->id());
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"

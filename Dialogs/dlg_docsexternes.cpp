@@ -366,7 +366,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             NomOnglet = tr("Monoposte");
         if (DataBase::I()->getMode() == DataBase::ReseauLocal)
             NomOnglet = tr("Réseau local");
-        NomDirStockageImagerie  = proc->DirImagerie();
+        NomDirStockageImagerie  = proc->AbsolutePathDirImagerie();
         if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
         {
             QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
@@ -617,7 +617,7 @@ void dlg_docsexternes::ActualiseDocsExternes()
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 {
-    QString filename = proc->DirImagerie() + DIR_IMAGES + docmt->lienversfichier();
+    QString filename = proc->AbsolutePathDirImagerie() + DIR_IMAGES + docmt->lienversfichier();
     QFile img(filename);
     if (!img.open(QIODevice::ReadOnly))
     {

@@ -32,7 +32,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     m_accesdistant = (db->getMode()==DataBase::Distant);
 
-    m_pathdirstockageimagerie = proc->DirImagerie();
+    m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
     {
@@ -349,7 +349,7 @@ void dlg_docsscanner::ValideFiche()
     if (suffixe == "jpg" && qFileOrigin.size() > TAILLEMAXIIMAGES)
     {
         qFileOrigin.close();
-        if (!Utils::CompressFileJPG(filename, proc->DirImagerie()))
+        if (!Utils::CompressFileJPG(filename, proc->AbsolutePathDirImagerie()))
             return;
         if (!qFileOrigin.open( QIODevice::ReadOnly ))
         {

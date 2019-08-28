@@ -797,7 +797,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            m_MDPadminverifie = Utils::VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur", m_MDPadminverifie);
+            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),"Saisissez le mot de passe Administrateur", m_MDPadminverifie);
             if (m_MDPadminverifie)
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
@@ -857,7 +857,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         }
         if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            m_MDPadminverifie = Utils::VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), m_MDPadminverifie);
+            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), m_MDPadminverifie);
             if (m_MDPadminverifie)
             {
                 ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
@@ -1806,7 +1806,7 @@ void dlg_param::Slot_DirPosteStockage()
         }
         ui->PosteStockageupLineEdit->setText(dockdir.path());
         db->setdirimagerie(dockdir.path());
-        proc->setDirImagerie();
+        proc->setAbsolutePathDirImagerie();
     }
 }
 
@@ -2016,7 +2016,7 @@ void dlg_param::AfficheParamUser()
     bool soccomptable   = m_currentuser->isSocComptable();
     bool medecin        = m_currentuser->isMedecin();
 
-    ui->StatutComptaupTextEdit->setText(proc->getSessionStatus());
+    ui->StatutComptaupTextEdit->setText(proc->SessionStatus());
 
     ui->TitreuplineEdit             ->setVisible(medecin);
     ui->Titrelabel                  ->setVisible(medecin);
@@ -2214,7 +2214,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
             msgbox.exec();
             return;
         }
-        if (anc != proc->getMDPAdmin())
+        if (anc != proc->MDPAdmin())
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas le bon\n"));
