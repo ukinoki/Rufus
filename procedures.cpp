@@ -862,7 +862,7 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup)
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
-QString Procedures::ImpressionCorps(QString text, bool ALD)
+QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 {
     QString Corps;
     QString nomModeleCorpsImpression;
@@ -877,7 +877,7 @@ QString Procedures::ImpressionCorps(QString text, bool ALD)
         if (!VerifRessources(nomModeleCorpsImpression))
             return QString();
 
-    long file_len = qFile.size();
+    qint64 file_len = qFile.size();
     QByteArray ba = qFile.readAll();
     ba.resize(file_len+1);
     ba.data()[file_len]=0;
@@ -885,7 +885,7 @@ QString Procedures::ImpressionCorps(QString text, bool ALD)
     Corps = ba;
     text.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
     Corps.replace("{{TEXTE ORDO}}",text);
-    Corps.replace("{{TEXTE ORDO HORS ALD}}"  , "");
+    Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
     return Corps;
 }
 
@@ -893,7 +893,7 @@ QString Procedures::ImpressionCorps(QString text, bool ALD)
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
-QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
+QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
 {
     QMap<QString, QString> EnteteMap;
     QString Entete;
@@ -1073,7 +1073,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
 /*---------------------------------------------------------------------------------
     Retourne le pied du document à imprimer
 -----------------------------------------------------------------------------------*/
-QString Procedures::ImpressionPied(User *user, bool lunettes, bool ALD)
+QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 {
     QString Pied;
     if (ALD)
@@ -1151,7 +1151,7 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
     return a;
 }
 
-bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier)
+bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier)
 {
     bool a = false;
     if (nomdossier == "")
@@ -1196,7 +1196,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
      *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
      *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
 
-   * \param afficher = false -> la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
+   * \param afficher = false -> la fonction est applée par dlg_docsexternes::ReImprimeDoc(DocExterne *docmt) - on utilise la table echangeimages
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
      * La fonction est aussi appelée par la table dépenses pour afficher les factures

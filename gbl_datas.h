@@ -55,14 +55,14 @@ public:
     Site *sitedetravail;
     Actes *actes;                       //!< la liste d'actes pour un patient
     Banques *banques;                   //!< toutes les banques
-    Impressions *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Impressions *documents;             //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     Comptes *comptes;                   //!< tous les comptes bancaires d'un utilisateur
     Correspondants *correspondants;     //!< Les correspondants
     Cotations *cotations;               //!< Les cotations
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;         //!< Les documents externes
     LignesPaiements *lignespaiements;   //!< Les lignes de paiement des actes d'un patient
-    DossiersImpressions *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    DossiersImpressions *metadocuments; //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
     Motifs *motifs;                     //!< tous les motifs d'actes
     PaiementsTiers *paiementstiers;     //!< tous les paiements par tiers payants
     Patients *patients;                 //!> tous les patients en mémoire

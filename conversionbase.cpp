@@ -115,7 +115,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             nom     = ordolist.at(i).at(5).toString();
             prenom  = Utils::trimcapitilize(ordolist.at(i).at(6).toString());
             //création de l'entête
-            Entete = (ALDQ? proc->ImpressionEntete(DateCreation, Q_NULLPTR).value("ALD") : proc->ImpressionEntete(DateCreation, Q_NULLPTR).value("Norm"));
+            Entete = (ALDQ? proc->CalcEnteteImpression(DateCreation, Q_NULLPTR).value("ALD") : proc->CalcEnteteImpression(DateCreation, Q_NULLPTR).value("Norm"));
             Entete.replace("{{TITRE1}}"            , "");
             Entete.replace("{{TITRE}}"             , "");
             Entete.replace("{{DDN}}"               , "");
@@ -131,10 +131,10 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             }
 
             //création du pied
-            Pied = proc->ImpressionPied(Datas::I()->users->getById(idUser.toInt(), Item::LoadDetails),false, ALDQ);
+            Pied = proc->CalcPiedImpression(Datas::I()->users->getById(idUser.toInt(), Item::LoadDetails),false, ALDQ);
 
             // creation du corps
-            Corps = proc->ImpressionCorps(ordolist.at(i).at(2).toString(), ALDQ);
+            Corps = proc->CalcCorpsImpression(ordolist.at(i).at(2).toString(), ALDQ);
             Corps.remove("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>");
             Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
             Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");

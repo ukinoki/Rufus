@@ -615,12 +615,12 @@ bool ImportDocsExternesThread::DefinitDossiers()
     if (db->getMode() == DataBase::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
-        m_pathdirstockageimagerie  = proc->settings()->value("BDD_LOCAL/DossierImagerie").toString();
+        m_pathdirstockageimagerie = proc->settings()->value("BDD_LOCAL/DossierImagerie").toString();
     }
     if (db->getMode() == DataBase::Distant)
     {
         NomOnglet = tr("Accès distant");
-        m_pathdirstockageimagerie  = proc->settings()->value("BDD_DISTANT/DossierImagerie").toString();
+        m_pathdirstockageimagerie = proc->settings()->value("BDD_DISTANT/DossierImagerie").toString();
     }
 
     m_pathdirstockageprovisoire      = m_pathdirstockageimagerie + DIR_PROV;

@@ -120,7 +120,7 @@ public:
     bool                    FicheChoixConnexion();
     bool                    Connexion_A_La_Base();
     bool                    ConnexionBaseOK() const { return m_connexionbaseOK; }
-    void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imageire
+    void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imagerie
                                                                              * vide la table EchangeImages
                                                                              * purge les champs jpg et pdf de la table Factures  */
 private:
@@ -210,23 +210,29 @@ private:
     void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
 
 public:
-    bool                    ApercuAvantImpression();
+    bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
-    QString                 ImpressionCorps(QString text, bool ALD = false);
-    QMap<QString,QString>   ImpressionEntete(QDate date, User* user);
-    QString                 ImpressionPied(User* user, bool lunettes = false, bool ALD = false);
-    bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
-                                     int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
-                                     bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
-                                     bool AvecChoixImprimante = true);
-    bool                    Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
-    bool                    PrintDocument(QMap<QString, QVariant> doc);
+
+  /*! 1 - Impression avec textprinter.h */
     int                     TailleEnTete();
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
     int                     TaillePieddePageOrdoLunettes();
     int                     TailleTopMarge();
+            /*! a - Impression d'un texte */
+    QString                 CalcCorpsImpression(QString text, bool ALD = false);
+    QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user);
+    QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
+    bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
+                                     int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+                                     bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
+                                     bool AvecChoixImprimante = true);
+            /*! b - Création d'un pdf */
+    bool                    Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
+
+  /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h */
+    bool                    PrintDocument(QMap<QString, QVariant> doc);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 

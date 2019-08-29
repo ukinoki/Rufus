@@ -764,7 +764,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     }
 
     //création de l'entête
-    QMap<QString,QString> EnteteMap = proc->ImpressionEntete(QDate::currentDate(), userEntete);
+    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(QDate::currentDate(), userEntete);
     Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
     if (Entete == "")
         return false;
@@ -775,12 +775,12 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? m_currentpatient->nom().toUpper() : ""));
 
     //création du pied
-    Pied = proc->ImpressionPied(userEntete, docmt->format() == PRESCRIPTIONLUNETTES, ALD);
+    Pied = proc->CalcPiedImpression(userEntete, docmt->format() == PRESCRIPTIONLUNETTES, ALD);
 
     // creation du corps de l'ordonnance
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
     txt                     = (modifiable?                              proc->Edit(txtautiliser)        : txtautiliser);
-    Corps                   = (docmt->typedoc() == PRESCRIPTION?        proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
+    Corps                   = (docmt->typedoc() == PRESCRIPTION?        proc->CalcCorpsImpression(txt,ALD)  : proc->CalcCorpsImpression(txt));
     Etat_textEdit           ->setHtml(Corps);
     if (Etat_textEdit->toPlainText() == "" || txt == "")
     {

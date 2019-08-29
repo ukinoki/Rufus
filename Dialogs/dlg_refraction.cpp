@@ -1527,7 +1527,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
 
     //création de l'entête
     User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur(), Item::LoadDetails);
-    Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
+    Entete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
     Entete.replace("{{TITRE}}"             , "");
@@ -1536,11 +1536,11 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     Entete.replace("{{DDN}}"               , "");
 
     // création du pied
-    Pied = proc->ImpressionPied(userEntete, true);
+    Pied = proc->CalcPiedImpression(userEntete, true);
     if (Pied == "") return false;
 
     // creation du corps de l'ordonnance
-    Corps = proc->ImpressionCorps(ui->ResumePrescriptionTextEdit->toPlainText());
+    Corps = proc->CalcCorpsImpression(ui->ResumePrescriptionTextEdit->toPlainText());
     if (Corps == "") return false;
 
     QTextEdit *Etat_textEdit = new QTextEdit;

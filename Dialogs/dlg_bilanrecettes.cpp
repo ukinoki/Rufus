@@ -263,7 +263,7 @@ void dlg_bilanrecettes::ImprimeEtat()
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
+    Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
     if (Entete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
@@ -279,7 +279,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     Entete.replace("{{DDN}}"               , (m_mode == SUPERVISEUR? wdg_totalmontantlbl->text() : ""));
 
     // création du pied
-    Pied = proc->ImpressionPied(userEntete);
+    Pied = proc->CalcPiedImpression(userEntete);
     if (Pied == "") return;
 
     // creation du corps de la remise

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("28-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("29-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -35,9 +35,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     proc = Procedures::I();
     if (!proc->Init())                                                  //! vérifie que le fichier rufus.ini est cohérent
-        exit(0);                                                        //! choisit le mode de connexion au serveur
+        exit(0);
 
-    //0. Connexion à la base et récupération des données utilisateur
+    //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     if (!proc->ConnexionBaseOK())
     {
         int     b = 0;
@@ -237,14 +237,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ui->CreerBOpushButton_2 ->setVisible(m_currentuser->isOrthoptist());
 
     //! 13 - mise à jour du programmateur de sauvegarde
-#ifdef Q_OS_LINUX
-    proc->ParamAutoBackup();
-#endif
-#ifdef Q_OS_MACX
-    if (db->getMode() != DataBase::Poste)
-        proc->EffaceProgrammationBackup();
-    else
+    if (db->getMode() == DataBase::Poste)
         proc->ParamAutoBackup();
+#ifdef Q_OS_MACX
+    else
+        proc->EffaceProgrammationBackup();
 #endif
 
     //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires
@@ -276,62 +273,62 @@ void Rufus::Connect_Slots()
     connect (ui->AccueilupTableWidget,                              &QTableWidget::currentCellChanged,                  this,   [=] {ActiveActeAccueil(ui->AccueilupTableWidget->currentRow());});
     connect (ui->ActePrecedentpushButton,                           &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Prec);});
     connect (ui->ActeSuivantpushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Suiv);});
-    connect (ui->CourrierAFairecheckBox,                            &QPushButton::clicked,                              this,   [=] {CourrierAFaireChecked();});
+    connect (ui->CourrierAFairecheckBox,                            &QPushButton::clicked,                              this,   &Rufus::CourrierAFaireChecked);
     connect (ui->CreerActepushButton,                               &QPushButton::clicked,                              this,   [=] {CreerActe(Datas::I()->patients->currentpatient());});
     connect (ui->CreerActepushButton_2,                             &QPushButton::clicked,                              this,   [=] {CreerActe(Datas::I()->patients->currentpatient());});
-    connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho();});
-    connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho();});
+    connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   &Rufus::CreerBilanOrtho);
+    connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   &Rufus::CreerBilanOrtho);
     connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (m_mode == RechercheDDN) FiltreTableparDDN();});
-    connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   [=] {ChercherDepuisListe();});
-    connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   [=] {MajusculeCreerNom();});
-    connect (ui->CreerPrenomlineEdit,                               &QLineEdit::textEdited,                             this,   [=] {MajusculeCreerPrenom();});
-    connect (ui->CreerDossierpushButton,                            &QPushButton::clicked,                              this,   [=] {CreerDossierpushButtonClicked();});
+    connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   &Rufus::ChercherDepuisListe);
+    connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   &Rufus::MajusculeCreerNom);
+    connect (ui->CreerPrenomlineEdit,                               &QLineEdit::textEdited,                             this,   &Rufus::MajusculeCreerPrenom);
+    connect (ui->CreerDossierpushButton,                            &QPushButton::clicked,                              this,   &Rufus::CreerDossierpushButtonClicked);
     connect (ui->DernierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Fin);});
     connect (ui->EnregistrePaiementpushButton,                      &QPushButton::clicked,                              this,   [=] {AppelPaiementDirect(BoutonPaiement);});
     connect (ui->FermepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
-    connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   [=] {SaisieFSE();});       // CZ001
-    connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelIdentPatient();});
+    connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   &Rufus::SaisieFSE);
+    connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelIdentPatient);
     connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
-    connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   [=] {ModeSelectDepuisListe();});
-    connect (ui->LListepushButton,                                  &QPushButton::clicked,                              this,   [=] {ModeSelectDepuisListe();});
-    connect (ui->LNouvDossierpushButton,                            &QPushButton::clicked,                              this,   [=] {ModeCreationDossier();;});
+    connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::ModeSelectDepuisListe);
+    connect (ui->LListepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::ModeSelectDepuisListe);
+    connect (ui->LNouvDossierpushButton,                            &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
     connect (ui->LRecopierpushButton,                               &QPushButton::clicked,                              this,   [=] {RecopierDossier();});
     connect (ui->SendMessagepushButton,                             &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map, Datas::I()->patients->currentpatient()->id());});
     connect (ui->LSendMessagepushButton,                            &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map);});
-    connect (ui->MGupComboBox,                                      QOverload<int>::of(&QComboBox::activated),          this,   [=] {ChoixMG();});
+    connect (ui->MGupComboBox,                                      QOverload<int>::of(&QComboBox::activated),          this,   &Rufus::ChoixMG);
     connect (ui->AutresCorresp1upComboBox,                          QOverload<int>::of(&QComboBox::activated),          this,   [=] {ChoixCor(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          QOverload<int>::of(&QComboBox::activated),          this,   [=] {ChoixCor(ui->AutresCorresp2upComboBox);});
-    connect (ui->MGupComboBox,                                      &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelMedecin();});
+    connect (ui->MGupComboBox,                                      &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelMedecin);
     connect (ui->AutresCorresp1upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp2upComboBox);});
     connect (ui->ModifDatepushButton,                               &QPushButton::clicked,                              this,   [=] {ui->ActeDatedateEdit->setEnabled(true); ui->ActeDatedateEdit->setFocus();});
-    connect (wdg_modifIdentificationupSmallButton,                      &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelIdentPatient();});
-    connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelMotsCles();});
-    connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelMotsCles();});
-    connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   [=] {ModeCreationDossier();});
-    connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   [=] {OuvrirActesPrecspushButtonClicked();});
+    connect (wdg_modifIdentificationupSmallButton,                  &QPushButton::clicked,                              this,   &Rufus::ChoixMenuContextuelIdentPatient);
+    connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelMotsCles);
+    connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   &Rufus::ChoixMenuContextuelMotsCles);
+    connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
+    connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   &Rufus::OuvrirActesPrecspushButtonClicked);
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
-    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {OuvrirDocuments();});
-    connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelListePatients();});
+    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   &Rufus::OuvrirDocuments);
+    connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelListePatients);
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {ChoixDossier(getPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getPatientFromCursorPositionInTable());});
-    connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   [=] {EnableButtons();});
-    connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   [=] {AffichePatientsVusWidget();});
+    connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   &Rufus::EnableButtons);
+    connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   &Rufus::AffichePatientsVusWidget);
     connect (ui->PatientsVusupTableWidget,                          &QTableView::activated,                             this,   [=] {gTimerPatientsVus->start();});
     connect (ui->PremierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Debut);});
     connect (ui->RefractionpushButton,                              &QPushButton::clicked,                              this,   &Rufus::RefractionMesure);
     connect (ui->SalleDAttentepushButton,                           &QPushButton::clicked,                              this,   &Rufus::SalleDAttente);
     connect (ui->SalleDAttenteupTableWidget,                        &UpTableWidget::dropsignal,                         this,   [=] {DropPatient(ui->SalleDAttenteupTableWidget->dropData());});
     connect (ui->SupprimeActepushButton,                            &QPushButton::clicked,                              this,   [=] {SupprimerActe(m_currentact);});
-    connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   [=] {Tonometrie();});
-    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   [=] {LireLaCV();}); // CZ001
+    connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Tonometrie);
+    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
 
-    connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   [=] {ActeMontantModifie();});
-    connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   [=] {BasculerMontantActe();});
+    connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
+    connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
     connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
-    connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   [=] {ModfiCotationActe();});
+    connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   &Rufus::ModfiCotationActe);
     // Les tabs --------------------------------------------------------------------------------------------------
-    connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   [=] {ChangeTabBureau();});
+    connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   &Rufus::ChangeTabBureau);
 
     connect (proc,                                                  &Procedures::ConnectTimers,                         this,   [=](bool a) {ConnectTimers(a);});
 
@@ -357,7 +354,7 @@ void Rufus::Connect_Slots()
 
     // Nouvelle mesure d'appareil de refraction ----------------------------------------------------------------------------------
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
-        connect(proc,                                               &Procedures::NouvMesureRefraction,                  this,   [=] {NouvelleMesureRefraction();});
+        connect(proc,                                               &Procedures::NouvMesureRefraction,                  this,   &Rufus::NouvelleMesureRefraction);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
     ui->MoulinettepushButton->setVisible(false);
@@ -1841,18 +1838,18 @@ void Rufus::ExporteDocs()
         return;
     if (m_pasDExportPourLeMoment)
         return;
-    QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
+    QString pathDirImagerie = proc->AbsolutePathDirImagerie();
 
-    if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
+    if (!QDir(pathDirImagerie).exists() || pathDirImagerie == "")
     {
-        QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
+        QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + pathDirImagerie + "</b></font>" + tr(" n'existe pas");
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Emplacement de stockage des documents archivés") + "</b></font>";
         QStringList listmsg;
         listmsg << msg;
         dlg_message(listmsg, 6000, false);
         return;
     }
-    QString CheminEchecTransfrDir   = NomDirStockageImagerie + DIR_ECHECSTRANSFERTS;
+    QString CheminEchecTransfrDir   = pathDirImagerie + DIR_ECHECSTRANSFERTS;
     if (!Utils::mkpath(CheminEchecTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
@@ -1889,7 +1886,7 @@ void Rufus::ExporteDocs()
     QTime debut = QTime::currentTime();
     QStringList listmsg;
     QString duree;
-    QString CheminOKTransfrDir      = NomDirStockageImagerie + DIR_IMAGES;
+    QString CheminOKTransfrDir      = pathDirImagerie + DIR_IMAGES;
     QDir DirTrsferOK;
     if (!QDir(CheminOKTransfrDir).exists())
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
@@ -1913,7 +1910,7 @@ void Rufus::ExporteDocs()
                 /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
                 if (listexportjpg.at(i).at(5).toString() != "")
                 {
-                    QString CheminFichier = NomDirStockageImagerie + DIR_IMAGES + listexportjpg.at(i).at(5).toString();
+                    QString CheminFichier = pathDirImagerie + DIR_IMAGES + listexportjpg.at(i).at(5).toString();
                     if (QFile(CheminFichier).exists())
                     {
                         db->StandardSQL("update " TBL_DOCSEXTERNES " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString());
@@ -1955,7 +1952,7 @@ void Rufus::ExporteDocs()
                     qDebug() << "erreur";
                     return;
                 }
-                if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->AbsolutePathDirImagerie()))
+                if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
                 {
                     db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
                     continue;
@@ -1996,7 +1993,7 @@ void Rufus::ExporteDocs()
         {
             if (listexportpdf.at(i).at(5).toString() != "")
             {
-                QString CheminFichier = NomDirStockageImagerie + DIR_IMAGES + listexportpdf.at(i).at(5).toString();
+                QString CheminFichier = pathDirImagerie + DIR_IMAGES + listexportpdf.at(i).at(5).toString();
                 if (QFile(CheminFichier).exists())
                 {
                     db->StandardSQL("update " TBL_DOCSEXTERNES " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString());
@@ -2093,7 +2090,7 @@ void Rufus::ExporteDocs()
     debut = QTime::currentTime();
     listmsg.clear();
     duree = "";
-    CheminOKTransfrDir  = NomDirStockageImagerie + DIR_FACTURES;
+    CheminOKTransfrDir  = pathDirImagerie + DIR_FACTURES;
     if (!QDir(CheminOKTransfrDir).exists())
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
         {
@@ -2117,7 +2114,7 @@ void Rufus::ExporteDocs()
             /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
             if (listexportjpgfact.at(i).at(2).toString() != "")
             {
-                QString CheminFichier = NomDirStockageImagerie + DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
+                QString CheminFichier = pathDirImagerie + DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
                     db->StandardSQL("update " TBL_FACTURES " set jpg = null where idfacture = " + listexportjpgfact.at(i).at(0).toString());
@@ -2185,7 +2182,7 @@ void Rufus::ExporteDocs()
                 qDebug() << "erreur";
                 return;
             }
-            if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->AbsolutePathDirImagerie()))
+            if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
             {
                 db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
                 continue;
@@ -2226,7 +2223,7 @@ void Rufus::ExporteDocs()
         {
             if (listexportpdffact.at(i).at(2).toString() != "")
             {
-                QString CheminFichier = NomDirStockageImagerie + DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
+                QString CheminFichier = pathDirImagerie + DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
                     db->StandardSQL("update " TBL_FACTURES " set pdf = null where idFacture = " + listexportpdffact.at(i).at(0).toString());
@@ -2632,7 +2629,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        return;
    }
 
-   Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
+   Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
    if (Entete == "") return;
    Entete.replace("{{TITRE1}}"             , "");
    QString comment;
@@ -2649,7 +2646,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
 
 
    // création du pied
-   Pied = proc->ImpressionPied(userEntete);
+   Pied = proc->CalcPiedImpression(userEntete);
    if (Pied == "") return;
 
    // creation du corps de l'impression
@@ -2672,10 +2669,10 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool aa = false;
    if (queLePdf)
    {
-       aa = proc->Imprime_pdf(Etat_textEdit, Entete, Pied,
+       aa = proc->Cree_pdf(Etat_textEdit, Entete, Pied,
                              (listeactes.size() > 1?
                                   tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
-                                  tr("Acte") + " - " + pat->nom() + " " + pat->prenom() + " - " + listeactes.at(0)->date().toString("d MMM yyyy")) + ".pdf",
+                                  tr("Acte")  + " - " + pat->nom() + " " + pat->prenom() + " - " + listeactes.at(0)->date().toString("d MMM yyyy")) + ".pdf",
                              nomdossier);
    }
    else
@@ -2813,7 +2810,7 @@ void Rufus::MenuContextuelIdentPatient()
 {
     m_menuContextuel = new QMenu(this);
     QAction *pAction_IdentPatient = m_menuContextuel->addAction("Modifier les données patients") ;
-    connect (pAction_IdentPatient, &QAction::triggered, [=] {ChoixMenuContextuelIdentPatient();});
+    connect (pAction_IdentPatient, &QAction::triggered, this, &Rufus::ChoixMenuContextuelIdentPatient);
 
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
@@ -2830,7 +2827,7 @@ void Rufus::MenuContextuelMotsCles()
     m_menuContextuel = new QMenu(this);
 
     QAction *pAction_ModifMotCle = m_menuContextuel->addAction(tr("Modifier les mots clés"));
-    connect (pAction_ModifMotCle, &QAction::triggered, [=] {ChoixMenuContextuelMotsCles();});
+    connect (pAction_ModifMotCle, &QAction::triggered, this, &Rufus::ChoixMenuContextuelMotsCles);
 
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
@@ -2876,8 +2873,8 @@ void Rufus::RechercheParID()
     dlg_rechParId->dlglayout()    ->insertWidget(1,idLine);
     dlg_rechParId->dlglayout()    ->insertWidget(2,wdg_nomlbl);
     dlg_rechParId                 ->AjouteLayButtons();
-    connect(idLine,                         &QLineEdit::textEdited,         [=] {CherchePatientParID(idLine->text().toInt());});
-    connect(dlg_rechParId->OKButton,  &QPushButton::clicked,          [=] {dlg_rechParId->close();});
+    connect(idLine,                   &QLineEdit::textEdited,   this,           [=] {CherchePatientParID(idLine->text().toInt());});
+    connect(dlg_rechParId->OKButton,  &QPushButton::clicked,    dlg_rechParId,  &QDialog::close);
     dlg_rechParId->exec();
 }
 
@@ -2895,7 +2892,7 @@ void Rufus::RechercheParMotCle()
     QTableView      *tabMC                  = new QTableView(dlg_rechParMotCle);
     dlg_rechParMotCle->dlglayout()    ->insertWidget(0,tabMC);
     dlg_rechParMotCle                 ->AjouteLayButtons();
-    connect(dlg_rechParMotCle->OKButton,  &QPushButton::clicked,  [=] {AfficheDossiersRechercheParMotCle();});
+    connect(dlg_rechParMotCle->OKButton,  &QPushButton::clicked,  this, &Rufus::AfficheDossiersRechercheParMotCle);
 
     dlg_rechParMotCle ->setModal(true);
     dlg_rechParMotCle ->setWindowTitle(tr("Recherche de patients par mots clés"));
@@ -2968,8 +2965,8 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     dlg_listPatients->dlglayout()       ->insertWidget(0,tabMC);
     dlg_listPatients->AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
     dlg_listPatients->PrintButton   ->setdata(listidMc);
-    connect(dlg_listPatients->OKButton,     &QPushButton::clicked,   [=] {dlg_listPatients->accept();});
-    connect(dlg_listPatients->PrintButton,  &QPushButton::clicked,   [=] {ImprimeListPatients(dlg_listPatients->PrintButton->data());});
+    connect(dlg_listPatients->OKButton,     &QPushButton::clicked,   dlg_listPatients,  &QDialog::accept);
+    connect(dlg_listPatients->PrintButton,  &QPushButton::clicked,   this,              [=] {ImprimeListPatients(dlg_listPatients->PrintButton->data());});
 
     dlg_listPatients->setModal(true);
     dlg_listPatients->setSizeGripEnabled(false);
@@ -3031,7 +3028,7 @@ void Rufus::AfficheCourriersAFaire()
     QTableView      *tabCourriers              = new QTableView();
     dlg_listPatients->dlglayout()       ->insertWidget(0,tabCourriers);
     dlg_listPatients->AjouteLayButtons(UpDialog::ButtonClose);
-    connect(dlg_listPatients->CloseButton,     &QPushButton::clicked,   [=] {dlg_listPatients->accept();});
+    connect(dlg_listPatients->CloseButton,     &QPushButton::clicked,   dlg_listPatients,   &QDialog::accept);
 
     UpLabel *lbl = new UpLabel();
     lbl->setText(tr("Double clic ou clic droit\nsur un dossier pour l'ouvrir"));
@@ -3078,7 +3075,7 @@ void Rufus::AfficheCourriersAFaire()
     tabCourriers->setFixedWidth(tabCourriers->columnWidth(0)+tabCourriers->columnWidth(1)+tabCourriers->columnWidth(2)+2);
     dlg_listPatients->setFixedWidth(tabCourriers->width()
                         + dlg_listPatients->dlglayout()->contentsMargins().left()*2);
-    connect(tabCourriers, &QWidget::customContextMenuRequested, [=]
+    connect(tabCourriers, &QWidget::customContextMenuRequested, dlg_listPatients, [=]
     {
         QPoint tbpos    = tabCourriers->mapFromGlobal(cursor().pos());
         QModelIndex idx = tabCourriers->indexAt(tbpos);
@@ -3154,7 +3151,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     User *userEntete = Datas::I()->users->getById(m_currentuser->idparent(), Item::LoadDetails);
     if (userEntete == Q_NULLPTR)
         return;
-    EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
+    EnTete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
     if (EnTete == "") return;
     EnTete.replace("{{TITRE1}}"            , "");
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
@@ -3163,7 +3160,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + QString::number(gtotalNbreDossiers)
                    + " " + (gtotalNbreDossiers>1? tr("dossiers") : tr("dosssier")) + "</font>");
     // création du pied
-    QString Pied = proc->ImpressionPied(userEntete);
+    QString Pied = proc->CalcPiedImpression(userEntete);
     if (Pied == "") return;
 
     // creation du corps
@@ -3212,7 +3209,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
         m_menuContextuel = new QMenu(this);
         {
             QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
-            connect (pAction_ReprendreDossier, &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
+            connect (pAction_ReprendreDossier,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
         }
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
@@ -3223,7 +3220,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
         m_menuContextuel = new QMenu(this);
         {
             QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-            connect (pAction_ModifierDossier,       &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Modifier");});
+            connect (pAction_ModifierDossier,   &QAction::triggered,    this,   [=] {ChoixMenuContextuelListePatients("Modifier");});
         }
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
@@ -3241,35 +3238,35 @@ void Rufus::MenuContextuelListePatients()
     m_menuContextuel = new QMenu(this);
 
     QAction *pAction_MettreEnSalDat = m_menuContextuel->addAction(tr("Inscrire ce patient en salle d'attente"));
-    connect (pAction_MettreEnSalDat,        &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("SalDat");});
+    connect (pAction_MettreEnSalDat,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("SalDat");});
 
     QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier,       &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Modifier");});
+    connect (pAction_ModifierDossier,       &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Modifier");});
 
     QAction *pAction_Copier = m_menuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier,                &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Copie");});
+    connect (pAction_Copier,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Copie");});
 
     if( m_currentuser->isSoignant() )
     {
         QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
-        connect (pAction_ReprendreDossier,  &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
+        connect (pAction_ReprendreDossier,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
     }
     QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc,            &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Document");});
+    connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Document");});
 
     QString req = "Select idImpression from " TBL_DOCSEXTERNES " where idpat = " + QString::number(Datas::I()->patients->dossierpatientaouvrir()->id());
     if (db->StandardSelectSQL(req,m_ok).size() > 0){
         QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
-        connect (pAction_ImprimeDoc,        &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
+        connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
     }
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
-    connect (pAction_EnregDoc,              &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("EnregDocScan");});
+    connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("EnregDocScan");});
 
     QAction *pAction_EnregVideo = m_menuContextuel->addAction(tr("Enregistrer une video"));
-    connect (pAction_EnregVideo,            &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("EnregVideo");});
+    connect (pAction_EnregVideo,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("EnregVideo");});
 
     QAction *pAction_SendMess = m_menuContextuel->addAction(tr("Envoyer un message"));
-    connect (pAction_SendMess,              &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("SendMess");});
+    connect (pAction_SendMess,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("SendMess");});
 
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
@@ -3327,7 +3324,7 @@ void Rufus::MenuContextuelMedecin()
     {
         m_menuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = m_menuContextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
-        connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelMedecin();});
+        connect (pAction_IdentPatient,      &QAction::triggered,    this,    &Rufus::ChoixMenuContextuelMedecin);
 
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
@@ -3357,7 +3354,7 @@ void Rufus::MenuContextuelCorrespondant(UpComboBox *box)
         else return;
         m_menuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = m_menuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
-        connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelCorrespondant(choix);});
+        connect (pAction_IdentPatient,      &QAction::triggered,    this,   [=] {ChoixMenuContextuelCorrespondant(choix);});
 
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
@@ -3405,28 +3402,28 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
             if (StatutClicked->text() == ARRIVE)
             {
                 QAction *pAction_RetirerDossier = m_menuContextuel->addAction(tr("Retirer ce dossier de la salle d'attente"));
-                connect (pAction_RetirerDossier, &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Retirer");});
+                connect (pAction_RetirerDossier, &QAction::triggered,   this,    [=] {ChoixMenuContextuelSalDat("Retirer");});
             }
         }
     }
     QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier,           &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Modifier");});
+    connect (pAction_ModifierDossier,           &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Modifier");});
 
     if (ui->SalleDAttenteupTableWidget->isAncestorOf(labelClicked))
     {
         QAction *pAction_ModifierMotif = m_menuContextuel->addAction(tr("Modifier le motif de l'acte"));
-        connect (pAction_ModifierMotif,             &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Motif");});
+        connect (pAction_ModifierMotif,         &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Motif");});
     }
 
     QAction *pAction_Copier = m_menuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier,                    &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Copie");});
+    connect (pAction_Copier,                    &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Copie");});
     if( m_currentuser->isSoignant() )
     {
         QAction *pAction_OuvrirDossier = m_menuContextuel->addAction(tr("Ouvrir le dossier"));
-        connect (pAction_OuvrirDossier,         &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Ouvrir");});
+        connect (pAction_OuvrirDossier,         &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Ouvrir");});
     }
     QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc,                &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Document");});
+    connect (pAction_EmettreDoc,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Document");});
 
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
@@ -3461,7 +3458,7 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
     if (m_currentuser->isSecretaire() || labelClicked->datas().value("idComptable").toInt()==m_currentuser->idcomptable())
     {
         QAction *pAction_EnregistrePaiement = m_menuContextuel->addAction(tr("Enregistrer le paiement"));
-        connect (pAction_EnregistrePaiement,    &QAction::triggered,    this, [=] {ChoixMenuContextuelSalDat("Payer");});
+        connect (pAction_EnregistrePaiement,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Payer");});
     }
 
     // ouvrir le menu
@@ -3628,7 +3625,7 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     motiflayout->addWidget(MsgText);
     dlg_ask->dlglayout()->insertLayout(0,motiflayout);
 
-    connect(dlg_ask->OKButton,   &QPushButton::clicked,  [=] {dlg_ask->accept();});
+    connect(dlg_ask->OKButton,   &QPushButton::clicked,  dlg_ask,   &QDialog::accept);
 
     dlg_ask->setWindowTitle(tr("Enregistrer le motif de l'acte"));
 
@@ -4183,7 +4180,7 @@ void Rufus::OneusrChkBoxSendMsg(bool a)
 void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 {
     //TODO : SQL
-    dlg_ask            = new UpDialog(this);
+    dlg_ask         = new UpDialog(this);
     QHBoxLayout     *tasklayout;
     QHBoxLayout     *totallayout    = new QHBoxLayout();
     QVBoxLayout     *destlayout     = new QVBoxLayout();
@@ -4234,7 +4231,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
         Allusrchk->setText(tr("Tout le monde"));
         Allusrchk->setAutoExclusive(false);
         Allusrchk->setRowTable(2);
-        connect(Allusrchk,  &QCheckBox::clicked,  [=] {AllusrChkBoxSendMsg(Allusrchk->isChecked());});
+        connect(Allusrchk,  &QCheckBox::clicked,  this, [=] {AllusrChkBoxSendMsg(Allusrchk->isChecked());});
         vbox->addWidget(Allusrchk);
         QLabel *line = new QLabel(dlg_ask);
         line->setFrameShape(QFrame::HLine);
@@ -4248,7 +4245,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
             if (idMsg>-1)
                 chk0->setChecked(map["listdestinataires"].toStringList().contains(usrlist.at(i).at(0).toString()));
             chk0->setRowTable(1);
-            connect(chk0,  &QCheckBox::clicked,  [=] {OneusrChkBoxSendMsg(chk0->isChecked());});
+            connect(chk0,  &QCheckBox::clicked,  this,  [=] {OneusrChkBoxSendMsg(chk0->isChecked());});
             vbox->addWidget(chk0);
             chk0->setAutoExclusive(false);
         }
@@ -4289,7 +4286,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     }
     checktask       ->setText(tr("Tâche à accomplir avant le "));
     checkurg        ->setText(tr("Urgent"));
-    connect(checktask,  &QCheckBox::clicked,  [=] {AfficheMessageLimitDate(checktask->isChecked());});
+    connect(checktask,  &QCheckBox::clicked,  this, [=] {AfficheMessageLimitDate(checktask->isChecked());});
     tasklayout      ->addWidget(checktask);
     tasklayout      ->addWidget(limitdate);
     tasklayout      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -4300,7 +4297,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     msglayout       ->addLayout(tasklayout);
 
     dlg_ask->OKButton   ->setiD(idMsg);
-    connect(dlg_ask->OKButton,   QOverload<int>::of(&UpSmallButton::clicked),  [=] {VerifSendMessage(idMsg);});
+    connect(dlg_ask->OKButton,   QOverload<int>::of(&UpSmallButton::clicked),  this,    [=] {VerifSendMessage(idMsg);});
 
     totallayout->addLayout(destlayout);
     QLabel *Vline = new QLabel(dlg_ask);
@@ -4836,7 +4833,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Rdchk->setiD(destlist.at(i).at(10).toInt());
             Rdchk->setText(tr("lu"));
             Rdchk->setFixedWidth(45);
-            connect(Rdchk,  &QCheckBox::clicked,    [=] {MsgRead(Rdchk);});
+            connect(Rdchk,  &QCheckBox::clicked,    this,   [=] {MsgRead(Rdchk);});
             titrelay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             titrelay->addWidget(Rdchk);
             reclay->addLayout(titrelay);
@@ -4861,7 +4858,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             Dellbl->setMinimumWidth(25);
-            connect(Dellbl,             QOverload<int>::of(&UpLabel::clicked), [=] {SupprimerMessageRecu(Dellbl->iD());});
+            connect(Dellbl,             QOverload<int>::of(&UpLabel::clicked),  this, [=] {SupprimerMessageRecu(Dellbl->iD());});
             Droplay->addWidget(Dellbl);
 
             Msglay->addLayout(Droplay);
@@ -4892,7 +4889,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Dnchk->setiD(destlist.at(i).at(10).toInt());
                 Dnchk->setText(tr("fait"));
                 Dnchk->setFixedWidth(45);
-                connect(Dnchk,  &QCheckBox::clicked,    [=] {MsgDone(Dnchk);});
+                connect(Dnchk,  &QCheckBox::clicked,    this,    [=] {MsgDone(Dnchk);});
                 Tasklay->addWidget(Dnchk);
                 SMlay->addLayout(Tasklay);
             }
@@ -5005,14 +5002,14 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Modiflbl->setPixmap(Icons::pxEditer().scaled(20,20)); //WARNING : icon scaled : pxEditer 20,20
             Modiflbl->setImmediateToolTip(tr("Modifier"));
             Modiflbl->setFixedWidth(25);
-            connect(Modiflbl, QOverload<int>::of(&UpLabel::clicked),  [=] {MsgModif(Modiflbl->iD());});
+            connect(Modiflbl, QOverload<int>::of(&UpLabel::clicked),    this,  [=] {MsgModif(Modiflbl->iD());});
             Droplay->addWidget(Modiflbl);
 
             UpLabel *Dellbl = new UpLabel();
             Dellbl->setiD(emetlist.at(i).at(0).toInt());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
-            connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  [=] {SupprimerMessageEmis(Dellbl->iD());});
+            connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  this,  [=] {SupprimerMessageEmis(Dellbl->iD());});
             Droplay->addWidget(Dellbl);
             Msglay->addLayout(Droplay);
 
@@ -5157,7 +5154,7 @@ void Rufus::MsgResp(int idmsg)
     UpSmallButton *OKbutton       = new UpSmallButton("", dlg_msgRepons);
     OKbutton        ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
     OKbutton        ->setiD(idmsg);
-    connect(OKbutton, &QPushButton::clicked, [=] {EnregMsgResp(idmsg);});
+    connect(OKbutton, &QPushButton::clicked, this, [=] {EnregMsgResp(idmsg);});
     buttonlayout    ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     buttonlayout    ->addWidget(OKbutton);
     buttonlayout    ->setContentsMargins(0,0,5,5);
@@ -7546,11 +7543,11 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? nom.toUpper() : ""));
 
     //création du pied
-    Pied = proc->ImpressionPied(user, false, ALD);
+    Pied = proc->CalcPiedImpression(user, false, ALD);
     if (Pied == "") return false;
 
     // creation du corps
-    Corps = proc->ImpressionCorps(text, ALD);
+    Corps = proc->CalcCorpsImpression(text, ALD);
     if (Corps == "") return false;
     Etat_textEdit->setHtml(Corps);
     if (Etat_textEdit->toPlainText() == "") return false;
@@ -7691,12 +7688,12 @@ void Rufus::InitWidgets()
     trayIconMenu = new QMenu();
 
     QAction *pAction_VoirMessages = trayIconMenu->addAction(tr("Voir les messages"));
-    connect (pAction_VoirMessages, &QAction::triggered,    [=] {AfficheMessages();});
+    connect (pAction_VoirMessages, &QAction::triggered, this,    &Rufus::AfficheMessages);
 
     ict_messageIcon = new QSystemTrayIcon(this);
     ict_messageIcon->setContextMenu(trayIconMenu);
     ict_messageIcon->setIcon(Icons::icPostit());
-    connect(ict_messageIcon,   &QSystemTrayIcon::messageClicked,   [=] {AfficheMessages();});
+    connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=] {AfficheMessages();});
 
     dlg_msgRepons = new QDialog();
     dlg_msgDialog = new QDialog();
@@ -7711,7 +7708,7 @@ void Rufus::InitWidgets()
     hlay        ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Fixed));
     hlay        ->setContentsMargins(0,0,0,0);
     hlay        ->setSpacing(0);
-    connect (wdg_salledattenteTab,    &QTabBar::currentChanged,   [=] {FiltreSalleDAttente();});
+    connect (wdg_salledattenteTab,  &QTabBar::currentChanged,           this,    &Rufus::FiltreSalleDAttente);
     ui->SalDatLayout->insertLayout(1,hlay);
     ui->SalDatWidget->setVisible(false);
 
@@ -7722,7 +7719,7 @@ void Rufus::InitWidgets()
     halay        ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Fixed));
     halay        ->setContentsMargins(0,0,0,0);
     halay        ->setSpacing(0);
-    connect (wdg_accueilTab,    &QTabBar::currentChanged,   [=] {FiltreAccueil(wdg_accueilTab->currentIndex());});
+    connect (wdg_accueilTab,        &QTabBar::currentChanged,           this,   [=] {FiltreAccueil(wdg_accueilTab->currentIndex());});
     ui->AccueilLayout->insertLayout(1,halay);
     ui->AccueilWidget->setVisible(false);
 
@@ -8134,7 +8131,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
         QString     Entete;
         QDate DateDoc = Dlg_Imprs->ui->dateEdit->date();
         //création de l'entête
-        QMap<QString,QString> EnteteMap = proc->ImpressionEntete(DateDoc, userEntete);
+        QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(DateDoc, userEntete);
 
         bool ALD;
         QString imprimante = "";
@@ -8340,7 +8337,7 @@ void    Rufus::ReconstruitListesCotations()
     comp->popup()->setFont(ui->ActeMontantlineEdit->font());
     comp->setMaxVisibleItems(5);
     ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
-    connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   [=] {RetrouveMontantActe();});
+    connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
     ConnectCotationComboBox();
 }
 
@@ -9038,8 +9035,8 @@ void Rufus::Remplir_SalDat()
                         connect(UserBureau, &UpTextEdit::dblclick, this,  [=] {if (m_currentuser->isSecretaire()) ChoixDossier(pat);});
                     else
                     {
-                        connect(UserBureau,         &QWidget::customContextMenuRequested,   [=] {MenuContextuelBureaux(UserBureau);});
-                        connect(UserBureau,         &UpTextEdit::dblclick,                  [=] {AutreDossier(pat);});
+                        connect(UserBureau,         &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuelBureaux(UserBureau);});
+                        connect(UserBureau,         &UpTextEdit::dblclick,                  this,   [=] {AutreDossier(pat);});
                     }
                     html += "<p class=\"p2\">" +  pat->nom() + " " + pat->prenom() + "</p>";      //Nom Prenom
                     QString color = "black";

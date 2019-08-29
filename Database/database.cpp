@@ -389,10 +389,10 @@ void DataBase::initParametres()
         m_parametres = new ParametresSysteme();
     QJsonObject paramData{};
 
-    QString req = "select MDPAdmin, NumCentre, idLieuParDefaut, DocsComprimes, VersionBase,"
-                  " SansCompta, AdresseServeurLocal, AdresseServeurDistant, DirImagerie,"
-                  " LundiBkup, MardiBkup, MercrediBkup, JeudiBkup, VendrediBkup,"
-                  " SamediBkup, DimancheBkup, HeureBkup, DirBkup"
+    QString req = "select " CP_MDPADMIN_PARAMSYSTEME ", " CP_NUMCENTRE_PARAMSYSTEME ", " CP_IDLIEUPARDEFAUT_PARAMSYSTEME ", " CP_DOCSCOMPRIMES_PARAMSYSTEME ", " CP_VERSIONBASE_PARAMSYSTEME ", "
+                  CP_SANSCOMPTA_PARAMSYSTEME ", " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME ", " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME ", " CP_DIRIMAGERIE_PARAMSYSTEME ", "
+                  CP_LUNDIBKUP_PARAMSYSTEME ", " CP_MARDIBKUP_PARAMSYSTEME ", " CP_MERCREDIBKUP_PARAMSYSTEME ", " CP_JEUDIBKUP_PARAMSYSTEME ", " CP_VENDREDIBKUP_PARAMSYSTEME ", "
+                  CP_SAMEDIBKUP_PARAMSYSTEME ", " CP_DIMANCHEBKUP_PARAMSYSTEME ", " CP_HEUREBKUP_PARAMSYSTEME ", " CP_DIRBKUP_PARAMSYSTEME
                   " from " TBL_PARAMSYSTEME;
     QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
     if(!ok || paramdata.size() == 0)

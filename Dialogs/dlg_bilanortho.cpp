@@ -256,7 +256,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString Entete, Pied;
 
     //création de l'entête
-    Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
+    Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
     if (Entete == "") return;
     Entete.replace("{{TITRE1}}"            , "");
     Entete.replace("{{TITRE}}"             , "<font color = \"" COULEUR_TITRES "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
@@ -266,7 +266,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     Entete.replace("{{DATE}}"              , Datas::I()->sites->getById(userEntete->idsitedetravail())->ville() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
 
     // création du pied
-    Pied = proc->ImpressionPied(userEntete);
+    Pied = proc->CalcPiedImpression(userEntete);
     if (Pied == "") return;
 
     // creation du corps du bilan
