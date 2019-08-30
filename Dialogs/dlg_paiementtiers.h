@@ -68,8 +68,8 @@ private slots:
     void                Slot_ValidePaiement();
 
 private:
-    Procedures              *proc;
-    DataBase                *db;
+    Procedures              *proc   = Procedures::I();
+    DataBase                *db     = DataBase::I();
 
     Mode                    m_mode;
     OrdreTri                m_ordretri;
@@ -91,8 +91,9 @@ private:
     QList<QString>          m_montantactesamodifier;
 
     QTimer                  *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
-    User                    *m_useracrediter;
-    User                    *m_userconnected;
+    User                    *m_useracrediter    = Q_NULLPTR;
+    User                    *m_userconnected    = Datas::I()->users->userconnected();
+
     QMap<int, User*>        *map_comptables;
 
 

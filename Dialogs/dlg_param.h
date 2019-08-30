@@ -51,8 +51,23 @@ public:
     QLineEdit           *wdg_CPDefautlineEdit, *wdg_VilleDefautlineEdit;
 
 private:
-    Procedures              *proc;
-    DataBase                *db;
+    Procedures              *proc                   = Procedures::I();
+    DataBase                *db                     = DataBase::I();
+    bool                    m_cotationsmodifiees    = false;
+    bool                    m_donneesusermodifiees  = false;
+    User                    *m_currentuser          = Datas::I()->users->userconnected();
+    ParametresSysteme       *m_parametres           = db->parametres();
+
+    bool                    m_modifposte            = false;
+    bool                    m_MDPadminverifie       = false;
+    bool                    m_MDPuserverifie        = false;
+    QString                 m_nouveauMDP            = "nouv";
+    QString                 m_ancienMDP             = "anc";
+    QString                 m_confirmeMDP           = "confirm";
+
+
+
+
 
     dlg_gestionbanques      *Dlg_Banq;
     dlg_gestioncotations    *Dlg_CrrCot;
@@ -60,14 +75,6 @@ private:
     dlg_fontdialog          *Dlg_Fonts;
     dlg_motifs              *Dlg_motifs;
 
-    User                    *m_currentuser;
-    ParametresSysteme       *m_parametres;
-
-    bool                    m_modifposte;
-    bool                    m_cotationsmodifiees;
-    bool                    m_donneesusermodifiees;
-    bool                    m_MDPadminverifie, m_MDPuserverifie;
-    QString                 m_nouveauMDP, m_ancienMDP, m_confirmeMDP;
     QStringList             m_listeappareils;
 
     QTimer                  t_timerverifimportdocs;

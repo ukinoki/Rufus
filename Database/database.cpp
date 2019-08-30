@@ -29,52 +29,45 @@ DataBase* DataBase::I()
     {
         instance = new DataBase();
     }
-
     return instance;
 }
+
 DataBase::DataBase() {}
 
-void DataBase::init(QSettings const &setting, ModeAcces mode)
+void DataBase::init(QSettings const &setting, Utils::ModeAcces mode)
 {
     m_mode = mode;
-    if( m_mode == Poste )
+    if( m_mode == Utils::Poste )
         m_server = "localhost";
     else
         m_server = setting.value(getBase() + "/Serveur").toString();
 
     m_port = setting.value(getBase() + "/Port").toInt();
 
-    m_useSSL = (m_mode == Distant);
+    m_useSSL = (m_mode == Utils::Distant);
 }
 
 void DataBase::initFromFirstConnexion(QString mode, QString Server, int Port, bool SSL)
 {
-    if (mode == "BDD_POSTE") m_mode = Poste;
-    else if (mode == "BDD_LOCAL") m_mode = ReseauLocal;
-    else if (mode == "BDD_DISTANT") m_mode = Distant;
+    if (mode == Utils::getBaseFromMode(Utils::Poste))
+        m_mode = Utils::Poste;
+    else if (mode == Utils::getBaseFromMode(Utils::ReseauLocal))
+        m_mode = Utils::ReseauLocal;
+    else if (mode == Utils::getBaseFromMode(Utils::Distant))
+        m_mode = Utils::Distant;
 
     m_server = Server;
     m_port = Port;
     m_useSSL = SSL;
 }
 
-int DataBase::getMode() const
+Utils::ModeAcces DataBase::getMode() const
 {
     return m_mode;
 }
 QString DataBase::getBase() const
 {
-    return getBaseFromInt( m_mode );
-}
-QString DataBase::getBaseFromInt( int mode ) const
-{
-    if (mode == ReseauLocal)
-        return "BDD_LOCAL";
-
-    if (mode == Distant)
-        return "BDD_DISTANT";
-
-    return "BDD_POSTE"; //m_mode == Poste
+    return Utils::getBaseFromMode( m_mode );
 }
 QString DataBase::getServer() const
 {

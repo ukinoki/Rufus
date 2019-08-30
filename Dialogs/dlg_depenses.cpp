@@ -26,12 +26,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     setWindowIcon(Icons::icCreditCard());
 
-    proc            = Procedures::I();
-    db              = DataBase::I();
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire() );
-    m_accesdistant    = (db->getMode()==DataBase::Distant);
-    map_usersliberaux = Datas::I()->users->liberaux();
-    m_userencours       = Q_NULLPTR;
 
     int index = 0;
     bool foundUser = false;
@@ -174,7 +169,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     //ui->Facturewidget->setVisible(false);
     //ui->VisuDocupTableWidget->setVisible(false);
 
-    m_initok= true;
+    m_initok = true;
 }
 
 dlg_depenses::~dlg_depenses()

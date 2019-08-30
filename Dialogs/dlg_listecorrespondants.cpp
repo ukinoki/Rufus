@@ -26,8 +26,6 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 
     m_model         = new QStandardItemModel(this);
 
-    m_listemodifiee   = false;
-
     setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
 

@@ -24,9 +24,6 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     m_mode       = mode;
     m_ciodeacte   = CodeActe;
 
-    db                      = DataBase::I();
-    m_iduser                 = Datas::I()->users->userconnected()->id();
-    m_secteuruser            = Datas::I()->users->userconnected()->secteurconventionnel();
     QDoubleValidator *val   = new QDoubleValidator(this);
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -152,7 +149,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     else
     {
         req = " select montantoptam, montantnonoptam, montantpratique, tip from " TBL_COTATIONS
-              " where idUser = " + QString::number(m_iduser) + " and TypeActe = '" + m_ciodeacte + "'";
+              " where idUser = " + QString::number(m_idcurrentuser) + " and TypeActe = '" + m_ciodeacte + "'";
         bool ok;
         QVariantList listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && listcot.size()>0)
@@ -200,7 +197,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (m_mode == Creation)
         {
-            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(m_iduser);
+            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(m_idcurrentuser);
             bool ok;
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && actdata.size()>0)
@@ -218,7 +215,7 @@ bool dlg_gestioncotations::VerifFiche()
                     + QString::number(QLocale().toDouble(wdg_tarifoptamline->text())) + ", "
                     + QString::number(QLocale().toDouble(wdg_tarifnooptamline->text())) + ", "
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 2, "
-                    + QString::number(m_iduser) + ", '"
+                    + QString::number(m_idcurrentuser) + ", '"
                     + Utils::correctquoteSQL(wdg_tipline->text()) + "')";
         }
         else
@@ -229,7 +226,7 @@ bool dlg_gestioncotations::VerifFiche()
                   " MontantPratique = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
                   " tip = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
                   " where"
-                  " idUser = "          + QString::number(m_iduser) +
+                  " idUser = "          + QString::number(m_idcurrentuser) +
                   " and TypeActe = '"   + wdg_codeline->text() + "'";
         }
         break;
@@ -243,7 +240,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (m_mode == Creation)
         {
-            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(m_iduser);
+            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(m_idcurrentuser);
             bool ok;
             QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cotdata.size()>0)
@@ -263,7 +260,7 @@ bool dlg_gestioncotations::VerifFiche()
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", "
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", "
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 3, "
-                    + QString::number(m_iduser) + ", '"
+                    + QString::number(m_idcurrentuser) + ", '"
                     + Utils::correctquoteSQL(wdg_tipline->text()) + "')";
         }
         else
@@ -274,7 +271,7 @@ bool dlg_gestioncotations::VerifFiche()
                   " MontantPratique = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
                   " tip = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
                   " where"
-                  " idUser = "          + QString::number(m_iduser) +
+                  " idUser = "          + QString::number(m_idcurrentuser) +
                   " and TypeActe = '"   + wdg_codeline->text() + "'";
         }
         break;

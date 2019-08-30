@@ -64,7 +64,6 @@ class DataBase : public QObject
 {
     Q_OBJECT
 public:
-    enum ModeAcces { Poste, ReseauLocal, Distant };         Q_ENUM(ModeAcces)
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
 
 private:
@@ -74,7 +73,7 @@ private:
     User *m_userConnected = Q_NULLPTR;
     ParametresSysteme *m_parametres = Q_NULLPTR;
 
-    ModeAcces m_mode;
+    Utils::ModeAcces m_mode;
     QString m_base;
     QString m_server;
     int m_port;
@@ -89,7 +88,7 @@ public:
      * SQL
     */
     //     ACTION SUR LES PARAMETRES DE CONNEXION A LA BASE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    void                    init(QSettings const &setting, DataBase::ModeAcces mode);
+    void                    init(QSettings const &setting, Utils::ModeAcces mode);
                                                                 /*! initialise les paramètres de connexion au serveur (adresse, port, SSL)
                                                                  *  à partir des valeurs enregistrées dans dans rufus.ini
                                                                  *  en fonction du mode de connexion*/
@@ -97,9 +96,10 @@ public:
                                                                 /*! initialise les paramètres de connexion au serveur (adresse, port, SSL)
                                                                  *  à partir des valeurs sasies dans la fiche paramconnexion utilisée au premier lancement du programme*/
 
-    int                     getMode() const;                    //!> renvoie le mode d'accès au serveur monoposte = Mono, reseau local = ReseauLocal, distant = Distant
-    QString                 getBase() const;                    //!> renvoie le mode d'accès au serveur tel qu'il est inscrit dans le fichier rufus.ini - monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT
-    QString                 getBaseFromInt( int mode ) const;   //!> renvoie le mode d'accès au serveur tel qu'il est inscrit dans le fichier rufus.ini - monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT, \param le mode d'accès
+    Utils::ModeAcces        getMode() const;                    /*! renvoie le mode d'accès au serveur
+                                                                    \result monoposte = Poste, reseau local = ReseauLocal, distant = Distant */
+    QString                 getBase() const;                    /*! renvoie le mode d'accès au serveur tel qu'il est inscrit dans le fichier rufus.ini
+                                                                    \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT */
     QString                 getServer() const;                  //!> l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS
     QSqlDatabase            getDataBase() const;
     void                    getInformations();                  //! renvoie les infos de connexions SQL : host, database, login, mdp

@@ -35,7 +35,7 @@ public:
     enum Mode {Creation, Modif};    Q_ENUM(Mode)
 
 private:
-    DataBase            *db;
+    DataBase            *db = DataBase::I();
     Patient             *m_currentpatient;
     QStringList         m_listemotscles, m_listidmotsclesdepart;
     Mode                m_mode;

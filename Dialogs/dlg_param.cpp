@@ -26,27 +26,12 @@ dlg_param::dlg_param(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    proc            = Procedures::I();
-    db              = DataBase::I();
-    m_parametres    = db->parametres();
-
-    m_modifposte     = false;
-    m_currentuser   = Datas::I()->users->userconnected();
-
-    m_nouveauMDP        = "nouv";
-    m_ancienMDP         = "anc";
-    m_confirmeMDP     = "confirm";
-
-    m_MDPadminverifie= false;
-    m_MDPuserverifie = false;
 
     QStringList ports;
     ports << "3306" << "3307";
     ui->SQLPortDistantcomboBox  ->addItems(ports);
     ui->SQLPortLocalcomboBox    ->addItems(ports);
     ui->SQLPortPostecomboBox    ->addItems(ports);
-    m_donneesusermodifiees    = false;
-    m_cotationsmodifiees     = false;
 
     wdg_appareilswdgbuttonframe = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
     wdg_appareilswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
@@ -307,7 +292,7 @@ dlg_param::dlg_param(QWidget *parent) :
     bool a,b,c;
 
     QString Base;
-    Base = "BDD_POSTE";
+    Base = Utils::getBaseFromMode(Utils::Poste);
     a = (proc->settings()->value(Base + "/Active").toString() == "YES");
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
@@ -322,7 +307,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->SQLPortPostecomboBox    ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
         ui->PosteStockageupLineEdit->setText(m_parametres->dirimagerie());
     }
-    Base = "BDD_LOCAL";
+    Base = Utils::getBaseFromMode(Utils::ReseauLocal);
     b = (proc->settings()->value(Base + "/Active").toString() == "YES");
     ui->LocalServcheckBox           ->setChecked(b);
     ui->Localframe                  ->setVisible(b);
@@ -336,9 +321,9 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + "/Serveur").toString());
         ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        ui->LocalStockageupLineEdit     ->setText(proc->settings()->value("BDD_LOCAL/DossierImagerie").toString());
+        ui->LocalStockageupLineEdit     ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString());
     }
-    Base = "BDD_DISTANT";
+    Base = Utils::getBaseFromMode(Utils::Distant);
     c = (proc->settings()->value(Base + "/Active").toString() == "YES");
     ui->DistantServcheckBox         ->setChecked(c);
     ui->Distantframe                ->setVisible(c);
@@ -352,14 +337,14 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + "/Serveur").toString());
         ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        ui->DistantStockageupLineEdit   ->setText(proc->settings()->value("BDD_DISTANT/DossierImagerie").toString());
+        ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
     }
 
-    if (db->getMode() == DataBase::Poste)
+    if (db->getMode() == (Utils::Poste))
         ui->ParamConnexiontabWidget->setCurrentIndex(0);
-    else if (db->getMode() == DataBase::ReseauLocal)
+    else if (db->getMode() == Utils::ReseauLocal)
         ui->ParamConnexiontabWidget->setCurrentIndex(1);
-    if (db->getMode() == DataBase::Distant)
+    if (db->getMode() == Utils::Distant)
         ui->ParamConnexiontabWidget->setCurrentIndex(2);
 
     ui->ParamtabWidget->setCurrentIndex(0);
@@ -371,7 +356,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->TopMargespinBox->setValue(proc->settings()->value("Param_Imprimante/TailleTopMarge").toInt());
     ui->ApercuImpressioncheckBox->setChecked(proc->settings()->value("Param_Imprimante/ApercuAvantImpression").toString() ==  "YES");
     ui->OrdoAvecDuplicheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() ==  "YES");
-    QString A = proc->settings()->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
+    QString A = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString();
     if (A=="YES")
         ui->PrioritaireImportDocscheckBox->setChecked(true);
     else if (A=="NO")
@@ -379,7 +364,7 @@ dlg_param::dlg_param(QWidget *parent) :
     else
     {
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
-        proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NORM");
     }
     t_timerverifimportdocs.start(500);
     connect (&t_timerverifimportdocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
@@ -477,7 +462,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->Appareilsconnectesframe->setFixedWidth(wdg_appareilswdgbuttonframe->widgButtonParent()->width() + marge + marge);
     ui->Appareilsconnectesframe->setLayout(applay);
 
-    ui->Sauvegardeframe         ->setEnabled(db->getMode() == DataBase::Poste);
+    ui->Sauvegardeframe         ->setEnabled(db->getMode() == (Utils::Poste));
     ui->DirBackupuplineEdit->setText(m_parametres->dirbkup());
     if (m_parametres->heurebkup().isValid())
         ui->HeureBackuptimeEdit->setTime(m_parametres->heurebkup());
@@ -587,13 +572,13 @@ void dlg_param::Slot_ChoixDossierStockageApp()
     QString exam = "";
     if (ok && examdata.size()>0)
         exam = examdata.at(1).toString();
-    int mode = DataBase::ReseauLocal;
+    Utils::ModeAcces mode = Utils::ReseauLocal;
     if (ui->MonoDocupTableWidget->isAncestorOf(bout))
-        mode = DataBase::Poste;
+        mode = Utils::Poste;
     else if (ui->LocalDocupTableWidget->isAncestorOf(bout))
-        mode = DataBase::ReseauLocal;
+        mode = Utils::ReseauLocal;
     else if (ui->DistantDocupTableWidget->isAncestorOf(bout))
-        mode = DataBase::Distant;
+        mode = Utils::Distant;
     QString dir = proc->pathDossierDocuments(exam, mode);
     if (dir == "")
         dir = QDir::homePath() + DIR_RUFUS;
@@ -603,35 +588,29 @@ void dlg_param::Slot_ChoixDossierStockageApp()
     if (dialog.exec()>0)
     {
         QDir dockdir = dialog.directory();
-        QString Base;
         int row;
         UpLineEdit *line = Q_NULLPTR;
         switch (mode) {
-        case DataBase::Poste:
+        case Utils::Poste:
             row = ui->MonoDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
-            Base = "BDD_POSTE";
             break;
-        case DataBase::ReseauLocal:
+        case Utils::ReseauLocal:
             row = ui->LocalDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
-            Base = "BDD_LOCAL";
             break;
-        case DataBase::Distant:
+        case Utils::Distant:
             row = ui->DistantDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
-            Base = "BDD_DISTANT";
-            break;
-        default:
             break;
         }
-        proc->settings()->setValue(Base + "/DossiersDocuments/" + exam, dockdir.path());
+        proc->settings()->setValue(Utils::getBaseFromMode(mode) + "/DossiersDocuments/" + exam, dockdir.path());
     }
 }
 
@@ -646,35 +625,22 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
         line->setText(textline);
         return;
     }
-    QString id, Base;
-    int mode = DataBase::ReseauLocal;
+    QString id;
+    Utils::ModeAcces mode = Utils::ReseauLocal;
     if (ui->MonoDocupTableWidget->isAncestorOf(line))
     {
-        mode = DataBase::Poste;
+        mode = Utils::Poste;
         id = ui->MonoDocupTableWidget->item(line->Row(),0)->text();
     }
     else if (ui->LocalDocupTableWidget->isAncestorOf(line))
     {
-        mode = DataBase::ReseauLocal;
+        mode = Utils::ReseauLocal;
         id = ui->LocalDocupTableWidget->item(line->Row(),0)->text();
     }
     else if (ui->DistantDocupTableWidget->isAncestorOf(line))
     {
-        mode = DataBase::Distant;
+        mode = Utils::Distant;
         id = ui->DistantDocupTableWidget->item(line->Row(),0)->text();
-    }
-    switch (mode) {
-    case DataBase::Poste:
-        Base = "BDD_POSTE";
-        break;
-    case DataBase::ReseauLocal:
-        Base = "BDD_LOCAL";
-        break;
-    case DataBase::Distant:
-        Base = "BDD_DISTANT";
-        break;
-    default:
-        break;
     }
     QString req = "select NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + id;
     bool ok;
@@ -683,7 +649,7 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
     if (ok && appdata.size()>0)
         app = appdata.at(0).toString();
     if (app != "")
-        proc->settings()->setValue(Base + "/DossiersDocuments/" + app, dir);
+        proc->settings()->setValue(Utils::getBaseFromMode(mode) + "/DossiersDocuments/" + app, dir);
     else
         UpMessageBox::Watch(this,tr("Impossible de retrouver le nom de l'appareil"));
 
@@ -867,7 +833,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         else
             ui->LockParamGeneralupLabel->setPixmap(Icons::pxVerrouiller());
         bool a = (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
-        if (db->getMode() == DataBase::Distant)
+        if (db->getMode() == Utils::Distant)
             EnableWidgContent(ui->Appareilsconnectesframe,false);
         else
             EnableWidgContent(ui->Appareilsconnectesframe,a);
@@ -878,7 +844,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         ui->InitMDPAdminpushButton          ->setEnabled(a);
         ui->GestionBanquespushButton        ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
-        EnableWidgContent(ui->Sauvegardeframe, db->getMode() == DataBase::Poste && a);
+        EnableWidgContent(ui->Sauvegardeframe, db->getMode() == Utils::Poste && a);
     }
 }
 
@@ -1403,14 +1369,7 @@ void dlg_param::SupprAppareil()
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
               + " and idLieu = " + QString::number(m_currentuser->idsitedetravail());
         db->StandardSQL(req);
-        QString Base;
-        if (db->getMode() == DataBase::Poste)
-            Base = "BDD_POSTE";
-        else if (db->getMode() == DataBase::ReseauLocal)
-            Base = "BDD_LOCAL";
-        else if (db->getMode() == DataBase::Distant)
-            Base = "BDD_DISTANT";
-        proc->settings()->remove(Base + "/DossiersDocuments/" + appdata.at(1).toString());
+        proc->settings()->remove(db->getBase() + "/DossiersDocuments/" + appdata.at(1).toString());
         Remplir_Tables();
     }
 }
@@ -1704,7 +1663,7 @@ void dlg_param::Slot_ParamMotifs()
 
 void dlg_param::ModifDirBackup()
 {
-    if (db->getMode() != DataBase::Poste)
+    if (db->getMode() != Utils::Poste)
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     QString dirSauv         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
@@ -1753,7 +1712,7 @@ void dlg_param::ModifHeureBackup()    //Modification de la date du backup
 
 void dlg_param::Slot_DirLocalStockage()
 {
-    QString dir = proc->settings()->value("BDD_LOCAL/DossierImagerie").toString();
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     if (dir == "")
         dir = QDir::homePath() + DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
@@ -1763,13 +1722,13 @@ void dlg_param::Slot_DirLocalStockage()
     {
         QDir dockdir = dialog.directory();
         ui->LocalStockageupLineEdit->setText(dockdir.path());
-        proc->settings()->setValue("BDD_LOCAL/DossierImagerie", dockdir.path());
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", dockdir.path());
     }
 }
 
 void dlg_param::Slot_DirDistantStockage()
 {
-    QString dir = proc->settings()->value("BDD_DISTANT/DossierImagerie").toString();
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
     if (dir == "")
         dir = QDir::homePath() + DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
@@ -1779,13 +1738,13 @@ void dlg_param::Slot_DirDistantStockage()
     {
         QDir dockdir = dialog.directory();
         ui->DistantStockageupLineEdit->setText(dockdir.path());
-        proc->settings()->setValue("BDD_DISTANT/DossierImagerie", dockdir.path());
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", dockdir.path());
     }
 }
 
 void dlg_param::Slot_DirPosteStockage()
 {
-    if (db->getMode() != DataBase::Poste)
+    if (db->getMode() != Utils::Poste)
     {
         UpMessageBox::Watch(this, tr("Impossible de modifier ce paramètre"), tr("Vous devez être connecté sur le serveur de ce poste pour\npouvoir modifier le répertoire de stockage des documents"));
         return;
@@ -1825,7 +1784,7 @@ bool dlg_param::VerifDirStockageImagerie()
 {
     if (ui->NonImportDocscheckBox->isChecked())
         return true;
-    if (ui->PosteServcheckBox->isChecked() && db->getMode() == DataBase::Poste)
+    if (ui->PosteServcheckBox->isChecked() && db->getMode() == Utils::Poste)
     {
         bool DirStockageAVerifier = false;
         if (ui->MonoDocupTableWidget->rowCount()>0)
@@ -1853,7 +1812,7 @@ bool dlg_param::VerifDirStockageImagerie()
             }
         }
     }
-    if (ui->LocalServcheckBox->isChecked() && db->getMode() == DataBase::ReseauLocal)
+    if (ui->LocalServcheckBox->isChecked() && db->getMode() == Utils::ReseauLocal)
     {
         bool DirStockageAVerifier = false;
         if (ui->LocalDocupTableWidget->rowCount()>0)
@@ -1881,7 +1840,7 @@ bool dlg_param::VerifDirStockageImagerie()
             }
         }
     }
-    if (ui->DistantServcheckBox->isChecked() && db->getMode() == DataBase::Distant)
+    if (ui->DistantServcheckBox->isChecked() && db->getMode() == Utils::Distant)
     {
         bool DirStockageAVerifier = false;
         if (ui->DistantDocupTableWidget->rowCount()>0)
@@ -2180,8 +2139,8 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
         listwidg.at(i)->setEnabled(a);
     if (widg == ui->Sauvegardeframe)
     {
-        ui->ModifBaselabel->setVisible(db->getMode() != DataBase::Poste);
-        if (db->getMode() == DataBase::Poste)
+        ui->ModifBaselabel->setVisible(db->getMode() != Utils::Poste);
+        if (db->getMode() == Utils::Poste)
             ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
                                                    && QDir(m_parametres->dirbkup()).exists()
                                                    && m_parametres->dirbkup() != ""
@@ -2727,9 +2686,9 @@ void dlg_param::Remplir_Tables()
         col++; //2
         pItem3->setText(Applist.at(i).at(2).toString());                             // NomAppareil
         ui->AppareilsConnectesupTableWidget->setItem(i,col,pItem3);
-        line5a->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Poste));
-        line5b->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),DataBase::ReseauLocal));
-        line5c->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Distant));
+        line5a->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),Utils::Poste));
+        line5b->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),Utils::ReseauLocal));
+        line5c->setText(proc->pathDossierDocuments(Applist.at(i).at(2).toString(),Utils::Distant));
         line5a->setRow(i);
         line5b->setRow(i);
         line5c->setRow(i);
@@ -2886,14 +2845,14 @@ bool dlg_param::Valide_Modifications()
             ui->TonometreupComboBox->setFocus();
             return false;
         }
-        QString Base = "BDD_POSTE";
+        QString Base = Utils::getBaseFromMode(Utils::Poste);
         if (ui->PosteServcheckBox->isChecked())
             proc->settings()->setValue(Base + "/Active","YES");
         else
             proc->settings()->setValue(Base + "/Active","NO");
         proc->settings()->setValue(Base + "/Port",ui->SQLPortPostecomboBox->currentText());
 
-        Base = "BDD_LOCAL";
+        Base = Utils::getBaseFromMode(Utils::ReseauLocal);
         if (ui->LocalServcheckBox->isChecked())
             proc->settings()->setValue(Base + "/Active","YES");
         else
@@ -2902,7 +2861,7 @@ bool dlg_param::Valide_Modifications()
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->settings()->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
 
-        Base = "BDD_DISTANT";
+        Base = Utils::getBaseFromMode(Utils::Distant);
         if (ui->DistantServcheckBox->isChecked())
             proc->settings()->setValue(Base + "/Active","YES");
         else
@@ -2919,11 +2878,11 @@ bool dlg_param::Valide_Modifications()
         OK = (ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO");
         proc->settings()->setValue("Param_Imprimante/OrdoAvecDupli",OK);
         if (ui->PrioritaireImportDocscheckBox->isChecked())
-            proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","YES");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","YES");
         else if (ui->NonImportDocscheckBox->isChecked())
-            proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
         else
-            proc->settings()->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NORM");
         proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->text());
         proc->settings()->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->text());
         proc->settings()->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->text());

@@ -25,9 +25,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    db                      = DataBase::I();
-    m_mode                   = Modifier;
-    m_MDPverified             = mdpverified;
+    m_MDPverified            = mdpverified;
 
     m_idlieu                 = idlieu;
 
@@ -38,7 +36,6 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     gLoginupLineEdit        = "LoginupLineEdit";
     gMDPupLineEdit          = "MDPupLineEdit";
     gConfirmMDPupLineEdit   = "ConfirmMDPupLineEdit";
-    m_color                  = QBrush(QColor(Qt::magenta));
 
     AjouteLayButtons(UpDialog::ButtonClose);
 

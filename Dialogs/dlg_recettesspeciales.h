@@ -40,8 +40,8 @@ public:
     enum Mode                   {Lire, Modifier, Enregistrer, TableVide};    Q_ENUM(Mode)
 
 private:
-    Procedures                  *proc;
-    DataBase                    *db;
+    Procedures                  *proc   = Procedures::I();
+    DataBase                    *db     = DataBase::I();
 
     dlg_comptes                 *Dlg_Cmpt;
     int                         m_idrecetteencours;
@@ -49,7 +49,7 @@ private:
     QStringList                 m_listerecettesfiscales;
     bool                        m_initok;
     Mode                        m_mode;
-    User                        *m_currentuser;
+    User                        *m_currentuser   = Datas::I()->users->userconnected();
     UpTableWidget               *wdg_bigtable;
     UpPushButton                *wdg_enreguppushbutton, *wdg_annuluppushbutton;
 

@@ -51,6 +51,7 @@ public:
                 Dimanche    = 0x40,
               };
     Q_DECLARE_FLAGS(Days, Day)
+    enum ModeAcces { Poste, ReseauLocal, Distant };
 
     static QRegExp const rgx_rx;
     static QRegExp const rgx_AlphaNumeric;
@@ -124,6 +125,9 @@ public:
     static void                     CalcDateValueSQL(QVariant &newvalue);           // convertit un Qvariant en valeur date SQL équivalente
     static void                     CalcTimeValueSQL(QVariant &newvalue);           // convertit un Qvariant en valeur time SQL équivalente
     static void                     CalcDateTimeValueSQL(QVariant &newvalue);       // convertit un Qvariant en valeur datetime SQL équivalente
+    static QString                  getBaseFromMode(ModeAcces mode);  /*! renvoie le mode d'accès au serveur tel qu'il est inscrit dans le fichier rufus.ini
+                                                                    \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT
+                                                                    \param le mode d'accès */
 
     //! Calcule âge
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance);

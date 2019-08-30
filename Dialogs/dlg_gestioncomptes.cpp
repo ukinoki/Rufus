@@ -28,9 +28,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
                                         ui(new Ui::dlg_gestioncomptes)
 {
     ui->setupUi(this);
-    db                      = DataBase::I();
     m_userencours           = user;
-
     m_iduser                 = m_userencours->id();
 
     m_societe                = societe;
@@ -38,7 +36,6 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
 
     m_comptencours           = Datas::I()->comptes->getById(m_userencours->idcomptepardefaut());
 
-    m_visible                = true;
     t_timer                  = new QTimer(this);
     t_timer                  ->start(500);
     connect(t_timer, &QTimer::timeout, this, &dlg_gestioncomptes::Clign);

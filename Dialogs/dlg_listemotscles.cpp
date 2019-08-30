@@ -22,7 +22,6 @@ dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     m_currentpatient    = pat;
-    db                 = DataBase::I();
 
     wdg_bigtable              = new QTableView();
 

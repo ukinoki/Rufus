@@ -543,6 +543,18 @@ QString Utils::correctquoteSQL(QString text)
     return text.replace("'","\\'");
 }
 
+QString Utils::getBaseFromMode(ModeAcces mode )
+{
+    switch (mode) {
+    case ReseauLocal:
+        return "BDD_LOCAL";
+    case Distant:
+        return "BDD_DISTANT";
+    case Poste:
+        return "BDD_POSTE";
+    }
+}
+
 /*---------------------------------------------------------------------------------------------------------------------
     -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/

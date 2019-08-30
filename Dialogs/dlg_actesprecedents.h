@@ -60,11 +60,11 @@ public:
 
 private:
     Ui::dlg_actesprecedents             *ui;
-    Procedures                          *proc;
+    Procedures                          *proc = Procedures::I();
+    LignesPaiements                     *m_listepaiements = Datas::I()->lignespaiements;
     Patient                             *m_currentpatient;
     QMap<int, Acte*>::const_iterator    it_currentacte;
     Actes                               *m_listeactes;
-    LignesPaiements                     *m_listepaiements;
     bool                                m_avantdernieracte;
     int                                 m_idpatient;
 

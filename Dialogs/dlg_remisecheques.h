@@ -57,9 +57,9 @@ private slots:
     void            Slot_TrierChequesEnAttente(int, int B);
 
 private:
-    DataBase                *db;
-    Procedures              *proc;
-    bool                    m_initok;
+    DataBase                *db     = DataBase::I();
+    Procedures              *proc   = Procedures::I();
+    bool                    m_initok = true;
     Mode                    m_mode;
     QMap<int, User *>       *map_comptables;
     QMap<int, User *>       *map_comptablesavecchequesenattente;

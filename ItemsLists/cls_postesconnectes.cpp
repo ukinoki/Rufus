@@ -60,7 +60,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         return m_admin;
     initListe();
     m_admin = Q_NULLPTR;
-    if (DataBase::I()->getMode() != DataBase::Distant)
+    if (DataBase::I()->getMode() != Utils::Distant)
     {
         int idAdministrateur = -1;
         QJsonObject jadmin = DataBase::I()->loadAdminData();

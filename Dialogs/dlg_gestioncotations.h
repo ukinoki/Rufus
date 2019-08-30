@@ -32,10 +32,12 @@ public:
     ~dlg_gestioncotations();
 
 private:
-    DataBase    *db;
+    DataBase    *db = DataBase::I();
+    int         m_idcurrentuser = Datas::I()->users->userconnected()->id();
+    int         m_secteuruser   = Datas::I()->users->userconnected()->secteurconventionnel();
+
     Mode        m_mode;
     TypeActe    m_typeacte;
-    int         m_iduser, m_secteuruser;
     QString     m_ciodeacte;
     QStringList m_listeactes;
     UpLineEdit  *wdg_codeline;

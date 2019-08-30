@@ -52,7 +52,7 @@ private slots:
     void                    Slot_ModifLieu();
 
 private:
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
     int                     m_idlieuamodifier;
     int                     m_idlieuserveur;
     bool                    m_ok;

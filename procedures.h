@@ -93,7 +93,7 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     DataBase                *db;
-    DataBase::ModeAcces     m_modeacces;
+    Utils::ModeAcces     m_modeacces;
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
@@ -249,7 +249,7 @@ private:
     bool                    m_isposteimportdocs;                                /*! le poste est celui qui importe les documents */
 public:
     bool                    isPosteImportDocs();
-    QString                 pathDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
+    QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
     void                    setPosteImportDocs(bool a = true);
 

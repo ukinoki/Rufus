@@ -38,8 +38,9 @@ public:
     bool                    listecorrespondantsmodifiee() const;
 
 private:
+    bool                    m_listemodifiee = false;
+
     dlg_identificationcorresp   *Dlg_IdentCorresp;
-    bool                    m_listemodifiee;
     QStandardItemModel      *m_model;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_correspstree;

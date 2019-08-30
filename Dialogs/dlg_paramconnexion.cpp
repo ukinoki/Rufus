@@ -37,11 +37,6 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
-    m_visible                = true;
-    m_IPaveczero             = "";
-    m_IPsanszero             = "";
-    m_client                 = "";
-    m_serveur                = "";
     t_timer                  = new QTimer(this);
     t_timer                  ->start(500);
     ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
@@ -215,11 +210,6 @@ void dlg_paramconnexion::Slot_Verif()
         accept();
 }
 
-QSqlDatabase dlg_paramconnexion::getdatabase()
-{
-    return db;
-}
-
 bool dlg_paramconnexion::TestConnexion()
 {
     if (!VerifFiche())
@@ -227,9 +217,9 @@ bool dlg_paramconnexion::TestConnexion()
 
     Slot_MAJIP();
     QString mode, server;
-    if (ui->PosteradioButton->isChecked())      mode = "BDD_POSTE";
-    if (ui->LocalradioButton->isChecked())      mode = "BDD_LOCAL";
-    if (ui->DistantradioButton->isChecked())    mode = "BDD_DISTANT";
+    if (ui->PosteradioButton->isChecked())      mode = Utils::getBaseFromMode(Utils::Poste);
+    if (ui->LocalradioButton->isChecked())      mode = Utils::getBaseFromMode(Utils::ReseauLocal);
+    if (ui->DistantradioButton->isChecked())    mode = Utils::getBaseFromMode(Utils::Distant);
     QString Login = ui->LoginlineEdit->text();
     if (ui->DistantradioButton->isChecked())
         Login += "SSL";
@@ -255,9 +245,9 @@ bool dlg_paramconnexion::TestConnexion()
     }
 
     QString Client;
-    if (DataBase::I()->getBase() == "BDD_DISTANT")
+    if (DataBase::I()->getMode() == Utils::Distant)
         Client = "%";
-    else if (DataBase::I()->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(DataBase::I()->getServer()))
+    else if (DataBase::I()->getMode() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(DataBase::I()->getServer()))
     {
         QStringList listIP = DataBase::I()->getServer().split(".");
         for (int i=0;i<listIP.size()-1;i++)
@@ -269,7 +259,7 @@ bool dlg_paramconnexion::TestConnexion()
     }
     else
         Client = DataBase::I()->getServer();
-    req = "show grants for '" + Login + (DataBase::I()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
+    req = "show grants for '" + Login + (DataBase::I()->getMode() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
 
     bool ok;
     QVariantList grantsdata = DataBase::I()->getFirstRecordFromStandardSelectSQL(req,ok);

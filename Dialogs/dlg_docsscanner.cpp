@@ -20,44 +20,26 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
-    proc            = Procedures::I();
     m_mode           = mode;
     if ( m_mode == Document)
         m_iditem = static_cast<Patient*>(item)->id();
     else
         m_iditem = static_cast<Depense*>(item)->id();
-    db              = DataBase::I();
     QString         NomOnglet;
     QString Base;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    m_accesdistant = (db->getMode()==DataBase::Distant);
 
-    m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
-    switch (db->getMode()) {
-    case DataBase::Poste:
-    {
+    Utils::ModeAcces mod = db->getMode();
+    if (mod == Utils::Poste)
         NomOnglet = tr("Monoposte");
-        Base = "BDD_POSTE";
-        break;
-    }
-    case DataBase::Distant:
-    {
-        Base = "BDD_DISTANT";
+    else if (mod == Utils::Distant)
         NomOnglet = tr("Accès distant");
-        break;
-    }
-    case DataBase::ReseauLocal:
-    {
-        Base = "BDD_LOCAL";
+    else if (mod == Utils::ReseauLocal)
         NomOnglet = tr("Réseau local");
-        break;
-    }
-    default:
-        break;
-    }
+
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
-    Base = "BDD_LOCAL";*/
+    Base = Utils::getBaseFromMode(Utils::ReseauLocal);*/
 
     if (!QDir(m_pathdirstockageimagerie).exists() || m_pathdirstockageimagerie == "")
     {
@@ -70,14 +52,14 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         return;
     }
 
-    m_docpath = proc->settings()->value(Base + "/DossiersDocsScannes").toString();
+    m_docpath = proc->settings()->value(db->getBase() + "/DossiersDocsScannes").toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_uptable         = new UpTableWidget(this);
     wdg_inflabel        = new QLabel(wdg_uptable);
     wdg_linetitre       = new UpLineEdit(this);
     wdg_editdate        = new QDateEdit(this);
-    wdg_typedoccombobx    = new UpComboBox(this);
+    wdg_typedoccombobx  = new UpComboBox(this);
     switch ( m_mode) {
     case Document:
         m_listtypesexamen   << COURRIER
@@ -263,14 +245,7 @@ void dlg_docsscanner::ChangeFile()
         font.setPointSize(12);
         wdg_inflabel->setFont(font);
         wdg_inflabel    ->setGeometry(10,wdg_uptable->viewport()->height()-40,350,25);
-        QString Base;
-        if (db->getMode() == DataBase::Poste)
-            Base = "BDD_POSTE";
-        else if (db->getMode() == DataBase::ReseauLocal)
-            Base = "BDD_LOCAL";
-        else if (db->getMode() == DataBase::Distant)
-            Base = "BDD_DISTANT";
-        proc->settings()->setValue(Base + "/DossiersDocsScannes", m_docpath);
+        proc->settings()->setValue(db->getBase() + "/DossiersDocsScannes", m_docpath);
     }
 }
 

@@ -27,8 +27,7 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     m_currentact= acte;
-    proc        = Procedures::I();
-    db          = DataBase::I();
+
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionBilanOrtho").toByteArray());
 
     XELlist << "-";

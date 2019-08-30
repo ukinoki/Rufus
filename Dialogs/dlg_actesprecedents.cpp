@@ -29,10 +29,8 @@ ui(new Ui::dlg_actesprecedents)
     m_listeactes = actes;
     m_idpatient = m_listeactes->actes()->last()->idPatient();
     m_currentpatient = Datas::I()->patients->getById(m_idpatient);
-    m_listepaiements = Datas::I()->lignespaiements;
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
-    proc            = Procedures::I();
     m_avantdernieracte   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_ShowWithoutActivating);

@@ -31,10 +31,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    proc            = Procedures::I();
-    db              = DataBase::I();
-    m_userconnected = Datas::I()->users->userconnected();
-    m_useracrediter = Q_NULLPTR;
+
     //ui->UserscomboBox->setEnabled(db->getUserConnected().isSecretaire());
     QFont font = qApp->font();
     font.setBold(true);

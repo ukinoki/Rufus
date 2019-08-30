@@ -48,14 +48,14 @@ public:
 
 private:
     Ui::dlg_gestioncomptes  *ui;
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
     User                    *m_userencours;
     Compte                  *m_comptencours;
     dlg_gestionbanques      *Dlg_Banq;
 
     bool                    m_affichelesolde;
     bool                    m_societe;
-    bool                    m_visible;
+    bool                    m_visible = true;
     int                     m_iduser;
 
     Mode                    m_mode;

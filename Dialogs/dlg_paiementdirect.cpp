@@ -28,10 +28,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     setWindowTitle(tr("Gestion des paiements directs"));
 
-    proc                      = Procedures::I();
-    db                        = DataBase::I();
-    m_listidactes               = ListidActeAPasser;
-    m_useracrediter           = Q_NULLPTR;
+    m_listidactes             = ListidActeAPasser;
 
     QFont font = qApp->font();
     font.setBold(true);
@@ -68,9 +65,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         m_initok = false;
         return;
     }
-    m_userConnected           = Datas::I()->users->userconnected();
 
-    m_ordretri = Chronologique;
     ui->ListeupTableWidget->horizontalHeader()->setSectionsClickable(true);
     connect (ui->ListeupTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int)),   this,   SLOT (Slot_ClassementListes(int)));
 

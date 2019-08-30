@@ -67,7 +67,9 @@ public:
     bool                    isMDPverified() const;
 
 private:
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
+    QBrush                  m_color = QBrush(QColor(Qt::magenta));
+    Mode                    m_mode = Modifier;
 
     bool                    m_MDPverified;
     UserMode                m_usermode;
@@ -91,8 +93,6 @@ private:
 
     dlg_gestioncomptes      *Dlg_GestComptes;
     UpDialog                *dlg_ask;
-    QBrush                  m_color;
-    Mode                    m_mode;
     int                     m_iduserdepart;
     int                     m_idlieu;
     User                    *m_userencours;

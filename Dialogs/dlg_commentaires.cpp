@@ -26,8 +26,6 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    db              = DataBase::I();
-    m_currentuser   = Datas::I()->users->userconnected();
 
     wdg_buttonframe = new WidgetButtonFrame(ui->ComupTableWidget);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -70,7 +68,6 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     ui->ComupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
     ui->ComupTableWidget->horizontalHeader()->setIconSize(QSize(30,30));
 
-    m_timerefface    = new QTimer(this);
     ui->upTextEdit  ->installEventFilter(this);
     ui->ComupTableWidget->installEventFilter(this);
 

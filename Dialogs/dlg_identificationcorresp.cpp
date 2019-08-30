@@ -25,8 +25,6 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    db                  = DataBase::I();
-    m_correspondant      = Q_NULLPTR;
     if (cor != Q_NULLPTR)
     {
         m_correspondant  = cor;

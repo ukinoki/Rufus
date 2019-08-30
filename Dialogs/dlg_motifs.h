@@ -48,8 +48,9 @@ public:
 
 private:
     Ui::dlg_motifs      *ui;
+    QMap<int,Motif*>    *map_motifs = Datas::I()->motifs->motifs();
+
     WidgetButtonFrame   *wdg_buttonframe;
-    QMap<int,Motif*>    *map_motifs;
 
     void                DeplaceVersRow(int id, int anc, int nouv);
     void                RecalculeLesRows();

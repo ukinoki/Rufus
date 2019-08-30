@@ -44,7 +44,7 @@ public:
     Patient*                        currentpatient() const;
 
 private:
-    DataBase                        *db;
+    DataBase                        *db = DataBase::I();
     Patient                         *m_currentpatient;
     dlg_identificationcorresp       *Dlg_IdentCorresp;
     bool                            m_listecorrespondantsmodfifiee;

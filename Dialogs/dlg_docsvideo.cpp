@@ -21,25 +21,9 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    proc            = Procedures::I();
-    db              = DataBase::I();
     m_currentpatient = pat;
-    QString Base;
-    switch (db->getMode()) {
-    case DataBase::Poste:
-        Base = "BDD_POSTE";
-        break;
-    case DataBase::Distant:
-        Base = "BDD_DISTANT";
-        break;
-    case DataBase::ReseauLocal:
-        Base = "BDD_LOCAL";
-        break;
-    default:
-        break;
-    }
 
-    m_docpath = proc->settings()->value(Base + "/DossiersVideos").toString();
+    m_docpath = proc->settings()->value(db->getBase() + "/DossiersVideos").toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_visuvideowdg          = new QVideoWidget(this);
@@ -174,14 +158,7 @@ void dlg_docsvideo::ChangeFile()
         wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
-        QString Base;
-        if (db->getMode() == DataBase::Poste)
-            Base = "BDD_POSTE";
-        else if (db->getMode() == DataBase::ReseauLocal)
-            Base = "BDD_LOCAL";
-        else if (db->getMode() == DataBase::Distant)
-            Base = "BDD_DISTANT";
-        proc->settings()->setValue(Base + "/DossiersVideos", m_docpath);
+        proc->settings()->setValue(db->getBase() + "/DossiersVideos", m_docpath);
     }
 }
 
@@ -241,10 +218,10 @@ void dlg_docsvideo::ValideFiche()
         return;
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
-    QString Base, NomOnglet;
-    if (db->getMode() == DataBase::Poste)          {Base = "BDD_POSTE";     NomOnglet = tr("Monoposte");}
-    if (db->getMode() == DataBase::ReseauLocal)    {Base = "BDD_LOCAL";     NomOnglet = tr("Réseau local");}
-    QString NomDirStockageImagerie  = proc->settings()->value(Base + "/DossierImagerie").toString();
+    QString NomOnglet;
+    if (db->getMode() == Utils::Poste)          NomOnglet = tr("Monoposte");
+    if (db->getMode() == Utils::ReseauLocal)    NomOnglet = tr("Réseau local");
+    QString NomDirStockageImagerie  = proc->settings()->value(db->getBase() + "/DossierImagerie").toString();
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");

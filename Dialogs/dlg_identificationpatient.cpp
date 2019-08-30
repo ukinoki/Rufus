@@ -27,8 +27,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     m_currentpatient    = pat;
-    m_mode               = mode;
-    db                  = DataBase::I();
+    m_mode              = mode;
     m_listecorrespondantsmodfifiee    = false;
     QVBoxLayout *vlay       = new QVBoxLayout;
     vlay                    ->setContentsMargins(0,10,0,10);

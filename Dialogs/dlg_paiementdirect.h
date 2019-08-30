@@ -56,10 +56,11 @@ public:
 
 private:
     Ui::dlg_paiementdirect      *ui;
-    Procedures                  *proc;
-    DataBase                    *db;
+    Procedures                  *proc   = Procedures::I();
+    DataBase                    *db     = DataBase::I();
+    OrdreTri                    m_ordretri = Chronologique;
+
     Mode                        m_mode;
-    OrdreTri                    m_ordretri;
     TypeTable                   m_typetable;
 
     bool                        m_ok;
@@ -82,7 +83,8 @@ private:
     QMap<int, User*>            *map_comptables;
     QMap<int, Banque*>          *map_banques;
     QList<TypeTiers*>           *m_typestiers;
-    User                        *m_userConnected, *m_useracrediter;
+    User                        *m_userConnected = Datas::I()->users->userconnected();
+    User                        *m_useracrediter = Q_NULLPTR;
 
     QBrush                      m_textureGray;
     QTimer                      *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;

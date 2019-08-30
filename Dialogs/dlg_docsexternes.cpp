@@ -22,10 +22,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
-    proc                = Procedures::I();
-    db                  = DataBase::I();
     m_currentpatient    = (iscurrentpatient? Datas::I()->patients->currentpatient() : Datas::I()->patients->dossierpatientaouvrir());
-    m_currentuser       = Datas::I()->users->userconnected();
+
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -34,14 +32,13 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
     setWindowTitle(tr("Documents de ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
     setModal(!iscurrentpatient); //quand la fiche ne concerne pas le patient en cours
 
-    QFont font          = qApp->font();
-    font                .setPointSize(font.pointSize()+2);
-    m_font = QApplication::font();
+    QFont font  = qApp->font();
+    font        .setPointSize(font.pointSize()+2);
     int d=0;
 #ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
     d=2;
 #endif
-    m_font.setPointSize(m_font.pointSize()-d);
+    m_font      .setPointSize(m_font.pointSize()-d);
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
     m_printer           = new QPrinter(QPrinter::HighResolution);
     m_printer           ->setFullPage(true);
@@ -343,7 +340,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
-    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->getMode() != DataBase::Distant);
+    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->getMode() != Utils::Distant);
     RecordButton                ->disconnect();
     QPixmap pix;
     m_listpixmp    .clear();
@@ -356,15 +353,15 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
     if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
-        if (DataBase::I()->getMode() == DataBase::Distant)
+        if (DataBase::I()->getMode() == Utils::Distant)
         {
             UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
             return;
         }
         QString NomOnglet, NomDirStockageImagerie;
-        if (DataBase::I()->getMode() == DataBase::Poste)
+        if (DataBase::I()->getMode() == Utils::Poste)
             NomOnglet = tr("Monoposte");
-        if (DataBase::I()->getMode() == DataBase::ReseauLocal)
+        if (DataBase::I()->getMode() == Utils::ReseauLocal)
             NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->AbsolutePathDirImagerie();
         if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
@@ -385,26 +382,26 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         QString sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
         wdg_inflabel    ->setText(sstitre);
 
-        m_typedoc                = VIDEO;
-        graphview_view             ->setVisible(true);
-        medobj_videoitem               = new QGraphicsVideoItem;
-        obj_graphicscene                   ->addItem(medobj_videoitem);
-        medplay_player                  = new QMediaPlayer;
-        medplay_player                  ->setMedia(QUrl::fromLocalFile(filename));
-        wdg_playctrl                ->setPlayer(medplay_player);
-        medobj_videoitem               ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
-        medplay_player                  ->setVideoOutput(medobj_videoitem);
-        wdg_playctrl                ->setVisible(true);
-        PrintButton             ->setVisible(false);
+        m_typedoc           = VIDEO;
+        graphview_view      ->setVisible(true);
+        medobj_videoitem    = new QGraphicsVideoItem;
+        obj_graphicscene    ->addItem(medobj_videoitem);
+        medplay_player      = new QMediaPlayer;
+        medplay_player      ->setMedia(QUrl::fromLocalFile(filename));
+        wdg_playctrl        ->setPlayer(medplay_player);
+        medobj_videoitem    ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
+        medplay_player      ->setVideoOutput(medobj_videoitem);
+        wdg_playctrl        ->setVisible(true);
+        PrintButton         ->setVisible(false);
         connect (RecordButton,  &QPushButton::clicked,   this,   &dlg_docsexternes::EnregistreVideo);
         x = medobj_videoitem->size().width();
         y = medobj_videoitem->size().height();
-        m_idealproportion = x/y;
-        medobj_videoitem               ->setSize(QSize(graphview_view->width(),graphview_view->height()));
+        m_idealproportion   = x/y;
+        medobj_videoitem    ->setSize(QSize(graphview_view->width(),graphview_view->height()));
         x = medobj_videoitem->size().width();
         y = medobj_videoitem->size().height();
-        obj_graphicscene->setSceneRect(1,1,x-1,y-1);
-        wdg_playctrl                ->startplay();
+        obj_graphicscene    ->setSceneRect(1,1,x-1,y-1);
+        wdg_playctrl        ->startplay();
     }
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {

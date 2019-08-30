@@ -43,7 +43,9 @@ public:
     Correspondant*      correspondantrenvoye() const;
 
 private:
-    DataBase            *db;
+    DataBase            *db                 = DataBase::I();
+    Correspondant       *m_correspondant    = Q_NULLPTR;
+
     int                 m_idcorrespondant;
     bool                m_onlydoctors;
     bool                m_modifdatascor;
@@ -51,7 +53,7 @@ private:
     Mode                m_mode;
     QLineEdit           *wdg_CPlineedit, *wdg_villelineedit;
     VilleCPWidget       *wdg_villeCP;
-    Correspondant       *m_correspondant;
+
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDossierAlOuverture();

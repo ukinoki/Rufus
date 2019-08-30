@@ -48,13 +48,14 @@ public:
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
 
 private:
-    Procedures              *proc;
-    DataBase                *db;
+    DataBase                *db             = DataBase::I();
+    Procedures              *proc           = Procedures::I();
+    QFont                   m_font          = QApplication::font();
+    User                    *m_currentuser  = Datas::I()->users->userconnected();
 
     DocsExternes            *m_docsexternes;
     DocExterne              *m_docencours;
     Patient                 *m_currentpatient;
-    User                    *m_currentuser;
 
     QGraphicsScene          *obj_graphicscene;
     QGraphicsVideoItem      *medobj_videoitem;
@@ -71,7 +72,6 @@ private:
     PlayerControls          *wdg_playctrl;
 
     QRectF                  m_rect;
-    QFont                   m_font;
     QList<QPixmap>          m_listpixmp;
     QPrinter                *m_printer;
     QStandardItemModel      *m_modele, *m_tripardatemodel, *m_tripartypemodel;

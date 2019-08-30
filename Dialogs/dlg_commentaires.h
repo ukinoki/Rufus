@@ -46,14 +46,15 @@ public:
     enum Mode                           {Selection, Modification, Creation};     Q_ENUM(Mode)
 
 private:
-    DataBase                    *db;
-    User*                       m_currentuser;
+    DataBase                    *db              = DataBase::I();
+    User                        *m_currentuser   = Datas::I()->users->userconnected();
+    QTimer                      *m_timerefface    = new QTimer(this);
+
     Mode                        m_mode;
     WidgetButtonFrame           *wdg_buttonframe;
 
     QGraphicsOpacityEffect      m_opacityeffect;
     QString                     m_commentaire, m_commentaireresume;
-    QTimer                      *m_timerefface;
 
     void                        changeEvent(QEvent *e);
     bool                        eventFilter(QObject *, QEvent *);

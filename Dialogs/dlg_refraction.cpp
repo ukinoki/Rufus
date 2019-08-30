@@ -25,8 +25,6 @@ dlg_refraction::dlg_refraction(Acte *acte, QWidget *parent) :
     ui(new Ui::dlg_refraction)
 {
     ui->setupUi(this);
-    proc            = Procedures::I();
-    db              = DataBase::I();
     m_currentacte   = acte;
 
     setWindowTitle("Refraction - " + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());

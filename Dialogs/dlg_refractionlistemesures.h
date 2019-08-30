@@ -31,8 +31,8 @@ public:
     enum Mode               {Supprimer, Recuperer};   Q_ENUM(Mode)
 
 private:
-    Procedures          *proc;
-    DataBase            *db;
+    Procedures          *proc   = Procedures::I();
+    DataBase            *db     = DataBase::I();
     QTableView          *wdg_bigtable;
     QStandardItemModel  *m_modele;
     Mode                m_mode;

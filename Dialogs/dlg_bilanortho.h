@@ -36,8 +36,8 @@ public:
     void                    setDateBO(QDate dateBO);
 
 private:
-    Procedures              *proc;
-    DataBase                *db;
+    Procedures              *proc = Procedures::I();
+    DataBase                *db = DataBase::I();
     Acte                    *m_currentact;
     QDate                   m_dateBO;
     QStringList             TNOlist, XELlist, XEPlist, VergencesCLlist, VergencesDLlist, VergencesCPlist, VergencesDPlist, HLlist, HPlist;

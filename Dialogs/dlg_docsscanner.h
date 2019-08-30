@@ -40,15 +40,15 @@ public:
     QMap<QString, QVariant> getdataFacture();
 
 private:
-    Procedures              *proc;
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
+    Procedures              *proc = Procedures::I();
+    bool                    m_accesdistant = (db->getMode()==Utils::Distant);
+    QString                 m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
 
     int                     m_iditem;
     bool                    m_initok;
-    bool                    m_accesdistant;
     QStringList             m_listtypesexamen;
     QString                 m_docpath;
-    QString                 m_pathdirstockageimagerie;
     QString                 m_nomfichierimageencours;
     QMap<QString, QVariant> map_datafacture;
     QList<QImage>           m_listimages;

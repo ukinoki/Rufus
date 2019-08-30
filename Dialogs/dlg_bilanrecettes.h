@@ -37,11 +37,11 @@ public:
     enum Mode                   {SUPERVISEUR, COMPTABLE};    Q_ENUM(Mode)
 
 private:
-    Procedures                  *proc;
-    DataBase                    *db;
+    Procedures                  *proc = Procedures::I();
+    DataBase                    *db = DataBase::I();
+    bool                        m_initok = true;
 
     QDate                       m_debut, m_fin;
-    bool                        m_initok;
     double                      m_totalmontant;
     double                      m_totalrecu;
     double                      m_totalrecuespeces;

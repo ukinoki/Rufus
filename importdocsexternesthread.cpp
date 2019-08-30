@@ -23,7 +23,7 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     proc            = proced;
     m_encours         = false;
     db              = DataBase::I();
-    m_acces          = (db->getMode()!=DataBase::Distant? Local : Distant);
+    m_acces          = (db->getMode()!=Utils::Distant? Local : Distant);
     m_idlieuexercice  = Datas::I()->users->userconnected()->idsitedetravail();
     m_thread          .start();
 }
@@ -607,20 +607,20 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
 bool ImportDocsExternesThread::DefinitDossiers()
 {
     QString NomOnglet;
-    if (db->getMode() == DataBase::Poste)
+    if (db->getMode() == Utils::Poste)
     {
         NomOnglet = tr("Monoposte");
         m_pathdirstockageimagerie = db->parametres()->dirimagerie();
     }
-    if (db->getMode() == DataBase::ReseauLocal)
+    if (db->getMode() == Utils::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
-        m_pathdirstockageimagerie = proc->settings()->value("BDD_LOCAL/DossierImagerie").toString();
+        m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     }
-    if (db->getMode() == DataBase::Distant)
+    if (db->getMode() == Utils::Distant)
     {
         NomOnglet = tr("Accès distant");
-        m_pathdirstockageimagerie = proc->settings()->value("BDD_DISTANT/DossierImagerie").toString();
+        m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
     }
 
     m_pathdirstockageprovisoire      = m_pathdirstockageimagerie + DIR_PROV;

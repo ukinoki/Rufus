@@ -24,7 +24,6 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    map_motifs = Datas::I()->motifs->motifs();
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
     wdg_buttonframe             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);

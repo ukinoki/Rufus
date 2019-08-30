@@ -28,11 +28,8 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
 
     //TODO on ne peut pas afficher les remises d'un utilisateur qui est désactivé ou qui n'a pas de chèque en attente
 
-    db = DataBase::I();
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    m_initok = true;
-    proc        = Procedures::I();
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionRemiseCheques").toByteArray());
 

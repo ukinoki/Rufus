@@ -41,15 +41,17 @@ public:
     explicit dlg_paramconnexion(bool OKAccesDistant, QWidget *parent = Q_NULLPTR);
     ~dlg_paramconnexion();
     Ui::dlg_paramconnexion *ui;
-    QSqlDatabase    getdatabase();
 
 private:
-    bool            VerifFiche();
+    bool            m_visible =  true;
+    QString         m_IPaveczero = "";
+    QString         m_IPsanszero = "";
+    QString         m_client = "";
+    QString         m_serveur = "";
     QTimer          *t_timer;
-    bool            m_visible;
     QSqlDatabase    db;
+    bool            VerifFiche();
     bool            TestConnexion();
-    QString         m_IPaveczero, m_IPsanszero, m_client, m_serveur;
 
 private slots:
     void    Slot_CalcIP(QString IP);

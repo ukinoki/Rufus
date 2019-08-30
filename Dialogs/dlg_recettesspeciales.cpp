@@ -27,9 +27,6 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
 
-    proc      = Procedures::I();
-    db        = DataBase::I();
-
     ui->Userlabel->setText(tr("Recettes spéciales de ") + Datas::I()->users->userconnected()->login());
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionDepenses").toByteArray());
@@ -196,7 +193,6 @@ void dlg_recettesspeciales::AnnulEnreg()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_recettesspeciales::initializeUserSelected()
 {
-    m_currentuser = Datas::I()->users->userconnected();
     if( m_currentuser->listecomptesbancaires(true)->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_currentuser->login());

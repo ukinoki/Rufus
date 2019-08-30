@@ -66,19 +66,19 @@ Procedures::Procedures(QObject *parent) :
     }
     m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
 
-    bool k                          = (m_settings->value("BDD_POSTE/Active").toString() == "YES"
-                                       && (m_settings->value("BDD_POSTE/Port").toInt() == 3306
-                                       || m_settings->value("BDD_POSTE/Port").toInt() == 3307)
+    bool k                          = (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
+                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306
+                                       || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3307)
                                        )
-                                    || (m_settings->value("BDD_LOCAL/Active").toString() == "YES"
-                                       && m_settings->value("BDD_LOCAL/Serveur").toString() != ""
-                                       && (m_settings->value("BDD_LOCAL/Port").toInt() == 3306
-                                       || m_settings->value("BDD_LOCAL/Port").toInt() == 3307)
+                                    || (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
+                                       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
+                                       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3306
+                                       || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3307)
                                        )
-                                    || (m_settings->value("BDD_DISTANT/Active").toString() == "YES"
-                                       && m_settings->value("BDD_DISTANT/Serveur").toString() != ""
-                                       && (m_settings->value("BDD_DISTANT/Port").toInt() == 3306
-                                       || m_settings->value("BDD_DISTANT/Port").toInt() == 3307)
+                                    || (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
+                                       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
+                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3306
+                                       || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3307)
                                        );
    if (!k)
     {
@@ -144,9 +144,9 @@ QMap<QString, QDate> Procedures::ChoixDate(QWidget *parent)
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- renvoie la valeur du dossier documents pour le type d'appareil concerné -----------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
-QString Procedures::pathDossierDocuments(QString Appareil, int mode)
+QString Procedures::pathDossierDocuments(QString Appareil, Utils::ModeAcces mode)
 {
-    QString cle = db->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil;
+    QString cle = Utils::getBaseFromMode( mode ) + "/DossiersDocuments/" + Appareil;
     QString dossier = m_settings->value(cle).toString();
     return dossier;
 }
@@ -723,9 +723,6 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
 
 void Procedures::EffaceBDDDataBackup()
 {
-    QString Base = db->getBase();
-    if (Base == "")
-        return;
     db->setdaysbkup(nullptr);
     db->setheurebkup();
     db->setdirbkup();
@@ -1824,25 +1821,10 @@ void Procedures::setAbsolutePathDirImagerie()
 {
     m_absolutepathDirStockageImage = "";
     m_pathDirStockageImagesServeur = m_parametres->dirimagerie();
-    switch (db->getMode()) {
-    case DataBase::Poste:
-    {
+    if (db->getMode() == Utils::Poste)
         m_absolutepathDirStockageImage = m_pathDirStockageImagesServeur;
-        break;
-    }
-    case DataBase::Distant:
-    {
-        m_absolutepathDirStockageImage  = m_settings->value("BDD_DISTANT/DossierImagerie").toString();
-        break;
-    }
-    case DataBase::ReseauLocal:
-    {
-        m_absolutepathDirStockageImage  = m_settings->value("BDD_LOCAL/DossierImagerie").toString();
-        break;
-    }
-    default:
-        break;
-    }
+    else
+        m_absolutepathDirStockageImage = m_settings->value(db->getBase() + "/DossierImagerie").toString();
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
@@ -1966,7 +1948,7 @@ void Procedures::setPosteImportDocs(bool a)
 {
     // Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
     // pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
-    //if (gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")
+    //if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")
 
     // si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
     // si a = false, on retire le poste en cours et on met NULL à la place.
@@ -1979,7 +1961,7 @@ void Procedures::setPosteImportDocs(bool a)
     db->StandardSQL(req);
 
     if (a)
-        IpAdress = QHostInfo::localHostName() + ((m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
+        IpAdress = QHostInfo::localHostName() + ((m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
     req = "CREATE PROCEDURE " NOM_POSTEIMPORTDOCS "()\n\
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
@@ -2144,7 +2126,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     if (BaseVierge)
     {
         QString Hote;
-        if (db->getMode() == DataBase::Poste)
+        if (db->getMode() == Utils::Poste)
             Hote = tr("ce poste");
         else
             Hote = tr("le serveur ") + m_settings->value(db->getBase() + "/Serveur").toString();
@@ -2297,7 +2279,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
                 return false;
             }
-            m_settings->setValue("BDD_POSTE/DossierImagerie", NomDirStockageImagerie);
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", NomDirStockageImagerie);
             db->setdirimagerie(NomDirStockageImagerie);
         }
 
@@ -2624,19 +2606,19 @@ bool Procedures::VerifBaseEtRessources()
 bool Procedures::FicheChoixConnexion()
 {
     bool lPoste, lDistant, lReseauLocal;
-    lPoste                          = (m_settings->value("BDD_POSTE/Active").toString() == "YES"
-                                       && (m_settings->value("BDD_POSTE/Port").toInt() == 3306
-                                       || m_settings->value("BDD_POSTE/Port").toInt() == 3307)
+    lPoste                          = (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
+                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306
+                                       || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3307)
                                        );
-    lReseauLocal                    = (m_settings->value("BDD_LOCAL/Active").toString() == "YES"
-                                       && m_settings->value("BDD_LOCAL/Serveur").toString() != ""
-                                       && (m_settings->value("BDD_LOCAL/Port").toInt() == 3306
-                                       || m_settings->value("BDD_LOCAL/Port").toInt() == 3307)
+    lReseauLocal                    = (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
+                                       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
+                                       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3306
+                                       || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3307)
                                        );
-    lDistant                        = (m_settings->value("BDD_DISTANT/Active").toString() == "YES"
-                                       && m_settings->value("BDD_DISTANT/Serveur").toString() != ""
-                                       && (m_settings->value("BDD_DISTANT/Port").toInt() == 3306
-                                       || m_settings->value("BDD_DISTANT/Port").toInt() == 3307)
+    lDistant                        = (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
+                                       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
+                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3306
+                                       || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3307)
                                        );
     int a = 0;
     if (lPoste)         a += 1;
@@ -2649,9 +2631,9 @@ bool Procedures::FicheChoixConnexion()
         exit(0);
     }
     case 1: {
-        if (lPoste)         m_modeacces = DataBase::Poste;
-        if (lReseauLocal)   m_modeacces = DataBase::ReseauLocal;
-        if (lDistant)       m_modeacces = DataBase::Distant;
+        if (lPoste)         m_modeacces = Utils::Poste;
+        if (lReseauLocal)   m_modeacces = Utils::ReseauLocal;
+        if (lDistant)       m_modeacces = Utils::Distant;
         m_initok  = true;
         break;
     }
@@ -2686,9 +2668,9 @@ bool Procedures::FicheChoixConnexion()
             m_initok = (msgbox.clickedpushbutton() != &RejectButton);
             if (m_initok)
             {
-                if (msgbox.clickedpushbutton()      == &OKBouton)    m_modeacces = DataBase::Poste;
-                else if (msgbox.clickedpushbutton() == &NoBouton)    m_modeacces = DataBase::ReseauLocal;
-                else if (msgbox.clickedpushbutton() == &AnnulBouton) m_modeacces = DataBase::Distant;
+                if (msgbox.clickedpushbutton()      == &OKBouton)    m_modeacces = Utils::Poste;
+                else if (msgbox.clickedpushbutton() == &NoBouton)    m_modeacces = Utils::ReseauLocal;
+                else if (msgbox.clickedpushbutton() == &AnnulBouton) m_modeacces = Utils::Distant;
             }
         }
     }
@@ -3678,8 +3660,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
-            if (m_modeacces == DataBase::ReseauLocal)
-                db->setadresseserveurlocal(m_settings->value("BDD_LOCAL/Serveur").toString());
+            if (m_modeacces == Utils::ReseauLocal)
+                db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(m_modeacces) + "/Serveur").toString());
             m_parametres = db->parametres();
 
             // Création de l'utilisateur
@@ -3718,12 +3700,12 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue("Param_Poste/PortRefracteur","-");
     m_settings->setValue("Param_Poste/PortFronto","-");
     m_settings->setValue("Param_Poste/PortTonometre","-");
-    m_settings->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
+    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
     m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE);
     QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
     db->setdirimagerie(NomDirImg);
-    m_settings->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
+    m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", NomDirImg);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3800,7 +3782,7 @@ void Procedures::PremierParametrageRessources()
                        | QFileDevice::ReadOwner | QFileDevice::WriteOwner
                        | QFileDevice::ReadUser  | QFileDevice::WriteUser);
     m_settings->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
-    if (m_modeacces == DataBase::Poste)
+    if (m_modeacces == Utils::Poste)
     {
         QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
         db->setdirimagerie(NomDirImg);
@@ -3925,20 +3907,20 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         QString Base;
         if (Dlg_ParamConnex->ui->PosteradioButton->isChecked())
         {
-            Base = "BDD_POSTE";
-            m_modeacces = DataBase::Poste;
+            Base = Utils::getBaseFromMode(Utils::Poste);
+            m_modeacces = Utils::Poste;
         }
         else if (Dlg_ParamConnex->ui->LocalradioButton->isChecked())
         {
-            Base = "BDD_LOCAL";
+            Base = Utils::getBaseFromMode(Utils::ReseauLocal);
             m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
-            m_modeacces = DataBase::ReseauLocal;
+            m_modeacces = Utils::ReseauLocal;
         }
         else if (Dlg_ParamConnex->ui->DistantradioButton->isChecked())
         {
-            Base = "BDD_DISTANT";
+            Base = Utils::getBaseFromMode(Utils::Distant);
             m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
-            m_modeacces = DataBase::Distant;
+            m_modeacces = Utils::Distant;
         }
         m_settings->setValue(Base + "/Active",    "YES");
         m_settings->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());

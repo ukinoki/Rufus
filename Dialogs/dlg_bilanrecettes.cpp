@@ -21,10 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionRecettes", parent)
 {
-    m_initok = true;
-    proc        = Procedures::I();
-    db          = DataBase::I();
-
     CalcBilan();
     if (!m_initok)
         return;

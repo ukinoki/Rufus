@@ -50,7 +50,7 @@ public:
 
 
 private:
-    DataBase            *db;
+    DataBase                *db = DataBase::I();
     UpTableWidget       *wdg_bigtable;
     WidgetButtonFrame   *wdh_buttonframe;
     bool                m_fermeapresvalidation;

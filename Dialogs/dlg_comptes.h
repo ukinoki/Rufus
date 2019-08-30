@@ -43,10 +43,11 @@ public:
     enum ModeArchives   {TOUT, PARARCHIVE};       Q_ENUM(ModeArchives)
 
 private:
-    DataBase        *db;
-    Procedures      *proc;
-    int             m_intervalledate;
-    QDate           m_dateencours;
+    Procedures      *proc = Procedures::I();
+    DataBase        *db = DataBase::I();
+    int             m_intervalledate = 180;
+    QDate           m_dateencours = QDate::currentDate();
+
     double          m_soldesurreleve;
     int             m_idcompte;
     int             m_idligneasupprimer;

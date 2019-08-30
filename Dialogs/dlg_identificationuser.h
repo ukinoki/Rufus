@@ -47,7 +47,7 @@ private slots:
     void                    Slot_RetourAnnul();
 
 private:
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
     int                     m_iduser, m_sqlport;
     bool                    m_chgmtuser;
     bool                    eventFilter(QObject *, QEvent *);

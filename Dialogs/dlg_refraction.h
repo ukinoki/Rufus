@@ -88,8 +88,8 @@ private slots:
     void                    Slot_CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
 
 private:
-    Procedures              *proc;
-    DataBase                *db;
+    Procedures              *proc   = Procedures::I();
+    DataBase                *db     = DataBase::I();
     Patient                 *m_currentpatient;
     Acte                    *m_currentacte;
     int                     m_idrefraction;

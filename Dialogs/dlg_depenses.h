@@ -47,16 +47,17 @@ public:
     enum Mode                   {Lire, Modifier, Enregistrer, TableVide};       Q_ENUM(Mode)
 
 private:
-    DataBase                    *db;
-    Procedures                  *proc;
+    DataBase                    *db             = DataBase::I();
+    Procedures                  *proc           = Procedures::I();
+    bool                        m_accesdistant  = (db->getMode()==Utils::Distant);
+    User                        *m_userencours  = Q_NULLPTR;
+    QMap<int, User*>            *map_usersliberaux = Datas::I()->users->liberaux();
+    bool                        m_initok         = true;
 
     Depense                     *m_depenseencours;
-    User                        *m_userencours;
-    QMap<int, User*>            *map_usersliberaux;
 
     QList<QImage>               m_listeimages;
     QStringList                 m_listemoyensdepaiement;
-    bool                        m_initok, m_accesdistant;
     Mode                        m_mode;
 
     dlg_comptes                 *Dlg_Cmpt;

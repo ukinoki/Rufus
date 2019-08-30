@@ -21,13 +21,10 @@ dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
     UpDialog (QDir::homePath() + FILE_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    proc        = Procedures::I();
     if (mode == "SUPPR")
         m_mode       = Supprimer;
     else if (mode == "RECUP")
         m_mode       = Recuperer;
-    db          = DataBase::I();
-
 
     wdg_bigtable              = new QTableView(this);
 

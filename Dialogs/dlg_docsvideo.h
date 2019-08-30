@@ -38,8 +38,8 @@ public:
     void                NavigueVers(QString);
 
 private:
-    Procedures          *proc;
-    DataBase            *db;
+    DataBase            *db = DataBase::I();
+    Procedures          *proc = Procedures::I();
     Patient             *m_currentpatient;
     QList<QPixmap>      m_listpixmaps;
     QStringList         m_listtypesexamen;

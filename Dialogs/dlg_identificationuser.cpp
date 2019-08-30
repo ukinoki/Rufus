@@ -30,7 +30,6 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui(new Ui::dlg_identificationuser)
 {
     ui->setupUi(this);
-    db = DataBase::I();
     setWindowTitle(tr("Rufus - Identification de l'utilisateur"));
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
@@ -49,7 +48,7 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui->LoginlineEdit   ->installEventFilter(this);
     ui->MDPlineEdit     ->installEventFilter(this);
 
-    m_chgmtuser             = ChgUser;
+    m_chgmtuser         = ChgUser;
     ui->LoginlineEdit   ->setFocus();
 }
 
@@ -154,9 +153,9 @@ int dlg_identificationuser::ControleDonnees()
         }
 
         QString Client;
-        if (db->getBase() == "BDD_DISTANT")
+        if (db->getMode() == Utils::Distant)
                 Client = "%";
-        else if (db->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(db->getServer()))
+        else if (db->getMode() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(db->getServer()))
         {
             QStringList listIP = db->getServer().split(".");
             for (int i=0;i<listIP.size()-1;i++)
@@ -168,7 +167,7 @@ int dlg_identificationuser::ControleDonnees()
         }
         else
             Client = db->getServer();
-        req = "show grants for '" + Login + (db->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
+        req = "show grants for '" + Login + (db->getMode() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
         //qDebug() << req;
 
         QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
