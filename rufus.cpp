@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("30-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("01-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -899,11 +899,11 @@ void Rufus::MAJPatientsVus()
     QString             NomPrenom, zw, A;
     QFontMetrics        fm(qApp->font());
     // PATIENTS VUS AUJOURD'HUI ---------------------------------------------------------------------------------------------------
-    QString req =   "SELECT pat.IdPat, act.idacte, PatNom, PatPrenom, UserLogin, ActeDate, ActeCotation, ActeMontant, ActeHeure, TypePaiement, Tiers, usr.idUser FROM "
+    QString req =   "SELECT pat.IdPat, act." CP_IDACTE_ACTES " , PatNom, PatPrenom, UserLogin, " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", TypePaiement, Tiers, usr.idUser FROM "
                            TBL_PATIENTS " as pat, " TBL_ACTES " as act, " TBL_UTILISATEURS " as usr, " TBL_TYPEPAIEMENTACTES " as typ"
-                           " WHERE usr.idUser = act.idUser and act.idPat = pat.idPat and actedate = curdate()"
-                           " and act.idPat not in (select idpat from " TBL_SALLEDATTENTE ")"
-                           " and act.idActe = typ.idActe"
+                           " WHERE usr.idUser = act." CP_IDUSER_ACTES " and act." CP_IDPAT_ACTES " = pat.idPat and " CP_DATE_ACTES " = curdate()"
+                           " and act." CP_IDPAT_ACTES " not in (select idpat from " TBL_SALLEDATTENTE ")"
+                           " and act." CP_IDACTE_ACTES " = typ.idActe"
                            " ORDER BY ActeHeure DESC";
     QList<QVariantList> patlist = db->StandardSelectSQL(req, m_ok, tr("Impossible de remplir la salle d'attente!"));
     if (!m_ok)
@@ -1042,7 +1042,7 @@ void Rufus::AfficheMenu(QMenu *menu)
     if (m_currentuser->isSoignant())
     {
         bool c;
-        QString req = "select idActe from " TBL_ACTES " where ActeCourrierafaire = 'T' and idUser = " + QString::number(m_currentuser->id());
+        QString req = "select " CP_IDACTE_ACTES " from " TBL_ACTES " where " CP_COURRIERAFAIRE_ACTES " = 'T' and " CP_IDUSER_ACTES " = " + QString::number(m_currentuser->id());
         c = (db->StandardSelectSQL(req, m_ok).size()>0);
         actionRechercheCourrier     ->setEnabled(a && c);
     }
@@ -3013,11 +3013,11 @@ void Rufus::AfficheDossiersRechercheParMotCle()
 
 void Rufus::AfficheCourriersAFaire()
 {
-    QString req = "select idActe, act.idPat, PatNom, PatPrenom, ActeDate"
+    QString req = "select " CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", PatNom, PatPrenom, " CP_DATE_ACTES
                   " from " TBL_ACTES " as act"
                   " left outer join " TBL_PATIENTS " pat"
-                  " on act.idPat = pat.IDPAT"
-                  " where ActeCourrierafaire = 'T' and act.iduser = " + QString::number(m_currentuser->id()) + " order by patnom, patprenom";
+                  " on act." CP_IDPAT_ACTES " = pat.IDPAT"
+                  " where " CP_COURRIERAFAIRE_ACTES " = 'T' or " CP_COURRIERAFAIRE_ACTES " = '1' and act." CP_IDUSER_ACTES " = " + QString::number(m_currentuser->id()) + " order by patnom, patprenom";
     QList<QVariantList> listcourriers = db->StandardSelectSQL(req, m_ok);
     if (!m_ok || listcourriers.size()==0)
     {
@@ -5564,7 +5564,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     {
         if (ImportDocsExtThread == Q_NULLPTR)
         {
-            ImportDocsExtThread = new ImportDocsExternesThread(proc);
+            ImportDocsExtThread = new ImportDocsExternesThread();
             connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
         }
         m_isposteImport = true;
@@ -5631,7 +5631,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
             if (ImportDocsExtThread == Q_NULLPTR)
                 if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
                 {
-                    ImportDocsExtThread = new ImportDocsExternesThread(proc);
+                    ImportDocsExtThread = new ImportDocsExternesThread();
                     connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
                 }
         }
@@ -6463,9 +6463,9 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         {
             //! on recherche si le dernier acte du dossier est enregistré dans typepaiements - si le montant de l'acte est 0, on propose de l'enregistrer comme gratuit
 
-            QString requete =   "SELECT max(act.idActe), ActeDate, ActeCotation, ActeMontant FROM " TBL_ACTES
+            QString requete =   "SELECT max(act." CP_IDACTE_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
                     " act WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) +
-                    " AND act.idActe NOT IN (SELECT typ.idActe FROM " TBL_TYPEPAIEMENTACTES " typ)";
+                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT typ.idActe FROM " TBL_TYPEPAIEMENTACTES " typ)";
 
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver  le dernier acte du patient pour le contrôler!"));
             // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
@@ -9709,7 +9709,9 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             ui->ActeMontantlineEdit->setText(NouveauMontant);
     }
     //on modifie la table Actes avec le nouveau montant
-    m_listeactes->setMontantCotation(m_currentact, ui->ActeCotationcomboBox->currentText(), QLocale().toDouble(NouveauMontant));
+    m_currentact->setcotation(ui->ActeCotationcomboBox->currentText());
+    m_currentact->setmontant(QLocale().toDouble(NouveauMontant));
+
     MAJActesPrecs();
 
     int idx = ui->ActeCotationcomboBox->currentIndex();

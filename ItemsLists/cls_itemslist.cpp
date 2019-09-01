@@ -180,8 +180,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_MONTANT_ACTES)
         {
-            dep->setmontant(newvalue.toDouble());
+            act->setmontant(newvalue.toDouble());
             Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_COTATION_ACTES)
+        {
+            act->setcotation(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
         }
         else
             ok = false;

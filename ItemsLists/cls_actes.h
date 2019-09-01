@@ -56,8 +56,6 @@ public:
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
     //!> actions sur les champs
-    void    setMontantCotation(Acte *act, QString Cotation = "", double montant = 0.0);
-    //! géré pour le reste par la fonction update de la classe mère cls_itemslist
 
     //!> actions sur les enregistrements
     void    SupprimeActe(Acte *act);

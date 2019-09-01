@@ -39,7 +39,7 @@ private:
     QString m_adresseserveurlocal = "";     //!> l'adresse IP du serveur dans le réseau local
     QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
     QString m_dirimagerie = "";             //!> l'adresse du dossier d'imagerie vue depuis le serveur
-    Utils::Days m_daysbkup;                 //!> les jours de la sauvegarde
+    Utils::Days m_daysbkup;                 //!> flag énumérant les jours de la sauvegarde
     QTime m_heurebkup = QTime(0,0);         //!> l'heure de la sauvegarde
     QString m_dirbkup = "";                 //!> l'adresse du dossier de sauvegarde vue depuis le serveur
 

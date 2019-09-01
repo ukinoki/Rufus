@@ -1503,18 +1503,18 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             }
             QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
 
-            requete =   "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, Paye, TypePaiement, Tiers, TotalPaye\n"
+            requete =   "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", Paye, TypePaiement, Tiers, TotalPaye\n"
                         " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig, " TBL_TYPEPAIEMENTACTES " typ,\n"
                         " (SELECT lig.idActe, SUM(lig.paye) as TotalPaye FROM " TBL_LIGNESPAIEMENTS " lig,\n"
                         " (SELECT idActe FROM " TBL_LIGNESPAIEMENTS
                         " WHERE idRecette = " + TextidRecette + ") AS Result\n"
                         " WHERE lig.idActe = Result.idActe GROUP BY lig.idActe) AS calc\n"
-                        " WHERE act.idActe = lig.idActe\n"
-                        " AND typ.idActe = act.idActe\n"
-                        " AND calc.idActe = act.idActe\n"
+                        " WHERE act." CP_IDACTE_ACTES " = lig.idActe\n"
+                        " AND typ.idActe = act." CP_IDACTE_ACTES "\n"
+                        " AND calc.idActe = act." CP_IDACTE_ACTES "\n"
                         " AND lig.idRecette = " + TextidRecette + "\n"
-                        " AND act.idPat = pat.idPat\n"
-                        " ORDER BY ActeDate DESC, PatNom, PatPrenom";
+                        " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
+                        " ORDER BY " CP_DATE_ACTES " DESC, PatNom, PatPrenom";
 
             //UpMessageBox::Watch(this,requete);
             QList<QVariantList> pmtlist = db->StandardSelectSQL(requete, ok);
@@ -1925,7 +1925,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 if (ui->DetailupTableWidget->rowCount() > 0)
                 {
                     QString req = "SELECT PatNom FROM " TBL_PATIENTS " pat, " TBL_ACTES " act"
-                                  " WHERE pat.idPat = act.idPat and idActe = " + ui->DetailupTableWidget->item(0,0)->text();
+                                  " WHERE pat.idPat = act." CP_IDPAT_ACTES " and " CP_IDACTE_ACTES " = " + ui->DetailupTableWidget->item(0,0)->text();
                     QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                     if (m_ok && patdata.size()>0)
                         ui->TireurChequelineEdit->setText(patdata.at(0).toString());
@@ -2188,49 +2188,49 @@ void dlg_paiementdirect::RemplitLesTables()
         DefinitArchitectureTable(ui->ListeupTableWidget, ActesDirects);
 
         requete =
-                    "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                 // 0, 1, 2, 3, 4
-                    " ActeMontant, ActeMonnaie, '' as TypePaiement, ActeMontant as ResteDu , SUM(Paye) as Regle,"   // 5, 6, 7, 8, 9
-                    " PatDDN, UserComptable, idUser"                                                                // 10, 11, 12
+                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as TypePaiement, " CP_MONTANT_ACTES " as ResteDu , SUM(Paye) as Regle,"   // 5, 6, 7, 8, 9
+                    " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE "
-                    " act.idActe IN (SELECT idActe from (\n"
-                    " SELECT  lig.idActe, SUM(Paye) as TotalPaye,ActeMontant  FROM " TBL_LIGNESPAIEMENTS " as lig, " TBL_ACTES " as act2\n"
-                    " where lig.idActe= act2.idActe\n"
+                    " act." CP_IDACTE_ACTES " IN (SELECT idActe from (\n"
+                    " SELECT  lig.idActe, SUM(Paye) as TotalPaye, " CP_IDACTE_ACTES "  FROM " TBL_LIGNESPAIEMENTS " as lig, " TBL_ACTES " as act2\n"
+                    " where lig.idActe= act2." CP_IDACTE_ACTES "\n"
                     " group by idacte) as blue\n"
-                    " where blue.acteMontant > blue.totalpaye and blue.totalpaye > 0)\n"
-                    " AND act.idActe NOT IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat where saldat.idActeAPayer is not null)\n"
-                    " AND act.idActe NOT IN (SELECT Typ.idActe FROM " TBL_TYPEPAIEMENTACTES " Typ where Typ.TypePaiement = 'T')\n"
-                    " AND act.idPat = pat.idPat\n"
-                    " AND act.idActe = lig.idActe\n"
-                    " AND ActeDate > AddDate(NOW(),-730)\n";
-        requete +=  " AND ActeMontant > 0\n"
-                    " GROUP BY act.idActe\n";                        // tous les actes dont le paiement est incomplet
+                    " where blue." CP_MONTANT_ACTES " > blue.totalpaye and blue.totalpaye > 0)\n"
+                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat where saldat.idActeAPayer is not null)\n"
+                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT Typ.idActe FROM " TBL_TYPEPAIEMENTACTES " Typ where Typ.TypePaiement = 'T')\n"
+                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
+                    " AND act." CP_IDACTE_ACTES " = lig.idActe\n"
+                    " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
+        requete +=  " AND " CP_MONTANT_ACTES " > 0\n"
+                    " GROUP BY act." CP_IDACTE_ACTES "\n";                        // tous les actes dont le paiement est incomplet
 
         requete +=  " UNION \n\n"
-                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
-                    " ActeMontant, ActeMonnaie, '' as TypePaiement, ActeMontant as ResteDu , 0 as Regle,"           // 5, 6, 7, 8, 9
-                    " PatDDN, UserComptable, idUser"                                                                // 10, 11, 12
+                    " SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                        // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as TypePaiement, " CP_MONTANT_ACTES " as ResteDu , 0 as Regle,"           // 5, 6, 7, 8, 9
+                    " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                              // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat"
                     " WHERE "
-                    " act.idacte not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
-                    " AND act.idacte not in (select idacte from " TBL_TYPEPAIEMENTACTES " WHERE TypePaiement = 'I' OR TypePaiement = 'T')\n"
-                    " AND act.idActe NOT IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat where saldat.idActeAPayer is not null)\n"
-                    " AND act.idPat = pat.idPat\n"
-                    " AND ActeDate > AddDate(NOW(),-730)\n";
-        requete +=  " AND ActeMontant > 0\n"
-                    " GROUP BY act.idActe\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré et qui ne sont pas en salle d'attente
+                    " act." CP_IDACTE_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
+                    " AND act." CP_IDACTE_ACTES " not in (select idacte from " TBL_TYPEPAIEMENTACTES " WHERE TypePaiement = 'I' OR TypePaiement = 'T')\n"
+                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat where saldat.idActeAPayer is not null)\n"
+                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
+                    " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
+        requete +=  " AND " CP_MONTANT_ACTES " > 0\n"
+                    " GROUP BY act." CP_IDACTE_ACTES "\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré et qui ne sont pas en salle d'attente
 
         requete +=  " UNION \n\n"
-                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
-                    " ActeMontant, ActeMonnaie, TypePaiement, ActeMontant as ResteDu, 0 as Regle,"                  // 5, 6, 7, 8, 9
-                    " PatDDN, UserComptable, idUser"                                                                // 10, 11, 12
+                    " SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                         // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", TypePaiement, " CP_MONTANT_ACTES " as ResteDu, 0 as Regle,"                   // 5, 6, 7, 8, 9
+                    " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                               // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
                     " WHERE typ.TypePaiement = 'I'\n"
-                    " AND typ.idActe = act.idActe\n"
-                    " AND act.idActe NOT IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat where saldat.idActeAPayer is not null)\n"
-                    " AND act.idPat = pat.idPat\n"
-                    " AND ActeDate > AddDate(NOW(),-730)\n";
-        requete +=  " ORDER BY ActeDate DESC, PatNom, PatPrenom";   // tous les actes impayés
+                    " AND typ.idActe = act." CP_IDACTE_ACTES "\n"
+                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat where saldat.idActeAPayer is not null)\n"
+                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
+                    " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
+        requete +=  " ORDER BY " CP_DATE_ACTES " DESC, PatNom, PatPrenom";   // tous les actes impayés
 
         //proc->Edit(requete);
         bool ok;
@@ -2241,14 +2241,14 @@ void dlg_paiementdirect::RemplitLesTables()
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,ActesDirects);
-        requete =   "SELECT idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
-                    " ActeMontant, ActeMonnaie, ActeMontant as CalculPaiement, UserComptable,"                 // 5, 6, 7, 8, 9
-                    " idUser"                                                                                  // 10
+        requete =   "SELECT " CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                  // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as CalculPaiement, " CP_IDUSERCOMPTABLE_ACTES ","            // 5, 6, 7, 8, 9
+                    CP_IDUSER_ACTES                                                                                                             // 10
                     " FROM \n" TBL_ACTES " act, " TBL_PATIENTS " pat \n"
-                    " WHERE idActe IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat) \n"
-                    " AND act.idPat = pat.idPat \n";
-        requete +=  " AND ActeMontant > 0 \n"
-                    " ORDER BY ActeDate DESC, PatNom, PatPrenom";
+                    " WHERE " CP_IDACTE_ACTES " IN (SELECT saldat.idActeAPayer FROM " TBL_SALLEDATTENTE " saldat) \n"
+                    " AND act." CP_IDPAT_ACTES " = pat.idPat \n";
+        requete +=  " AND " CP_MONTANT_ACTES " > 0 \n"
+                    " ORDER BY " CP_DATE_ACTES " DESC, PatNom, PatPrenom";
         //proc->Edit(requete);
         actlist = db->StandardSelectSQL(requete, ok);
         RemplirTableWidget(ui->SalleDAttenteupTableWidget,"Actes", actlist, true, Qt::Unchecked);
@@ -2294,28 +2294,28 @@ void dlg_paiementdirect::RemplitLesTables()
         // On sélectionne tous les actes sans exception, sauf les gratuits et les impayés
         DefinitArchitectureTable(ui->ListeupTableWidget, ActesTiers);
         requete =   "select * from (\n"
-                    "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                 // 0, 1, 2, 3, 4
-                    " ActeMontant, ActeMonnaie, SUM(Paye) as tot, TypePaiement, Tiers,"                             // 5, 6, 7, 8, 9
-                    " PatDDN, UserComptable, idUser\n"                                                              // 10, 11, 12
+                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", SUM(Paye) as tot, TypePaiement, Tiers,"                             // 5, 6, 7, 8, 9
+                    " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES "\n"                                                              // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ, " TBL_LIGNESPAIEMENTS " lig\n"
-                    " WHERE act.idActe = typ.idActe\n"
-                    " AND lig.idActe = act.idActe\n"
+                    " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
+                    " AND lig.idActe = act." CP_IDACTE_ACTES "\n"
                     " AND TypePaiement NOT IN ('G','I')\n"
-                    " AND act.idPat = pat.idPat\n"
-                    " AND ActeDate > AddDate(NOW(),-730)\n";
-        requete +=  " group by act.idacte) as mar\n"
+                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
+                    " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
+        requete +=  " group by act." CP_IDACTE_ACTES ") as mar\n"
                     " union\n\n"
 
-                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
-                    " ActeMontant, ActeMonnaie, 0 as tot, TypePaiement, Tiers,"                                     // 5, 6, 7, 8, 9
-                    " PatDDN, UserComptable, idUser\n"                                                              // 10, 11, 12
+                    " SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", 0 as tot, TypePaiement, Tiers,"                                     // 5, 6, 7, 8, 9
+                    " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES "\n"                                                              // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
-                    " WHERE act.idActe = typ.idActe\n"
-                    " AND act.idacte not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
+                    " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
+                    " AND act." CP_IDACTE_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
                     " AND TypePaiement NOT IN ('I')\n"
-                    " AND ActeDate > AddDate(NOW(),-730)\n"
-                    " AND act.idPat = pat.idPat\n";
-        requete +=  " order by acteDate desc, PatNom, PatPrenom";
+                    " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n"
+                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n";
+        requete +=  " order by " CP_DATE_ACTES " desc, PatNom, PatPrenom";
 
         //UpMessageBox::Watch(this,requete);
         bool ok;
@@ -2800,8 +2800,8 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                 if (ui->DetailupTableWidget->rowCount() > 0)
                 {
                     QString ChercheNomPat = "SELECT PatNom FROM " TBL_PATIENTS " pat, " TBL_ACTES " act"
-                                            " WHERE pat.idPat = act.idPat"
-                                            " AND act.idActe = " + ui->DetailupTableWidget->item(0,0)->text();
+                                            " WHERE pat.idPat = act." CP_IDPAT_ACTES ""
+                                            " AND act." CP_IDACTE_ACTES " = " + ui->DetailupTableWidget->item(0,0)->text();
                     QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, m_ok);
                     if (!m_ok)
                     {
@@ -2958,7 +2958,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                         db->rollback();
                         return Impossible;
                     }
-                    QString UpdPmtrequete = "UPDATE " TBL_ACTES " SET ActeMontant = 0 WHERE idActe = " + ui->DetailupTableWidget->item(i,0)->text();
+                    QString UpdPmtrequete = "UPDATE " TBL_ACTES " SET " CP_MONTANT_ACTES " = 0 WHERE " CP_IDACTE_ACTES " = " + ui->DetailupTableWidget->item(i,0)->text();
                     if (!db->StandardSQL(UpdPmtrequete))
                     {
                         db->rollback();

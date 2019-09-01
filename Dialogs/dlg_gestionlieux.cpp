@@ -102,7 +102,7 @@ void dlg_GestionLieux::Slot_AfficheDetails(QModelIndex idx, QModelIndex)
     QString ttip = "";
     int nlieux = db->StandardSelectSQL("select iduser from " TBL_JOINTURESLIEUX " where idlieu = " + QString::number(sit->id()), m_ok).size();
     if (nlieux == 0)
-        nlieux = db->StandardSelectSQL("select idlieu from " TBL_ACTES " where idlieu = " + QString::number(sit->id()), m_ok).size();
+        nlieux = db->StandardSelectSQL("select " CP_IDLIEU_ACTES " from " TBL_ACTES " where " CP_IDLIEU_ACTES " = " + QString::number(sit->id()), m_ok).size();
     if (nlieux == 0)
     {
         if (sit->id() == m_idlieuserveur)

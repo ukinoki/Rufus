@@ -649,8 +649,8 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
             if (RecSpec == "1")
                 requete = "SELECT Libelle, Daterecette From " TBL_RECETTESSPECIALES " WHERE idRecette = " + tabl->item(A,col)->text();
             else
-                requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " TBL_PATIENTS " pat, " TBL_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
-                        TBL_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
+                requete = "SELECT PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_DATE_ACTES " From " TBL_PATIENTS " pat, " TBL_ACTES " act WHERE act." CP_IDACTE_ACTES " in (SELECT " CP_IDACTE_ACTES " FROM "
+                        TBL_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act." CP_IDPAT_ACTES;
             bool ok = true;
             QList<QVariantList> listtips = db->StandardSelectSQL(requete,ok);
             QString ABC;
@@ -836,7 +836,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " TBL_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_currentuser->id()) + "))"
+                " (SELECT act." CP_IDACTE_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_currentuser->id()) + "))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND ModePaiement = 'C'";
@@ -853,7 +853,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " TBL_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_currentuser->id()) +"))"
+                " (SELECT act." CP_IDACTE_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_currentuser->id()) +"))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C'";

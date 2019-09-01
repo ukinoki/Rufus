@@ -160,16 +160,15 @@ private:
 
 
 /*! --------------------------------------------------------------------------------------------------------
-* definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta)
+* identification et definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta)
 * -------------------------------------------------------------------------------------------------------- */
 private:
-    //TODO : ICI info pour le rôle
     bool                    m_aveccomptaprovisoire;
     bool                    m_initok;
     bool                    m_usecotation;
     int                     m_idcentre;
     bool                    IdentificationUser(bool ChgtUtilisateur = false);   /*! la fiche d'identification de l'utilisateur au lancement du programme
-                                                                                 * suivie de l'initialisationde tout
+                                                                                 * suivie de l'initialisation de tout
                                                                                  * et de la définition du rôle de l'utilisateur */
     Site*                   CalcLieuExercice();
     void                    CalcUserParent();
@@ -183,7 +182,6 @@ private:
                                                                         . s'il cote les actes                            (bool gUseCotation)
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
                                                                       */
-
 public:
     QString                 MDPAdmin();
     QString                 SessionStatus();                                    /*! statut de l'utilisateur pour cette session */
@@ -240,8 +238,6 @@ public:
 
 
 
-
-
 /*! --------------------------------------------------------------------------------------------------------
 * l'import des documents
 * -------------------------------------------------------------------------------------------------------- */
@@ -254,8 +250,6 @@ public:
     void                    setPosteImportDocs(bool a = true);
 
 /*! fin import des documents -------------------------------------------------------------------------------------------------------- */
-
-
 
 
 
@@ -364,7 +358,7 @@ signals:
          La fonction DefinitScriptBackup() crée le fichier RufusScriptBackup.sh qui va éxécuter la sauvegarde.
          Elle est lancée par
             * ParamAutoBackup() sous Mac
-            * Backup() utilisée pour un backup immédiat de la base (ImmediateBackup() ou backup auto sous Linux avec BackupWakeUp())
+            * Backup() utilisée pour un backup immédiat de la base (ImmediateBackup()) ou pour un backup auto sous Linux (BackupWakeUp())
          */
 
     public:
@@ -480,7 +474,7 @@ public:
 
 private:
     QString                 m_mesureSerie;
-    TypeMesure              m_typemesureRefraction;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    TypeMesure              m_typemesureRefraction;                // le type de mesure effectuée: Fronto, Autoref ou Refracteur
     void                    ClearMesures();
     void                    ClearHtmlMesures();
     void                    debugformule(QMap<QString,QVariant>  Data, QString type);

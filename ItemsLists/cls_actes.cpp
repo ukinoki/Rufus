@@ -123,27 +123,6 @@ void Actes::updateActe(Acte* acte)
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
 }
 
-void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
-{
-    if ( act == Q_NULLPTR )
-        return;
-    //on modifie la table Actes avec la nouvelle cotation
-    QString cotsql = Cotation;
-    if (cotsql == "")
-    {
-        cotsql = "null";
-        montant = 0.00;
-    }
-    else
-        cotsql = "'" + Utils::correctquoteSQL(Cotation) + "'";
-    QString requete = "UPDATE " TBL_ACTES
-                      " SET " CP_COTATION_ACTES " = " + cotsql + ", " CP_MONTANT_ACTES " = " + QString::number(montant) +
-                      " WHERE " CP_IDACTE_ACTES " = " + QString::number(act->id());
-    DataBase::I()->StandardSQL(requete);
-    act->setcotation(Cotation);
-    act->setmontant(montant);
-}
-
 void Actes::SupprimeActe(Acte* act)
 {
     Supprime(map_actes, act);
@@ -171,7 +150,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
             QString::number(idcentre) + ", " +
             QString::number(usr->idsitedetravail()) +")";
     //qDebug() << creerrequete;
-    DataBase::I()->locktables(QStringList() << TBL_ACTES);
+    DataBase::I()->locktable(TBL_ACTES);
     if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + TBL_ACTES))
     {
         DataBase::I()->unlocktables();

@@ -17,14 +17,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "importdocsexternesthread.h"
 
-ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
+ImportDocsExternesThread::ImportDocsExternesThread()
 {
     moveToThread(&m_thread);
-    proc            = proced;
-    m_encours         = false;
-    db              = DataBase::I();
-    m_acces          = (db->getMode()!=Utils::Distant? Local : Distant);
-    m_idlieuexercice  = Datas::I()->users->userconnected()->idsitedetravail();
+    m_acces           = (db->getMode()!=Utils::Distant? Local : Distant);
     m_thread          .start();
 }
 
@@ -543,18 +539,18 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         formatdoc = CP_JPG_DOCSEXTERNES;
                     // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
                     QHash<QString, QVariant> listbinds;
-                    listbinds[CP_ID_DOCSEXTERNES] =    idimpr;
-                    listbinds[CP_IDUSER_DOCSEXTERNES] =          Datas::I()->users->userconnected()->id();
-                    listbinds[CP_IDPAT_DOCSEXTERNES] =           idPatient;
-                    listbinds[CP_TYPEDOC_DOCSEXTERNES] =         Typedoc;
-                    listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =     SousTypeDoc;
-                    listbinds[CP_TITRE_DOCSEXTERNES] =           Titredoc;
-                    listbinds[CP_DATE_DOCSEXTERNES] =            datestring + " " + QTime::currentTime().toString("HH:mm:ss");
-                    listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =      Datas::I()->users->userconnected()->id();
-                    listbinds[formatdoc] =                      ba;
-                    listbinds[CP_EMISORRECU_DOCSEXTERNES] =      "0";
-                    listbinds[CP_FORMATDOC_DOCSEXTERNES] =       IMAGERIE;
-                    listbinds[CP_IDLIEU_DOCSEXTERNES] =          m_idlieuexercice;
+                    listbinds[CP_ID_DOCSEXTERNES]           = idimpr;
+                    listbinds[CP_IDUSER_DOCSEXTERNES]       = Datas::I()->users->userconnected()->id();
+                    listbinds[CP_IDPAT_DOCSEXTERNES]        = idPatient;
+                    listbinds[CP_TYPEDOC_DOCSEXTERNES]      = Typedoc;
+                    listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]  = SousTypeDoc;
+                    listbinds[CP_TITRE_DOCSEXTERNES]        = Titredoc;
+                    listbinds[CP_DATE_DOCSEXTERNES]         = datestring + " " + QTime::currentTime().toString("HH:mm:ss");
+                    listbinds[CP_IDEMETTEUR_DOCSEXTERNES]   = Datas::I()->users->userconnected()->id();
+                    listbinds[formatdoc]                    = ba;
+                    listbinds[CP_EMISORRECU_DOCSEXTERNES]   = "0";
+                    listbinds[CP_FORMATDOC_DOCSEXTERNES]    = IMAGERIE;
+                    listbinds[CP_IDLIEU_DOCSEXTERNES]       = m_idlieuexercice;
                     DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
                     if(doc != Q_NULLPTR)
                     {

@@ -150,7 +150,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_COURRIERAFAIRE_ACTES                      "ActeCourrierafaire"
 #define CP_COTATION_ACTES                            "ActeCotation"
 #define CP_MONTANT_ACTES                             "ActeMontant"
-#define CP_MONNNAIE_ACTES                            "ActeMonnaie"
+#define CP_MONNAIE_ACTES                             "ActeMonnaie"
 #define CP_DATE_ACTES                                "ActeDate"
 #define CP_HEURE_ACTES                               "ActeHeure"
 #define CP_IDUSERCREATEUR_ACTES                      "CreePar"

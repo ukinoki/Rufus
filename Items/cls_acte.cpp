@@ -62,7 +62,7 @@ void Acte::setData(QJsonObject data)
     setDataString(data, CP_CONCLUSION_ACTES, m_conclusion, true);
     setDataString(data, CP_COURRIERAFAIRE_ACTES, m_courrierStatus);
     setDataString(data, CP_COTATION_ACTES, m_cotation);
-    setDataString(data, CP_MONNNAIE_ACTES, m_monnaie);
+    setDataString(data, CP_MONNAIE_ACTES, m_monnaie);
     setDataString(data, "paiementType", m_paiementType);
     setDataString(data, "paiementTiers", m_paiementTiers);
 

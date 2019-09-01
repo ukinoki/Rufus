@@ -1285,13 +1285,14 @@ QList<Recette*> DataBase::loadRecettesByDate(QDate datedebut, QDate datefin)
         " res1.Tiers, Paye, res1.iduser, res1.userparent, res1.usercomptable, null as montantautresrecettes, null as typeautresrecettes from\n "
         "(\n"
             "select\n"
-            " act.idActe, actedate, concat(patnom, ' ', patprenom) as nom, actecotation, acteMontant, acteMonnaie, TypePaiement, Tiers, iduser, userparent, usercomptable from \n"
+            " act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", concat(patnom, ' ', patprenom) as nom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES
+            ", TypePaiement, Tiers, " CP_IDUSER_ACTES ", " CP_IDUSERPARENT_ACTES ", " CP_IDUSERCOMPTABLE_ACTES " from \n"
             TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
-            " where act.idPat = pat.idpat\n"
-            " and act.idActe = typ.idacte\n"
-            " and actedate >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
-            " and actedate <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
-            " order by actedate, nom\n"
+            " where act." CP_IDPAT_ACTES " = pat.idpat\n"
+            " and act." CP_IDACTE_ACTES " = typ.idacte\n"
+            " and " CP_DATE_ACTES " >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
+            " and " CP_DATE_ACTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
+            " order by " CP_DATE_ACTES ", nom\n"
         ")\n"
         " as res1\n"
         " left outer join\n"
@@ -1454,7 +1455,7 @@ QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
     QString req =   "SELECT idActe, lig.idRecette, Paye, Monnaie FROM " TBL_LIGNESPAIEMENTS " as lig"
                     " inner join " TBL_RECETTES " rec on rec.idrecette = lig.idrecette"
                     " where idActe in"
-                    " (select idActe from " TBL_ACTES " where idpat = " + QString::number(pat->id()) + ")";
+                    " (select " CP_IDACTE_ACTES " from " TBL_ACTES " where idpat = " + QString::number(pat->id()) + ")";
     QList<QVariantList> paiementslist = StandardSelectSQL(req, ok);
     if(!ok || paiementslist.size()==0)
         return listepaiements;
@@ -2021,7 +2022,7 @@ QJsonObject DataBase::loadActeData(QVariantList actdata)
     data[CP_COURRIERAFAIRE_ACTES] = actdata.at(7).toString();
     data[CP_COTATION_ACTES] = actdata.at(8).toString();
     data[CP_MONTANT_ACTES] = actdata.at(9).toDouble();
-    data[CP_MONNNAIE_ACTES] = actdata.at(10).toString();
+    data[CP_MONNAIE_ACTES] = actdata.at(10).toString();
     data[CP_IDUSERCREATEUR_ACTES] = actdata.at(11).toInt();
     data[CP_IDUSERCOMPTABLE_ACTES] = actdata.at(12).toInt();
     data[CP_IDUSERPARENT_ACTES] = actdata.at(13).toInt();
@@ -2054,14 +2055,14 @@ Acte* DataBase::loadActeById(int idActe)
 
 QJsonObject DataBase::loadActeAllData(int idActe)
 {
-    QString req = "SELECT act.idActe, act.idPat, act.idUser,  act.ActeDate, act.ActeMotif,"
-                  " act.ActeTexte, act.ActeConclusion, act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant,"
-                  " act.ActeMonnaie, act.CreePar, act.UserComptable, act.UserParent,"
-                  " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu, act.ActeHeure,"
-                  " act.SuperViseurRemplacant"
+    QString req = "SELECT act." CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
+                  " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
+                  " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
+                  " tpm.TypePaiement, tpm.Tiers, act." CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
+                  " act." CP_SUPERVISEURREMPLACANT_ACTES
                   " FROM " TBL_ACTES " act "
                   " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
-                  " WHERE act.idActe = '" + QString::number(idActe) + "'";
+                  " WHERE act." CP_IDACTE_ACTES " = '" + QString::number(idActe) + "'";
     QVariantList actdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || actdata.size()==0 )
         return QJsonObject{};
@@ -2073,15 +2074,15 @@ QList<Acte *> DataBase::loadActesByPat(Patient *pat)
     QList<Acte*> list;
     if( pat == Q_NULLPTR )
         return list;
-    QString req = "SELECT act.idActe, act.idPat, act.idUser,  act.ActeDate, act.ActeMotif,"
-                  " act.ActeTexte, act.ActeConclusion, act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant,"
-                  " act.ActeMonnaie, act.CreePar, act.UserComptable, act.UserParent,"
-                  " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu, act.ActeHeure,"
-                  " act.SuperViseurRemplacant"
+    QString req = "SELECT act." CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
+                  " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
+                  " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
+                  " tpm.TypePaiement, tpm.Tiers, act." CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
+                  " act." CP_SUPERVISEURREMPLACANT_ACTES
                   " FROM " TBL_ACTES " act "
                   " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
-                  " WHERE act.idPat = '" + QString::number(pat->id()) + "' "
-                  " ORDER BY act.idActe DESC";
+                  " WHERE act." CP_IDPAT_ACTES " = '" + QString::number(pat->id()) + "' "
+                  " ORDER BY act." CP_IDACTE_ACTES " DESC";
     QList<QVariantList> actlist = StandardSelectSQL(req,ok);
     if(!ok || actlist.size()==0)
         return list;
