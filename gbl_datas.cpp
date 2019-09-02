@@ -27,8 +27,6 @@ Datas* Datas::I()
 }
 Datas::Datas()
 {
-    userConnected = Q_NULLPTR;
-
     actes           = new Actes();
     banques         = new Banques();
     comptes         = new Comptes();

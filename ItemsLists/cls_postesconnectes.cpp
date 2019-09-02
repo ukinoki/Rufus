@@ -33,7 +33,7 @@ QMap<QString, PosteConnecte*>* PostesConnectes::postesconnectes() const
     return map_postesconnectes;
 }
 
-PosteConnecte* PostesConnectes::getById(QString stringid)
+PosteConnecte* PostesConnectes::getByStringId(QString stringid)
 {
     QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->find(stringid) ;
     if( itcpt == map_postesconnectes->constEnd() )
@@ -79,7 +79,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
 
 PosteConnecte* PostesConnectes::currentpost()
 {
-    return getById(Utils::getMACAdress() + " - " + QString::number(DataBase::I()->getUserConnected()->id()));
+    return getByStringId(Utils::getMACAdress() + " - " + QString::number(DataBase::I()->getUserConnected()->id()));
 }
 
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)

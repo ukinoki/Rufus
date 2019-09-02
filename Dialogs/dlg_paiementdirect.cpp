@@ -2194,7 +2194,7 @@ void dlg_paiementdirect::RemplitLesTables()
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE "
                     " act." CP_IDACTE_ACTES " IN (SELECT idActe from (\n"
-                    " SELECT  lig.idActe, SUM(Paye) as TotalPaye, " CP_IDACTE_ACTES "  FROM " TBL_LIGNESPAIEMENTS " as lig, " TBL_ACTES " as act2\n"
+                    " SELECT  lig.idActe, SUM(Paye) as TotalPaye, " CP_MONTANT_ACTES "  FROM " TBL_LIGNESPAIEMENTS " as lig, " TBL_ACTES " as act2\n"
                     " where lig.idActe= act2." CP_IDACTE_ACTES "\n"
                     " group by idacte) as blue\n"
                     " where blue." CP_MONTANT_ACTES " > blue.totalpaye and blue.totalpaye > 0)\n"

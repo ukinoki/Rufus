@@ -50,7 +50,7 @@ private:
     int m_idremise;                     //!> l'id de la remise de chèque si c'est un paiement par chèque
     bool m_chqenattente;                //!> le chèque de cette recette est mis en attente avant encaissement
     int m_iduserenregistreur;           //!> l'id du user qui a enregistré la recette
-    int m_typerecette;                  //!> le type de recette - pas utilisé - toujours à 1
+    int m_typerecette = 0;              //!> le type de recette - pas utilisé
 
 public:
 

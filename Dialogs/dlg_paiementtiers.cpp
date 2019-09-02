@@ -180,20 +180,18 @@ void dlg_paiementtiers::Slot_AfficheActeVerrouille()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::Slot_AfficheDDN(QTableWidgetItem *titem)
 {
-//    if (gMode == EnregistrePaiementTiers)
-//    {
-//        if (titem->column() == 3)
-//        {
-//            int ro = titem->row();
-//            QString req = "Select PATDDN from " TBL_PATIENTS " pat, " TBL_ACTES " act  where pat.idpat = act .idpat and act.idacte = "
-//                    + ui->ListeupTableWidget->item(ro,0)->text();
-//            QVariantList ddndata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-//            if (ok && ddndata.size()>0)
-//                QToolTip::showText(cursor().pos(),ddndata.at(0).toDate().toString(tr("dd-MM-yyyy")));
-//        }
-//        else
-//            QToolTip::showText(cursor().pos(),"");
-//    }
+    if (m_mode == EnregistrePaiementTiers)
+    {
+        if (titem->column() == 3)
+        {
+            int ro = titem->row();
+            QString req = "Select PATDDN from " TBL_PATIENTS " pat, " TBL_ACTES " act  where pat.idpat = act .idpat and act.idacte = "
+                    + ui->ListeupTableWidget->item(ro,0)->text();
+            QVariantList ddndata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+            if (m_ok && ddndata.size()>0)
+                QToolTip::showText(cursor().pos(),ddndata.at(0).toDate().toString(tr("dd-MM-yyyy")));
+        }
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ public:
 
 private:
     //!< m_id = Id de l'utilisateur en base
-    //!< m_stringid = l'adresses mac du poste connecté suivi du login de l'utilisateur séparé par " - "
+    //!< m_stringid = l'adresses mac du poste connecté suivi de l'id de l'utilisateur séparé par " - "
 
     QString m_nomposte;                 //!< nom du poste connexté
     QString m_macadress;                //!< macadress+login du poste connectéadresse IP du poste connecté

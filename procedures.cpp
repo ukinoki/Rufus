@@ -180,18 +180,25 @@ void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
 
 bool Procedures::AutresPostesConnectes(bool msg)
 {
-    PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getById(Utils::getMACAdress());
-    QString nomposte = "";
+    int id = 0;
+    if (Datas::I()->users->userconnected() != Q_NULLPTR)
+        id = Datas::I()->users->userconnected()->id();
+    PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getByStringId(Utils::getMACAdress() + " - " + QString::number(id));
+    if (m_currentposteconnecte == Q_NULLPTR)
+    {
+        UpMessageBox::Information(Q_NULLPTR, tr("Problème avec ce poste!"),
+                                  tr("Le poste n'est pas connecté"));
+        return true;
+    }
     foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
     {
         if (post->stringid() != m_currentposteconnecte->stringid())
         {
-            nomposte = post->nomposte();
             if (msg)
                 UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
                                          tr("Vous ne pouvez pas effectuer d'opération de sauvegarde/restauration sur la base de données"
                                          " si vous n'êtes pas le seul poste connecté.\n"
-                                         "Le poste ") + nomposte + tr(" est aussi connecté"));
+                                         "Le poste ") + post->nomposte() + tr(" est aussi connecté"));
             return true;
         }
     }

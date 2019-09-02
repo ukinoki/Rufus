@@ -51,7 +51,6 @@ private:
 public:
     static Datas *I();
 
-    User *userConnected;
     Site *sitedetravail;
     Actes *actes;                       //!< la liste d'actes pour un patient
     Banques *banques;                   //!< toutes les banques

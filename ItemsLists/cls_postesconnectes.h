@@ -41,7 +41,7 @@ public:
 
     QMap<QString, PosteConnecte*>* postesconnectes() const;
 
-    PosteConnecte*  getById(QString stringid);
+    PosteConnecte*  getByStringId(QString stringid);
     void            initListe();
 
     PosteConnecte*   admin(Item::UPDATE upd = Item::NoUpdate);                          //!> le poste sur lequel est connecté RufusAdmmin
