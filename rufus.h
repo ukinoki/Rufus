@@ -325,7 +325,7 @@ private:
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(Patient *pat);
-    void                OuvrirDocuments(bool AffichDocsExternes = true);
+    void                OuvrirImpressions(bool AffichDocsExternes = true);
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                RecopierDossier(Patient *patient = Q_NULLPTR);

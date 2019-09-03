@@ -308,7 +308,7 @@ void Rufus::Connect_Slots()
     connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   &Rufus::OuvrirActesPrecspushButtonClicked);
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
-    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   &Rufus::OuvrirDocuments);
+    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {OuvrirImpressions();});
     connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelListePatients);
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {ChoixDossier(getPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getPatientFromCursorPositionInTable());});
@@ -3303,7 +3303,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     else if (choix == "Modifier")
         IdentificationPatient(dlg_identificationpatient::Modification,Datas::I()->patients->dossierpatientaouvrir());     //depuis menu contextuel de la table liste
     else if (choix == "Document")
-        OuvrirDocuments(false);
+        OuvrirImpressions(false);
     else if (choix == "ImprimeAncienDoc")
         OuvrirDocsExternes(Datas::I()->patients->dossierpatientaouvrir());                                                //depuis menu contextuel ListePatients
     else if (choix == "EnregDocScan")
@@ -3487,7 +3487,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
     else if (choix == "Copie")
         RecopierDossier(Datas::I()->patients->dossierpatientaouvrir());
     else if (choix == "Document")
-        OuvrirDocuments(false);
+        OuvrirImpressions(false);
     else if (choix == "Motif")  // il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
     {
         QMap<QString, QVariant> rsgnmt;
@@ -7119,7 +7119,7 @@ void Rufus::CreerMenu()
                                                                                                         });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(m_currentact);});
     // Documents
-    connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirDocuments);
+    connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirImpressions);
     connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(Datas::I()->patients->currentpatient());});
     connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
     connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(Datas::I()->patients->currentpatient());});
@@ -8104,7 +8104,7 @@ void    Rufus::OuvrirActesPrecedents()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Ouvrir la fiche documents ------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
+void    Rufus::OuvrirImpressions(bool AffichDocsExternes)
 {
     QString nom, prenom;
     if (ui->tabWidget->currentWidget() == ui->tabDossier)
@@ -8161,7 +8161,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     }
     delete Dlg_Imprs;
     if (aa && AffichDocsExternes)
-        MAJDocsExternes();              // depuis dlg_documents
+        MAJDocsExternes();              // depuis dlg_impressions
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
