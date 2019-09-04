@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("04-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5583,9 +5583,9 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     {
         QString Adr = "";
         QString B = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString();
-        if (B=="YES")
+        if (B == "YES")
             Adr = QHostInfo::localHostName() + " - prioritaire";
-        else if (B=="NORM")
+        else if (B == "NORM")
             Adr = QHostInfo::localHostName();
 
         if (ImportateurDocs != Adr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire

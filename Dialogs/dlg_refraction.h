@@ -99,6 +99,7 @@ private:
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     enum DistanceMesure     {Loin, Pres, Les2};
     enum Cycloplegie        {Dilatation, NoDilatation};
+    enum Affichage          {AvecAffichage, SansAffichage};
     bool                    m_ok;
     bool                    m_affichedetail;
     bool                    m_escapeflag;
@@ -153,7 +154,7 @@ private:
     void                    InscriptRefraction();
     void                    InsertDonneesOphtaPatient();
     Refraction*             InsertRefraction();
-    int                     LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD = "", QString FormuleOG = "");
+    Refraction*             LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, Affichage affich, QString FormuleOD = "", QString FormuleOG = "");
     void                    OuvrirListeMesures(QString SupOuRecup);
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();
@@ -166,6 +167,7 @@ private:
     void                    RechercheMesureEnCours();
     QString                 RechercheResultat(QString Mesure, QString Cyclople, QString TYpLun);
     QString                 RechercheVerres();
+    void                    RemplitChamps(Refraction *ref);
     void                    ResumeObservation();
     void                    ResumePrescription();
     void                    ResumeRefraction();

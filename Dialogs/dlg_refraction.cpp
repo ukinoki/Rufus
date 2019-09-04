@@ -594,8 +594,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     if (m_mode == Refraction::Fronto)
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
-        IdRefract = (LectureMesure(Aujourdhui, Refraction::Fronto, NoDilatation, 0, false, CalculFormule_OD(), CalculFormule_OG()));
-        if (IdRefract == 0) // il n'y en a pas - on suit la procédure normale
+        if (LectureMesure(Aujourdhui, Refraction::Fronto, NoDilatation, SansAffichage, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
             InscriptRefraction();
         FermeFiche(OK);
     }
@@ -604,10 +603,9 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique et si oui, on l'écrase
         Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Dilatation : NoDilatation);
-        int IDMesure = LectureMesure(Aujourdhui, m_mode, dilat, 0, false);
-        if (IDMesure > 0)
-            // suppression de la mesure dans table Refraction
-            DetruireLaMesure(Datas::I()->refractions->getById(IDMesure));
+        Refraction * ref = LectureMesure(Aujourdhui, m_mode, dilat, SansAffichage);
+        if (ref != Q_NULLPTR)
+            DetruireLaMesure(ref);
         InscriptRefraction();
         FermeFiche(OK);
     }
@@ -1492,7 +1490,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         if (Imprimer_Ordonnance())
         {
             ResumeObservation();
-            if (LectureMesure(Aujourdhui, Refraction::Prescription, NoDilatation, 0, false, CalculFormule_OD(), CalculFormule_OG()) == 0)
+            if (LectureMesure(Aujourdhui, Refraction::Prescription, NoDilatation, SansAffichage, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
                 InscriptRefraction();
         }
         else
@@ -1862,6 +1860,7 @@ Refraction* dlg_refraction::InsertRefraction()
     return Datas::I()->refractions->CreationRefraction(listbinds);
 }
 
+
 /*! ---------------------------------------------------------------------------------
 Lecture d'une mesure en base
 \param DateMesure               -> mesure faite ce jour ou mesures antérieures
@@ -1871,30 +1870,12 @@ Lecture d'une mesure en base
 \param bool Affichage           -> remplir ou pas le formulaire avec la mesure trouvee
 \param OeilCoche = Pour un oeil particulier
 ---------------------------------------------------------------------------------*/
-int dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD, QString FormuleOG)
+Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, dlg_refraction::Affichage affich, QString FormuleOD, QString FormuleOG)
 {
     bool ok;
-    QString a;
-//    QString Dilatation ("");
-//    switch (Cyclo) {
-//    case Refraction::Cycloplegie: Dilatation = "1";
-//    case Refraction::NoCycloplegie: Dilatation = "0";
-//    default: break;
-//    }
-    QString requete = "SELECT  idRefraction, idPat, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4
-            " Cycloplegie, ODcoche, SphereOD, CylindreOD, AxeCylindreOD, AVLOD, "                   // 5-6-7-8-9-10
-            " AddVPOD, AVPOD, PrismeOD, BasePrismeOD, BasePrismeTextOD, PressOnOD,"                 // 11-12-13-14-15-16
-            " DepoliOD, PlanOD, RyserOD, FormuleOD, OGcoche, SphereOG, CylindreOG,"                 // 17-18-19-20-21-22-23
-            " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 24-25-26-27-28-29
-            " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 30-31-32-34-35
-            " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte"                 // 36-37-38-39-40
-            " FROM " TBL_REFRACTIONS ;
+    QString requete = "SELECT  idRefraction FROM " TBL_REFRACTIONS ;
 
-    // On relit la mesure après selection dans la liste mesure (reprendre)
-    if (idrefraction > 0)
-        requete += " WHERE idRefraction = "    + QString::number(idrefraction) ;
-    else
-        // fabrication des criteres de recherche selon le cas de lecture
+    // élaboration des criteres de recherche selon le cas de lecture
     {
         requete += " WHERE  IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) ;
         if (Quand == Aujourdhui)
@@ -1914,65 +1895,68 @@ int dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, C
 
     QList<QVariantList> mesureslist = db->StandardSelectSQL(requete, ok, tr("Impossible d'accéder à la liste table des mesures!"));
     if (!ok || mesureslist.size()==0)
-        return 0;
+        return Q_NULLPTR;
+    Refraction *ref = Datas::I()->refractions->getById(mesureslist.last().at(0).toInt());
+    if (affich == AvecAffichage)
+        RemplitChamps(ref);
+    return ref;
 
-    if (Affichage)
-    {
-        // Remplissage des champs Oeil Droit
-        if (mesureslist.last().at(6).toInt() == 1)
-            ui->ODCheckBox->setChecked(true);                                                               // ODcoche
-        if (ui->ODCheckBox->isChecked())
-        {
-            Init_Value_DoubleSpin(ui->SphereOD,  mesureslist.last().at(7).toDouble());                       // SphereOD
-            Init_Value_DoubleSpin(ui->CylindreOD,mesureslist.last().at(8).toDouble());                       // CylindreOD
-            Init_Value_DoubleSpin(ui->AddVPOD,   mesureslist.last().at(11).toDouble());                      // AddVPOD
-            ui->AxeCylindreOD->setValue(mesureslist.last().at(9).toInt());                                // AxeCylindreOD
-            if (mesureslist.last().at(10).toString() != "")
-                wdg_AVLOD->setText(mesureslist.last().at(10).toString());                                    // AVLOD
-            if (mesureslist.last().at(12).toString() != "")
-                wdg_AVPOD->setText(mesureslist.last().at(12).toString());                                    // AVPOG
-            ui->PrismeOD->setValue(mesureslist.last().at(13).toDouble());                                    // PrismeOD
-            ui->BasePrismeOD->setValue(mesureslist.last().at(14).toInt());                                // BasePrismeOD
-            ui->PressonODCheckBox->setChecked(mesureslist.last().at(16).toBool());                           // PressOnOD
-            ui->DepoliODCheckBox->setChecked(mesureslist.last().at(17).toBool());                            // DepoliOD
-            ui->PlanODCheckBox->setChecked(mesureslist.last().at(18).toBool());                              // PlanOD
-            ui->RyserODCheckBox->setChecked(false);
-            if (mesureslist.last().at(19).toInt() > 0)
-            {
-                ui->RyserODCheckBox->setChecked(true);
-                ui->RyserSpinBox->setValue(mesureslist.last().at(19).toInt());                               // RyserOD
-            }
-        } // fin Oeil droit coche
-
-        // Remplissage des champs Oeil Gauche
-        if (mesureslist.last().at(21).toInt() == 1)
-            ui->OGCheckBox->setChecked(true);                                                               // ODcoche
-        if (ui->OGCheckBox->isChecked())
-        {
-            Init_Value_DoubleSpin(ui->SphereOG,   mesureslist.last().at(22).toDouble());                     // SphereOG
-            Init_Value_DoubleSpin(ui->CylindreOG, mesureslist.last().at(23).toDouble());                     // CylindreOG
-            Init_Value_DoubleSpin(ui->AddVPOG,    mesureslist.last().at(26).toDouble());                     // AddVPOG
-            ui->AxeCylindreOG->setValue(mesureslist.last().at(24).toInt());                               // AxeCylindreOG
-            if (mesureslist.last().at(25).toString() != "")
-                wdg_AVLOG->setText(mesureslist.last().at(25).toString());                                    // AVLOG
-            if (mesureslist.last().at(27).toString() != "")
-                wdg_AVPOG->setText(mesureslist.last().at(27).toString());                                    // AVPOG
-            ui->PrismeOG->setValue(mesureslist.last().at(28).toDouble());                                    // PrismeOG
-            ui->BasePrismeOG->setValue(mesureslist.last().at(29).toInt());                                // BasePrismeOG
-            ui->PressonOGCheckBox->setChecked(mesureslist.last().at(31).toBool());                           // PressOnOG
-            ui->DepoliOGCheckBox->setChecked(mesureslist.last().at(32).toBool());                            // DepoliOG
-            ui->PlanOGCheckBox->setChecked(mesureslist.last().at(33).toBool());                              // PlanOG
-            ui->RyserOGCheckBox->setChecked(false);
-            if (mesureslist.last().at(34).toInt() > 0)
-            {
-                ui->RyserOGCheckBox->setChecked(true);
-                ui->RyserSpinBox->setValue(mesureslist.last().at(34).toInt());
-            }                                                                                               // RyserOG
-
-        } // fin Oeil gauche coche
-    }
-    return mesureslist.last().at(0).toInt();              // retourne idRefraction
 }
+void dlg_refraction::RemplitChamps(Refraction *ref)
+{
+    if (ref == Q_NULLPTR)
+        return;
+    // Remplissage des champs Oeil Droit
+    ui->ODCheckBox->setChecked(ref->isODmesure());
+    if (ref->isODmesure())
+    {
+        Init_Value_DoubleSpin(ui->SphereOD,     ref->sphereOD());
+        Init_Value_DoubleSpin(ui->CylindreOD,   ref->cylindreOD());
+        Init_Value_DoubleSpin(ui->AddVPOD,      ref->addVPOD());
+        ui->AxeCylindreOD->setValue(            ref->axecylindreOD());
+        if (ref->avlOD() != "")
+            wdg_AVLOD->setText(                 ref->avlOD());
+        if (ref->avpPOD() != "")
+            wdg_AVPOD->setText(                 ref->avpPOD());
+        ui->PrismeOD->setValue(                 ref->prismeOD());
+        ui->BasePrismeOD->setValue(             ref->baseprismeOD());
+        ui->PressonODCheckBox->setChecked(      ref->haspressonOD());
+        ui->DepoliODCheckBox->setChecked(       ref->hasdepoliOD());
+        ui->PlanODCheckBox->setChecked(         ref->hasplanOD());
+        ui->RyserODCheckBox->setChecked(false);
+        if (ref->ryserOD() > 0)
+        {
+            ui->RyserODCheckBox->setChecked(true);
+            ui->RyserSpinBox->setValue(         ref->ryserOD());
+        }
+    } // fin Oeil droit coche
+
+    // Remplissage des champs Oeil Gauche
+    ui->OGCheckBox->setChecked(ref->isOGmesure());
+    if (ref->isOGmesure())
+    {
+        Init_Value_DoubleSpin(ui->SphereOG,     ref->sphereOG());
+        Init_Value_DoubleSpin(ui->CylindreOG,   ref->cylindreOG());
+        Init_Value_DoubleSpin(ui->AddVPOG,      ref->addVPOG());
+        ui->AxeCylindreOG->setValue(            ref->axecylindreOG());
+        if (ref->avlOG() != "")
+            wdg_AVLOG->setText(                 ref->avlOG());
+        if (ref->avpPOG() != "")
+            wdg_AVPOG->setText(                 ref->avpPOG());
+        ui->PrismeOG->setValue(                 ref->prismeOG());
+        ui->BasePrismeOG->setValue(             ref->baseprismeOG());
+        ui->PressonOGCheckBox->setChecked(      ref->haspressonOG());
+        ui->DepoliOGCheckBox->setChecked(       ref->hasdepoliOG());
+        ui->PlanOGCheckBox->setChecked(         ref->hasplanOG());
+        ui->RyserOGCheckBox->setChecked(false);
+        if (ref->ryserOG() > 0)
+        {
+            ui->RyserOGCheckBox->setChecked(true);
+            ui->RyserSpinBox->setValue(         ref->ryserOG());
+        }
+    } // fin Oeil gauche coche
+}
+
 
 //---------------------------------------------------------------------------------
 // Mise a jour DonneesOphtaPatient
@@ -2040,7 +2024,7 @@ void dlg_refraction::OuvrirListeMesures(QString SupOuRecup)
         idrefraction = Dlg_ListeMes->idRefractionAOuvrir();
         if (idrefraction > 0)
         {
-            LectureMesure(NoDate,  Refraction::NoMesure, NoDilatation, idrefraction, true);
+            RemplitChamps(Datas::I()->refractions->getById(idrefraction));
             RegleAffichageFiche();
         }
     }
@@ -2181,40 +2165,56 @@ void dlg_refraction::RechercheMesureEnCours()
             }
 
     if (Reponse != Refraction::NoMesure)
-        if (LectureMesure(Aujourdhui, Reponse, NoDilatation, 0, true) > 0)            // on affiche la mesure du jour trouvée
+        if (LectureMesure(Aujourdhui, Reponse, NoDilatation, AvecAffichage) != Q_NULLPTR)            // on affiche la mesure du jour trouvée
         {
-            if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)   Slot_PrescriptionRadionButton_clicked();
-            if (Reponse == Refraction::Autoref)                                         m_mode = Refraction::Acuite;
-            if (Reponse == Refraction::Fronto)                                          m_mode = Refraction::Autoref;
-            RegleAffichageFiche();
+            if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)
+                Slot_PrescriptionRadionButton_clicked();
+            else if (Reponse == Refraction::Autoref || Reponse == Refraction::Fronto)
+            {
+                m_mode = Reponse;
+                RegleAffichageFiche();
+            }
+            else
+                RegleAffichageFiche();
             return ;
         }
 
     // On n'a rien trouvé pour le jour >> on cherche la dernière mesure de réfraction
-    if (LectureMesure(Avant, Refraction::Acuite, NoDilatation, 0, true) > 0)
+    Refraction* ref = LectureMesure(Avant, Refraction::Acuite, NoDilatation, AvecAffichage);
+    if (ref != Q_NULLPTR)
     {
+        m_mode = ref->mesure();
         RegleAffichageFiche();
         return ;
     }
 
     // on n'a rien trouvé en réfraction - on cherche la dernière prescription
-    if (LectureMesure(Avant, Refraction::Prescription, NoDilatation, 0, true) > 0)
+    ref = LectureMesure(Avant, Refraction::Prescription, NoDilatation, AvecAffichage);
+    if (ref != Q_NULLPTR)
     {
+        m_mode = ref->mesure();
         RegleAffichageFiche();
         return ;
     }
+
     // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
-    if (LectureMesure(Avant, Refraction::Autoref, NoDilatation, 0, true) > 0)
+    ref = LectureMesure(Avant, Refraction::Autoref, NoDilatation, AvecAffichage);
+    if (ref != Q_NULLPTR)
     {
+        m_mode = ref->mesure();
         RegleAffichageFiche();
         return ;
     }
+
     // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
-    if (LectureMesure(Avant, Refraction::Fronto, NoDilatation, 0, true) > 0)
+    ref = LectureMesure(Avant, Refraction::Fronto, NoDilatation, AvecAffichage);
+    if (ref != Q_NULLPTR)
     {
+        m_mode = ref->mesure();
         RegleAffichageFiche();
         return ;
     }
+
 }
 
 //------------------------------------------------------------------------------------------------------
