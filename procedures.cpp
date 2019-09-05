@@ -6132,7 +6132,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe
-                        && ref->mesure() == Refraction::Fronto
+                        && ref->typemesure() == Refraction::Fronto
                         && ref->formuleOD() == Utils::CalculeFormule(MapMesure,"D")
                         && ref->formuleOG() == Utils::CalculeFormule(MapMesure,"G"))
                 {
@@ -6196,7 +6196,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
-                if (ref->idacte() == idActe && ref->mesure() == Refraction::Autoref)
+                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
                 {
                     DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
                     it = Datas::I()->refractions->refractions()->erase(it);
@@ -6356,7 +6356,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
-                if (ref->idacte() == idActe && ref->mesure() == Refraction::Acuite)
+                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
                 {
                     DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
                     it = Datas::I()->refractions->refractions()->erase(it);

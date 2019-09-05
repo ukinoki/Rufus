@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1506,7 +1506,7 @@ void Rufus::CreerBilanOrtho()
         while (itref.hasPrevious()) {
             itref.previous();
             Refraction* ref = const_cast<Refraction*>(itref.value());
-            if (ref->mesure() == Refraction::Acuite)
+            if (ref->typemesure() == Refraction::Acuite)
             {
                 if (ref->formuleOD() != "" && RefractionOD == "")
                     RefractionOD = ref->formuleOD();
@@ -8507,12 +8507,12 @@ void Rufus::RegleRefracteur(Refraction::Mesure mesure)
         {
                 if (mesure == Refraction::Autoref)
                 {
-                    if (itref.value()->mesure() == Refraction::Acuite)
+                    if (itref.value()->typemesure() == Refraction::Acuite)
                         ref= const_cast<Refraction*>(itref.value());
                 }
                 else if (mesure == Refraction::Fronto)
                 {
-                    if (itref.value()->mesure() == Refraction::Prescription || itref.value()->mesure() == Refraction::Fronto)
+                    if (itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto)
                         ref= const_cast<Refraction*>(itref.value());
                 }
                 if (ref != Q_NULLPTR)

@@ -2783,7 +2783,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
         itref.toBack();
         while (itref.hasPrevious() && !okOD && !okOG) {
             itref.previous();
-            if (itref.value()->mesure() == Refraction::Acuite)
+            if (itref.value()->typemesure() == Refraction::Acuite)
             {
                 if (!okOD)
                 {

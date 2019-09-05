@@ -568,7 +568,6 @@ void dlg_refraction::Slot_Detail_Clicked()
 void dlg_refraction::Slot_OKPushButton_Clicked()
 {
     focusNextChild();
-    int IdRefract;
     m_flagbugvalidenter = 0;
 
     UpDoubleSpinBox *dblSpin = dynamic_cast<UpDoubleSpinBox *>(focusWidget());
@@ -593,17 +592,17 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
 
     if (m_mode == Refraction::Fronto)
     {
-        // On vérifie dans Refractions s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
-        if (LectureMesure(Aujourdhui, Refraction::Fronto, NoDilatation, SansAffichage, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
+        // On vérifie s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
+        if (LectureMesure(Aujourdhui, Refraction::Fronto, NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
             InscriptRefraction();
         FermeFiche(OK);
     }
 
     else if (m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
     {
-        // On vérifie dans Refractions s'il existe un enregistrement identique et si oui, on l'écrase
+        // On vérifie s'il existe un enregistrement identique et si oui, on l'écrase
         Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Dilatation : NoDilatation);
-        Refraction * ref = LectureMesure(Aujourdhui, m_mode, dilat, SansAffichage);
+        Refraction * ref = LectureMesure(Aujourdhui, m_mode, dilat);
         if (ref != Q_NULLPTR)
             DetruireLaMesure(ref);
         InscriptRefraction();
@@ -1490,7 +1489,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         if (Imprimer_Ordonnance())
         {
             ResumeObservation();
-            if (LectureMesure(Aujourdhui, Refraction::Prescription, NoDilatation, SansAffichage, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
+            if (LectureMesure(Aujourdhui, Refraction::Prescription, NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
                 InscriptRefraction();
         }
         else
@@ -1860,48 +1859,39 @@ Refraction* dlg_refraction::InsertRefraction()
     return Datas::I()->refractions->CreationRefraction(listbinds);
 }
 
-
 /*! ---------------------------------------------------------------------------------
-Lecture d'une mesure en base
+Recherche d'une mesure
 \param DateMesure               -> mesure faite ce jour ou mesures antérieures
-\param TypeMesureMesure         -> MFronto, MAutoref, MRefraction ou Mprescription
+\param TypeMesureMesure         -> Fronto, Autoref, Refraction ou prescription
 \param Cycloplegie dilatation   -> Dilatation = que les mesures avec dilatation  - NoDilatation = toutes les mesures, dilatées ou pas
-\param int idrefraction         -> idrefraction à lire
-\param bool Affichage           -> remplir ou pas le formulaire avec la mesure trouvee
-\param OeilCoche = Pour un oeil particulier
+\param FormuleOD                -> pour cette formule de l'OD
+\param FormuleOG                -> pour cette formule de l'OG
 ---------------------------------------------------------------------------------*/
-Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, dlg_refraction::Affichage affich, QString FormuleOD, QString FormuleOG)
+Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, QString FormuleOD, QString FormuleOG)
 {
-    bool ok;
-    QString requete = "SELECT  idRefraction FROM " TBL_REFRACTIONS ;
-
-    // élaboration des criteres de recherche selon le cas de lecture
-    {
-        requete += " WHERE  IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) ;
-        if (Quand == Aujourdhui)
-            requete += " AND DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") + "'";
-        else if (Quand == Avant)
-            requete += " AND DateRefraction < '" + QDate::currentDate().toString("yyyy-MM-dd") + "'";
-        if (Mesure != Refraction::NoMesure)
-            requete += " AND QuelleMesure = '"   + ConvertMesure(Mesure) + "'";
-        if (dilatation == Dilatation)
-            requete += " AND Cycloplegie =  1";
-        if (FormuleOD.length() > 0)                                  // 10-07-2014
-            requete += " AND FormuleOD =  '"    + FormuleOD + "'";
-        if (FormuleOG.length() > 0)                                  // 10-07-2014
-            requete += " AND FormuleOG =  '"    + FormuleOG + "'";
-    }
-    requete += " ORDER BY DateRefraction, idRefraction";
-
-    QList<QVariantList> mesureslist = db->StandardSelectSQL(requete, ok, tr("Impossible d'accéder à la liste table des mesures!"));
-    if (!ok || mesureslist.size()==0)
+    if (Datas::I()->refractions->refractions()->size() == 0)
         return Q_NULLPTR;
-    Refraction *ref = Datas::I()->refractions->getById(mesureslist.last().at(0).toInt());
-    if (affich == AvecAffichage)
-        RemplitChamps(ref);
-    return ref;
-
+    bool cejour = (Quand == Aujourdhui);
+    bool dilat  = (dilatation == Dilatation);
+    QMap<int, Refraction*> mapref;
+    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+    {
+        if (((ref->daterefraction() == QDate::currentDate()) == cejour)
+                && ref->typemesure() == Mesure
+                && ref->isdilate() == dilat)
+        {
+            if (FormuleOD != "" && ref->formuleOD() != FormuleOD)
+                continue;
+            if (FormuleOG != "" && ref->formuleOG() != FormuleOG)
+                continue;
+            mapref.insert(ref->id(), ref);
+        }
+    }
+    if (mapref.size() == 0)
+        return Q_NULLPTR;
+    return mapref.last();
 }
+
 void dlg_refraction::RemplitChamps(Refraction *ref)
 {
     if (ref == Q_NULLPTR)
@@ -2024,7 +2014,9 @@ void dlg_refraction::OuvrirListeMesures(QString SupOuRecup)
         idrefraction = Dlg_ListeMes->idRefractionAOuvrir();
         if (idrefraction > 0)
         {
-            RemplitChamps(Datas::I()->refractions->getById(idrefraction));
+            Refraction *ref = Datas::I()->refractions->getById(idrefraction);
+            RemplitChamps(ref);
+            m_mode = ref->typemesure();
             RegleAffichageFiche();
         }
     }
@@ -2137,82 +2129,63 @@ void dlg_refraction::RechercheMesureEnCours()
     // recherche d'une mesure du jour
     QList<Refraction*> refsdujour;
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-        if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Prescription)
+        if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Prescription)
         {
-            Reponse = ref->mesure();
+            Reponse = ref->typemesure();
             break;
         }
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Acuite)
+            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Acuite)
             {
-                Reponse = ref->mesure();
+                Reponse = ref->typemesure();
                 break;
             }
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Autoref)
+            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Autoref)
             {
-                Reponse = ref->mesure();
+                Reponse = ref->typemesure();
                 break;
             }
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Fronto)
+            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Fronto)
             {
-                Reponse = ref->mesure();
+                Reponse = ref->typemesure();
                 break;
             }
 
     if (Reponse != Refraction::NoMesure)
-        if (LectureMesure(Aujourdhui, Reponse, NoDilatation, AvecAffichage) != Q_NULLPTR)            // on affiche la mesure du jour trouvée
+    {
+        Refraction *ref = LectureMesure(Aujourdhui, Reponse, NoDilatation);            // on affiche la mesure du jour trouvée
+        if (ref != Q_NULLPTR)            // on affiche la mesure du jour trouvée
         {
+            RemplitChamps(ref);
             if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)
                 Slot_PrescriptionRadionButton_clicked();
-            else if (Reponse == Refraction::Autoref || Reponse == Refraction::Fronto)
+            else
             {
-                m_mode = Reponse;
+                m_mode = (Reponse == Refraction::Autoref? Reponse : Refraction::Fronto);
                 RegleAffichageFiche();
             }
-            else
-                RegleAffichageFiche();
             return ;
         }
+    }
 
     // On n'a rien trouvé pour le jour >> on cherche la dernière mesure de réfraction
-    Refraction* ref = LectureMesure(Avant, Refraction::Acuite, NoDilatation, AvecAffichage);
+    Refraction* ref = LectureMesure(Avant, Refraction::Acuite, NoDilatation);
+    if (ref == Q_NULLPTR)
+        ref = LectureMesure(Avant, Refraction::Prescription, NoDilatation); // on n'a rien trouvé en réfraction - on cherche la dernière prescription
+    if (ref == Q_NULLPTR)
+        ref = LectureMesure(Avant, Refraction::Autoref, NoDilatation);      // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
+    if (ref == Q_NULLPTR)
+        ref = LectureMesure(Avant, Refraction::Fronto, NoDilatation);       // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
     if (ref != Q_NULLPTR)
     {
-        m_mode = ref->mesure();
+        RemplitChamps(ref);
+        m_mode = ref->typemesure();
         RegleAffichageFiche();
-        return ;
-    }
-
-    // on n'a rien trouvé en réfraction - on cherche la dernière prescription
-    ref = LectureMesure(Avant, Refraction::Prescription, NoDilatation, AvecAffichage);
-    if (ref != Q_NULLPTR)
-    {
-        m_mode = ref->mesure();
-        RegleAffichageFiche();
-        return ;
-    }
-
-    // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
-    ref = LectureMesure(Avant, Refraction::Autoref, NoDilatation, AvecAffichage);
-    if (ref != Q_NULLPTR)
-    {
-        m_mode = ref->mesure();
-        RegleAffichageFiche();
-        return ;
-    }
-
-    // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
-    ref = LectureMesure(Avant, Refraction::Fronto, NoDilatation, AvecAffichage);
-    if (ref != Q_NULLPTR)
-    {
-        m_mode = ref->mesure();
-        RegleAffichageFiche();
-        return ;
     }
 
 }

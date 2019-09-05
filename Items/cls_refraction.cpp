@@ -32,13 +32,13 @@ void Refraction::setData(QJsonObject data)
     setDataDate(data, CP_DATE_REFRACTIONS, m_daterefraction);                   //!> la date de la refraction
     QString mesure = data.value( CP_TYPEMESURE_REFRACTIONS ).toString();        //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
     if (mesure == "P")
-        m_mesure = Fronto;
+        m_typemesure = Fronto;
     else if (mesure == "A")
-        m_mesure = Autoref;
+        m_typemesure = Autoref;
     else if (mesure == "R")
-        m_mesure = Acuite;
+        m_typemesure = Acuite;
     else if (mesure == "O")
-        m_mesure = Prescription;
+        m_typemesure = Prescription;
     QString distance = data.value( CP_DISTANCEMESURE_REFRACTIONS ).toString();  //!> la distance de mesure: loin, près, les 2
     if (distance == "L")
         m_distance = Loin;
