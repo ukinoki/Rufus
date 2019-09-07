@@ -87,7 +87,7 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
 {
     if (pat == Q_NULLPTR)
         return;
-    if (!pat->isalloaded() || upd == Item::ForceUpdate)
+    if (!pat->isalloaded() || upd == Item::Update)
     {
         QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(pat->id());
         if( !jsonPatient.isEmpty() )
@@ -104,7 +104,7 @@ void Patients::initListeSalDat(QList<int> listidaajouter)
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
     epurelist(map_patientssaldat, &listpatients);
-    addList(map_patientssaldat, &listpatients, Item::ForceUpdate);
+    addList(map_patientssaldat, &listpatients, Item::Update);
 }
 
 void Patients::initListeTable(QString nom, QString prenom, bool filtre)
@@ -114,7 +114,7 @@ void Patients::initListeTable(QString nom, QString prenom, bool filtre)
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
     m_full = (nom == "" && prenom == "");
     epurelist(map_patientstable, &listpatients);
-    addList(map_patientstable, &listpatients, Item::ForceUpdate);
+    addList(map_patientstable, &listpatients, Item::Update);
 }
 
 void Patients::initListeByDDN(QDate DDN)
@@ -122,7 +122,7 @@ void Patients::initListeByDDN(QDate DDN)
     QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
     epurelist(map_patientstable, &listpatients);
-    addList(map_patientstable, &listpatients, Item::ForceUpdate);
+    addList(map_patientstable, &listpatients, Item::Update);
 }
 
 void Patients::SupprimePatient(Patient *pat)

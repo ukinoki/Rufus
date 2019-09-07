@@ -87,3 +87,10 @@ void Item::setDataVariant(QJsonObject data, QString key, QVariant &prop)
     if( data.contains(key) )
         prop = data[key].toVariant();
 }
+void Item::setDataLogic(QJsonObject data, QString key, Logic &prop)
+{
+    if( data.contains(key) )
+        prop = (data[key].toBool()? True : False);
+    else
+        prop = Null;
+}

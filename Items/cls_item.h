@@ -32,7 +32,11 @@ class Item : public QObject
 
 public:
     enum LOADDETAILS {LoadDetails, NoLoadDetails};  Q_ENUM(LOADDETAILS)
-    enum UPDATE {NoUpdate, ForceUpdate};            Q_ENUM(UPDATE)
+    enum UPDATE {NoUpdate, Update};                 Q_ENUM(UPDATE)
+    enum Logic {True, False, Null};                 Q_ENUM(Logic)
+        /*! pour certaines données bool, on a 3 valeurs possibles, true, false et null
+         * en fait, on pourrait même faire une 4ème valeur correspondaant à "ne sait pas" -> ne sait pas si la valeeur est rue, false ou null
+         */
     explicit Item(QObject *parent = Q_NULLPTR);
     int id() const                      { return m_id; }
     void setid(int id)                  { m_id = id; }
@@ -52,6 +56,7 @@ protected:
     void setDataTime(QJsonObject data, QString key, QTime &prop);
     void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     void setDataVariant(QJsonObject data, QString key, QVariant &prop);
+    void setDataLogic(QJsonObject data, QString key, Item::Logic &prop);
 
     int m_id = 0;
     QString  m_stringid = "";

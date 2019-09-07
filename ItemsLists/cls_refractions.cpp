@@ -50,7 +50,7 @@ void Refractions::initListebyPatId(int id)
     m_idpat = id;
     QList<Refraction*> listrefractions = DataBase::I()->loadRefractionsByPatId(m_idpat);
     epurelist(map_refractions, &listrefractions);
-    addList(map_refractions, &listrefractions, Item::ForceUpdate);
+    addList(map_refractions, &listrefractions, Item::Update);
 }
 
 
@@ -85,14 +85,15 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
     QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
+
         champ  = itset.key();
         if (champ == CP_IDPAT_REFRACTIONS)                  data[champ] = itset.value().toInt();
         else if (champ == CP_IDACTE_REFRACTIONS)            data[champ] = itset.value().toInt();
-        else if (champ == CP_DATE_REFRACTIONS)              data[champ] = QDateTime(itset.value().toDate()).toMSecsSinceEpoch();
+        else if (champ == CP_DATE_REFRACTIONS)              data[champ] = itset.value().toString();
         else if (champ == CP_TYPEMESURE_REFRACTIONS)        data[champ] = itset.value().toString();
         else if (champ == CP_DISTANCEMESURE_REFRACTIONS)    data[champ] = itset.value().toString();
-        else if (champ == CP_CYCLOPLEGIE_REFRACTIONS)       data[champ] = (itset.value().toString() == 1);
-        else if (champ == CP_ODMESURE_REFRACTIONS)          data[champ] = (itset.value().toString() == 1);
+        else if (champ == CP_CYCLOPLEGIE_REFRACTIONS)       data[champ] = (itset.value().toInt() == 1);
+        else if (champ == CP_ODMESURE_REFRACTIONS)          data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_SPHEREOD_REFRACTIONS)          data[champ] = itset.value().toDouble();
         else if (champ == CP_CYLINDREOD_REFRACTIONS)        data[champ] = itset.value().toDouble();
         else if (champ == CP_AXECYLOD_REFRACTIONS)          data[champ] = itset.value().toInt();
@@ -102,12 +103,12 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
         else if (champ == CP_PRISMEOD_REFRACTIONS)          data[champ] = itset.value().toDouble();
         else if (champ == CP_BASEPRISMEOD_REFRACTIONS)      data[champ] = itset.value().toInt();
         else if (champ == CP_BASEPRISMETEXTOD_REFRACTIONS)  data[champ] = itset.value().toString();
-        else if (champ == CP_PRESSONOD_REFRACTIONS)         data[champ] = (itset.value().toString() == 1);
-        else if (champ == CP_DEPOLIOD_REFRACTIONS)          data[champ] = (itset.value().toString() == 1);
-        else if (champ == CP_PLANOD_REFRACTIONS)            data[champ] = (itset.value().toString() == 1);
+        else if (champ == CP_PRESSONOD_REFRACTIONS)         data[champ] = (itset.value().toInt() == 1);
+        else if (champ == CP_DEPOLIOD_REFRACTIONS)          data[champ] = (itset.value().toInt() == 1);
+        else if (champ == CP_PLANOD_REFRACTIONS)            data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_RYSEROD_REFRACTIONS)           data[champ] = itset.value().toInt();
         else if (champ == CP_FORMULEOD_REFRACTIONS)         data[champ] = itset.value().toString();
-        else if (champ == CP_OGMESURE_REFRACTIONS)          data[champ] = (itset.value().toString() == 1);
+        else if (champ == CP_OGMESURE_REFRACTIONS)          data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_SPHEREOG_REFRACTIONS)          data[champ] = itset.value().toDouble();
         else if (champ == CP_CYLINDREOG_REFRACTIONS)        data[champ] = itset.value().toDouble();
         else if (champ == CP_AXECYLOG_REFRACTIONS)          data[champ] = itset.value().toInt();
@@ -117,9 +118,9 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
         else if (champ == CP_PRISMEOG_REFRACTIONS)          data[champ] = itset.value().toDouble();
         else if (champ == CP_BASEPRISMEOG_REFRACTIONS)      data[champ] = itset.value().toInt();
         else if (champ == CP_BASEPRISMETEXTOG_REFRACTIONS)  data[champ] = itset.value().toString();
-        else if (champ == CP_PRESSONOG_REFRACTIONS)         data[champ] = (itset.value().toString() == 1);
-        else if (champ == CP_DEPOLIOG_REFRACTIONS)          data[champ] = (itset.value().toString() == 1);
-        else if (champ == CP_PLANOG_REFRACTIONS)            data[champ] = (itset.value().toString() == 1);
+        else if (champ == CP_PRESSONOG_REFRACTIONS)         data[champ] = (itset.value().toInt() == 1);
+        else if (champ == CP_DEPOLIOG_REFRACTIONS)          data[champ] = (itset.value().toInt() == 1);
+        else if (champ == CP_PLANOG_REFRACTIONS)            data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_RYSEROG_REFRACTIONS)           data[champ] = itset.value().toInt();
         else if (champ == CP_FORMULEOG_REFRACTIONS)         data[champ] = itset.value().toString();
         else if (champ == CP_COMMENTAIREORDO_REFRACTIONS)   data[champ] = itset.value().toString();

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("05-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("07-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -125,14 +125,19 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
         }
     }
-    else
+    else if (DataBase::I()->getMode() != Utils::Distant)
     {
         log = tr("RufusAdmin absent");
         Logs::MSGSOCKET(log);
     }
+    else
+    {
+        log = tr("Connexion distante - pas d'utilisation de TCP");
+        Logs::MSGSOCKET(log);
+    }
 
     //! 6 - mettre en place le TcpSocket et/ou les timer
-    gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
+    gTimerPatientsVus            = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
     t_timerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
@@ -995,7 +1000,7 @@ void Rufus::AfficheToolTip(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    m_patients->loadAll(pat, Item::ForceUpdate);
+    m_patients->loadAll(pat, Item::Update);
     QString Msg = "";
     if (pat->datedenaissance().isValid())
         Msg += Utils::CalculAge(pat->datedenaissance())["toString"].toString();
@@ -1216,7 +1221,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         m_lignespaiements->initListeByPatient(Datas::I()->patients->currentpatient());
         if (m_currentact->id()>0)
         {
-            m_listeactes->initListeByPatient(Datas::I()->patients->currentpatient(), Item::ForceUpdate);
+            m_listeactes->initListeByPatient(Datas::I()->patients->currentpatient(), Item::Update);
             if (ui->tabDossier->isVisible())
                 AfficheActeCompta(m_currentact);
         }
@@ -3701,7 +3706,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     if (pat == Q_NULLPTR)
         return;
     if (recalclesdonnees)
-        m_patients->loadAll(pat, Item::ForceUpdate);
+        m_patients->loadAll(pat, Item::Update);
     ui->TerraintreeWidget->clear();
     bool a = false;
     ui->TerraintreeWidget->setColumnCount(2);
@@ -6231,7 +6236,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     if (pat != Datas::I()->patients->currentpatient())
         Datas::I()->patients->setcurrentpatient(pat->id());
     else
-        Datas::I()->patients->loadAll(Datas::I()->patients->currentpatient(), Item::ForceUpdate);
+        Datas::I()->patients->loadAll(Datas::I()->patients->currentpatient(), Item::Update);
 
     QString     Msg;
 
@@ -8245,7 +8250,7 @@ void    Rufus::RecopierDossier(Patient *patient)
     if (patient != Q_NULLPTR)
     {
         //if (!patient->isalloaded())
-        Datas::I()->patients->loadAll(patient, Item::ForceUpdate);
+        Datas::I()->patients->loadAll(patient, Item::Update);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, patient);
         return;
@@ -8262,7 +8267,7 @@ void    Rufus::RecopierDossier(Patient *patient)
             UpMessageBox::Watch(this, tr("Aucun dossier sélectionné!"), tr("Sélectionnez d'abord un dossier à recopier."));
             return;
         }
-        Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
+        Datas::I()->patients->loadAll(pat, Item::Update);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
     }
@@ -8440,7 +8445,7 @@ void    Rufus::RefractionMesure()
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-
+    qDebug() << "nbre refractions = " << Datas::I()->refractions->refractions()->size();
     Dlg_Refraction     = new dlg_refraction(m_currentact, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
@@ -10012,7 +10017,7 @@ void Rufus::TraiteTCPMessage(QString msg)
         if (it != Datas::I()->patients->patientstable()->end())
         {
             Patient* pat = const_cast<Patient*>(it.value());
-            Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
+            Datas::I()->patients->loadAll(pat, Item::Update);
             int row = m_listepatientsmodel->findItems(msg).at(0)->row();
             m_listepatientsmodel->item(row,0)->setText(QString::number(pat->id()));                                   // id                           -> utilisé pour le drop event
             m_listepatientsmodel->item(row,1)->setText(pat->nom().toUpper() + " " + pat->prenom());                   // Nom + Prénom
@@ -10027,7 +10032,7 @@ void Rufus::TraiteTCPMessage(QString msg)
         if (it != Datas::I()->patients->patients()->end())
         {
             Patient* pat = const_cast<Patient*>(it.value());
-            Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
+            Datas::I()->patients->loadAll(pat, Item::Update);
         }
         if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
         {

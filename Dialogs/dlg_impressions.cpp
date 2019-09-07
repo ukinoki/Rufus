@@ -27,7 +27,7 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
 
     m_currentpatient     = pat;
     if (!pat->isalloaded())
-        Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
+        Datas::I()->patients->loadAll(pat, Item::Update);
 
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionDocuments").toByteArray());

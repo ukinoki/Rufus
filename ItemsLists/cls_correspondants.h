@@ -35,7 +35,7 @@ public:
     Correspondants(QObject *parent = Q_NULLPTR);
 
     Correspondant* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
-    void loadAllData(Correspondant *cor, Item::UPDATE upd = Item::ForceUpdate);                 /*! charge toutes les données d'un correspondant
+    void loadAllData(Correspondant *cor, Item::UPDATE upd = Item::Update);                 /*! charge toutes les données d'un correspondant
                                                                                              * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
                                                                                              */
     void initListe(bool all = false);

@@ -593,7 +593,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     if (m_mode == Refraction::Fronto)
     {
         // On vérifie s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
-        if (LectureMesure(Aujourdhui, Refraction::Fronto, NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
+        if (LectureMesure(Aujourdhui, Refraction::Fronto, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
             InscriptRefraction();
         FermeFiche(OK);
     }
@@ -601,7 +601,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     else if (m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
     {
         // On vérifie s'il existe un enregistrement identique et si oui, on l'écrase
-        Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Dilatation : NoDilatation);
+        Refraction::Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Refraction::Dilatation : Refraction::NoDilatation);
         Refraction * ref = LectureMesure(Aujourdhui, m_mode, dilat);
         if (ref != Q_NULLPTR)
             DetruireLaMesure(ref);
@@ -1304,6 +1304,14 @@ double dlg_refraction::ConvDouble(QString textdouble)
      return (ntextdouble.toDouble());
 }
 
+Refraction::Distance dlg_refraction::ConvertDistance(QString distance)
+{
+    if (distance == "P") return Refraction::Pres;
+    if (distance == "L") return Refraction::Loin;
+    if (distance == "2") return Refraction::AllDistance;
+    return  Refraction::Inconnu;
+}
+
 Refraction::Mesure dlg_refraction::ConvertMesure(QString Mesure)
 {
     if (Mesure == "P") return Refraction::Fronto;
@@ -1489,7 +1497,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         if (Imprimer_Ordonnance())
         {
             ResumeObservation();
-            if (LectureMesure(Aujourdhui, Refraction::Prescription, NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
+            if (LectureMesure(Aujourdhui, Refraction::Prescription, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
                 InscriptRefraction();
         }
         else
@@ -1867,12 +1875,12 @@ Recherche d'une mesure
 \param FormuleOD                -> pour cette formule de l'OD
 \param FormuleOG                -> pour cette formule de l'OG
 ---------------------------------------------------------------------------------*/
-Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, QString FormuleOD, QString FormuleOG)
+Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Refraction::Cycloplegie dilatation, QString FormuleOD, QString FormuleOG)
 {
     if (Datas::I()->refractions->refractions()->size() == 0)
         return Q_NULLPTR;
     bool cejour = (Quand == Aujourdhui);
-    bool dilat  = (dilatation == Dilatation);
+    bool dilat  = (dilatation == Refraction::Dilatation);
     QMap<int, Refraction*> mapref;
     foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
     {
@@ -2150,23 +2158,33 @@ void dlg_refraction::RechercheMesureEnCours()
             }
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+        {
             if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Fronto)
             {
                 Reponse = ref->typemesure();
                 break;
             }
+        }
 
     if (Reponse != Refraction::NoMesure)
     {
-        Refraction *ref = LectureMesure(Aujourdhui, Reponse, NoDilatation);            // on affiche la mesure du jour trouvée
+        Refraction *ref = LectureMesure(Aujourdhui, Reponse, Refraction::NoDilatation);            // on affiche la mesure du jour trouvée
+        if (ref == Q_NULLPTR)
+            ref = LectureMesure(Aujourdhui, Reponse, Refraction::Dilatation);
         if (ref != Q_NULLPTR)            // on affiche la mesure du jour trouvée
         {
             RemplitChamps(ref);
+            // on passe au mode de mesure suivant
             if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)
                 Slot_PrescriptionRadionButton_clicked();
-            else
+            else if (Reponse == Refraction::Fronto)
             {
-                m_mode = (Reponse == Refraction::Autoref? Reponse : Refraction::Fronto);
+                m_mode = Refraction::Autoref;
+                RegleAffichageFiche();
+            }
+            else if (Reponse == Refraction::Autoref)
+            {
+                m_mode = Refraction::Acuite;
                 RegleAffichageFiche();
             }
             return ;
@@ -2174,13 +2192,13 @@ void dlg_refraction::RechercheMesureEnCours()
     }
 
     // On n'a rien trouvé pour le jour >> on cherche la dernière mesure de réfraction
-    Refraction* ref = LectureMesure(Avant, Refraction::Acuite, NoDilatation);
+    Refraction* ref = LectureMesure(Avant, Refraction::Acuite, Refraction::NoDilatation);
     if (ref == Q_NULLPTR)
-        ref = LectureMesure(Avant, Refraction::Prescription, NoDilatation); // on n'a rien trouvé en réfraction - on cherche la dernière prescription
+        ref = LectureMesure(Avant, Refraction::Prescription, Refraction::NoDilatation); // on n'a rien trouvé en réfraction - on cherche la dernière prescription
     if (ref == Q_NULLPTR)
-        ref = LectureMesure(Avant, Refraction::Autoref, NoDilatation);      // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
+        ref = LectureMesure(Avant, Refraction::Autoref, Refraction::NoDilatation);      // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
     if (ref == Q_NULLPTR)
-        ref = LectureMesure(Avant, Refraction::Fronto, NoDilatation);       // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
+        ref = LectureMesure(Avant, Refraction::Fronto, Refraction::NoDilatation);       // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
     if (ref != Q_NULLPTR)
     {
         RemplitChamps(ref);
@@ -2193,9 +2211,8 @@ void dlg_refraction::RechercheMesureEnCours()
 //------------------------------------------------------------------------------------------------------
 //  Calcul de la variable Resultat pour resume refraction.
 //------------------------------------------------------------------------------------------------------
-QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, QString TypLun)
+QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction::Cycloplegie dilatation, Refraction::Distance typlun)
  {
-    bool ok;
     QString     Resultat    = "";
     QString     ResultatOD  = "";
     QString     ResultatOG  = "";
@@ -2204,57 +2221,66 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
     QString     DateOG      = "";
     QString     Dilate      = "";
 
-
-    if (Mesure == "A")  Separateur = " / ";
-    if (Mesure == "R")  Separateur = "\n\t\t";
-
-    QString requeteBase, zdate;
-    requeteBase =   "SELECT ODcoche, OGcoche, DateRefraction, FormuleOD, FormuleOG "     // 0-1-2-3-4
-                    " FROM " TBL_REFRACTIONS
-                    " WHERE  idPat        =  " + QString::number(Datas::I()->patients->currentpatient()->id()) +
-                    " AND    QuelleMesure = '" + Mesure     + "'"
-                    " AND    Cycloplegie  =  " + Cycloplegie   ;
-    QString requete =  requeteBase;
-    if (TypLun > "")
-        requete +=  " AND QuelleDistance = '" + TypLun + "'";
-    requete += " ORDER BY DateRefraction ASC ";
-
-    QList<QVariantList> resultlist = db->StandardSelectSQL(requete,ok);
-    if (!ok || resultlist.size() == 0)
+    if (mesure == Refraction::Autoref)  Separateur = " / ";
+    if (mesure == Refraction::Acuite)  Separateur = "\n\t\t";
+    QString zdate;
+    QMap<int, Refraction*> mapref;
+    bool dilat = (dilatation == Refraction::Dilatation);
+    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+    {
+        if (ref->typemesure() == ConvertMesure(mesure)
+                && ref->isdilate() == dilat)
+        {
+            if (typlun != Refraction::Inconnu)
+                mapref.insert(ref->id(), ref);
+            else
+                mapref.insert(ref->id(), ref);
+        }
+    }
+    if (mapref.size() == 0)
         return "";
-    zdate = resultlist.last().at(2).toDate().toString(tr("dd-MM-yyyy"));                        // date YYYY-MM-DD
-    if (resultlist.last().at(0).toBool() && resultlist.last().at(1).toBool())      // OD coche et OG coche
-        Resultat = tr("dilaté") + ")" "\n\t" + zdate + "\t" + resultlist.last().at(3).toString() + Separateur + resultlist.last().at(4).toString();
+    Refraction *ref = mapref.last();
+    zdate = ref->daterefraction().toString(tr("dd-MM-yyyy"));                      // date YYYY-MM-DD
+    if (ref->isODmesure() && ref->isOGmesure())      // OD coche et OG coche
+        Resultat = tr("dilaté") + ")" "\n\t" + zdate + "\t" + ref->formuleOD() + Separateur + ref->formuleOG();
     else
     {
-        // OD coche = true
-        if (resultlist.last().at(0).toBool())
+        if (ref->isODmesure())
         {
             DateOD      = zdate;
-            ResultatOD  =  resultlist.last().at(3).toString();
-            requete     = requeteBase + " AND OGcoche =  true  ";
-            requete     += " ORDER BY DateRefraction DESC ";
-            QVariantList resultdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
-            if (ok && resultdata.size()>0)
+            ResultatOD  =  ref->formuleOD();
+            QMap<int, Refraction*> maprefOG;
+            foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
             {
-                zdate  = resultdata.at(2).toDate().toString(tr("dd-MM-yyyy"));
-                ResultatOD  =  resultdata.at(3).toString();
+                if (ref->typemesure() == ConvertMesure(mesure)
+                        && ref->isdilate() == dilat
+                        && ref->isOGmesure())
+                         maprefOG.insert(ref->id(), ref);
             }
-        } // fin OD coche
+            if (maprefOG.size() > 0)
+            {
+                zdate  = maprefOG.last()->daterefraction().toString(tr("dd-MM-yyyy"));
+                ResultatOD  =  maprefOG.last()->formuleOD();
+            }
+        }
         else
         {
-            // OG coche = true
-            if (resultlist.last().at(1).toBool())
+            if (ref->isOGmesure())
             {
                 DateOG      = zdate;
-                ResultatOG  = resultlist.last().at(4).toString();
-                requete     = requeteBase + " AND ODcoche =  true  ";
-                requete     += " ORDER BY DateRefraction DESC ";
-                QVariantList resultdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
-                if (ok && resultdata.size()>0)
+                ResultatOG  =  ref->formuleOG();
+                QMap<int, Refraction*> maprefOD;
+                foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
                 {
-                    zdate  = resultdata.at(2).toDate().toString(tr("dd-MM-yyyy"));
-                    ResultatOD  =  resultdata.at(3).toString();
+                    if (ref->typemesure() == ConvertMesure(mesure)
+                            && ref->isdilate() == dilat
+                            && ref->isODmesure())
+                             maprefOD.insert(ref->id(), ref);
+                }
+                if (maprefOD.size() > 0)
+                {
+                    zdate  = maprefOD.last()->daterefraction().toString(tr("dd-MM-yyyy"));
+                    ResultatOG  =  maprefOD.last()->formuleOG();
                 }
             }
         }
@@ -2269,13 +2295,11 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
             Resultat = tr("dilaté") + ")"   "\n\t" + DateOD + "\t: " + ResultatOD +
                                           "\n\t" + DateOG + "\t: " + ResultatOG;
     }
-    if (Cycloplegie == "1")
+    if (dilatation == Refraction::Dilatation)
         Dilate = "        (";
     else
         Dilate = "        (" + tr("non") + " ";
-    Resultat = "\n" + Dilate + Resultat;
-
-    return Resultat;
+    return  "\n" + Dilate + Resultat;
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -2283,35 +2307,33 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
 //------------------------------------------------------------------------------------------------------
 QString dlg_refraction::RechercheVerres()
 {
-    bool ok;
     QString     ResultatVerres = "";
     QString     zdate, Formule, TypeMesure;
-
-    QString requete     =   "SELECT ODcoche, OGcoche, DateRefraction, FormuleOD, FormuleOG, QuelleMesure "     // 0-1-2-3-4-5
-                    " FROM " TBL_REFRACTIONS
-                    " WHERE  idPat        =  "+ QString::number(Datas::I()->patients->currentpatient()->id()) +
-                    " AND (QuelleMesure = 'P' OR QuelleMesure = 'O') "
-                    " ORDER  BY DateRefraction DESC ";
-    QList<QVariantList> verreslist = db->StandardSelectSQL(requete,ok);
-    if (!ok || verreslist.size() == 0)
+    QMap<int, Refraction*> mapref;
+    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+    {
+        if (ref->typemesure() == Refraction::Autoref
+                || ref->typemesure() == Refraction::Prescription)
+                mapref.insert(ref->id(), ref);
+    }
+    if (mapref.size() == 0)
         return "";
-    for (int i = 0; i < verreslist.size(); i++)
-        {
-        if (verreslist.at(i).at(5).toString() == "O")
+    foreach (Refraction* ref, mapref.values())
+    {
+        if (ref->typemesure() == Refraction::Prescription)
             TypeMesure =  tr("Prescription");
         else
             TypeMesure =  tr("Verres portés");
-        zdate = verreslist.at(i).at(2).toString();                         // date YYYY-MM-DD
-        zdate = zdate.mid(8,2) + "-" + zdate.mid(5,2) + "-" + zdate.left(4);
+        zdate = ref->daterefraction().toString("dd-MM-yyyy");
         // calcul Formule
-        Formule = verreslist.at(i).at(3).toString();            // Formule OD
+        Formule = ref->formuleOD();
         if (Formule.length() > 0)
             Formule += " / ";
-        Formule += verreslist.at(i).at(4).toString();           // Formule OG
+        Formule += ref->formuleOG();
         if (ResultatVerres != "")
             ResultatVerres += "\n\n";
         ResultatVerres += "        " + zdate + " - " + TypeMesure + "\n\t" + Formule;
-        }
+    }
     return ResultatVerres;
 }
 
@@ -3423,10 +3445,10 @@ void dlg_refraction::ResumeRefraction()
 
 
     // 2-1 - Mesure dilatee
-    ResultatAutorefDil = RechercheResultat("A", "1", "");
+    ResultatAutorefDil = RechercheResultat(Refraction::Autoref, Refraction::Dilatation);
 
     // 2-2- Mesure non dilatee
-    ResultatAutorefNonDil = RechercheResultat("A", "0", "");
+    ResultatAutorefNonDil = RechercheResultat(Refraction::Autoref, Refraction::NoDilatation);
 
     // 2-3- Determination de ResultatAutoref
     if (ResultatAutorefDil == "" && ResultatAutorefNonDil != "")
@@ -3444,11 +3466,11 @@ void dlg_refraction::ResumeRefraction()
     QString ResultatRefraction      = "";
 
     // 3-1 Mesure dilatee
-    ResultatRefractionDil = RechercheResultat("R", "1", "");
+    ResultatRefractionDil = RechercheResultat(Refraction::Acuite, Refraction::Dilatation);
 
     // 3-2 Mesure non dilatee
-    ResultatRefractionV2 = RechercheResultat("R", "0", "2");
-    ResultatRefractionVL = RechercheResultat("R", "0", "L");
+    ResultatRefractionV2 = RechercheResultat(Refraction::Acuite, Refraction::NoDilatation, Refraction::AllDistance);
+    ResultatRefractionVL = RechercheResultat(Refraction::Acuite, Refraction::NoDilatation, Refraction::Loin);
 
     // calcul formule avec dilation
     if (ResultatRefractionV2 != "" && ResultatRefractionVL != "")

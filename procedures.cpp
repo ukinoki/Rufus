@@ -2852,7 +2852,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         if (Dlg_GestUsr->exec() > 0)
-            SetUserAllData(m_currentuser, Item::ForceUpdate);
+            SetUserAllData(m_currentuser, Item::Update);
         delete Dlg_GestUsr;
     }
     m_settings->setValue("Param_Poste/VilleParDefaut","Flayat");
@@ -3342,7 +3342,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
  */
 bool Procedures::SetUserAllData(User *usr, Item::UPDATE upd)
 {
-    if (!usr->isAllLoaded() || upd == Item::ForceUpdate)
+    if (!usr->isAllLoaded() || upd == Item::Update)
     {
         QJsonObject data = db->loadUserData(usr->id());
         if(data.isEmpty())
@@ -6135,13 +6135,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                         && ref->typemesure() == Refraction::Fronto
                         && ref->formuleOD() == Utils::CalculeFormule(MapMesure,"D")
                         && ref->formuleOG() == Utils::CalculeFormule(MapMesure,"G"))
-                {
-                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                    it = Datas::I()->refractions->refractions()->erase(it);
-                    delete ref;
-                }
-                else
-                    ++it;
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                ++it;
              }
 
             QHash<QString, QVariant> listbinds;
@@ -6197,13 +6192,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
-                {
-                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                    it = Datas::I()->refractions->refractions()->erase(it);
-                    delete ref;
-                }
-                else
-                    ++it;
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                ++it;
              }
 
             QHash<QString, QVariant> listbinds;
@@ -6357,13 +6347,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
-                {
-                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                    it = Datas::I()->refractions->refractions()->erase(it);
-                    delete ref;
-                }
-                else
-                    ++it;
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                ++it;
              }
 
             QHash<QString, QVariant> listbinds;

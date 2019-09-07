@@ -945,7 +945,7 @@ void dlg_param::Slot_GestionDatasCurrentUser()
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
     {
-        proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
+        proc->SetUserAllData(m_currentuser, Item::Update);
         AfficheParamUser();
     }
     if (!m_MDPuserverifie)
@@ -961,7 +961,7 @@ void dlg_param::Slot_GestionUsers()
     if(m_donneesusermodifiees)
     {
         Datas::I()->users->initListe();
-        proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
+        proc->SetUserAllData(m_currentuser, Item::Update);
         AfficheParamUser();
     }
     delete Dlg_GestUsr;

@@ -105,5 +105,24 @@ void dlg_message::AfficheMsg(QStringList listmes, int pause, bool bottom)
         connect(timer, &QTimer::timeout, dlg, &QDialog::reject);
         timer           ->start(pause);
         decalage        += dlg->height();
+        LogMessage(listmes.at(i));
+    }
+}
+
+void dlg_message::LogMessage(QString msg)
+{
+    QDir DirRssces;
+    QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
+    if (!DirRssces.exists(dirlog))
+        DirRssces.mkdir(dirlog);
+    QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
+    QString fileName(dirlog + "/" + datelog + "_errorlog.txt");
+    QFile testfile(fileName);
+    if( testfile.open(QIODevice::Append) )
+    {
+        QTextStream out(&testfile);
+        QString timelog = QTime::currentTime().toString();
+        out << timelog << " - " << "MESSAGE" << " : " << msg << "\n";
+        testfile.close();
     }
 }

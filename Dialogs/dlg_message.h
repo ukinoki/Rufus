@@ -48,6 +48,7 @@ public:
 private:
     void            AfficheMsg(QStringList listmes, int pause, bool bottom);
     void            delay(int msec);
+    void            LogMessage(QString msg);
 };
 
 #endif // DLG_MESSAGE_H

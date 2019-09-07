@@ -46,7 +46,8 @@ void Refraction::setData(QJsonObject data)
         m_distance = Pres;
     else if (distance == "2")
         m_distance = AllDistance;
-    setDataBool(data, CP_CYCLOPLEGIE_REFRACTIONS, m_isdilate);                  //!> examen sous cycloplegie ou non
+    if (data.contains(CP_CYCLOPLEGIE_REFRACTIONS))
+        m_dilate = (data[CP_CYCLOPLEGIE_REFRACTIONS].toBool()? Dilatation : NoDilatation);
     setDataBool(data, CP_ODMESURE_REFRACTIONS, m_isODmesure);                   //!> l'OD a été mesuré
     setDataDouble(data, CP_SPHEREOD_REFRACTIONS, m_sphereOD);                   //!> sphere OD
     setDataDouble(data, CP_CYLINDREOD_REFRACTIONS, m_cylindreOD);               //!> cylindre OD
@@ -57,9 +58,9 @@ void Refraction::setData(QJsonObject data)
     setDataDouble(data, CP_PRISMEOD_REFRACTIONS, m_prismeOD);                   //!> prismeOD
     setDataInt(data, CP_BASEPRISMEOD_REFRACTIONS, m_baseprismeOD);              //!> base prisme OD en degré
     setDataString(data, CP_BASEPRISMETEXTOD_REFRACTIONS, m_baseprismetextOD);   //!> base prisme OD en texte (nasal, temporal, supérieur, inférieur
-    setDataBool(data, CP_PRESSONOD_REFRACTIONS, m_haspressonOD);                //!> un presson est utilisé sur l'OD
-    setDataBool(data, CP_DEPOLIOD_REFRACTIONS, m_hasdepoliOD);                  //!> un dépoli est utilisé sur l'OD
-    setDataBool(data, CP_PLANOD_REFRACTIONS, m_hasplanOD);                      //!> un verre plan est utilisé sur l'OD
+    setDataLogic(data, CP_PRESSONOD_REFRACTIONS, m_haspressonOD);               //!> un presson est utilisé sur l'OD
+    setDataLogic(data, CP_DEPOLIOD_REFRACTIONS, m_hasdepoliOD);                 //!> un dépoli est utilisé sur l'OD
+    setDataLogic(data, CP_PLANOD_REFRACTIONS, m_hasplanOD);                     //!> un verre plan est utilisé sur l'OD
     setDataInt(data, CP_RYSEROD_REFRACTIONS, m_ryserOD);                        //!> puissance Ryser OD
     setDataString(data, CP_FORMULEOD_REFRACTIONS, m_formuleOD);                 //!> formule de réfraction OD
     setDataBool(data, CP_OGMESURE_REFRACTIONS, m_isOGmesure);                   //!> l'OG a été mesuré
@@ -72,9 +73,9 @@ void Refraction::setData(QJsonObject data)
     setDataDouble(data, CP_PRISMEOG_REFRACTIONS, m_prismeOG);                   //!> prismeOG
     setDataInt(data, CP_BASEPRISMEOG_REFRACTIONS, m_baseprismeOG);              //!> base prisme OG en degré
     setDataString(data, CP_BASEPRISMETEXTOG_REFRACTIONS, m_baseprismetextOG);   //!> base prisme OG en texte (nasal, temporal, supérieur, inférieur
-    setDataBool(data, CP_PRESSONOG_REFRACTIONS, m_haspressonOG);                //!> un presson est utilisé sur l'OG
-    setDataBool(data, CP_DEPOLIOG_REFRACTIONS, m_hasdepoliOG);                  //!> un dépoli est utilisé sur l'OG
-    setDataBool(data, CP_PLANOG_REFRACTIONS, m_hasplanOG);                      //!> un verre plan est utilisé sur l'OG
+    setDataLogic(data, CP_PRESSONOG_REFRACTIONS, m_haspressonOG);               //!> un presson est utilisé sur l'OG
+    setDataLogic(data, CP_DEPOLIOG_REFRACTIONS, m_hasdepoliOG);                 //!> un dépoli est utilisé sur l'OG
+    setDataLogic(data, CP_PLANOG_REFRACTIONS, m_hasplanOG);                     //!> un verre plan est utilisé sur l'OG
     setDataInt(data, CP_RYSEROG_REFRACTIONS, m_ryserOG);                        //!> puissance Ryser OG
     setDataString(data, CP_FORMULEOG_REFRACTIONS, m_formuleOG);                 //!> formule de réfraction OG
     setDataString(data, CP_COMMENTAIREORDO_REFRACTIONS, m_commentaireordo);     //!> commentaire de l'ordonnace de verres

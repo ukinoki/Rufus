@@ -83,13 +83,13 @@ void Correspondants::loadAllData(Correspondant *cor, Item::UPDATE upd)
 {
     if (cor == Q_NULLPTR)
         return;
-    if (!cor->isallloaded() || upd == Item::ForceUpdate)
+    if (!cor->isallloaded() || upd == Item::Update)
     {
         QJsonObject jsoncor = DataBase::I()->loadCorrespondantData(cor->id());
         if( !jsoncor.isEmpty() )
             cor->setData(jsoncor);
     }
-    add (map_correspondants, cor, Item::ForceUpdate);
+    add (map_correspondants, cor, Item::Update);
 }
 
 
@@ -106,7 +106,7 @@ void Correspondants::initListe(bool all)
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
     epurelist(map_correspondants, &listcorrespondants);
-    addList(map_correspondants, &listcorrespondants, Item::ForceUpdate);
+    addList(map_correspondants, &listcorrespondants, Item::Update);
 }
 
 QStringList Correspondants::autresprofessions()

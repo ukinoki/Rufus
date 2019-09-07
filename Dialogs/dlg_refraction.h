@@ -98,7 +98,6 @@ private:
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     enum DistanceMesure     {Loin, Pres, Les2};
-    enum Cycloplegie        {Dilatation, NoDilatation};
 
     bool                    m_ok;
     bool                    m_affichedetail;
@@ -142,6 +141,7 @@ private:
     QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
     double                  ConvDouble(QString textdouble);
+    Refraction::Distance    ConvertDistance(QString distance);
     Refraction::Mesure      ConvertMesure(QString Mesure);
     QString                 ConvertMesure(Refraction::Mesure Mesure);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
@@ -154,7 +154,7 @@ private:
     void                    InscriptRefraction();
     void                    InsertDonneesOphtaPatient();
     Refraction*             InsertRefraction();
-    Refraction*             LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, QString FormuleOD = "", QString FormuleOG = "");
+    Refraction*             LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Refraction::Cycloplegie dilatation, QString FormuleOD = "", QString FormuleOG = "");
     void                    OuvrirListeMesures(QString SupOuRecup);
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();
@@ -165,7 +165,7 @@ private:
     void                    QuitteAddVP(UpDoubleSpinBox *obj);
     void                    PrefixePlus(QDoubleSpinBox *DoubleSpinBox);
     void                    RechercheMesureEnCours();
-    QString                 RechercheResultat(QString Mesure, QString Cyclople, QString TYpLun);
+    QString                 RechercheResultat(Refraction::Mesure mesure, Refraction::Cycloplegie dilatation, Refraction::Distance typlun = Refraction::Inconnu);
     QString                 RechercheVerres();
     void                    RemplitChamps(Refraction *ref);
     void                    ResumeObservation();

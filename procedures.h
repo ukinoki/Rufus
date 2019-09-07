@@ -93,7 +93,7 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     DataBase                *db;
-    Utils::ModeAcces     m_modeacces;
+    Utils::ModeAcces        m_modeacces;
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
@@ -190,7 +190,7 @@ public:
     int                     idLieuExercice();
     bool                    Init();
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
-    bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::ForceUpdate);
+    bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::Update);
 
 /*! fin definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta) -------------------------------------------------------------------------------------------------------- */
 

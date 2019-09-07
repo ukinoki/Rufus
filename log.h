@@ -23,7 +23,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include "macros.h"
 #include "upmessagebox.h"
-#include "dlg_message.h"
 
 /*!
 * \file Log.h

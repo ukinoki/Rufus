@@ -2152,7 +2152,8 @@ QJsonObject             DataBase::loadRefractionData(QVariantList refdata)      
     data[CP_DATE_REFRACTIONS]               = refdata.at(3).toDate().toString("yyyy-MM-dd");
     data[CP_TYPEMESURE_REFRACTIONS]         = refdata.at(4).toString();
     data[CP_DISTANCEMESURE_REFRACTIONS]     = refdata.at(5).toString();
-    data[CP_CYCLOPLEGIE_REFRACTIONS]        = (refdata.at(6).toInt() == 1);
+    if (refdata.at(6) != QVariant())
+        data[CP_CYCLOPLEGIE_REFRACTIONS]    = (refdata.at(6).toInt() == 1);
     data[CP_ODMESURE_REFRACTIONS]           = (refdata.at(7).toInt() == 1);
     data[CP_SPHEREOD_REFRACTIONS]           = refdata.at(8).toDouble();
     data[CP_CYLINDREOD_REFRACTIONS]         = refdata.at(9).toDouble();
@@ -2163,7 +2164,8 @@ QJsonObject             DataBase::loadRefractionData(QVariantList refdata)      
     data[CP_PRISMEOD_REFRACTIONS]           = refdata.at(14).toDouble();
     data[CP_BASEPRISMEOD_REFRACTIONS]       = refdata.at(15).toInt();
     data[CP_BASEPRISMETEXTOD_REFRACTIONS]   = refdata.at(16).toString();
-    data[CP_PRESSONOD_REFRACTIONS]          = (refdata.at(17).toInt() == 1);
+    if (refdata.at(17) != QVariant())
+        data[CP_PRESSONOD_REFRACTIONS]      = (refdata.at(17).toInt() == 1);
     data[CP_DEPOLIOD_REFRACTIONS]           = (refdata.at(18).toInt() == 1);
     data[CP_PLANOD_REFRACTIONS]             = (refdata.at(19).toInt() == 1);
     data[CP_RYSEROD_REFRACTIONS]            = refdata.at(20).toInt();
@@ -2178,7 +2180,8 @@ QJsonObject             DataBase::loadRefractionData(QVariantList refdata)      
     data[CP_PRISMEOG_REFRACTIONS]           = refdata.at(29).toDouble();
     data[CP_BASEPRISMEOG_REFRACTIONS]       = refdata.at(30).toInt();
     data[CP_BASEPRISMETEXTOG_REFRACTIONS]   = refdata.at(31).toString();
-    data[CP_PRESSONOG_REFRACTIONS]          = (refdata.at(32).toInt() == 1);
+    if (refdata.at(32) != QVariant())
+        data[CP_PRESSONOG_REFRACTIONS]      = (refdata.at(32).toInt() == 1);
     data[CP_DEPOLIOG_REFRACTIONS]           = (refdata.at(33).toInt() == 1);
     data[CP_PLANOG_REFRACTIONS]             = (refdata.at(34).toInt() == 1);
     data[CP_RYSEROG_REFRACTIONS]            = refdata.at(35).toInt();

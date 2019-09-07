@@ -56,7 +56,7 @@ void PatientsEnCours::initListeAll()
 {
     QList<PatientEnCours*> listpatencours = DataBase::I()->loadPatientsenCoursAll();
     epurelist(map_patientsencours, &listpatencours);
-    addList(map_patientsencours, &listpatencours, Item::ForceUpdate);
+    addList(map_patientsencours, &listpatencours, Item::Update);
 }
 
 void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)

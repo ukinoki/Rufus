@@ -75,6 +75,9 @@ void epurelist(QMap<int, T*> *m_oldmap, const QList<T*> *m_newlist)
 {
     if (m_oldmap->size() == 0)
         return;
+    if (m_newlist->size() == 0)
+        clearAll(m_oldmap);
+    else {
     QMap<int, T*> m_newmap;
     foreach (T *item, *m_newlist)
         m_newmap.insert(item->id(), item);
@@ -88,6 +91,7 @@ void epurelist(QMap<int, T*> *m_oldmap, const QList<T*> *m_newlist)
         }
         else
             ++it;
+    }
 }
 
 /*! le même avec des QString en key */
@@ -96,6 +100,9 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
 {
     if (m_oldmap->size() == 0)
         return;
+    if (m_newlist->size() == 0)
+        clearAll(m_oldmap);
+    else {
     QMap<QString, T*> m_newmap;
     foreach (T* item, *m_newlist)
         m_newmap.insert(item->stringid(), item);
@@ -109,6 +116,7 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
         }
         else
             ++it;
+    }
 }
 
 
@@ -137,7 +145,7 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         if (!itemadded)
         {
             T* fitem = const_cast<T*>(it.value());
-            if (upd == Item::ForceUpdate)
+            if (upd == Item::Update)
                 fitem->setData(item->datas());
             if (fitem != item)
                 delete item;
@@ -160,7 +168,7 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         if (!itemadded)
         {
             T* fitem = const_cast<T*>(it.value());
-            if (upd == Item::ForceUpdate)
+            if (upd == Item::Update)
                 fitem->setData(item->datas());
             if (fitem != item)
                 delete item;

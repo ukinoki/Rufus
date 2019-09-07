@@ -190,7 +190,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
         Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
-        Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
+        Datas::I()->patients->loadAll(m_currentpatient, Item::Update);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
         else
@@ -286,7 +286,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         if (patdata.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
-            Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
+            Datas::I()->patients->loadAll(m_currentpatient, Item::Update);
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect (OKButton, SIGNAL(clicked(bool)),this,SLOT(Slot_AnnulpushButtonClicked()));
@@ -491,7 +491,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     if (m_mode == Copie)                                             //!> le nouveau dossier n'est pas encore créé (il ne le sera que si la fche est validée), on se contente de recopier les données du patient passsé en paramètre dans la fiche
     {
         if (!m_currentpatient->isalloaded())
-            Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
+            Datas::I()->patients->loadAll(m_currentpatient, Item::Update);
         ui->NomlineEdit->setText(m_currentpatient->nom());
         ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
         ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
@@ -535,7 +535,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     else if (m_mode == Modification)                                 //!> on ne crée pas de nouveau dossier, on affiche tous les paramètres connus du dossier
     {
         if (!m_currentpatient->isalloaded())
-            Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
+            Datas::I()->patients->loadAll(m_currentpatient, Item::Update);
         ui->NomlineEdit->setText(m_currentpatient->nom());
         ui->PrenomlineEdit->setText(m_currentpatient->prenom());
         ui->DDNdateEdit->setDate(m_currentpatient->datedenaissance());
