@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("07-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("08-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2843,7 +2843,7 @@ void Rufus::ChoixMenuContextuelMotsCles()
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
-    dlg_listemotscles *ListMCDialog = new dlg_listemotscles(Datas::I()->patients->currentpatient());
+    dlg_listemotscles *ListMCDialog = new dlg_listemotscles();
     if (ListMCDialog->exec()==0)
     {
         QStringList listMC = ListMCDialog->listMCDepart();
@@ -5739,10 +5739,7 @@ Patient* Rufus::getPatientFromIndex(QModelIndex idx)
     if (upitem == Q_NULLPTR)
         return Q_NULLPTR;
     if (upitem->item() == Q_NULLPTR)
-    {
-        qDebug() << "erreur sur l'item - row = " << upitem->row() << " - col = " << upitem->column() << upitem->text();
         return Q_NULLPTR;
-    }
     Patient *pat = dynamic_cast<Patient *>(upitem->item());
     return pat;
 }
@@ -6837,7 +6834,7 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
                         && (patcrs->iduserencoursexam() != m_currentuser->id() || (patcrs->iduserencoursexam() == m_currentuser->id() && patcrs->posteexamen() != QHostInfo::localHostName().left(60))))
                 {
                     UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
-                                        tr("Ce patient est") + patcrs->statut() + "\n" + tr("sur ") + patcrs->posteexamen());
+                                        tr("Ce patient est") + "\n" + patcrs->statut().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
                     return;
                 }
             }
@@ -8445,7 +8442,6 @@ void    Rufus::RefractionMesure()
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-    qDebug() << "nbre refractions = " << Datas::I()->refractions->refractions()->size();
     Dlg_Refraction     = new dlg_refraction(m_currentact, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();

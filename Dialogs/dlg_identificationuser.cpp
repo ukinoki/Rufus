@@ -37,8 +37,8 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     ui->MDPlineEdit     ->setEchoMode(QLineEdit::Password);
 
-    connect (ui->OKpushButton,      &QPushButton::clicked,  this,   &dlg_identificationuser::Slot_RetourOK);
-    connect (ui->AnnulpushButton,   &QPushButton::clicked, this,   &dlg_identificationuser::Slot_RetourAnnul);
+    connect (ui->OKpushButton,      &QPushButton::clicked,  this,  &dlg_identificationuser::Validation);
+    connect (ui->AnnulpushButton,   &QPushButton::clicked, this,   &dlg_identificationuser::reject);
 
     ui->OKpushButton    ->setShortcut(QKeySequence("Meta+Return"));
     ui->AnnulpushButton ->setShortcut(QKeySequence("F12"));
@@ -57,12 +57,7 @@ dlg_identificationuser::~dlg_identificationuser()
     delete ui;
 }
 
-void dlg_identificationuser::Slot_RetourAnnul()
-{
-    reject();
-}
-
-void dlg_identificationuser::Slot_RetourOK()
+void dlg_identificationuser::Validation()
 {
     //On desactive le button OK pour neutraliser le double clic.
     ui->OKpushButton->setEnabled(false);
@@ -112,7 +107,7 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
         // Return - Idem Flèche Droite sauf sur les pushButton ---------------------------
         if(keyEvent->key()==Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
         {
-            if (obj == ui->MDPlineEdit) Slot_RetourOK();
+            if (obj == ui->MDPlineEdit) Validation();
             if (!obj->inherits("QPushButton"))
                 return QWidget::focusNextChild();
         }

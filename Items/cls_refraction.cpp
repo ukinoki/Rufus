@@ -98,3 +98,32 @@ void Refraction::setData(QJsonObject data)
     setDataInt(data, CP_PD_REFRACTIONS, m_ecartIP);                             //!> ecart interpuppilaire
     m_data = data;
 }
+
+Refraction::Distance Refraction::ConvertDistance(QString distance)
+{
+    if (distance == "P") return Pres;
+    if (distance == "L") return Loin;
+    if (distance == "2") return AllDistance;
+    return  Inconnu;
+}
+
+Refraction::Mesure Refraction::ConvertMesure(QString Mesure)
+{
+    if (Mesure == "P") return Fronto;
+    if (Mesure == "A") return Autoref;
+    if (Mesure == "O") return Prescription;
+    if (Mesure == "R") return Acuite;
+    return  NoMesure;
+}
+
+QString Refraction::ConvertMesure(Refraction::Mesure Mesure)
+{
+    switch (Mesure) {
+    case Fronto:       return "P";
+    case Autoref:      return "A";
+    case Prescription: return "0";
+    case Acuite:       return "R";
+    default: return "";
+    }
+}
+

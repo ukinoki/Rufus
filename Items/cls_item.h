@@ -35,7 +35,7 @@ public:
     enum UPDATE {NoUpdate, Update};                 Q_ENUM(UPDATE)
     enum Logic {True, False, Null};                 Q_ENUM(Logic)
         /*! pour certaines données bool, on a 3 valeurs possibles, true, false et null
-         * en fait, on pourrait même faire une 4ème valeur correspondaant à "ne sait pas" -> ne sait pas si la valeeur est rue, false ou null
+         * en fait, on pourrait même faire une 4ème valeur correspondaant à "ne sait pas" -> ne sait pas si la valeeur est true, false ou null
          */
     explicit Item(QObject *parent = Q_NULLPTR);
     int id() const                      { return m_id; }

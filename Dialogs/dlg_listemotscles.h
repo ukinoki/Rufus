@@ -29,16 +29,15 @@ class dlg_listemotscles : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_listemotscles(Patient *pat, QWidget *parent = Q_NULLPTR);
+    explicit dlg_listemotscles(QWidget *parent = Q_NULLPTR);
     ~dlg_listemotscles();
     QStringList         listMCDepart() const;
     enum Mode {Creation, Modif};    Q_ENUM(Mode)
 
 private:
     DataBase            *db = DataBase::I();
-    Patient             *m_currentpatient;
+    Patient             *m_currentpatient = Datas::I()->patients->currentpatient();
     QStringList         m_listemotscles, m_listidmotsclesdepart;
-    Mode                m_mode;
 
     QTableView          *wdg_bigtable;
     WidgetButtonFrame   *wdg_buttonframe;
@@ -48,15 +47,15 @@ private:
     QItemSelectionModel *m_selectionmodel;
 
     void                DisableLines();
+    void                Enablebuttons();
     void                RemplirTableView();
     void                CreationModifMC(enum Mode);
     void                SupprMC();
+    void                Validation();
+    void                VerifMC();
 
 private slots:
     void                Slot_ChoixButtonFrame(int);
-    void                Slot_Enablebuttons();
-    void                Slot_OK();
-    void                Slot_VerifMC();
 
 };
 

@@ -72,7 +72,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     wdg_CPlineedit          = wdg_villeCP->ui->CPlineEdit;
     wdg_villelineedit       = wdg_villeCP->ui->VillelineEdit;
     wdg_villeCP         ->move(10,254);
-    connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationpatient::Slot_EnableOKpushButton);
+    connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationpatient::EnableOKpushButton);
 
     AfficheDossierAlOuverture();
 
@@ -100,15 +100,15 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     m_flagcorrespondants    = Flags::I()->flagCorrespondants();
     t_timer                  = new QTimer(this);
     t_timer                  ->start(5000);
-    connect (t_timer,                        &QTimer::timeout,                           this,   &dlg_identificationpatient::Slot_VerifMGFlag);
+    connect (t_timer,                        &QTimer::timeout,                           this,   &dlg_identificationpatient::VerifMGFlag);
 
     ui->NomlineEdit->setFocus();
 
     OKButton    ->disconnect();
     CancelButton->disconnect();
-    connect (OKButton,                      SIGNAL(clicked()),                          this,   SLOT (Slot_OKpushButtonClicked()));
-    connect (CancelButton,                  SIGNAL(clicked()),                          this,   SLOT (Slot_AnnulpushButtonClicked()));
-    connect (ui->ModifierDDNupPushButton,   SIGNAL(clicked()),                          this,   SLOT (Slot_ModifDDN()));
+    connect (OKButton,                      &QPushButton::clicked,                      this,   &dlg_identificationpatient::OKpushButtonClicked);
+    connect (CancelButton,                  &QPushButton::clicked,                      this,   &dlg_identificationpatient::AnnulpushButtonClicked);
+    connect (ui->ModifierDDNupPushButton,   &QPushButton::clicked,                      this,   &dlg_identificationpatient::ModifDDN);
 
     connect (ui->NomlineEdit,               SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
     connect (ui->PrenomlineEdit,            SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
@@ -116,23 +116,23 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     connect (ui->Adresse2lineEdit,          SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
     connect (ui->Adresse3lineEdit,          SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
     connect (ui->ProfessionlineEdit,        SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
-    connect (ui->DDNdateEdit,               SIGNAL(dateChanged(QDate)),                 this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->NomlineEdit,               SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->PrenomlineEdit,            SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->Adresse1lineEdit,          SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->Adresse2lineEdit,          SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->Adresse3lineEdit,          SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->TellineEdit,               SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->PortablelineEdit,          SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->MaillineEdit,              SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->NNIlineEdit,               SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->ProfessionlineEdit,        SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->MradioButton,              SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->FradioButton,              SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->ALDcheckBox,               SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));
-    connect (ui->CMUcheckBox,               SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));
+    connect (ui->DDNdateEdit,               &QDateEdit::dateChanged,                    this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->NomlineEdit,               &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->PrenomlineEdit,            &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->Adresse1lineEdit,          &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->Adresse2lineEdit,          &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->Adresse3lineEdit,          &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->TellineEdit,               &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->PortablelineEdit,          &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->MaillineEdit,              &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->NNIlineEdit,               &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->ProfessionlineEdit,        &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->MradioButton,              &QRadioButton::clicked,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->FradioButton,              &QRadioButton::clicked,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->ALDcheckBox,               &QRadioButton::clicked,                     this,   &dlg_identificationpatient::EnableOKpushButton);
+    connect (ui->CMUcheckBox,               &QRadioButton::clicked,                     this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->MGupComboBox,              QOverload<int>::of(&QComboBox::activated),  this,   &dlg_identificationpatient::ChoixMG);
-    connect (ui->MGupComboBox,              SIGNAL(currentTextChanged(QString)) ,       this,   SLOT (Slot_EnableOKpushButton()));
+    connect (ui->MGupComboBox,              &QComboBox::currentTextChanged,             this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->MGupComboBox,              &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelMedecin();});
 
     OKButton  ->setEnabled(false);
@@ -158,7 +158,7 @@ void dlg_identificationpatient::ChoixMG()
     Datas::I()->patients->updateCorrespondant(m_currentpatient, Correspondant::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
 }
 
-void    dlg_identificationpatient::Slot_EnableOKpushButton()
+void    dlg_identificationpatient::EnableOKpushButton()
 {
     bool a  = ui->NomlineEdit->text() != ""
            && ui->PrenomlineEdit->text() != ""
@@ -176,13 +176,13 @@ void dlg_identificationpatient::Slot_Majuscule()
     OKButton->setEnabled(true);
 }
 
-void    dlg_identificationpatient::Slot_ModifDDN()
+void    dlg_identificationpatient::ModifDDN()
 {
     ui->DDNdateEdit->setEnabled(true);
     ui->ModifierDDNupPushButton->setVisible(false);
 }
 
-void dlg_identificationpatient::Slot_VerifMGFlag()
+void dlg_identificationpatient::VerifMGFlag()
 {
     int flag = Flags::I()->flagCorrespondants();
     if (m_flagcorrespondants < flag)
@@ -198,7 +198,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
     }
 }
 
-void    dlg_identificationpatient::Slot_OKpushButtonClicked()
+void    dlg_identificationpatient::OKpushButtonClicked()
 {
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
     PatNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
@@ -288,8 +288,8 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
             Datas::I()->patients->loadAll(m_currentpatient, Item::Update);
             AfficheDossierAlOuverture();
-            disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
-            connect (OKButton, SIGNAL(clicked(bool)),this,SLOT(Slot_AnnulpushButtonClicked()));
+            disconnect  (OKButton, &QPushButton::clicked,   this,   &dlg_identificationpatient::OKpushButtonClicked);
+            connect     (OKButton, &QPushButton::clicked,   this,   &dlg_identificationpatient::AnnulpushButtonClicked);
             QList<QLineEdit *> listline = findChildren<QLineEdit *>();
             for (int i = 0;i<listline.size();i++) listline.at(i)->setEnabled(false);
             ui->SexegroupBox->setEnabled(false);
@@ -424,7 +424,7 @@ void dlg_identificationpatient::ModifCorrespondant()
     delete Dlg_IdentCorresp;
 }
 
-void dlg_identificationpatient::Slot_AnnulpushButtonClicked()
+void dlg_identificationpatient::AnnulpushButtonClicked()
 {
     if (m_mode == Creation)
     {

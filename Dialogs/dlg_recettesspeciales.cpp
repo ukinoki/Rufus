@@ -121,7 +121,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     m_initok = true;
 }
 
-void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
+void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode, bool majfiche)
 {
     m_mode = mode;
     ui->DateRecdateEdit     ->setVisible(m_mode != TableVide);
@@ -164,10 +164,10 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
     ui->ModifierupPushButton        ->setVisible(m_mode == Lire);
     int sz = m_currentuser->listecomptesbancaires()->size();
     ui->NouvelleRecetteupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && sz>0);
-    ui->NouvelleRecetteupPushButton->setToolTip((m_mode == Lire || m_mode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
-    wdg_enreguppushbutton       ->setVisible(!(m_mode == Lire || m_mode == TableVide));
-    wdg_annuluppushbutton       ->setVisible(!(m_mode == Lire || m_mode == TableVide));
-    wdg_bigtable               ->setEnabled(m_mode == Lire);
+    ui->NouvelleRecetteupPushButton ->setToolTip((m_mode == Lire || m_mode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
+    wdg_enreguppushbutton           ->setVisible(!(m_mode == Lire || m_mode == TableVide));
+    wdg_annuluppushbutton           ->setVisible(!(m_mode == Lire || m_mode == TableVide));
+    wdg_bigtable                    ->setEnabled(m_mode == Lire);
     if (wdg_bigtable->rowCount()==0 && m_mode== Enregistrer)
     {
         ui->TireurlineEdit->setVisible(false);
@@ -177,7 +177,8 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
         ui->PaiementcomboBox->setCurrentText(VIREMENT);
     }
     RegleComptesComboBox(m_mode==Enregistrer);
-    MetAJourFiche();
+    if (majfiche)
+        MetAJourFiche();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -370,25 +371,23 @@ void dlg_recettesspeciales::GererRecette(QPushButton *widgsender)
         RegleAffichageFiche(Enregistrer);
 }
 
-void dlg_recettesspeciales::MenuContextuel(UpLabel *labelClicked)
+void dlg_recettesspeciales::MenuContextuel(int id)
 {
-    int idRecAOuvrir = labelClicked->iD();
-
     QMenu *menu;
     menu = new QMenu(this);
 
     QAction *pAction_RecopieDep = menu->addAction(tr("Effectuer une copie de cette recette à la date d'aujourd'hui"));
-    connect (pAction_RecopieDep, &QAction::triggered,    [=] {ChoixMenu(QString::number(idRecAOuvrir));});
+    connect (pAction_RecopieDep, &QAction::triggered,    [=] {ChoixMenu(id);});
     QAction *pAction_ChercheVal = menu->addAction(tr("Rechercher une valeur"));
-    connect (pAction_ChercheVal, &QAction::triggered,    [=] {ChoixMenu("ChercheVal");});
+    connect (pAction_ChercheVal, &QAction::triggered,    [=] {ChoixMenu();});
 
     // ouvrir le menu
     menu->exec(cursor().pos());
 }
 
-void dlg_recettesspeciales::ChoixMenu(QString choix)
+void dlg_recettesspeciales::ChoixMenu(int id)
 {
-    if (choix == "ChercheVal")
+    if (id == -1)
     {
         QMessageBox msgbox;
         msgbox.setText("...");
@@ -403,7 +402,7 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
     }
     else
     {
-        RegleAffichageFiche(Enregistrer);
+        RegleAffichageFiche(Enregistrer, false);
         m_mode = Enregistrer;
         ui->DateRecdateEdit             ->setEnabled(true);
         ui->ObjetlineEdit               ->setEnabled(true);
@@ -424,15 +423,16 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
         ui->SupprimerupPushButton       ->setVisible(false);
         ui->ModifierupPushButton        ->setVisible(false);
         ui->NouvelleRecetteupPushButton ->setEnabled(false);
-        wdg_enreguppushbutton               ->setVisible(true);
-        wdg_annuluppushbutton               ->setVisible(true);
-        wdg_bigtable                       ->setEnabled(false);
-        wdg_bigtable->disconnect();
+        wdg_enreguppushbutton           ->setVisible(true);
+        wdg_annuluppushbutton           ->setVisible(true);
+        wdg_bigtable                    ->setEnabled(false);
+        wdg_bigtable                    ->disconnect();
         ui->DateRecdateEdit             ->setDate(QDate::currentDate());
-        wdg_enreguppushbutton               ->setText("Enregistrer");
+        wdg_enreguppushbutton           ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
         ui->ModifierupPushButton        ->setShortcut(QKeySequence());
-        wdg_enreguppushbutton               ->setShortcut(QKeySequence("Meta+Return"));
+        wdg_enreguppushbutton           ->setShortcut(QKeySequence("Meta+Return"));
+        connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, [=] {RegleAffichageFiche(Lire);});
     }
 }
 
@@ -588,7 +588,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         ui->RefFiscalecomboBox  ->disconnect();
         ui->PaiementcomboBox    ->disconnect();
 
-        m_idrecetteencours = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),0))->text().toInt();
+        UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),0));
+        if (lbl == Q_NULLPTR)
+            return;
+        m_idrecetteencours = lbl->text().toInt();
 
         //TODO : SQL
         bool OK = true;
@@ -977,13 +980,13 @@ void dlg_recettesspeciales::RemplitBigTable()
             label5->setContextMenuPolicy(Qt::CustomContextMenu);
             label6->setContextMenuPolicy(Qt::CustomContextMenu);
 
-            connect(label0,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label0);});
-            connect(label1,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label1);});
-            connect(label2,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label2);});
-            connect(label3,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label3);});
-            connect(label4,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label4);});
-            connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label5);});
-            connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label6);});
+            connect(label0,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label1,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label2,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label3,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label4,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
 
             A = recette.at(0).toString();                                                                  // idRecette - col = 0
             label0->setText(A);

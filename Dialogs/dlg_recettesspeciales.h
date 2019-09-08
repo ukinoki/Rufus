@@ -60,9 +60,9 @@ private:
     void                        EnregistreRecette();
     void                        ReconstruitListeAnnees();
     void                        RegleComptesComboBox(bool ActiveSeult = true);
-    void                        RegleAffichageFiche(enum Mode);
+    void                        RegleAffichageFiche(enum Mode, bool majfiche = true);
     void                        RemplitBigTable();
-    void                        ChoixMenu(QString);
+    void                        ChoixMenu(int id = -1);
     bool                        initializeUserSelected();
 
     void                        AnnulEnreg();
@@ -71,7 +71,7 @@ private:
     void                        EnableModifiepushButton();
     void                        GererRecette(QPushButton *widgsender);
     void                        GestionComptes();
-    void                        MenuContextuel(UpLabel *labelClicked);
+    void                        MenuContextuel(int id);
     void                        MetAJourFiche();
     void                        ModifierRecette();
     void                        RedessineBigTable(int idRec = -1);

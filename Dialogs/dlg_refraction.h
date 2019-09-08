@@ -97,7 +97,6 @@ private:
     Refraction::Mesure      m_mode;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
-    enum DistanceMesure     {Loin, Pres, Les2};
 
     bool                    m_ok;
     bool                    m_affichedetail;
@@ -141,9 +140,6 @@ private:
     QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
     double                  ConvDouble(QString textdouble);
-    Refraction::Distance    ConvertDistance(QString distance);
-    Refraction::Mesure      ConvertMesure(QString Mesure);
-    QString                 ConvertMesure(Refraction::Mesure Mesure);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
     void                    DetruireLaMesure(Refraction* ref);
     void                    FermeFiche(enum ModeSortie);
@@ -155,7 +151,7 @@ private:
     void                    InsertDonneesOphtaPatient();
     Refraction*             InsertRefraction();
     Refraction*             LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Refraction::Cycloplegie dilatation, QString FormuleOD = "", QString FormuleOG = "");
-    void                    OuvrirListeMesures(QString SupOuRecup);
+    void                    OuvrirListeMesures(dlg_listemesures::Mode mode);
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();
     QString                 QuelleDistance();

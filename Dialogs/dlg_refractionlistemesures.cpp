@@ -17,14 +17,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_refractionlistemesures.h"
 
-dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
+dlg_listemesures::dlg_listemesures(Mode mode, QWidget *parent) :
     UpDialog (QDir::homePath() + FILE_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    if (mode == "SUPPR")
-        m_mode       = Supprimer;
-    else if (mode == "RECUP")
-        m_mode       = Recuperer;
+    m_mode       = mode;
 
     wdg_bigtable              = new QTableView(this);
 
@@ -39,7 +36,7 @@ dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
         AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         OKButton->setText(tr("Reprendre"));
         wdg_bigtable->setSelectionMode(QAbstractItemView::NoSelection);
-        connect (OKButton,      SIGNAL(clicked()),  this, SLOT (Slot_Validation()) );
+        connect (OKButton,      &QPushButton::clicked,  this, &dlg_listemesures::Validation);
     }
     else
     {
@@ -47,12 +44,12 @@ dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
         SupprButton->setText(tr("Supprimer"));
         wdg_bigtable->setSelectionMode(QAbstractItemView::MultiSelection);
         wdg_bigtable->setSelectionBehavior(QAbstractItemView::SelectRows);
-        connect (SupprButton,   SIGNAL(clicked()),  this, SLOT (Slot_Validation()) );
+        connect (SupprButton,   &QPushButton::clicked,  this, &dlg_listemesures::Validation);
     }
     setStageCount(1);
 
     RemplirTableView();
-    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->verticalHeader()->setVisible(true);
     wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
     wdg_bigtable->setGridStyle(Qt::NoPen);
     wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -61,14 +58,13 @@ dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
     wdg_bigtable->setColumnWidth(1,90);      // Mesure
     wdg_bigtable->setColumnWidth(2,280);     // Formule OD
     wdg_bigtable->setColumnWidth(3,280);     // Formule OG
-    wdg_bigtable->setColumnHidden(4,true);   // idRefraction
     wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
     int larg = 0;
     for (int i=0; i < m_modele->columnCount(); i++)
         if (!wdg_bigtable->isColumnHidden(i))
             larg += wdg_bigtable->columnWidth(i);
-    wdg_bigtable->setFixedWidth(larg+2);
+    wdg_bigtable->setFixedWidth(larg+2+wdg_bigtable->verticalHeader()->width());
     setFixedWidth(wdg_bigtable->width()
                         + dlglayout()->contentsMargins().left()*2);
     QFontMetrics fm(qApp->font());
@@ -77,7 +73,7 @@ dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
     wdg_bigtable->setSizeIncrement(0,hauteurligne);
     wdg_bigtable->setMouseTracking(true);
     dlglayout()->insertWidget(0,wdg_bigtable);
-    connect (wdg_bigtable,   SIGNAL(clicked(QModelIndex)),  this, SLOT (Slot_Item_Liste_Clicked(QModelIndex)) );
+    connect (wdg_bigtable,   SIGNAL(clicked(QModelIndex)),  this, SLOT(Slot_ItemClicked(QModelIndex)) );
 }
 
 dlg_listemesures::~dlg_listemesures()
@@ -87,7 +83,7 @@ dlg_listemesures::~dlg_listemesures()
 //--------------------------------------------------------------------------------------
 // Clic sur Bouton Supprimer ou Reprendre
 //--------------------------------------------------------------------------------------
-void dlg_listemesures::Slot_Validation()
+void dlg_listemesures::Validation()
 
 {
     if (m_mode == Recuperer)
@@ -112,13 +108,15 @@ void dlg_listemesures::Slot_Validation()
 //--------------------------------------------------------------------------------------
 // Click sur une ligne de la liste
 //--------------------------------------------------------------------------------------
-void dlg_listemesures::Slot_Item_Liste_Clicked(QModelIndex mod)
+void dlg_listemesures::Slot_ItemClicked(QModelIndex mod)
 {
     if (m_mode == Supprimer)
         SupprButton->setEnabled(wdg_bigtable->selectionModel()->selectedIndexes().size()>0);
     else if (m_mode ==  Recuperer)
     {
-        QStandardItem *pitem = m_modele->itemFromIndex(mod);
+        UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(m_modele->itemFromIndex(mod));
+        if (pitem == Q_NULLPTR)
+            return;
         if (pitem->checkState() == Qt::Checked)
         {
             for (int i =0 ; i < m_modele->rowCount(); i++)
@@ -126,7 +124,7 @@ void dlg_listemesures::Slot_Item_Liste_Clicked(QModelIndex mod)
                 if (m_modele->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
                     m_modele->item(i,0)->setCheckState(Qt::Unchecked);
             }
-            m_idrefselectionne = m_modele->item(pitem->row(),4)->text().toInt();
+            m_refselectionne = dynamic_cast<Refraction*>(pitem->item());
         }
         OKButton->setEnabled(Nombre_Mesure_Selected() > 0);
     }
@@ -139,23 +137,7 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
 {
     if (ref == Q_NULLPTR)
         return;
-    QString mesure = "";
-    switch (ref->typemesure()) {
-    case Refraction::Fronto:
-        mesure = "P";
-        break;
-    case Refraction::Autoref:
-        mesure = "A";
-        break;
-    case Refraction::Acuite:
-        mesure = "R";
-        break;
-    case Refraction::Prescription:
-        mesure = "O";
-        break;
-    default:
-        break;
-    }
+    QString mesure = Refraction::ConvertMesure(ref->typemesure());
     if (mesure != "")
     {
         QString requete = "DELETE  FROM " TBL_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
@@ -165,9 +147,9 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
     Datas::I()->refractions->SupprimeRefraction(ref);
 }
 
-int dlg_listemesures::idRefractionAOuvrir() const
+Refraction* dlg_listemesures::RefractionAOuvrir() const
 {
-    return m_idrefselectionne;
+    return m_refselectionne;
 }
 
 // ----------------------------------------------------------------------------------
@@ -193,20 +175,20 @@ void dlg_listemesures::RemplirTableView()
     else
         SupprButton->setEnabled(false);
 
-    QStandardItem       *pitem0, *pitem1, *pitem2, *pitem3, *pitem4;
+    UpStandardItem       *pitem0, *pitem1, *pitem2, *pitem3;
     m_modele = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
     if (m_modele)
         m_modele->clear();
     else
         m_modele = new QStandardItemModel(this);
 
-    pitem0  = new QStandardItem(tr("Date"));
+    pitem0  = new UpStandardItem(tr("Date"));
     m_modele ->setHorizontalHeaderItem(0,pitem0);
-    pitem1  = new QStandardItem(tr("Mesure"));
+    pitem1  = new UpStandardItem(tr("Mesure"));
     m_modele ->setHorizontalHeaderItem(1,pitem1);
-    pitem2  = new QStandardItem(tr("Formule OD"));
+    pitem2  = new UpStandardItem(tr("Formule OD"));
     m_modele ->setHorizontalHeaderItem(2,pitem2);
-    pitem3  = new QStandardItem(tr("Formule OG"));
+    pitem3  = new UpStandardItem(tr("Formule OG"));
     m_modele ->setHorizontalHeaderItem(3,pitem3);
     pitem0  ->setEditable(false);
     pitem1  ->setEditable(false);
@@ -214,7 +196,7 @@ void dlg_listemesures::RemplirTableView()
     pitem3  ->setEditable(false);
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
     {
-        pitem0  = new QStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")));
+        pitem0  = new UpStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")));
         if (m_mode == Recuperer)
             pitem0  ->setCheckable(true);
         QString Mesure = "";
@@ -222,12 +204,15 @@ void dlg_listemesures::RemplirTableView()
         else if (ref->typemesure() == Refraction::Autoref)      Mesure = tr("AutoRef");
         else if (ref->typemesure() == Refraction::Acuite)       Mesure = tr("Réfraction");
         else if (ref->typemesure() == Refraction::Prescription) Mesure = tr("Ordonnance");
-        pitem1  = new QStandardItem(Mesure);
-        pitem2  = new QStandardItem(ref->formuleOD());
-        pitem3  = new QStandardItem(ref->formuleOG());
-        pitem4  = new QStandardItem(QString::number(ref->id()));
+        pitem1  = new UpStandardItem(Mesure);
+        pitem2  = new UpStandardItem(ref->formuleOD());
+        pitem3  = new UpStandardItem(ref->formuleOG());
+        pitem0->setitem(ref);
+        pitem1->setitem(ref);
+        pitem2->setitem(ref);
+        pitem3->setitem(ref);
         QList<QStandardItem*> listitems;
-        listitems << pitem0 << pitem1 << pitem2 << pitem3 << pitem4;
+        listitems << pitem0 << pitem1 << pitem2 << pitem3;
         m_modele ->appendRow(listitems);
     }
     wdg_bigtable->setModel(m_modele);

@@ -25,10 +25,10 @@ class dlg_listemesures : public UpDialog
     Q_OBJECT
 
 public:
-    explicit                dlg_listemesures(QString mode, QWidget *parent = Q_NULLPTR);
-    ~dlg_listemesures();
-    int                     idRefractionAOuvrir() const;
     enum Mode               {Supprimer, Recuperer};   Q_ENUM(Mode)
+    explicit                dlg_listemesures(Mode mode, QWidget *parent = Q_NULLPTR);
+    ~dlg_listemesures();
+    Refraction*             RefractionAOuvrir() const;
 
 private:
     Procedures          *proc   = Procedures::I();
@@ -36,15 +36,15 @@ private:
     QTableView          *wdg_bigtable;
     QStandardItemModel  *m_modele;
     Mode                m_mode;
-    int                 m_idrefselectionne;
+    Refraction*         m_refselectionne;
 
     void                DetruireLaMesure(Refraction* ref);
     int                 Nombre_Mesure_Selected();
     void                RemplirTableView();
+    void                Validation();
 
 private slots:
-    void                Slot_Validation();
-    void                Slot_Item_Liste_Clicked(QModelIndex);
+    void                Slot_ItemClicked(QModelIndex);
 
 };
 #endif // DLG_REFRACTIONLISTEMESURES_H

@@ -17,14 +17,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_listemotscles.h"
 
-dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
+dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionMotsCles", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    m_currentpatient    = pat;
 
     wdg_bigtable              = new QTableView();
-
     RemplirTableView();
     wdg_bigtable->verticalHeader()->setVisible(false);
     wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
@@ -51,9 +49,9 @@ dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
 
     m_listidmotsclesdepart << "-1";
 
-    connect(wdg_bigtable,          SIGNAL(pressed(QModelIndex)),   this,   SLOT(Slot_Enablebuttons()));
-    connect(OKButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_OK()));
-    connect(wdg_buttonframe,    SIGNAL(choix(int)),             this,   SLOT(Slot_ChoixButtonFrame(int)));
+    connect(wdg_bigtable,       &QTableView::pressed,   this,   &dlg_listemotscles::Enablebuttons);
+    connect(OKButton,           &QPushButton::clicked,  this,   &dlg_listemotscles::Validation);
+    connect(wdg_buttonframe,    SIGNAL(choix(int)),     this,   SLOT(Slot_ChoixButtonFrame(int)));
     wdg_buttonframe->wdg_modifBouton->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }
@@ -93,10 +91,10 @@ void dlg_listemotscles::CreationModifMC(Mode mode)
     dlg_ask->dlglayout()  ->insertWidget(0,widg);
     dlg_ask->dlglayout()  ->setSizeConstraint(QLayout::SetFixedSize);
 
-    dlg_ask      ->AjouteLayButtons();
-    dlg_ask      ->setWindowTitle(tr("Entrez un nouveau mot-clé"));
+    dlg_ask         ->AjouteLayButtons();
+    dlg_ask         ->setWindowTitle(tr("Entrez un nouveau mot-clé"));
 
-    connect(dlg_ask->OKButton,       SIGNAL(clicked(bool)),this,SLOT(Slot_VerifMC()));
+    connect(dlg_ask->OKButton,  &QPushButton::clicked,  this,   &dlg_listemotscles::VerifMC);
 
     Line            ->setMaxLength(60);
     MCListCompleter ->setCaseSensitivity(Qt::CaseInsensitive);
@@ -106,15 +104,15 @@ void dlg_listemotscles::CreationModifMC(Mode mode)
     if (mode == Modif)
     {
         Line        ->setText(m_model->itemFromIndex(m_selectionmodel->currentIndex())->text());
-        dlg_ask  ->setMode(UpDialog::Modification);
+        dlg_ask     ->setMode(UpDialog::Modification);
     }
     else
-        dlg_ask  ->setMode(UpDialog::Creation);
+        dlg_ask     ->setMode(UpDialog::Creation);
     dlg_ask->exec();
     delete dlg_ask;
 }
 
-void dlg_listemotscles::Slot_VerifMC()
+void dlg_listemotscles::VerifMC()
 {
     QString nouvMC= dlg_ask->findChildren<UpLineEdit*>().at(0)->text();
     if (nouvMC == "")
@@ -177,13 +175,13 @@ void dlg_listemotscles::SupprMC()
     }
 }
 
-void dlg_listemotscles::Slot_Enablebuttons()
+void dlg_listemotscles::Enablebuttons()
 {
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_selectionmodel->hasSelection());
     wdg_buttonframe->wdg_moinsBouton->setEnabled(m_selectionmodel->hasSelection());
 }
 
-void dlg_listemotscles::Slot_OK()
+void dlg_listemotscles::Validation()
 {
     db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(m_currentpatient->id()));
     QStringList listidMc;

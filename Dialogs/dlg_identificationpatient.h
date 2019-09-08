@@ -59,20 +59,19 @@ private:
 
     bool                            eventFilter(QObject *obj, QEvent *event)  ;
     void                            AfficheDossierAlOuverture();
+    void                            AnnulpushButtonClicked();
+    void                            ChoixMG();
+    void                            EnableOKpushButton();
     int                             EnregistreNouveauCorresp();
     void                            MAJMG();
-
     void                            MenuContextuelMedecin();
     void                            ModifCorrespondant();
-    void                            ChoixMG();
+    void                            ModifDDN();
+    void                            OKpushButtonClicked();
+    void                            VerifMGFlag();
 
 private slots:
-    void                            Slot_EnableOKpushButton();
-    void                            Slot_OKpushButtonClicked();
-    void                            Slot_AnnulpushButtonClicked();
     void                            Slot_Majuscule();
-    void                            Slot_ModifDDN();
-    void                            Slot_VerifMGFlag();
 };
 
 #endif // DLG_IDENTIFICATIONPATIENT_H

@@ -64,7 +64,7 @@ private:
     QStringList                 m_listid;
     QStringList                 m_listtexts;   /*! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires
                                                 -> le texte varie légèrement d'un destinataire à l'autre en ce qui concerne le nom du correspondant
-                                                -> la variable correspond à la lite des textes */
+                                                -> la variable correspond à la liste des textes */
     QGraphicsOpacityEffect      *m_opacityeffect;
     QMenu                       *m_menucontextuel;
     QTimer                      *t_timerefface;

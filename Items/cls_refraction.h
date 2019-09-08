@@ -161,6 +161,11 @@ public:
     void setmonture(int n)                  { m_monture = n; }                                  //!> le nombre de montures
     void setisverreteinte(bool logic)       { m_isverreteinte = logic; }                        //!> les verres sont teintés
     void setecartIP(int val)                { m_ecartIP = val; }                                //!> ecart interpuppilaire
+
+
+    static Distance    ConvertDistance(QString distance);
+    static Mesure      ConvertMesure(QString Mesure);
+    static QString     ConvertMesure(Refraction::Mesure Mesure);
 };
 
 #endif // CLS_REFRACTION_H

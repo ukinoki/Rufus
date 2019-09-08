@@ -41,17 +41,13 @@ public:
     ~dlg_identificationuser();
     Ui::dlg_identificationuser *ui;
 
-
-private slots:
-    void                    Slot_RetourOK();
-    void                    Slot_RetourAnnul();
-
 private:
     DataBase                *db = DataBase::I();
     int                     m_iduser, m_sqlport;
     bool                    m_chgmtuser;
     bool                    eventFilter(QObject *, QEvent *);
     int                     ControleDonnees();
+    void                    Validation();
 };
 
 #endif // DLG_IDENTIFICATIONUSER_H
