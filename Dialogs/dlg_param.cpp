@@ -33,17 +33,17 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->SQLPortLocalcomboBox    ->addItems(ports);
     ui->SQLPortPostecomboBox    ->addItems(ports);
 
-    wdg_appareilswdgbuttonframe = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
-    wdg_appareilswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
-    connect(wdg_appareilswdgbuttonframe, SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_appareilswdgbuttonframe                     = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
+    wdg_appareilswdgbuttonframe                     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    connect(wdg_appareilswdgbuttonframe,            &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_appareilswdgbuttonframe);});
 
-    wdg_HNcotationswdgbuttonframe = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
-    wdg_HNcotationswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(wdg_HNcotationswdgbuttonframe,         SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_HNcotationswdgbuttonframe                   = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
+    wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    connect(wdg_HNcotationswdgbuttonframe,          &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_HNcotationswdgbuttonframe);});
 
-    wdg_assocCCAMcotationswdgbuttonframe = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
-    wdg_assocCCAMcotationswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(wdg_assocCCAMcotationswdgbuttonframe,  SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_assocCCAMcotationswdgbuttonframe            = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
+    wdg_assocCCAMcotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    connect(wdg_assocCCAMcotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_assocCCAMcotationswdgbuttonframe);});
 
     wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);
     wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMupLineEdit);
@@ -655,48 +655,43 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
 
 }
 
-void dlg_param::Slot_ChoixButtonFrame(int i)
+void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 {
-    WidgetButtonFrame *widgbutt = dynamic_cast<WidgetButtonFrame*>(sender());
     if (widgbutt== wdg_HNcotationswdgbuttonframe)
     {
-        switch (i) {
-        case 1:
+        switch (wdg_HNcotationswdgbuttonframe->Choix()) {
+        case WidgetButtonFrame::Plus:
             NouvHorsNomenclature();
             break;
-        case 0:
+        case WidgetButtonFrame::Modifier:
             ModifHorsNomenclature();
             break;
-        case -1:
+        case WidgetButtonFrame::Moins:
             SupprHorsNomenclature();
-            break;
-        default:
             break;
         }
     }
     else if (widgbutt== wdg_assocCCAMcotationswdgbuttonframe)
     {
-        switch (i) {
-        case 1:
+        switch (wdg_assocCCAMcotationswdgbuttonframe->Choix()) {
+        case WidgetButtonFrame::Plus:
             NouvAssocCCAM();
             break;
-        case 0:
+        case WidgetButtonFrame::Modifier:
             ModifAssocCCAM();
             break;
-        case -1:
+        case WidgetButtonFrame::Moins:
             SupprAssocCCAM();
-            break;
-        default:
             break;
         }
     }
     else if (widgbutt== wdg_appareilswdgbuttonframe)
     {
-        switch (i) {
-        case 1:
+        switch (wdg_appareilswdgbuttonframe->Choix()) {
+        case WidgetButtonFrame::Plus:
             NouvAppareil();
             break;
-        case -1:
+        case WidgetButtonFrame::Moins:
             SupprAppareil();
             break;
         default:

@@ -43,7 +43,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_commentaires::Annulation);
     connect (ui->upTextEdit,    &QTextEdit::textChanged,    this,   &dlg_commentaires::EnableOKPushbutton);
     connect (ui->upTextEdit,    &UpTextEdit::dblclick,      this,   &dlg_commentaires::dblClicktextEdit);
-    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
+    connect(wdg_buttonframe,    &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
 
 
     // Mise en forme du formulaire
@@ -97,17 +97,15 @@ void dlg_commentaires::changeEvent(QEvent *e)
 
 void dlg_commentaires::ChoixButtonFrame()
 {
-    switch (wdg_buttonframe->Reponse()) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         ConfigMode(Creation);
         break;
-    case 0:
+    case WidgetButtonFrame::Modifier:
         Modif_Com();
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         Del_Com();
-        break;
-    default:
         break;
     }
 }

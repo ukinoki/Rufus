@@ -53,7 +53,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 
     setWindowIcon(Icons::icDoctor());
     ReconstruitListeSpecialites();
-    connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationcorresp::Slot_EnableOKpushButton);
+    connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationcorresp::EnableOKpushButton);
 
     AfficheDossierAlOuverture();
     if (m_mode == Creation)
@@ -83,28 +83,29 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     ui->NomlineEdit->setFocus();
 
     OKButton->disconnect();
-    connect (OKButton,                  SIGNAL(clicked()),                  this,           SLOT (Slot_OKpushButtonClicked()));
+    connect (OKButton,                  &QPushButton::clicked,              this,           &dlg_identificationcorresp::OKpushButtonClicked);
     connect (ui->NomlineEdit,           SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
     connect (ui->PrenomlineEdit,        SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
     connect (ui->Adresse1lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
     connect (ui->Adresse2lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
     connect (ui->Adresse3lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
-    connect (ui->NomlineEdit,           SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->PrenomlineEdit,        SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->Adresse1lineEdit,      SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->Adresse2lineEdit,      SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->Adresse3lineEdit,      SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->TellineEdit,           SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->PortablelineEdit,      SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->MaillineEdit,          SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->AutreupLineEdit,       SIGNAL(textEdited(QString)),        this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->MradioButton,          SIGNAL(clicked()),                  this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->FradioButton,          SIGNAL(clicked()),                  this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->SpecomboBox,           SIGNAL(currentIndexChanged(int)),   this,           SLOT (Slot_EnableOKpushButton()));
+    connect (ui->NomlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->PrenomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->Adresse1lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->Adresse2lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->Adresse3lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->TellineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->PortablelineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->MaillineEdit,          &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->AutreupLineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->MradioButton,          &QRadioButton::clicked,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->FradioButton,          &QRadioButton::clicked,             this,           &dlg_identificationcorresp::EnableOKpushButton);
+    connect (ui->SpecomboBox,           QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                            this,           &dlg_identificationcorresp::EnableOKpushButton);
 
-    connect(ui->MGradioButton,          SIGNAL(toggled(bool)),              this,           SLOT (Slot_RegleAffichage()));
-    connect(ui->SperadioButton,         SIGNAL(toggled(bool)),              this,           SLOT (Slot_RegleAffichage()));
-    connect(ui->AutreradioButton,       SIGNAL(toggled(bool)),              this,           SLOT (Slot_RegleAffichage()));
+    connect(ui->MGradioButton,          &QRadioButton::toggled,             this,           &dlg_identificationcorresp::RegleAffichage);
+    connect(ui->SperadioButton,         &QRadioButton::toggled,             this,           &dlg_identificationcorresp::RegleAffichage);
+    connect(ui->AutreradioButton,       &QRadioButton::toggled,             this,           &dlg_identificationcorresp::RegleAffichage);
 
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
@@ -125,7 +126,7 @@ dlg_identificationcorresp::~dlg_identificationcorresp()
 -- Traitement des SLOTS / actions associees a chaque objet du formulaire et aux menus -----------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 
-void    dlg_identificationcorresp::Slot_EnableOKpushButton()
+void    dlg_identificationcorresp::EnableOKpushButton()
 {
     bool a  = ui->NomlineEdit->text() != ""
            && ui->PrenomlineEdit->text() != ""
@@ -143,7 +144,7 @@ void dlg_identificationcorresp::Slot_Majuscule()
     OKButton->setEnabled(true);
 }
 
-void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
+void    dlg_identificationcorresp::OKpushButtonClicked()
 {
     QString CorNom, CorPrenom;
     CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
@@ -215,8 +216,8 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             OKButton->setEnabled(false);
             m_mode = Modification;
             AfficheDossierAlOuverture();
-            disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
-            connect(OKButton, SIGNAL(clicked(bool)),this,SLOT(accept()));
+            disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationcorresp::OKpushButtonClicked);
+            connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationcorresp::accept);
             QList<QLineEdit *> listline = findChildren<QLineEdit *>();
             for (int i = 0;i<listline.size();i++) listline.at(i)->setEnabled(false);
             ui->SpegroupBox->setEnabled(false);
@@ -307,7 +308,7 @@ Correspondant* dlg_identificationcorresp::correspondantrenvoye() const
     return m_correspondant;
 }
 
-void dlg_identificationcorresp::Slot_RegleAffichage()
+void dlg_identificationcorresp::RegleAffichage()
 {
     ui->SpecomboBox->setVisible(ui->SperadioButton->isChecked());
     ui->AutreupLineEdit->setVisible(ui->AutreradioButton->isChecked());

@@ -80,7 +80,7 @@ private:
     bool                        eventFilter     (QObject *obj, QEvent *event);
     void                        keyPressEvent   (QKeyEvent * event );
     void                        Annulation();
-    void                        ChoixButtonFrame(int, WidgetButtonFrame *);
+    void                        ChoixButtonFrame(WidgetButtonFrame *);
     void                        ChoixMenuContextuel(QString);
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);

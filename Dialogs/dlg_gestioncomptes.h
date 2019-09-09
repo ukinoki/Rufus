@@ -75,7 +75,7 @@ private:
     void                    AfficheCompte(QTableWidgetItem *, QTableWidgetItem *);
     void                    AnnulModif();
     void                    Banques();
-    void                    ChoixButtonFrame(int);
+    void                    ChoixButtonFrame();
     void                    Clign();
     void                    CompteFactice();
     void                    DesactiveCompte();

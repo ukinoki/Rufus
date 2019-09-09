@@ -57,8 +57,8 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     connect(CloseButton,                    &QPushButton::clicked,      this, &dlg_gestioncomptes::Fermer);
     connect(ui->OKModifupSmallButton,       &QPushButton::clicked,      this, &dlg_gestioncomptes::ValidCompte);
     connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,      this, &dlg_gestioncomptes::AnnulModif);
-    connect(wdg_nouvbanqupsmallbutton,           &QPushButton::clicked,      this, &dlg_gestioncomptes::Banques);
-    connect(wdg_buttonframe,                    &WidgetButtonFrame::choix,  this, [=]{ChoixButtonFrame(wdg_buttonframe->Reponse());});
+    connect(wdg_nouvbanqupsmallbutton,      &QPushButton::clicked,      this, &dlg_gestioncomptes::Banques);
+    connect(wdg_buttonframe,                &WidgetButtonFrame::choix,  this, &dlg_gestioncomptes::ChoixButtonFrame);
     connect(ui->CompteFacticePushButton,    &QPushButton::clicked,      this, &dlg_gestioncomptes::CompteFactice);
     connect(ui->DesactiveComptecheckBox,    &QPushButton::clicked,      this, &dlg_gestioncomptes::DesactiveCompte);
 
@@ -201,19 +201,17 @@ void dlg_gestioncomptes::DesactiveCompte()
     }    
 }
 
-void dlg_gestioncomptes::ChoixButtonFrame(int i)
+void dlg_gestioncomptes::ChoixButtonFrame()
 {
-    switch (i) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         NouvCompte();
         break;
-    case 0:
+    case WidgetButtonFrame::Modifier:
         ModifCompte();
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         SupprCompte();
-        break;
-    default:
         break;
     }
 }

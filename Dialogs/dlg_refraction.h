@@ -51,22 +51,15 @@ public:
 private slots:
 
     // les CheckBox, RadioButton,...etc...
-    void                    Slot_AutorefRadioButton_Clicked();
     void                    Slot_CycloplegieCheckBox_Clicked();
     void                    Slot_DepoliCheckBox_Clicked(int etat);
-    void                    Slot_DeuxMonturesPrescritradioButton_Clicked();
     void                    Slot_ODGCheckBox_Changed(int etat);
     void                    Slot_PrescritCheckBox_Changed(int etat);
     void                    Slot_PorteRadioButton_Clicked();
     void                    Slot_PressonCheckBox_Changed();
-    void                    Slot_QuelleDistance_Clicked();
     void                    Slot_PlanCheckBox_Changed(int etat);
-    void                    Slot_PrescriptionRadionButton_clicked();
-    void                    Slot_RefractionRadioButton_Clicked();
     void                    Slot_RyserCheckBox_Clicked(int);
-    void                    Slot_UneMonturePrescritRadioButton_Clicked();
     void                    Slot_VerresTeintesCheckBox_Changed(int etat);
-    void                    Slot_VPrescritRadioButton_Clicked();
 
     //Les pushButton
     void                    Slot_AnnulPushButton_Clicked();
@@ -84,7 +77,6 @@ private slots:
     void                    Slot_BasePrismeTextOGComboBox_Changed(int);
     void                    Slot_BasePrisme_ValueChanged();
     void                    Slot_Refraction_ValueChanged();
-    void                    Slot_ReprendreButtonClicked();
     void                    Slot_CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
 
 private:
@@ -125,6 +117,15 @@ private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     void                    closeEvent(QCloseEvent *);
     void                    keyPressEvent ( QKeyEvent * event );
+    // les CheckBox, RadioButton,...etc...
+    void                    AutorefRadioButton_Clicked();
+    void                    DeuxMonturesPrescritradioButton_Clicked();
+    void                    PrescriptionRadionButton_clicked();
+    void                    RefractionRadioButton_Clicked();
+    void                    UneMonturePrescritRadioButton_Clicked();
+    void                    VPrescritRadioButton_Clicked();
+    void                    ReprendreButtonClicked();
+
     void                    Afficher_AVL_AVP(bool TrueFalse);
     void                    AfficherDetail(bool typ);
     void                    Afficher_AddVP(bool TrueFalse);
@@ -172,10 +173,9 @@ private:
 
 
 // les connexions aux appareils de mesure
-private slots:
-    void                    Slot_NouvMesureRefraction();
 private:
     double                  m_mesureDioptrAstigmOD, m_mesureDioptrAstigmOG;
+    void                    NouvMesureRefraction();
 public:
     void                    AfficheMesureFronto();
     void                    AfficheMesureAutoref();

@@ -50,9 +50,9 @@ public:
 
 
 private:
-    DataBase                *db = DataBase::I();
+    DataBase            *db = DataBase::I();
     UpTableWidget       *wdg_bigtable;
-    WidgetButtonFrame   *wdh_buttonframe;
+    WidgetButtonFrame   *wdg_buttonframe;
     bool                m_fermeapresvalidation;
     Mode                m_mode;
 
@@ -65,7 +65,7 @@ private:
     void            AnnuleModifBanque();
     void            AfficheBanque();
     void            ValideModifBanque();
-    void            ChoixButtonFrame(int);
+    void            ChoixButtonFrame();
 };
 
 #endif // DLG_GESTIONBANQUES_H

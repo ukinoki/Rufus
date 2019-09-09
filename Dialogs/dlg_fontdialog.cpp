@@ -63,9 +63,9 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     }
     AjouteLayButtons();
 
-    connect (wdg_treewidget,            SIGNAL(itemClicked(QTreeWidgetItem*,int)),                      this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
-    connect (wdg_treewidget,            SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),  this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
-    connect (OKButton,              SIGNAL(clicked(bool)),                                          this,   SLOT(Slot_FermeFiche()));
+    connect (wdg_treewidget,    SIGNAL(itemClicked(QTreeWidgetItem*,int)),                      this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
+    connect (wdg_treewidget,    SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),  this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
+    connect (OKButton,          &QPushButton::clicked,                                          this,   &dlg_fontdialog::FermeFiche);
 
     QList<QTreeWidgetItem*> listitems = wdg_treewidget->findItems(qApp->font().family(),Qt::MatchExactly,0);
     if (listitems.size()>0)
@@ -98,7 +98,7 @@ dlg_fontdialog::~dlg_fontdialog()
 {
 }
 
-void dlg_fontdialog::Slot_FermeFiche()
+void dlg_fontdialog::FermeFiche()
 {
     UpMessageBox::Watch(this,tr("Vous devrez relancer le programme pour appliquer le changement de police"));
     accept();

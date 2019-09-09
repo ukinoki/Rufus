@@ -50,7 +50,7 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
         butt->setVisible(false);
         butt->setIconSize(QSize(szicon, szicon));
         butt->setFixedSize(geo,geo);
-        connect(butt, &QPushButton::clicked, [=] {Reponse(butt->iD());});
+        connect(butt, &QPushButton::clicked, [=] {Choix(butt->iD());});
     }
     QHBoxLayout *ilay = new QHBoxLayout();
     ilay->setContentsMargins(0,0,0,0);
@@ -67,7 +67,7 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
     vlay        ->addLayout(wdg_buttonwidglayout);
     widg_parent  ->resize(wdg_proprio->width(),wdg_proprio->height()+height());
     widg_parent  ->setFixedWidth(wdg_proprio->width());
-    wdg_proprio    ->setParent(widg_parent);
+    wdg_proprio  ->setParent(widg_parent);
     setParent(widg_parent);
     vlay        ->insertWidget(0, wdg_proprio);
     widg_parent  ->setLayout(vlay);
@@ -99,13 +99,17 @@ void WidgetButtonFrame::replace()
     move(wdg_proprio->x()+wdg_proprio->width()-width(), wdg_proprio->y()+wdg_proprio->height()-1);
 }
 
-void WidgetButtonFrame::Reponse(int id)
+void WidgetButtonFrame::Choix(int id)
 {
-    m_reponse = id;
-    emit choix(m_reponse);
+    switch (id) {
+    case 1:     m_reponse = Plus;       break;
+    case 0:     m_reponse = Modifier;   break;
+    case -1:    m_reponse = Moins;      break;
+    }
+    emit choix();
 }
 
-int WidgetButtonFrame::Reponse() const
+WidgetButtonFrame::Bouton WidgetButtonFrame::Choix() const
 {
     return m_reponse;
 }

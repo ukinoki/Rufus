@@ -93,7 +93,6 @@ private:
     void                        EffaceFacture();
     void                        SupprimeFacture(Depense*dep);
 
-    //anciens slots
     void                        AnnulEnreg();
     void                        ChangeUser(int idx);
     void                        ChoixPaiement();
@@ -106,8 +105,6 @@ private:
     void                        ModifierDepense();
     void                        RedessineBigTable();
     void                        SupprimerDepense();
-
-private slots:
     void                        ZoomDoc();
 };
 

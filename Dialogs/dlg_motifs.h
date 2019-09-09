@@ -52,6 +52,7 @@ private:
 
     WidgetButtonFrame   *wdg_buttonframe;
 
+    void                ChoixButtonFrame();
     void                DeplaceVersRow(int id, int anc, int nouv);
     void                RecalculeLesRows();
     void                RemplirTableWidget();
@@ -63,7 +64,6 @@ private:
 
 private slots:
     void                Slot_ActualiseDetails();
-    void                Slot_ChoixButtonFrame(int);
     void                Slot_DropMotif(QByteArray);
     void                Slot_ModifMotif(QString);
     void                Slot_ModifRaccouci(QString);

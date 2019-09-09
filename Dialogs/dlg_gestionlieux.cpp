@@ -46,7 +46,7 @@ dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath()
     lay     ->insertLayout(0,hlay);
     lay     ->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(wdg_buttonframe,   SIGNAL(choix(int)), this,   SLOT(Slot_ChoixButtonFrame(int)));
+    connect(wdg_buttonframe,    &WidgetButtonFrame::choix,  this,   &dlg_GestionLieux::ChoixButtonFrame);
 }
 
 dlg_GestionLieux::~dlg_GestionLieux()
@@ -125,16 +125,16 @@ Site* dlg_GestionLieux::getSiteFromIndex(QModelIndex idx)
     return sit;
 }
 
-void dlg_GestionLieux::Slot_ChoixButtonFrame(int i)
+void dlg_GestionLieux::ChoixButtonFrame()
 {
-    switch (i) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         CreerLieu();
         break;
-    case 0:
+    case WidgetButtonFrame::Modifier:
         ModifLieu();
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         SupprLieu();
         break;
     default:
@@ -145,17 +145,12 @@ void dlg_GestionLieux::Slot_ChoixButtonFrame(int i)
 void dlg_GestionLieux::CreerLieu()
 {
     ModifLieuxDialog();
-    connect(dlg_lieu->OKButton, SIGNAL(clicked(bool)), this, SLOT(Slot_EnregNouvLieu()));
+    connect(dlg_lieu->OKButton, &QPushButton::clicked, this, &dlg_GestionLieux::enregNouvLieu);
     dlg_lieu->exec();
     delete  dlg_lieu;
 }
 
-void dlg_GestionLieux::Slot_EnableOKButton()
-{
-    dlg_lieu->OKButton->setEnabled(true);
-}
-
-void dlg_GestionLieux::Slot_EnregNouvLieu()
+void dlg_GestionLieux::enregNouvLieu()
 {
     if (ValidationFiche())
     {
@@ -264,7 +259,7 @@ void dlg_GestionLieux::ModifLieuxDialog()
     layledit->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
 
     for (int i=0; i< dlg_lieu->findChildren<UpLineEdit*>().size(); i++)
-        connect(dlg_lieu->findChildren<UpLineEdit*>().at(i), SIGNAL(textEdited(QString)), this, SLOT(Slot_EnableOKButton()));
+        connect(dlg_lieu->findChildren<UpLineEdit*>().at(i), &QLineEdit::textEdited, this, [=] {dlg_lieu->OKButton->setEnabled(true);});
     dlg_lieu->OKButton->setEnabled(false);
 
     laycom->addLayout(laylbl);
@@ -289,12 +284,12 @@ void dlg_GestionLieux::ModifLieu()
     wdg_villelineedit  ->setText(sit->ville());
     wdg_tellineedit    ->setText(sit->telephone());
     wdg_faxlineedit    ->setText(sit->fax());
-    connect(dlg_lieu->OKButton, SIGNAL(clicked(bool)), this, SLOT(Slot_ModifLieu()));
+    connect(dlg_lieu->OKButton, &QPushButton::clicked, this, &dlg_GestionLieux::enregModifLieu);
     dlg_lieu->exec();
     delete  dlg_lieu;
 }
 
-void dlg_GestionLieux::Slot_ModifLieu()
+void dlg_GestionLieux::enregModifLieu()
 {
 
     if (ValidationFiche())

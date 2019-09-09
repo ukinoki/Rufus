@@ -34,12 +34,10 @@ public:
     ~dlg_salledattente();
     Ui::dlg_salledattente *ui;
 
-private slots:
-    void                Slot_OKButtonClicked();
-    void                Slot_EnableOKButton();
-
 private:
     Acte                *m_currentact;
+    void                OKButtonClicked();
+    void                EnableOKButton();
 };
 
 #endif // DLG_SALLEDATTENTE_H

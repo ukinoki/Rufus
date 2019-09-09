@@ -57,13 +57,13 @@ private:
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDossierAlOuverture();
+    void                EnableOKpushButton();
+    void                OKpushButtonClicked();
     void                ReconstruitListeSpecialites();
+    void                RegleAffichage();
 
 private slots:
-    void                Slot_EnableOKpushButton();
-    void                Slot_OKpushButtonClicked();
     void                Slot_Majuscule();
-    void                Slot_RegleAffichage();
 };
 
 #endif // DLG_IDENTIFICATIONCORRESP_H

@@ -50,11 +50,12 @@ dlg_listemesures::dlg_listemesures(Mode mode, QWidget *parent) :
 
     RemplirTableView();
     wdg_bigtable->verticalHeader()->setVisible(true);
+    wdg_bigtable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
     wdg_bigtable->setGridStyle(Qt::NoPen);
     wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    wdg_bigtable->setColumnWidth(0,125);     // Date
+    wdg_bigtable->setColumnWidth(0,135);     // Date
     wdg_bigtable->setColumnWidth(1,90);      // Mesure
     wdg_bigtable->setColumnWidth(2,280);     // Formule OD
     wdg_bigtable->setColumnWidth(3,280);     // Formule OG

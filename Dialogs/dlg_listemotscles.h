@@ -46,6 +46,7 @@ private:
     QStandardItemModel  *m_model;
     QItemSelectionModel *m_selectionmodel;
 
+    void                ChoixButtonFrame();
     void                DisableLines();
     void                Enablebuttons();
     void                RemplirTableView();
@@ -53,9 +54,6 @@ private:
     void                SupprMC();
     void                Validation();
     void                VerifMC();
-
-private slots:
-    void                Slot_ChoixButtonFrame(int);
 
 };
 

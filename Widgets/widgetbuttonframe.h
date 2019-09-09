@@ -35,6 +35,7 @@ public:
                 };
     Q_ENUM(Button)
     Q_DECLARE_FLAGS(Buttons, Button)
+    enum Bouton {Plus, Modifier, Moins}; Q_ENUM(Bouton)
     void            AddButtons(Buttons);
     void            replace();
     UpSmallButton   *wdg_plusBouton;
@@ -42,16 +43,16 @@ public:
     UpSmallButton   *wdg_modifBouton;
     QWidget*        widgButtonParent() const;
     QHBoxLayout*    layButtons() const;
-    int             Reponse() const;
+    Bouton           Choix() const;
 
 private:
-    int             m_reponse;
+    Bouton           m_reponse;
     QWidget         *wdg_proprio, *widg_parent;
     QHBoxLayout     *wdg_buttonwidglayout;
-    void            Reponse(int id);
+    void            Choix(int id);
 
 signals:
-    void            choix(int);
+    void            choix();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(WidgetButtonFrame::Buttons)

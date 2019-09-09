@@ -95,16 +95,16 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     ui->MotifsupTableWidget ->selectRow(0);
     Slot_ActualiseDetails();
 
-    connect(OKButton,                                   SIGNAL(clicked()),              this,           SLOT (Slot_EnregistreMotifs()));
-    connect(CancelButton,                               SIGNAL(clicked()),              this,           SLOT (reject()));
-    connect(ui->MotifsupTableWidget,                    SIGNAL(itemSelectionChanged()), this,           SLOT(Slot_ActualiseDetails()));
-    connect(ui->CouleurpushButton,                      SIGNAL(clicked(bool)),          this,           SLOT(Slot_ModifCouleur()));
-    connect(ui->DefautupCheckBox,                       SIGNAL(clicked(bool)),          this,           SLOT(Slot_ModifPD()));
-    connect(ui->UtiliserupCheckBox,                     SIGNAL(clicked(bool)),          this,           SLOT(Slot_ModifUtil()));
-    connect(ui->MotifupLineEdit,                        SIGNAL(textEdited(QString)),    this,           SLOT(Slot_ModifMotif(QString)));
-    connect(ui->RaccourciupLineEdit,                    SIGNAL(textEdited(QString)),    this,           SLOT(Slot_ModifRaccouci(QString)));
-    connect(wdg_buttonframe,                                SIGNAL(choix(int)),             this,           SLOT(Slot_ChoixButtonFrame(int)));
-    connect(ui->MotifsupTableWidget,                    SIGNAL(dropsignal(QByteArray)), this,           SLOT(Slot_DropMotif(QByteArray)));
+    connect(OKButton,                   SIGNAL(clicked()),              this,   SLOT (Slot_EnregistreMotifs()));
+    connect(CancelButton,               SIGNAL(clicked()),              this,   SLOT (reject()));
+    connect(ui->MotifsupTableWidget,    SIGNAL(itemSelectionChanged()), this,   SLOT(Slot_ActualiseDetails()));
+    connect(ui->CouleurpushButton,      SIGNAL(clicked(bool)),          this,   SLOT(Slot_ModifCouleur()));
+    connect(ui->DefautupCheckBox,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_ModifPD()));
+    connect(ui->UtiliserupCheckBox,     SIGNAL(clicked(bool)),          this,   SLOT(Slot_ModifUtil()));
+    connect(ui->MotifupLineEdit,        SIGNAL(textEdited(QString)),    this,   SLOT(Slot_ModifMotif(QString)));
+    connect(ui->RaccourciupLineEdit,    SIGNAL(textEdited(QString)),    this,   SLOT(Slot_ModifRaccouci(QString)));
+    connect(wdg_buttonframe,            &WidgetButtonFrame::choix,      this,   &dlg_motifs::ChoixButtonFrame);
+    connect(ui->MotifsupTableWidget,    SIGNAL(dropsignal(QByteArray)), this,   SLOT(Slot_DropMotif(QByteArray)));
 }
 
 dlg_motifs::~dlg_motifs()
@@ -143,13 +143,13 @@ void dlg_motifs::Slot_ActualiseDetails()
     ui->DefautupCheckBox    ->setToggleable(checkPDTog);
 }
 
-void dlg_motifs::Slot_ChoixButtonFrame(int i)
+void dlg_motifs::ChoixButtonFrame()
 {
-    switch (i) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         CreeMotif();
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         SupprimMotif();
         break;
     default:

@@ -86,6 +86,7 @@ private:
     UpDialog                *dlg_askappareil, *dlg_askMDP;
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
+    void                ChoixButtonFrame(WidgetButtonFrame *);
     void                ConnectSlots();
     void                AfficheParamUser();
     void                EnableWidgContent(QWidget *widg, bool = true);
@@ -119,7 +120,6 @@ private slots:
     void                Slot_FermepushButtonClicked();
     void                Slot_ChercheCCAM(QString);
     void                Slot_ChoixDossierStockageApp();
-    void                Slot_ChoixButtonFrame(int);
     void                Slot_EnregDossierStockageApp(QString dir);
     void                Slot_ChoixFontpushButtonClicked();
     void                Slot_ClearCom(int);

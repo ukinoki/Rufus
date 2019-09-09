@@ -35,12 +35,11 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect (OKButton,                                  SIGNAL(clicked()),                  this,            SLOT (Slot_OKButtonClicked()));
-    connect (CancelButton,                              SIGNAL(clicked()),                  this,            SLOT (reject()));
-    connect (ui->ExamEnCoursradioButton,                SIGNAL(clicked(bool)),              this,            SLOT (Slot_EnableOKButton()));
-    connect (ui->ExamenEnAttenteAutreAvisradioButton,   SIGNAL(clicked(bool)),              this,            SLOT (Slot_EnableOKButton()));
-    connect (ui->RetourAccueilradioButton,              SIGNAL(clicked(bool)),              this,            SLOT (Slot_EnableOKButton()));
-
+    connect (OKButton,                                  &QPushButton::clicked,  this,   &dlg_salledattente::OKButtonClicked);
+    connect (CancelButton,                              &QPushButton::clicked,  this,   &dlg_salledattente::reject);
+    connect (ui->ExamEnCoursradioButton,                &QRadioButton::clicked, this,   &dlg_salledattente::EnableOKButton);
+    connect (ui->ExamenEnAttenteAutreAvisradioButton,   &QRadioButton::clicked, this,   &dlg_salledattente::EnableOKButton);
+    connect (ui->RetourAccueilradioButton,              &QRadioButton::clicked, this,   &dlg_salledattente::EnableOKButton);
 
     QStringList ListUser;
 
@@ -92,7 +91,7 @@ dlg_salledattente::~dlg_salledattente()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Traitement des SLOTS / actions associees a chaque objet du formulaire et aux menus -----------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    dlg_salledattente::Slot_OKButtonClicked()
+void dlg_salledattente::OKButtonClicked()
 {
     QString Statut;
 
@@ -147,7 +146,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     accept();
 }
 
-void    dlg_salledattente::Slot_EnableOKButton()
+void dlg_salledattente::EnableOKButton()
 {
     OKButton            ->setEnabled(true);
     QRadioButton *btu   = dynamic_cast<QRadioButton*>(sender());

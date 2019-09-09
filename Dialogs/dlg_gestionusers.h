@@ -106,6 +106,7 @@ private:
     void                    CalcListitemsCompteActescomboBox(User *usr);
     void                    CalcListitemsCompteComptacomboBox(User *usr, bool m_soccomptable);
     void                    CalcListitemsEmployeurcomboBox(int iduser);
+    void                    ChoixButtonFrame();
     void                    DefinitLesVariables();
     bool                    ExisteEmployeur(int iduser);
     void                    RemplirTableWidget(int iduser);
@@ -113,23 +114,19 @@ private:
     bool                    VerifFiche();
 
     void                    setDataUser(int id);
-    WidgetButtonFrame       *widgButtons;
+    WidgetButtonFrame       *wdg_buttonframe;
+    void                    Annulation();
     void                    CreerUser();
+    void                    EnregistreNouvMDP();
+    void                    EnregistreNouvUser();
+    void                    EnregistreUser();
+    void                    FermeFiche();
+    void                    GestionComptes();
+    void                    GestLieux();
+    void                    ModifMDP();
     void                    ModifUser();
+    void                    RegleAffichage();
     void                    SupprUser();
-
-private slots:
-    void                    Slot_Annulation();
-    void                    Slot_EnableOKpushButton();
-    void                    Slot_EnregistreNouvMDP();
-    void                    Slot_EnregistreUser();
-    void                    Slot_FermeFiche();
-    void                    Slot_GestionComptes();
-    void                    Slot_GestLieux();
-    void                    Slot_ModifMDP();
-    void                    Slot_RegleAffichage();
-    void                    Slot_EnregistreNouvUser();
-    void                    Slot_ChoixButtonFrame(int);
 };
 
 #endif // DLG_gestionusers_H

@@ -56,8 +56,8 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
     connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_impressions::dblClicktextEdit);
     connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
-    connect (wdg_docsbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe->Reponse(), wdg_docsbuttonframe);});
-    connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe->Reponse(), wdg_dossiersbuttonframe);});
+    connect (wdg_docsbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe);});
+    connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe);});
 
     // Mise en forme de la table Documents
     ui->DocupTableWidget->setPalette(QPalette(Qt::white));
@@ -243,14 +243,14 @@ void dlg_impressions::Annulation()
         reject();
 }
 
-void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
+void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 {
     UpLineEdit *line = new UpLineEdit();
     int row = 0;
     if (widgbutt== wdg_docsbuttonframe)
     {
-        switch (j) {
-        case 1:
+        switch (wdg_docsbuttonframe->Choix()) {
+        case WidgetButtonFrame::Plus:
             for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
             {
                 line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
@@ -258,7 +258,7 @@ void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
             }
             ConfigMode(CreationDOC, row);
             break;
-        case 0:
+        case WidgetButtonFrame::Modifier:
             for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
             {
                 line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
@@ -266,7 +266,7 @@ void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
             }
             ConfigMode(ModificationDOC,line->Row());
             break;
-        case -1:
+        case WidgetButtonFrame::Moins:
             for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
             {
                 line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
@@ -275,14 +275,12 @@ void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
             DisableLines();
             SupprimmDocument(line->Row());
             break;
-        default:
-            break;
         }
     }
     else if (widgbutt== wdg_dossiersbuttonframe)
     {
-        switch (j) {
-        case 1:
+        switch (wdg_dossiersbuttonframe->Choix()) {
+        case WidgetButtonFrame::Plus:
             for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
             {
                 line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
@@ -290,7 +288,7 @@ void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
             }
             ConfigMode(CreationDOSS, row);
             break;
-        case 0:
+        case WidgetButtonFrame::Modifier:
             for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
             {
                 line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
@@ -298,15 +296,13 @@ void dlg_impressions::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
             }
             ConfigMode(ModificationDOSS,line->Row());
             break;
-        case -1:
+        case WidgetButtonFrame::Moins:
             for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
             {
                 line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
                 if (line->hasSelectedText()) break;
             }
             SupprimmDossier(line->Row());
-            break;
-        default:
             break;
         }
     }

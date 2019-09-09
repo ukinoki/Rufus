@@ -67,8 +67,8 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
         wdg_bigtable->horizontalHeader()->setIconSize(QSize(25,25));
         wdg_bigtable->horizontalHeader()->setFixedHeight(hautrow);
 
-        wdh_buttonframe = new WidgetButtonFrame(wdg_bigtable);
-        wdh_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+        wdg_buttonframe = new WidgetButtonFrame(wdg_bigtable);
+        wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
         /*
         widgButtons->widgButtonParent()->setGeometry(10,10,larg, haut + widgButtons->height());
         widgButtons->widgButtonParent()->sizePolicy().setVerticalStretch(10);
@@ -89,17 +89,17 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
         y = widgButtons->widgButtonParent()->sizeHint().height();
         qDebug() << (widgButtons->widgButtonParent()->sizeHint().isValid()? "Valide": "Null") << " - x = " + QString::number(x) + " - y = " + QString::number(y) + " - hauteur ligne = " + QString::number(haut + widgButtons->height()) + " Minimum";
         */
-        dlglayout()               ->insertWidget(0,wdh_buttonframe->widgButtonParent());
+        dlglayout()               ->insertWidget(0,wdg_buttonframe->widgButtonParent());
         int r,t,l,b;
         dlglayout()               ->getContentsMargins(&r,&t,&l,&b);
         AjouteLayButtons(UpDialog::ButtonClose);
         resize(larg + r + l,
-               haut + wdh_buttonframe->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (dlglayout()->spacing()*2));
+               haut + wdg_buttonframe->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (dlglayout()->spacing()*2));
         RemplirTableWidget();
         wdg_bigtable->setCurrentCell(0,1);
         AfficheBanque();
-        connect(wdg_bigtable,        &UpTableWidget::itemSelectionChanged,   this,   &dlg_gestionbanques::AfficheBanque);
-        connect(wdh_buttonframe,        &WidgetButtonFrame::choix,              this,   &dlg_gestionbanques::ChoixButtonFrame);
+        connect(wdg_bigtable,       &UpTableWidget::itemSelectionChanged,   this,   &dlg_gestionbanques::AfficheBanque);
+        connect(wdg_buttonframe,    &WidgetButtonFrame::choix,              this,   &dlg_gestionbanques::ChoixButtonFrame);
         connect(CloseButton,        &QPushButton::clicked,                  this,   &dlg_gestionbanques::accept);
         ui->AnnulModifupSmallButton ->setVisible(false);
         ui->OKModifupSmallButton    ->setVisible(false);
@@ -128,11 +128,11 @@ void dlg_gestionbanques::AfficheBanque()
         ui->NomBanqueupLineEdit->setText(banq->nom());
         ui->NomAbregeupLineEdit->setText(banq->nomabrege());
     }
-    wdh_buttonframe->wdg_moinsBouton->setEnabled(true);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(true);
     foreach (Compte *cpt, Datas::I()->comptes->comptes()->values())
         if (cpt->idBanque() == idBanque)
         {
-            wdh_buttonframe->wdg_moinsBouton->setEnabled(false);
+            wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
             return;
         }
 }
@@ -148,19 +148,17 @@ void dlg_gestionbanques::AnnuleModifBanque()
     }
 }
 
-void dlg_gestionbanques::ChoixButtonFrame(int i)
+void dlg_gestionbanques::ChoixButtonFrame()
 {
-    switch (i) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         NouvBanque();
         break;
-    case 0:
+    case WidgetButtonFrame::Modifier:
         ModifBanque();
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         SupprBanque();
-        break;
-    default:
         break;
     }
 }
@@ -175,7 +173,7 @@ void dlg_gestionbanques::NouvBanque()
     if (!m_fermeapresvalidation)
     {
         wdg_bigtable->setEnabled(false);
-        wdh_buttonframe->setEnabled(false);
+        wdg_buttonframe->setEnabled(false);
     }
     m_mode = Nouv;
 }
@@ -186,7 +184,7 @@ void dlg_gestionbanques::ModifBanque()
     ui->OKModifupSmallButton->setVisible(true);
     ui->Banqueframe->setEnabled(true);
     wdg_bigtable->setEnabled(false);
-    wdh_buttonframe->setEnabled(false);
+    wdg_buttonframe->setEnabled(false);
     m_mode = Modif;
 }
 
@@ -303,7 +301,7 @@ void dlg_gestionbanques::RemetEnNorm()
     ui->OKModifupSmallButton->setVisible(false);
     ui->Banqueframe->setEnabled(false);
     wdg_bigtable->setEnabled(true);
-    wdh_buttonframe->setEnabled(true);
+    wdg_buttonframe->setEnabled(true);
 }
 
 void dlg_gestionbanques::RemplirTableWidget()

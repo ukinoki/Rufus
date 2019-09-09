@@ -62,7 +62,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_chercheuplineedit->setText(txt);
                                                                                                     ReconstruitTreeViewCorrespondants(false, txt);});
-    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,              this,   [=] (int i) {ChoixButtonFrame(i);});
+    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,              this,   &dlg_listecorrespondants::ChoixButtonFrame);
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
@@ -80,21 +80,19 @@ void dlg_listecorrespondants::Enablebuttons()
 }
 
 
-void dlg_listecorrespondants::ChoixButtonFrame(int i)
+void dlg_listecorrespondants::ChoixButtonFrame()
 {
-    switch (i) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         EnregistreNouveauCorresp();
         break;
-    case 0:
+    case WidgetButtonFrame::Modifier:
         if (wdg_correspstree->selectionModel()->selectedIndexes().size()==0)
             return;
         ModifCorresp(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)));
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         SupprCorresp();
-        break;
-    default:
         break;
     }
 }

@@ -47,7 +47,7 @@ private:
     UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
 
-    void                    ChoixButtonFrame(int);
+    void                    ChoixButtonFrame();
     void                    Enablebuttons();
     void                    EnregistreNouveauCorresp();
     Correspondant*          getCorrespondantFromIndex(QModelIndex idx);

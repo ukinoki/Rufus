@@ -36,7 +36,6 @@ public:
 
 private slots:
     void                Slot_Redessinelabel(QTreeWidgetItem*);
-    void                Slot_FermeFiche();
 
 private:
     QFont               m_font;
@@ -45,6 +44,7 @@ private:
     UpLabel             *wdg_lbl;
     QFrame              *wdg_frame;
     UpPushButton        *wdg_uppushbutton;
+    void                FermeFiche();
 };
 
 #endif // DLG_FONTDIALOG_H

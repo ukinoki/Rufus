@@ -46,10 +46,6 @@ public:
     ~dlg_GestionLieux();
 private slots:
     void                    Slot_AfficheDetails(QModelIndex, QModelIndex);
-    void                    Slot_ChoixButtonFrame(int i);
-    void                    Slot_EnableOKButton();
-    void                    Slot_EnregNouvLieu();
-    void                    Slot_ModifLieu();
 
 private:
     DataBase                *db = DataBase::I();
@@ -72,12 +68,15 @@ private:
 
     UpDialog                *dlg_lieu;
 
+    void                    ChoixButtonFrame();
     void                    CreerLieu();
+    void                    enregNouvLieu();
+    void                    enregModifLieu();
     Site*                   getSiteFromIndex(QModelIndex idx);
     void                    ModifLieu();
-    void                    SupprLieu();
     void                    ModifLieuxDialog();
     void                    ReconstruitModel();
+    void                    SupprLieu();
     bool                    ValidationFiche();
 };
 

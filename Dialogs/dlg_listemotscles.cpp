@@ -49,9 +49,9 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
 
     m_listidmotsclesdepart << "-1";
 
-    connect(wdg_bigtable,       &QTableView::pressed,   this,   &dlg_listemotscles::Enablebuttons);
-    connect(OKButton,           &QPushButton::clicked,  this,   &dlg_listemotscles::Validation);
-    connect(wdg_buttonframe,    SIGNAL(choix(int)),     this,   SLOT(Slot_ChoixButtonFrame(int)));
+    connect(wdg_bigtable,       &QTableView::pressed,       this,   &dlg_listemotscles::Enablebuttons);
+    connect(OKButton,           &QPushButton::clicked,      this,   &dlg_listemotscles::Validation);
+    connect(wdg_buttonframe,    &WidgetButtonFrame::choix,  this,   &dlg_listemotscles::ChoixButtonFrame);
     wdg_buttonframe->wdg_modifBouton->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }
@@ -60,19 +60,17 @@ dlg_listemotscles::~dlg_listemotscles()
 {
 }
 
-void dlg_listemotscles::Slot_ChoixButtonFrame(int i)
+void dlg_listemotscles::ChoixButtonFrame()
 {
-    switch (i) {
-    case 1:
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
         CreationModifMC(Creation);
         break;
-    case 0:
+    case WidgetButtonFrame::Modifier:
         CreationModifMC(Modif);
         break;
-    case -1:
+    case WidgetButtonFrame::Moins:
         SupprMC();
-        break;
-    default:
         break;
     }
 }
