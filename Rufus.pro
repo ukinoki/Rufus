@@ -69,7 +69,6 @@ SOURCES += main.cpp\
     conversionbase.cpp \
     serialthread.cpp \
     importdocsexternesthread.cpp \
-    qlabeldelegate.cpp \
     utils.cpp \
     gbl_datas.cpp \
     flags.cpp
@@ -81,7 +80,6 @@ HEADERS += rufus.h \
     conversionbase.h \
     serialthread.h \
     importdocsexternesthread.h \
-    qlabeldelegate.h \
     macros.h \
     utils.h \
     icons.h \

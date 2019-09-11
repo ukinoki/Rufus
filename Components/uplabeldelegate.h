@@ -15,19 +15,19 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef QLABELDELEGATE_H
-#define QLABELDELEGATE_H
+#ifndef UPLABELDELEGATE_H
+#define UPLABELDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include "uplabel.h"
 
-class QLabelDelegate : public QStyledItemDelegate
+class UpLabelDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    QLabelDelegate(QObject* parent = Q_NULLPTR);
-    ~QLabelDelegate();
+    UpLabelDelegate(QObject* parent = Q_NULLPTR);
+    ~UpLabelDelegate();
 
     QWidget*    createEditor    (QWidget* parent,   const QStyleOptionViewItem& option, const QModelIndex &index) const  Q_DECL_OVERRIDE;
     void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
@@ -37,4 +37,4 @@ signals:
     void        focusitem(int a);
 };
 
-#endif // QLABELDELEGATE_H
+#endif // UPLABELDELEGATE_H

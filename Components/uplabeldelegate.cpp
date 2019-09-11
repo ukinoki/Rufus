@@ -16,19 +16,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
-#include "qlabeldelegate.h"
+#include "UpLabelDelegate.h"
 
-QLabelDelegate::QLabelDelegate(QObject *parent) : QStyledItemDelegate(parent)
+UpLabelDelegate::UpLabelDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
 
 }
 
-QLabelDelegate::~QLabelDelegate()
+UpLabelDelegate::~UpLabelDelegate()
 {
 
 }
 
-QWidget* QLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex &index) const
+QWidget* UpLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex &index) const
 {
     if (index.data().canConvert(QMetaType::QString))
     {
@@ -40,7 +40,7 @@ QWidget* QLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
         return QStyledItemDelegate::createEditor(parent, option, index);
 }
 
-void QLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+void UpLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
     QString value = index.model()->data(index).toString();
     UpLabel *Lbl = dynamic_cast<UpLabel*>(editor);
@@ -48,7 +48,7 @@ void QLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) co
         Lbl->setText(value);
 }
 
-bool QLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const QStyleOptionViewItem &option, const QModelIndex &index)
+bool UpLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     if(event->type() == QEvent::MouseButtonRelease)
          emit focusitem(index.row());

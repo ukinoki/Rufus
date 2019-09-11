@@ -237,7 +237,7 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, QString fieldName, QS
     QListView *list                = new QListView(gAsk);
     VilleListModel *listModel      = new VilleListModel(listData,fieldName);
 
-    QLabelDelegate  *deleglabl      = new QLabelDelegate;
+    UpLabelDelegate  *deleglabl      = new UpLabelDelegate;
     gAsk->AjouteLayButtons(UpDialog::ButtonOK);
 
     //list->setFixedWidth(100);
@@ -257,7 +257,7 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, QString fieldName, QS
     QString newValue;
     connect(gAsk->OKButton, &QPushButton::clicked,      gAsk, [=, &newValue] { Repons(list, gAsk, newValue); });
     connect(list,           &QListView::doubleClicked,  gAsk, [=, &newValue] { Repons(list, gAsk, newValue); });
-    connect(deleglabl,      &QLabelDelegate::focusitem, gAsk, [gAsk] { gAsk->OKButton->setEnabled(true); });
+    connect(deleglabl,      &UpLabelDelegate::focusitem, gAsk, [gAsk] { gAsk->OKButton->setEnabled(true); });
     connect(list->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,  [=] { gAsk->OKButton->setEnabled(list->selectionModel()->selectedIndexes().size()>0); });
 
     gAsk->exec();
