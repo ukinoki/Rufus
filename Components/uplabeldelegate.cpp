@@ -16,14 +16,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
-#include "UpLabelDelegate.h"
+#include "uplabeldelegate.h"
 
 UpLabelDelegate::UpLabelDelegate(QObject *parent) : QStyledItemDelegate(parent)
-{
-
-}
-
-UpLabelDelegate::~UpLabelDelegate()
 {
 
 }
