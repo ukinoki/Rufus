@@ -54,10 +54,10 @@ void SerialThread::transaction()
 
 void SerialThread::run()
 {
-    connect(Port,   SIGNAL(readyRead()), this, SLOT(Slot_LitPort()));
+    connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
 }
 
-void SerialThread::Slot_LitPort()
+void SerialThread::LitPort()
 {
     QByteArray reponseData = Port->readAll();
     while (Port->waitForReadyRead(100))

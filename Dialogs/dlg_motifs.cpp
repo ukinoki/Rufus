@@ -24,6 +24,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    map_motifs = Datas::I()->motifs->motifs();
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
     wdg_buttonframe             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
@@ -93,18 +94,18 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
 
     RemplirTableWidget();
     ui->MotifsupTableWidget ->selectRow(0);
-    Slot_ActualiseDetails();
+    ActualiseDetails();
 
-    connect(OKButton,                   SIGNAL(clicked()),              this,   SLOT (Slot_EnregistreMotifs()));
-    connect(CancelButton,               SIGNAL(clicked()),              this,   SLOT (reject()));
-    connect(ui->MotifsupTableWidget,    SIGNAL(itemSelectionChanged()), this,   SLOT(Slot_ActualiseDetails()));
-    connect(ui->CouleurpushButton,      SIGNAL(clicked(bool)),          this,   SLOT(Slot_ModifCouleur()));
-    connect(ui->DefautupCheckBox,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_ModifPD()));
-    connect(ui->UtiliserupCheckBox,     SIGNAL(clicked(bool)),          this,   SLOT(Slot_ModifUtil()));
-    connect(ui->MotifupLineEdit,        SIGNAL(textEdited(QString)),    this,   SLOT(Slot_ModifMotif(QString)));
-    connect(ui->RaccourciupLineEdit,    SIGNAL(textEdited(QString)),    this,   SLOT(Slot_ModifRaccouci(QString)));
-    connect(wdg_buttonframe,            &WidgetButtonFrame::choix,      this,   &dlg_motifs::ChoixButtonFrame);
-    connect(ui->MotifsupTableWidget,    SIGNAL(dropsignal(QByteArray)), this,   SLOT(Slot_DropMotif(QByteArray)));
+    connect(OKButton,                                   &QPushButton::clicked,                  this,   &dlg_motifs::EnregistreMotifs);
+    connect(CancelButton,                               &QPushButton::clicked,                  this,   &dlg_motifs::reject);
+    connect(ui->MotifsupTableWidget,                    &QTableWidget::itemSelectionChanged,    this,   &dlg_motifs::ActualiseDetails);
+    connect(ui->CouleurpushButton,                      &QPushButton::clicked,                  this,   &dlg_motifs::ModifCouleur);
+    connect(ui->DefautupCheckBox,                       &QCheckBox::clicked,                    this,   &dlg_motifs::ModifPD);
+    connect(ui->UtiliserupCheckBox,                     &QCheckBox::clicked,                    this,   &dlg_motifs::ModifUtil);
+    connect(ui->MotifupLineEdit,                        &QLineEdit::textEdited,                 this,   &dlg_motifs::ModifMotif);
+    connect(ui->RaccourciupLineEdit,                    &QLineEdit::textEdited,                 this,   &dlg_motifs::ModifRaccouci);
+    connect(wdg_buttonframe,                            &WidgetButtonFrame::choix,              this,   &dlg_motifs::ChoixButtonFrame);
+    connect(ui->MotifsupTableWidget,                    &UpTableWidget::dropsignal,             this,   &dlg_motifs::DropMotif);
 }
 
 dlg_motifs::~dlg_motifs()
@@ -112,7 +113,7 @@ dlg_motifs::~dlg_motifs()
     delete ui;
 }
 
-void dlg_motifs::Slot_ActualiseDetails()
+void dlg_motifs::ActualiseDetails()
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
@@ -157,7 +158,7 @@ void dlg_motifs::ChoixButtonFrame()
     }
 }
 
-void dlg_motifs::Slot_DropMotif(QByteArray data)
+void dlg_motifs::DropMotif(QByteArray data)
 {
     /*! Dans le mimedata du qabstractitemmodeldatalist se succédent row(), column() et datas de chaque item
      * stream << rowitem1 << colitem1 << datasitem1 << rowitem2 << colitem2 << datasitem2 << rowitem3 << colitem3 << datasitem3...etc...
@@ -331,7 +332,7 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
             ui->MotifsupTableWidget->selectRow(i);
             break;
         }
-    Slot_ActualiseDetails();
+    ActualiseDetails();
     RecalculeLesRows();
     OKButton->setEnabled(true);
 }
@@ -353,25 +354,25 @@ void dlg_motifs::RecalculeLesRows()
     }
 }
 
-void dlg_motifs::Slot_ModifMotif(QString txt)
+void dlg_motifs::ModifMotif()
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
     int row = ui->MotifsupTableWidget->selectedRanges().at(0).topRow();
-    ui->MotifsupTableWidget->item(row,1)->setText(txt);
+    ui->MotifsupTableWidget->item(row,1)->setText(ui->MotifupLineEdit->text());
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::Slot_ModifRaccouci(QString txt)
+void dlg_motifs::ModifRaccouci()
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
     int row = ui->MotifsupTableWidget->selectedRanges().at(0).topRow();
-    ui->MotifsupTableWidget->item(row,2)->setText(txt);
+    ui->MotifsupTableWidget->item(row,2)->setText(ui->RaccourciupLineEdit->text());
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::Slot_ModifCouleur()
+void dlg_motifs::ModifCouleur()
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
@@ -400,7 +401,7 @@ void dlg_motifs::Slot_ModifCouleur()
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::Slot_ModifPD()
+void dlg_motifs::ModifPD()
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
@@ -425,7 +426,7 @@ void dlg_motifs::Slot_ModifPD()
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::Slot_ModifUtil()
+void dlg_motifs::ModifUtil()
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
@@ -462,7 +463,7 @@ void dlg_motifs::Slot_ParDefaut()
     ui->UtiliserupCheckBox->setChecked(true);
     ui->UtiliserupCheckBox->setToggleable(false);
     OKButton->setEnabled(true);
-    Slot_ActualiseDetails();
+    ActualiseDetails();
 }
 
 void dlg_motifs::Slot_Utiliser(bool a)
@@ -514,7 +515,7 @@ void dlg_motifs::SupprimMotif()
     }
 
     ui->MotifsupTableWidget->selectRow(rowdest);
-    Slot_ActualiseDetails(); // setrangeselected ne déclenche pas le slot
+    ActualiseDetails(); // setrangeselected ne déclenche pas le slot
     OKButton->setEnabled(true);
 }
 
@@ -529,7 +530,7 @@ void dlg_motifs::CreeMotif()
                                              0,                             //! duree
                                              false,                         //! pardefaut
                                              true,                          //! utiliser
-                                             row+1);                        //! noOrdre
+                                             row+1);                        //! noOrdreidSalDat
     if (motif == Q_NULLPTR)
         return;
     ui->MotifsupTableWidget->insertRow(row);
@@ -541,7 +542,7 @@ void dlg_motifs::CreeMotif()
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::Slot_EnregistreMotifs()
+void dlg_motifs::EnregistreMotifs()
 {
     //verifier la cohérence
     for (int i =0; i<ui->MotifsupTableWidget->rowCount(); i++)
@@ -593,8 +594,9 @@ void dlg_motifs::RemplirTableWidget()
 
     int i=0;
     ui->MotifsupTableWidget->setRowCount(map_motifs->size());
-    foreach (Motif *mtf, *map_motifs)
-    {
+    QMapIterator<int, Motif*> itmtf(*map_motifs);
+    while (itmtf.hasNext()) {
+        Motif *mtf = const_cast<Motif*>(itmtf.next().value());
         SetMotifToRow(mtf, i);
         ++i;
     }

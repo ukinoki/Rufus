@@ -114,6 +114,7 @@ private:
     QRectF                  headerRect(QPaintDevice *device);
     QRectF                  footerRect(QPaintDevice *device);
 
+    void                    launchprint(QPrinter *printer);                                                     // common print routine
     void                    paintPage(QPainter *painter, QTextDocument *document, int pagenum, int nbpages);    // paint specific page
 
     QWidget                 *parent_;
@@ -136,10 +137,6 @@ private:
 
     QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
-
-private slots:
-    void                    Slot_print(QPrinter *printer);                                                     // common print routine
-
 };
 
 #endif // TEXTPRINTER_H

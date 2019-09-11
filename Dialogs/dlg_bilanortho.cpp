@@ -662,426 +662,421 @@ void dlg_bilanortho::closeEvent(QCloseEvent *event)
 
 void dlg_bilanortho::AfficheBilan(Acte *acte)
 {
-    QString chborequete = "select idBilanOrtho from " TBL_BILANORTHO " where idBilanOrtho = " + QString::number(acte->id());
     bool ok;
-    QVariantList BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
-    if(!ok || BOid.size()==0)
+    QString a;
+    QString affichBOrequete =
+            "select AVOD, AVOG, OcclAltern, Wirt, Lang"                                                 // 0,1,2,3,4
+            ", ODirecteur, Orientation, EcranVLSC, EcranVLSCD, EcranfixresVLSC"                         // 5,6,7,8,9
+            ", EcranVPSC, EcranVPSCD, EcranfixresVPSC, EcranVLASC, EcranVLASCD"                         // 10,11,12,13,14
+            ", EcranfixresVLASC, EcranVPASC, EcranVPASCD, EcranfixresVPASC, MaddoxVLSC"                 // 15,16,17,18,19
+            ", MaddoxVLSCD, MaddoxVPSC, MaddoxVPSCD, MaddoxVLASC, MaddoxVLASCD"                         // 20,21,22,23,24
+            ", MaddoxVPASC, MaddoxVPASCD, Motilite, PPC, PPCComment"                                    // 25,26,27,28,29
+            ", Saccades, Poursuite, Worth1, Worth2, Bagolini1"                                          // 30,31,32,33,34
+            ", Bagolini2, VergenceVLD, VergenceVLC, VergenceVPD, VergenceVPC"                           // 35,36,37,38,39
+            ", Synopt1, Synopt2, Synopt3, Conclusion, Motif"                                            // 40,41,42,43,44
+            ", WirtAnimaux, TNO, VergenceRestVLD, VergenceRestVPD, HEcranVLSC"                          // 45,46,47,48,49
+            ", HEcranVLSCD, HEcranfixresVLSC, HEcranVPSC, HEcranVPSCD, HEcranfixresVPSC"                // 50,51,52,53,54
+            ", HEcranVLASC, HEcranVLASCD, HEcranfixresVLASC, HEcranVPASC, HEcranVPASCD"                 // 55,56,57,58,59
+            ", HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC, HMaddoxVPSCD"                 // 60,61,62,63,64
+            ", HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD, Motilite"                      // 65,66,67,68,69
+            " from " TBL_BILANORTHO
+            " where idBilanOrtho = " + QString::number(acte->id());
+    //UpMessageBox::Watch(this,affichBOrequete);
+    QVariantList BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
+    if(!ok || BOdata.size()==0)
         return;
-    else
+    ui->AVODlineEdit->setText(BOdata.at(0).toString());
+    ui->AVOGlineEdit->setText(BOdata.at(1).toString());
+    ui->OcclAlterncomboBox->setCurrentText(BOdata.at(2).toString());
+    ui->WirtcomboBox->setCurrentText(BOdata.at(3).toString());
+    ui->AnimauxWirtcomboBox->setCurrentText(BOdata.at(45).toString());
+    ui->LangcomboBox->setCurrentText(BOdata.at(4).toString());
+    ui->TNOcomboBox->setCurrentText(BOdata.at(46).toString());
+    if (BOdata.at(5).toString() == "D")
+        ui->ODdirecteurradioButton->setChecked(true);
+    else if (BOdata.at(5).toString() == "G")
+        ui->OGdirecteurradioButton->setChecked(true);
+    if (BOdata.at(6).toString() == "D")
+        ui->ODOrientationradioButton->setChecked(true);
+    else if (BOdata.at(6).toString() == "G")
+        ui->OGOrientationradioButton->setChecked(true);
+
+    // ECRAN ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ui->EcranVLSCcomboBox->setCurrentText(BOdata.at(7).toString());
+    a = ui->EcranVLSCcomboBox->currentText();
+    ui->EcranVLSCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
+    ui->fixSCVLcomboBox->setVisible(a == "Et" || a == "EEt" || a == "Xt" || a == "XXt");
+    ui->fixSCVLcomboBox->clear();
+    QStringList typefix;
+    if (a == "Et" || a == "Xt")
     {
-        QString a;
-        QString affichBOrequete =
-                "select AVOD, AVOG, OcclAltern, Wirt, Lang"                                                 // 0,1,2,3,4
-                ", ODirecteur, Orientation, EcranVLSC, EcranVLSCD, EcranfixresVLSC"                         // 5,6,7,8,9
-                ", EcranVPSC, EcranVPSCD, EcranfixresVPSC, EcranVLASC, EcranVLASCD"                         // 10,11,12,13,14
-                ", EcranfixresVLASC, EcranVPASC, EcranVPASCD, EcranfixresVPASC, MaddoxVLSC"                 // 15,16,17,18,19
-                ", MaddoxVLSCD, MaddoxVPSC, MaddoxVPSCD, MaddoxVLASC, MaddoxVLASCD"                         // 20,21,22,23,24
-                ", MaddoxVPASC, MaddoxVPASCD, Motilite, PPC, PPCComment"                                    // 25,26,27,28,29
-                ", Saccades, Poursuite, Worth1, Worth2, Bagolini1"                                          // 30,31,32,33,34
-                ", Bagolini2, VergenceVLD, VergenceVLC, VergenceVPD, VergenceVPC"                           // 35,36,37,38,39
-                ", Synopt1, Synopt2, Synopt3, Conclusion, Motif"                                            // 40,41,42,43,44
-                ", WirtAnimaux, TNO, VergenceRestVLD, VergenceRestVPD, HEcranVLSC"                          // 45,46,47,48,49
-                ", HEcranVLSCD, HEcranfixresVLSC, HEcranVPSC, HEcranVPSCD, HEcranfixresVPSC"                // 50,51,52,53,54
-                ", HEcranVLASC, HEcranVLASCD, HEcranfixresVLASC, HEcranVPASC, HEcranVPASCD"                 // 55,56,57,58,59
-                ", HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC, HMaddoxVPSCD"                 // 60,61,62,63,64
-                ", HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD, Motilite"                      // 65,66,67,68,69
-                " from " TBL_BILANORTHO     // 65,66,67,68
-                " where idBilanOrtho = " + QString::number(acte->id());
-        //UpMessageBox::Watch(this,affichBOrequete);
-        QVariantList BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
-        ui->AVODlineEdit->setText(BOdata.at(0).toString());
-        ui->AVOGlineEdit->setText(BOdata.at(1).toString());
-        ui->OcclAlterncomboBox->setCurrentText(BOdata.at(2).toString());
-        ui->WirtcomboBox->setCurrentText(BOdata.at(3).toString());
-        ui->AnimauxWirtcomboBox->setCurrentText(BOdata.at(45).toString());
-        ui->LangcomboBox->setCurrentText(BOdata.at(4).toString());
-        ui->TNOcomboBox->setCurrentText(BOdata.at(46).toString());
-        if (BOdata.at(5).toString() == "D")
-            ui->ODdirecteurradioButton->setChecked(true);
-        else if (BOdata.at(5).toString() == "G")
-            ui->OGdirecteurradioButton->setChecked(true);
-        if (BOdata.at(6).toString() == "D")
-            ui->ODOrientationradioButton->setChecked(true);
-        else if (BOdata.at(6).toString() == "G")
-            ui->OGOrientationradioButton->setChecked(true);
-
-        // ECRAN ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->EcranVLSCcomboBox->setCurrentText(BOdata.at(7).toString());
-        a = ui->EcranVLSCcomboBox->currentText();
-        ui->EcranVLSCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
-        ui->fixSCVLcomboBox->setVisible(a == "Et" || a == "EEt" || a == "Xt" || a == "XXt");
-        ui->fixSCVLcomboBox->clear();
-        QStringList typefix;
-        if (a == "Et" || a == "Xt")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->fixSCVLcomboBox->insertItems(0,typefix);
-        }
-        if (a == "EEt" || a == "XXt")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->fixSCVLcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(8).toString();
-        if (a == "") a = "-";
-        ui->EcranVLSCDcomboBox->setCurrentText(a);
-        ui->fixSCVLcomboBox->setCurrentText(BOdata.at(9).toString());
-        ui->EcranVPSCcomboBox->setCurrentText(BOdata.at(10).toString());
-        a = ui->EcranVPSCcomboBox->currentText();
-        ui->EcranVPSCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
-        ui->fixSCVPcomboBox->setVisible(a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't");
-        ui->fixSCVPcomboBox->clear();
-        typefix.clear();
-        if (a == "E't" || a == "X't")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->fixSCVPcomboBox->insertItems(0,typefix);
-        }
-        if (a == "E'E't" || a == "X'X't")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->fixSCVPcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(11).toString();
-        if (a == "") a = "-";
-        ui->EcranVPSCDcomboBox->setCurrentText(a);
-        ui->fixSCVPcomboBox->setCurrentText(BOdata.at(12).toString());
-        ui->EcranVLASCcomboBox->setCurrentText(BOdata.at(13).toString());
-        a = ui->EcranVLASCcomboBox->currentText();
-        ui->EcranVLASCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
-        ui->fixASCVLcomboBox->setVisible(a == "Et" || a == "EEt" || a == "Xt" || a == "XXt");
-        ui->fixASCVLcomboBox->clear();
-        typefix.clear();
-        if (a == "Et" || a == "Xt")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->fixASCVLcomboBox->insertItems(0,typefix);
-        }
-        if (a == "EEt" || a == "XXt")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->fixASCVLcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(14).toString();
-        if (a == "") a = "-";
-        ui->EcranVLASCDcomboBox->setCurrentText(a);
-        ui->fixASCVLcomboBox->setCurrentText(BOdata.at(15).toString());
-        ui->EcranVPASCcomboBox->setCurrentText(BOdata.at(16).toString());
-        a = ui->EcranVPASCcomboBox->currentText();
-        ui->EcranVPASCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
-        ui->fixASCVPcomboBox->setVisible(a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't");
-        ui->fixASCVPcomboBox->clear();
-        typefix.clear();
-        if (a == "E't" || a == "X't")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->fixASCVPcomboBox->insertItems(0,typefix);
-        }
-        if (a == "E'E't" || a == "X'X't")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->fixASCVPcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(17).toString();
-        if (a == "") a = "-";
-        ui->EcranVPASCDcomboBox->setCurrentText(a);
-        ui->fixASCVPcomboBox->setCurrentText(BOdata.at(18).toString());
-
-        // HECRAN -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->HEcranVLSCcomboBox->setCurrentText(BOdata.at(49).toString());
-        a = ui->HEcranVLSCcomboBox->currentText();
-        ui->HEcranVLSCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
-        ui->HfixSCVLcomboBox->setVisible(a == "Ht" || a == "HHt" || a == "ht" || a == "hht");
-        ui->HfixSCVLcomboBox->clear();
-        typefix.clear();
-        if (a == "Ht" || a == "ht")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->HfixSCVLcomboBox->insertItems(0,typefix);
-        }
-        if (a == "HHt" || a == "hht")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->HfixSCVLcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(50).toString();
-        if (a == "") a = "-";
-        ui->HEcranVLSCDcomboBox->setCurrentText(a);
-        ui->HfixSCVLcomboBox->setCurrentText(BOdata.at(51).toString());
-        ui->HEcranVPSCcomboBox->setCurrentText(BOdata.at(52).toString());
-        a = ui->HEcranVPSCcomboBox->currentText();
-        ui->HEcranVPSCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
-        ui->HfixSCVPcomboBox->setVisible(a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't");
-        ui->HfixSCVPcomboBox->clear();
-        typefix.clear();
-        if (a == "H't" || a == "h't")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->HfixSCVPcomboBox->insertItems(0,typefix);
-        }
-        if (a == "H'H't" || a == "h'h't")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->HfixSCVPcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(53).toString();
-        if (a == "") a = "-";
-        ui->HEcranVPSCDcomboBox->setCurrentText(a);
-        ui->HfixSCVPcomboBox->setCurrentText(BOdata.at(54).toString());
-        ui->HEcranVLASCcomboBox->setCurrentText(BOdata.at(55).toString());
-        a = ui->HEcranVLASCcomboBox->currentText();
-        ui->HEcranVLASCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
-        ui->HfixASCVLcomboBox->setVisible(a == "Ht" || a == "HHt" || a == "ht" || a == "hht");
-        ui->HfixASCVLcomboBox->clear();
-        typefix.clear();
-        if (a == "Ht" || a == "ht")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->HfixASCVLcomboBox->insertItems(0,typefix);
-        }
-        if (a == "HHt" || a == "hht")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->HfixASCVLcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(56).toString();
-        if (a == "") a = "-";
-        ui->HEcranVLASCDcomboBox->setCurrentText(a);
-        ui->HfixASCVLcomboBox->setCurrentText(BOdata.at(57).toString());
-        ui->HEcranVPASCcomboBox->setCurrentText(BOdata.at(58).toString());
-        a = ui->HEcranVPASCcomboBox->currentText();
-        ui->HEcranVPASCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
-        ui->HfixASCVPcomboBox->setVisible(a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't");
-        ui->HfixASCVPcomboBox->clear();
-        typefix.clear();
-        if (a == "H't" || a == "h't")
-        {
-            typefix << "-";
-            typefix << tr("OD fixateur");
-            typefix << tr("OG fixateur");
-            typefix << tr("alternant");
-            ui->HfixASCVPcomboBox->insertItems(0,typefix);
-        }
-        if (a == "H'H't" || a == "h'h't")
-        {
-            typefix << "-";
-            typefix << tr("rest. lente");
-            typefix << tr("rest. moyenne");
-            typefix << tr("rest. rapide");
-            ui->HfixASCVPcomboBox->insertItems(0,typefix);
-        }
-        a = BOdata.at(59).toString();
-        if (a == "") a = "-";
-        ui->HEcranVPASCDcomboBox->setCurrentText(a);
-        ui->HfixASCVPcomboBox->setCurrentText(BOdata.at(60).toString());
-
-        // MADDOX -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->MaddoxVLSCcomboBox->setCurrentText(BOdata.at(19).toString());
-        a = ui->MaddoxVLSCcomboBox->currentText();
-        ui->MaddoxVLSCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
-        ui->MaddoxVLSCDcomboBox->clear();
-        int w = 50;
-        if (a == "Et" || a == "EEt" || a == "Xt" || a == "XXt")
-        {
-            ui->MaddoxVLSCDcomboBox->insertItems(0,DioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->MaddoxVLSCDcomboBox->insertItems(0,Dioptrieslist);
-        ui->MaddoxVLSCDcomboBox->resize(w,22);
-        a = BOdata.at(20).toString();
-        if (a == "") a = "-";
-        ui->MaddoxVLSCDcomboBox->setCurrentText(a);
-        ui->MaddoxVPSCcomboBox->setCurrentText(BOdata.at(21).toString());
-        a = ui->MaddoxVPSCcomboBox->currentText();
-        ui->MaddoxVPSCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
-        ui->MaddoxVPSCDcomboBox->clear();
-        w = 50;
-        if (a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't")
-        {
-            ui->MaddoxVPSCDcomboBox->insertItems(0,DioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->MaddoxVPSCDcomboBox->insertItems(0,Dioptrieslist);
-        ui->MaddoxVPSCDcomboBox->resize(w,22);
-        a = BOdata.at(22).toString();
-        if (a == "") a = "-";
-        ui->MaddoxVPSCDcomboBox->setCurrentText(a);
-        ui->MaddoxVLASCcomboBox->setCurrentText(BOdata.at(23).toString());
-        a = ui->MaddoxVLASCcomboBox->currentText();
-        ui->MaddoxVLASCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
-        ui->MaddoxVLASCDcomboBox->clear();
-        w = 50;
-        if (a == "Et" || a == "EEt" || a == "Xt" || a == "XXt")
-        {
-            ui->MaddoxVLASCDcomboBox->insertItems(0,DioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->MaddoxVLASCDcomboBox->insertItems(0,Dioptrieslist);
-        ui->MaddoxVLASCDcomboBox->resize(w,22);
-        a = BOdata.at(24).toString();
-        if (a == "") a = "-";
-        ui->MaddoxVLASCDcomboBox->setCurrentText(a);
-        ui->MaddoxVPASCcomboBox->setCurrentText(BOdata.at(25).toString());
-        a = ui->MaddoxVPASCcomboBox->currentText();
-        ui->MaddoxVPASCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
-        ui->MaddoxVPASCDcomboBox->clear();
-        w = 50;
-        if (a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't")
-        {
-            ui->MaddoxVPASCDcomboBox->insertItems(0,DioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->MaddoxVPASCDcomboBox->insertItems(0,Dioptrieslist);
-        ui->MaddoxVPASCDcomboBox->resize(w,22);
-        a = BOdata.at(26).toString();
-        if (a == "") a = "-";
-        ui->MaddoxVPASCDcomboBox->setCurrentText(a);
-
-        // HMADDOX -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->HMaddoxVLSCcomboBox->setCurrentText(BOdata.at(61).toString());
-        a = ui->HMaddoxVLSCcomboBox->currentText();
-        ui->HMaddoxVLSCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
-        ui->HMaddoxVLSCDcomboBox->clear();
-        w = 50;
-        if (a == "Ht" || a == "HHt" || a == "ht" || a == "hht")
-        {
-            ui->HMaddoxVLSCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->HMaddoxVLSCDcomboBox->insertItems(0,HDioptrieslist);
-        ui->HMaddoxVLSCDcomboBox->resize(w,22);
-        a = BOdata.at(62).toString();
-        if (a == "") a = "-";
-        ui->HMaddoxVLSCDcomboBox->setCurrentText(a);
-        ui->HMaddoxVPSCcomboBox->setCurrentText(BOdata.at(63).toString());
-        a = ui->HMaddoxVPSCcomboBox->currentText();
-        ui->HMaddoxVPSCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
-        ui->HMaddoxVPSCDcomboBox->clear();
-        w = 50;
-        if (a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't")
-        {
-            ui->HMaddoxVPSCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->HMaddoxVPSCDcomboBox->insertItems(0,HDioptrieslist);
-        ui->HMaddoxVPSCDcomboBox->resize(w,22);
-        a = BOdata.at(64).toString();
-        if (a == "") a = "-";
-        ui->HMaddoxVPSCDcomboBox->setCurrentText(a);
-        ui->HMaddoxVLASCcomboBox->setCurrentText(BOdata.at(65).toString());
-        a = ui->HMaddoxVLASCcomboBox->currentText();
-        ui->HMaddoxVLASCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
-        ui->HMaddoxVLASCDcomboBox->clear();
-        w = 50;
-        if (a == "Ht" || a == "HHt" || a == "ht" || a == "hht")
-        {
-            ui->HMaddoxVLASCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->HMaddoxVLASCDcomboBox->insertItems(0,HDioptrieslist);
-        ui->HMaddoxVLASCDcomboBox->resize(w,22);
-        a = BOdata.at(66).toString();
-        if (a == "") a = "-";
-        ui->HMaddoxVLASCDcomboBox->setCurrentText(a);
-        ui->HMaddoxVPASCcomboBox->setCurrentText(BOdata.at(67).toString());
-        a = ui->HMaddoxVPASCcomboBox->currentText();
-        ui->HMaddoxVPASCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
-        ui->HMaddoxVPASCDcomboBox->clear();
-        w = 50;
-        if (a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't")
-        {
-            ui->HMaddoxVPASCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
-            w = 115;
-        }
-        else
-            ui->HMaddoxVPASCDcomboBox->insertItems(0,HDioptrieslist);
-        ui->HMaddoxVPASCDcomboBox->resize(w,22);
-        a = BOdata.at(68).toString();
-        if (a == "") a = "-";
-        ui->HMaddoxVPASCDcomboBox->setCurrentText(a);
-
-        ui->MotilitetextEdit->setText(BOdata.at(69).toString());
-        a = BOdata.at(28).toString();
-        if (a == "") a = "-";
-        ui->PPCcomboBox->setCurrentText(a);
-        ui->PPClineEdit->setText(BOdata.at(29).toString());
-        ui->SaccadeslineEdit->setText(BOdata.at(30).toString());
-        ui->PoursuitelineEdit->setText(BOdata.at(31).toString());
-        ui->Worth1lineEdit->setText(BOdata.at(32).toString());
-        ui->Worth2lineEdit->setText(BOdata.at(33).toString());
-        ui->Bagolini1lineEdit->setText(BOdata.at(34).toString());
-        ui->Bagolini2lineEdit->setText(BOdata.at(35).toString());
-        a = BOdata.at(36).toString();
-        if (a == "") a = "-";
-        ui->VergenceDLcomboBox->setCurrentText(a);
-        a = BOdata.at(37).toString();
-        if (a == "") a = "-";
-        ui->VergenceCLcomboBox->setCurrentText(a);
-        a = BOdata.at(47).toString();
-        if (a == "") a = "-";
-        ui->VergenceRestDLcomboBox->setCurrentText(a);
-        a = BOdata.at(38).toString();
-        if (a == "") a = "-";
-        ui->VergenceDPcomboBox->setCurrentText(a);
-        a = BOdata.at(39).toString();
-        if (a == "") a = "-";
-        ui->VergenceCPcomboBox->setCurrentText(a);
-        a = BOdata.at(48).toString();
-        if (a == "") a = "-";
-        ui->VergenceRestDPcomboBox->setCurrentText(a);
-        ui->Degre1lineEdit->setText(BOdata.at(40).toString());
-        ui->Degre2lineEdit->setText(BOdata.at(41).toString());
-        ui->Degre3lineEdit->setText(BOdata.at(42).toString());
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->fixSCVLcomboBox->insertItems(0,typefix);
     }
+    if (a == "EEt" || a == "XXt")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->fixSCVLcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(8).toString();
+    if (a == "") a = "-";
+    ui->EcranVLSCDcomboBox->setCurrentText(a);
+    ui->fixSCVLcomboBox->setCurrentText(BOdata.at(9).toString());
+    ui->EcranVPSCcomboBox->setCurrentText(BOdata.at(10).toString());
+    a = ui->EcranVPSCcomboBox->currentText();
+    ui->EcranVPSCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
+    ui->fixSCVPcomboBox->setVisible(a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't");
+    ui->fixSCVPcomboBox->clear();
+    typefix.clear();
+    if (a == "E't" || a == "X't")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->fixSCVPcomboBox->insertItems(0,typefix);
+    }
+    if (a == "E'E't" || a == "X'X't")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->fixSCVPcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(11).toString();
+    if (a == "") a = "-";
+    ui->EcranVPSCDcomboBox->setCurrentText(a);
+    ui->fixSCVPcomboBox->setCurrentText(BOdata.at(12).toString());
+    ui->EcranVLASCcomboBox->setCurrentText(BOdata.at(13).toString());
+    a = ui->EcranVLASCcomboBox->currentText();
+    ui->EcranVLASCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
+    ui->fixASCVLcomboBox->setVisible(a == "Et" || a == "EEt" || a == "Xt" || a == "XXt");
+    ui->fixASCVLcomboBox->clear();
+    typefix.clear();
+    if (a == "Et" || a == "Xt")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->fixASCVLcomboBox->insertItems(0,typefix);
+    }
+    if (a == "EEt" || a == "XXt")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->fixASCVLcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(14).toString();
+    if (a == "") a = "-";
+    ui->EcranVLASCDcomboBox->setCurrentText(a);
+    ui->fixASCVLcomboBox->setCurrentText(BOdata.at(15).toString());
+    ui->EcranVPASCcomboBox->setCurrentText(BOdata.at(16).toString());
+    a = ui->EcranVPASCcomboBox->currentText();
+    ui->EcranVPASCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
+    ui->fixASCVPcomboBox->setVisible(a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't");
+    ui->fixASCVPcomboBox->clear();
+    typefix.clear();
+    if (a == "E't" || a == "X't")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->fixASCVPcomboBox->insertItems(0,typefix);
+    }
+    if (a == "E'E't" || a == "X'X't")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->fixASCVPcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(17).toString();
+    if (a == "") a = "-";
+    ui->EcranVPASCDcomboBox->setCurrentText(a);
+    ui->fixASCVPcomboBox->setCurrentText(BOdata.at(18).toString());
+
+    // HECRAN -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ui->HEcranVLSCcomboBox->setCurrentText(BOdata.at(49).toString());
+    a = ui->HEcranVLSCcomboBox->currentText();
+    ui->HEcranVLSCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
+    ui->HfixSCVLcomboBox->setVisible(a == "Ht" || a == "HHt" || a == "ht" || a == "hht");
+    ui->HfixSCVLcomboBox->clear();
+    typefix.clear();
+    if (a == "Ht" || a == "ht")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->HfixSCVLcomboBox->insertItems(0,typefix);
+    }
+    if (a == "HHt" || a == "hht")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->HfixSCVLcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(50).toString();
+    if (a == "") a = "-";
+    ui->HEcranVLSCDcomboBox->setCurrentText(a);
+    ui->HfixSCVLcomboBox->setCurrentText(BOdata.at(51).toString());
+    ui->HEcranVPSCcomboBox->setCurrentText(BOdata.at(52).toString());
+    a = ui->HEcranVPSCcomboBox->currentText();
+    ui->HEcranVPSCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
+    ui->HfixSCVPcomboBox->setVisible(a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't");
+    ui->HfixSCVPcomboBox->clear();
+    typefix.clear();
+    if (a == "H't" || a == "h't")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->HfixSCVPcomboBox->insertItems(0,typefix);
+    }
+    if (a == "H'H't" || a == "h'h't")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->HfixSCVPcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(53).toString();
+    if (a == "") a = "-";
+    ui->HEcranVPSCDcomboBox->setCurrentText(a);
+    ui->HfixSCVPcomboBox->setCurrentText(BOdata.at(54).toString());
+    ui->HEcranVLASCcomboBox->setCurrentText(BOdata.at(55).toString());
+    a = ui->HEcranVLASCcomboBox->currentText();
+    ui->HEcranVLASCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
+    ui->HfixASCVLcomboBox->setVisible(a == "Ht" || a == "HHt" || a == "ht" || a == "hht");
+    ui->HfixASCVLcomboBox->clear();
+    typefix.clear();
+    if (a == "Ht" || a == "ht")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->HfixASCVLcomboBox->insertItems(0,typefix);
+    }
+    if (a == "HHt" || a == "hht")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->HfixASCVLcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(56).toString();
+    if (a == "") a = "-";
+    ui->HEcranVLASCDcomboBox->setCurrentText(a);
+    ui->HfixASCVLcomboBox->setCurrentText(BOdata.at(57).toString());
+    ui->HEcranVPASCcomboBox->setCurrentText(BOdata.at(58).toString());
+    a = ui->HEcranVPASCcomboBox->currentText();
+    ui->HEcranVPASCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
+    ui->HfixASCVPcomboBox->setVisible(a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't");
+    ui->HfixASCVPcomboBox->clear();
+    typefix.clear();
+    if (a == "H't" || a == "h't")
+    {
+        typefix << "-";
+        typefix << tr("OD fixateur");
+        typefix << tr("OG fixateur");
+        typefix << tr("alternant");
+        ui->HfixASCVPcomboBox->insertItems(0,typefix);
+    }
+    if (a == "H'H't" || a == "h'h't")
+    {
+        typefix << "-";
+        typefix << tr("rest. lente");
+        typefix << tr("rest. moyenne");
+        typefix << tr("rest. rapide");
+        ui->HfixASCVPcomboBox->insertItems(0,typefix);
+    }
+    a = BOdata.at(59).toString();
+    if (a == "") a = "-";
+    ui->HEcranVPASCDcomboBox->setCurrentText(a);
+    ui->HfixASCVPcomboBox->setCurrentText(BOdata.at(60).toString());
+
+    // MADDOX -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ui->MaddoxVLSCcomboBox->setCurrentText(BOdata.at(19).toString());
+    a = ui->MaddoxVLSCcomboBox->currentText();
+    ui->MaddoxVLSCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
+    ui->MaddoxVLSCDcomboBox->clear();
+    int w = 50;
+    if (a == "Et" || a == "EEt" || a == "Xt" || a == "XXt")
+    {
+        ui->MaddoxVLSCDcomboBox->insertItems(0,DioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->MaddoxVLSCDcomboBox->insertItems(0,Dioptrieslist);
+    ui->MaddoxVLSCDcomboBox->resize(w,22);
+    a = BOdata.at(20).toString();
+    if (a == "") a = "-";
+    ui->MaddoxVLSCDcomboBox->setCurrentText(a);
+    ui->MaddoxVPSCcomboBox->setCurrentText(BOdata.at(21).toString());
+    a = ui->MaddoxVPSCcomboBox->currentText();
+    ui->MaddoxVPSCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
+    ui->MaddoxVPSCDcomboBox->clear();
+    w = 50;
+    if (a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't")
+    {
+        ui->MaddoxVPSCDcomboBox->insertItems(0,DioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->MaddoxVPSCDcomboBox->insertItems(0,Dioptrieslist);
+    ui->MaddoxVPSCDcomboBox->resize(w,22);
+    a = BOdata.at(22).toString();
+    if (a == "") a = "-";
+    ui->MaddoxVPSCDcomboBox->setCurrentText(a);
+    ui->MaddoxVLASCcomboBox->setCurrentText(BOdata.at(23).toString());
+    a = ui->MaddoxVLASCcomboBox->currentText();
+    ui->MaddoxVLASCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
+    ui->MaddoxVLASCDcomboBox->clear();
+    w = 50;
+    if (a == "Et" || a == "EEt" || a == "Xt" || a == "XXt")
+    {
+        ui->MaddoxVLASCDcomboBox->insertItems(0,DioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->MaddoxVLASCDcomboBox->insertItems(0,Dioptrieslist);
+    ui->MaddoxVLASCDcomboBox->resize(w,22);
+    a = BOdata.at(24).toString();
+    if (a == "") a = "-";
+    ui->MaddoxVLASCDcomboBox->setCurrentText(a);
+    ui->MaddoxVPASCcomboBox->setCurrentText(BOdata.at(25).toString());
+    a = ui->MaddoxVPASCcomboBox->currentText();
+    ui->MaddoxVPASCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
+    ui->MaddoxVPASCDcomboBox->clear();
+    w = 50;
+    if (a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't")
+    {
+        ui->MaddoxVPASCDcomboBox->insertItems(0,DioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->MaddoxVPASCDcomboBox->insertItems(0,Dioptrieslist);
+    ui->MaddoxVPASCDcomboBox->resize(w,22);
+    a = BOdata.at(26).toString();
+    if (a == "") a = "-";
+    ui->MaddoxVPASCDcomboBox->setCurrentText(a);
+
+    // HMADDOX -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    ui->HMaddoxVLSCcomboBox->setCurrentText(BOdata.at(61).toString());
+    a = ui->HMaddoxVLSCcomboBox->currentText();
+    ui->HMaddoxVLSCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
+    ui->HMaddoxVLSCDcomboBox->clear();
+    w = 50;
+    if (a == "Ht" || a == "HHt" || a == "ht" || a == "hht")
+    {
+        ui->HMaddoxVLSCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->HMaddoxVLSCDcomboBox->insertItems(0,HDioptrieslist);
+    ui->HMaddoxVLSCDcomboBox->resize(w,22);
+    a = BOdata.at(62).toString();
+    if (a == "") a = "-";
+    ui->HMaddoxVLSCDcomboBox->setCurrentText(a);
+    ui->HMaddoxVPSCcomboBox->setCurrentText(BOdata.at(63).toString());
+    a = ui->HMaddoxVPSCcomboBox->currentText();
+    ui->HMaddoxVPSCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
+    ui->HMaddoxVPSCDcomboBox->clear();
+    w = 50;
+    if (a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't")
+    {
+        ui->HMaddoxVPSCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->HMaddoxVPSCDcomboBox->insertItems(0,HDioptrieslist);
+    ui->HMaddoxVPSCDcomboBox->resize(w,22);
+    a = BOdata.at(64).toString();
+    if (a == "") a = "-";
+    ui->HMaddoxVPSCDcomboBox->setCurrentText(a);
+    ui->HMaddoxVLASCcomboBox->setCurrentText(BOdata.at(65).toString());
+    a = ui->HMaddoxVLASCcomboBox->currentText();
+    ui->HMaddoxVLASCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
+    ui->HMaddoxVLASCDcomboBox->clear();
+    w = 50;
+    if (a == "Ht" || a == "HHt" || a == "ht" || a == "hht")
+    {
+        ui->HMaddoxVLASCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->HMaddoxVLASCDcomboBox->insertItems(0,HDioptrieslist);
+    ui->HMaddoxVLASCDcomboBox->resize(w,22);
+    a = BOdata.at(66).toString();
+    if (a == "") a = "-";
+    ui->HMaddoxVLASCDcomboBox->setCurrentText(a);
+    ui->HMaddoxVPASCcomboBox->setCurrentText(BOdata.at(67).toString());
+    a = ui->HMaddoxVPASCcomboBox->currentText();
+    ui->HMaddoxVPASCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
+    ui->HMaddoxVPASCDcomboBox->clear();
+    w = 50;
+    if (a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't")
+    {
+        ui->HMaddoxVPASCDcomboBox->insertItems(0,HDioptriesNeutraliselist);
+        w = 115;
+    }
+    else
+        ui->HMaddoxVPASCDcomboBox->insertItems(0,HDioptrieslist);
+    ui->HMaddoxVPASCDcomboBox->resize(w,22);
+    a = BOdata.at(68).toString();
+    if (a == "") a = "-";
+    ui->HMaddoxVPASCDcomboBox->setCurrentText(a);
+
+    ui->MotilitetextEdit->setText(BOdata.at(69).toString());
+    a = BOdata.at(28).toString();
+    if (a == "") a = "-";
+    ui->PPCcomboBox->setCurrentText(a);
+    ui->PPClineEdit->setText(BOdata.at(29).toString());
+    ui->SaccadeslineEdit->setText(BOdata.at(30).toString());
+    ui->PoursuitelineEdit->setText(BOdata.at(31).toString());
+    ui->Worth1lineEdit->setText(BOdata.at(32).toString());
+    ui->Worth2lineEdit->setText(BOdata.at(33).toString());
+    ui->Bagolini1lineEdit->setText(BOdata.at(34).toString());
+    ui->Bagolini2lineEdit->setText(BOdata.at(35).toString());
+    a = BOdata.at(36).toString();
+    if (a == "") a = "-";
+    ui->VergenceDLcomboBox->setCurrentText(a);
+    a = BOdata.at(37).toString();
+    if (a == "") a = "-";
+    ui->VergenceCLcomboBox->setCurrentText(a);
+    a = BOdata.at(47).toString();
+    if (a == "") a = "-";
+    ui->VergenceRestDLcomboBox->setCurrentText(a);
+    a = BOdata.at(38).toString();
+    if (a == "") a = "-";
+    ui->VergenceDPcomboBox->setCurrentText(a);
+    a = BOdata.at(39).toString();
+    if (a == "") a = "-";
+    ui->VergenceCPcomboBox->setCurrentText(a);
+    a = BOdata.at(48).toString();
+    if (a == "") a = "-";
+    ui->VergenceRestDPcomboBox->setCurrentText(a);
+    ui->Degre1lineEdit->setText(BOdata.at(40).toString());
+    ui->Degre2lineEdit->setText(BOdata.at(41).toString());
+    ui->Degre3lineEdit->setText(BOdata.at(42).toString());
 }
 
 void dlg_bilanortho::ExtraitRefraction(QString textorigin, QString &ReponseaModifier)

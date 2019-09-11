@@ -50,20 +50,18 @@ public:
 signals:
     void ctrl(State);
 
-private slots:
-    void playClicked();
-    void stopClicked();
-    void playSeek(int);
-    void positionChanged(qint64 progress);
-    void updateDurationInfo(qint64 progress);
-    QString format(QMediaPlayer *plyr);
-
 private:
     QMediaPlayer    *m_player;
     QAbstractButton *wdg_playButton;
     QAbstractButton *wdg_stopButton;
     QSlider         *wdg_slider;
     QLabel          *wdg_labelDuration;
+    QString format(QMediaPlayer *plyr);
+    void    playClicked();
+    void    playSeek(int);
+    void    positionChanged(qint64 progress);
+    void    stopClicked();
+    void    updateDurationInfo(qint64 progress);
 };
 
 #endif // PLAYERCONTROLS_H

@@ -68,8 +68,8 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
     m_player->disconnect();
     wdg_slider->disconnect();
     m_player = md;
-    connect(m_player, &QMediaPlayer::positionChanged, this, [=] (qint64 a) { positionChanged(a); });
-    connect(wdg_slider, &QSlider::sliderMoved,          this, [=] (int a) { playSeek(a);});
+    connect(m_player, &QMediaPlayer::positionChanged,   this, &PlayerControls::positionChanged);
+    connect(wdg_slider, &QSlider::sliderMoved,          this, &PlayerControls::playSeek);
     wdg_labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(m_player)) + " / " + QTime(0,0,0).toString(format(m_player))));
 }
 

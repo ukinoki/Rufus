@@ -34,13 +34,13 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     wdg_frame       ->setMinimumHeight(60);
     wdg_frame       ->setFrameShape(QFrame::Panel);
     wdg_frame       ->setFrameShadow(QFrame::Sunken);
-    wdg_uppushbutton      ->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Large);
-    wdg_uppushbutton      ->setText(tr("Chercher avec la\ndate de naissance"));
-    wdg_uppushbutton      ->setFixedSize(170,52);
+    wdg_uppushbutton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Large);
+    wdg_uppushbutton->setText(tr("Chercher avec la\ndate de naissance"));
+    wdg_uppushbutton->setFixedSize(170,52);
     QHBoxLayout *box = new QHBoxLayout();
-    box         ->addWidget(wdg_uppushbutton);
+    box             ->addWidget(wdg_uppushbutton);
     wdg_frame       ->setLayout(box);
-    wdg_uppushbutton      ->setIcon(Icons::icBoy());
+    wdg_uppushbutton->setIcon(Icons::icBoy());
     wdg_treewidget  ->setColumnCount(1);
     wdg_treewidget  ->setHeaderLabels(QStringList() << "Nom de la police");
     wdg_treewidget  ->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");

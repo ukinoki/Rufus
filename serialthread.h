@@ -37,9 +37,7 @@ private:
     QByteArray      reponseData;
     QSerialPort     *Port;
     QThread         thread;
-
-private slots:
-    void            Slot_LitPort();
+    void            LitPort();
 };
 
 #endif // SERIALTHREAD_H

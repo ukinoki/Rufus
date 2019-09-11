@@ -262,7 +262,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
         printer_->setOutputFileName(QString());
         // print it
         tempdoc_ = document->clone();
-        Slot_print(printer_);
+        launchprint(printer_);
     }
     // enregistre le pdf
     if (ficpdf != "")
@@ -271,7 +271,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
         printer_->setOutputFormat(QPrinter::PdfFormat);
         printer_->setOutputFileName(ficpdf);
         tempdoc_ = document->clone();
-        Slot_print(printer_);
+        launchprint(printer_);
         printer_->setOutputFormat(QPrinter::NativeFormat);
         printer_->setPrinterName(printerName);                      // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
     }
@@ -301,7 +301,7 @@ void TextPrinter::exportPdf(const QTextDocument *document, const QString &captio
 
     // print it
     tempdoc_ = document->clone();
-    Slot_print(printer_);
+    launchprint(printer_);
 
     delete tempdoc_;
     tempdoc_ = Q_NULLPTR;
@@ -313,7 +313,7 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
 
     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer_, parent_);
     dialog->setWindowTitle(caption.isEmpty() ? "Print Preview" : caption);
-    connect(dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(Slot_print(QPrinter*)));
+    connect(dialog, &QPrintPreviewDialog::paintRequested, this, &TextPrinter::launchprint);
 
     // preview it
     tempdoc_ = document->clone();
@@ -329,7 +329,7 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
             printer_->setOutputFormat(QPrinter::PdfFormat);
             printer_->setOutputFileName(ficpdf);
             tempdoc_ = document->clone();
-            Slot_print(printer_);
+            launchprint(printer_);
             printer_->setOutputFormat(QPrinter::NativeFormat);
             printer_->setPrinterName(printerName); // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
         }
@@ -434,7 +434,7 @@ QRectF TextPrinter::footerRect(QPaintDevice *device)
 // print() ////////////////////////////////////////////////////////////////////
 // Common printing routine. Print tempdoc_ to given printer device.
 
-void TextPrinter::Slot_print(QPrinter *printer)
+void TextPrinter::launchprint(QPrinter *printer)
 {
     if (!printer || !tempdoc_) return;
     if (duplex_ == QPrinter::DuplexLongSide)

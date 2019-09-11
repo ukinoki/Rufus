@@ -478,6 +478,7 @@ private:
     void                    ClearMesures();
     void                    ClearHtmlMesures();
     void                    debugformule(QMap<QString,QVariant>  Data, QString type);
+    bool                    Ouverture_Ports_Series();
                                                                     // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
     //LE FRONTO ----------------------------------------------------
     QMap<QString,QVariant>  map_mesureFronto;
@@ -510,11 +511,9 @@ private:
     void                    setHtmlRefracteur();                    // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif
     void                    RegleRefracteur();
 
-private slots:
-    bool                    Ouverture_Ports_Series();
-    void                    Slot_ReponsePortSerie_Autoref(const QString &s);
-    void                    Slot_ReponsePortSerie_Fronto(const QString &s);
-    void                    Slot_ReponsePortSerie_Refracteur(const QString &s);
+    void                    ReponsePortSerie_Autoref(const QString &s);
+    void                    ReponsePortSerie_Fronto(const QString &s);
+    void                    ReponsePortSerie_Refracteur(const QString &s);
 };
 
 #endif // PROCEDURES_H

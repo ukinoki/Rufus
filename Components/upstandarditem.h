@@ -31,10 +31,6 @@ public:
 
 private:
     Item*   m_item = Q_NULLPTR;
-
-signals:
-
-public slots:
 };
 
 #endif // UPSTANDARDITEM_H

@@ -4177,7 +4177,7 @@ bool Procedures::Ouverture_Ports_Series()
             {
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
-                connect(t_threadFronto,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Fronto(QString)));
+                connect(t_threadFronto,  &SerialThread::reponse,     this, &Procedures::ReponsePortSerie_Fronto);
             }
             else
             {
@@ -4253,7 +4253,7 @@ bool Procedures::Ouverture_Ports_Series()
             {
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
                 t_threadRefracteur    ->transaction();
-                connect(t_threadRefracteur,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Refracteur(QString)));
+                connect(t_threadRefracteur,  &SerialThread::reponse,     this, &Procedures::ReponsePortSerie_Refracteur);
             }
             else
             {
@@ -4328,7 +4328,7 @@ bool Procedures::Ouverture_Ports_Series()
             {
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
                 t_threadAutoref   ->transaction();
-                connect(t_threadAutoref,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Autoref(QString)));
+                connect(t_threadAutoref,  &SerialThread::reponse,     this, &Procedures::ReponsePortSerie_Autoref);
             }
             else
             {
@@ -4389,7 +4389,7 @@ QSerialPort* Procedures::PortRefracteur()
 //-----------------------------------------------------------------------------------------
 // Lecture du flux de données sur le port série du refracteur
 //-----------------------------------------------------------------------------------------
-void Procedures::Slot_ReponsePortSerie_Refracteur(const QString &s)
+void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 {
     //qDebug() << s;
     m_mesureSerie        = s;
@@ -5100,7 +5100,7 @@ QSerialPort *Procedures::PortFronto()
 //-----------------------------------------------------------------------------------------
 // Lecture du flux de données sur le port série du Fronto
 //-----------------------------------------------------------------------------------------
-void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
+void Procedures::ReponsePortSerie_Fronto(const QString &s)
 {
     m_mesureSerie        = s;
     //qDebug() << gMesureSerie;
@@ -5385,7 +5385,7 @@ QSerialPort* Procedures::PortAutoref()
 //-----------------------------------------------------------------------------------------
 // Lecture du flux de données sur le port série de l'autoref
 //-----------------------------------------------------------------------------------------
-void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
+void Procedures::ReponsePortSerie_Autoref(const QString &s)
 {
     m_mesureSerie        = s;
     //qDebug() << gMesureSerie;

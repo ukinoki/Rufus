@@ -48,31 +48,29 @@ public:
 
 private:
     Ui::dlg_motifs      *ui;
-    QMap<int,Motif*>    *map_motifs = Datas::I()->motifs->motifs();
-
     WidgetButtonFrame   *wdg_buttonframe;
-
+    QMap<int,Motif*>    *map_motifs;
+    void                ActualiseDetails();
     void                ChoixButtonFrame();
+    void                CreeMotif();
     void                DeplaceVersRow(int id, int anc, int nouv);
+    void                DropMotif(QByteArray);
+    void                EnregistreMotifs();
+    Motif*              getMotifFromRow(int row) const;
+    void                ModifCouleur();
+    void                ModifPD();
+    void                ModifMotif();
+    void                ModifRaccouci();
+    void                ModifUtil();
     void                RecalculeLesRows();
     void                RemplirTableWidget();
-    UpCheckBox*         UpchkFromTableW(QTableWidget*, int row, int col) const;
-    void                SupprimMotif();
-    void                CreeMotif();
-    Motif*              getMotifFromRow(int row) const;
     void                SetMotifToRow(Motif *mtf, int row);
+    void                SupprimMotif();
+    UpCheckBox*         UpchkFromTableW(QTableWidget*, int row, int col) const;
 
 private slots:
-    void                Slot_ActualiseDetails();
-    void                Slot_DropMotif(QByteArray);
-    void                Slot_ModifMotif(QString);
-    void                Slot_ModifRaccouci(QString);
-    void                Slot_ModifCouleur();
-    void                Slot_ModifPD();
-    void                Slot_ModifUtil();
     void                Slot_ParDefaut();
     void                Slot_Utiliser(bool);
-    void                Slot_EnregistreMotifs();
 };
 
 #endif // DLG_MOTIFS_H

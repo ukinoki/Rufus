@@ -33,8 +33,6 @@ public:
     explicit WidgTono(QWidget *parent = Q_NULLPTR);
     ~WidgTono();
     Ui::WidgTono *ui;
-
-private:
 };
 
 #endif // WIDGTONO_H

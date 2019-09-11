@@ -44,37 +44,39 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     QStringList ListUser;
 
     ui->UsercomboBox->clear();
-    QString Usersrequete = "SELECT UserLogin FROM " TBL_UTILISATEURS " as usr, " TBL_USERSCONNECTES " as connectusr"
-            " WHERE (UserFonction = '" + tr("Médecin") + "' OR UserFonction = '" + tr("Orthoptiste") + "' OR UserFonction = '" + tr("Assistant") + "')"
-            " AND usr.idUser <> '" + QString::number(Datas::I()->users->userconnected()->id()) + "'"
-            " AND usr.idUser = connectusr.idUser";
-    //proc->Edit( Usersrequete);
-    bool ok;
-    QList<QVariantList> ListUsers = DataBase::I()->StandardSelectSQL(Usersrequete,ok);
-    if (!ok)
-        return;
-    if (ListUsers.size() == 0)
+    QList<User*> listusrs;
+    foreach (PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
+    {
+        if (post->id() != Datas::I()->users->userconnected()->id())
+        {
+            User *usr = Datas::I()->users->getById(post->id());
+            if (usr != Q_NULLPTR)
+                if (usr->isSoignant())
+                    listusrs << usr;
+        }
+    }
+    if (listusrs.size() == 0)
     {
         ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(false);
         ui->UsercomboBox->setEnabled(false);
     }
-    else if (ListUsers.size() == 1)
+    else if (listusrs.size() == 1)
     {
         ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(true);
-        ui->ExamenEnAttenteAutreAvisradioButton->setText(tr("Examen terminé, en attente d'être vu par ") + ListUsers.at(0).at(0).toString());
-        ListUser << ListUsers.at(0).at(0).toString();
-        ui->UsercomboBox->setEditText(ListUsers.at(0).at(0).toString());
+        ui->ExamenEnAttenteAutreAvisradioButton->setText(tr("Examen terminé, en attente d'être vu par ") + listusrs.at(0)->login());
+        ListUser << listusrs.at(0)->login();
+        ui->UsercomboBox->setEditText(listusrs.at(0)->login());
         ui->UsercomboBox->insertItems(0,ListUser);
         ui->UsercomboBox->setVisible(false);
     }
     else
     {
-        for (int i = 0; i < ListUsers.size(); i++)
+        ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(true);
+        ui->UsercomboBox->setVisible(true);
+        for (int i = 0; i < listusrs.size(); i++)
         {
-            ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(true);
-            ui->UsercomboBox->setVisible(true);
-            ListUser << ListUsers.at(i).at(0).toString();
-            if (i == 0) ui->UsercomboBox->setEditText(ListUsers.at(i).at(0).toString());
+            ListUser << listusrs.at(i)->login();
+            if (i == 0) ui->UsercomboBox->setEditText(listusrs.at(i)->login());
         }
         ui->UsercomboBox->insertItems(0,ListUser);
     }
