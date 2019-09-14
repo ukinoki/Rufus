@@ -117,27 +117,26 @@ private:
     void                        VideDetailsTable(int Rangee);
     void                        Annuler();
 
-private slots:
-    void                        Slot_AfficheActeVerrouille();
-    void                        Slot_AfficheActeVerrouilleClignotant();
-    void                        Slot_AfficheToolTip(QTableWidgetItem*);
-    void                        Slot_AfficheRecord();
-    void                        Slot_CalculTotalDetails();
-    void                        Slot_ClassementListes(int col);
-    void                        Slot_ChangeComptable();
-    void                        Slot_ConvertitDoubleMontant();
-    void                        Slot_EnableOKButton();
-    void                        Slot_EnregistrePaiement();
-    void                        Slot_FiltreListe(QString filtre);
-    void                        Slot_Majuscule();
-    void                        Slot_ModifGratuit(QPoint pos);
-    void                        Slot_ModifiePaiement();
-    void                        Slot_RegleAffichageFiche();
-    void                        Slot_RegleAffichageTypePaiementframe();
-    void                        Slot_RenvoieRangee(bool Coche = true);
-    void                        Slot_SupprimerPaiement();
-    void                        Slot_ValidePaiement();
-    void                        Slot_VoirListeActes();
+    void                        AfficheActeVerrouille();
+    void                        AfficheActeVerrouilleClignotant();
+    void                        AfficheToolTip(QTableWidgetItem*);
+    void                        AfficheRecord();
+    void                        CalculTotalDetails();
+    void                        ClassementListes(int col);
+    void                        ChangeComptableBox();
+    void                        ConvertitDoubleMontant();
+    void                        EnableOKButton();
+    void                        EnregistreNouveauPaiement();
+    void                        FiltreListe(QString filtre);
+    void                        ListeActes();
+    void                        Majuscule();
+    void                        ModifGratuit(QPoint pos);
+    void                        ModifiePaiement();
+    void                        RegleAffichageFiche();
+    void                        RegleAffichageTypePaiementframeDepuisBouton();
+    void                        RenvoieRangee(bool Coche = true);
+    void                        SupprimerPaiement();
+    void                        ValidePaiement();
 };
 
 #endif // DLG_PAIEMENTDIRECT_H

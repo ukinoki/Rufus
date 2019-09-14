@@ -110,12 +110,12 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     connect (CancelButton,                  &QPushButton::clicked,                      this,   &dlg_identificationpatient::AnnulpushButtonClicked);
     connect (ui->ModifierDDNupPushButton,   &QPushButton::clicked,                      this,   &dlg_identificationpatient::ModifDDN);
 
-    connect (ui->NomlineEdit,               SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
-    connect (ui->PrenomlineEdit,            SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
-    connect (ui->Adresse1lineEdit,          SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
-    connect (ui->Adresse2lineEdit,          SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
-    connect (ui->Adresse3lineEdit,          SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
-    connect (ui->ProfessionlineEdit,        SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
+    connect (ui->NomlineEdit,               &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->NomlineEdit);});
+    connect (ui->PrenomlineEdit,            &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->PrenomlineEdit);});
+    connect (ui->Adresse1lineEdit,          &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,          &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,          &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->ProfessionlineEdit,        &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->ProfessionlineEdit);});
     connect (ui->DDNdateEdit,               &QDateEdit::dateChanged,                    this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->NomlineEdit,               &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->PrenomlineEdit,            &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
@@ -149,9 +149,6 @@ dlg_identificationpatient::~dlg_identificationpatient()
 {
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Traitement des SLOTS / actions associees a chaque objet du formulaire  -----------------------------
------------------------------------------------------------------------------------------------------------------*/
 void dlg_identificationpatient::ChoixMG()
 {
     OKButton->setEnabled(true);
@@ -169,10 +166,9 @@ void    dlg_identificationpatient::EnableOKpushButton()
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
-void dlg_identificationpatient::Slot_Majuscule()
+void dlg_identificationpatient::Majuscule(QLineEdit* ledit)
 {
-    QLineEdit* Line = static_cast<QLineEdit*>(sender());
-    Line->setText(Utils::trimcapitilize(Line->text()));
+    ledit->setText(Utils::trimcapitilize(ledit->text()));
     OKButton->setEnabled(true);
 }
 

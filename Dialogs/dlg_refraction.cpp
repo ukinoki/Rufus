@@ -33,7 +33,7 @@ dlg_refraction::dlg_refraction(Acte *acte, QWidget *parent) :
 
     InitDivers();
     Init_variables();
-    Connect_Slots();
+    ConnectSignals();
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionRefraction").toByteArray());
     // Recherche si Mesure en cours et affichage.
@@ -84,77 +84,77 @@ void dlg_refraction::closeEvent(QCloseEvent *)
 //----------------------------------------------------------------------------------
 //  Connection des actions associees a chaque objet du formulaire et aux menus
 //----------------------------------------------------------------------------------
-void dlg_refraction::Connect_Slots()
+void dlg_refraction::ConnectSignals()
 {
     foreach (UpDoubleSpinBox* spinbox, findChildren<UpDoubleSpinBox *>())
-        connect (spinbox,                           SIGNAL(valueChanged(double)),               this,     SLOT (Slot_Refraction_ValueChanged()));
-    connect (ui->PorteRadioButton,                  SIGNAL(clicked()),                          this,     SLOT (Slot_PorteRadioButton_Clicked()) );
+        connect (spinbox,                           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                                                                                                this,     &dlg_refraction::Refraction_ValueChanged);
+    connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::PorteRadioButton_Clicked);
     connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::AutorefRadioButton_Clicked);
-    connect (ui->ConvODPushButton,                  SIGNAL(clicked()),                          this,     SLOT (Slot_ConvODPushButton_Clicked()) );
-    connect (ui->ConvOGPushButton,                  SIGNAL(clicked()),                          this,     SLOT (Slot_ConvOGPushButton_Clicked()) );
-    connect (ui->CycloplegieCheckBox,               SIGNAL(clicked()),                          this,     SLOT (Slot_CycloplegieCheckBox_Clicked()) );
+    connect (ui->ConvODPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvODPushButton_Clicked);
+    connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
+    connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
 
-    connect (ui->DepoliODCheckBox,                  SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_DepoliCheckBox_Clicked(int)) );
-    connect (ui->DepoliOGCheckBox,                  SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_DepoliCheckBox_Clicked(int)) );
+    connect (ui->DepoliODCheckBox,                  &QCheckBox::stateChanged,                   this,     [=] (int a) {DepoliCheckBox_Clicked(ui->DepoliODCheckBox, a);});
+    connect (ui->DepoliOGCheckBox,                  &QCheckBox::stateChanged,                   this,     [=] (int a) {DepoliCheckBox_Clicked(ui->DepoliOGCheckBox, a);});
     connect (ui->DeuxMonturesPrescritRadioButton,   &QRadioButton::clicked,                     this,     &dlg_refraction::DeuxMonturesPrescritradioButton_Clicked);
-    connect (ui->ODCheckBox,                        SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_ODGCheckBox_Changed(int)) );
-    connect (ui->OGCheckBox,                        SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_ODGCheckBox_Changed(int)) );
+    connect (ui->ODCheckBox,                        &QCheckBox::stateChanged,                   this,     [=] (int a) {ODGCheckBox_Changed(ui->ODCheckBox, a);});
+    connect (ui->OGCheckBox,                        &QCheckBox::stateChanged,                   this,     [=] (int a) {ODGCheckBox_Changed(ui->OGCheckBox, a);});
 
-    connect (ui->ODPrescritCheckBox,                SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_PrescritCheckBox_Changed(int)));
-    connect (ui->OGPrescritCheckBox,                SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_PrescritCheckBox_Changed(int)));
-    connect (ui->PlanODCheckBox,                    SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_PlanCheckBox_Changed(int)));
-    connect (ui->PlanOGCheckBox,                    SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_PlanCheckBox_Changed(int)));
+    connect (ui->ODPrescritCheckBox,                &QCheckBox::stateChanged,                   this,     [=] (int a) {PrescritCheckBox_Changed(ui->ODPrescritCheckBox, a);});
+    connect (ui->OGPrescritCheckBox,                &QCheckBox::stateChanged,                   this,     [=] (int a) {PrescritCheckBox_Changed(ui->OGPrescritCheckBox, a);});
+    connect (ui->PlanODCheckBox,                    &QCheckBox::stateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanODCheckBox, a);});
+    connect (ui->PlanOGCheckBox,                    &QCheckBox::stateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanOGCheckBox, a);});
     connect (ui->PrescriptionRadioButton,           &QRadioButton::clicked,                     this,     &dlg_refraction::PrescriptionRadionButton_clicked);
 
     connect (ui->RefractionRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::RefractionRadioButton_Clicked);
-    connect (ui->RyserODCheckBox,                   SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_RyserCheckBox_Clicked(int)) );
-    connect (ui->RyserOGCheckBox,                   SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_RyserCheckBox_Clicked(int)) );
+    connect (ui->RyserODCheckBox,                   &QCheckBox::stateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserODCheckBox, a);});
+    connect (ui->RyserOGCheckBox,                   &QCheckBox::stateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserOGCheckBox, a);});
     connect (ui->UneMonturePrescritRadioButton,     &QRadioButton::clicked,                     this,     &dlg_refraction::UneMonturePrescritRadioButton_Clicked);
     connect (ui->V2RadioButton,                     &QRadioButton::clicked,                     this,     &dlg_refraction::RegleAffichageFiche);
 
     connect (ui->V2PrescritRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::VPrescritRadioButton_Clicked);
-    connect (ui->VerresTeintesCheckBox,             SIGNAL(stateChanged(int)),                  this,     SLOT (Slot_VerresTeintesCheckBox_Changed(int)) );
+    connect (ui->VerresTeintesCheckBox,             &QCheckBox::stateChanged,                   this,     &dlg_refraction::VerresTeintesCheckBox_Changed);
     connect (ui->VLRadioButton,                     &QRadioButton::clicked,                     this,     &dlg_refraction::RegleAffichageFiche);
     connect (ui->VLPrescritRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::VPrescritRadioButton_Clicked);
     connect (ui->VPRadioButton,                     &QRadioButton::clicked,                     this,     &dlg_refraction::RegleAffichageFiche);
     connect (ui->VPPrescritRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::VPrescritRadioButton_Clicked);
 
 
-    connect (ui->AxeCylindreOD,                     SIGNAL(valueChanged(int)),                  this,     SLOT (Slot_Refraction_ValueChanged()) );
-    connect (ui->AxeCylindreOG,                     SIGNAL(valueChanged(int)),                  this,     SLOT (Slot_Refraction_ValueChanged()) );
-    connect (ui->BasePrismeOD,                      SIGNAL(valueChanged(int)),                  this,     SLOT (Slot_BasePrisme_ValueChanged()) );
-    connect (ui->BasePrismeOG,                      SIGNAL(valueChanged(int)),                  this,     SLOT (Slot_BasePrisme_ValueChanged()) );
+    connect (ui->AxeCylindreOD,                     QOverload<int>::of(&QSpinBox::valueChanged),this,     &dlg_refraction::Refraction_ValueChanged);
+    connect (ui->AxeCylindreOG,                     QOverload<int>::of(&QSpinBox::valueChanged),this,     &dlg_refraction::Refraction_ValueChanged);
+    connect (ui->BasePrismeOD,                      QOverload<int>::of(&QSpinBox::valueChanged),
+                                                                                                this,     [=] {BasePrisme_ValueChanged(ui->BasePrismeOD);});
+    connect (ui->BasePrismeOG,                      QOverload<int>::of(&QSpinBox::valueChanged),
+                                                                                                this,     [=] {BasePrisme_ValueChanged(ui->BasePrismeOG);});
+    connect (ui->BasePrismeTextODComboBox,          QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                                this,     &dlg_refraction::BasePrismeTextODComboBox_Changed);
+    connect (ui->BasePrismeTextOGComboBox,          QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                                this,     &dlg_refraction::BasePrismeTextOGComboBox_Changed);
+    connect (ui->CommentairePrescriptionTextEdit,   &QTextEdit::textChanged,                    this,     &dlg_refraction::CommentairePrescriptionTextEdit_Changed);
 
-    connect (ui->BasePrismeTextODComboBox,          SIGNAL(currentIndexChanged(int)),           this,     SLOT (Slot_BasePrismeTextODComboBox_Changed(int)) );
-    connect (ui->BasePrismeTextOGComboBox,          SIGNAL(currentIndexChanged(int)),           this,     SLOT (Slot_BasePrismeTextOGComboBox_Changed(int)) );
-    connect (ui->CommentairePrescriptionTextEdit,   SIGNAL(textChanged()),                      this,     SLOT (Slot_CommentairePrescriptionTextEdit_Changed() ));  // 01.07.2014
+    connect (ui->K1OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OD);});
+    connect (ui->K1OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OG);});
+    connect (ui->K2OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OD);});
 
-    connect (ui->K1OD,                              SIGNAL(editingFinished()),                  this,     SLOT (Slot_Controle_K()) );
-    connect (ui->K1OG,                              SIGNAL(editingFinished()),                  this,     SLOT (Slot_Controle_K()) );
-    connect (ui->K2OD,                              SIGNAL(editingFinished()),                  this,     SLOT (Slot_Controle_K()) );
+    connect (ui->K2OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OG);});
+    connect (ui->PressonODCheckBox,                 &QCheckBox::clicked,                        this,     &dlg_refraction::PressonCheckBox_Changed);
+    connect (ui->PressonOGCheckBox,                 &QCheckBox::clicked,                        this,     &dlg_refraction::PressonCheckBox_Changed);
 
-    connect (ui->K2OG,                              SIGNAL(editingFinished()),                  this,     SLOT (Slot_Controle_K()) );
-    connect (ui->PressonODCheckBox,                 SIGNAL(clicked(bool)),                      this,     SLOT (Slot_PressonCheckBox_Changed()) );
-    connect (ui->PressonOGCheckBox,                 SIGNAL(clicked(bool)),                      this,     SLOT (Slot_PressonCheckBox_Changed()) );
+    connect (ui->RyserSpinBox,                      QOverload<int>::of(&QSpinBox::valueChanged),this,     &dlg_refraction::Refraction_ValueChanged);
 
-    connect (ui->RyserSpinBox,                      SIGNAL(valueChanged(int)),                  this,     SLOT (Slot_Refraction_ValueChanged()) );		// 28.06.2014
+    connect (ui->AnnulPushButton,                   &QPushButton::clicked,                      this,     &dlg_refraction::AnnulPushButton_Clicked);
+    connect (ui->AppelCommentPushButton,            &QPushButton::clicked,                      this,     &dlg_refraction::Commentaires);
+    connect (ui->DetailsPushButton,                 &QPushButton::clicked,                      this,     &dlg_refraction::Detail_Clicked);
 
-    connect (ui->AnnulPushButton,                   SIGNAL(clicked()),                          this,     SLOT (Slot_AnnulPushButton_Clicked()));
-    connect (ui->AppelCommentPushButton,            SIGNAL(clicked()),                          this,     SLOT (Slot_Commentaires()));
-    connect (ui->DetailsPushButton,                 SIGNAL(clicked()),                          this,     SLOT (Slot_Detail_Clicked()) );
-
-    connect (ui->OupsPushButton,                    SIGNAL(clicked()),                          this,     SLOT (Slot_OupsButtonClicked()));
-    connect (ui->ResumePushButton,                  SIGNAL(clicked()),                          this,     SLOT (Slot_ResumePushButton_Clicked()));
-    connect (ui->OKPushButton,                      SIGNAL(clicked()),                          this,     SLOT (Slot_OKPushButton_Clicked()));
+    connect (ui->OupsPushButton,                    &QPushButton::clicked,                      this,     &dlg_refraction::OupsButtonClicked);
+    connect (ui->ResumePushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ResumePushButton_Clicked);
+    connect (ui->OKPushButton,                      &QPushButton::clicked,                      this,     &dlg_refraction::OKPushButton_Clicked);
     connect (ui->ReprendrePushButton,               &QPushButton::clicked,                      this,     &dlg_refraction::ReprendreButtonClicked);
 
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
         connect (proc,                              &Procedures::NouvMesureRefraction,          this,     &dlg_refraction::NouvMesureRefraction);
 }
-
-//--------------------------------------------------------------------------------
-// Tous les Slots
-//--------------------------------------------------------------------------------
 
 //1. Les RadioButton, checkBox, combo...etc...--------------------------------------------------------------------------------
 void dlg_refraction::AutorefRadioButton_Clicked()
@@ -162,17 +162,17 @@ void dlg_refraction::AutorefRadioButton_Clicked()
     m_mode = Refraction::Autoref;
     RegleAffichageFiche();
 }
-void dlg_refraction::Slot_CycloplegieCheckBox_Clicked()
+void dlg_refraction::CycloplegieCheckBox_Clicked()
 {
     if (ui->RefractionRadioButton->isChecked())
         RegleAffichageFiche();
 }
-void dlg_refraction::Slot_PorteRadioButton_Clicked()
+void dlg_refraction::PorteRadioButton_Clicked()
 {
     m_mode = Refraction::Fronto;
     RegleAffichageFiche();
 }
-void dlg_refraction::Slot_PressonCheckBox_Changed()
+void dlg_refraction::PressonCheckBox_Changed()
 {
     if (m_mode == Refraction::Prescription) ResumePrescription();
 }
@@ -184,7 +184,7 @@ void dlg_refraction::RefractionRadioButton_Clicked()
     RegleAffichageFiche();
 }
 
-void dlg_refraction::Slot_BasePrismeTextODComboBox_Changed(int index)
+void dlg_refraction::BasePrismeTextODComboBox_Changed(int index)
 {
     switch (index) {
         case 0 :    ui->BasePrismeOD->setValue(0);      break;
@@ -194,7 +194,7 @@ void dlg_refraction::Slot_BasePrismeTextODComboBox_Changed(int index)
         default:    break;
         }
 }
-void dlg_refraction::Slot_BasePrismeTextOGComboBox_Changed(int index)
+void dlg_refraction::BasePrismeTextOGComboBox_Changed(int index)
 {
     switch (index) {
         case 0 :    ui->BasePrismeOG->setValue(180);     break;
@@ -205,9 +205,8 @@ void dlg_refraction::Slot_BasePrismeTextOGComboBox_Changed(int index)
         }
 }
 
-void dlg_refraction::Slot_DepoliCheckBox_Clicked(int etat)
+void dlg_refraction::DepoliCheckBox_Clicked(QCheckBox *check, int etat)
 {
-    QCheckBox* check = qobject_cast<QCheckBox *>(sender());
     switch (etat) {
     case Qt::Checked:
         // pas de depoli pour les 2 yeux
@@ -259,8 +258,6 @@ void dlg_refraction::Slot_DepoliCheckBox_Clicked(int etat)
         ui->DetailsPushButton->setEnabled(false);
     else
         ui->DetailsPushButton->setEnabled(true);
-    check = Q_NULLPTR;
-    delete check;
 }
 
 void dlg_refraction::DeuxMonturesPrescritradioButton_Clicked()
@@ -270,9 +267,8 @@ void dlg_refraction::DeuxMonturesPrescritradioButton_Clicked()
     ResumePrescription();
 }
 
-void dlg_refraction::Slot_ODGCheckBox_Changed(int etat)
+void dlg_refraction::ODGCheckBox_Changed(QCheckBox* check, int etat)
 {
-    QCheckBox* check = qobject_cast<QCheckBox *>(sender());
     switch (etat) {
     case Qt::Unchecked:
         if (check == ui->ODCheckBox)
@@ -306,13 +302,10 @@ void dlg_refraction::Slot_ODGCheckBox_Changed(int etat)
         break;
     }
     RegleAffichageFiche();
-    check = Q_NULLPTR;
-    delete check;
 }
 
-void dlg_refraction::Slot_PrescritCheckBox_Changed(int etat)
+void dlg_refraction::PrescritCheckBox_Changed(QCheckBox* check, int etat)
 {   // pas 2 yeux decoches en meme temps
-    QCheckBox* check = qobject_cast<QCheckBox *>(sender());
     switch (etat) {
     case Qt::Checked:
         ui->ODPrescritCheckBox->setEnabled(true);
@@ -326,13 +319,11 @@ void dlg_refraction::Slot_PrescritCheckBox_Changed(int etat)
         break;
     }
     ResumePrescription();
-    check = Q_NULLPTR;
-    delete check;
 }
 
-void dlg_refraction::Slot_PlanCheckBox_Changed(int etat)
+void dlg_refraction::PlanCheckBox_Changed(QCheckBox* check, int etat)
 {
-    if (sender() == ui->PlanODCheckBox)
+    if (check == ui->PlanODCheckBox)
     {
         switch (etat) {
         case 2:
@@ -350,7 +341,7 @@ void dlg_refraction::Slot_PlanCheckBox_Changed(int etat)
             break;
         }
     }
-    if (sender() == ui->PlanOGCheckBox)
+    if (check == ui->PlanOGCheckBox)
     {
         switch (etat) {
         case 2:
@@ -380,9 +371,8 @@ void dlg_refraction::Slot_PlanCheckBox_Changed(int etat)
         ui->DetailsPushButton->setEnabled(true);
 }
 
-void dlg_refraction::Slot_RyserCheckBox_Clicked(int etat)
+void dlg_refraction::RyserCheckBox_Clicked(QCheckBox* check, int etat)
 {
-    QCheckBox* check = qobject_cast<QCheckBox *>(sender());
     switch (etat) {
     case Qt::Checked:
         // pas de Ryser pour les 2 yeux
@@ -406,8 +396,6 @@ void dlg_refraction::Slot_RyserCheckBox_Clicked(int etat)
         ui->DetailsPushButton->setEnabled(false);
     else
         ui->DetailsPushButton->setEnabled(true);
-    check = Q_NULLPTR;
-    delete check;
 }
 
 void dlg_refraction::UneMonturePrescritRadioButton_Clicked()
@@ -417,7 +405,7 @@ void dlg_refraction::UneMonturePrescritRadioButton_Clicked()
     ResumePrescription();
 }
 
-void dlg_refraction::Slot_VerresTeintesCheckBox_Changed(int )
+void dlg_refraction::VerresTeintesCheckBox_Changed()
 {
     ResumePrescription();
 }
@@ -438,9 +426,8 @@ void dlg_refraction::VPrescritRadioButton_Clicked()
 
 
 //2. Les Line Edit et TextEdit --------------------------------------------------------------------------------------------------
-void dlg_refraction::Slot_BasePrisme_ValueChanged()
+void dlg_refraction::BasePrisme_ValueChanged(QSpinBox *box)
 {
-    QSpinBox *box = static_cast<QSpinBox *>(sender());
     int a = box->value();
     if (box == ui->BasePrismeOD)
         switch (a) {
@@ -457,21 +444,19 @@ void dlg_refraction::Slot_BasePrisme_ValueChanged()
         case 270:   ui->BasePrismeTextOGComboBox->setCurrentIndex(3);   break;
         default:    ui->BasePrismeTextOGComboBox->setCurrentIndex(-1);  break;}
     if (m_mode == Refraction::Prescription) ResumePrescription();
-    box = Q_NULLPTR;
-    delete box;
 }
 
-void dlg_refraction::Slot_CommentairePrescriptionTextEdit_Changed()    // 01.07.2014
+void dlg_refraction::CommentairePrescriptionTextEdit_Changed()    // 01.07.2014
 {
     ResumePrescription();
 }
 
-void dlg_refraction::Slot_Controle_K()
+void dlg_refraction::Controle_K(QLineEdit *line)
 {
-    static_cast<QLineEdit *>(sender())->setText(QLocale().toString(QLocale().toDouble(static_cast<QLineEdit *>(sender())->text())));
+    line->setText(QLocale().toString(QLocale().toDouble(line->text())));
 }
 
-void dlg_refraction::Slot_Refraction_ValueChanged()
+void dlg_refraction::Refraction_ValueChanged()
 {
     if (ui->PrismeOD->value()>0 || ui->PrismeOG->value()>0
         || ui->DepoliODCheckBox->isChecked() || ui->DepoliOGCheckBox->isChecked()
@@ -484,12 +469,12 @@ void dlg_refraction::Slot_Refraction_ValueChanged()
 }
 
 //3. Les pushButton ----------------------------------------------------------------------------------------------
-void dlg_refraction::Slot_AnnulPushButton_Clicked()
+void dlg_refraction::AnnulPushButton_Clicked()
 {
     FermeFiche(Annul);
 }
 
-void dlg_refraction::Slot_Commentaires()
+void dlg_refraction::Commentaires()
 {
     Dlg_Comments    = new dlg_commentaires();
     if (Dlg_Comments->exec() > 0)
@@ -502,7 +487,7 @@ void dlg_refraction::Slot_Commentaires()
     delete Dlg_Comments;
 }
 
-void dlg_refraction::Slot_ConvODPushButton_Clicked()
+void dlg_refraction::ConvODPushButton_Clicked()
 {
     if ((ui->SphereOD->value() + ui->CylindreOD->value()) > 20)
         {UpMessageBox::Watch(this,tr("Réfraction"), tr("Conversion refusée !"));
@@ -516,7 +501,7 @@ void dlg_refraction::Slot_ConvODPushButton_Clicked()
         ui->AxeCylindreOD->setValue(ui->AxeCylindreOD->value() + 90);
 }
 
-void dlg_refraction::Slot_ConvOGPushButton_Clicked()
+void dlg_refraction::ConvOGPushButton_Clicked()
 {
     if ((ui->SphereOG->value() + ui->CylindreOG->value()) > 20)
         {UpMessageBox::Watch(this,tr("Réfraction"), tr("Conversion refusée !"));
@@ -530,7 +515,7 @@ void dlg_refraction::Slot_ConvOGPushButton_Clicked()
         ui->AxeCylindreOG->setValue(ui->AxeCylindreOG->value() + 90);
 }
 
-void dlg_refraction::Slot_Detail_Clicked()
+void dlg_refraction::Detail_Clicked()
 {
     if (m_affichedetail &&
         (ui->PrismeOD->value() != 0.0       || ui->PrismeOG->value() != 0.0     ||
@@ -560,7 +545,7 @@ void dlg_refraction::Slot_Detail_Clicked()
 //----------------------------------------------------------------------------------
 // OKPushButton
 //----------------------------------------------------------------------------------
-void dlg_refraction::Slot_OKPushButton_Clicked()
+void dlg_refraction::OKPushButton_Clicked()
 {
     focusNextChild();
     m_flagbugvalidenter = 0;
@@ -607,9 +592,9 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
         FermeFiche(Imprime);
 }
 
-void dlg_refraction::Slot_OupsButtonClicked()
+void dlg_refraction::OupsButtonClicked()
 {
-    OuvrirListeMesures(dlg_listemesures::Supprimer);
+    OuvrirListeMesures(dlg_refractionlistemesures::Supprimer);
 }
 
 void dlg_refraction::PrescriptionRadionButton_clicked()
@@ -643,9 +628,9 @@ void dlg_refraction::NouvMesureRefraction()
 
 void dlg_refraction::ReprendreButtonClicked()
 {
-    OuvrirListeMesures(dlg_listemesures::Recuperer);
+    OuvrirListeMesures(dlg_refractionlistemesures::Recuperer);
 }
-void dlg_refraction::Slot_ResumePushButton_Clicked()
+void dlg_refraction::ResumePushButton_Clicked()
 {
     ResumeRefraction();
 }
@@ -787,7 +772,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
         {
             if (keyEvent->modifiers() == Qt::MetaModifier)
             {
-                Slot_OKPushButton_Clicked();
+                OKPushButton_Clicked();
                 return true;
             }
             m_flagbugvalidenter = 1; // on évite ainsi le second appel à ValidVerrres qui va être émis pas la touche flèche simulée
@@ -913,7 +898,7 @@ void dlg_refraction::keyPressEvent ( QKeyEvent * event )
     switch (event->key()) {
     case Qt::Key_F12:
     {
-        Slot_AnnulPushButton_Clicked();
+        AnnulPushButton_Clicked();
         break;
     }
     case Qt::Key_Escape:
@@ -1460,7 +1445,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         }
         ResumePrescription();
         // on vérifie dans Refraction s'il existe un enregistrement identique pour ne pas surcharger la table avec
-        disconnect (ui->OKPushButton,   SIGNAL(clicked()),  this,   SLOT (Slot_OKPushButton_Clicked()));
+        disconnect (ui->OKPushButton,   &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
         if (Imprimer_Ordonnance())
         {
             ResumeObservation();
@@ -1469,7 +1454,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         }
         else
         {
-            connect (ui->OKPushButton,  SIGNAL(clicked()),  this,   SLOT (Slot_OKPushButton_Clicked()));
+            connect (ui->OKPushButton,  &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
             return;
         }
     }
@@ -1972,16 +1957,16 @@ else
 //---------------------------------------------------------------------------------
 // Ouverture formulaire de la liste des mesures pour suppression ou Recuperation
 //---------------------------------------------------------------------------------
-void dlg_refraction::OuvrirListeMesures(dlg_listemesures::Mode mode)
+void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
 {
     int RetourListe = 0;
-    Dlg_ListeMes    = new dlg_listemesures(mode);
+    Dlg_ListeMes    = new dlg_refractionlistemesures(mode);
     Dlg_ListeMes->setWindowTitle(tr("Liste des mesures : ") + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() );
 
     RetourListe = Dlg_ListeMes->exec();
 
     // relecture et affichage de la mesure selectionnee
-    if (RetourListe > 0 && mode == dlg_listemesures::Recuperer)
+    if (RetourListe > 0 && mode == dlg_refractionlistemesures::Recuperer)
     {
         Refraction *ref = Dlg_ListeMes->RefractionAOuvrir();
         if (ref != Q_NULLPTR)
@@ -1994,7 +1979,7 @@ void dlg_refraction::OuvrirListeMesures(dlg_listemesures::Mode mode)
                 RegleAffichageFiche();
         }
     }
-    if (RetourListe > 0 && mode == dlg_listemesures::Supprimer)
+    if (RetourListe > 0 && mode == dlg_refractionlistemesures::Supprimer)
         RechercheMesureEnCours();
     Dlg_ListeMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_ListeMes;
@@ -3829,7 +3814,7 @@ QString dlg_refraction::Valeur(QString StringValeur)
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureFronto()
 {
-    Slot_PorteRadioButton_Clicked();
+    PorteRadioButton_Clicked();
     if (proc->DonneesFronto().isEmpty())
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du frontofocomètre"));

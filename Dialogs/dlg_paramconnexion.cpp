@@ -42,17 +42,17 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
-    connect(ui->AnnuluppushButton,      SIGNAL(clicked(bool)),          this,   SLOT(reject()));
-    connect(ui->HelpupPushButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_HelpMsg()));
-    connect(ui->OKuppushButton,         SIGNAL(clicked(bool)),          this,   SLOT(Slot_Verif()));
-    connect(ui->TestuppushButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_Test()));
-    connect(ui->LocalradioButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_RegleAffichage()));
-    connect(ui->PosteradioButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_RegleAffichage()));
-    connect(ui->DistantradioButton,     SIGNAL(clicked(bool)),          this,   SLOT(Slot_RegleAffichage()));
-    connect(ui->IPlineEdit,             SIGNAL(textEdited(QString)),    this,   SLOT(Slot_CalcIP(QString)));
-    connect(ui->IPlineEdit,             SIGNAL(editingFinished()),      this,   SLOT(Slot_MAJIP()));
+    connect(ui->AnnuluppushButton,      &QPushButton::clicked,          this,   &QDialog::reject);
+    connect(ui->HelpupPushButton,       &QPushButton::clicked,          this,   &dlg_paramconnexion::HelpMsg);
+    connect(ui->OKuppushButton,         &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
+    connect(ui->TestuppushButton,       &QPushButton::clicked,          this,   &dlg_paramconnexion::Test);
+    connect(ui->LocalradioButton,       &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->LocalradioButton);});
+    connect(ui->PosteradioButton,       &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->PosteradioButton);});
+    connect(ui->DistantradioButton,     &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->DistantradioButton);});
+    connect(ui->IPlineEdit,             &QLineEdit::textEdited,         this,   &dlg_paramconnexion::CalcIP);
+    connect(ui->IPlineEdit,             &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
 
-    connect(t_timer,                     SIGNAL(timeout()),      this,   SLOT(Slot_Clign()));
+    connect(t_timer,                    &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()
@@ -60,7 +60,7 @@ dlg_paramconnexion::~dlg_paramconnexion()
     delete ui;
 }
 
-void dlg_paramconnexion::Slot_CalcIP(QString IP)
+void dlg_paramconnexion::CalcIP(QString IP)
 {
     if (ui->PosteradioButton->isChecked())
     {
@@ -103,7 +103,7 @@ void dlg_paramconnexion::Slot_CalcIP(QString IP)
     }
 }
 
-void dlg_paramconnexion::Slot_Clign()
+void dlg_paramconnexion::Clign()
 {
     m_visible = !m_visible;
     if (m_visible)
@@ -112,7 +112,7 @@ void dlg_paramconnexion::Slot_Clign()
         ui->HelpupPushButton->setIcon(Icons::icNull());
 }
 
-void dlg_paramconnexion::Slot_HelpMsg()
+void dlg_paramconnexion::HelpMsg()
 {
     QMessageBox msgbox;
     UpSmallButton OKBouton("OK");
@@ -132,23 +132,23 @@ void dlg_paramconnexion::Slot_HelpMsg()
     msgbox.exec();
 }
 
-void dlg_paramconnexion::Slot_MAJIP()
+void dlg_paramconnexion::MAJIP()
 {
-    Slot_CalcIP(ui->IPlineEdit->text());
+    CalcIP(ui->IPlineEdit->text());
     if (ui->LocalradioButton->isChecked()
         || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(m_IPaveczero)))
         ui->IPlineEdit->setText(m_IPaveczero);
     //UpMessageBox::Watch(this, "AvecZero = " + gIPAvecZero + "\nSansZero = " + gIPSansZero + "\nClient = " + gClient);
 }
 
-void dlg_paramconnexion::Slot_RegleAffichage()
+void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
-    if (sender() == ui->PosteradioButton)
+    if (butt == ui->PosteradioButton)
     {
         ui->IPlabel->setVisible(false);
         ui->IPlineEdit->setVisible(false);
     }
-    else if (sender() == ui->LocalradioButton)
+    else if (butt == ui->LocalradioButton)
     {
         ui->IPlabel->setVisible(true);
         ui->IPlabel->setText(tr("adresse IP"));
@@ -172,7 +172,7 @@ void dlg_paramconnexion::Slot_RegleAffichage()
         ui->IPlineEdit->setVisible(true);
         ui->IPlineEdit->setFocus();
     }
-    else if (sender() == ui->DistantradioButton)
+    else if (butt == ui->DistantradioButton)
     {
         UpMessageBox::Watch(this, tr("Informations importantes sur l'accès par internet"),
                                 tr("Pour d'évidentes raisons de confidentialité, l'accès distant dans Rufus "
@@ -194,7 +194,7 @@ void dlg_paramconnexion::Slot_RegleAffichage()
     }
 }
 
-void dlg_paramconnexion::Slot_Test()
+void dlg_paramconnexion::Test()
 {
     if (TestConnexion())
         {
@@ -204,7 +204,7 @@ void dlg_paramconnexion::Slot_Test()
         }
 }
 
-void dlg_paramconnexion::Slot_Verif()
+void dlg_paramconnexion::Verif()
 {
     if (TestConnexion())
         accept();
@@ -215,7 +215,7 @@ bool dlg_paramconnexion::TestConnexion()
     if (!VerifFiche())
         return false;
 
-    Slot_MAJIP();
+    MAJIP();
     QString mode, server;
     if (ui->PosteradioButton->isChecked())      mode = Utils::getBaseFromMode(Utils::Poste);
     if (ui->LocalradioButton->isChecked())      mode = Utils::getBaseFromMode(Utils::ReseauLocal);

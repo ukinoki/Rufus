@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
     QSplashScreen *splash = new QSplashScreen(Icons::pxSplash());
     splash->show();
-    Utils::Pause(1500);
+    Utils::Pause(300);
     splash->close();
     delete splash;
 

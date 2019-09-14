@@ -33,10 +33,10 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionRemiseCheques").toByteArray());
 
-    connect (ui->AnnulupPushButton,                         SIGNAL(clicked()),                              this,           SLOT (Slot_AnnulupPushButton()));
-    connect (ui->ListeChequesupTableWidget,                 SIGNAL(cellEntered(int,int)),                   this,           SLOT (Slot_ToolTip(int, int)));
-    connect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellEntered(int,int)),                   this,           SLOT (Slot_ToolTip(int, int)));
-    connect (ui->ImprimeupPushButton,                       SIGNAL(clicked()),                              this,           SLOT (Slot_ImprimepushButton()));
+    connect (ui->AnnulupPushButton,                         &QPushButton::clicked,                  this,   &dlg_remisecheques::AnnulupPushButton);
+    connect (ui->ListeChequesupTableWidget,                 &QTableWidget::cellEntered,             this,   &dlg_remisecheques::ToolTip);
+    connect (ui->ChequesEnAttenteupTableWidget,             &QTableWidget::cellEntered,             this,   &dlg_remisecheques::ToolTip);
+    connect (ui->ImprimeupPushButton,                       &QPushButton::clicked,                  this,   &dlg_remisecheques::ImprimepushButton);
 
     ui->ImprimeupPushButton->move(this->size().width()-123,this->size().height()-60);
     ui->AnnulupPushButton->move(this->size().width()-233,this->size().height()-60);
@@ -91,8 +91,8 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     ReconstruitListeUsers();
     if (!m_initok)
         return;
-    connect (ui->UserComboBox,          SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUser()));
-    connect (ui->ComptecomboBox,        QOverload<int>::of(&QComboBox::currentIndexChanged),    this,    [=](int) {ChangeCompte();});
+    connect (ui->UserComboBox,          QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_remisecheques::ChangeUser);
+    connect (ui->ComptecomboBox,        QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_remisecheques::ChangeCompte);
     VoirNouvelleRemise();
     m_initok = true;
 }
@@ -115,11 +115,7 @@ void dlg_remisecheques::reject()
 }
 
 
-/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-LES SLOTS --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-void dlg_remisecheques::Slot_AnnulupPushButton()
+void dlg_remisecheques::AnnulupPushButton()
 {
     if (m_mode == NouvelleRemise) {
         ui->ListeChequesupTableWidget->setCurrentCell(0,0); // pour valider une éventuelle modification dans un champ montant
@@ -129,7 +125,7 @@ void dlg_remisecheques::Slot_AnnulupPushButton()
         VoirNouvelleRemise();
 }
 
-void dlg_remisecheques::Slot_CorrigeRemise()
+void dlg_remisecheques::CorrigeRemise()
 {
     if (UpMessageBox::Question(this, tr("Suppression demandée"), tr("Êtes vous sûr de vouloir supprimer cette remise de chèques?")) != UpSmallButton::STARTBUTTON)
         return;
@@ -166,7 +162,7 @@ void dlg_remisecheques::Slot_CorrigeRemise()
     VoirNouvelleRemise();
 }
 
-void dlg_remisecheques::Slot_ImprimepushButton()
+void dlg_remisecheques::ImprimepushButton()
 {
     bool ok;
     if (ui->ListeChequesupTableWidget->rowCount() == 0)
@@ -345,7 +341,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
 }
 
 
-void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
+void dlg_remisecheques::ItemChequeARemettreClicked(int A, int B)
 {
     if (B == 0)
     {
@@ -413,7 +409,7 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
             NoLigne->setStyleSheet("border-style: none;");
             ui->ChequesEnAttenteupTableWidget->setCellWidget(k,1,NoLigne);
         }
-        Slot_RecalculeMontant();
+        RecalculeMontant();
         m_bloquecellchanged = true;
 
         //mise à jour de la table lignesrecettes ou recettesspeciales
@@ -426,7 +422,7 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
     }
 }
 
-void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
+void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)
 {
     if (B == 0)
     {
@@ -493,7 +489,7 @@ void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
             NoLigne->setStyleSheet("border-style: none;");
             ui->ChequesEnAttenteupTableWidget->setCellWidget(k,1,NoLigne);
         }
-        Slot_RecalculeMontant();
+        RecalculeMontant();
 
         //mise à jour de la table lignesrecettes
         QString UpdateidRec;
@@ -505,7 +501,7 @@ void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
     }
 }
 
-void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
+void dlg_remisecheques::MiseEnFormeMontant(int A, int B, int C, int D)
 {
     if (B == 4)   // on arrive dans la case montant et on met en mémoire le montant qui y figure
     {
@@ -522,7 +518,7 @@ void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
         else
         {
             Line->setText(b);
-            Slot_RecalculeMontant();
+            RecalculeMontant();
         }
     }
 }
@@ -535,7 +531,7 @@ void dlg_remisecheques::ChangeCompte()
         ui->IntituleComptetextEdit->setText(cpt->nomabrege() + "\n" + cpt->iban());
 }
 
-void dlg_remisecheques::Slot_ChangeUser()
+void dlg_remisecheques::ChangeUser()
 {
     m_currentuser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
     proc->SetUserAllData(m_currentuser);
@@ -547,7 +543,7 @@ void dlg_remisecheques::Slot_ChangeUser()
         }
 }
 
-void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
+void dlg_remisecheques::RemplirRemisesPrecs(int id)
 {
     QFontMetrics        fm(qApp->font());
     QString A;
@@ -626,7 +622,7 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
     ui->RemisesPrecsPushButton->setEnabled(listlignes.size()==0 && ok);
 }
 
-void dlg_remisecheques::Slot_RecalculeMontant()
+void dlg_remisecheques::RecalculeMontant()
 {
     double Total = 0;
     for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
@@ -637,7 +633,7 @@ void dlg_remisecheques::Slot_RecalculeMontant()
     ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QString::number(Total) + tr(" euros"));
 }
 
-void dlg_remisecheques::Slot_ToolTip(int A, int B)
+void dlg_remisecheques::ToolTip(int A, int B)
 {
     int col = 5;
     UpTableWidget *tabl = dynamic_cast<UpTableWidget *>(sender());
@@ -673,12 +669,12 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
     }
 }
 
-void dlg_remisecheques::Slot_TrierChequesEnAttente(int, int B)
+void dlg_remisecheques::TrierChequesEnAttente(int, int B)
 {
     if (B == 2 && m_bloquecellchanged) ui->ChequesEnAttenteupTableWidget->sortItems(2);
 }
 
-void dlg_remisecheques::Slot_TrierListeCheques(int, int B)
+void dlg_remisecheques::TrierListeCheques(int, int B)
 {
     if (B == 2 && m_bloquecellchanged) ui->ListeChequesupTableWidget->sortItems(2);
 }
@@ -720,7 +716,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     if (listremisesprecedentes.size() == 0)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas de remises précédentes"));
-        Slot_AnnulupPushButton();
+        AnnulupPushButton();
         return false;
     }
     ui->RemisePrecsupComboBox->clear();
@@ -735,10 +731,11 @@ bool dlg_remisecheques::VoirRemisesPrecs()
                                            ,MapRemise);
     }
 
-    connect(ui->RemisePrecsupComboBox,      SIGNAL(currentIndexChanged(int)),   this,       SLOT (Slot_RemplirRemisesPrecs(int)));
-    connect(ui->RemisesPrecsPushButton,     SIGNAL(clicked(bool)),              this,       SLOT (Slot_CorrigeRemise()));
+    connect(ui->RemisePrecsupComboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                        this,   &dlg_remisecheques::RemplirRemisesPrecs);
+    connect(ui->RemisesPrecsPushButton,     &QPushButton::clicked,      this,   &dlg_remisecheques::CorrigeRemise);
     ui->RemisePrecsupComboBox->setFocus();
-    Slot_RemplirRemisesPrecs(0);
+    RemplirRemisesPrecs(0);
     return true;
 }
 
@@ -1000,12 +997,12 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         }
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
         ui->TotallineEdit->setAlignment(Qt::AlignRight);
-        connect (ui->ListeChequesupTableWidget,                 SIGNAL(cellClicked(int, int)),                  this,           SLOT (Slot_ItemChequeARemettreClicked(int, int)));
-        connect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellClicked(int, int)),                  this,           SLOT (Slot_ItemChequeEnAttenteClicked(int, int)));
-        connect (ui->ListeChequesupTableWidget,                 SIGNAL(currentCellChanged(int,int,int,int)),    this,           SLOT (Slot_MiseEnFormeMontant(int,int,int,int)));
-        connect (ui->ListeChequesupTableWidget,                 SIGNAL(cellChanged(int,int)),                   this,           SLOT (Slot_TrierListeCheques(int,int)));
-        connect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellChanged(int,int)),                   this,           SLOT (Slot_TrierChequesEnAttente(int,int)));
-        connect (ui->RemisesPrecsPushButton,                    &QPushButton::clicked,                          this,           [=] {VoirRemisesPrecs();});
+        connect (ui->ListeChequesupTableWidget,                 &QTableWidget::cellClicked,                     this,           &dlg_remisecheques::ItemChequeARemettreClicked);
+        connect (ui->ChequesEnAttenteupTableWidget,             &QTableWidget::cellClicked,                     this,           &dlg_remisecheques::ItemChequeEnAttenteClicked);
+        connect (ui->ListeChequesupTableWidget,                 &QTableWidget::currentCellChanged,              this,           &dlg_remisecheques::MiseEnFormeMontant);
+        connect (ui->ListeChequesupTableWidget,                 &QTableWidget::cellChanged,                     this,           &dlg_remisecheques::TrierListeCheques);
+        connect (ui->ChequesEnAttenteupTableWidget,             &QTableWidget::cellChanged,                     this,           &dlg_remisecheques::TrierChequesEnAttente);
+        connect (ui->RemisesPrecsPushButton,                    &QPushButton::clicked,                          this,           &dlg_remisecheques::VoirRemisesPrecs);
         ChangeCompte();
     return true;
 }

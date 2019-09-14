@@ -44,9 +44,6 @@ dlg_autresmesures::~dlg_autresmesures()
 {
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Traitement des SLOTS / actions associees a chaque objet du formulaire et aux menus -----------------------------
------------------------------------------------------------------------------------------------------------------*/
 void    dlg_autresmesures::OKButtonClicked()
 {
     switch (m_mode) {

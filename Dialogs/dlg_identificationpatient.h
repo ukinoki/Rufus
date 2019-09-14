@@ -64,14 +64,12 @@ private:
     void                            EnableOKpushButton();
     int                             EnregistreNouveauCorresp();
     void                            MAJMG();
+    void                            Majuscule(QLineEdit *ledit);
     void                            MenuContextuelMedecin();
     void                            ModifCorrespondant();
     void                            ModifDDN();
     void                            OKpushButtonClicked();
     void                            VerifMGFlag();
-
-private slots:
-    void                            Slot_Majuscule();
 };
 
 #endif // DLG_IDENTIFICATIONPATIENT_H

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("11-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("14-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -216,8 +216,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
     }
 
-    //! 8 les slots
-    Connect_Slots();
+    //! 8 les signaux
+    ConnectSignals();
 
     //! 9 - libération des verrous de la compta
     QString req = " delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_currentuser->id());
@@ -272,7 +272,7 @@ Rufus::~Rufus()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Connexion des actions associees a chaque objet du formulaire et aux menus --------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::Connect_Slots()
+void Rufus::ConnectSignals()
 {
     // Les objets -------------------------------------------------------------------------------------------------
     connect (ui->AccueilupTableWidget,                              &QTableWidget::currentCellChanged,                  this,   [=] {ActiveActeAccueil(ui->AccueilupTableWidget->currentRow());});
@@ -5570,7 +5570,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         if (ImportDocsExtThread == Q_NULLPTR)
         {
             ImportDocsExtThread = new ImportDocsExternesThread();
-            connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
+            connect(ImportDocsExtThread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
         }
         m_isposteImport = true;
         return;
@@ -5637,7 +5637,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
                 if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
                 {
                     ImportDocsExtThread = new ImportDocsExternesThread();
-                    connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
+                    connect(ImportDocsExtThread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
                 }
         }
         else
@@ -9799,7 +9799,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 void Rufus::LireLaCPS()
 {
     QString req, numPS;
-    m_pyxi = new pyxinterf(proc, this);
+    m_pyxi = new pyxinterf(this);
     QString nomFicPraticienPar = m_pyxi->Lecture_CPS();
     delete m_pyxi;
 
@@ -9841,7 +9841,7 @@ void Rufus::LireLaCV()
     QString nomPat, prenomPat, dateNaissPat;
     QString zdat;
 
-    m_pyxi = new pyxinterf(proc, this);
+    m_pyxi = new pyxinterf(this);
     QString nomFicPatientPar = m_pyxi->Lecture_CV();
     delete m_pyxi;
     if (nomFicPatientPar.length() ==0)
@@ -9899,7 +9899,7 @@ void Rufus::LireLaCV()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::SaisieFSE()
 {
-    m_pyxi = new pyxinterf(proc, this);
+    m_pyxi = new pyxinterf(this);
     QString nomFicFacturePar = m_pyxi->Saisie_FSE();
     delete m_pyxi;
     if (nomFicFacturePar.length() ==0)

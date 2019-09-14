@@ -20,14 +20,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 
-class dlg_listemesures : public UpDialog
+class dlg_refractionlistemesures : public UpDialog
 {
     Q_OBJECT
 
 public:
     enum Mode               {Supprimer, Recuperer};   Q_ENUM(Mode)
-    explicit                dlg_listemesures(Mode mode, QWidget *parent = Q_NULLPTR);
-    ~dlg_listemesures();
+    explicit                dlg_refractionlistemesures(Mode mode, QWidget *parent = Q_NULLPTR);
+    ~dlg_refractionlistemesures();
     Refraction*             RefractionAOuvrir() const;
 
 private:
@@ -39,12 +39,9 @@ private:
     Refraction*         m_refselectionne;
 
     void                DetruireLaMesure(Refraction* ref);
+    void                ItemClicked(QModelIndex);
     int                 Nombre_Mesure_Selected();
     void                RemplirTableView();
     void                Validation();
-
-private slots:
-    void                Slot_ItemClicked(QModelIndex);
-
 };
 #endif // DLG_REFRACTIONLISTEMESURES_H

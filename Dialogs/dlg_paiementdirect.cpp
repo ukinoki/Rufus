@@ -67,33 +67,34 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     }
 
     ui->ListeupTableWidget->horizontalHeader()->setSectionsClickable(true);
-    connect (ui->ListeupTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int)),   this,   SLOT (Slot_ClassementListes(int)));
+    connect (ui->ListeupTableWidget->horizontalHeader(), &QHeaderView::sectionClicked,  this,   &dlg_paiementdirect::ClassementListes);
 
     connect (ui->AnnulupPushButton,         &QPushButton::clicked,                      this,   &dlg_paiementdirect::Annuler);
-    connect (ui->ListActesupPushButton,     SIGNAL(clicked()),                          this,   SLOT (Slot_VoirListeActes()));
-    connect (ui->ModifierupPushButton,      SIGNAL(clicked()),                          this,   SLOT (Slot_ModifiePaiement()));
-    connect (ui->NouvPaiementupPushButton,  SIGNAL(clicked()),                          this,   SLOT (Slot_EnregistrePaiement()));
-    connect (ui->OKupPushButton,            SIGNAL(clicked()),                          this,   SLOT (Slot_ValidePaiement()));
-    connect (ui->SupprimerupPushButton,     SIGNAL(clicked()),                          this,   SLOT (Slot_SupprimerPaiement()));
+    connect (ui->ListActesupPushButton,     &QPushButton::clicked,                      this,   &dlg_paiementdirect::ListeActes);
+    connect (ui->ModifierupPushButton,      &QPushButton::clicked,                      this,   &dlg_paiementdirect::ModifiePaiement);
+    connect (ui->NouvPaiementupPushButton,  &QPushButton::clicked,                      this,   &dlg_paiementdirect::EnregistreNouveauPaiement);
+    connect (ui->OKupPushButton,            &QPushButton::clicked,                      this,   &dlg_paiementdirect::ValidePaiement);
+    connect (ui->SupprimerupPushButton,     &QPushButton::clicked,                      this,   &dlg_paiementdirect::SupprimerPaiement);
 
-    connect (ui->BanqueChequecomboBox,      SIGNAL(editTextChanged(QString)),           this,   SLOT (Slot_EnableOKButton()));
-    connect (ui->ComptesupComboBox,         SIGNAL(currentIndexChanged(int)),           this,   SLOT (Slot_EnableOKButton()));
-    connect (ui->dateEdit,                  SIGNAL(dateChanged(QDate)),                 this,   SLOT (Slot_EnableOKButton()));
-    connect (ui->EnAttentecheckBox,         SIGNAL(toggled(bool)),                      this,   SLOT (Slot_EnableOKButton()));
-    connect (ui->MontantlineEdit,           SIGNAL(editingFinished()),                  this,   SLOT (Slot_ConvertitDoubleMontant()));
-    connect (ui->MontantlineEdit,           SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKButton()));
-    connect (ui->TireurChequelineEdit,      SIGNAL(editingFinished()),                  this,   SLOT (Slot_Majuscule()));
+    connect (ui->BanqueChequecomboBox,      &QComboBox::editTextChanged,                this,   &dlg_paiementdirect::EnableOKButton);
+    connect (ui->ComptesupComboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                        this,   &dlg_paiementdirect::EnableOKButton);
+    connect (ui->dateEdit,                  &QDateEdit::dateChanged,                    this,   &dlg_paiementdirect::EnableOKButton);
+    connect (ui->EnAttentecheckBox,         &QCheckBox::toggled,                        this,   &dlg_paiementdirect::EnableOKButton);
+    connect (ui->MontantlineEdit,           &QLineEdit::editingFinished,                this,   &dlg_paiementdirect::ConvertitDoubleMontant);
+    connect (ui->MontantlineEdit,           &QLineEdit::textEdited,                     this,   &dlg_paiementdirect::EnableOKButton);
+    connect (ui->TireurChequelineEdit,      &QLineEdit::editingFinished,                this,   &dlg_paiementdirect::Majuscule);
 
-    connect (ui->CarteCreditradioButton,    SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
-    connect (ui->ChequeradioButton,         SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
-    connect (ui->EspecesradioButton,        SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
-    connect (ui->GratuitradioButton,        SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
-    connect (ui->ImpayeradioButton,         SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
-    connect (ui->TiersradioButton,          SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
-    connect (ui->VirementradioButton,       SIGNAL(clicked()),                          this,   SLOT (Slot_RegleAffichageTypePaiementframe()));
+    connect (ui->CarteCreditradioButton,    &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
+    connect (ui->ChequeradioButton,         &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
+    connect (ui->EspecesradioButton,        &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
+    connect (ui->GratuitradioButton,        &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
+    connect (ui->ImpayeradioButton,         &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
+    connect (ui->TiersradioButton,          &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
+    connect (ui->VirementradioButton,       &QRadioButton::clicked,                     this,   &dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton);
 
-    connect (ui->ListeupTableWidget,        SIGNAL(customContextMenuRequested(QPoint)), this,   SLOT (Slot_ModifGratuit(QPoint)));
-    connect (ui->CherchePatientupLineEdit,  SIGNAL(textEdited(QString)),                this,   SLOT (Slot_FiltreListe(QString)));
+    connect (ui->ListeupTableWidget,        &QTableWidget::customContextMenuRequested,  this,   &dlg_paiementdirect::ModifGratuit);
+    connect (ui->CherchePatientupLineEdit,  &QLineEdit::textEdited,                     this,   &dlg_paiementdirect::FiltreListe);
 
     ui->TireurChequelineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     ui->TireurChequelineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
@@ -116,7 +117,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     ui->RecImageLabel->setVisible(false);
     t_timerrecord = new QTimer(this);
     t_timerrecord->start(750);
-    connect (t_timerrecord,                              SIGNAL(timeout()),                              this,           SLOT (Slot_AfficheRecord()));
+    connect (t_timerrecord, &QTimer::timeout,   this,   &dlg_paiementdirect::AfficheRecord);
 
     ui->DetailupTableWidget->installEventFilter(this);
     ui->VerrouilleParlabel->setVisible(false);
@@ -174,15 +175,15 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     }
 
     ChangeComptable(m_useracrediter);
-    connect (ui->ComptablescomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(Slot_ChangeComptable()));
+    connect (ui->ComptablescomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_paiementdirect::ChangeComptableBox);
 
     if (m_listidactes.size() > 0)
-        Slot_EnregistrePaiement();
+        EnregistreNouveauPaiement();
     else
     {
         m_mode = Accueil;
         ui->RecImageLabel->setVisible(false);
-        Slot_RegleAffichageFiche();
+        RegleAffichageFiche();
     }
     m_initok = true;
 }
@@ -199,7 +200,7 @@ dlg_paiementdirect::~dlg_paiementdirect()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Timer affichage Bouton Record -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_AfficheRecord()
+void dlg_paiementdirect::AfficheRecord()
 {
     bool radioButtonClicked = false;
     QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
@@ -221,9 +222,9 @@ void dlg_paiementdirect::Slot_AfficheRecord()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Timer affichage Acte Verrouillé ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_AfficheActeVerrouille()
+void dlg_paiementdirect::AfficheActeVerrouille()
 {
-    disconnect(t_timerafficheacteverrouilleclignotant, SIGNAL(timeout()),this,SLOT(Slot_AfficheActeVerrouilleClignotant()));
+    disconnect(t_timerafficheacteverrouilleclignotant,  &QTimer::timeout,   this,   &dlg_paiementdirect::AfficheActeVerrouilleClignotant);
     t_timerafficheacteverrouilleclignotant->stop();
     ui->VerrouilleParlabel->setVisible(false);
     for (int i= 0; i != ui->SalleDAttenteupTableWidget->rowCount(); i++)
@@ -243,7 +244,7 @@ void dlg_paiementdirect::Slot_AfficheActeVerrouille()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Timer affichage Acte Verrouillé ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_AfficheActeVerrouilleClignotant()
+void dlg_paiementdirect::AfficheActeVerrouilleClignotant()
 {
     ui->VerrouilleParlabel->setVisible(!ui->VerrouilleParlabel->isVisible());
 }
@@ -251,7 +252,7 @@ void dlg_paiementdirect::Slot_AfficheActeVerrouilleClignotant()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Affiche la DDN dans un tooltip ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_AfficheToolTip(QTableWidgetItem *titem)
+void dlg_paiementdirect::AfficheToolTip(QTableWidgetItem *titem)
 {
     if (m_mode==VoirListeActes)
     {
@@ -375,7 +376,7 @@ void dlg_paiementdirect::Annuler()
         m_mode = Accueil;
         m_modifpaiementencours = false;
         ui->RecImageLabel->setVisible(false);
-        Slot_RegleAffichageFiche();
+        RegleAffichageFiche();
         ui->AnnulupPushButton->setText("Annuler");
         m_traiteparcloseflag = false;
     }
@@ -406,7 +407,7 @@ void dlg_paiementdirect::Annuler()
         {
             m_mode = Accueil;
             ui->RecImageLabel->setVisible(false);
-            Slot_RegleAffichageFiche();
+            RegleAffichageFiche();
             m_traiteparcloseflag = false;
         }
     }
@@ -417,7 +418,7 @@ void dlg_paiementdirect::Annuler()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Recalcule le total de la table Details -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_CalculTotalDetails()
+void dlg_paiementdirect::CalculTotalDetails()
 {
     double Total = 0;
     if (ui->DetailupTableWidget->rowCount() > 0)
@@ -439,7 +440,7 @@ void dlg_paiementdirect::Slot_CalculTotalDetails()
     ui->TotallineEdit->setText(TotalRemise);
     if (m_mode == EnregistrePaiement)
     {
-        Slot_EnableOKButton();
+        EnableOKButton();
         if (m_modiflignerecettepossible && !ui->GratuitradioButton->isChecked() && !ui->ImpayeradioButton->isChecked())
             ui->MontantlineEdit->setText(TotalRemise);
         if (ui->ImpayeradioButton->isChecked())
@@ -457,7 +458,7 @@ void dlg_paiementdirect::Slot_CalculTotalDetails()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Change l'utilisateur comptable depuis le combobox -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_ChangeComptable()
+void dlg_paiementdirect::ChangeComptableBox()
 {
     User* usr = Datas::I()->users->getById(ui->ComptablescomboBox->currentData().toInt());
     ChangeComptable(usr, true);
@@ -470,9 +471,9 @@ void dlg_paiementdirect::ChangeComptable(User* comptable, bool depuislecombo)
     m_useracrediter = comptable;
     if (!depuislecombo)
     {
-        disconnect (ui->ComptablescomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(Slot_ChangeComptable()));
+        disconnect (ui->ComptablescomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_paiementdirect::ChangeComptableBox);
         ui->ComptablescomboBox  ->setCurrentIndex(ui->ComptablescomboBox->findData(comptable->id()));
-        connect (ui->ComptablescomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(Slot_ChangeComptable()));
+        connect (ui->ComptablescomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_paiementdirect::ChangeComptableBox);
     }
 
     if (m_useracrediter != Q_NULLPTR)
@@ -504,18 +505,16 @@ void dlg_paiementdirect::FiltreLesTables()
     }
 }
 
-void dlg_paiementdirect::Slot_ConvertitDoubleMontant()
+void dlg_paiementdirect::ConvertitDoubleMontant()
 {
-    QLineEdit * Emetteur = qobject_cast<QLineEdit*> (sender());
-    QString b;
-    b = QLocale().toString(QLocale().toDouble(Emetteur->text()),'f',2);
-    Emetteur->setText(b);
+    QString b = QLocale().toString(QLocale().toDouble(ui->MontantlineEdit->text()),'f',2);
+    ui->MontantlineEdit->setText(b);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Modifie l'ordre de tri des tables ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_ClassementListes(int col)
+void dlg_paiementdirect::ClassementListes(int col)
 {
     if (m_mode==VoirListeActes && col!= 2) return;
     if (m_mode==EnregistrePaiement && col!= 3) return;
@@ -524,13 +523,13 @@ void dlg_paiementdirect::Slot_ClassementListes(int col)
     else
         m_ordretri = Chronologique;
     TrieListe(ui->ListeupTableWidget);
-    Slot_FiltreListe(ui->CherchePatientupLineEdit->text());
+    FiltreListe(ui->CherchePatientupLineEdit->text());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Enable AnnulButton -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_EnableOKButton()
+void dlg_paiementdirect::EnableOKButton()
 {
     ui->OKupPushButton->setEnabled(true);
 }
@@ -538,7 +537,7 @@ void dlg_paiementdirect::Slot_EnableOKButton()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Enregistrer un nouveau paiement direct -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_EnregistrePaiement()
+void dlg_paiementdirect::EnregistreNouveauPaiement()
 {
     m_mode = EnregistrePaiement;
     RemplitLesTables();
@@ -548,12 +547,12 @@ void dlg_paiementdirect::Slot_EnregistrePaiement()
     {
         m_mode = Accueil;
         ui->RecImageLabel->setVisible(false);
-        Slot_RegleAffichageFiche();
+        RegleAffichageFiche();
         m_traiteparcloseflag = false;
     }
     else
     {
-        Slot_RegleAffichageFiche();
+        RegleAffichageFiche();
         if (ui->DetailupTableWidget->rowCount() > 0)
             ui->OKupPushButton->setEnabled(true);
         ui->CarteCreditradioButton->setChecked(true);
@@ -562,16 +561,16 @@ void dlg_paiementdirect::Slot_EnregistrePaiement()
     }
 }
 
-void dlg_paiementdirect::Slot_Majuscule()
+void dlg_paiementdirect::Majuscule()
 {
     ui->TireurChequelineEdit->setText(Utils::trimcapitilize(ui->TireurChequelineEdit->text(),false));
-    Slot_EnableOKButton();
+    EnableOKButton();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Filtrer la liste                                                 --------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_FiltreListe(QString filtre)
+void dlg_paiementdirect::FiltreListe(QString filtre)
 {
     QList<QTableWidgetItem*> listitems = ui->ListeupTableWidget->findItems(filtre, Qt::MatchStartsWith);
     if (listitems.size()>0)
@@ -599,7 +598,7 @@ void dlg_paiementdirect::Slot_FiltreListe(QString filtre)
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Créer le menu contextuel pour transformer un acte gratuit en acte payant                                                  --------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_ModifGratuit(QPoint pos)
+void dlg_paiementdirect::ModifGratuit(QPoint pos)
 {
     QTableWidgetItem *titem = dynamic_cast<QTableWidgetItem*>(ui->ListeupTableWidget->itemAt(pos));
     if (titem)
@@ -620,7 +619,7 @@ void dlg_paiementdirect::Slot_ModifGratuit(QPoint pos)
     }
 }
 
-void dlg_paiementdirect::Slot_ModifiePaiement()
+void dlg_paiementdirect::ModifiePaiement()
 {
     QString requete;
     QString ModePaiement;
@@ -651,7 +650,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         m_listidactes.clear();
         m_listidactes << idActe;
         RemplitLesTables();
-        Slot_RegleAffichageFiche();
+        RegleAffichageFiche();
         if (ModePaiement == tr("Gratuit"))
             ui->GratuitradioButton->setChecked(true);
         else if (ModePaiement == tr("Carte bancaire"))
@@ -826,7 +825,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
 
         m_listidactes = m_listidactesamodifier;
         RemplitLesTables();
-        Slot_RegleAffichageFiche();
+        RegleAffichageFiche();
         ui->SupprimerupPushButton->setVisible(true);
         RegleAffichageTypePaiementframe(true,true);
         ui->dateEdit->setDate(recettedata.at(2).toDate());
@@ -859,9 +858,9 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Regle l'affichage des différents Widget en fonction du mode de fonctionnement ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_RegleAffichageFiche()
+void dlg_paiementdirect::RegleAffichageFiche()
 {
-    ui->dateEdit->setDate(QDate::currentDate());
+    ui->dateEdit                    ->setDate(QDate::currentDate());
     ui->Detailsframe                ->setVisible(m_mode!=Accueil);
     ui->line_2                      ->setVisible(m_mode!=Accueil);
     ui->line_4                      ->setVisible(m_mode!=Accueil);
@@ -879,8 +878,8 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
     ui->SupprimerupPushButton       ->setVisible(false);
     ui->CherchePatientupLineEdit    ->clear();
 
-    disconnect (ui->SalleDAttenteupTableWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
-    disconnect (ui->ListeupTableWidget,         SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+    disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+    disconnect (ui->ListeupTableWidget,         &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
     if (m_mode == Accueil)
     {
         setFixedWidth(680);
@@ -922,8 +921,8 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
             ui->ActesEnAttentelabel         ->setText(tr("Paiements pour cet acte"));
             ui->ActesEnAttentelabel_2       ->setText(tr("Tous les actes ayant reçu un paiement ou en attente de paiement"));
             RegleComptesComboBox(false);
-            connect (ui->SalleDAttenteupTableWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
-            connect (ui->ListeupTableWidget,         SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+            connect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
+            connect (ui->ListeupTableWidget,         &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
             break;
         }
         default:
@@ -932,13 +931,12 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
     }
     RegleAffichageTypePaiementframe(false);
     FiltreLesTables();
-
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Regle l'affichage des widget dans le cadre DetailsPaiement en fonction du mode de fonctionnement et du radiobutton sélectionné ------------------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_RegleAffichageTypePaiementframe()
+void dlg_paiementdirect::RegleAffichageTypePaiementframeDepuisBouton()
 {
     RegleAffichageTypePaiementframe(true, true);
 }
@@ -946,7 +944,7 @@ void dlg_paiementdirect::Slot_RegleAffichageTypePaiementframe()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Retrouve le rang de la ligne selectionnée et modifie les tables en fonction ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_RenvoieRangee(bool Coche)
+void dlg_paiementdirect::RenvoieRangee(bool Coche)
 {
     switch (m_mode) {
     case EnregistrePaiement:
@@ -986,7 +984,7 @@ void dlg_paiementdirect::Slot_RenvoieRangee(bool Coche)
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Regle l'affichage des widget dans le cadre DetailsPaiement en fonction du mode de fonctionnement et du radiobutton sélectionné ------------------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_SupprimerPaiement()
+void dlg_paiementdirect::SupprimerPaiement()
 {
     UpMessageBox msgbox;
     msgbox.setText(tr("Voulez vous vraiment supprimer les informations de cette écriture?"));
@@ -1004,7 +1002,7 @@ void dlg_paiementdirect::Slot_SupprimerPaiement()
     m_modifpaiementencours = false;
     m_mode = Accueil;
     ui->RecImageLabel->setVisible(false);
-    Slot_RegleAffichageFiche();
+    RegleAffichageFiche();
     m_traiteparcloseflag = false;
     m_modiflignerecettepossible = true;
     ui->AnnulupPushButton->setText("Annuler");
@@ -1014,7 +1012,7 @@ void dlg_paiementdirect::Slot_SupprimerPaiement()
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ValidupPushButton cliqué en fonction du mode de fonctionnement -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::Slot_ValidePaiement()
+void dlg_paiementdirect::ValidePaiement()
 {
     QString requete;
     switch (m_mode) {
@@ -1036,7 +1034,7 @@ void dlg_paiementdirect::Slot_ValidePaiement()
                 m_mode = Accueil;
                 ui->RecImageLabel->setVisible(false);
                 m_modiflignerecettepossible = true;
-                Slot_RegleAffichageFiche();
+                RegleAffichageFiche();
                 ui->SupprimerupPushButton->setVisible(false);
                 ui->AnnulupPushButton->setText("Annuler");
                 NettoieVerrousCompta();
@@ -1051,11 +1049,11 @@ void dlg_paiementdirect::Slot_ValidePaiement()
         break;
     }
 }
-void dlg_paiementdirect::Slot_VoirListeActes()
+void dlg_paiementdirect::ListeActes()
 {
     m_mode = VoirListeActes;
     RemplitLesTables();
-    Slot_RegleAffichageFiche();
+    RegleAffichageFiche();
     ui->ListeupTableWidget->setCurrentCell(0,1);
     ui->ListeupTableWidget->setFocus();
 }
@@ -1255,7 +1253,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             pItem1->setData(Qt::UserRole,TableOrigine->item(Rangee,0)->data(Qt::UserRole));//UserComptable
             CheckItem->setCheckState(Qt::Checked);
             CheckItem->setFocusPolicy(Qt::NoFocus);
-            connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+            connect(CheckItem,  &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
             CheckItem->installEventFilter(this);
             pItem2->setText(TableOrigine->item(Rangee,2)->text());  //Date
             pItem3->setText(TableOrigine->item(Rangee,3)->text());  //Nom Prenom
@@ -1275,7 +1273,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             LigneMontant->setColumn(7);
             LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                    "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-            connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
+            connect (LigneMontant,  &QLineEdit::textChanged,    this,   &dlg_paiementdirect::CalculTotalDetails);
             LigneMontant->installEventFilter(this);
 
             pItem5->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1343,7 +1341,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                     pItem1->setText(ListeActesARemettreEnDetails.at(l));//idActe
                     CheckItem->setCheckState(Qt::Checked);
                     CheckItem->setFocusPolicy(Qt::NoFocus);
-                    connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+                    connect(CheckItem,  &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
                     CheckItem->installEventFilter(this);
                     pItem2->setText(ListeDates.at(l));          //Date
                     pItem3->setText(ListeNoms.at(l));           //Nom Prenom
@@ -1364,7 +1362,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                     LigneMontant->setColumn(7);
                     LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-                    connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
+                    connect (LigneMontant,  &QLineEdit::textChanged,    this,   &dlg_paiementdirect::CalculTotalDetails);
                     LigneMontant->installEventFilter(this);
 
                     ui->DetailupTableWidget->setItem(l,0,pItem1);                  //idActe
@@ -1438,7 +1436,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 ui->PasdePaiementlabel->setVisible(false);
                 ui->TypePaiementframe->setVisible(true);
                 ui->PaiementgroupBox->setVisible(true);
-                connect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+                connect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
                 QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
                 for (int n = 0; n <  allRButtons.size(); n++)
                 {
@@ -1465,9 +1463,9 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 {
                     Rangee = 0;
                     TableOrigine = ui->SalleDAttenteupTableWidget;
-                    disconnect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+                    disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
                     TableOrigine->selectRow(0);
-                    connect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+                    connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
                 }
             }
          }
@@ -1566,7 +1564,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         break;
     } // fin switch
 
-    Slot_CalculTotalDetails();
+    CalculTotalDetails();
     RegleAffichageTypePaiementframe(false);
     RegleAffichageTypePaiementframe(true,false);
 }
@@ -1583,7 +1581,7 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
     // il faut deconnecter la table du signal itemSelectionChanged(), sinon, l'appel de TableARemplir->clear()
     // provoque un plantage. La table est vidée mais le slot est quand même appelé par le signal
     if (TableARemplir == ui->SalleDAttenteupTableWidget && m_mode == VoirListeActes)
-        disconnect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+        disconnect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
     TableARemplir->clear();
     TableARemplir->verticalHeader()->hide();
 
@@ -1906,7 +1904,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
-                    Slot_CalculTotalDetails();
+                    CalculTotalDetails();
                 }
             }
         }
@@ -1941,7 +1939,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
-                    Slot_CalculTotalDetails();
+                    CalculTotalDetails();
                 }
             }
         }
@@ -1984,7 +1982,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
-                    Slot_CalculTotalDetails();
+                    CalculTotalDetails();
                 }
             }
         }
@@ -2006,7 +2004,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setText("0,00");
                     Paye->setReadOnly(true);
-                    Slot_CalculTotalDetails();
+                    CalculTotalDetails();
                 }
             }
         }
@@ -2164,10 +2162,10 @@ void dlg_paiementdirect::RegleComptesComboBox(bool avecLesComptesInactifs)
 void dlg_paiementdirect::RemplitLesTables()
 {
     QString             requete;
-    disconnect (ui->SalleDAttenteupTableWidget, SIGNAL(itemSelectionChanged()),         this, SLOT(Slot_RenvoieRangee()));
-    disconnect (ui->SalleDAttenteupTableWidget, SIGNAL(itemEntered(QTableWidgetItem*)), this, SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
-    disconnect (ui->ListeupTableWidget,         SIGNAL(itemSelectionChanged()),         this, SLOT(Slot_RenvoieRangee()));
-    disconnect (ui->ListeupTableWidget,         SIGNAL(itemEntered(QTableWidgetItem*)), this, SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
+    disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+    disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemEntered, this, Q_NULLPTR);
+    disconnect (ui->ListeupTableWidget,         &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
+    disconnect (ui->ListeupTableWidget,         &QTableWidget::itemEntered, this, Q_NULLPTR);
 
     switch (m_mode)
     {
@@ -2178,7 +2176,7 @@ void dlg_paiementdirect::RemplitLesTables()
     case EnregistrePaiement:
         {
             /*
-        1. Remplissage ui->ListeupTableWidget -- tous les paiemenst en attente en dehors de ceux de la salle d'attente
+        1. Remplissage ui->ListeupTableWidget -- tous les paiements en attente en dehors de ceux de la salle d'attente
         càd ceux:
         . pour lesquels (aucune ligne de paiement n'a été enregistrée
         . OU le type de paiement enregistré est "impayé")
@@ -2237,7 +2235,7 @@ void dlg_paiementdirect::RemplitLesTables()
         QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok);
         RemplirTableWidget(ui->ListeupTableWidget, "Actes", actlist, true, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
-            connect (ui->ListeupTableWidget,    SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
+            connect (ui->ListeupTableWidget,    &QTableWidget::itemEntered, this,   [=] (QTableWidgetItem *item) {AfficheToolTip(item);});
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,ActesDirects);
@@ -2323,9 +2321,9 @@ void dlg_paiementdirect::RemplitLesTables()
         RemplirTableWidget(ui->ListeupTableWidget,"Actes", actlist, false, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
         {
-            connect (ui->ListeupTableWidget,            SIGNAL(itemSelectionChanged()),         this,   SLOT(Slot_RenvoieRangee()));
-            connect (ui->ListeupTableWidget,            SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
-            connect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
+            connect (ui->ListeupTableWidget,            &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
+            connect (ui->ListeupTableWidget,            &QTableWidget::itemEntered, this,   [=] (QTableWidgetItem *item) {AfficheToolTip(item);});
+            connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemEntered, this,   [=] (QTableWidgetItem *item) {AfficheToolTip(item);});
         }
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,Paiements);
         DefinitArchitectureTable(ui->DetailupTableWidget,ActesTiers);
@@ -2336,7 +2334,7 @@ void dlg_paiementdirect::RemplitLesTables()
         break;
 
     }
-    Slot_CalculTotalDetails();
+    CalculTotalDetails();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2350,7 +2348,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
     QFontMetrics fm(qApp->font());
 
     if (TableARemplir == ui->SalleDAttenteupTableWidget)
-        disconnect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+        disconnect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
     TableARemplir->clearContents();
     TableARemplir->verticalHeader()->hide();
 
@@ -2383,7 +2381,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                         CheckItem->setCheckState(CheckedOuPas);
                     CheckItem->setRowTable(i);
                     CheckItem->setFocusPolicy(Qt::NoFocus);
-                    connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+                    connect(CheckItem,        &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
                     CheckItem->installEventFilter(this);
                     TableARemplir->setCellWidget(i,col,CheckItem);
                 }
@@ -2489,7 +2487,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                         LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
                         TableARemplir->setCellWidget(i,col,LigneMontant);                               // Payé
-                        connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
+                        connect (LigneMontant,  &QLineEdit::textChanged,    this,   &dlg_paiementdirect::CalculTotalDetails);
                         LigneMontant->installEventFilter(this);
                         col++;
                     }
@@ -2609,7 +2607,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                         CheckItem->setCheckState(CheckedOuPas);
                     CheckItem->setRowTable(i);
                     CheckItem->setFocusPolicy(Qt::NoFocus);
-                    connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+                    connect(CheckItem,        &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
                     CheckItem->installEventFilter(this);
                     TableARemplir->setCellWidget(i,col,CheckItem);
                     col++;
@@ -2693,7 +2691,7 @@ void dlg_paiementdirect::VideDetailsTable(int Rangee)
             CheckItem->setCheckState(Qt::Unchecked);
             CheckItem->setRowTable(i);
             CheckItem->setFocusPolicy(Qt::NoFocus);
-            connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+            connect(CheckItem,        &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
             CheckItem->installEventFilter(this);
             ui->SalleDAttenteupTableWidget->removeCellWidget(i,1);
             ui->SalleDAttenteupTableWidget->setCellWidget(i,1,CheckItem);
@@ -2712,7 +2710,7 @@ void dlg_paiementdirect::VideDetailsTable(int Rangee)
             CheckItem->setCheckState(Qt::Unchecked);
             CheckItem->setRowTable(i);
             CheckItem->setFocusPolicy(Qt::NoFocus);
-            connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+            connect(CheckItem,        &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
             CheckItem->installEventFilter(this);
             ui->ListeupTableWidget->removeCellWidget(i,1);
             ui->ListeupTableWidget->setCellWidget(i,1,CheckItem);
@@ -2725,7 +2723,7 @@ void dlg_paiementdirect::VideDetailsTable(int Rangee)
     // on supprime la rangée de ui->DetailupTableWidget et on reindexe les upcheckbox et les uplinetext
     ui->DetailupTableWidget->removeRow(Rangee);
     TrieListe(ui->DetailupTableWidget);
-    Slot_CalculTotalDetails();
+    CalculTotalDetails();
     RegleAffichageTypePaiementframe();
 }
 
@@ -3151,18 +3149,18 @@ void dlg_paiementdirect::TrieListe(UpTableWidget *TableATrier )
             //            QString nom = TableATrier->item(i,3)->text();
             if (Check)
             {
-                disconnect(Check,       SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));    // il faut faire cette manip sinon on n'arrive pas à modifier le checkstate
+                disconnect(Check,       &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);    // il faut faire cette manip sinon on n'arrive pas à modifier le checkstate
                 Check->setRowTable(i);
-                connect(Check,          SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+                connect(Check,          &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
             }
             if (TableATrier == ui->DetailupTableWidget)
             {
                 UpLineEdit* Line = dynamic_cast<UpLineEdit*>(TableATrier->cellWidget(i,ColonneMontantPaye));
                 if (Line)
                 {
-                    disconnect (Line,   SIGNAL(textChanged(QString)), this,     SLOT(Slot_CalculTotalDetails()));         // même remarque
+                    disconnect (Line,   &QLineEdit::textChanged,    this,   &dlg_paiementdirect::CalculTotalDetails);         // même remarque
                     Line->setRow(i);
-                    connect (Line,      SIGNAL(textChanged(QString)), this,     SLOT(Slot_CalculTotalDetails()));
+                    connect (Line,      &QLineEdit::textChanged,    this,   &dlg_paiementdirect::CalculTotalDetails);
                 }
             }
         }
@@ -3361,7 +3359,7 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
         ui->VerrouilleParlabel->setStyleSheet("color: magenta");
         ui->VerrouilleParlabel->setVisible(true);
         t_timerafficheacteverrouilleclignotant->start(100);
-        connect(t_timerafficheacteverrouilleclignotant, SIGNAL(timeout()),this,SLOT(Slot_AfficheActeVerrouilleClignotant()));
+        connect(t_timerafficheacteverrouilleclignotant,  &QTimer::timeout,   this,   &dlg_paiementdirect::AfficheActeVerrouilleClignotant);
         t_timerafficheacteverrouille->start(2000);
         t_timerafficheacteverrouille->setSingleShot(true);
         if (m_mode == EnregistrePaiement)
@@ -3378,7 +3376,7 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
                 Check->setToggleable(false);
         }
         QSound::play(NOM_ALARME);
-        connect(t_timerafficheacteverrouille, SIGNAL(timeout()),this,SLOT(Slot_AfficheActeVerrouille()));
+        connect(t_timerafficheacteverrouille,   &QTimer::timeout,   this,   &dlg_paiementdirect::AfficheActeVerrouille);
         return false;
     }
     return true;

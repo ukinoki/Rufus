@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtSql>
 #include <QTimer>
 #include "upmessagebox.h"
+#include "upradiobutton.h"
 
 /* Cette classe sert à paramétrer la connexion au serveur
  * DIFFERENTE POUR RUFUS ET RUFUSADMIN
@@ -50,17 +51,15 @@ private:
     QString         m_serveur = "";
     QTimer          *t_timer;
     QSqlDatabase    db;
+    void            CalcIP(QString IP);
+    void            Clign();
+    void            HelpMsg();
+    void            MAJIP();
+    void            RegleAffichage(QRadioButton *butt);
+    void            Test();
+    void            Verif();
     bool            VerifFiche();
     bool            TestConnexion();
-
-private slots:
-    void    Slot_CalcIP(QString IP);
-    void    Slot_Clign();
-    void    Slot_HelpMsg();
-    void    Slot_MAJIP();
-    void    Slot_RegleAffichage();
-    void    Slot_Test();
-    void    Slot_Verif();
 };
 
 #endif // DLG_PARAMCONNEXION_H

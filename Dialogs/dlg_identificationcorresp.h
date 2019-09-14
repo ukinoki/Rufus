@@ -58,12 +58,9 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDossierAlOuverture();
     void                EnableOKpushButton();
+    void                Majuscule(QLineEdit *ledit);
     void                OKpushButtonClicked();
     void                ReconstruitListeSpecialites();
     void                RegleAffichage();
-
-private slots:
-    void                Slot_Majuscule();
 };
-
 #endif // DLG_IDENTIFICATIONCORRESP_H

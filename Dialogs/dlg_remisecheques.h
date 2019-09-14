@@ -42,20 +42,6 @@ public:
     bool                    initOK() const;
     enum Mode               {NouvelleRemise, RevoirRemisesPrecs, ReprendreRemise};   Q_ENUM(Mode)
 
-private slots:
-    void            Slot_ImprimepushButton();
-    void            Slot_AnnulupPushButton();
-    void            Slot_CorrigeRemise();
-    void            Slot_ItemChequeARemettreClicked(int A, int B);              //utilisé pour mettre en attente un chèque
-    void            Slot_ItemChequeEnAttenteClicked(int A, int B);              //utilisé pour mettre en encaissement un chèque auparavant en attente
-    void            Slot_MiseEnFormeMontant(int A, int B, int C, int D);
-    void            Slot_RecalculeMontant();
-    void            Slot_ChangeUser();
-    void            Slot_RemplirRemisesPrecs(int);
-    void            Slot_ToolTip(int A, int B);
-    void            Slot_TrierListeCheques(int, int B);
-    void            Slot_TrierChequesEnAttente(int, int B);
-
 private:
     DataBase                *db     = DataBase::I();
     Procedures              *proc   = Procedures::I();
@@ -71,10 +57,22 @@ private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     void                    keyPressEvent ( QKeyEvent * event );
     void                    reject();
-    bool                    ImprimerRemise(int);
     void                    ChangeCompte();
+    void                    ChangeUser();
+    void                    ImprimepushButton();
+    bool                    ImprimerRemise(int);
+    void                    AnnulupPushButton();
+    void                    CorrigeRemise();
+    void                    ItemChequeARemettreClicked(int A, int B);              //utilisé pour mettre en attente un chèque
+    void                    ItemChequeEnAttenteClicked(int A, int B);              //utilisé pour mettre en encaissement un chèque auparavant en attente
+    void                    MiseEnFormeMontant(int A, int B, int C, int D);
+    void                    RecalculeMontant();
     void                    ReconstruitListeUsers();
     void                    RegleComptesComboBox(bool ActiveSeult = true);
+    void                    RemplirRemisesPrecs(int);
+    void                    ToolTip(int A, int B);
+    void                    TrierListeCheques(int, int B);
+    void                    TrierChequesEnAttente(int, int B);
     bool                    VoirNouvelleRemise();
     bool                    VoirRemisesPrecs();
 };

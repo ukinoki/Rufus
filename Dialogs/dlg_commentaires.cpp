@@ -38,7 +38,6 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
 
     setWindowTitle(tr("Liste des commentaires prédéfinis de ") + m_currentuser->login());
 
-    // Initialisation des slots.
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_commentaires::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_commentaires::Annulation);
     connect (ui->upTextEdit,    &QTextEdit::textChanged,    this,   &dlg_commentaires::EnableOKPushbutton);

@@ -40,8 +40,6 @@ private:
 
 signals:
     void    Bascule();
-
-public slots:
 };
 
 #endif // UPSWITCH_H

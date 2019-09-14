@@ -138,7 +138,7 @@ int dlg_identificationuser::ControleDonnees()
         if( error.size() )
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(200);
+            Utils::Pause(100);
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de se connecter au serveur avec le login ") + Login
                             + tr(" et ce mot de passe") + "\n"
@@ -169,7 +169,7 @@ int dlg_identificationuser::ControleDonnees()
         if (!ok || grantsdata.size()==0)
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(600);
+            Utils::Pause(150);
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de retrouver les droits de l'utilisateur ") + Login + "\n" +
                             tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
@@ -179,7 +179,7 @@ int dlg_identificationuser::ControleDonnees()
         if (reponse.left(9) != "GRANT ALL")
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(600);
+            Utils::Pause(150);
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("L'utilisateur ") + Login
                             + tr(" existe mais ne dispose pas de toutes les autorisations pour modifier/créer des données sur le serveur.")
@@ -189,7 +189,7 @@ int dlg_identificationuser::ControleDonnees()
 
 
         ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
-        Utils::Pause(300);
+        Utils::Pause(150);
         req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";
         QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
         if (tablist.size()<2)
@@ -204,14 +204,14 @@ int dlg_identificationuser::ControleDonnees()
     else
     {
         ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
-        Utils::Pause(300);
+        Utils::Pause(150);
     }
 
     QJsonObject rep = db->login(Login, Password);
     if (rep["code"] == -3)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
-        Utils::Pause(600);
+        Utils::Pause(150);
 
         UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
                         tr("Impossible d'ouvrir la table Utilisateurs")
@@ -220,18 +220,18 @@ int dlg_identificationuser::ControleDonnees()
     }
 
     ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
-    Utils::Pause(300);
+    Utils::Pause(150);
     if( rep["code"] == -1 )
     {
         ui->IconUserOKupLabel->setPixmap(Icons::pxError());
-        Utils::Pause(600);
+        Utils::Pause(150);
         UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
                         tr("Identifiant ou mot de passe incorrect") );
         return -1;
     }
 
     ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
-    Utils::Pause(300);
+    Utils::Pause(150);
     /*if (rep["code"] == -6)  // ce cas de figure est désactivé parce que dans certains cabinets, il est possible à un seul utilisateur d'être connecté sur plusieurs postes en même temps
     {
         ui->IconUserOKupLabel->setPixmap(Icons::pxError());
@@ -248,7 +248,7 @@ int dlg_identificationuser::ControleDonnees()
     }*/
 
     ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
-    Utils::Pause(600);
+    Utils::Pause(150);
     return db->getUserConnected()->id();
 }
 

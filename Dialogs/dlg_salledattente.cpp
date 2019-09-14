@@ -90,9 +90,6 @@ dlg_salledattente::~dlg_salledattente()
 {
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Traitement des SLOTS / actions associees a chaque objet du formulaire et aux menus -----------------------------
------------------------------------------------------------------------------------------------------------------*/
 void dlg_salledattente::OKButtonClicked()
 {
     QString Statut;

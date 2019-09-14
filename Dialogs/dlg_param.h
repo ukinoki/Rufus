@@ -87,7 +87,7 @@ private:
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                ChoixButtonFrame(WidgetButtonFrame *);
-    void                ConnectSlots();
+    void                ConnectSignals();
     void                AfficheParamUser();
     void                EnableWidgContent(QWidget *widg, bool = true);
     void                ModifScriptBackup();
@@ -108,44 +108,42 @@ private:
     void                ModifAssocCCAM();
     void                SupprAssocCCAM();
     void                NouvAppareil();
+    void                RestaureBase();
     void                SupprAppareil();
     bool                VerifDirStockageImagerie();
     void                VerifPosteImportDocs();
 
     void                ConnectTimers(bool = true);
 
-private slots:
-    void                Slot_AfficheToolTip(QTableWidgetItem*);
-    void                Slot_EnableAppBoutons();
-    void                Slot_FermepushButtonClicked();
-    void                Slot_ChercheCCAM(QString);
-    void                Slot_ChoixDossierStockageApp();
-    void                Slot_EnregDossierStockageApp(QString dir);
-    void                Slot_ChoixFontpushButtonClicked();
-    void                Slot_ClearCom(int);
-    void                Slot_DirLocalStockage();
-    void                Slot_DirDistantStockage();
-    void                Slot_DirPosteStockage();
-    void                Slot_EnableModif(QWidget *obj);
-    void                Slot_EnableFrameServeur(bool a);
-    void                Slot_EnableOKModifPosteButton();
-    void                Slot_EnregistreNouvMDPAdmin();
-    void                Slot_FiltreActesOphtaSeulmt(bool);
-    void                Slot_GestionBanques();
-    void                Slot_GestionDatasCurrentUser();
-    void                Slot_GestLieux();
-    void                Slot_GestionUsers();
-    void                Slot_MAJActesCCAM(QString txt = "");
-    void                Slot_MAJAssocCCAM(QString txt = "");
-    void                Slot_MAJHorsNomenclature(QString txt = "");
-    void                Slot_ModifMDPAdmin();
-    void                Slot_ParamMotifs();
-    void                Slot_RegleAssocBoutons();
-    void                Slot_ResetImprimante();
-    void                Slot_EnregistreAppareil();
-    void                Slot_EnregistreEmplacementServeur(int);
-
-    void                RestaureBase();
+    void                AfficheToolTip(QTableWidget* table, QTableWidgetItem* item);
+    void                EnableSupprAppareilBouton();
+    void                FermepushButtonClicked();
+    void                ChercheCodeCCAM(QString);
+    void                ChoixDossierStockageApp(UpPushButton *butt);
+    void                EnregDossierStockageApp(UpLineEdit *line, QString dir);
+    void                ChoixFontpushButtonClicked();
+    void                ClearCom(UpComboBox *box, int);
+    void                DirLocalStockage();
+    void                DirDistantStockage();
+    void                DirPosteStockage();
+    void                EnableModif(QWidget *obj);
+    void                EnableFrameServeur(QCheckBox *box, bool a);
+    void                EnableOKModifPosteButton();
+    void                EnregistreAppareil();
+    void                EnregistreEmplacementServeur(int);
+    void                EnregistreNouvMDPAdmin();
+    void                FiltreActesOphtaSeulmt(bool);
+    void                GestionBanques();
+    void                GestionDatasCurrentUser();
+    void                GestionLieux();
+    void                GestionUsers();
+    void                MAJActesCCAM(QWidget *widg, QString txt = "");
+    void                MAJAssocCCAM(QWidget *widg, QString txt = "");
+    void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
+    void                ModifMDPAdmin();
+    void                ParamMotifs();
+    void                RegleAssocBoutons(QWidget *widg);
+    void                ResetImprimante();
 
 signals:
     void                click(QWidget *obj);

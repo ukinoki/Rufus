@@ -31,7 +31,7 @@ class UpTableWidget : public QTableWidget
 {
     Q_OBJECT
 public:
-    explicit UpTableWidget(QWidget *parent = Q_NULLPTR);
+    explicit        UpTableWidget(QWidget *parent = Q_NULLPTR);
 
     QList<QImage>   AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
     void            clearSelection();

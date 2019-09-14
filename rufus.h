@@ -122,7 +122,6 @@ private:
 
     pyxinterf                       *m_pyxi;     // CZ001
 
-    // anciens slots
     void        ChoixMenuContextuelIdentPatient();
     void        ChoixMenuContextuelMotsCles();
     void        EnregistreDocScanner(Patient *pat);
@@ -272,12 +271,10 @@ private:
     bool                    m_isposteImport;
     bool                    m_pasDExportPourLeMoment = false;
     UpSmallButton           *wdg_modifIdentificationupSmallButton;
-private slots:
-    void                    AfficheMessageImport(QStringList listmsg, int pause, bool bottom=true);
 
 private:
                     // Connexion objets ---------------------------------------------------------------------------------------------
-    void                Connect_Slots();
+    void                ConnectSignals();
 
                     // Fonctions ---------------------------------------------------------------------------------------------------
     bool                eventFilter(QObject *obj, QEvent *event)  ;
@@ -285,6 +282,7 @@ private:
     void                AfficheActe(Acte *acte);
     void                AfficheActeCompta(Acte *acte);
     void                AfficheDossier(Patient *pat, int idacte = 0);
+    void                AfficheMessageImport(QStringList listmsg, int pause, bool bottom=true);
     bool                AutorDepartConsult(bool ChgtDossier);
     QString             CalcHtmlIdentificationPatient(Patient *pat);
     QIcon               CalcIconPatient(Patient *pat);                              //!> renvoie l'icone qui représente le patient dans le html et sur le tab

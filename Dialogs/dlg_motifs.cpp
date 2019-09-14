@@ -254,7 +254,7 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
     Check->setChecked(UtilCheckSender);
     Check->setRowTable(Rrow);
     Check->setFocusPolicy(Qt::NoFocus);
-    connect(Check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_Utiliser(bool)));
+    connect(Check, &QCheckBox::clicked, this, [=](bool a) {Utiliser(Check, a);});
     l->setAlignment(Qt::AlignCenter);
     l->addWidget(Check);
     l->setContentsMargins(0,0,0,0);
@@ -293,7 +293,7 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
     Check0->setChecked(PDCheckSender);
     Check0->setRowTable(Rrow);
     Check0->setFocusPolicy(Qt::NoFocus);
-    connect(Check0, SIGNAL(clicked(bool)), this, SLOT(Slot_ParDefaut()));
+    connect(Check0, &QCheckBox::clicked, this, [=] {ParDefaut(Check0);});
     l0->setAlignment( Qt::AlignCenter );
     l0->addWidget(Check0);
     l0->setContentsMargins(0,0,0,0);
@@ -436,11 +436,8 @@ void dlg_motifs::ModifUtil()
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::Slot_ParDefaut()
+void dlg_motifs::ParDefaut(UpCheckBox *check)
 {
-    UpCheckBox *check = dynamic_cast<UpCheckBox*>(sender());
-    if (!check)
-        return;
     int row = check->rowTable();
     for (int i=0; i< ui->MotifsupTableWidget->rowCount(); i++)
     {
@@ -466,15 +463,12 @@ void dlg_motifs::Slot_ParDefaut()
     ActualiseDetails();
 }
 
-void dlg_motifs::Slot_Utiliser(bool a)
+void dlg_motifs::Utiliser(UpCheckBox *check, bool a)
 {
     if (ui->MotifsupTableWidget->selectedRanges().size()==0)
         return;
     int row = ui->MotifsupTableWidget->selectedRanges().at(0).topRow();
-    UpCheckBox *chk = dynamic_cast<UpCheckBox*>(sender());
-    if (!chk)
-        return;
-    if (row == chk->rowTable())
+    if (row == check->rowTable())
         ui->UtiliserupCheckBox->setChecked(a);
     OKButton->setEnabled(true);
 }
@@ -631,7 +625,7 @@ void dlg_motifs::SetMotifToRow(Motif *mtf, int row)
     Check->setChecked(a);
     Check->setRowTable(row);
     Check->setFocusPolicy(Qt::NoFocus);
-    connect(Check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_Utiliser(bool)));
+    connect(Check, &QCheckBox::clicked, this, [=](bool a) {Utiliser(Check, a);});
     l->setAlignment(Qt::AlignCenter);
     l->addWidget(Check);
     l->setContentsMargins(0,0,0,0);
@@ -677,7 +671,7 @@ void dlg_motifs::SetMotifToRow(Motif *mtf, int row)
     }
     Check0->setRowTable(row);
     Check0->setFocusPolicy(Qt::NoFocus);
-    connect(Check0, SIGNAL(clicked(bool)), this, SLOT(Slot_ParDefaut()));
+    connect(Check0, &QCheckBox::clicked, this, [=] {ParDefaut(Check0);});
     l0->setAlignment( Qt::AlignCenter );
     l0->addWidget(Check0);
     l0->setContentsMargins(0,0,0,0);

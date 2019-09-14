@@ -481,7 +481,7 @@ dlg_param::dlg_param(QWidget *parent) :
     else
         ui->TCPlabel->setText("");
     Remplir_Tables();
-    ConnectSlots();
+    ConnectSignals();
 }
 
 dlg_param::~dlg_param()
@@ -489,25 +489,25 @@ dlg_param::~dlg_param()
     delete ui;
 }
 
-void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
+void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
 {
     QPoint pos = cursor().pos();
     QRect rect = QRect(pos,QSize(10,10));
-    if (sender() == ui->ActesCCAMupTableWidget)
-        QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(id->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
-    else if (sender() == ui->AssocCCAMupTableWidget)
+    if (table == ui->ActesCCAMupTableWidget)
+        QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(item->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
+    else if (table == ui->AssocCCAMupTableWidget)
     {
-        QString tip = id->text();
-        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(id->row(),2));
+        QString tip = item->text();
+        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(item->row(),2));
         if (line != Q_NULLPTR)
             if (line->datas().toString() != "")
                 tip += "\n" + line->datas().toString();
         QToolTip::showText(cursor().pos(),tip, ui->AssocCCAMupTableWidget, rect, 2000);
     }
-    else if (sender() == ui->HorsNomenclatureupTableWidget)
+    else if (table == ui->HorsNomenclatureupTableWidget)
     {
-        QString tip = id->text();
-        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(id->row(),2));
+        QString tip = item->text();
+        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(item->row(),2));
         if (line != Q_NULLPTR)
             if (line->datas().toString() != "")
                 tip += "\n" + line->datas().toString();
@@ -515,7 +515,7 @@ void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
     }
 }
 
-void dlg_param::Slot_FermepushButtonClicked()
+void dlg_param::FermepushButtonClicked()
 {
     if (m_modifposte)
     {
@@ -536,12 +536,12 @@ void dlg_param::Slot_FermepushButtonClicked()
         reject();
 }
 
-void dlg_param::Slot_EnableAppBoutons()
+void dlg_param::EnableSupprAppareilBouton()
 {
    wdg_appareilswdgbuttonframe->wdg_moinsBouton->setEnabled(true);
 }
 
-void dlg_param::Slot_ChercheCCAM(QString txt)
+void dlg_param::ChercheCodeCCAM(QString txt)
 {
     QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
     if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
@@ -563,21 +563,20 @@ void dlg_param::Slot_ChercheCCAM(QString txt)
     }
 }
 
-void dlg_param::Slot_ChoixDossierStockageApp()
+void dlg_param::ChoixDossierStockageApp(UpPushButton *butt)
 {
-    UpPushButton *bout = static_cast<UpPushButton*>(sender());
-    QString req = "select TitreExamen, NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + QString::number(bout->iD());
+    QString req = "select TitreExamen, NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + QString::number(butt->iD());
     bool ok;
     QVariantList examdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     QString exam = "";
     if (ok && examdata.size()>0)
         exam = examdata.at(1).toString();
     Utils::ModeAcces mode = Utils::ReseauLocal;
-    if (ui->MonoDocupTableWidget->isAncestorOf(bout))
+    if (ui->MonoDocupTableWidget->isAncestorOf(butt))
         mode = Utils::Poste;
-    else if (ui->LocalDocupTableWidget->isAncestorOf(bout))
+    else if (ui->LocalDocupTableWidget->isAncestorOf(butt))
         mode = Utils::ReseauLocal;
-    else if (ui->DistantDocupTableWidget->isAncestorOf(bout))
+    else if (ui->DistantDocupTableWidget->isAncestorOf(butt))
         mode = Utils::Distant;
     QString dir = proc->pathDossierDocuments(exam, mode);
     if (dir == "")
@@ -592,19 +591,19 @@ void dlg_param::Slot_ChoixDossierStockageApp()
         UpLineEdit *line = Q_NULLPTR;
         switch (mode) {
         case Utils::Poste:
-            row = ui->MonoDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
+            row = ui->MonoDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
             break;
         case Utils::ReseauLocal:
-            row = ui->LocalDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
+            row = ui->LocalDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
             break;
         case Utils::Distant:
-            row = ui->DistantDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
+            row = ui->DistantDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
@@ -614,9 +613,8 @@ void dlg_param::Slot_ChoixDossierStockageApp()
     }
 }
 
-void dlg_param::Slot_EnregDossierStockageApp(QString dir)
+void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
 {
-    UpLineEdit *line    = dynamic_cast<UpLineEdit*>(sender());
     if (line==Q_NULLPTR) return;
     if (!QDir(dir).exists() && dir != "")
     {
@@ -700,7 +698,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
     }
 }
 
-void dlg_param::Slot_ChoixFontpushButtonClicked()
+void dlg_param::ChoixFontpushButtonClicked()
 {
     Dlg_Fonts = new dlg_fontdialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionFontDialog");
     Dlg_Fonts->setFont(qApp->font());
@@ -715,22 +713,18 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     delete Dlg_Fonts;
 }
 
-void dlg_param::Slot_ClearCom(int a)
+void dlg_param::ClearCom(UpComboBox* box, int a)
 {
-    UpComboBox* box = dynamic_cast<UpComboBox*>(sender());
-    if (box)
+    if (a==0)
     {
-        if (a==0)
-        {
-            if (box==ui->AutorefupComboBox)
-                ui->PortAutorefupComboBox->setCurrentIndex(0);
-            if (box==ui->FrontoupComboBox)
-                ui->PortFrontoupComboBox->setCurrentIndex(0);
-            if (box==ui->TonometreupComboBox)
-                ui->PortTonometreupComboBox->setCurrentIndex(0);
-            if (box==ui->RefracteurupComboBox)
-                ui->PortRefracteurupComboBox->setCurrentIndex(0);
-        }
+        if (box==ui->AutorefupComboBox)
+            ui->PortAutorefupComboBox->setCurrentIndex(0);
+        if (box==ui->FrontoupComboBox)
+            ui->PortFrontoupComboBox->setCurrentIndex(0);
+        if (box==ui->TonometreupComboBox)
+            ui->PortTonometreupComboBox->setCurrentIndex(0);
+        if (box==ui->RefracteurupComboBox)
+            ui->PortRefracteurupComboBox->setCurrentIndex(0);
     }
     ui->PortAutorefupComboBox->setEnabled(ui->AutorefupComboBox->currentIndex()>0);
     ui->PortFrontoupComboBox->setEnabled(ui->FrontoupComboBox->currentIndex()>0);
@@ -752,7 +746,7 @@ void dlg_param::ConnectTimers(bool a)
     }
 }
 
-void dlg_param::Slot_EnableModif(QWidget *obj)
+void dlg_param::EnableModif(QWidget *obj)
 {
     if (obj == ui->LockParamPosteupLabel)
     {
@@ -843,9 +837,9 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     }
 }
 
-void dlg_param::Slot_EnableFrameServeur(bool a)
+void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
 {
-    if (sender() == ui->PosteServcheckBox)
+    if (box == ui->PosteServcheckBox)
     {
         ui->Posteframe                  ->setVisible(a);
         ui->MonoConnexionupLabel        ->setVisible(a);
@@ -862,7 +856,7 @@ void dlg_param::Slot_EnableFrameServeur(bool a)
         ui->PosteStockageupLineEdit     ->setEnabled(a);
         ui->PosteStockageupPushButton   ->setEnabled(a);
     }
-    if (sender() == ui->LocalServcheckBox)
+    else if (box == ui->LocalServcheckBox)
     {
         ui->Localframe                  ->setVisible(a);
         ui->LocalConnexionupLabel       ->setVisible(a);
@@ -879,7 +873,7 @@ void dlg_param::Slot_EnableFrameServeur(bool a)
         ui->LocalStockageupLineEdit     ->setEnabled(a);
         ui->LocalStockageupPushButton   ->setEnabled(a);
     }
-    if (sender() == ui->DistantServcheckBox)
+    else if (box == ui->DistantServcheckBox)
     {
         if (a)
             UpMessageBox::Watch(this,tr("L'accès distant fonctionne obligatoirement "
@@ -905,12 +899,12 @@ void dlg_param::Slot_EnableFrameServeur(bool a)
      }
 }
 
-void dlg_param::Slot_EnableOKModifPosteButton()
+void dlg_param::EnableOKModifPosteButton()
 {
     m_modifposte = true;
 }
 
-void dlg_param::Slot_FiltreActesOphtaSeulmt(bool b)
+void dlg_param::FiltreActesOphtaSeulmt(bool b)
 {
     Remplir_TableActesCCAM(b);
     bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
@@ -927,13 +921,13 @@ void dlg_param::Slot_FiltreActesOphtaSeulmt(bool b)
     }
 }
 
-void dlg_param::Slot_GestionBanques()
+void dlg_param::GestionBanques()
 {
     Dlg_Banq = new dlg_gestionbanques();
     Dlg_Banq->exec();
 }
 
-void dlg_param::Slot_GestionDatasCurrentUser()
+void dlg_param::GestionDatasCurrentUser()
 {
     Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  m_currentuser->login());
@@ -948,7 +942,7 @@ void dlg_param::Slot_GestionDatasCurrentUser()
     delete Dlg_GestUsr;
 }
 
-void dlg_param::Slot_GestionUsers()
+void dlg_param::GestionUsers()
 {
     Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
@@ -966,7 +960,7 @@ void dlg_param::Slot_GestionUsers()
                                  "pour pouvoir prendre en compte les modifications apportées!"));
 }
 
-void dlg_param::Slot_GestLieux()
+void dlg_param::GestionLieux()
 {
     dlg_GestionLieux *gestLieux = new dlg_GestionLieux();
     gestLieux->exec();
@@ -1045,7 +1039,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
 
 void dlg_param::ReconstruitListeLieuxExerciceAllusers()
 {
-    disconnect(ui->EmplacementServeurupComboBox,       SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_EnregistreEmplacementServeur(int)));
+    disconnect(ui->EmplacementServeurupComboBox,    QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnregistreEmplacementServeur);
     QString req ="select idLieu, NomLieu, LieuVille from " TBL_LIEUXEXERCICE;
     bool ok;
     QList<QVariantList> servlist = db->StandardSelectSQL(req, ok);
@@ -1058,10 +1052,10 @@ void dlg_param::ReconstruitListeLieuxExerciceAllusers()
         else
         {
             ui->EmplacementServeurupComboBox->setCurrentIndex(0);
-            Slot_EnregistreEmplacementServeur(0);
+            EnregistreEmplacementServeur(0);
         }
     }
-    connect(ui->EmplacementServeurupComboBox,       SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_EnregistreEmplacementServeur(int)));
+    connect(ui->EmplacementServeurupComboBox,       QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnregistreEmplacementServeur);
 }
 
 void dlg_param::NouvAppareil()
@@ -1086,7 +1080,7 @@ void dlg_param::NouvAppareil()
     dlg_askappareil->dlglayout()->insertLayout(0,lay);
     dlg_askappareil->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     dlg_askappareil->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(dlg_askappareil->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreAppareil()));
+    connect(dlg_askappareil->OKButton,    &QPushButton::clicked,    this,   &dlg_param::EnregistreAppareil);
     dlg_askappareil->exec();
     delete dlg_askappareil;
 }
@@ -1110,10 +1104,10 @@ void dlg_param::startImmediateBackup()
         proc->ImmediateBackup(dirSauv, false);
 }
 
-void dlg_param::Slot_MAJActesCCAM(QString txt)
+void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
 {
     QString req;
-    UpCheckBox* check = dynamic_cast<UpCheckBox*>(sender());
+    UpCheckBox* check = dynamic_cast<UpCheckBox*>(widg);
     if (check)
     {
         int row = check->rowTable();
@@ -1145,7 +1139,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QDoubleValidator *val = new QDoubleValidator(this);
                     val->setDecimals(2);
                     lbl->setValidator(val);
-                    connect(lbl,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJActesCCAM(QString)));
+                    connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJActesCCAM(lbl, txt);});
                     ui->ActesCCAMupTableWidget->setCellWidget(row,5,lbl);
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
@@ -1167,7 +1161,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
     }
     else
     {
-        UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
+        UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
         if (line)
         {
             QString montant = QString::number(QLocale().toDouble(txt));
@@ -1187,11 +1181,11 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
     }
 }
 
-void dlg_param::Slot_MAJAssocCCAM(QString txt)
+void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
 {
     bool ok;
     QString req;
-    UpCheckBox* check = dynamic_cast<UpCheckBox*>(sender());
+    UpCheckBox* check = dynamic_cast<UpCheckBox*>(widg);
     if (check)
     {
         int row                 = check->rowTable();
@@ -1241,7 +1235,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     QDoubleValidator *val = new QDoubleValidator(this);
                     val->setDecimals(2);
                     lbl->setValidator(val);
-                    connect(lbl,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+                    connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl, txt);});
                     ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl);
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
@@ -1262,7 +1256,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
     }
     else
     {
-        UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
+        UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
         if (line)
         {
             int row = line->Row();
@@ -1289,10 +1283,10 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
     }
 }
 
-void dlg_param::Slot_MAJHorsNomenclature(QString txt)
+void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
 {
     QString req;
-    UpCheckBox* check = dynamic_cast<UpCheckBox*>(sender());
+    UpCheckBox* check = dynamic_cast<UpCheckBox*>(widg);
     if (check)
     {
         int row                 = check->rowTable();
@@ -1317,7 +1311,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
     }
     else
     {
-        UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
+        UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
         if (line)
         {
             int row = line->Row();
@@ -1369,14 +1363,14 @@ void dlg_param::SupprAppareil()
     }
 }
 
-void dlg_param::Slot_RegleAssocBoutons()
+void dlg_param::RegleAssocBoutons(QWidget *widg)
 {
     bool modifboutonsActes  = false;
     bool modifboutonsAssoc  = false;
     bool modifboutonsHN     = false;
 
 
-    UpCheckBox* check0      = dynamic_cast<UpCheckBox*>(sender());
+    UpCheckBox* check0      = dynamic_cast<UpCheckBox*>(widg);
     if (check0 != Q_NULLPTR)
     {
         if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
@@ -1417,7 +1411,7 @@ void dlg_param::Slot_RegleAssocBoutons()
         }
     }
 
-    if (sender() == ui->AssocCCAMupTableWidget || modifboutonsAssoc)
+    if (widg == ui->AssocCCAMupTableWidget || modifboutonsAssoc)
     {
         ui->ActesCCAMupTableWidget          ->clearSelection();
         ui->HorsNomenclatureupTableWidget   ->clearSelection();
@@ -1436,7 +1430,7 @@ void dlg_param::Slot_RegleAssocBoutons()
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
     }
-    else if (sender() == ui->ActesCCAMupTableWidget || modifboutonsActes)
+    else if (widg == ui->ActesCCAMupTableWidget || modifboutonsActes)
     {
         ui->AssocCCAMupTableWidget          ->clearSelection();
         ui->HorsNomenclatureupTableWidget   ->clearSelection();
@@ -1445,7 +1439,7 @@ void dlg_param::Slot_RegleAssocBoutons()
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
     }
-    else if (sender() == ui->HorsNomenclatureupTableWidget || modifboutonsHN)
+    else if (widg == ui->HorsNomenclatureupTableWidget || modifboutonsHN)
     {
         ui->ActesCCAMupTableWidget          ->clearSelection();
         ui->AssocCCAMupTableWidget          ->clearSelection();
@@ -1464,7 +1458,7 @@ void dlg_param::Slot_RegleAssocBoutons()
     }
 }
 
-void dlg_param::Slot_ResetImprimante()
+void dlg_param::ResetImprimante()
 {
     UpMessageBox msgbox;
     msgbox.setText(tr("Reset des paramètres imprimante!"));
@@ -1481,10 +1475,10 @@ void dlg_param::Slot_ResetImprimante()
     ui->PiedDePagespinBox->setValue(20);
     ui->PiedDePageOrdoLunettesspinBox->setValue(40);
     ui->TopMargespinBox->setValue(3);
-    Slot_EnableOKModifPosteButton();
+    EnableOKModifPosteButton();
 }
 
-void dlg_param::Slot_EnregistreAppareil()
+void dlg_param::EnregistreAppareil()
 {
     if (!dlg_askappareil) return;
     QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
@@ -1495,7 +1489,7 @@ void dlg_param::Slot_EnregistreAppareil()
     Remplir_Tables();
 }
 
-void dlg_param::Slot_EnregistreEmplacementServeur(int idx)
+void dlg_param::EnregistreEmplacementServeur(int idx)
 {
     if (ui->EmplacementServeurupComboBox->itemData(idx).toString() != "")
         db->setidlieupardefaut(ui->EmplacementServeurupComboBox->itemData(idx).toInt());
@@ -1598,7 +1592,7 @@ void dlg_param::SupprHorsNomenclature()
     }
 }
 
-void dlg_param::Slot_ModifMDPAdmin()
+void dlg_param::ModifMDPAdmin()
 {
     dlg_askMDP    = new UpDialog(this);
     dlg_askMDP    ->setModal(true);
@@ -1642,13 +1636,13 @@ void dlg_param::Slot_ModifMDPAdmin()
     for (int i = 0; i<ListTab.size()-1 ; i++ )
         dlg_askMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
     dlg_askMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
-    connect(dlg_askMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDPAdmin()));
+    connect(dlg_askMDP->OKButton,    &QPushButton::clicked, this, &dlg_param::EnregistreNouvMDPAdmin);
     dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     dlg_askMDP->exec();
 }
 
-void dlg_param::Slot_ParamMotifs()
+void dlg_param::ParamMotifs()
 {
     Dlg_motifs = new dlg_motifs();
     Dlg_motifs->setWindowTitle(tr("Motifs de consultations"));
@@ -1705,7 +1699,7 @@ void dlg_param::ModifHeureBackup()    //Modification de la date du backup
                                            && m_parametres->heurebkup() != QTime());
 }
 
-void dlg_param::Slot_DirLocalStockage()
+void dlg_param::DirLocalStockage()
 {
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     if (dir == "")
@@ -1721,7 +1715,7 @@ void dlg_param::Slot_DirLocalStockage()
     }
 }
 
-void dlg_param::Slot_DirDistantStockage()
+void dlg_param::DirDistantStockage()
 {
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
     if (dir == "")
@@ -1737,7 +1731,7 @@ void dlg_param::Slot_DirDistantStockage()
     }
 }
 
-void dlg_param::Slot_DirPosteStockage()
+void dlg_param::DirPosteStockage()
 {
     if (db->getMode() != Utils::Poste)
     {
@@ -2000,50 +1994,49 @@ void dlg_param::AfficheParamUser()
     ReconstruitListeLieuxExerciceUser(m_currentuser);
 }
 
-void dlg_param::ConnectSlots()
+void dlg_param::ConnectSignals()
 {
-    connect(ui->FermepushButton,                    SIGNAL(clicked(bool)),                  this,   SLOT(Slot_FermepushButtonClicked()));
-    connect(ui->InitMDPAdminpushButton,             SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ModifMDPAdmin()));;
-    connect(ui->ChoixFontupPushButton,              SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ChoixFontpushButtonClicked()));
-    connect(ui->PosteServcheckBox,                  SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
-    connect(ui->LocalServcheckBox,                  SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
-    connect(ui->DistantServcheckBox,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
-    connect(ui->GestUserpushButton,                 SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionUsers()));
-    connect(ui->GestLieuxpushButton,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestLieux()));
-    connect(ui->ModifDataUserpushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionDatasCurrentUser()));
-    connect(ui->GestionBanquespushButton,           SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionBanques()));
-    connect(ui->OupspushButton,                     SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ResetImprimante()));
-    connect(ui->LocalStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirLocalStockage()));
-    connect(ui->DistantStockageupPushButton,        SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirDistantStockage()));
-    connect(ui->PosteStockageupPushButton,          SIGNAL(clicked(bool)),                  this,   SLOT(Slot_DirPosteStockage()));
-    connect(ui->AppareilsConnectesupTableWidget,    SIGNAL(itemSelectionChanged()),         this,   SLOT(Slot_EnableAppBoutons()));
-    connect(ui->AutorefupComboBox,                  SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
-    connect(ui->TonometreupComboBox,                SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
-    connect(ui->FrontoupComboBox,                   SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
-    connect(ui->RefracteurupComboBox,               SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
-    connect(ui->ActesCCAMupTableWidget,             SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
-    connect(ui->AssocCCAMupTableWidget,             SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
-    connect(ui->HorsNomenclatureupTableWidget,      SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
-    connect(ui->ChercheCCAMupLineEdit,              SIGNAL(textEdited(QString)),            this,   SLOT(Slot_ChercheCCAM(QString)));
-    connect(ui->ParamMotifspushButton,              SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ParamMotifs()));
-    connect(this,                                   SIGNAL(click(QWidget*)),                this,   SLOT(Slot_EnableModif(QWidget*)));
-    connect(ui->OphtaSeulcheckBox,                  SIGNAL(clicked(bool)),                  this,   SLOT(Slot_FiltreActesOphtaSeulmt(bool)));
+    connect(ui->FermepushButton,                    &QPushButton::clicked,                  this,   &dlg_param::FermepushButtonClicked);
+    connect(ui->InitMDPAdminpushButton,             &QPushButton::clicked,                  this,   &dlg_param::ModifMDPAdmin);;
+    connect(ui->ChoixFontupPushButton,              &QPushButton::clicked,                  this,   &dlg_param::ChoixFontpushButtonClicked);
+    connect(ui->PosteServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->PosteServcheckBox, a);});
+    connect(ui->LocalServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->LocalServcheckBox, a);});
+    connect(ui->DistantServcheckBox,                &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->DistantServcheckBox, a);});
+    connect(ui->GestUserpushButton,                 &QPushButton::clicked,                  this,   &dlg_param::GestionUsers);
+    connect(ui->GestLieuxpushButton,                &QPushButton::clicked,                  this,   &dlg_param::GestionLieux);
+    connect(ui->ModifDataUserpushButton,            &QPushButton::clicked,                  this,   &dlg_param::GestionDatasCurrentUser);
+    connect(ui->GestionBanquespushButton,           &QPushButton::clicked,                  this,   &dlg_param::GestionBanques);
+    connect(ui->OupspushButton,                     &QPushButton::clicked,                  this,   &dlg_param::ResetImprimante);
+    connect(ui->LocalStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirLocalStockage);
+    connect(ui->DistantStockageupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DirDistantStockage);
+    connect(ui->PosteStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirPosteStockage);
+    connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
+    connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                            this,   [=] (int a) {ClearCom(ui->AutorefupComboBox,a);});
+    connect(ui->TonometreupComboBox,                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                            this,   [=] (int a) {ClearCom(ui->TonometreupComboBox,a);});
+    connect(ui->FrontoupComboBox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                            this,   [=] (int a) {ClearCom(ui->FrontoupComboBox,a);});
+    connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                            this,   [=] (int a) {ClearCom(ui->RefracteurupComboBox,a);});
+    connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
+    connect(ui->AssocCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->AssocCCAMupTableWidget, item);});
+    connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
+    connect(ui->ChercheCCAMupLineEdit,              &QLineEdit::textEdited,                 this,   &dlg_param::ChercheCodeCCAM);
+    connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
+    connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
+    connect(ui->OphtaSeulcheckBox,                  &QCheckBox::clicked,                    this,   &dlg_param::FiltreActesOphtaSeulmt);
 
-    QList<QLineEdit*> listline1 = ui->PosteParamtab->findChildren<QLineEdit*>();
-    for (int i=0; i<listline1.size(); i++)
-        connect(listline1.at(i),                    SIGNAL(textEdited(QString)),        this,   SLOT(Slot_EnableOKModifPosteButton()));
-    QList<QComboBox*> listcombo1 = ui->PosteParamtab->findChildren<QComboBox*>();
-    for (int i=0; i<listcombo1.size(); i++)
-        connect(listcombo1.at(i),                   SIGNAL(currentIndexChanged(int)),   this,   SLOT(Slot_EnableOKModifPosteButton()));
-    QList<QRadioButton*> listbutton1 = ui->PosteParamtab->findChildren<QRadioButton*>();
-    for (int i=0; i<listbutton1.size(); i++)
-        connect(listbutton1.at(i),                  SIGNAL(clicked(bool)),              this,   SLOT(Slot_EnableOKModifPosteButton()));
-    QList<QCheckBox*> listcheck = ui->PosteParamtab->findChildren<QCheckBox*>();
-    for (int i=0; i<listcheck.size(); i++)
-        connect(listcheck.at(i),                    SIGNAL(clicked(bool)),              this,   SLOT(Slot_EnableOKModifPosteButton()));
-     QList<QSpinBox*> listspin = ui->PosteParamtab->findChildren<QSpinBox*>();
-    for (int i=0; i<listspin.size(); i++)
-        connect(listspin.at(i),                     SIGNAL(valueChanged(int)),          this,   SLOT(Slot_EnableOKModifPosteButton()));
+    foreach (QLineEdit *line, ui->PosteParamtab->findChildren<QLineEdit*>())
+        connect(line,   &QLineEdit::textEdited,                                 this,   &dlg_param::EnableOKModifPosteButton);
+    foreach (QComboBox *box, ui->PosteParamtab->findChildren<QComboBox*>())
+        connect(box,    QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnableOKModifPosteButton);
+    foreach (QRadioButton *butt, ui->PosteParamtab->findChildren<QRadioButton*>())
+        connect(butt,   &QRadioButton::clicked,                                 this,   &dlg_param::EnableOKModifPosteButton);
+    foreach (QCheckBox *box, ui->PosteParamtab->findChildren<QCheckBox*>())
+        connect(box,    &QCheckBox::clicked,                                    this,   &dlg_param::EnableOKModifPosteButton);
+    foreach (QSpinBox *spin, ui->PosteParamtab->findChildren<QSpinBox*>())
+        connect(spin,   QOverload<int>::of(&QSpinBox::valueChanged),            this,   &dlg_param::EnableOKModifPosteButton);
     foreach(QRadioButton *butt, ui->JourSauvegardeframe->findChildren<QRadioButton*>())
         connect(butt,                               &QPushButton::clicked,              this,   &dlg_param::ModifDateBackup);
     connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifHeureBackup);
@@ -2145,7 +2138,7 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
     }
 }
 
-void dlg_param::Slot_EnregistreNouvMDPAdmin()
+void dlg_param::EnregistreNouvMDPAdmin()
 {
     if (dlg_askMDP != Q_NULLPTR)
     {
@@ -2266,8 +2259,8 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     }
     ui->ActesCCAMupTableWidget->FixLargeurTotale();
     ui->ActesCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->ActesCCAMupTableWidget,     SIGNAL(currentCellChanged(int,int,int,int)),    this, SLOT(Slot_RegleAssocBoutons()));
-    connect(ui->ActesCCAMupTableWidget,     SIGNAL(cellClicked(int,int)),                   this, SLOT(Slot_RegleAssocBoutons()));
+    connect(ui->ActesCCAMupTableWidget,     &QTableWidget::currentCellChanged,  this, [=] {RegleAssocBoutons(ui->ActesCCAMupTableWidget);});
+    connect(ui->ActesCCAMupTableWidget,     &QTableWidget::cellClicked,         this, [=] {RegleAssocBoutons(ui->ActesCCAMupTableWidget);});
 
     //Remplissage Table Actes
     QTableWidgetItem    *pItem0;
@@ -2293,8 +2286,8 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         check       = new UpCheckBox(ui->ActesCCAMupTableWidget);
         check->setRowTable(i);
         check->setEnabled(false);
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_MAJActesCCAM()));
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_RegleAssocBoutons()));
+        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJActesCCAM(check);
+                                                            RegleAssocBoutons(check); });
         ui->ActesCCAMupTableWidget->setCellWidget(i,0,check);
         pItem0->setText(Acteslist.at(i).at(1).toString());                             // codeCCAM
         ui->ActesCCAMupTableWidget->setItem(i,1,pItem0);
@@ -2331,7 +2324,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
                     lbl->setRow(listitems.at(0)->row());
                     lbl->setValidator(val);
                     lbl->setEnabled(false);
-                    connect(lbl,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJActesCCAM(QString)));
+                    connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJActesCCAM(lbl, txt);});
                     ui->ActesCCAMupTableWidget->setCellWidget(listitems.at(0)->row(),5,lbl);
                 }
             }
@@ -2375,8 +2368,8 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->FixLargeurTotale();
     wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent()->setFixedWidth(ui->AssocCCAMupTableWidget->width());
     ui->AssocCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->AssocCCAMupTableWidget,     SIGNAL(currentCellChanged(int,int,int,int)),    this, SLOT(Slot_RegleAssocBoutons()));
-    connect(ui->AssocCCAMupTableWidget,     SIGNAL(cellClicked(int,int)),                   this, SLOT(Slot_RegleAssocBoutons()));
+    connect(ui->AssocCCAMupTableWidget,     &QTableWidget::currentCellChanged,  this, [=] {RegleAssocBoutons(ui->AssocCCAMupTableWidget);});
+    connect(ui->AssocCCAMupTableWidget,     &QTableWidget::cellClicked,         this, [=] {RegleAssocBoutons(ui->AssocCCAMupTableWidget);});
 
     //Remplissage Table AssocCCCAM
     QTableWidgetItem    *pItem0;
@@ -2397,8 +2390,8 @@ void dlg_param::Remplir_TableAssocCCAM()
         check->setRowTable(i);
         check->setEnabled(false);
         check->setChecked(true);
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_MAJAssocCCAM()));
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_RegleAssocBoutons()));
+        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJAssocCCAM(check);
+                                                            RegleAssocBoutons(check); });
         ui->AssocCCAMupTableWidget->setCellWidget(i,0,check);
         pItem0->setText(Assoclist.at(i).at(0).toString());                             // codeCCAM
         ui->AssocCCAMupTableWidget->setItem(i,1,pItem0);
@@ -2412,7 +2405,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl1->setColumn(2);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
-        connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
         ui->AssocCCAMupTableWidget->setCellWidget(i,2,lbl1);
 
         UpLineEdit *lbl2 = new UpLineEdit();
@@ -2423,7 +2416,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl2->setColumn(3);
         lbl2->setValidator(val);
         lbl2->setEnabled(false);
-        connect(lbl2,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+        connect(lbl2,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl2, txt);});
         ui->AssocCCAMupTableWidget->setCellWidget(i,3,lbl2);
 
         if (ncol == 5)
@@ -2436,7 +2429,7 @@ void dlg_param::Remplir_TableAssocCCAM()
             lbl3->setColumn(4);
             lbl3->setValidator(val);
             lbl3->setEnabled(false);
-            connect(lbl3,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+            connect(lbl3,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl3, txt);});
             ui->AssocCCAMupTableWidget->setCellWidget(i,4,lbl3);
         }
         ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
@@ -2455,8 +2448,8 @@ void dlg_param::Remplir_TableAssocCCAM()
         check->setRowTable(row);
         check->setEnabled(false);
         check->setChecked(false);
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_MAJAssocCCAM()));
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_RegleAssocBoutons()));
+        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJAssocCCAM(check);
+                                                            RegleAssocBoutons(check); });
         ui->AssocCCAMupTableWidget->setCellWidget(row,0,check);
         pItem0->setText(Assoc2list.at(i).at(0).toString());                             // codeCCAM
         ui->AssocCCAMupTableWidget->setItem(row,1,pItem0);
@@ -2470,7 +2463,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl1->setColumn(2);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
-        connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
         ui->AssocCCAMupTableWidget->setCellWidget(row,2,lbl1);
 
         UpLineEdit *lbl2 = new UpLineEdit();
@@ -2481,7 +2474,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl2->setColumn(3);
         lbl2->setValidator(val);
         lbl2->setEnabled(false);
-        connect(lbl2,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+        connect(lbl2,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl2, txt);});
         ui->AssocCCAMupTableWidget->setCellWidget(row,3,lbl2);
 
         if (ncol == 5)
@@ -2494,7 +2487,7 @@ void dlg_param::Remplir_TableAssocCCAM()
             lbl3->setColumn(4);
             lbl3->setValidator(val);
             lbl3->setEnabled(false);
-            connect(lbl3,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
+            connect(lbl3,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl3, txt);});
             ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl3);
         }
         ui->AssocCCAMupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
@@ -2528,8 +2521,8 @@ void dlg_param::Remplir_TableHorsNomenclature()
     ui->HorsNomenclatureupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
     ui->HorsNomenclatureupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
     ui->HorsNomenclatureupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->HorsNomenclatureupTableWidget,     SIGNAL(currentCellChanged(int,int,int,int)),    this, SLOT(Slot_RegleAssocBoutons()));
-    connect(ui->HorsNomenclatureupTableWidget,     SIGNAL(cellClicked(int,int)),                   this, SLOT(Slot_RegleAssocBoutons()));
+    connect(ui->HorsNomenclatureupTableWidget,     &QTableWidget::currentCellChanged,   this, [=] {RegleAssocBoutons(ui->HorsNomenclatureupTableWidget);});
+    connect(ui->HorsNomenclatureupTableWidget,     &QTableWidget::cellClicked,          this, [=] {RegleAssocBoutons(ui->HorsNomenclatureupTableWidget);});
 
     //Remplissage Table Horsnomenclature
     QTableWidgetItem    *pItem0;
@@ -2549,8 +2542,8 @@ void dlg_param::Remplir_TableHorsNomenclature()
         check->setRowTable(i);
         check->setEnabled(false);
         check->setChecked(true);
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_MAJHorsNomenclature()));
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_RegleAssocBoutons()));
+        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJHorsNomenclature(check);
+                                                            RegleAssocBoutons(check); });
         ui->HorsNomenclatureupTableWidget->setCellWidget(i,0,check);
         pItem0->setText(Horslist.at(i).at(0).toString());                             // codeCCAM
         ui->HorsNomenclatureupTableWidget->setItem(i,1,pItem0);
@@ -2562,7 +2555,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         lbl1->setRow(i);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
-        connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJHorsNomenclature(QString)));
+        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJHorsNomenclature(lbl1, txt);});
         ui->HorsNomenclatureupTableWidget->setCellWidget(i,2,lbl1);
         ui->HorsNomenclatureupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
@@ -2580,7 +2573,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         check->setRowTable(row);
         check->setEnabled(false);
         check->setChecked(false);
-        connect(check,  SIGNAL(clicked(bool)),  this,   SLOT(Slot_MAJHorsNomenclature()));
+        connect(check,  &QCheckBox::clicked,  this,   [=] {MAJHorsNomenclature(check);});
         ui->HorsNomenclatureupTableWidget->setCellWidget(row,0,check);
         pItem0->setText(Hors2list.at(i).at(0).toString());                             // codeCCAM
         ui->HorsNomenclatureupTableWidget->setItem(row,1,pItem0);
@@ -2591,7 +2584,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         lbl1->setRow(row);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
-        connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJHorsNomenclature(QString)));
+        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJHorsNomenclature(lbl1, txt);});
         ui->HorsNomenclatureupTableWidget->setCellWidget(row,2,lbl1);
         ui->HorsNomenclatureupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
     }
@@ -2690,12 +2683,12 @@ void dlg_param::Remplir_Tables()
         ui->MonoDocupTableWidget->setCellWidget(i,col,line5a);
         ui->LocalDocupTableWidget->setCellWidget(i,col,line5b);
         ui->DistantDocupTableWidget->setCellWidget(i,col,line5c);
-        connect(line5a,                    SIGNAL(textEdited(QString)),         this,   SLOT(Slot_EnableOKModifPosteButton()));
-        connect(line5b,                    SIGNAL(textEdited(QString)),         this,   SLOT(Slot_EnableOKModifPosteButton()));
-        connect(line5c,                    SIGNAL(textEdited(QString)),         this,   SLOT(Slot_EnableOKModifPosteButton()));
-        connect(line5a,                    SIGNAL(TextModified(QString)),       this,   SLOT(Slot_EnregDossierStockageApp(QString)));
-        connect(line5b,                    SIGNAL(TextModified(QString)),       this,   SLOT(Slot_EnregDossierStockageApp(QString)));
-        connect(line5c,                    SIGNAL(TextModified(QString)),       this,   SLOT(Slot_EnregDossierStockageApp(QString)));
+        connect(line5a,                    &UpLineEdit::textEdited,         this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line5b,                    &UpLineEdit::textEdited,         this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line5c,                    &UpLineEdit::textEdited,         this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line5a,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5a, txt);});
+        connect(line5b,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5b, txt);});
+        connect(line5c,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5c, txt);});
         line5a->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
         line5b->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
@@ -2742,9 +2735,9 @@ void dlg_param::Remplir_Tables()
         ui->MonoDocupTableWidget->setCellWidget(i,col,widg);
         ui->LocalDocupTableWidget->setCellWidget(i,col,widg1);
         ui->DistantDocupTableWidget->setCellWidget(i,col,widg2);
-        connect(dossbouton,       SIGNAL(clicked(bool)), this   ,SLOT(Slot_ChoixDossierStockageApp()));
-        connect(dossbouton1,      SIGNAL(clicked(bool)), this   ,SLOT(Slot_ChoixDossierStockageApp()));
-        connect(dossbouton2,      SIGNAL(clicked(bool)), this   ,SLOT(Slot_ChoixDossierStockageApp()));
+        connect(dossbouton,     &QPushButton::clicked,  this,   [=] {ChoixDossierStockageApp(dossbouton);});
+        connect(dossbouton1,    &QPushButton::clicked,  this,   [=] {ChoixDossierStockageApp(dossbouton1);});
+        connect(dossbouton2,    &QPushButton::clicked,  this,   [=] {ChoixDossierStockageApp(dossbouton2);});
 
         pItem6->setText(Applist.at(i).at(3).toString());                             // Format
         ui->AppareilsConnectesupTableWidget->setItem(i,col,pItem6);

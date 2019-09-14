@@ -84,11 +84,11 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 
     OKButton->disconnect();
     connect (OKButton,                  &QPushButton::clicked,              this,           &dlg_identificationcorresp::OKpushButtonClicked);
-    connect (ui->NomlineEdit,           SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
-    connect (ui->PrenomlineEdit,        SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
-    connect (ui->Adresse1lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
-    connect (ui->Adresse2lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
-    connect (ui->Adresse3lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
+    connect (ui->NomlineEdit,           &QLineEdit::editingFinished,        this,           [=] {Majuscule(ui->NomlineEdit);});
+    connect (ui->PrenomlineEdit,        &QLineEdit::editingFinished,        this,           [=] {Majuscule(ui->PrenomlineEdit);});
+    connect (ui->Adresse1lineEdit,      &QLineEdit::editingFinished,        this,           [=] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,      &QLineEdit::editingFinished,        this,           [=] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,      &QLineEdit::editingFinished,        this,           [=] {Majuscule(ui->Adresse3lineEdit);});
     connect (ui->NomlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
     connect (ui->PrenomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
     connect (ui->Adresse1lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
@@ -122,10 +122,6 @@ dlg_identificationcorresp::~dlg_identificationcorresp()
 {
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Traitement des SLOTS / actions associees a chaque objet du formulaire et aux menus -----------------------------
------------------------------------------------------------------------------------------------------------------*/
-
 void    dlg_identificationcorresp::EnableOKpushButton()
 {
     bool a  = ui->NomlineEdit->text() != ""
@@ -137,10 +133,9 @@ void    dlg_identificationcorresp::EnableOKpushButton()
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
-void dlg_identificationcorresp::Slot_Majuscule()
+void dlg_identificationcorresp::Majuscule(QLineEdit *ledit)
 {
-    QLineEdit* Line = static_cast<QLineEdit*>(sender());
-    Line->setText(Utils::trimcapitilize(Line->text(),false));
+    ledit->setText(Utils::trimcapitilize(ledit->text(),false));
     OKButton->setEnabled(true);
 }
 

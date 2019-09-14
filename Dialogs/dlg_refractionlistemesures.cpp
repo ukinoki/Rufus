@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_refractionlistemesures.h"
 
-dlg_listemesures::dlg_listemesures(Mode mode, QWidget *parent) :
+dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *parent) :
     UpDialog (QDir::homePath() + FILE_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -36,7 +36,7 @@ dlg_listemesures::dlg_listemesures(Mode mode, QWidget *parent) :
         AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         OKButton->setText(tr("Reprendre"));
         wdg_bigtable->setSelectionMode(QAbstractItemView::NoSelection);
-        connect (OKButton,      &QPushButton::clicked,  this, &dlg_listemesures::Validation);
+        connect (OKButton,      &QPushButton::clicked,  this, &dlg_refractionlistemesures::Validation);
     }
     else
     {
@@ -44,7 +44,7 @@ dlg_listemesures::dlg_listemesures(Mode mode, QWidget *parent) :
         SupprButton->setText(tr("Supprimer"));
         wdg_bigtable->setSelectionMode(QAbstractItemView::MultiSelection);
         wdg_bigtable->setSelectionBehavior(QAbstractItemView::SelectRows);
-        connect (SupprButton,   &QPushButton::clicked,  this, &dlg_listemesures::Validation);
+        connect (SupprButton,   &QPushButton::clicked,  this, &dlg_refractionlistemesures::Validation);
     }
     setStageCount(1);
 
@@ -74,17 +74,17 @@ dlg_listemesures::dlg_listemesures(Mode mode, QWidget *parent) :
     wdg_bigtable->setSizeIncrement(0,hauteurligne);
     wdg_bigtable->setMouseTracking(true);
     dlglayout()->insertWidget(0,wdg_bigtable);
-    connect (wdg_bigtable,   SIGNAL(clicked(QModelIndex)),  this, SLOT(Slot_ItemClicked(QModelIndex)) );
+    connect (wdg_bigtable,   &QAbstractItemView::clicked,  this, &dlg_refractionlistemesures::ItemClicked);
 }
 
-dlg_listemesures::~dlg_listemesures()
+dlg_refractionlistemesures::~dlg_refractionlistemesures()
 {
 }
 
 //--------------------------------------------------------------------------------------
 // Clic sur Bouton Supprimer ou Reprendre
 //--------------------------------------------------------------------------------------
-void dlg_listemesures::Validation()
+void dlg_refractionlistemesures::Validation()
 
 {
     if (m_mode == Recuperer)
@@ -100,7 +100,11 @@ void dlg_listemesures::Validation()
         if (ret == UpSmallButton::SUPPRBUTTON)
         {
             for (int i =0 ; i<wdg_bigtable->selectionModel()->selectedRows().size(); i++)
-                DetruireLaMesure(Datas::I()->refractions->getById(m_modele->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),4)->text().toInt()));
+            {
+                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_modele->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),0));
+                if (itm != Q_NULLPTR)
+                    DetruireLaMesure(Datas::I()->refractions->getById(itm->item()->id()));
+            }
             accept();
         }
     }
@@ -109,7 +113,7 @@ void dlg_listemesures::Validation()
 //--------------------------------------------------------------------------------------
 // Click sur une ligne de la liste
 //--------------------------------------------------------------------------------------
-void dlg_listemesures::Slot_ItemClicked(QModelIndex mod)
+void dlg_refractionlistemesures::ItemClicked(QModelIndex mod)
 {
     if (m_mode == Supprimer)
         SupprButton->setEnabled(wdg_bigtable->selectionModel()->selectedIndexes().size()>0);
@@ -134,7 +138,7 @@ void dlg_listemesures::Slot_ItemClicked(QModelIndex mod)
 //---------------------------------------------------------------------------------
 // Suppression d'une mesure en base
 //----------------------------------------------------------------------------------
-void dlg_listemesures::DetruireLaMesure(Refraction *ref)
+void dlg_refractionlistemesures::DetruireLaMesure(Refraction *ref)
 {
     if (ref == Q_NULLPTR)
         return;
@@ -148,7 +152,7 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
     Datas::I()->refractions->SupprimeRefraction(ref);
 }
 
-Refraction* dlg_listemesures::RefractionAOuvrir() const
+Refraction* dlg_refractionlistemesures::RefractionAOuvrir() const
 {
     return m_refselectionne;
 }
@@ -156,19 +160,19 @@ Refraction* dlg_listemesures::RefractionAOuvrir() const
 // ----------------------------------------------------------------------------------
 // Retourne le nombre de lignes comm selectionnees
 // ----------------------------------------------------------------------------------
-int dlg_listemesures::Nombre_Mesure_Selected()
+int dlg_refractionlistemesures::Nombre_Mesure_Selected()
 {
-    int nbCommSelected = 0;
+    int nb = 0;
     for (int i =0 ; i < m_modele->rowCount(); i++)
         if (m_modele->item(i,0)->checkState() == Qt::Checked)
-            nbCommSelected ++;
-    return nbCommSelected;
+            nb ++;
+    return nb;
 }
 
 //--------------------------------------------------------------------------------------
 // Remplir la liste avec les mesures du patient en cours
 //--------------------------------------------------------------------------------------
-void dlg_listemesures::RemplirTableView()
+void dlg_refractionlistemesures::RemplirTableView()
 {
     QString zw;
     if (m_mode == Recuperer)

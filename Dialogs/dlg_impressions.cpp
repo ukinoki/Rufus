@@ -44,7 +44,6 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
-    // Initialisation des slots.
     connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe();});
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::Validation);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);

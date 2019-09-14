@@ -33,7 +33,7 @@ dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath()
     ReconstruitModel();
     wdg_buttonframe = new WidgetButtonFrame(wdg_bigtable);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(wdg_bigtable->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
+    connect(wdg_bigtable->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_GestionLieux::AfficheDetails);
     wdg_bigtable->selectRow(0);
 
     QVBoxLayout *vlay   = new QVBoxLayout();
@@ -53,7 +53,7 @@ dlg_GestionLieux::~dlg_GestionLieux()
 {
 }
 
-void dlg_GestionLieux::Slot_AfficheDetails(QModelIndex idx, QModelIndex)
+void dlg_GestionLieux::AfficheDetails(QModelIndex idx, QModelIndex)
 {
     Site * sit = getSiteFromIndex(idx);
     if (sit == Q_NULLPTR)
@@ -168,7 +168,7 @@ void dlg_GestionLieux::enregNouvLieu()
         Datas::I()->sites->initListe();
         ReconstruitModel();
         dlg_lieu->accept();
-        connect(wdg_bigtable->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
+        connect(wdg_bigtable->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_GestionLieux::AfficheDetails);
         wdg_bigtable->selectRow(0);
     }
 }
@@ -309,7 +309,7 @@ void dlg_GestionLieux::enregModifLieu()
         Datas::I()->sites->initListe();
         ReconstruitModel();
         dlg_lieu->accept();
-        connect(wdg_bigtable->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
+        connect(wdg_bigtable->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_GestionLieux::AfficheDetails);
         wdg_bigtable->selectRow(0);
     }
 }
@@ -327,7 +327,7 @@ void dlg_GestionLieux::SupprLieu()
         dlg_message(QStringList() << lieu + " supprimé", 3000);
         Datas::I()->sites->initListe();
         ReconstruitModel();
-        connect(wdg_bigtable->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
+        connect(wdg_bigtable->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_GestionLieux::AfficheDetails);
         wdg_bigtable->selectRow(0);
     }
 }

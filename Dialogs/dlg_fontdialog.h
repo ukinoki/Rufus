@@ -34,9 +34,6 @@ public:
     void                setFontAttribut(QString);
     QString             fontAttribut() const;
 
-private slots:
-    void                Slot_Redessinelabel(QTreeWidgetItem*);
-
 private:
     QFont               m_font;
     QString             m_fontattribut;
@@ -45,6 +42,7 @@ private:
     QFrame              *wdg_frame;
     UpPushButton        *wdg_uppushbutton;
     void                FermeFiche();
+    void                Redessinelabel(QTreeWidgetItem*);
 };
 
 #endif // DLG_FONTDIALOG_H

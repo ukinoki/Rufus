@@ -41,45 +41,15 @@ public:
     dlg_refraction(Acte *acte, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
     Ui::dlg_refraction      *ui;
-    dlg_listemesures        *Dlg_ListeMes;
+    dlg_refractionlistemesures        *Dlg_ListeMes;
     dlg_commentaires        *Dlg_Comments;
 
     QString                 ResultatPrescription() const;
     QString                 ResultatObservation() const;
     int                     idrefraction() const;
 
-private slots:
-
-    // les CheckBox, RadioButton,...etc...
-    void                    Slot_CycloplegieCheckBox_Clicked();
-    void                    Slot_DepoliCheckBox_Clicked(int etat);
-    void                    Slot_ODGCheckBox_Changed(int etat);
-    void                    Slot_PrescritCheckBox_Changed(int etat);
-    void                    Slot_PorteRadioButton_Clicked();
-    void                    Slot_PressonCheckBox_Changed();
-    void                    Slot_PlanCheckBox_Changed(int etat);
-    void                    Slot_RyserCheckBox_Clicked(int);
-    void                    Slot_VerresTeintesCheckBox_Changed(int etat);
-
-    //Les pushButton
-    void                    Slot_AnnulPushButton_Clicked();
-    void                    Slot_Commentaires();
-    void                    Slot_ConvOGPushButton_Clicked();
-    void                    Slot_ConvODPushButton_Clicked();
-    void                    Slot_Detail_Clicked();
-    void                    Slot_OKPushButton_Clicked();
-    void                    Slot_OupsButtonClicked();
-    void                    Slot_ResumePushButton_Clicked();
-
-    // les autres zones de saisie
-    void                    Slot_Controle_K();
-    void                    Slot_BasePrismeTextODComboBox_Changed(int);
-    void                    Slot_BasePrismeTextOGComboBox_Changed(int);
-    void                    Slot_BasePrisme_ValueChanged();
-    void                    Slot_Refraction_ValueChanged();
-    void                    Slot_CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
-
 private:
+
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
     Patient                 *m_currentpatient;
@@ -112,6 +82,35 @@ private:
     UpLineEdit              *wdg_AVPOD, *wdg_AVLOD;
     UpLineEdit              *wdg_AVPOG, *wdg_AVLOG;
 
+    // les CheckBox, RadioButton,...etc...
+    void                    CycloplegieCheckBox_Clicked();
+    void                    DepoliCheckBox_Clicked(QCheckBox* check, int etat);
+    void                    ODGCheckBox_Changed(QCheckBox* check, int etat);
+    void                    PrescritCheckBox_Changed(QCheckBox* check,int etat);
+    void                    PorteRadioButton_Clicked();
+    void                    PressonCheckBox_Changed();
+    void                    PlanCheckBox_Changed(QCheckBox* check, int etat);
+    void                    RyserCheckBox_Clicked(QCheckBox* check, int etat);
+    void                    VerresTeintesCheckBox_Changed();
+
+    //Les pushButton
+    void                    AnnulPushButton_Clicked();
+    void                    Commentaires();
+    void                    ConvOGPushButton_Clicked();
+    void                    ConvODPushButton_Clicked();
+    void                    Detail_Clicked();
+    void                    OKPushButton_Clicked();
+    void                    OupsButtonClicked();
+    void                    ResumePushButton_Clicked();
+
+    // les autres zones de saisie
+    void                    Controle_K(QLineEdit *line);
+    void                    BasePrismeTextODComboBox_Changed(int);
+    void                    BasePrismeTextOGComboBox_Changed(int);
+    void                    BasePrisme_ValueChanged(QSpinBox *box);
+    void                    Refraction_ValueChanged();
+    void                    CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
+
     bool                    Imprimer_Ordonnance();
 
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
@@ -136,7 +135,7 @@ private:
     QString                 CalculFormule_OD();
     QString                 CalculFormule_OG();
     QString                 CalculCommentaire();
-    void                    Connect_Slots();
+    void                    ConnectSignals();
 
     QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
@@ -152,7 +151,7 @@ private:
     void                    InsertDonneesOphtaPatient();
     Refraction*             InsertRefraction();
     Refraction*             LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Refraction::Cycloplegie dilatation, QString FormuleOD = "", QString FormuleOG = "");
-    void                    OuvrirListeMesures(dlg_listemesures::Mode mode);
+    void                    OuvrirListeMesures(dlg_refractionlistemesures::Mode mode);
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();
     QString                 QuelleDistance();

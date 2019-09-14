@@ -44,8 +44,6 @@ class dlg_GestionLieux : public UpDialog
 public:
     explicit dlg_GestionLieux(QWidget *parent = Q_NULLPTR);
     ~dlg_GestionLieux();
-private slots:
-    void                    Slot_AfficheDetails(QModelIndex, QModelIndex);
 
 private:
     DataBase                *db = DataBase::I();
@@ -68,6 +66,7 @@ private:
 
     UpDialog                *dlg_lieu;
 
+    void                    AfficheDetails(QModelIndex, QModelIndex);
     void                    ChoixButtonFrame();
     void                    CreerLieu();
     void                    enregNouvLieu();

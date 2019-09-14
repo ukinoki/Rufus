@@ -24,10 +24,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 // ---------------------------------------------------------------------------------------------------
-pyxinterf::pyxinterf(Procedures *procAPasser, QObject *parent) :
+pyxinterf::pyxinterf(QObject *parent) :
     QObject(parent)
 {
-    proc = procAPasser;
 }
 // ---------------------------------------------------------------------------------------------------
 // Lecture d'une CPS
@@ -66,14 +65,14 @@ void pyxinterf::FermeTout()
 #ifdef Q_WS_WIN
     FreeLibrary(hinstDLL);
 #endif
-    if (g_tcpSocket != 0) g_tcpSocket->close();
+    if (g_tcpSocket != Q_NULLPTR) g_tcpSocket->close();
 }
 
 //--------------------------------- InitVariables ----------------------------------------------------
 void pyxinterf::InitVariables()
 {
     strcpy(CRLF,"\r\n.\r\n");       // pour fin messages Socket avec PyxvitalX <CRLF>.<CRLF>
-    g_tcpSocket     = 0;
+    g_tcpSocket     = Q_NULLPTR;
     CombienDeFois   = 0;
     gSaisiePyxvitalEnCours = false;
 }
@@ -92,7 +91,7 @@ bool pyxinterf::InitConnexionPyxvital()
 
     PyxvitalPath = QDir::homePath() + "/" + proc->settings()->value("PyxInterf/PyxvitalPath").toString();
     if (PyxvitalPath.length() == 0)
-        {UpMessageBox::Watch(0, "Lecture Paramètres Pyxvital",
+        {UpMessageBox::Watch(Q_NULLPTR, "Lecture Paramètres Pyxvital",
                     " Le chemin d'accès à Pyxvital n'est pas paramétré!\nVeuillez vérifier vos paramètres PyxInterf dans Rufus.ini");
         return false;
         }
@@ -121,7 +120,7 @@ bool pyxinterf::InitConnexionPyxvital()
         gPortPyx    = PyxIni->value("Paramètres/Serveur_port").toInt();
         //UpMessageBox::Watch(0,PyxIni->value("Paramètres/Serveur_port").toString());
         if (gPortPyx == 0)
-        {UpMessageBox::Watch(0, "Lecture Paramètres Pyxvital",
+        {UpMessageBox::Watch(Q_NULLPTR, "Lecture Paramètres Pyxvital",
                     "PyxVitalOSX doit être lancé en mode serveur!\nVeuillez vérifier vos paramètres dans PyxvitalOSX.ini");
         return false;
         }
@@ -155,7 +154,7 @@ qDebug() << "FSE =" + gRepFSE;
 
         // Ouverture connexion avec le serveur PyxvitalX .
         g_tcpSocket = new QTcpSocket(this);
-        connect(g_tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(ErreurConnexionPyx(QAbstractSocket::SocketError)));
+        connect(g_tcpSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &pyxinterf::ErreurConnexionPyx);
         connexionPyx();
         // il faudrait pouvoir attendre que la connexion soit établie ou Aixvitale arrété pour erreur de connexion. ?????
     //#endif
@@ -170,7 +169,7 @@ qDebug() << "FSE =" + gRepFSE;
     //if ((hinstDLL=LoadLibrary(nomDLL)   )) {
         PSSV_Command = (SSV_Command)GetProcAddress(hinstDLL, "_SSV_Command@28");
         if (!PSSV_Command) {
-            UpMessageBox::Watch(0, "AixVitale", "Problème lors de l'appel à Pyxvital \n Veuillez vérifier vos paramètres.");
+            UpMessageBox::Watch(Q_NULLPTR , "AixVitale", "Problème lors de l'appel à Pyxvital \n Veuillez vérifier vos paramètres.");
             return false;}
         }
 #endif
@@ -192,7 +191,7 @@ void pyxinterf::connexionPyx()
 {
     qDebug("Connexion Pyx.");
     g_tcpSocket->abort();
-    g_tcpSocket->connectToHost(gServeurPyx,gPortPyx);
+    g_tcpSocket->connectToHost(gServeurPyx, gPortPyx);
 
     QString Erreur = g_tcpSocket->errorString();
        qDebug() << "Erreur connexion " + Erreur;
@@ -306,7 +305,7 @@ qDebug() << "ErreurConnexion - "+g_tcpSocket->errorString() + " - Combien=" + QS
             { LancerLeServeur();
             return;
             }
-        UpMessageBox::Watch(0, NomAppli, "Pyxvital (serveur) n'a pas été trouvé.<br><br>"
+        UpMessageBox::Watch(Q_NULLPTR, NomAppli, "Pyxvital (serveur) n'a pas été trouvé.<br><br>"
                                             "Veuillez vérifier les paramètres dans Pyxvital.ini.<br>"
                                             "- Nom serveur = " + gServeurPyx + "<br>- Port = " + zbid + "<br>- Progamme serveur = " + gnomPyxvitalExe);
         break;
@@ -315,7 +314,7 @@ qDebug() << "ErreurConnexion - "+g_tcpSocket->errorString() + " - Combien=" + QS
             { LancerLeServeur();
             return;
             }
-        QMessageBox::information(0, tr(NomAppli),
+        QMessageBox::information(Q_NULLPTR, tr(NomAppli),
                                  tr("La connexion à Pxyvital (serveur) a échoué.<br><br>"
                                     "Veuillez vérifier les paramètres dans Pyxvital.ini.<br>"
                                  "- Nom serveur = ") + gServeurPyx + tr("<br>- Port = ") + zbid + tr("<br>- Progamme serveur = ") + gnomPyxvitalExe);
@@ -324,7 +323,7 @@ qDebug() << "ErreurConnexion - "+g_tcpSocket->errorString() + " - Combien=" + QS
         // time out de saisie fse
         //if (gSaisiePyxvitalEnCours)
         //    return; // c'est juste pour avoir une tempo.
-        QMessageBox::information(0, tr(NomAppli),
+        QMessageBox::information(Q_NULLPTR, tr(NomAppli),
                    tr("Erreur : %1 .<br><br>Veuillez vérifier les paramètres dans Pyxvital.ini.<br>(Nom serveur = ").arg(g_tcpSocket->errorString())
                     + gServeurPyx + tr("<br>Port = ") + zbid + tr("<br>Progamme serveur = ") + gnomPyxvitalExe + ")");
     }
@@ -372,7 +371,7 @@ void pyxinterf::traiteErreur(const char *messer1, const char *messer2)
 {
 char messerr[2000];
 
-    QMessageBox::critical (0, QObject::tr(NomAppli),
+    QMessageBox::critical (Q_NULLPTR, QObject::tr(NomAppli),
                               QObject::tr(messer1) + "\n" + QObject::tr(messer2),
                               QMessageBox::Ok, Qt::NoButton, Qt::NoButton );
     sprintf(messerr,"Erreur : %s : %s",messer1,messer2);
@@ -435,11 +434,11 @@ QString pyxinterf::Saisie_FSE()
     strcpy(gResultPyx,"");
     appelPyxvital("?", SW_HIDE, "Status de la CPS");	// (?) Interroge Pyxvital sur lecture  des cartes CPS et CV.
     if (gResultPyx[1] != 'O')
-        { QMessageBox::information(0, NomAppli,tr("La carte PS n'a pas été lue !"));
+        { QMessageBox::information(Q_NULLPTR, NomAppli,tr("La carte PS n'a pas été lue !"));
         return "";
         }
     if (gResultPyx[2] != 'O')
-        { QMessageBox::information(0, NomAppli,tr("La carte Vitale n'a pas été lue !"));
+        { QMessageBox::information(Q_NULLPTR, NomAppli,tr("La carte Vitale n'a pas été lue !"));
         return "";
         }
 

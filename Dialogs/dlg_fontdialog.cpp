@@ -63,9 +63,9 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     }
     AjouteLayButtons();
 
-    connect (wdg_treewidget,    SIGNAL(itemClicked(QTreeWidgetItem*,int)),                      this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
-    connect (wdg_treewidget,    SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),  this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
-    connect (OKButton,          &QPushButton::clicked,                                          this,   &dlg_fontdialog::FermeFiche);
+    connect (wdg_treewidget,    &QTreeWidget::itemClicked,         this,   [=] (QTreeWidgetItem *item) {Redessinelabel(item);});
+    connect (wdg_treewidget,    &QTreeWidget::currentItemChanged,  this,   [=] (QTreeWidgetItem *item) {Redessinelabel(item);});
+    connect (OKButton,          &QPushButton::clicked,             this,   &dlg_fontdialog::FermeFiche);
 
     QList<QTreeWidgetItem*> listitems = wdg_treewidget->findItems(qApp->font().family(),Qt::MatchExactly,0);
     if (listitems.size()>0)
@@ -104,7 +104,7 @@ void dlg_fontdialog::FermeFiche()
     accept();
 }
 
-void dlg_fontdialog::Slot_Redessinelabel(QTreeWidgetItem *item)
+void dlg_fontdialog::Redessinelabel(QTreeWidgetItem *item)
 {
     QFont fontlabel;
     QString child = item->text(0);

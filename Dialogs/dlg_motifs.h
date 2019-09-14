@@ -62,15 +62,13 @@ private:
     void                ModifMotif();
     void                ModifRaccouci();
     void                ModifUtil();
+    void                ParDefaut(UpCheckBox *check);
     void                RecalculeLesRows();
     void                RemplirTableWidget();
     void                SetMotifToRow(Motif *mtf, int row);
     void                SupprimMotif();
     UpCheckBox*         UpchkFromTableW(QTableWidget*, int row, int col) const;
-
-private slots:
-    void                Slot_ParDefaut();
-    void                Slot_Utiliser(bool);
+    void                Utiliser(UpCheckBox *check, bool a);
 };
 
 #endif // DLG_MOTIFS_H

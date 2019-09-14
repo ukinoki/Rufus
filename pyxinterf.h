@@ -33,24 +33,21 @@ class pyxinterf : public QObject
      Q_OBJECT
 
 public:
-    explicit pyxinterf(Procedures *procAPasser, QObject *parent = Q_NULLPTR);
+    explicit pyxinterf(QObject *parent = Q_NULLPTR);
 
     QString     Lecture_CPS();
     QString     Lecture_CV();
     QString     Saisie_FSE();
 
-private slots:
-
-    void        ErreurConnexionPyx(QAbstractSocket::SocketError socketError);
-
 private:
 
-    Procedures  *proc;
+    Procedures  *proc = Procedures::I();
     void        FermeTout();
     bool        InitConnexionPyxvital();
     void        InitVariables();
     void        connexionPyx();
     bool        appelPyxvital(const char* modeAppel,int visuel, const char *libAction);
+    void        ErreurConnexionPyx(QAbstractSocket::SocketError socketError);
     void        LancerLeServeur();
     void        traiteErreur(const char *messer1, const char *messer2);
     void        modeSecurise();
