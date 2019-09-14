@@ -45,28 +45,6 @@ public:
     enum TypeTable          {Actes,Paiements};                                              Q_ENUM(TypeTable)
     enum ResultEnregRecette {Impossible, Annul, OK};                                        Q_ENUM(ResultEnregRecette)
 
-private slots:
-    void                Slot_AfficheActeVerrouille();
-    void                Slot_AfficheActeVerrouilleClignotant();
-    void                Slot_AfficheDDN(QTableWidgetItem*);
-    void                Slot_AfficheRecord();
-    void                Slot_Annul();
-    void                Slot_CalculTotalDetails();
-    void                Slot_ChangeUtilisateur();
-    void                Slot_ClassementListes(int col);
-    void                Slot_ConvertitDoubleMontant();
-    void                Slot_EnableOKButton();
-    void                Slot_EnregistrePaiementTiers();
-    void                Slot_FiltreListe(QString filtre);
-    void                Slot_MajusculeCreerNom();
-    void                Slot_RecopieNomTiers(QString);
-    void                Slot_SupprimerPaiement();
-    void                Slot_VoirListePaiementsTiers();
-    void                Slot_RegleAffichageFiche();
-    void                Slot_RegleAffichageTypePaiementframe();
-    void                Slot_RenvoieRangee(bool Coche = true);
-    void                Slot_ValidePaiement();
-
 private:
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
@@ -96,28 +74,47 @@ private:
 
     QMap<int, User*>        *map_comptables;
 
-
     void                closeEvent(QCloseEvent *event);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
+    void                AfficheActeVerrouille();
+    void                AfficheActeVerrouilleClignotant();
+    void                AfficheDDN(QTableWidgetItem*);
+    void                AfficheRecord();
+    void                Annuler();
+    void                CalculTotalDetails();
+    void                ChangeUtilisateur();
+    void                ClassementListes(int col);
     void                CompleteDetailsTable(QTableWidget *TableOrigine, int Rangee, bool Coche = true);
+    void                ConvertitDoubleMontant(QLineEdit *line);
     void                DefinitArchitectureTableView(UpTableWidget *TableARemplir, TypeTable Type);
+    void                EnableOKButton();
+    void                EnregistreNouveauPaiement();
     ResultEnregRecette  EnregistreRecette();
+    void                FiltreListe(QString filtre);
+    void                MajusculeCreerNom();
     void                ModifPaiementTiers(int idRecetteAModifier);
     void                NettoieVerrousListeActesAAfficher();
     void                NettoieVerrousCompta();
     void                PoseVerrouCompta(int ActeAVerrouiller);
+    void                RecopieNomTiers(QString);
     void                RetireVerrouCompta(int ActeADeverrouiller);
     void                ReconstruitListeBanques();
     void                ReconstruitListeTiers();
+    void                RegleAffichageFiche();
     void                RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
+    void                RegleAffichageTypePaiementframeDepuisBouton();
     void                RegleComptesComboBox(bool avecLesComptesInactifs = false);
     void                RemetToutAZero();
     void                RemplirTableWidget(UpTableWidget *TableARemplir, TypeTable Type, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                RemplitLesTables();
+    void                RenvoieRangee(bool Coche = true);
+    void                SupprimerPaiement();
     void                TrieListe(QTableWidget *TableATrier);
+    void                ValidePaiement();
     bool                VerifCoherencePaiement();
     bool                VerifVerrouCompta(QTableWidget *TableAVerifier, int Rangee);
     void                VideDetailsTable(int Rangee);
+    void                VoirListePaiements();
 };
 
 #endif // dlg_paiementtiers_H
