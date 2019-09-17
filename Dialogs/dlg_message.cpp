@@ -47,7 +47,7 @@ void dlg_message::delay(int msec)
     QEventLoop loop;
     QTimer t;
     t.setSingleShot(true);
-    connect(&t, SIGNAL(timeout()), &loop, SLOT(quit()));
+    connect(&t, &QTimer::timeout, &loop, &QEventLoop::quit);
     t.start(msec);
     loop.exec();
 }

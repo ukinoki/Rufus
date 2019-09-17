@@ -67,7 +67,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_FLAGS                             "rufus.flags"
 #define TBL_DOCSEXTERNES                      "rufus.Impressions"
 #define TBL_IMPRESSIONS                       "rufus.courriers"
-#define TBL_JOINTURESDOCS                     "rufus.jointuresdocuments"
+#define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
 #define TBL_JOINTURESLIEUX                    "rufus.jointuresLieux"
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
 #define TBL_LISTEAPPAREILS                    "rufus.listeappareils"
@@ -162,6 +162,29 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IMPORTANT_ACTES                           "PointImportant"
 #define CP_TEXTIMPORTANT_ACTES                       "CommentPointImportant"
 #define CP_NOCOTATION_ACTES                          "SansCotation"
+
+                            //! Table Rufus.Courriers
+#define CP_ID_IMPRESSIONS                            "idDocument"
+#define CP_TEXTE_IMPRESSIONS                         "TextDocument"
+#define CP_RESUME_IMPRESSIONS                        "ResumeDocument"
+#define CP_CONCLUSION_IMPRESSIONS                    "ConclusionDocument"
+#define CP_IDUSER_IMPRESSIONS                        "idUser"
+#define CP_DOCPUBLIC_IMPRESSIONS                     "DocPublic"
+#define CP_PRESCRIPTION_IMPRESSIONS                  "Prescription"
+#define CP_EDITABLE_IMPRESSIONS                      "Editable"
+#define CP_MEDICAL_IMPRESSIONS                       "Medical"
+
+                            //! Table Rufus.Metadocuments
+#define CP_ID_DOSSIERIMPRESSIONS                     "idMetaDocument"
+#define CP_TEXTE_DOSSIERIMPRESSIONS                  "TextMetaDocument"
+#define CP_RESUME_DOSSIERIMPRESSIONS                 "ResumeMetaDocument"
+#define CP_IDUSER_DOSSIERIMPRESSIONS                 "idUser"
+#define CP_PUBLIC_DOSSIERIMPRESSIONS                 "Public"
+
+                            //! Table Rufus.jointuresdocuments
+#define CP_ID_JOINTURESIMPRESSIONS                   "idJointure"
+#define CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS       "idMetaDocument"
+#define CP_IDDOCUMENT_JOINTURESIMPRESSIONS           "idDocument"
 
                             //! Table Rufus.Impressions
 #define CP_ID_DOCSEXTERNES                            "idImpression"

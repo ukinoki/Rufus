@@ -22,7 +22,7 @@ dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath()
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     AjouteLayButtons(UpDialog::ButtonClose);
-    connect(CloseButton, SIGNAL(clicked(bool)), this, SLOT(reject()));
+    connect(CloseButton, &QPushButton::clicked, this, &QDialog::reject);
 
     QVBoxLayout *lay = dynamic_cast<QVBoxLayout*>(layout());
     wdg_bigtable = new QTableView(this);
@@ -136,8 +136,6 @@ void dlg_GestionLieux::ChoixButtonFrame()
         break;
     case WidgetButtonFrame::Moins:
         SupprLieu();
-        break;
-    default:
         break;
     }
 }
@@ -361,14 +359,12 @@ bool dlg_GestionLieux::ValidationFiche()
 
 void dlg_GestionLieux::ReconstruitModel()
 {
-    QMap<int, Site*> *listsites = Datas::I()->sites->sites();
     m_tabmodel = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
     if (m_tabmodel != Q_NULLPTR)
         m_tabmodel->clear();
     else
         m_tabmodel = new QStandardItemModel;
-
-    foreach (Site* sit, listsites->values() )
+    foreach (Site* sit, *Datas::I()->sites->sites())
     {
         UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
         pitem0->setitem(sit);

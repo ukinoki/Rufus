@@ -113,8 +113,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     for (int i=0; i<listcombo.size(); i++)
         connect(listcombo.at(i),                QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                         this,   [=] {ui->OKupSmallButton->setEnabled(true);});
-    QList<UpRadioButton*> listbutton = findChildren<UpRadioButton*>();
-    for (int i=0; i<listbutton.size(); i++)
+    foreach (UpRadioButton* butt, findChildren<UpRadioButton*>())
     {
 
         /* on a un pb de bug avec Qt 5.10 et les clicks sur les Qradiobutton et le slot qu'ils déclenchent Slot_RegleAffichage()
@@ -127,7 +126,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
         */
         //qDebug() << listbutton.at(i)->objectName();
         //listbutton.at(i)->setToggleable(false); // pour contourner un bug d'affichage de Qt...
-        connect(listbutton.at(i),               SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableOKpushButton()));
+        connect(butt,                           &QPushButton::clicked,                  this,   [=] {ui->OKupSmallButton->setEnabled(true);});
     }
 
     RemplirTableWidget(Datas::I()->users->userconnected()->id());

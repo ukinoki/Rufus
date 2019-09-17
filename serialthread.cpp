@@ -21,11 +21,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 {
     moveToThread(&thread);
     Port            = PortProc;
-    connect(Port,   SIGNAL(readyRead()), this, SLOT(Slot_LitPort()));
+    connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
     thread.start();
 }
 
-void SerialThread::Slot_LitPort()
+void SerialThread::LitPort()
 {
     reponseData = Port->readAll();
     while (Port->waitForReadyRead(100))

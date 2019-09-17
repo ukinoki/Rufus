@@ -24,7 +24,7 @@ class Refraction : public Item
 {
     Q_OBJECT
 public:
-    explicit Refraction(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Refraction(QJsonObject data = QJsonObject(), QObject *parent = Q_NULLPTR);
     enum Mesure {Fronto, Autoref, Acuite, Prescription, NoMesure};      Q_ENUM(Mesure)
     enum Distance {Loin, Pres, AllDistance, Inconnu};                   Q_ENUM(Distance)
     enum Oeil {Droit, Gauche, Les2};                                    Q_ENUM(Oeil)
@@ -73,7 +73,7 @@ private:
     Oeil m_oeil;                    //!> l'oeil pour lequel les verres sont prescrits
     int m_monture;                  //!> le nombre de montures
     bool m_isverreteinte;           //!> les verres sont teintés
-    int m_ecartIP;                  //!> ecart interpuppilaire
+    int m_ecartIP = 0;              //!> ecart interpuppilaire
 
 public:
     int idpat() { return m_idpat; }                             //!> l'id du patient
@@ -162,6 +162,7 @@ public:
     void setisverreteinte(bool logic)       { m_isverreteinte = logic; }                        //!> les verres sont teintés
     void setecartIP(int val)                { m_ecartIP = val; }                                //!> ecart interpuppilaire
 
+    void setdataclean(Refraction::Mesure mesure = Refraction::NoMesure);
 
     static Distance    ConvertDistance(QString distance);
     static Mesure      ConvertMesure(QString Mesure);

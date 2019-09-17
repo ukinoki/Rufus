@@ -50,7 +50,7 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
-    connect (ui->PrescriptioncheckBox,          &QPushButton::clicked,                  this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
+    connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
     connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(ui->upTextEdit);});
     connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
     connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_impressions::dblClicktextEdit);
@@ -151,7 +151,7 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     ui->ALDcheckBox->setChecked(m_currentpatient->isald());
 
     //nettoyage de la table metadocs
-    db->StandardSQL("delete from " TBL_JOINTURESDOCS " where iddocument not in (select iddocument from " TBL_IMPRESSIONS ")");
+    db->StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " not in (select " CP_ID_IMPRESSIONS " from " TBL_IMPRESSIONS ")");
 
     Remplir_TableWidget();
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -309,7 +309,7 @@ void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_impressions::CheckPublicEditablAdmin(QCheckBox *check)
 {
-    UpLineEdit *line =new UpLineEdit(this);
+    UpLineEdit *line = new UpLineEdit(this);
     bool a = false;
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)  {
         line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
@@ -323,26 +323,34 @@ void dlg_impressions::CheckPublicEditablAdmin(QCheckBox *check)
         colonnelbl = 3;
     else if (check == ui->DocEditcheckBox)
         colonnelbl = 4;
-    else if (check == ui->DocAdministratifcheckBox)
+    else if (check == ui->DocAdministratifcheckBox || check == ui->PrescriptioncheckBox)
         colonnelbl = 5;
+    UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),colonnelbl));
+    if (check == ui->DocPubliccheckBox || check == ui->DocEditcheckBox)
+    {
+        if (check->isChecked())
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+        else
+            lbl->clear();
+    }
+    else if (check == ui->DocAdministratifcheckBox)
+    {
+        if (check->isChecked())
+        {
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+            ui->PrescriptioncheckBox->setChecked(false);
+        }
+        else
+            lbl->clear();
+    }
     else if (check == ui->PrescriptioncheckBox)
     {
-        if (check->isChecked() && ui->DocAdministratifcheckBox->isChecked())
+        if (check->isChecked())
         {
+            lbl->clear();
             ui->DocAdministratifcheckBox->setChecked(false);
-            colonnelbl = 6;
-            static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),colonnelbl))->clear();
         }
-        return;
     }
-    if (check->isChecked()) {
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),colonnelbl));
-        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        //if (check == ui->DocAdministratifcheckBox)
-        //    ui->PrescriptioncheckBox->setChecked(false);
-    }
-    else
-        static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),colonnelbl))->clear();
 }
 
 void dlg_impressions::dblClicktextEdit()
@@ -441,9 +449,9 @@ void dlg_impressions::DocCellEnter(UpLineEdit *line)
     else if (ui->DossiersupTableWidget->isAncestorOf(line))
     {
         bool ok;
-        QString req = "select resumedocument from " TBL_IMPRESSIONS
-                " where iddocument in (select iddocument from " TBL_JOINTURESDOCS
-                " where idmetadocument = " + QString::number(getMetaDocumentFromRow(row)->id()) + ")";
+        QString req = "select " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
+                " where " CP_ID_IMPRESSIONS " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
+                " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(getMetaDocumentFromRow(row)->id()) + ")";
         //UpMessageBox::Watch(this,req);
         QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
         QString resume = "";
@@ -856,6 +864,7 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         }
         if (!a) return;
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),3));
+        Impression *impr = getDocumentFromRow(line->Row());
         QString b = "null";
         if (lbl->pixmap() == Q_NULLPTR)
         {
@@ -870,9 +879,9 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         ui->DocPubliccheckBox->toggle();
         if (m_mode == Selection)
         {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set DocPublic = " + b + " where idDocument = " +
-                            QString::number(getDocumentFromRow(line->Row())->id()));
-            getDocumentFromRow(line->Row())->setpublic(lbl->pixmap() != Q_NULLPTR);
+            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_DOCPUBLIC_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
+                            QString::number(impr->id()));
+            impr->setpublic(b == "1");
         }
     }
     else if (choix  == "EditDoc")
@@ -885,6 +894,7 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         }
         if (a == false) return;
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),4));
+        Impression *impr = getDocumentFromRow(line->Row());
         QString b = "null";
         if (lbl->pixmap() == Q_NULLPTR)
         {
@@ -896,9 +906,9 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         ui->DocEditcheckBox->toggle();
         if (m_mode == Selection)
         {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set Editable = " + b + " where idDocument = " +
-                            QString::number(getDocumentFromRow(line->Row())->id()));
-            getDocumentFromRow(line->Row())->seteditable(lbl->pixmap() != Q_NULLPTR);
+            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_EDITABLE_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
+                            QString::number(impr->id()));
+            impr->seteditable(b == "1");
         }
     }
     else if (choix  == "AdminDoc")
@@ -911,6 +921,7 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         }
         if (a == false) return;
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),5));
+        Impression *impr = getDocumentFromRow(line->Row());
         QString b = "null";
         if (lbl->pixmap() == Q_NULLPTR)
             lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
@@ -922,9 +933,16 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         ui->DocAdministratifcheckBox->toggle();
         if (m_mode == Selection)
         {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set Medical = " + b + " where idDocument = " +
-                            QString::number(getDocumentFromRow(line->Row())->id()));
-            getDocumentFromRow(line->Row())->setmedical(lbl->pixmap() == Q_NULLPTR);
+            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_MEDICAL_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
+                            QString::number(impr->id()));
+            impr->setmedical(b == 1);
+            if (impr->isprescription() && !impr->ismedical())
+            {
+                impr->setprescription(false);
+                db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_PRESCRIPTION_IMPRESSIONS " = null where " CP_ID_IMPRESSIONS " = " +
+                                QString::number(impr->id()));
+                ui->PrescriptioncheckBox->setChecked(false);
+            }
         }
     }
     else if (choix  == "PublicDossier")
@@ -947,7 +965,7 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         else
             lbl->clear();
         if (m_mode == Selection)
-            db->StandardSQL("update " TBL_DOSSIERSIMPRESSIONS " set Public = " + b + " where idMetaDocument = " +
+            db->StandardSQL("update " TBL_DOSSIERSIMPRESSIONS " set " CP_PUBLIC_DOSSIERIMPRESSIONS " = " + b + " where idMetaDocument = " +
                        QString::number(getMetaDocumentFromRow(line->Row())->id()));
     }
     else if (choix  == "PrescripDoc")
@@ -959,15 +977,24 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
             if (line->hasSelectedText()) {a= true; break;}
         }
         if (a == false) return;
+        Impression *impr = getDocumentFromRow(line->Row());
         ui->PrescriptioncheckBox->toggle();
         QString b = "null";
         if (ui->PrescriptioncheckBox->isChecked())
             b = "1";
         if (m_mode == Selection)
         {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set Prescription = " + b + " where idDocument = " +
-                            QString::number(getDocumentFromRow(line->Row())->id()));
-            getDocumentFromRow(line->Row())->setprescription(ui->PrescriptioncheckBox->isChecked());
+            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_PRESCRIPTION_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
+                            QString::number(impr->id()));
+            impr->setprescription(ui->PrescriptioncheckBox->isChecked());
+            if (impr->isprescription() && !impr->ismedical())
+            {
+                impr->setmedical(true);
+                db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_MEDICAL_IMPRESSIONS " = 1 where " CP_ID_IMPRESSIONS " = " +
+                                QString::number(impr->id()));
+                ui->DocAdministratifcheckBox->setChecked(false);
+                static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),5))->clear();
+            }
         }
     }
     else if (choix  == "CreerDoc")
@@ -1860,19 +1887,19 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
     QString req, nom;
     switch (m_mode) {
     case CreationDOC:
-        req = "select resumedocument, iduser from " TBL_IMPRESSIONS;
+        req = "select " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS " from " TBL_IMPRESSIONS;
         nom = tr("document");
         break;
     case ModificationDOC:
-        req = "select resumedocument, iduser from " TBL_IMPRESSIONS " where iddocument <> " + QString::number(getDocumentFromRow(row)->id());
+        req = "select " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS " from " TBL_IMPRESSIONS " where " CP_ID_IMPRESSIONS " <> " + QString::number(getDocumentFromRow(row)->id());
         nom = tr("document");
         break;
     case CreationDOSS:
-        req = "select resumemetadocument, iduser from " TBL_DOSSIERSIMPRESSIONS;
+        req = "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS;
         nom = tr("dossier");
         break;
     case ModificationDOSS:
-        req = "select resumemetadocument, iduser from " TBL_DOSSIERSIMPRESSIONS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
+        req = "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
         nom = tr("dossier");
         break;
     default:
@@ -1906,7 +1933,7 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
 void dlg_impressions::CocheLesDocs(int iddoss, bool A)
 {
     bool ok;
-    QString req = "select idDocument from " TBL_JOINTURESDOCS " where idMetaDocument = " + QString::number(iddoss);
+    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoss);
     QList<QVariantList> listdocmts = db->StandardSelectSQL(req,ok);
     if (listdocmts.size() > 0)
     {
@@ -1936,8 +1963,8 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
                                 {
                                     if (DossCheck->isChecked())
                                     {
-                                        req = "select idDocument from " TBL_JOINTURESDOCS
-                                                " where idMetaDocument = " + QString::number(getMetaDocumentFromRow(j)->id());
+                                        req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
+                                                " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(getMetaDocumentFromRow(j)->id());
                                         QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
                                         if (listdocmts2.size() > 0)
                                         {
@@ -2455,7 +2482,7 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 
 Impression* dlg_impressions::getDocumentFromRow(int row)
 {
-    return Datas::I()->documents->getById(ui->DocupTableWidget->item(row,2)->text().toInt());
+    return Datas::I()->impressions->getById(ui->DocupTableWidget->item(row,2)->text().toInt());
 }
 
 DossierImpression* dlg_impressions::getMetaDocumentFromRow(int row)
@@ -2499,7 +2526,7 @@ void dlg_impressions::InsertDocument(int row)
     }
 
     QString requete = "INSERT INTO " TBL_IMPRESSIONS
-            " (TextDocument, ResumeDocument, idUser, DocPublic, Prescription, Editable, Medical) "
+            " (" CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ", " CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS ") "
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toHtml()) +
             "', '" + Utils::correctquoteSQL(line->text().left(100)) +
             "', " + QString::number(m_currentuser->id());
@@ -2559,7 +2586,7 @@ void dlg_impressions::InsertDossier(int row)
     }
 
     QString requete = "INSERT INTO " TBL_DOSSIERSIMPRESSIONS
-            " (ResumeMetaDocument, idUser, Public) "
+            " (" CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ") "
             " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(m_currentuser->id());
     UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,2));
@@ -2571,7 +2598,7 @@ void dlg_impressions::InsertDossier(int row)
     {
         QStringList listdocs;
         QString idmetadoc;
-        requete = "select idmetadocument from " TBL_DOSSIERSIMPRESSIONS " where ResumeMetadocument = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
+        requete = "select " CP_ID_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " where " CP_RESUME_DOSSIERIMPRESSIONS " = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
         bool ok;
         QList<QVariantList> listdocmts = db->StandardSelectSQL(requete,ok);
         if (listdocmts.size()>0)
@@ -2587,7 +2614,7 @@ void dlg_impressions::InsertDossier(int row)
             }
             if (listdocs.size()>0)
             {
-                requete = "insert into " TBL_JOINTURESDOCS " (idMetadocument, iddocument) VALUES ";
+                requete = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") VALUES ";
                 for (int k=0; k<listdocs.size(); k++)
                 {
                     requete += "(" + idmetadoc + ", " + listdocs.at(k) + ")";
@@ -3006,7 +3033,7 @@ void dlg_impressions::Remplir_TableWidget()
     int         i = 0;
 
     //Remplissage Table Documents
-    Datas::I()->documents->initListe();
+    Datas::I()->impressions->initListe();
     for (int i = 0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
@@ -3014,9 +3041,9 @@ void dlg_impressions::Remplir_TableWidget()
             upLine0->disconnect();
     }
     ui->DocupTableWidget->clearContents();
-    ui->DocupTableWidget->setRowCount(Datas::I()->documents->impressions()->size());
+    ui->DocupTableWidget->setRowCount(Datas::I()->impressions->impressions()->size());
 
-    foreach (Impression *doc, *Datas::I()->documents->impressions())
+    foreach (Impression *doc, *Datas::I()->impressions->impressions())
     {
         SetDocumentToRow(doc, i);
         i++;
@@ -3202,7 +3229,7 @@ void dlg_impressions::SupprimmDocument(int row)
     if (msgbox.clickedButton()  != &NoBouton)
     {
         db->SupprRecordFromTable(getDocumentFromRow(row)->id(),
-                                 "idDocument",
+                                 CP_ID_IMPRESSIONS,
                                  TBL_IMPRESSIONS,
                                  tr("Impossible de supprimer le document\n") + getDocumentFromRow(row)->resume() + tr("\n ... et je ne sais pas pourquoi..."));
         Remplir_TableWidget();
@@ -3235,12 +3262,12 @@ void dlg_impressions::SupprimmDossier(int row)
     if (msgbox.clickedButton()  != &NoBouton)
     {
         QStringList locklist;
-        locklist << TBL_DOSSIERSIMPRESSIONS << TBL_JOINTURESDOCS ;
+        locklist << TBL_DOSSIERSIMPRESSIONS << TBL_JOINTURESIMPRESSIONS ;
         if (db->SupprRecordFromTable( getMetaDocumentFromRow(row)->id(),
-                                      "idMetaDocument",
+                                      CP_ID_DOSSIERIMPRESSIONS,
                                       TBL_DOSSIERSIMPRESSIONS,
                                       tr("Impossible de suppprimer le dossier") + "\n" + getMetaDocumentFromRow(row)->resume() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
-            db->SupprRecordFromTable(getMetaDocumentFromRow(row)->id(), "idMetaDocument", TBL_JOINTURESDOCS);
+            db->SupprRecordFromTable(getMetaDocumentFromRow(row)->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3309,14 +3336,19 @@ void dlg_impressions::UpdateDocument(int row)
     }
 
     QString req =   "UPDATE " TBL_IMPRESSIONS
-            " SET TextDocument = '" + Utils::correctquoteSQL(ui->upTextEdit->toHtml())     + "'"
-            ", ResumeDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'";
-    if (ui->DocPubliccheckBox->isChecked())         req += " , DocPublic = 1";      else req += " , DocPublic = null";
-    if (ui->PrescriptioncheckBox->isChecked())      req += " , Prescription = 1";   else req += " , Prescription = null";
-    if (ui->DocEditcheckBox->isChecked())           req += " , Editable = 1";       else req += " , Editable = null";
-    if (ui->DocAdministratifcheckBox->isChecked())  req += " , Medical = 1";        else req += " , Medical = null";
-    req += " WHERE  idDocument = " + QString::number(getDocumentFromRow(line->Row())->id());
+            " SET " CP_TEXTE_IMPRESSIONS " = '" + Utils::correctquoteSQL(ui->upTextEdit->toHtml())     + "'"
+            ", " CP_RESUME_IMPRESSIONS " = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'";
+    req += ", " CP_DOCPUBLIC_IMPRESSIONS " = ";
+    req += (ui->DocPubliccheckBox->isChecked()?  "1" : "null");
+    req += ", " CP_PRESCRIPTION_IMPRESSIONS " = ";
+    req += (ui->PrescriptioncheckBox->isChecked()?  "1" : "null");
+    req += ", " CP_EDITABLE_IMPRESSIONS " = ";
+    req += (ui->DocEditcheckBox->isChecked()?  "1" : "null");
+    req += ", " CP_MEDICAL_IMPRESSIONS " = ";
+    req += (ui->DocAdministratifcheckBox->isChecked()?  "null" : "1");
+    req += " WHERE  " CP_ID_IMPRESSIONS " = " + QString::number(getDocumentFromRow(line->Row())->id());
     db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") + TBL_IMPRESSIONS);
+
     Remplir_TableWidget();
 
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3378,9 +3410,9 @@ void dlg_impressions::UpdateDossier(int row)
         return;
     }
 
-    db->SupprRecordFromTable(iddoss.toInt(), "idMetaDocument", TBL_JOINTURESDOCS);
+    db->SupprRecordFromTable(iddoss.toInt(), "idMetaDocument", TBL_JOINTURESIMPRESSIONS);
 
-    QString req     = "insert into " TBL_JOINTURESDOCS " (idmetadocument,iddocument) Values ";
+    QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
     for (int i=0; i<listid.size(); i++)
     {
         req += "(" + iddoss + ", " + listid.at(i) + ")";
@@ -3390,8 +3422,8 @@ void dlg_impressions::UpdateDossier(int row)
     db->StandardSQL(req);
 
     req =   "UPDATE " TBL_DOSSIERSIMPRESSIONS
-            " SET ResumeMetaDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'"
-            " WHERE idmetaDocument = " + iddoss;
+            " SET " CP_RESUME_DOSSIERIMPRESSIONS " = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'"
+            " WHERE " CP_ID_DOSSIERIMPRESSIONS " = " + iddoss;
     db->StandardSQL(req, tr("Erreur de mise à jour du dossier dans ") + TBL_DOSSIERSIMPRESSIONS);
 
     Remplir_TableWidget();
@@ -3424,9 +3456,9 @@ bool dlg_impressions::VerifDocumentPublic(int row, bool msg)
 {
     bool ok;
     int iddoc = getDocumentFromRow(row)->id();
-    QString req = "select idmetadocument, resumemetadocument from " TBL_DOSSIERSIMPRESSIONS
-                  " where idmetadocument in (select idmetadocument from " TBL_JOINTURESDOCS " where iddocument = " + QString::number(iddoc) +
-                  ") and public =1";
+    QString req = "select " CP_ID_DOSSIERIMPRESSIONS ", " CP_RESUME_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
+                  " where " CP_ID_DOSSIERIMPRESSIONS " in (select " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoc) +
+                  ") and " CP_PUBLIC_DOSSIERIMPRESSIONS " =1";
     QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
     if (listdossiers.size()>0)
     {
@@ -3454,8 +3486,8 @@ void dlg_impressions::VerifDossiers()
             UpCheckBox *DossCheck = Widg->findChildren<UpCheckBox*>().at(0);
             if (DossCheck->isChecked())
             {
-                QString req = "select idDocument from " TBL_JOINTURESDOCS
-                              " where idMetaDocument = " + QString::number(getMetaDocumentFromRow(j)->id());
+                QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
+                              " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(getMetaDocumentFromRow(j)->id());
                 QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
                 if (listdocs.size() > 0)
                 {
@@ -3492,9 +3524,9 @@ bool dlg_impressions::VerifDossierPublic(int row, bool msg)
 {
     bool ok;
     int iddossier = getMetaDocumentFromRow(row)->id();
-    QString req = "select iddocument, resumedocument from " TBL_IMPRESSIONS
-                  " where iddocument in (select iddocument from " TBL_JOINTURESDOCS " where idmetadocument = " + QString::number(iddossier) +
-                  ") and docpublic is null";
+    QString req = "select " CP_ID_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
+                  " where " CP_ID_IMPRESSIONS " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddossier) +
+                  ") and " CP_DOCPUBLIC_IMPRESSIONS " is null";
     QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
     if (listdocs.size()>0)
     {

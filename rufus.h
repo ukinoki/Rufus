@@ -227,6 +227,12 @@ private:
     void        VerifVerrouDossier();
 
 private:
+
+    Refraction *refautoref      = Q_NULLPTR;
+    Refraction *reffronto       = Q_NULLPTR;
+    Refraction *refacuite       = Q_NULLPTR;
+    Refraction *refprescription = Q_NULLPTR;
+    QMap<Refraction::Mesure, Refraction*> MapMesurePatient;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};

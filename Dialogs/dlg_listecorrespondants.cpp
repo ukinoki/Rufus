@@ -58,11 +58,11 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
 
-    connect(OKButton,           SIGNAL(clicked(bool)),                  this,   SLOT(reject()));
-    connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+    connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
+    connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_chercheuplineedit->setText(txt);
                                                                                                     ReconstruitTreeViewCorrespondants(false, txt);});
-    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,              this,   &dlg_listecorrespondants::ChoixButtonFrame);
+    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listecorrespondants::ChoixButtonFrame);
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);

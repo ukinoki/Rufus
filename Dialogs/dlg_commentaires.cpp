@@ -784,7 +784,7 @@ void dlg_commentaires::InsertCommentaire(int row)
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->toPlainText()) +
             "','" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(m_currentuser->id()) + ", null)";
-    db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + TBL_IMPRESSIONS);
+    db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + TBL_COMMENTAIRESLUNETTES);
     Remplir_TableView();
 
     if (ui->ComupTableWidget->rowCount() == 0)

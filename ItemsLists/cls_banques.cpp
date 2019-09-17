@@ -28,7 +28,7 @@ QMap<int, Banque *> *Banques::banques() const
 }
 
 /*!
- * \brief Banques::initListE_BANQUES
+ * \brief Banques::initListe
  * Charge l'ensemble des banques
  * et les ajoute à la classe Banques
  */

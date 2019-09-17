@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("15-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("18-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6334,10 +6334,10 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     {
         map_mesureFronto.clear();
         map_mesureAutoref.clear();
-        RegleRefracteur(Refraction::Fronto);
         RegleRefracteur(Refraction::Autoref);
         proc->SetDataAEnvoyerAuRefracteur(map_mesureFronto, map_mesureAutoref);
     }
+    RegleRefracteur(Refraction::Fronto);
 
     //5 - mise à jour du dossier en salle d'attente
     PatientEnCours *patcours = Q_NULLPTR;
@@ -8490,6 +8490,82 @@ void Rufus::RegleRefracteur(Refraction::Mesure mesure)
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
+    qDebug() << Datas::I()->refractions->refractions()->size();
+    QMapIterator<int, Refraction*> itref(*Datas::I()->refractions->refractions());
+
+    /*! On va créer 3 mesures
+     * une de fronto qui reprendra la dernière prescription de verres du patient
+     * une autoref qui reprendra la dernière mesure d'autoref du patient
+     * et une de subjectif qui reprendra la dernière mesure d'acuité du patient
+     Le refracteur sera réglé avec
+     * la mesure fronto en fronto et refraction finale
+     * la mesure autoref en autoref
+     * et la mesure acuité en refraction subjective
+     */
+    refautoref      = Q_NULLPTR;
+    reffronto       = Q_NULLPTR;
+    refacuite       = Q_NULLPTR;
+    refprescription = Q_NULLPTR;
+    MapMesurePatient.clear();
+    int id = 0;
+
+    /*! Autoref     on cherche à régler la position autoref du fronto - on utilise la dernière mesure d'autoref pour ça */
+    while (itref.hasNext()) {
+        itref.next();
+        if (itref.value()->typemesure() == Refraction::Autoref && itref.key() > id )
+            refautoref = const_cast<Refraction*>(itref.value());
+    }
+    if (refautoref == Q_NULLPTR)
+    {
+        refautoref = new Refraction;
+        refautoref->setmesure(mesure);
+    }
+    /*! Fronto      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
+                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+    itref.toFront();
+    id = 0;
+    while (itref.hasNext()) {
+        itref.next();
+        if (itref.value()->typemesure() == Refraction::Prescription && itref.value()->distance() != Refraction::Pres && itref.key() > id)
+            reffronto = const_cast<Refraction*>(itref.value());
+    }
+    if (reffronto == Q_NULLPTR)
+    {
+        itref.toFront();
+        id = 0;
+        while (itref.hasNext()) {
+            itref.next();
+            if (itref.value()->typemesure() == Refraction::Fronto && itref.value()->distance() != Refraction::Pres && itref.key() > id)
+                reffronto = const_cast<Refraction*>(itref.value());
+        }
+        if (reffronto == Q_NULLPTR)
+        {
+            reffronto = new Refraction;
+            reffronto->setmesure(mesure);
+        }
+    }
+    /*! Acuite      on cherche à régler la position subjectif du refracteur - on utilise la dernière mesure d'acuité pour ça
+                    * si on en n'a pas, on utilise la dernière mesure d'autoref
+                    * si on en n'a pas, on utilise la dernière mesure de fronto */
+    itref.toFront();
+    id = 0;
+    while (itref.hasNext()) {
+        itref.next();
+        if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres && itref.key() > id)
+            refacuite = const_cast<Refraction*>(itref.value());
+    }
+    if (refacuite == Q_NULLPTR)
+        refacuite = refautoref;
+    if (refacuite == Q_NULLPTR)
+        refacuite = reffronto;
+    refacuite->setmesure(Refraction::Acuite);
+
+    MapMesurePatient.insert(Refraction::Fronto, reffronto);
+    MapMesurePatient.insert(Refraction::Autoref, refautoref);
+    MapMesurePatient.insert(Refraction::Acuite, refacuite);
+    MapMesurePatient.insert(Refraction::Prescription, reffronto);
+    //proc->RegleRefracteur(MapMesurePatient);
+
     QMap<QString,QVariant>      Mesure;
     Mesure["AxeOD"]     = "180";
     Mesure["AxeOG"]     = "180";
@@ -8500,7 +8576,6 @@ void Rufus::RegleRefracteur(Refraction::Mesure mesure)
     Mesure["AddOD"]     = "+00.00";
     Mesure["AddOG"]     = "+00.00";
     Refraction *ref = Q_NULLPTR;
-    QMapIterator<int, Refraction*> itref(*Datas::I()->refractions->refractions());
     itref.toBack();
     while (itref.hasPrevious()) {
         itref.previous();

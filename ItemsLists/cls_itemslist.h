@@ -48,11 +48,11 @@ protected:
 * \brief ItemsList::addList
 * Cette fonction rajoute une liste d'items à un QMap
 * Les items dont l'id est déjà présent ne sont pas remplacés
-* \param Item::UPDATE upd - si un item est déjà présent, il n'est pas remplacé mais il est mis à jour si upd = Item::ForceUpdate)
+* \param Item::UPDATE upd - si l'id d'un item est déjà présent, il n'est pas remplacé mais il est mis à jour si upd = Item::Update)
 * \param m_map le QMap que l'on veut vider
 */
 template <typename K, typename T>
-void addList(QMap<K, T*> *m_map, QList<T*> *listitems, Item::UPDATE upd = Item::NoUpdate)
+void addList(QMap<K, T*> *m_map, QList<T*> *listitems, Item::UPDATE upd = Item::Update)
 {
     for (auto it = listitems->begin(); it != listitems->end(); )
     {

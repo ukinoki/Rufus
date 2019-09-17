@@ -43,17 +43,17 @@ void Impression::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "iddocument", m_id);
-    setDataInt(data, "iduser", m_iduser);
+    setDataInt(data, CP_ID_IMPRESSIONS, m_id);
+    setDataInt(data, CP_IDUSER_IMPRESSIONS, m_iduser);
 
-    setDataString(data, "texte", m_texte);
-    setDataString(data, "resume", m_resume);
-    setDataString(data, "conclusion", m_conclusion);
+    setDataString(data, CP_TEXTE_IMPRESSIONS, m_texte);
+    setDataString(data, CP_RESUME_IMPRESSIONS, m_resume);
+    setDataString(data, CP_CONCLUSION_IMPRESSIONS, m_conclusion);
 
-    setDataBool(data, "public", m_public);
-    setDataBool(data, "prescription", m_prescription);
-    setDataBool(data, "editable", m_editable);
-    setDataBool(data, "medical", m_medical);
+    setDataBool(data, CP_DOCPUBLIC_IMPRESSIONS, m_public);
+    setDataBool(data, CP_PRESCRIPTION_IMPRESSIONS, m_prescription);
+    setDataBool(data, CP_EDITABLE_IMPRESSIONS, m_editable);
+    setDataBool(data, CP_MEDICAL_IMPRESSIONS, m_medical);
     m_data = data;
 }
 
@@ -74,10 +74,10 @@ void DossierImpression::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "idmetadocument", m_dossierimpression);
-    setDataInt(data, "iduser", m_iduser);
-    setDataString(data, "texte", m_textedossier);
-    setDataString(data, "resume", m_resumedossier);
-    setDataBool(data, "public", m_public);
+    setDataInt(data, CP_ID_DOSSIERIMPRESSIONS, m_dossierimpression);
+    setDataInt(data, CP_IDUSER_DOSSIERIMPRESSIONS, m_iduser);
+    setDataString(data, CP_TEXTE_DOSSIERIMPRESSIONS, m_textedossier);
+    setDataString(data, CP_RESUME_DOSSIERIMPRESSIONS, m_resumedossier);
+    setDataBool(data, CP_PUBLIC_DOSSIERIMPRESSIONS, m_public);
 }
 

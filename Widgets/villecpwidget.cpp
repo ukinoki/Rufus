@@ -94,10 +94,10 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent, QString Son) :
     connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { ChercheCodePostal(false); emit villecpmodified(); });
     //connect(complListCP,        QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { qDebug()<<"CP Completer"; ChercheVille(false); emit villecpmodified(); });
     connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
-        connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::Slot_ChercheVille);
+        connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
     });
     connect(ui->VillelineEdit, &QLineEdit::textEdited, [=]{
-        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::Slot_ChercheCodePostal);
+        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
     });
 
 }
@@ -112,9 +112,9 @@ Villes *VilleCPWidget::villes() const
     return m_villes;
 }
 
-void VilleCPWidget::Slot_ChercheVille()
+void VilleCPWidget::StartChercheVille()
 {
-    disconnect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::Slot_ChercheVille);
+    disconnect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
     ChercheVille();
     emit villecpmodified();
 }
@@ -155,9 +155,9 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
         ui->VillelineEdit->setText(newValue);
 }
 
-void VilleCPWidget::Slot_ChercheCodePostal()
+void VilleCPWidget::StartChercheCodePostal()
 {
-    disconnect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::Slot_ChercheCodePostal);
+    disconnect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
     ChercheCodePostal();
     emit villecpmodified();
 }

@@ -54,7 +54,7 @@ public:
     Site *sitedetravail;
     Actes *actes;                       //!< la liste d'actes pour un patient
     Banques *banques;                   //!< toutes les banques
-    Impressions *documents;             //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Impressions *impressions;           //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     Comptes *comptes;                   //!< tous les comptes bancaires d'un utilisateur
     Correspondants *correspondants;     //!< Les correspondants
     Cotations *cotations;               //!< Les cotations

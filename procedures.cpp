@@ -1405,7 +1405,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->dlglayout()->insertWidget(0,TxtEdit);
 
     gAsk->AjouteLayButtons();
-    connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
+    connect(gAsk->OKButton, &QPushButton::clicked,  gAsk,       &QDialog::accept);
     if (ConnectAuSignal)
         connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
     gAsk->restoreGeometry(m_settings->value(geometry).toByteArray());
@@ -1432,7 +1432,7 @@ void Procedures::EditHtml(QString txt)
     gAsk->dlglayout()->insertWidget(0,lbl);
 
     gAsk->AjouteLayButtons();
-    connect(gAsk->OKButton,SIGNAL(clicked(bool)),gAsk,SLOT(accept()));
+    connect(gAsk->OKButton, &QPushButton::clicked,  gAsk, &QDialog::accept);
 
     gAsk->exec();
     delete gAsk;
@@ -3360,7 +3360,7 @@ bool Procedures::SetUserAllData(User *usr, Item::UPDATE upd)
 }
 
 /*!
- * \brief Procedures::Slot_CalcUserSuperviseur
+ * \brief Procedures::CalcUserSuperviseur
  *
  * Prépare le UpDialog en ajoutant si besoin une liste d'User
  * susceptible d'être le Parent
@@ -3441,7 +3441,7 @@ void Procedures::CalcUserSuperviseur()
 }
 
 /*!
- * \brief Procedures::Slot_CalcUserParent
+ * \brief Procedures::CalcUserParent
  * Prépare le UpDialog en ajoutant si besoin une liste d'User
  * susceptibles d'être le Parent
  *
@@ -4432,6 +4432,94 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 //        MesureRefracteurFinal["Type"] = "Final";
 //    }
     emit NouvMesureRefraction();
+}
+
+void Procedures::RegleRefracteur(QMap<Refraction::Mesure, Refraction*> maprefraction)
+{
+    /*! On va créer 3 mesures
+     * une de fronto qui reprendra la dernière prescription de verres du patient
+     * une autoref qui reprendra la dernière mesure d'autoref du patient
+     * et une de subjectif qui reprendra la dernière mesure d'acuité du patient
+     Le refracteur sera réglé avec
+     * la mesure fronto en fronto et refraction finale
+     * la mesure autoref en autoref
+     * et la mesure acuité en refraction subjective
+     */
+    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
+     || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    {
+        auto convertaxe = [&] (QString &finalvalue, int originvalue)
+        {
+            if (originvalue<10)
+                finalvalue = "  " + QString::number(originvalue);
+            else if (originvalue<100)
+                finalvalue = " " + QString::number(originvalue);
+            else
+                finalvalue = QString::number(originvalue);
+        };
+        auto convertdioptries = [&] (QString &finalvalue, double originvalue)
+        {
+            QString prefix ("");
+            if (originvalue > 0)
+            {
+                if (originvalue < 10)
+                    prefix = "+0";
+                else
+                    prefix = "+";
+                finalvalue = prefix + QString::number(originvalue,'f',2);
+            }
+            else if (originvalue < 0)
+            {
+                prefix = QString::number(originvalue,'f',2);
+                if (originvalue > -10)
+                    prefix.replace("-", "-0");
+                finalvalue = prefix;
+            }
+        };
+        QString AxeOD ("180"), AxeOG ("180");
+        QString AddOD ("+00.00"), AddOG ("+00.00");
+        QString SphereOD ("+00.00"), SphereOG ("+00.00");
+        QString CylindreOD ("+00.00"), CylindreOG ("+00.00");
+        QString SCAOD, SCAOG;
+        QString DataAEnvoyer;
+        QString prefix = "";
+        QByteArray DTRbuff;
+        DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
+
+        /*! réglage du fronto */
+        Refraction  *reffronto = maprefraction.find(Refraction::Prescription).value();
+
+        convertaxe(AxeOD, reffronto->axecylindreOD());
+        convertaxe(AxeOG, reffronto->axecylindreOG());
+        convertdioptries(SphereOD, reffronto->sphereOD());
+        convertdioptries(SphereOG, reffronto->sphereOG());
+        convertdioptries(CylindreOD, reffronto->cylindreOD());
+        convertdioptries(CylindreOG, reffronto->cylindreOG());
+
+        SCAOD       = SphereOD + CylindreOD + AxeOD;
+        SCAOG       = SphereOG + CylindreOG + AxeOG;
+        SCAOD.replace("+0","+ ");
+        SCAOD.replace("-0","- ");
+        SCAOG.replace("+0","+ ");
+        SCAOG.replace("-0","- ");
+        AddOD       = "+ " + QString::number(reffronto->addVPOD(),'f',2);
+        AddOG       = "+ " + QString::number(reffronto->addVPOG(),'f',2);
+        DTRbuff.append("DLM");                              //section fronto
+        DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+        DTRbuff.append(" R"+ SCAOD);                        //SD
+        DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+        DTRbuff.append(" L"+ SCAOG);                        //SD
+        DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+        DTRbuff.append("AR" + AddOD);                       //SD
+        DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+        DTRbuff.append("AL" + AddOG);                       //SD
+        if (reffronto->ecartIP() > 0)
+        {
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append("PD"+ QString::number(reffronto->ecartIP()));                        //SD
+        }
+        qDebug() << "RegleRefracteur(QMap<Refraction::Mesure, Refraction*> maprefraction) - Fronto - DTRBuff = " << DTRbuff;
+    }
 }
 
 void Procedures::RegleRefracteur()

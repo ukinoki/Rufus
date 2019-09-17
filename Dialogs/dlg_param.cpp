@@ -708,7 +708,7 @@ void dlg_param::ChoixFontpushButtonClicked()
         QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->font().toString()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->fontAttribut()
                                 + "' where idUser = " + QString::number(m_currentuser->id());
-        db->StandardSQL(fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
+        db->StandardSQL(fontrequete,"dlg_param::ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
 }

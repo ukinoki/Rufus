@@ -315,7 +315,7 @@ signals:
 
           Au chargement de Rufus, les données de Rufus.ini sont récupérées pour régler l'affichage des données dans  ui->Sauvegardeframe.
 
-          Une modification de l'emplacement de sauvegarde se fait par un clic sur le bouton ui->DirBackuppushButton qui va lancer le slot Slot_ModifDirBachup()
+          Une modification de l'emplacement de sauvegarde se fait par un clic sur le bouton ui->DirBackuppushButton qui va lancer la fonction ModifDirBachup()
                 * ce slot va créer le fichier RufusScriptBackup.sh et enregistrer l'emplacement de sauvegarde dans rufus.ini
           Le bouton ui->EffacePrgSauvupPushButton réinitialise la programmation en déclenchant la fonction EffaceAutoBackup():
                 * annule les données de programmation dans rufus.ini,`
@@ -470,6 +470,7 @@ public:
                                 int idPatient,
                                 int idActe,
                                 TypeMesure = All);                  // enregistre la mesure de réfraction
+    void                    RegleRefracteur(QMap<Refraction::Mesure, Refraction*> maprefraction);
     void                    SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString,QVariant> DataAutoref);
 
 private:

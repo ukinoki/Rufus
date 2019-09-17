@@ -34,7 +34,7 @@ Datas::Datas()
     cotations       = new Cotations();
     depenses        = new Depenses();
     docsexternes    = new DocsExternes();
-    documents       = new Impressions();
+    impressions       = new Impressions();
     lignespaiements = new LignesPaiements();
     metadocuments   = new DossiersImpressions();
     motifs          = new Motifs();

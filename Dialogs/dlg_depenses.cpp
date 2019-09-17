@@ -1614,8 +1614,8 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 *idfactarecuperer = static_cast<QStandardItemModel*>(listview->model())->item(listview->selectionModel()->selectedIndexes().at(0).row(),1)->text().toInt();;
                 dlg_ask->accept();
                 });
-            connect(creerecheancier,            &QPushButton::clicked,  dlg_ask, &UpDialog::accept);
-            connect(dlg_ask->CancelButton,   SIGNAL(clicked(bool)),  dlg_ask, SLOT(reject()));
+            connect(creerecheancier,         &QPushButton::clicked,  dlg_ask, &UpDialog::accept);
+            connect(dlg_ask->CancelButton,   &QPushButton::clicked,  dlg_ask, &UpDialog::reject);
 
             int a = dlg_ask->exec();
             int fact = *idfactarecuperer;

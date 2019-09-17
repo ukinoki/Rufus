@@ -51,7 +51,7 @@ private:
     QMap<int, User *>       *map_comptablesavecchequesenattente;
     User                    *m_currentuser;
     QString                 m_valeuravantchangement;
-    bool                    m_bloquecellchanged;  // ce flag sert à empêcher le déclenchement du slot cellchanged sur les tables quand on utilise certianes fonctions
+    bool                    m_bloquecellchanged;  // ce flag sert à empêcher le déclenchement du signal cellchanged sur les tables quand on utilise certianes fonctions
 
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;

@@ -418,7 +418,7 @@ void dlg_remisecheques::ItemChequeARemettreClicked(int A, int B)
             UpdateidRec = "update " TBL_RECETTESSPECIALES " set EnAttente = 1 where idRecette = " + idRec;
         else
             UpdateidRec = "update " TBL_RECETTES " set EnAttente = 1 where idRecette = " + idRec;
-        db->StandardSQL(UpdateidRec, "void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
+        db->StandardSQL(UpdateidRec, "void dlg_remisecheques::ItemChequeARemettreClicked(int A, int B)");
     }
 }
 
@@ -497,7 +497,7 @@ void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)
             UpdateidRec = "update " TBL_RECETTESSPECIALES " set EnAttente = null where idRecette = " + idRec;
         else
             UpdateidRec = "update " TBL_RECETTES " set EnAttente = null where idRecette = " + idRec;
-        db->StandardSQL(UpdateidRec, "void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
+        db->StandardSQL(UpdateidRec, "void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)");
     }
 }
 

@@ -930,25 +930,25 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
 QList<Impression*> DataBase::loadImpressions()
 {
     QList<Impression*> impressions;
-    QString req = "Select idDocument, TextDocument, ResumeDocument, ConclusionDocument, idUser,"
-                  " DocPublic, Prescription, Editable, Medical from " TBL_IMPRESSIONS
-                  " WHERE (idUser = " + QString::number(getUserConnected()->id()) + " Or (DocPublic = 1 and iduser <> " + QString::number(getUserConnected()->id()) + "))"
-                  " ORDER BY ResumeDocument";
+    QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
+                  CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
+                  " WHERE (" CP_IDUSER_IMPRESSIONS " = " + QString::number(getUserConnected()->id()) + " Or (" CP_DOCPUBLIC_IMPRESSIONS " = 1 and " CP_IDUSER_IMPRESSIONS " <> " + QString::number(getUserConnected()->id()) + "))"
+                  " ORDER BY " CP_RESUME_IMPRESSIONS;
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return impressions;
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["iddocument"] = doclist.at(i).at(0).toInt();
-        jData["texte"] = doclist.at(i).at(1).toString();
-        jData["resume"] = doclist.at(i).at(2).toString();
-        jData["conclusion"] = doclist.at(i).at(3).toString();
-        jData["iduser"] = doclist.at(i).at(4).toInt();
-        jData["public"] = (doclist.at(i).at(5).toInt()==1);
-        jData["prescription"] = (doclist.at(i).at(6).toInt()==1);
-        jData["editable"] = (doclist.at(i).at(7).toInt()==1);
-        jData["medical"] = (doclist.at(i).at(8).toInt()==1);
+        jData[CP_ID_IMPRESSIONS] = doclist.at(i).at(0).toInt();
+        jData[CP_TEXTE_IMPRESSIONS] = doclist.at(i).at(1).toString();
+        jData[CP_RESUME_IMPRESSIONS] = doclist.at(i).at(2).toString();
+        jData[CP_CONCLUSION_IMPRESSIONS] = doclist.at(i).at(3).toString();
+        jData[CP_IDUSER_IMPRESSIONS] = doclist.at(i).at(4).toInt();
+        jData[CP_DOCPUBLIC_IMPRESSIONS] = (doclist.at(i).at(5).toInt()==1);
+        jData[CP_PRESCRIPTION_IMPRESSIONS] = (doclist.at(i).at(6).toInt()==1);
+        jData[CP_EDITABLE_IMPRESSIONS ] = (doclist.at(i).at(7).toInt()==1);
+        jData[CP_MEDICAL_IMPRESSIONS] = (doclist.at(i).at(8).toInt()==1);
         Impression *doc = new Impression(jData);
         if (doc != Q_NULLPTR)
             impressions << doc;
@@ -962,30 +962,31 @@ QList<Impression*> DataBase::loadImpressions()
 QList<DossierImpression*> DataBase::loadDossiersImpressions()
 {
     QList<DossierImpression*> dossiers;
-    QString     req =  "SELECT ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument"
+    QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
-                       " WHERE idUser = " + QString::number(getUserConnected()->id());
+                       " WHERE " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(getUserConnected()->id());
                 req += " UNION \n";
-                req += "select ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument from " TBL_DOSSIERSIMPRESSIONS
-                       " where idMetaDocument not in\n"
-                       " (select met.idMetaDocument from " TBL_DOSSIERSIMPRESSIONS " as met, "
-                       TBL_JOINTURESDOCS " as joi, "
+                req += "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_ID_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
+                       " where " CP_IDUSER_DOSSIERIMPRESSIONS " not in\n"
+                       " (select met." CP_ID_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " as met, "
+                       TBL_JOINTURESIMPRESSIONS " as joi, "
                        TBL_IMPRESSIONS " as doc\n"
-                       " where joi.idmetadocument = met.idMetaDocument\n"
-                       " and joi.idDocument = doc.iddocument\n"
-                       " and doc.docpublic is null)\n";
-                req += " ORDER BY ResumeMetaDocument;";
+                       " where joi." CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = met." CP_ID_DOSSIERIMPRESSIONS "\n"
+                       " and joi." CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = doc." CP_ID_IMPRESSIONS "\n"
+                       " and doc." CP_DOCPUBLIC_IMPRESSIONS " is null)\n";
+                req += " ORDER BY " CP_RESUME_DOSSIERIMPRESSIONS ";";
+//    qDebug() << req;
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return dossiers;
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["idmetadocument"] = doclist.at(i).at(1).toInt();
-        jData["texte"] = doclist.at(i).at(4).toString();
-        jData["resume"] = doclist.at(i).at(0).toString();
-        jData["iduser"] = doclist.at(i).at(2).toInt();
-        jData["public"] = (doclist.at(i).at(3).toInt()==1);
+        jData[CP_ID_DOSSIERIMPRESSIONS] = doclist.at(i).at(1).toInt();
+        jData[CP_TEXTE_DOSSIERIMPRESSIONS] = doclist.at(i).at(4).toString();
+        jData[CP_RESUME_DOSSIERIMPRESSIONS] = doclist.at(i).at(0).toString();
+        jData[CP_IDUSER_DOSSIERIMPRESSIONS] = doclist.at(i).at(2).toInt();
+        jData[CP_PUBLIC_DOSSIERIMPRESSIONS] = (doclist.at(i).at(3).toInt()==1);
         DossierImpression *metadoc = new DossierImpression(jData);
         if (metadoc != Q_NULLPTR)
             dossiers << metadoc;

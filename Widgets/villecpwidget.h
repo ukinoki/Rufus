@@ -48,9 +48,9 @@ private:
     QString         m_alarme;
     Villes          *m_villes;
 
-    void            Slot_ChercheVille();
+    void            StartChercheVille();
     void            ChercheVille(bool confirmerleCP = true);
-    void            Slot_ChercheCodePostal();
+    void            StartChercheCodePostal();
     QString         ConfirmeVille(QString ville);
     void            ChercheCodePostal(bool confirmerlaville = true);
 

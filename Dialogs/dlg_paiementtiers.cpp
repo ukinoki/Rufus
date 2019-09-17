@@ -133,8 +133,8 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (t_timerrecord, &QTimer::timeout, this, &dlg_paiementtiers::AfficheRecord);
 
     ui->VerrouilleParlabel->setVisible(false);
-    t_timerafficheacteverrouilleclignotant = new QTimer();
-    t_timerafficheacteverrouille = new QTimer();
+    t_timerafficheacteverrouilleclignotant = new QTimer(this);
+    t_timerafficheacteverrouille = new QTimer(this);
     QList<UpPushButton *> allUpButtons = ui->Buttonswidget->findChildren<UpPushButton *>();
     for (int n = 0; n <  allUpButtons.size(); n++)
     {

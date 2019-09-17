@@ -45,7 +45,7 @@ void Impressions::initListe()
 {
     QList<Impression *> listimpressions = DataBase::I()->loadImpressions();
     epurelist(map_impressions, &listimpressions);
-    addList(map_impressions, &listimpressions);
+    addList(map_impressions, &listimpressions, Item::Update);
 }
 
 

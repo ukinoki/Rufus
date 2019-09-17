@@ -19,6 +19,23 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Refraction::Refraction(QJsonObject data, QObject *parent) : Item(parent)
 {
+    if (data == QJsonObject())
+    {
+        m_data[CP_SPHEREOD_REFRACTIONS]           = 0;
+        m_data[CP_CYLINDREOD_REFRACTIONS]         = 0;
+        m_data[CP_AXECYLOD_REFRACTIONS]           = 0;
+        m_data[CP_ADDVPOD_REFRACTIONS]            = 0;
+        m_data[CP_PRISMEOD_REFRACTIONS]           = 0;
+        m_data[CP_BASEPRISMEOD_REFRACTIONS]       = 0;
+        m_data[CP_RYSEROD_REFRACTIONS]            = 0;
+        m_data[CP_SPHEREOG_REFRACTIONS]           = 0;
+        m_data[CP_CYLINDREOG_REFRACTIONS]         = 0;
+        m_data[CP_AXECYLOG_REFRACTIONS]           = 0;
+        m_data[CP_ADDVPOG_REFRACTIONS]            = 0;
+        m_data[CP_PRISMEOG_REFRACTIONS]           = 0;
+        m_data[CP_BASEPRISMEOG_REFRACTIONS]       = 0;
+        m_data[CP_RYSEROG_REFRACTIONS]            = 0;
+    }
     setData(data);
 }
 void Refraction::setData(QJsonObject data)
@@ -121,9 +138,28 @@ QString Refraction::ConvertMesure(Refraction::Mesure Mesure)
     switch (Mesure) {
     case Fronto:       return "P";
     case Autoref:      return "A";
-    case Prescription: return "0";
+    case Prescription: return "O";
     case Acuite:       return "R";
     default: return "";
     }
+}
+
+void Refraction::setdataclean(Mesure mesure)
+{
+    m_data[CP_SPHEREOD_REFRACTIONS]           = 0;
+    m_data[CP_CYLINDREOD_REFRACTIONS]         = 0;
+    m_data[CP_AXECYLOD_REFRACTIONS]           = 0;
+    m_data[CP_ADDVPOD_REFRACTIONS]            = 0;
+    m_data[CP_PRISMEOD_REFRACTIONS]           = 0;
+    m_data[CP_BASEPRISMEOD_REFRACTIONS]       = 0;
+    m_data[CP_RYSEROD_REFRACTIONS]            = 0;
+    m_data[CP_SPHEREOG_REFRACTIONS]           = 0;
+    m_data[CP_CYLINDREOG_REFRACTIONS]         = 0;
+    m_data[CP_AXECYLOG_REFRACTIONS]           = 0;
+    m_data[CP_ADDVPOG_REFRACTIONS]            = 0;
+    m_data[CP_PRISMEOG_REFRACTIONS]           = 0;
+    m_data[CP_BASEPRISMEOG_REFRACTIONS]       = 0;
+    m_data[CP_RYSEROG_REFRACTIONS]            = 0;
+    m_data[CP_TYPEMESURE_REFRACTIONS]         = ConvertMesure(mesure);
 }
 
