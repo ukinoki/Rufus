@@ -621,44 +621,6 @@ void Utils::cleanfolder(const QString DirPath)
 double Utils::mmToInches(double mm )  { return mm * 0.039370147; }
 
 
-//---------------------------------------------------------------------------------
-// Calcul de la formule de refraction
-//---------------------------------------------------------------------------------
-QString Utils::CalculeFormule(QMap<QString,QVariant> Mesure,  QString Cote)
-{
-        QString mSphere;
-        QString mCyl;
-        QString mAxe;
-        QString mAdd;
-        if (Cote == "D")
-        {
-            mSphere   = PrefixePlus(Mesure["SphereOD"].toDouble());
-            mCyl      = PrefixePlus(Mesure["CylOD"].toDouble());
-            mAxe      = QString::number(Mesure["AxeOD"].toInt());
-            mAdd      = PrefixePlus(Mesure["AddOD"].toDouble());
-        }
-        else if (Cote == "G")
-        {
-            mSphere   = PrefixePlus(Mesure["SphereOG"].toDouble());
-            mCyl      = PrefixePlus(Mesure["CylOG"].toDouble());
-            mAxe      = QString::number(Mesure["AxeOG"].toInt());
-            mAdd      = PrefixePlus(Mesure["AddOG"].toDouble());
-        }
-        else return "";
-        QString Resultat;
-        if (QLocale().toDouble(mCyl) != 0.00 && QLocale().toDouble(mSphere) != 0.00)
-            Resultat = mSphere + " (" + mCyl + QObject::tr(" à ") + mAxe + "°)" ;
-        if (QLocale().toDouble(mCyl) == 0.00 && QLocale().toDouble(mSphere) != 0.00)
-            Resultat = mSphere ;
-        if (QLocale().toDouble(mCyl) != 0.00 && QLocale().toDouble(mSphere) == 0.00)
-            Resultat = mCyl + QObject::tr(" à ") + mAxe + "°" ;
-        if (QLocale().toDouble(mCyl) == 0.00 && QLocale().toDouble(mSphere) == 0.00)
-            Resultat = QObject::tr("plan");
-        if (QLocale().toDouble(mAdd) > 0.00)
-            Resultat += " add." + mAdd + " VP" ;
-        return Resultat;
-}
-
 QString Utils::PrefixePlus(double Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
 {
     if  (Dioptr == 0.0)

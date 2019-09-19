@@ -111,8 +111,6 @@ public:
     static double                   mmToInches(double mm);
 
     //! refraction
-    static QString                  CalculeFormule(QMap<QString,QVariant>  Donnees,
-                                                  QString Cote);                   //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     static QString                  PrefixePlus(double);                           //! convertit en QString signé + ou - les valeurs QDouble de dioptries
 
     //! SQL
