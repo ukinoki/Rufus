@@ -40,6 +40,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_villes.h"
 #include "cls_sites.h"
 #include "cls_recettes.h"
+#include "cls_shortrefraction.h"
 
 class Datas : public QObject
 {

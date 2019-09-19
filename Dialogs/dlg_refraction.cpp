@@ -1866,8 +1866,8 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
         ui->AxeCylindreOD->setValue(            ref->axecylindreOD());
         if (ref->avlOD() != "")
             wdg_AVLOD->setText(                 ref->avlOD());
-        if (ref->avpPOD() != "")
-            wdg_AVPOD->setText(                 ref->avpPOD());
+        if (ref->avpOD() != "")
+            wdg_AVPOD->setText(                 ref->avpOD());
         ui->PrismeOD->setValue(                 ref->prismeOD());
         ui->BasePrismeOD->setValue(             ref->baseprismeOD());
         ui->PressonODCheckBox->setChecked(      ref->haspressonOD());
@@ -1891,8 +1891,8 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
         ui->AxeCylindreOG->setValue(            ref->axecylindreOG());
         if (ref->avlOG() != "")
             wdg_AVLOG->setText(                 ref->avlOG());
-        if (ref->avpPOG() != "")
-            wdg_AVPOG->setText(                 ref->avpPOG());
+        if (ref->avpOG() != "")
+            wdg_AVPOG->setText(                 ref->avpOG());
         ui->PrismeOG->setValue(                 ref->prismeOG());
         ui->BasePrismeOG->setValue(             ref->baseprismeOG());
         ui->PressonOGCheckBox->setChecked(      ref->haspressonOG());
@@ -3815,15 +3815,15 @@ QString dlg_refraction::Valeur(QString StringValeur)
 void dlg_refraction::AfficheMesureFronto()
 {
     PorteRadioButton_Clicked();
-    if (proc->DonneesFronto().isEmpty())
+    if (proc->DonneesFronto() == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du frontofocomètre"));
         return;
     }
-    QMap<QString,QVariant>  MesuresFronto = proc->DonneesFronto();
+    ShortRefraction *MesureFronto = proc->DonneesFronto();
 
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (MesuresFronto["AddOD"].toDouble()>0 || MesuresFronto["AddOG"].toDouble()>0)
+    if (MesureFronto->addVPOD() >  0 || MesureFronto->addVPOG() > 0)
     {
         if (!ui->V2RadioButton->isChecked())
         {
@@ -3844,15 +3844,15 @@ void dlg_refraction::AfficheMesureFronto()
         }
     }
     // OEIL DROIT -----------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOD, MesuresFronto["SphereOD"].toDouble());
-    Init_Value_DoubleSpin(ui->CylindreOD, MesuresFronto["CylOD"].toDouble());
-    ui->AxeCylindreOD   ->setValue(MesuresFronto["AxeOD"].toInt());
-    ui->AddVPOD         ->setValue(MesuresFronto["AddOD"].toDouble());
+    Init_Value_DoubleSpin(ui->SphereOD, MesureFronto->sphereOD());
+    Init_Value_DoubleSpin(ui->CylindreOD, MesureFronto->cylindreOD());
+    ui->AxeCylindreOD   ->setValue(MesureFronto->axecylindreOD());
+    ui->AddVPOD         ->setValue(MesureFronto->addVPOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, MesuresFronto["SphereOG"].toDouble());
-    Init_Value_DoubleSpin(ui->CylindreOG, MesuresFronto["CylOG"].toDouble());
-    ui->AxeCylindreOG   ->setValue(MesuresFronto["AxeOG"].toInt());
-    ui->AddVPOG         ->setValue(MesuresFronto["AddOG"].toDouble());
+    Init_Value_DoubleSpin(ui->SphereOG, MesureFronto->sphereOG());
+    Init_Value_DoubleSpin(ui->CylindreOG, MesureFronto->cylindreOG());
+    ui->AxeCylindreOG   ->setValue(MesureFronto->axecylindreOG());
+    ui->AddVPOG         ->setValue(MesureFronto->addVPOG());
 }
 
 //-----------------------------------------------------------------------------------------
@@ -3860,19 +3860,13 @@ void dlg_refraction::AfficheMesureFronto()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureAutoref()
 {
-    QMap<QString,QVariant>  MesureAutoref = proc->DonneesAutoref();
+    ShortRefraction  *MesureAutoref = proc->DonneesAutoref();
     QMap<QString,QVariant>  MesureKerato  = proc->DonneesKerato();
-    if (MesureAutoref.size()==0 && MesureKerato.size()==0)
+    if (MesureAutoref == Q_NULLPTR && MesureKerato.size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues de l'autorefractomètre"));
         return;
     }
-    QString mSphereOD   = MesureAutoref["SphereOD"].toString();
-    QString mCylOD      = MesureAutoref["CylOD"].toString();
-    QString mAxeOD      = MesureAutoref["AxeOD"].toString();
-    QString mSphereOG   = MesureAutoref["SphereOG"].toString();
-    QString mCylOG      = MesureAutoref["CylOG"].toString();
-    QString mAxeOG      = MesureAutoref["AxeOG"].toString();
     QString mK1OD       = MesureKerato["K1OD"].toString();
     QString mK2OD       = MesureKerato["K2OD"].toString();
     int     mAxeKOD     = MesureKerato["AxeKOD"].toInt();
@@ -3887,13 +3881,13 @@ void dlg_refraction::AfficheMesureAutoref()
     AutorefRadioButton_Clicked();
 
     // OEIL DROIT -----------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOD, mSphereOD.toDouble());
-    Init_Value_DoubleSpin(ui->CylindreOD, mCylOD.toDouble());
-    ui->AxeCylindreOD       ->setValue(mAxeOD.toInt());
+    Init_Value_DoubleSpin(ui->SphereOD, MesureAutoref->sphereOD());
+    Init_Value_DoubleSpin(ui->CylindreOD, MesureAutoref->cylindreOD());
+    ui->AxeCylindreOD       ->setValue(MesureAutoref->axecylindreOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, mSphereOG.toDouble());
-    Init_Value_DoubleSpin(ui->CylindreOG, mCylOG.toDouble());
-    ui->AxeCylindreOG       ->setValue(mAxeOG.toInt());
+    Init_Value_DoubleSpin(ui->SphereOG, MesureAutoref->sphereOG());
+    Init_Value_DoubleSpin(ui->CylindreOG, MesureAutoref->cylindreOG());
+    ui->AxeCylindreOG       ->setValue(MesureAutoref->axecylindreOG());
     // OEIL DROIT -----------------------------------------------------------------------------
     if (mK1OD != "")
     {
@@ -3917,52 +3911,52 @@ void dlg_refraction::AfficheMesureAutoref()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureRefracteur()
 {
-    QMap<QString,QVariant>  MesuresRefracteur;
-    if ( proc->DonneesRefracteurFin().isEmpty())
+    ShortRefraction*  MesureRefracteur = Q_NULLPTR;
+    if ( proc->DonneesRefracteurFin() == Q_NULLPTR)
     {
         RefractionRadioButton_Clicked();
         m_mode = Refraction::Acuite;
-        MesuresRefracteur = proc->DonneesRefracteurSubj();
+        MesureRefracteur = proc->DonneesRefracteurSubj();
     }
     else
     {
         PrescriptionRadionButton_clicked();
         m_mode = Refraction::Prescription;
-        MesuresRefracteur = proc->DonneesRefracteurFin();
+        MesureRefracteur = proc->DonneesRefracteurFin();
     }
-    if (MesuresRefracteur.isEmpty())
+    if (MesureRefracteur == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du refracteur"));
         return;
     }
 
-    Init_Value_DoubleSpin(ui->SphereOD, MesuresRefracteur["SphereOD"].toDouble());
-    Init_Value_DoubleSpin(ui->CylindreOD, MesuresRefracteur["CylOD"].toDouble());
-    ui->AxeCylindreOD   ->setValue(MesuresRefracteur["AxeOD"].toInt());
-    ui->AddVPOD->setValue(MesuresRefracteur["AddOD"].toDouble());
+    Init_Value_DoubleSpin(ui->SphereOD, MesureRefracteur->sphereOD());
+    Init_Value_DoubleSpin(ui->CylindreOD, MesureRefracteur->cylindreOD());
+    ui->AxeCylindreOD   ->setValue(MesureRefracteur->axecylindreOD());
+    ui->AddVPOD->setValue(MesureRefracteur->addVPOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, MesuresRefracteur["SphereOG"].toDouble());
-    Init_Value_DoubleSpin(ui->CylindreOG, MesuresRefracteur["CylOG"].toDouble());
-    ui->AxeCylindreOG   ->setValue(MesuresRefracteur["AxeOG"].toInt());
-    ui->AddVPOG->setValue(MesuresRefracteur["AddOG"].toDouble());
-    QString AVLOD = QString::number(MesuresRefracteur["AVLOD"].toDouble()*10) + "/10";
-    QString AVLOG = QString::number(MesuresRefracteur["AVLOG"].toDouble()*10) + "/10";
+    Init_Value_DoubleSpin(ui->SphereOG, MesureRefracteur->sphereOG());
+    Init_Value_DoubleSpin(ui->CylindreOG, MesureRefracteur->cylindreOG());
+    ui->AxeCylindreOG   ->setValue(MesureRefracteur->axecylindreOG());
+    ui->AddVPOG->setValue(MesureRefracteur->addVPOG());
+    QString AVLOD = QString::number(MesureRefracteur->avlOD().toDouble()*10) + "/10";
+    QString AVLOG = QString::number(MesureRefracteur->avlOG().toDouble()*10) + "/10";
 
     switch (m_mode) {
     case Refraction::Acuite:
     {
        ui->AVLODupComboBox->setCurrentText(AVLOD);
-        ui->AVPODupComboBox->setCurrentText(MesuresRefracteur["AVPOD"].toString());
+        ui->AVPODupComboBox->setCurrentText(MesureRefracteur->avpOD());
         ui->AVLOGupComboBox->setCurrentText(AVLOG);
-        ui->AVPOGupComboBox->setCurrentText(MesuresRefracteur["AVPOG"].toString());
-        ui->V2RadioButton->setChecked(MesuresRefracteur["AddOD"].toDouble()>0 || MesuresRefracteur["AddOG"].toDouble()>0);
+        ui->AVPOGupComboBox->setCurrentText(MesureRefracteur->avpOG());
+        ui->V2RadioButton->setChecked(MesureRefracteur->addVPOD() > 0 || MesureRefracteur->addVPOG() > 0);
         ui->VPRadioButton->setChecked(false);
-        ui->VLRadioButton->setChecked(MesuresRefracteur["AddOD"].toDouble()==0.0 && MesuresRefracteur["AddOG"].toDouble()==0.0);
+        ui->VLRadioButton->setChecked(MesureRefracteur->addVPOD() == 0.0 && MesureRefracteur->addVPOG() == 0.0);
         RegleAffichageFiche();
         break;
     }
     case Refraction::Prescription:
-        ui->V2PrescritRadioButton->setChecked(MesuresRefracteur["AddOD"].toDouble()>0 || MesuresRefracteur["AddOG"].toDouble()>0);
+        ui->V2PrescritRadioButton->setChecked(MesureRefracteur->addVPOD() > 0 || MesureRefracteur->addVPOG() > 0);
         VPrescritRadioButton_Clicked();
         break;
     default:

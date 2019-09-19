@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("19-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -43,7 +43,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         int     b = 0;
         bool    a;
         if (proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString()    == "YES")       b += 1;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString()    == "YES")       b += 1;
+        if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString()    == "YES") b += 1;
         if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString()  == "YES")       b += 1;
         a = (b>1);
         if (b==1)
@@ -6332,12 +6332,9 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     if (proc->PortRefracteur()!=Q_NULLPTR)
     {
-        map_mesureFronto.clear();
-        map_mesureAutoref.clear();
-        RegleRefracteur(Refraction::Autoref);
-        proc->SetDataAEnvoyerAuRefracteur(map_mesureFronto, map_mesureAutoref);
+        SetDatasRefracteur();
+        proc->SetDataAEnvoyerAuRefracteur(shortref_autoref, shortref_fronto);
     }
-    RegleRefracteur(Refraction::Fronto);
 
     //5 - mise à jour du dossier en salle d'attente
     PatientEnCours *patcours = Q_NULLPTR;
@@ -8486,7 +8483,7 @@ void    Rufus::RefractionMesure()
     delete Dlg_Refraction;
 }
 
-void Rufus::RegleRefracteur(Refraction::Mesure mesure)
+void Rufus::SetDatasRefracteur()
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
@@ -8502,203 +8499,187 @@ void Rufus::RegleRefracteur(Refraction::Mesure mesure)
      * la mesure autoref en autoref
      * et la mesure acuité en refraction subjective
      */
-    refautoref      = Q_NULLPTR;
-    reffronto       = Q_NULLPTR;
-    refacuite       = Q_NULLPTR;
-    refprescription = Q_NULLPTR;
-    MapMesurePatient.clear();
-    int id = 0;
+    shortref_autoref      = Q_NULLPTR;
+    shortref_fronto       = Q_NULLPTR;
+    shortref_acuite       = Q_NULLPTR;
 
     /*! Autoref     on cherche à régler la position autoref du fronto - on utilise la dernière mesure d'autoref pour ça */
     while (itref.hasNext()) {
         itref.next();
-        if (itref.value()->typemesure() == Refraction::Autoref && itref.key() > id )
-            refautoref = const_cast<Refraction*>(itref.value());
+        if (itref.value()->typemesure() == Refraction::Autoref)
+            shortref_autoref = new ShortRefraction(const_cast<Refraction*>(itref.value()));
     }
-    if (refautoref == Q_NULLPTR)
-    {
-        refautoref = new Refraction;
-        refautoref->setmesure(mesure);
-    }
+    if (shortref_autoref == Q_NULLPTR)
+        shortref_autoref = new ShortRefraction;
     /*! Fronto      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
     itref.toFront();
-    id = 0;
     while (itref.hasNext()) {
         itref.next();
-        if (itref.value()->typemesure() == Refraction::Prescription && itref.value()->distance() != Refraction::Pres && itref.key() > id)
-            reffronto = const_cast<Refraction*>(itref.value());
+        if (itref.value()->typemesure() == Refraction::Prescription && itref.value()->distance() != Refraction::Pres)
+            shortref_fronto = new ShortRefraction(const_cast<Refraction*>(itref.value()));
     }
-    if (reffronto == Q_NULLPTR)
+    if (shortref_fronto == Q_NULLPTR)
     {
         itref.toFront();
-        id = 0;
         while (itref.hasNext()) {
             itref.next();
-            if (itref.value()->typemesure() == Refraction::Fronto && itref.value()->distance() != Refraction::Pres && itref.key() > id)
-                reffronto = const_cast<Refraction*>(itref.value());
+            if (itref.value()->typemesure() == Refraction::Fronto && itref.value()->distance() != Refraction::Pres)
+                shortref_fronto = new ShortRefraction(const_cast<Refraction*>(itref.value()));
         }
-        if (reffronto == Q_NULLPTR)
-        {
-            reffronto = new Refraction;
-            reffronto->setmesure(mesure);
-        }
+        if (shortref_fronto == Q_NULLPTR)
+            shortref_fronto = new ShortRefraction;
     }
     /*! Acuite      on cherche à régler la position subjectif du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on utilise la dernière mesure d'autoref
                     * si on en n'a pas, on utilise la dernière mesure de fronto */
     itref.toFront();
-    id = 0;
     while (itref.hasNext()) {
         itref.next();
-        if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres && itref.key() > id)
-            refacuite = const_cast<Refraction*>(itref.value());
+        if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres)
+            shortref_acuite = new ShortRefraction(const_cast<Refraction*>(itref.value()));
     }
-    if (refacuite == Q_NULLPTR)
-        refacuite = refautoref;
-    if (refacuite == Q_NULLPTR)
-        refacuite = reffronto;
-    refacuite->setmesure(Refraction::Acuite);
+    if (shortref_acuite == Q_NULLPTR)
+        shortref_acuite = shortref_autoref;
+    if (shortref_acuite == Q_NULLPTR)
+        shortref_acuite = shortref_fronto;
+    shortref_acuite->setmesure(Refraction::Acuite);
 
-    MapMesurePatient.insert(Refraction::Fronto, reffronto);
-    MapMesurePatient.insert(Refraction::Autoref, refautoref);
-    MapMesurePatient.insert(Refraction::Acuite, refacuite);
-    MapMesurePatient.insert(Refraction::Prescription, reffronto);
-    //proc->RegleRefracteur(MapMesurePatient);
+//    return;
+//    QMap<QString,QVariant>      Mesure;
+//    Mesure["AxeOD"]     = "180";
+//    Mesure["AxeOG"]     = "180";
+//    Mesure["SphereOD"]  = "+00.00";
+//    Mesure["SphereOG"]  = "+00.00";
+//    Mesure["CylOD"]     = "+00.00";
+//    Mesure["CylOG"]     = "+00.00";
+//    Mesure["AddOD"]     = "+00.00";
+//    Mesure["AddOG"]     = "+00.00";
+//    Refraction *ref = Q_NULLPTR;
 
-    QMap<QString,QVariant>      Mesure;
-    Mesure["AxeOD"]     = "180";
-    Mesure["AxeOG"]     = "180";
-    Mesure["SphereOD"]  = "+00.00";
-    Mesure["SphereOG"]  = "+00.00";
-    Mesure["CylOD"]     = "+00.00";
-    Mesure["CylOG"]     = "+00.00";
-    Mesure["AddOD"]     = "+00.00";
-    Mesure["AddOG"]     = "+00.00";
-    Refraction *ref = Q_NULLPTR;
-    itref.toBack();
-    while (itref.hasPrevious()) {
-        itref.previous();
-        if (itref.value()->distance() != Refraction::Pres)
-        {
-                if (mesure == Refraction::Autoref)
-                {
-                    if (itref.value()->typemesure() == Refraction::Acuite)
-                        ref= const_cast<Refraction*>(itref.value());
-                }
-                else if (mesure == Refraction::Fronto)
-                {
-                    if (itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto)
-                        ref= const_cast<Refraction*>(itref.value());
-                }
-                if (ref != Q_NULLPTR)
-                    itref.toFront();
-        }
-    }
-    if (ref == Q_NULLPTR)
-        return;
-    QString prefix = "";
-    // Les axes
-    if (ref->cylindreOD() != 0.0)
-    {
-        if (ref->axecylindreOD() < 10)
-            prefix = "  ";
-        else if (ref->axecylindreOD() < 100)
-            prefix = " ";
-        Mesure["AxeOD"] = prefix + QString::number(ref->axecylindreOD());
-    }
-    prefix = "";
-    if (ref->cylindreOG() != 0.0)
-    {
-        if (ref->axecylindreOG() < 10)
-            prefix = "  ";
-        else if (ref->axecylindreOG() < 100)
-            prefix = " ";
-        Mesure["AxeOG"] = prefix + QString::number(ref->axecylindreOG());
-    }
+//    itref.toBack();
+//    while (itref.hasPrevious()) {
+//        itref.previous();
+//        if (itref.value()->distance() != Refraction::Pres)
+//        {
+//                if (mesure == Refraction::Autoref)
+//                {
+//                    if (itref.value()->typemesure() == Refraction::Acuite)
+//                        ref= const_cast<Refraction*>(itref.value());
+//                }
+//                else if (mesure == Refraction::Fronto)
+//                {
+//                    if (itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto)
+//                        ref= const_cast<Refraction*>(itref.value());
+//                }
+//                if (ref != Q_NULLPTR)
+//                    itref.toFront();
+//        }
+//    }
+//    if (ref == Q_NULLPTR)
+//        return;
+//    QString prefix = "";
+//    // Les axes
+//    if (ref->cylindreOD() != 0.0)
+//    {
+//        if (ref->axecylindreOD() < 10)
+//            prefix = "  ";
+//        else if (ref->axecylindreOD() < 100)
+//            prefix = " ";
+//        Mesure["AxeOD"] = prefix + QString::number(ref->axecylindreOD());
+//    }
+//    prefix = "";
+//    if (ref->cylindreOG() != 0.0)
+//    {
+//        if (ref->axecylindreOG() < 10)
+//            prefix = "  ";
+//        else if (ref->axecylindreOG() < 100)
+//            prefix = " ";
+//        Mesure["AxeOG"] = prefix + QString::number(ref->axecylindreOG());
+//    }
 
-    // Les spheres
-    prefix = "";
-    if (ref->sphereOD() > 0)
-    {
-        if (ref->sphereOD() < 10)
-            prefix = "+0";
-        else
-            prefix = "+";
-        Mesure["SphereOD"] = prefix + QString::number(ref->sphereOD(),'f',2);
-    }
-    else if (ref->sphereOD() < 0)
-    {
-        prefix = QString::number(ref->sphereOD(),'f',2);
-        if (ref->sphereOD() > -10)
-            prefix.replace("-", "-0");
-        Mesure["SphereOD"] = prefix;
-    }
-    prefix = "";
-    if (ref->sphereOG() > 0)
-    {
-        if (ref->sphereOG() < 10)
-            prefix = "+0";
-        else
-            prefix = "+";
-        Mesure["SphereOG"] = prefix + QString::number(ref->sphereOG(),'f',2);
-    }
-    else if (ref->sphereOG() < 0)
-    {
-        prefix = QString::number(ref->sphereOG(),'f',2);
-        if (ref->sphereOG() > -10)
-            prefix.replace("-", "-0");
-        Mesure["SphereOG"] = prefix;
-    }
+//    // Les spheres
+//    prefix = "";
+//    if (ref->sphereOD() > 0)
+//    {
+//        if (ref->sphereOD() < 10)
+//            prefix = "+0";
+//        else
+//            prefix = "+";
+//        Mesure["SphereOD"] = prefix + QString::number(ref->sphereOD(),'f',2);
+//    }
+//    else if (ref->sphereOD() < 0)
+//    {
+//        prefix = QString::number(ref->sphereOD(),'f',2);
+//        if (ref->sphereOD() > -10)
+//            prefix.replace("-", "-0");
+//        Mesure["SphereOD"] = prefix;
+//    }
+//    prefix = "";
+//    if (ref->sphereOG() > 0)
+//    {
+//        if (ref->sphereOG() < 10)
+//            prefix = "+0";
+//        else
+//            prefix = "+";
+//        Mesure["SphereOG"] = prefix + QString::number(ref->sphereOG(),'f',2);
+//    }
+//    else if (ref->sphereOG() < 0)
+//    {
+//        prefix = QString::number(ref->sphereOG(),'f',2);
+//        if (ref->sphereOG() > -10)
+//            prefix.replace("-", "-0");
+//        Mesure["SphereOG"] = prefix;
+//    }
 
-    // Les cylindres
-    prefix = "";
-    if (ref->cylindreOD() > 0)
-    {
-        if (ref->cylindreOD() < 10)
-            prefix = "+0";
-        else
-            prefix = "+";
-        Mesure["CylOD"] = prefix + QString::number(ref->cylindreOD(),'f',2);
-    }
-    else if (ref->cylindreOD() < 0)
-    {
-        prefix = QString::number(ref->cylindreOD(),'f',2);
-        if (ref->cylindreOD() > -10)
-            prefix.replace("-", "-0");
-        Mesure["CylOD"] = prefix;
-    }
-    prefix = "";
-    if (ref->cylindreOG() > 0)
-    {
-        if (ref->cylindreOG() < 10)
-            prefix = "+0";
-        else
-            prefix = "+0";
-        Mesure["CylOG"] = prefix + QString::number(ref->cylindreOG(),'f',2);
-    }
-    else if (ref->cylindreOG() < 0)
-    {
-        prefix = QString::number(ref->cylindreOG(),'f',2);
-        if (ref->cylindreOG() > -10)
-            prefix.replace("-", "-0");
-        Mesure["CylOG"] = prefix;
-    }
+//    // Les cylindres
+//    prefix = "";
+//    if (ref->cylindreOD() > 0)
+//    {
+//        if (ref->cylindreOD() < 10)
+//            prefix = "+0";
+//        else
+//            prefix = "+";
+//        Mesure["CylOD"] = prefix + QString::number(ref->cylindreOD(),'f',2);
+//    }
+//    else if (ref->cylindreOD() < 0)
+//    {
+//        prefix = QString::number(ref->cylindreOD(),'f',2);
+//        if (ref->cylindreOD() > -10)
+//            prefix.replace("-", "-0");
+//        Mesure["CylOD"] = prefix;
+//    }
+//    prefix = "";
+//    if (ref->cylindreOG() > 0)
+//    {
+//        if (ref->cylindreOG() < 10)
+//            prefix = "+0";
+//        else
+//            prefix = "+0";
+//        Mesure["CylOG"] = prefix + QString::number(ref->cylindreOG(),'f',2);
+//    }
+//    else if (ref->cylindreOG() < 0)
+//    {
+//        prefix = QString::number(ref->cylindreOG(),'f',2);
+//        if (ref->cylindreOG() > -10)
+//            prefix.replace("-", "-0");
+//        Mesure["CylOG"] = prefix;
+//    }
 
-    // Les additions
-    if (ref->addVPOD() != 0.0)
-        Mesure["AddOD"] = "+0" + QString::number(ref->addVPOD(),'f',2);
-    if (ref->addVPOG()!=0.0)
-        Mesure["AddOG"] = "+0" + QString::number(ref->addVPOG(),'f',2);
+//    // Les additions
+//    if (ref->addVPOD() != 0.0)
+//        Mesure["AddOD"] = "+0" + QString::number(ref->addVPOD(),'f',2);
+//    if (ref->addVPOG()!=0.0)
+//        Mesure["AddOG"] = "+0" + QString::number(ref->addVPOG(),'f',2);
 
-    // Les formules
-    Mesure["FormuleOD"] = ref->formuleOD();
-    Mesure["FormuleOG"] = ref->formuleOG();
+//    // Les formules
+//    Mesure["FormuleOD"] = ref->formuleOD();
+//    Mesure["FormuleOG"] = ref->formuleOG();
 
-    if (mesure == Refraction::Autoref)
-        map_mesureAutoref = Mesure;
-    else if (mesure == Refraction::Fronto)
-        map_mesureFronto = Mesure;
+//    if (mesure == Refraction::Autoref)
+//        map_mesureAutoref = Mesure;
+//    else if (mesure == Refraction::Fronto)
+//        map_mesureFronto = Mesure;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9828,7 +9809,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-        if (!proc->DonneesRefracteurFin().isEmpty() && !proc->DonneesRefracteurSubj().isEmpty())
+        if (proc->DonneesRefracteurFin() != Q_NULLPTR && proc->DonneesRefracteurSubj() != Q_NULLPTR)
             proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Subjectif);
         RefractionMesure();
     }

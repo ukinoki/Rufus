@@ -453,46 +453,48 @@ public:
     TypeMesure              TypeMesureRefraction();                     // accesseur pour le type de mesure effectuée: Fronto, Autoref ou Refracteur
     void                    setTypeMesureRefraction(TypeMesure = None); // détermine le type de mesure effectuée: Fronto, Autoref ou Refracteur
     //LE FRONTO ----------------------------------------------------
-    QMap<QString,QVariant>  DonneesFronto();                        // accesseur pour MesureFronto
+    ShortRefraction*        DonneesFronto();                        // accesseur pour MesureFronto
     QString                 HtmlFronto();                           // accesseur pour le html de mesure fronto à afficher;
     //L'AUTOREF ----------------------------------------------------
-    QMap<QString,QVariant>  DonneesAutoref();                       // accesseur pour MesureAutoref
+    ShortRefraction*        DonneesAutoref();                       // accesseur pour MesureAutoref
     QMap<QString,QVariant>  DonneesKerato();                        // accesseur pour MesureKerato
     QString                 HtmlAutoref();                          // accesseur pour le html de mesure fronto à afficher;
     QString                 HtmlKerato();                           // accesseur pour le html de mesure kerato à afficher;
     QString                 HtmlTono();                             // accesseur pour le html de mesure tonométrie à afficher;
     QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
    //LE REFRACTEUR ------------------------------------------------
-    QMap<QString,QVariant>  DonneesRefracteurSubj();                // accesseur pour MesureRefracteurSubjectif
-    QMap<QString,QVariant>  DonneesRefracteurFin();                 // accesseur pour MesureRefracteurFinal
+    ShortRefraction*        DonneesRefracteurSubj();                // accesseur pour MesureRefracteurSubjectif
+    ShortRefraction *DonneesRefracteurFin();                 // accesseur pour MesureRefracteurFinal
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
     void                    InsertRefraction(
                                 int idPatient,
                                 int idActe,
                                 TypeMesure = All);                  // enregistre la mesure de réfraction
-    void                    RegleRefracteur(QMap<Refraction::Mesure, Refraction*> maprefraction);
-    void                    SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString,QVariant> DataAutoref);
+    void                    SetDataAEnvoyerAuRefracteur(ShortRefraction *autoref, ShortRefraction *fronto);
 
 private:
     QString                 m_mesureSerie;
     TypeMesure              m_typemesureRefraction;                // le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    QString                 CalculeFormule(ShortRefraction *ref, QString Cote);
+                                                                    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    ClearMesures();
     void                    ClearHtmlMesures();
     void                    debugformule(QMap<QString,QVariant>  Data, QString type);
     bool                    Ouverture_Ports_Series();
                                                                     // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
     //LE FRONTO ----------------------------------------------------
-    QMap<QString,QVariant>  map_mesureFronto;
+    ShortRefraction         *shortref_fronto       = Q_NULLPTR;
     QString                 m_htmlMesureFronto;
     void                    setDonneesFronto(QString Mesure);       // détermine le QMap MesureFronto à partir de la mesure relevée sur le port série du fronto
     void                    setHtmlFronto();                        // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
     bool                    m_isnewMesureFronto;                    // détermine si la mesure provient du fronto ou du dossier
     //L'AUTOREF ----------------------------------------------------
-    QMap<QString,QVariant>  map_mesureAutoref;
+    ShortRefraction         *shortref_autoref      = Q_NULLPTR;
     QMap<QString,QVariant>  map_mesureKerato;
     QMap<QString,QVariant>  map_mesureTono;
     QMap<QString,QVariant>  map_mesurePachy;
     QMap<QString,QVariant>  map_dataAEnvoyerAuRefracteur;
+    QMap<Refraction::Mesure, Refraction*> map_refractionspatient;
     QString                 m_htmlMesureAutoref;
     QString                 m_htmlMesureKerato;
     QString                 m_htmlMesureTono;
@@ -504,14 +506,14 @@ private:
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
     bool                    m_isnewMesureAutoref;                           // détermine si la mesure provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
-    QMap<QString,QVariant>  map_mesureRefracteurSubjectif;
+    ShortRefraction         *shortref_acuite       = Q_NULLPTR;
     QString                 m_htmlMesureRefracteurSubjectif;
+    ShortRefraction         *shortref_final        = Q_NULLPTR;
     QMap<QString,QVariant>  map_mesureRefracteurFinal;
     QString                 m_htmlMesureRefracteurFinal;
     void                    setDonneesRefracteur(QString Mesure);   // détermine le QMap MesureRefracteur à partir de la mesure relevée sur le port série du refracteur
     void                    setHtmlRefracteur();                    // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif
     void                    RegleRefracteur();
-
     void                    ReponsePortSerie_Autoref(const QString &s);
     void                    ReponsePortSerie_Fronto(const QString &s);
     void                    ReponsePortSerie_Refracteur(const QString &s);

@@ -228,11 +228,11 @@ private:
 
 private:
 
-    Refraction *refautoref      = Q_NULLPTR;
-    Refraction *reffronto       = Q_NULLPTR;
-    Refraction *refacuite       = Q_NULLPTR;
-    Refraction *refprescription = Q_NULLPTR;
-    QMap<Refraction::Mesure, Refraction*> MapMesurePatient;
+    QMap<QString,QVariant>  map_mesureAutoref;
+    QMap<QString,QVariant>  map_mesureFronto;
+    ShortRefraction *shortref_autoref      = Q_NULLPTR;
+    ShortRefraction *shortref_fronto       = Q_NULLPTR;
+    ShortRefraction *shortref_acuite       = Q_NULLPTR;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};
@@ -265,8 +265,6 @@ private:
     Actes                   *m_listeactes                   = Q_NULLPTR;
     LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
 
-    QMap<QString,QVariant>  map_mesureFronto;
-    QMap<QString,QVariant>  map_mesureAutoref;
     UpDialog                *dlg_rechParMotCle,*dlg_rechParId, *dlg_listPatients;
 
     QDialog                 *dlg_msgRepons, *dlg_msgDialog;
@@ -341,7 +339,7 @@ private:
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
     void                ReconstruitListesCotations();
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
-    void                RegleRefracteur(Refraction::Mesure mesure);
+    void                SetDatasRefracteur();
     void                RemiseCheques();
     bool                Remplir_ListePatients_TableView();
     QTabWidget*         Remplir_MsgTabWidget();

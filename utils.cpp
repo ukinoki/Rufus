@@ -632,17 +632,17 @@ QString Utils::CalculeFormule(QMap<QString,QVariant> Mesure,  QString Cote)
         QString mAdd;
         if (Cote == "D")
         {
-            mSphere   = PrefixePlus(Mesure["SphereOD"].toString());
-            mCyl      = PrefixePlus(Mesure["CylOD"].toString());
+            mSphere   = PrefixePlus(Mesure["SphereOD"].toDouble());
+            mCyl      = PrefixePlus(Mesure["CylOD"].toDouble());
             mAxe      = QString::number(Mesure["AxeOD"].toInt());
-            mAdd      = PrefixePlus(Mesure["AddOD"].toString());
+            mAdd      = PrefixePlus(Mesure["AddOD"].toDouble());
         }
         else if (Cote == "G")
         {
-            mSphere   = PrefixePlus(Mesure["SphereOG"].toString());
-            mCyl      = PrefixePlus(Mesure["CylOG"].toString());
+            mSphere   = PrefixePlus(Mesure["SphereOG"].toDouble());
+            mCyl      = PrefixePlus(Mesure["CylOG"].toDouble());
             mAxe      = QString::number(Mesure["AxeOG"].toInt());
-            mAdd      = PrefixePlus(Mesure["AddOG"].toString());
+            mAdd      = PrefixePlus(Mesure["AddOG"].toDouble());
         }
         else return "";
         QString Resultat;
@@ -659,17 +659,11 @@ QString Utils::CalculeFormule(QMap<QString,QVariant> Mesure,  QString Cote)
         return Resultat;
 }
 
-QString Utils::PrefixePlus(QString Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
+QString Utils::PrefixePlus(double Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
 {
-    double i = Dioptr.toDouble();
-    if (Dioptr != "")
-        return (i>0 ?
-                    "+" + QLocale().toString(Dioptr.toDouble(),'f',2)
-                    :
-                    QLocale().toString(Dioptr.toDouble(),'f',2)
-                    );
-    else
+    if  (Dioptr == 0.0)
         return "";
+    return (Dioptr > 0 ? "+" : "") + QLocale().toString(Dioptr,'f',2);
 }
 
 /*!
