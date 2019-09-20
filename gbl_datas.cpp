@@ -49,6 +49,11 @@ Datas::Datas()
     users           = new Users();
     postesconnectes = new PostesConnectes();
     villes          = new Villes();
+    mesurefronto    = new MesureRefraction();
+    mesureautoref   = new MesureRefraction();
+    mesureacuite    = new MesureRefraction();
+    mesurefinal     = new MesureRefraction();
+    mesurekerato    = new MesureKerato();
 }
 
 

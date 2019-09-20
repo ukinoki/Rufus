@@ -1,0 +1,84 @@
+#ifndef CLS_MESUREKERATO_H
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#define CLS_MESUREKERATO_H
+
+#include <QObject>
+
+class MesureKerato : public QObject
+{
+    Q_OBJECT
+public:
+    explicit MesureKerato() {}
+
+private:
+    double m_K1OD           = 0;
+    double m_K2OD           = 0;
+    double m_dioptriesK1OD  = 0;
+    double m_dioptriesK2OD  = 0;
+    int m_AxeKOD            = 0;
+    double m_K1OG           = 0;
+    double m_K2OG           = 0;
+    double m_dioptriesK1OG  = 0;
+    double m_dioptriesK2OG  = 0;
+    int m_AxeKOG            = 0;
+    bool m_cleandatas       = true;
+
+public:
+    double K1OD()                   { return m_K1OD; }
+    double K2OD()                   { return m_K2OD; }
+    double dioptriesK1OD()          { return m_dioptriesK1OD; }
+    double dioptriesK2OD()          { return m_dioptriesK2OD; }
+    int axeKOD()                    { return m_AxeKOD; }
+    double K1OG()                   { return m_K1OG; }
+    double K2OG()                   { return m_K2OG; }
+    double dioptriesK1OG()          { return m_dioptriesK1OG; }
+    double dioptriesK2OG()          { return m_dioptriesK2OG; }
+    int axeKOG()                    { return m_AxeKOG; }
+    double dioptriesKOD()           { return m_dioptriesK1OD - m_dioptriesK2OD; }
+    double dioptriesKOG()           { return m_dioptriesK1OG - m_dioptriesK2OG; }
+
+    void setK1OD(double val)            { m_K1OD = val; m_cleandatas = false; }
+    void setK2OD(double val)            { m_K2OD = val; m_cleandatas = false; }
+    void setdioptriesK1OD(double val)   { m_dioptriesK1OD = val; m_cleandatas = false; }
+    void setdioptriesK2OD(double val)   { m_dioptriesK2OD = val; m_cleandatas = false; }
+    void setaxeKOD(int axe)             { m_AxeKOD = axe; m_cleandatas = false; }
+    void setK1OG(double val)            { m_K1OG = val; m_cleandatas = false; }
+    void setK2OG(double val)            { m_K2OG = val; m_cleandatas = false; }
+    void setdioptriesK1OG(double val)   { m_dioptriesK1OG = val; m_cleandatas = false; }
+    void setdioptriesK2OG(double val)   { m_dioptriesK2OG = val; m_cleandatas = false; }
+    void setaxeKOG(int axe)             { m_AxeKOD = axe; m_cleandatas = false; }
+
+    bool isdataclean()                  { return m_cleandatas; }
+    void cleandatas()
+    {
+        m_K1OD           = 0;
+        m_K2OD           = 0;
+        m_dioptriesK1OD  = 0;
+        m_dioptriesK2OD  = 0;
+        m_AxeKOD         = 0;
+        m_K1OG           = 0;
+        m_K2OG           = 0;
+        m_dioptriesK1OG  = 0;
+        m_dioptriesK2OG  = 0;
+        m_AxeKOG         = 0;
+        m_cleandatas     = true;
+    }
+};
+
+#endif // CLS_MESUREKERATO_H

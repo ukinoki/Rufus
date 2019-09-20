@@ -91,7 +91,6 @@ HEADERS += rufus.h \
 FORMS += \
     rufus.ui
 
-
 #--------------------
 # INCLUDE
 #--------------------
@@ -100,6 +99,7 @@ include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
 include(ItemsLists/itemslists.pri)
+include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 
@@ -123,6 +123,7 @@ LIBS += -L/usr/local/lib -lpoppler-qt5
 }
 
 DISTFILES += \
+    Mesures/mesures.pri \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
     _Diagrams/Gestion des documents sous Rufus.pdf \

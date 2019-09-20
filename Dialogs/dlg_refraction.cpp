@@ -3820,7 +3820,7 @@ void dlg_refraction::AfficheMesureFronto()
         UpMessageBox::Watch(this, tr("pas de données reçues du frontofocomètre"));
         return;
     }
-    ShortRefraction *MesureFronto = proc->DonneesFronto();
+    MesureRefraction *MesureFronto = proc->DonneesFronto();
 
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (MesureFronto->addVPOD() >  0 || MesureFronto->addVPOG() > 0)
@@ -3860,49 +3860,39 @@ void dlg_refraction::AfficheMesureFronto()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureAutoref()
 {
-    ShortRefraction  *MesureAutoref = proc->DonneesAutoref();
-    QMap<QString,QVariant>  MesureKerato  = proc->DonneesKerato();
-    if (MesureAutoref == Q_NULLPTR && MesureKerato.size()==0)
+    if (Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
     {
         UpMessageBox::Watch(this, tr("pas de données reçues de l'autorefractomètre"));
         return;
     }
-    QString mK1OD       = MesureKerato["K1OD"].toString();
-    QString mK2OD       = MesureKerato["K2OD"].toString();
-    int     mAxeKOD     = MesureKerato["AxeKOD"].toInt();
-    QString mDioptrKOD  = MesureKerato["DioptrKOD"].toString();
-    QString mK1OG       = MesureKerato["K1OG"].toString();
-    QString mK2OG       = MesureKerato["K2OG"].toString();
-    int     mAxeKOG     = MesureKerato["AxeKOG"].toInt();
-    QString mDioptrKOG  = MesureKerato["DioptrKOG"].toString();
     m_mesureDioptrAstigmOD        = 0;
     m_mesureDioptrAstigmOG        = 0;
 
     AutorefRadioButton_Clicked();
 
     // OEIL DROIT -----------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOD, MesureAutoref->sphereOD());
-    Init_Value_DoubleSpin(ui->CylindreOD, MesureAutoref->cylindreOD());
-    ui->AxeCylindreOD       ->setValue(MesureAutoref->axecylindreOD());
+    Init_Value_DoubleSpin(ui->SphereOD, Datas::I()->mesureautoref->sphereOD());
+    Init_Value_DoubleSpin(ui->CylindreOD, Datas::I()->mesureautoref->cylindreOD());
+    ui->AxeCylindreOD       ->setValue(Datas::I()->mesureautoref->axecylindreOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, MesureAutoref->sphereOG());
-    Init_Value_DoubleSpin(ui->CylindreOG, MesureAutoref->cylindreOG());
-    ui->AxeCylindreOG       ->setValue(MesureAutoref->axecylindreOG());
+    Init_Value_DoubleSpin(ui->SphereOG, Datas::I()->mesureautoref->sphereOG());
+    Init_Value_DoubleSpin(ui->CylindreOG, Datas::I()->mesureautoref->cylindreOG());
+    ui->AxeCylindreOG       ->setValue(Datas::I()->mesureautoref->axecylindreOG());
     // OEIL DROIT -----------------------------------------------------------------------------
-    if (mK1OD != "")
+    if (Datas::I()->mesurekerato->K1OD() > 0)
     {
-        ui->K1OD            ->setText(QLocale().toString(mK1OD.toDouble(),'f',2 ));
-        ui->K2OD            ->setText(QLocale().toString(mK2OD.toDouble(),'f',2 ));
-        ui->AxeKOD          ->setText(QString::number(mAxeKOD));
-        m_mesureDioptrAstigmOD        = QLocale().toDouble(mDioptrKOD);
+        ui->K1OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2 ));
+        ui->K2OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2 ));
+        ui->AxeKOD          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
+        m_mesureDioptrAstigmOD        = Datas::I()->mesurekerato->dioptriesKOD();
     }
    // OEIL GAUCHE ---------------------------------------------------------------------------
-    if (mK1OG != "")
+    if (Datas::I()->mesurekerato->K2OD() > 0)
     {
-        ui->K1OG            ->setText(QLocale().toString(mK1OG.toDouble(),'f',2 ));
-        ui->K2OG            ->setText(QLocale().toString(mK2OG.toDouble(),'f',2 ));
-        ui->AxeKOG          ->setText(QString::number(mAxeKOG));
-        m_mesureDioptrAstigmOG        = QLocale().toDouble(mDioptrKOG);
+        ui->K1OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2 ));
+        ui->K2OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2 ));
+        ui->AxeKOG          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
+        m_mesureDioptrAstigmOG        = Datas::I()->mesurekerato->dioptriesKOG();
     }
 }
 
@@ -3911,18 +3901,18 @@ void dlg_refraction::AfficheMesureAutoref()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureRefracteur()
 {
-    ShortRefraction*  MesureRefracteur = Q_NULLPTR;
-    if ( proc->DonneesRefracteurFin() == Q_NULLPTR)
+    MesureRefraction*  MesureRefracteur = Q_NULLPTR;
+    if ( Datas::I()->mesurefinal->isdataclean())
     {
         RefractionRadioButton_Clicked();
         m_mode = Refraction::Acuite;
-        MesureRefracteur = proc->DonneesRefracteurSubj();
+        MesureRefracteur = Datas::I()->mesureacuite;
     }
     else
     {
         PrescriptionRadionButton_clicked();
         m_mode = Refraction::Prescription;
-        MesureRefracteur = proc->DonneesRefracteurFin();
+        MesureRefracteur = Datas::I()->mesurefinal;
     }
     if (MesureRefracteur == Q_NULLPTR)
     {

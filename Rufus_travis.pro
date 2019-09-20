@@ -79,6 +79,7 @@ include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
 include(ItemsLists/itemslists.pri)
+include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 

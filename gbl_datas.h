@@ -40,7 +40,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_villes.h"
 #include "cls_sites.h"
 #include "cls_recettes.h"
-#include "cls_shortrefraction.h"
+#include "cls_mesurerefraction.h"
+#include "cls_mesurekerato.h"
 
 class Datas : public QObject
 {
@@ -75,6 +76,12 @@ public:
     Users *users;                       //!< Les users
     PostesConnectes *postesconnectes;   //!< Les postesconnectes
     Villes *villes;                     //!< toutes les villes
+    MesureRefraction* mesurefronto;
+    MesureRefraction* mesureautoref;
+    MesureRefraction* mesureacuite;
+    MesureRefraction* mesurefinal;
+    MesureKerato* mesurekerato;
+
 };
 
 #endif // GBL_DATAS_H

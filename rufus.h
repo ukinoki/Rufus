@@ -228,11 +228,7 @@ private:
 
 private:
 
-    QMap<QString,QVariant>  map_mesureAutoref;
-    QMap<QString,QVariant>  map_mesureFronto;
-    ShortRefraction *shortref_autoref      = Q_NULLPTR;
-    ShortRefraction *shortref_fronto       = Q_NULLPTR;
-    ShortRefraction *shortref_acuite       = Q_NULLPTR;
+    MesureRefraction *shortref_acuite       = Q_NULLPTR;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};
