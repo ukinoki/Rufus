@@ -38,11 +38,15 @@ class dlg_refraction : public QDialog
     Q_OBJECT
 
 public:
-    dlg_refraction(Acte *acte, QWidget *parent = Q_NULLPTR);
+    enum ModeOuverture {
+                Auto,           //!> la fiche est lancée par l'envoi de données à partir du refracteur
+                Manuel          //!> la fiche est lancée par l'utilisateur
+                };  Q_ENUM(ModeOuverture)
+    dlg_refraction(Acte *acte, ModeOuverture modeouverture, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
-    Ui::dlg_refraction      *ui;
-    dlg_refractionlistemesures        *Dlg_ListeMes;
-    dlg_commentaires        *Dlg_Comments;
+    Ui::dlg_refraction          *ui;
+    dlg_refractionlistemesures  *Dlg_ListeMes;
+    dlg_commentaires            *Dlg_Comments;
 
     QString                 ResultatPrescription() const;
     QString                 ResultatObservation() const;
