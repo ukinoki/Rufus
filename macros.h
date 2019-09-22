@@ -400,7 +400,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_POSTEIMPORTDOCS                         "posteimportdocs"
 #define NOM_ADMINISTRATEURDOCS                      "Admin"
 #define NOM_MDPADMINISTRATEUR                       "bob"
-#define deb                                      "qDebug() <<"
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"
@@ -453,7 +452,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define FILE_INI                                  "/Documents/Rufus/Rufus.ini"
 #define SCRIPTBACKUPFILE                          "/Documents/Rufus/RufusScriptBackup.sh"
 #define SCRIPTRESTOREFILE                         "/Documents/Rufus/RufusScriptRestore.sh"
-#define SCRIPT_MACOS_PLIST_FILE                           "/Library/LaunchAgents/rufus.bup.plist"
+#define SCRIPT_MACOS_PLIST_FILE                   "/Library/LaunchAgents/rufus.bup.plist"
 
 // Variables mysql
 #define MAX_ALLOWED_PACKET                          "16"
@@ -508,10 +507,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL             335                 // Hauteur du formulaire Refraction sans la partie ordonnance avec detail sans observ
 #define HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL             450                 // Hauteur du formulaire Refraction avec partie ordonnance sans detail
 #define HAUTEUR_AVEC_ORDONNANCE_AVEC_DETAIL             590                 // Hauteur du formulaire Refraction avec partie ordonnance avec detail
-#define LARGEURLISTE   1300
-#define LARGEURNORMALE 1260
-#define HAUTEUR_MINI        280
-#define HAUTEUR_NORMALE     970
+#define LARGEURLISTE                                    1300
+#define LARGEURNORMALE                                  1260
+#define HAUTEUR_MINI                                    280
+#define HAUTEUR_NORMALE                                 970
 
 //Opérations bancaires
 #define VIREMENT            "Virement"
@@ -527,5 +526,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HTMLANCHOR_BODEBUT          "<BOdebut>"
 #define HTMLANCHOR_BOFIN            "<BOfin>"
 
+// valeurs extrêmes de kératométrie
+#define MinK                        5
+#define MaxK                        9.5
 
 #endif // MACROS_H

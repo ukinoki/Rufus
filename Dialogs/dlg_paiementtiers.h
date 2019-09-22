@@ -18,11 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef dlg_paiementtiers_H
 #define dlg_paiementtiers_H
 
-#include <QMessageBox>
-#include <QToolTip>
 #include "procedures.h"
-#include "uplineedit.h"
-#include "upcheckbox.h"
 #include "dlg_gestionbanques.h"
 #include "ui_dlg_gestionbanques.h"
 #include "flags.h"

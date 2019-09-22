@@ -26,7 +26,7 @@ class upDoubleValidator: public QDoubleValidator
 {
 public:
     upDoubleValidator(double bottom, double top, int decimals, QObject * parent);
-    QValidator::State validate(QString &s, int &i) const;
+    QValidator::State validate(QString &s, int &pos) const;
 };
 
 #endif // UPDOUBLEVALIDATOR_H

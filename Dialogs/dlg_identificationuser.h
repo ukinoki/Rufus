@@ -19,13 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_IDENTIFICATIONUSER_H
 
 #include <QFileDialog>
-#include <QHostInfo>
-#include <QMessageBox>
-#include <QSqlDatabase>
-#include <QtSql>
 
 #include "upmessagebox.h"
-#include "utils.h"
 #include "database.h"
 
 namespace Ui {

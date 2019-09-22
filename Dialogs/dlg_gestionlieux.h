@@ -18,19 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_GESTIONLIEUX_H
 #define DLG_GESTIONLIEUX_H
 
-#include <QApplication>
-#include <QDir>
 #include <QHeaderView>
-#include <QStandardItemModel>
 #include <QTableView>
 #include "database.h"
 #include "dlg_message.h"
-#include "macros.h"
-#include "updialog.h"
-#include "uplabel.h"
-#include "uplineedit.h"
-#include "upmessagebox.h"
-#include "upstandarditem.h"
 #include "widgetbuttonframe.h"
 #include "gbl_datas.h"
 

@@ -20,11 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_gestionbanques.h"
 #include "ui_dlg_gestionbanques.h"
-#include "upcombobox.h"
-#include <QRadioButton>
-#include "cls_user.h"
 #include "database.h"
-#include "cls_compte.h"
 
 /* sert à gérer les comptes bancaires des utilisateurs
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/

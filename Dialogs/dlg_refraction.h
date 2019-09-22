@@ -18,14 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_REFRACTION_H
 #define DLG_REFRACTION_H
 
-#include <QTimer>
 #include "updoublespinbox.h"
 #include "updoublevalidator.h"
-#include "upgroupbox.h"
-#include "upspinbox.h"
 
 #include "dlg_commentaires.h"
-#include "ui_dlg_commentaires.h"
 #include "dlg_refractionlistemesures.h"
 
 
@@ -61,8 +57,10 @@ private:
     int                     m_idrefraction;
     QStringList             m_stringliste1, m_stringliste2;
     Refraction::Mesure      m_mode;
+    ModeOuverture           m_modeouverture;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
+    upDoubleValidator       *m_val;
 
     bool                    m_ok;
     bool                    m_affichedetail;
@@ -143,7 +141,6 @@ private:
 
     QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
-    double                  ConvDouble(QString textdouble);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
     void                    DetruireLaMesure(Refraction* ref);
     void                    FermeFiche(enum ModeSortie);
@@ -178,7 +175,7 @@ private:
 // les connexions aux appareils de mesure
 private:
     double                  m_mesureDioptrAstigmOD, m_mesureDioptrAstigmOG;
-    void                    NouvMesureRefraction();
+    void                    NouvMesureRefraction(Procedures::TypeMesure TypeMesure);
 public:
     void                    AfficheMesureFronto();
     void                    AfficheMesureAutoref();

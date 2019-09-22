@@ -19,16 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_IMPRESSIONS_H
 
 #include "procedures.h"
-#include "upcheckbox.h"
-#include "upcombobox.h"
-#include "updialog.h"
-#include "uplineedit.h"
 #include "uptablewidget.h"
 #include <QGraphicsOpacityEffect>
-#include "widgetbuttonframe.h"
 #include "gbl_datas.h"
-#include "cls_user.h"
-#include "cls_site.h"
 #include "icons.h"
 
 namespace Ui {

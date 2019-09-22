@@ -18,14 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_REMISECHEQUES_H
 #define DLG_REMISECHEQUES_H
 
-#include <QLocale>
-#include <QToolTip>
-
 #include "procedures.h"
 #include "uptablewidget.h"
-#include "upcheckbox.h"
-#include "upcombobox.h"
-#include "uplineedit.h"
 
 namespace Ui {
 class dlg_remisecheques;

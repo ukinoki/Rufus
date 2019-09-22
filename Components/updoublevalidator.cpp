@@ -22,17 +22,25 @@ upDoubleValidator::upDoubleValidator(double bottom, double top, int decimals, QO
 {
 }
 
-QValidator::State upDoubleValidator::validate(QString &s, int &i) const
-{
-    bool ok;
-    i = 0;
-    double d = QLocale().toDouble(s, &ok);
-
-    if (s.isEmpty() || (ok && d==0.0))
+QValidator::State upDoubleValidator::validate(QString & s, int &pos) const {
+    if (s.isEmpty() || (s.startsWith("-") && s.length() == 1)) {
+        // allow empty field or standalone minus sign
         return QValidator::Intermediate;
-
-    if (ok && d >= bottom() && d <= top())
+    }
+    // check length of decimal places
+    QChar point = locale().decimalPoint();
+    if(s.indexOf(point) != -1) {
+        int lengthDecimals = s.length() - s.indexOf(point) - 1;
+        if (lengthDecimals > decimals()) {
+            return QValidator::Invalid;
+        }
+    }
+    // check range of value
+    bool isNumber;
+    double value = locale().toDouble(s, &isNumber);
+    if (isNumber && bottom() <= value && value <= top()) {
         return QValidator::Acceptable;
-    else
-        return QValidator::Invalid;
+    }
+    return QValidator::Invalid;
 }
+

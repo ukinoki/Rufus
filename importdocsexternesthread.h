@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define IMPORTDOCSEXTERNESTHREAD_H
 
 #include <QThread>
-#include <QMessageBox>
 #include "procedures.h"
 #include "utils.h"
 

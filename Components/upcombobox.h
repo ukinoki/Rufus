@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QComboBox>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QSound>
 #include "upmessagebox.h"
 

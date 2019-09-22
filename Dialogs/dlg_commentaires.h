@@ -19,15 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_COMMENTAIRES_H
 
 #include <QGraphicsOpacityEffect>
-#include <QMenu>
-#include <QToolTip>
 
 #include "procedures.h"
-#include "upcheckbox.h"
-#include "uplabel.h"
-#include "uplineedit.h"
-#include "uptablewidget.h"
-#include "widgetbuttonframe.h"
 
 namespace Ui {
 class dlg_commentaires;

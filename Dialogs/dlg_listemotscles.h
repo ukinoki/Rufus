@@ -18,11 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_LISTEMOTSCLES_H
 #define DLG_LISTEMOTSCLES_H
 
-#include "upcheckbox.h"
-#include "uplabel.h"
-#include "uplineedit.h"
 #include "procedures.h"
-#include "widgetbuttonframe.h"
 
 class dlg_listemotscles : public UpDialog
 {

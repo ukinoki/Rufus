@@ -18,17 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DEPENSES_H
 #define DLG_DEPENSES_H
 
-#include <QLocale>
-#include <QMenu>
 
-#include "uptablewidget.h"
 #include "dlg_comptes.h"
 #include "dlg_docsscanner.h"
-#include "cls_compte.h"
-#include "cls_depenses.h"
-#include "cls_user.h"
 #include "gbl_datas.h"
-#include "icons.h"
 #include "ui_dlg_depenses.h"
 
 namespace Ui {

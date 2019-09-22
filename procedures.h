@@ -430,9 +430,6 @@ private:
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
 
-signals:
-    void                    NouvMesureRefraction();
-
 public:
     enum TypeMesure {
                 None,
@@ -445,15 +442,15 @@ public:
                 Tono,
                 Pachy
                 };  Q_ENUM(TypeMesure)
+signals:
+    void                    NouvMesureRefraction(TypeMesure);
 
+public:
     QSerialPort*            PortAutoref();
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();
-    TypeMesure              TypeMesureRefraction();                     // accesseur pour le type de mesure effectuée: Fronto, Autoref ou Refracteur
-    void                    setTypeMesureRefraction(TypeMesure = None); // détermine le type de mesure effectuée: Fronto, Autoref ou Refracteur
     //LE FRONTO ----------------------------------------------------
-    MesureRefraction*       DonneesFronto();                        // accesseur pour MesureFronto
     QString                 HtmlFronto();                           // accesseur pour le html de mesure fronto à afficher;
     //L'AUTOREF ----------------------------------------------------
     QString                 HtmlAutoref();                          // accesseur pour le html de mesure fronto à afficher;
@@ -467,6 +464,8 @@ public:
                                 int idActe,
                                 TypeMesure = All);                  // enregistre la mesure de réfraction
     void                    SetDataAEnvoyerAuRefracteur();
+    static TypeMesure       ConvertMesure(QString Mesure);
+    static QString          ConvertMesure(Procedures::TypeMesure Mesure);
 
 private:
     QString                 m_mesureSerie;

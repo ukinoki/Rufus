@@ -18,9 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_GESTIONBANQUES_H
 #define DLG_GESTIONBANQUES_H
 
-#include <QSqlDatabase>
-#include <QtSql>
-
 #include "updialog.h"
 #include "uplabel.h"
 #include "upmessagebox.h"
@@ -29,7 +26,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "database.h"
 #include "gbl_datas.h"
 #include "utils.h"
-#include "cls_banque.h"
 
 /* sert à gérer les noms des organismes bancaires
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/

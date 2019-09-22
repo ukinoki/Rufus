@@ -18,14 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSSCANNER_H
 #define DLG_DOCSSCANNER_H
 
-#include "updialog.h"
 #include "procedures.h"
-#include "upcombobox.h"
-#include "uplabel.h"
-#include "uplineedit.h"
-#include "uptablewidget.h"
-#include "uptoolbar.h"
-#include "dlg_message.h"
 
 class dlg_docsscanner : public UpDialog
 {

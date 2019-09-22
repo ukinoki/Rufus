@@ -20,12 +20,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_refraction.h"
 
-dlg_refraction::dlg_refraction(Acte *acte, QWidget *parent) :
+dlg_refraction::dlg_refraction(Acte *acte, ModeOuverture modeouverture, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_refraction)
 {
     ui->setupUi(this);
     m_currentacte   = acte;
+    m_modeouverture = modeouverture;
 
     setWindowTitle("Refraction - " + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());
     setWindowIcon(Icons::icLunettes());
@@ -36,25 +37,9 @@ dlg_refraction::dlg_refraction(Acte *acte, QWidget *parent) :
     ConnectSignals();
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionRefraction").toByteArray());
-    // Recherche si Mesure en cours et affichage.
-    if (proc->TypeMesureRefraction() != Procedures::None)
-    {
-        if (proc->TypeMesureRefraction() == Procedures::Subjectif || proc->TypeMesureRefraction() == Procedures::Final)
-        {
-            AfficheMesureRefracteur();
-            proc->setTypeMesureRefraction(Procedures::None);
-        }
-        else if (proc->TypeMesureRefraction() == Procedures::Fronto)
-        {
-            AfficheMesureFronto();
-            proc->setTypeMesureRefraction(Procedures::None);
-        }
-        else if (proc->TypeMesureRefraction() == Procedures::Autoref)
-        {
-            AfficheMesureAutoref();
-            proc->setTypeMesureRefraction(Procedures::None);
-        }
-    }
+    //!> Recherche si Mesure en cours et affichage - la fiche a été appelée par un instrument de mesure
+    if (m_modeouverture == Auto)
+        AfficheMesureRefracteur();
     else
         RechercheMesureEnCours();
 
@@ -133,11 +118,11 @@ void dlg_refraction::ConnectSignals()
                                                                                                 this,     &dlg_refraction::BasePrismeTextOGComboBox_Changed);
     connect (ui->CommentairePrescriptionTextEdit,   &QTextEdit::textChanged,                    this,     &dlg_refraction::CommentairePrescriptionTextEdit_Changed);
 
-    connect (ui->K1OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OD);});
-    connect (ui->K1OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OG);});
-    connect (ui->K2OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OD);});
+//    connect (ui->K1OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OD);});
+//    connect (ui->K1OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OG);});
+//    connect (ui->K2OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OD);});
 
-    connect (ui->K2OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OG);});
+//    connect (ui->K2OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OG);});
     connect (ui->PressonODCheckBox,                 &QCheckBox::clicked,                        this,     &dlg_refraction::PressonCheckBox_Changed);
     connect (ui->PressonOGCheckBox,                 &QCheckBox::clicked,                        this,     &dlg_refraction::PressonCheckBox_Changed);
 
@@ -615,15 +600,14 @@ void dlg_refraction::PrescriptionRadionButton_clicked()
     RegleAffichageFiche();
 }
 
-void dlg_refraction::NouvMesureRefraction()
+void dlg_refraction::NouvMesureRefraction(Procedures::TypeMesure TypeMesure)
 {
-    if (proc->TypeMesureRefraction() == Procedures::Subjectif || proc->TypeMesureRefraction() == Procedures::Final)
+    if (TypeMesure == Procedures::Subjectif || TypeMesure == Procedures::Final)
         AfficheMesureRefracteur();
-    if (proc->TypeMesureRefraction() == Procedures::Fronto)
+    else if (TypeMesure == Procedures::Fronto)
         AfficheMesureFronto();
-    if (proc->TypeMesureRefraction() == Procedures::Autoref)
+    else if (TypeMesure == Procedures::Autoref)
         AfficheMesureAutoref();
-    proc->setTypeMesureRefraction(Procedures::None);
 }
 
 void dlg_refraction::ReprendreButtonClicked()
@@ -789,7 +773,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             {
                 if (m_mode == Refraction::Fronto && ui->PrismeGroupBox->isVisible())                                   return DeplaceVers(ui->PrismeGroupBox,"Fin");
                 if (m_mode == Refraction::Fronto || (m_mode == Refraction::Acuite && ui->QuelleDistanceGroupBox->isVisible()))
-                                                                                                                      return DeplaceVers(ui->QuelleDistanceGroupBox);
+                                                                                                                       return DeplaceVers(ui->QuelleDistanceGroupBox);
                 if (m_mode == Refraction::Acuite && !ui->QuelleDistanceGroupBox->isVisible())                          return DeplaceVers(ui->QuelleMesureGroupBox);
                 if (m_mode == Refraction::Autoref)                                                                     return DeplaceVers(ui->KeratometrieGroupBox,"Fin");
                 if (m_mode == Refraction::Prescription)                                                                return DeplaceVers(ui->QuelleMontureGroupBox);
@@ -1276,14 +1260,6 @@ bool dlg_refraction::ControleCoherence()
     return true;
 }
 
-//------------------------------------------------------------------------------------------
-// Controle et reformatage des champs saisis
-//------------------------------------------------------------------------------------------
-double dlg_refraction::ConvDouble(QString textdouble)
-{    QString ntextdouble = textdouble.replace(",",".");
-     return (ntextdouble.toDouble());
-}
-
 //---------------------------------------------------------------------------------
 // Deplacement du curseur sur un des GroupBox
 //---------------------------------------------------------------------------------
@@ -1603,15 +1579,21 @@ void dlg_refraction::InitDivers()
     ui->PorteRadioButton->setChecked(true);
     ui->DateDateEdit->setDate(QDate::currentDate());
 
-    upDoubleValidator *val = new upDoubleValidator(6,9.50,2,this);
-    val->setNotation(QDoubleValidator::StandardNotation);
-    ui->K1OD->setValidator(val);
-    ui->K1OG->setValidator(val);
-    ui->K2OD->setValidator(val);
-    ui->K2OG->setValidator(val);
+    m_val = new upDoubleValidator(MinK, MaxK , 2, this);
+    ui->K1OD->setValidator(m_val);
+    ui->K1OG->setValidator(m_val);
+    ui->K2OD->setValidator(m_val);
+    ui->K2OG->setValidator(m_val);
 
     ui->AxeKOD->setValidator(new QIntValidator(0,180, this));
     ui->AxeKOG->setValidator(new QIntValidator(0,180, this));
+
+    ui->K1OD->setAlignment(Qt::AlignRight);
+    ui->K2OD->setAlignment(Qt::AlignRight);
+    ui->K1OG->setAlignment(Qt::AlignRight);
+    ui->K2OG->setAlignment(Qt::AlignRight);
+    ui->AxeKOD->setAlignment(Qt::AlignRight);
+    ui->AxeKOG->setAlignment(Qt::AlignRight);
 
     ui->AxeCylindreOD->setSuffix("°");
     ui->AxeCylindreOG->setSuffix("°");
@@ -1682,23 +1664,31 @@ void dlg_refraction::InsertDonneesOphtaPatient()
    listbinds["idPat"]           = Datas::I()->patients->currentpatient()->id();
    listbinds["QuelleMesure"]    = Refraction::ConvertMesure(m_mode);
    listbinds["QuelleDistance"]  = QuelleDistance();
-   if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked()) // 16-07-2014
+   if (m_mode == Refraction::Autoref && m_modeouverture == Manuel)
    {
-       listbinds["K1OD"]        = QLocale().toDouble(ui->K1OD->text());
-       listbinds["K1OD"]        = QLocale().toDouble(ui->K2OD->text());
-       listbinds["AxeKOD"]      = ui->AxeKOD->text();
-   }
-   if ((ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0) && ui->OGCheckBox->isChecked())  // 16-07-2014
-   {
-       listbinds["K1OG"]        = QLocale().toDouble(ui->K1OG->text());
-       listbinds["K1OG"]        = QLocale().toDouble(ui->K2OG->text());
-       listbinds["AxeKOG"]      = ui->AxeKOG->text();
-   }
-   if (ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0 || // 16-07-2014
-       ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
-   {
-       listbinds["OrigineK"]     = Refraction::ConvertMesure(m_mode);
-       listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       double K1OD = QLocale().toDouble(ui->K1OD->text());
+       double K2OD = QLocale().toDouble(ui->K2OD->text());
+       bool okOD = (K1OD >= m_val->bottom() && K1OD <= m_val->top() && K2OD >= m_val->bottom() && K2OD <= m_val->top());
+       if (okOD && ui->ODCheckBox->isChecked()) // 16-07-2014
+       {
+           listbinds["K1OD"]        = QLocale().toDouble(ui->K1OD->text());
+           listbinds["K1OD"]        = QLocale().toDouble(ui->K2OD->text());
+           listbinds["AxeKOD"]      = ui->AxeKOD->text();
+       }
+       double K1OG = QLocale().toDouble(ui->K1OG->text());
+       double K2OG = QLocale().toDouble(ui->K2OG->text());
+       bool okOG = (K1OG >= m_val->bottom() && K1OG <= m_val->top() && K2OG >= m_val->bottom() && K2OG <= m_val->top());
+       if (okOG && ui->OGCheckBox->isChecked())  // 16-07-2014
+       {
+           listbinds["K1OG"]        = QLocale().toDouble(ui->K1OG->text());
+           listbinds["K1OG"]        = QLocale().toDouble(ui->K2OG->text());
+           listbinds["AxeKOG"]      = ui->AxeKOG->text();
+       }
+       if (okOD || okOG)
+       {
+           listbinds["OrigineK"]     = Refraction::ConvertMesure(m_mode);
+           listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       }
    }
    if (ui->ODCheckBox->isChecked())
    {
@@ -3565,11 +3555,11 @@ void dlg_refraction::RegleAffichageFiche()
         ui->ODCheckBox->setVisible(true);
         ui->OGCheckBox->setVisible(true);
         ui->KeratometrieGroupBox->setVisible(true);
+        ui->KeratometrieGroupBox->setEnabled(m_modeouverture == Manuel);
         ui->frame_Prescription->setVisible(false);
         ui->AutorefRadioButton->setChecked(true);
         ui->DetailsPushButton->setVisible(false);
         AfficherDetail(false);
-        ui->KeratometrieGroupBox->setVisible(true);
         Afficher_AVL_AVP(false);
         Afficher_AddVP(false);
         ui->QuelleDistanceGroupBox->setVisible(false);
@@ -3718,24 +3708,29 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
 {
     QString UpdateDOPrequete = "UPDATE  " TBL_DONNEES_OPHTA_PATIENTS
                 " SET QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
-    if (m_mode == Refraction::Autoref)
+    if (m_mode == Refraction::Autoref && m_modeouverture == Manuel)
     {
-        if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked())       // 16-07-2014
+        double K1OD = QLocale().toDouble(ui->K1OD->text());
+        double K2OD = QLocale().toDouble(ui->K2OD->text());
+        bool okOD = (K1OD >= m_val->bottom() && K1OD <= m_val->top() && K2OD >= m_val->bottom() && K2OD <= m_val->top());
+        if (okOD && ui->ODCheckBox->isChecked())
         {
             UpdateDOPrequete +=
                     " , K1OD = " + QString::number(QLocale().toDouble(ui->K1OD->text()),'f',2) +
                     " , K2OD = " + QString::number(QLocale().toDouble(ui->K2OD->text()),'f',2) +
                     " , AxeKOD = " + ui->AxeKOD->text();
         }
-        if ((ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0) && ui->OGCheckBox->isChecked())       // 16-07-2014
+        double K1OG = QLocale().toDouble(ui->K1OG->text());
+        double K2OG = QLocale().toDouble(ui->K2OG->text());
+        bool okOG = (K1OG >= m_val->bottom() && K1OG <= m_val->top() && K2OG >= m_val->bottom() && K2OG <= m_val->top());
+        if (okOG && ui->OGCheckBox->isChecked())
         {
             UpdateDOPrequete +=
                     ", K1OG = " + QString::number(QLocale().toDouble(ui->K1OG->text()),'f',2) +
                     ", K2OG = " + QString::number(QLocale().toDouble(ui->K2OG->text()),'f',2) +
                     ", AxeKOG = " + ui->AxeKOG->text();
         }
-        if (ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0 || // 16-07-2014
-                ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
+        if (okOD || okOG)
         {
             UpdateDOPrequete +=
                     ", OrigineK = '" + Refraction::ConvertMesure(m_mode) + "'" +
@@ -3815,15 +3810,13 @@ QString dlg_refraction::Valeur(QString StringValeur)
 void dlg_refraction::AfficheMesureFronto()
 {
     PorteRadioButton_Clicked();
-    if (proc->DonneesFronto() == Q_NULLPTR)
+    if (Datas::I()->mesurefronto == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du frontofocomètre"));
         return;
     }
-    MesureRefraction *MesureFronto = proc->DonneesFronto();
-
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (MesureFronto->addVPOD() >  0 || MesureFronto->addVPOG() > 0)
+    if (Datas::I()->mesurefronto->addVPOD() >  0 || Datas::I()->mesurefronto->addVPOG() > 0)
     {
         if (!ui->V2RadioButton->isChecked())
         {
@@ -3844,15 +3837,15 @@ void dlg_refraction::AfficheMesureFronto()
         }
     }
     // OEIL DROIT -----------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOD, MesureFronto->sphereOD());
-    Init_Value_DoubleSpin(ui->CylindreOD, MesureFronto->cylindreOD());
-    ui->AxeCylindreOD   ->setValue(MesureFronto->axecylindreOD());
-    ui->AddVPOD         ->setValue(MesureFronto->addVPOD());
+    Init_Value_DoubleSpin(ui->SphereOD, Datas::I()->mesurefronto->sphereOD());
+    Init_Value_DoubleSpin(ui->CylindreOD, Datas::I()->mesurefronto->cylindreOD());
+    ui->AxeCylindreOD   ->setValue(Datas::I()->mesurefronto->axecylindreOD());
+    ui->AddVPOD         ->setValue(Datas::I()->mesurefronto->addVPOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, MesureFronto->sphereOG());
-    Init_Value_DoubleSpin(ui->CylindreOG, MesureFronto->cylindreOG());
-    ui->AxeCylindreOG   ->setValue(MesureFronto->axecylindreOG());
-    ui->AddVPOG         ->setValue(MesureFronto->addVPOG());
+    Init_Value_DoubleSpin(ui->SphereOG, Datas::I()->mesurefronto->sphereOG());
+    Init_Value_DoubleSpin(ui->CylindreOG, Datas::I()->mesurefronto->cylindreOG());
+    ui->AxeCylindreOG   ->setValue(Datas::I()->mesurefronto->axecylindreOG());
+    ui->AddVPOG         ->setValue(Datas::I()->mesurefronto->addVPOG());
 }
 
 //-----------------------------------------------------------------------------------------
@@ -3935,7 +3928,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     switch (m_mode) {
     case Refraction::Acuite:
     {
-       ui->AVLODupComboBox->setCurrentText(AVLOD);
+        ui->AVLODupComboBox->setCurrentText(AVLOD);
         ui->AVPODupComboBox->setCurrentText(MesureRefracteur->avpOD());
         ui->AVLOGupComboBox->setCurrentText(AVLOG);
         ui->AVPOGupComboBox->setCurrentText(MesureRefracteur->avpOG());
@@ -3952,6 +3945,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     default:
         break;
     }
+    MesureRefracteur = Q_NULLPTR;
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
 }
 

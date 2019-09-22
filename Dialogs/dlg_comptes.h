@@ -18,14 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_COMPTES_H
 #define DLG_COMPTES_H
 
-#include <QLocale>
-
 #include "procedures.h"
-#include "upcheckbox.h"
-#include "uplabel.h"
-#include "cls_compte.h"
-#include "cls_archivebanque.h"
-#include "gbl_datas.h"
 
 namespace Ui {
 class dlg_comptes;

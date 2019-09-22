@@ -18,13 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSVIDEO_H
 #define DLG_DOCSVIDEO_H
 
-#include "updialog.h"
 #include "procedures.h"
-#include "upcombobox.h"
-#include "uplabel.h"
-#include "uplineedit.h"
 #include "uptablewidget.h"
-#include "uptoolbar.h"
 #include <QVideoWidget>
 #include <QMediaPlayer>
 #include <QMediaRecorder>

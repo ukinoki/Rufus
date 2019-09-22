@@ -35,7 +35,7 @@ Procedures::Procedures(QObject *parent) :
 {
     m_CPpardefaut    = "";
     m_Villepardefaut = "";
-    db              = DataBase::I();
+    db               = DataBase::I();
 
     m_nomFichierIni     = QDir::homePath() + FILE_INI;
     QFile FichierIni(m_nomFichierIni);
@@ -4414,19 +4414,18 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     }
     LectureDonneesRefracteur(m_mesureSerie);
     if (Datas::I()->mesureautoref   ->isdataclean()
-        && Datas::I()->mesurefronto         ->isdataclean()
-        && Datas::I()->mesurekerato->isdataclean()
-        && map_mesurePachy.isEmpty()
-        && map_mesureTono.isEmpty()
+        && Datas::I()->mesurefronto ->isdataclean()
+        && Datas::I()->mesurekerato ->isdataclean()
+        && map_mesurePachy          .isEmpty()
+        && map_mesureTono           .isEmpty()
         && Datas::I()->mesureacuite ->isdataclean()
-        && Datas::I()->mesurefinal->isdataclean())
+        && Datas::I()->mesurefinal  ->isdataclean())
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("pas de données reçues du refracteur"));
         return;
     }
-    setTypeMesureRefraction(Subjectif);
     setHtmlRefracteur();
-    emit NouvMesureRefraction();
+    emit NouvMesureRefraction(Subjectif);
 }
 
 void Procedures::RegleRefracteur()
@@ -5168,8 +5167,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         }
     }
     setHtmlFronto();
-    setTypeMesureRefraction(Fronto);
-    emit NouvMesureRefraction();
+    emit NouvMesureRefraction(Fronto);
 }
 
 void Procedures::LectureDonneesFronto(QString Mesure)
@@ -5268,11 +5266,6 @@ void Procedures::LectureDonneesFronto(QString Mesure)
     Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
     Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
     Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
-}
-
-MesureRefraction* Procedures::DonneesFronto()
-{
-    return Datas::I()->mesurefronto;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5477,18 +5470,15 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
              || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
                 setHtmlKerato(Datas::I()->mesurekerato);
-                setTypeMesureRefraction(Kerato);
-                emit NouvMesureRefraction();
+                emit NouvMesureRefraction(Kerato);
             }
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
                 setHtmlTono();
-                setTypeMesureRefraction(Tono);
-                emit NouvMesureRefraction();
+                emit NouvMesureRefraction(Tono);
 
                 setHtmlPachy();
-                setTypeMesureRefraction(Pachy);
-                emit NouvMesureRefraction();
+                emit NouvMesureRefraction(Pachy);
             }
             //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
             QString ReqPourEnvoyer ("");
@@ -5507,8 +5497,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
         }
     }
     setHtmlAutoref();
-    setTypeMesureRefraction(Autoref);
-    emit NouvMesureRefraction();
+    emit NouvMesureRefraction(Autoref);
 }
 
 void Procedures::LectureDonneesAutoref(QString Mesure)
@@ -6072,14 +6061,24 @@ QSerialPort* Procedures::PortTono()
     return sp_portTono;
 }
 
-Procedures::TypeMesure Procedures::TypeMesureRefraction()
+Procedures::TypeMesure Procedures::ConvertMesure(QString Mesure)
 {
-    return m_typemesureRefraction;
+    if (Mesure == "P") return Fronto;
+    if (Mesure == "A") return Autoref;
+    if (Mesure == "R") return Subjectif;
+    if (Mesure == "O") return Final;
+    return  None;
 }
 
-void Procedures::setTypeMesureRefraction(TypeMesure mesure)
+QString Procedures::ConvertMesure(TypeMesure Mesure)
 {
-    m_typemesureRefraction = mesure;
+    switch (Mesure) {
+    case Fronto:        return "P";
+    case Autoref:       return "A";
+    case Subjectif:     return "R";
+    case Final:         return "O";
+    default: return "";
+    }
 }
 
 //---------------------------------------------------------------------------------
@@ -6150,7 +6149,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
             mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
             mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
-            zQuelleMesure = "P";
+            zQuelleMesure   = ConvertMesure(Mesure);
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
@@ -6209,7 +6208,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             PD              = QString::number(Datas::I()->mesureautoref->ecartIP());
             if (PD == "")
                 PD = "null";
-            zQuelleMesure = "A";
+            zQuelleMesure   = ConvertMesure(Mesure);
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
@@ -6280,7 +6279,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato)
+    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato && m_isnewMesureAutoref)
     {
         bool a =
                (Datas::I()->mesurekerato->K1OD() == 0.0
@@ -6355,7 +6354,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
             if (PD == "")
                 PD = "null";
-            zQuelleMesure = "R";
+            zQuelleMesure   = ConvertMesure(Mesure);
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());

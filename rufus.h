@@ -26,7 +26,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkAccessManager>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
-#include <QApplication>
 
 #include <poppler-qt5.h>
 
@@ -167,10 +166,10 @@ private:
     void        LireLaCPS();      // CZ001
     void        MajusculeCreerNom();
     void        MajusculeCreerPrenom();
-    void        ModfiCotationActe();
+    void        ModifCotationActe();
     void        ModifierTerrain();
     void        Moulinette();
-    void        NouvelleMesureRefraction();                     // les connexions aux appareils de mesure
+    void        NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure);                     // les connexions aux appareils de mesure
     void        OKModifierTerrain(Patient *pat, bool recalclesdonnees = true);                  //!> recalcule le TreeWidgtet résumant le terrain
     void        OuvrirActesPrecspushButtonClicked();
     void        OuvrirJournalDepenses();
@@ -329,7 +328,7 @@ private:
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);
-    void                RefractionMesure();
+    void                RefractionMesure(dlg_refraction::ModeOuverture mode);
     void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
@@ -349,7 +348,6 @@ private:
     void                SupprimerDossier(Patient *pat);
     void                Tonometrie();
     void                FiltreTableparDDN();
-    void                updateActeData(Acte *act, QString nomchamp, QVariant value);                     //! met à jour la valeur d'un champ de la table, sa propriété correspondante pour l'acte et la fiche dlg_actesprecedents
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
     bool                VerifCoherenceMontantPaiement();        /*! Vérifie que le montant facturé pour l'acte en cours n'est pas inférieur à la somme des paiements déjà enregistrés */
 

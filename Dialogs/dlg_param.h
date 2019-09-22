@@ -20,15 +20,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QToolTip>
 
-#include "uplineedit.h"
 #include "dlg_gestionbanques.h"
 #include "ui_dlg_gestionbanques.h"
 #include "dlg_gestioncotations.h"
 #include "dlg_gestionusers.h"
 #include "dlg_fontdialog.h"
-#include "dlg_gestionlieux.h"
 #include "dlg_motifs.h"
-#include "upradiobutton.h"
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
 #include "widgetbuttonframe.h"

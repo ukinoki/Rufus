@@ -18,21 +18,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSEXTERNES_H
 #define DLG_DOCSEXTERNES_H
 
-#include <QPainter>
-#include <QToolBar>
 #include <QtXml>
 #include <poppler-qt5.h>
 #include "procedures.h"
-#include "updialog.h"
-#include "uplabel.h"
 #include "upswitch.h"
-#include "uptablewidget.h"
 #include <QGraphicsVideoItem>
 #include <QGraphicsView>
-#include <QMediaPlayer>
 #include "playercontrols.h"
-#include "cls_docexterne.h"
-#include "cls_docsexternes.h"
 
 class dlg_docsexternes : public UpDialog
 {

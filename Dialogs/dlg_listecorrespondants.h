@@ -18,15 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef dlg_listecorrespondants_H
 #define dlg_listecorrespondants_H
 
-#include <QToolTip>
 #include "dlg_identificationcorresp.h"
-#include "uplineedit.h"
-#include <QFrame>
-#include <QToolTip>
-#include "uplabel.h"
-#include <QTreeView>
-#include "procedures.h"
-#include "widgetbuttonframe.h"
 
 class dlg_listecorrespondants : public UpDialog
 {

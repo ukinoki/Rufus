@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UPHEADERVIEW_H
 #define UPHEADERVIEW_H
 
-#include <QObject>
 #include <QHeaderView>
 #include <QAbstractItemModel>
 #include <QTableWidget>

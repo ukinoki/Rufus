@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_CHOIXDATE_H
 
 #include <QDialog>
-#include <QTimer>
 #include <QMap>
 
 namespace Ui {

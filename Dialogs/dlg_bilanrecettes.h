@@ -18,13 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_BILANRECETTES_H
 #define DLG_BILANRECETTES_H
 
-
-
-#include <QLocale>
 #include "procedures.h"
 #include "uptableview.h"
-#include "upgroupbox.h"
-#include "upradiobutton.h"
 
 class dlg_bilanrecettes : public UpDialog
 {

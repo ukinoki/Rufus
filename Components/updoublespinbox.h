@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDoubleSpinBox>
 #include <QSound>
-#include <QMessageBox>
 #include <cmath>            // sert à introduire la fonction floor()
 #include "upmessagebox.h"
 

@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_identificationcorresp.h"
 #include "ui_dlg_identificationcorresp.h"
-#include <QTimer>
 #include "flags.h"
 
 namespace Ui {

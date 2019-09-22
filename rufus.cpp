@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("20-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -321,7 +321,7 @@ void Rufus::ConnectSignals()
     connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   &Rufus::AffichePatientsVusWidget);
     connect (ui->PatientsVusupTableWidget,                          &QTableView::activated,                             this,   [=] {gTimerPatientsVus->start();});
     connect (ui->PremierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Debut);});
-    connect (ui->RefractionpushButton,                              &QPushButton::clicked,                              this,   &Rufus::RefractionMesure);
+    connect (ui->RefractionpushButton,                              &QPushButton::clicked,                              this,   [=] {RefractionMesure(dlg_refraction::Manuel);});
     connect (ui->SalleDAttentepushButton,                           &QPushButton::clicked,                              this,   &Rufus::SalleDAttente);
     connect (ui->SalleDAttenteupTableWidget,                        &UpTableWidget::dropsignal,                         this,   [=] {DropPatient(ui->SalleDAttenteupTableWidget->dropData());});
     connect (ui->SupprimeActepushButton,                            &QPushButton::clicked,                              this,   [=] {SupprimerActe(m_currentact);});
@@ -331,7 +331,7 @@ void Rufus::ConnectSignals()
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
     connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
-    connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   &Rufus::ModfiCotationActe);
+    connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   &Rufus::ModifCotationActe);
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   &Rufus::ChangeTabBureau);
 
@@ -3683,7 +3683,7 @@ void Rufus::MAJPosteConnecte()
     }
 }
 
-void Rufus::ModfiCotationActe()
+void Rufus::ModifCotationActe()
 {
     m_autorModifConsult = true;
     ui->Cotationframe->setEnabled(true);
@@ -5660,7 +5660,7 @@ void Rufus::keyPressEvent (QKeyEvent * event )
 {
         switch (event->key()) {
         case Qt::Key_F3:
-            RefractionMesure();
+            RefractionMesure(dlg_refraction::Manuel);
             break;
         case Qt::Key_F4:
             Tonometrie();
@@ -8431,7 +8431,7 @@ void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Mesurer la Refraction ------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::RefractionMesure()
+void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
 {
     if (findChildren<dlg_refraction*>().size()>0)
         return;
@@ -8439,7 +8439,7 @@ void    Rufus::RefractionMesure()
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-    Dlg_Refraction     = new dlg_refraction(m_currentact, this);
+    Dlg_Refraction     = new dlg_refraction(m_currentact, mode, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
     proc->setFicheRefractionOuverte(false);
@@ -8487,7 +8487,6 @@ void Rufus::SetDatasRefracteur()
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
-    //qDebug() << Datas::I()->refractions->refractions()->size();
     QMapIterator<int, Refraction*> itref(*Datas::I()->refractions->refractions());
 
     /*! On va créer 3 mesures
@@ -8505,179 +8504,87 @@ void Rufus::SetDatasRefracteur()
     Datas::I()->mesurefinal->cleandatas();
     Datas::I()->mesurekerato->cleandatas();
 
-    /*! Autoref     on cherche à régler la position autoref du fronto - on utilise la dernière mesure d'acuité pour ça */
-    while (itref.hasNext()) {
-        itref.next();
+    /*! Autoref     on cherche à régler la position autoref du fronto - on utilise la dernière mesure d'acuité pour ça
+                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+    itref.toBack();
+    while (itref.hasPrevious()) {
+        itref.previous();
         if (itref.value()->typemesure() == Refraction::Acuite)
+        {
             Datas::I()->mesureautoref->setdata(const_cast<Refraction*>(itref.value()));
+            itref.toFront();
+        }
     }
+    if (Datas::I()->mesureautoref->isdataclean())
+    {
+        itref.toBack();
+        while (itref.hasPrevious()) {
+            itref.previous();
+            if (itref.value()->typemesure() == Refraction::Autoref)
+            {
+                Datas::I()->mesureautoref->setdata(const_cast<Refraction*>(itref.value()));
+                itref.toFront();
+            }
+        }
+    }
+    if (!Datas::I()->mesureautoref ->isdataclean())
+        Datas::I()->mesureautoref->setmesure(Refraction::Autoref);
+
     /*! Fronto      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
-    itref.toFront();
-    while (itref.hasNext()) {
-        itref.next();
+    itref.toBack();
+    while (itref.hasPrevious()) {
+        itref.previous();
         if (itref.value()->typemesure() == Refraction::Prescription && itref.value()->distance() != Refraction::Pres)
+        {
             Datas::I()->mesurefronto->setdata(const_cast<Refraction*>(itref.value()));
+            itref.toFront();
+        }
     }
     if (Datas::I()->mesurefronto ->isdataclean())
     {
-        itref.toFront();
-        while (itref.hasNext()) {
-            itref.next();
+        itref.toBack();
+        while (itref.hasPrevious()) {
+            itref.previous();
             if (itref.value()->typemesure() == Refraction::Fronto && itref.value()->distance() != Refraction::Pres)
+            {
                 Datas::I()->mesurefronto->setdata(const_cast<Refraction*>(itref.value()));
+                itref.toFront();
+            }
         }
     }
+    if (!Datas::I()->mesurefronto ->isdataclean())
+        Datas::I()->mesurefronto->setmesure(Refraction::Fronto);
+
     /*! Acuite      on cherche à régler la position subjectif du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on utilise la dernière mesure d'autoref
                     * si on en n'a pas, on utilise la dernière mesure de fronto */
-    itref.toFront();
-    while (itref.hasNext()) {
-        itref.next();
+    itref.toBack();
+    while (itref.hasPrevious()) {
+        itref.previous();
         if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres)
+        {
             Datas::I()->mesureacuite->setdata(const_cast<Refraction*>(itref.value()));
+            itref.toFront();
+        }
     }
     if (Datas::I()->mesureacuite->isdataclean())
-        Datas::I()->mesureacuite->setdata(Datas::I()->mesureautoref);
-    if (Datas::I()->mesureacuite->isdataclean())
-        Datas::I()->mesureacuite->setdata(Datas::I()->mesurefronto);
-    Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
+    {
+        if (!Datas::I()->mesureautoref->isdataclean())
+            Datas::I()->mesureacuite->setdata(Datas::I()->mesureautoref);
+        else if (!Datas::I()->mesureacuite->isdataclean())
+            Datas::I()->mesureacuite->setdata(Datas::I()->mesurefronto);
+    }
+    if (!Datas::I()->mesureacuite->isdataclean())
+        Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
 
-//    return;
-//    QMap<QString,QVariant>      Mesure;
-//    Mesure["AxeOD"]     = "180";
-//    Mesure["AxeOG"]     = "180";
-//    Mesure["SphereOD"]  = "+00.00";
-//    Mesure["SphereOG"]  = "+00.00";
-//    Mesure["CylOD"]     = "+00.00";
-//    Mesure["CylOG"]     = "+00.00";
-//    Mesure["AddOD"]     = "+00.00";
-//    Mesure["AddOG"]     = "+00.00";
-//    Refraction *ref = Q_NULLPTR;
-
-//    itref.toBack();
-//    while (itref.hasPrevious()) {
-//        itref.previous();
-//        if (itref.value()->distance() != Refraction::Pres)
-//        {
-//                if (mesure == Refraction::Autoref)
-//                {
-//                    if (itref.value()->typemesure() == Refraction::Acuite)
-//                        ref= const_cast<Refraction*>(itref.value());
-//                }
-//                else if (mesure == Refraction::Fronto)
-//                {
-//                    if (itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto)
-//                        ref= const_cast<Refraction*>(itref.value());
-//                }
-//                if (ref != Q_NULLPTR)
-//                    itref.toFront();
-//        }
-//    }
-//    if (ref == Q_NULLPTR)
-//        return;
-//    QString prefix = "";
-//    // Les axes
-//    if (ref->cylindreOD() != 0.0)
-//    {
-//        if (ref->axecylindreOD() < 10)
-//            prefix = "  ";
-//        else if (ref->axecylindreOD() < 100)
-//            prefix = " ";
-//        Mesure["AxeOD"] = prefix + QString::number(ref->axecylindreOD());
-//    }
-//    prefix = "";
-//    if (ref->cylindreOG() != 0.0)
-//    {
-//        if (ref->axecylindreOG() < 10)
-//            prefix = "  ";
-//        else if (ref->axecylindreOG() < 100)
-//            prefix = " ";
-//        Mesure["AxeOG"] = prefix + QString::number(ref->axecylindreOG());
-//    }
-
-//    // Les spheres
-//    prefix = "";
-//    if (ref->sphereOD() > 0)
-//    {
-//        if (ref->sphereOD() < 10)
-//            prefix = "+0";
-//        else
-//            prefix = "+";
-//        Mesure["SphereOD"] = prefix + QString::number(ref->sphereOD(),'f',2);
-//    }
-//    else if (ref->sphereOD() < 0)
-//    {
-//        prefix = QString::number(ref->sphereOD(),'f',2);
-//        if (ref->sphereOD() > -10)
-//            prefix.replace("-", "-0");
-//        Mesure["SphereOD"] = prefix;
-//    }
-//    prefix = "";
-//    if (ref->sphereOG() > 0)
-//    {
-//        if (ref->sphereOG() < 10)
-//            prefix = "+0";
-//        else
-//            prefix = "+";
-//        Mesure["SphereOG"] = prefix + QString::number(ref->sphereOG(),'f',2);
-//    }
-//    else if (ref->sphereOG() < 0)
-//    {
-//        prefix = QString::number(ref->sphereOG(),'f',2);
-//        if (ref->sphereOG() > -10)
-//            prefix.replace("-", "-0");
-//        Mesure["SphereOG"] = prefix;
-//    }
-
-//    // Les cylindres
-//    prefix = "";
-//    if (ref->cylindreOD() > 0)
-//    {
-//        if (ref->cylindreOD() < 10)
-//            prefix = "+0";
-//        else
-//            prefix = "+";
-//        Mesure["CylOD"] = prefix + QString::number(ref->cylindreOD(),'f',2);
-//    }
-//    else if (ref->cylindreOD() < 0)
-//    {
-//        prefix = QString::number(ref->cylindreOD(),'f',2);
-//        if (ref->cylindreOD() > -10)
-//            prefix.replace("-", "-0");
-//        Mesure["CylOD"] = prefix;
-//    }
-//    prefix = "";
-//    if (ref->cylindreOG() > 0)
-//    {
-//        if (ref->cylindreOG() < 10)
-//            prefix = "+0";
-//        else
-//            prefix = "+0";
-//        Mesure["CylOG"] = prefix + QString::number(ref->cylindreOG(),'f',2);
-//    }
-//    else if (ref->cylindreOG() < 0)
-//    {
-//        prefix = QString::number(ref->cylindreOG(),'f',2);
-//        if (ref->cylindreOG() > -10)
-//            prefix.replace("-", "-0");
-//        Mesure["CylOG"] = prefix;
-//    }
-
-//    // Les additions
-//    if (ref->addVPOD() != 0.0)
-//        Mesure["AddOD"] = "+0" + QString::number(ref->addVPOD(),'f',2);
-//    if (ref->addVPOG()!=0.0)
-//        Mesure["AddOG"] = "+0" + QString::number(ref->addVPOG(),'f',2);
-
-//    // Les formules
-//    Mesure["FormuleOD"] = ref->formuleOD();
-//    Mesure["FormuleOG"] = ref->formuleOG();
-
-//    if (mesure == Refraction::Autoref)
-//        map_mesureAutoref = Mesure;
-//    else if (mesure == Refraction::Fronto)
-//        map_mesureFronto = Mesure;
+    /*! Final      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
+                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+    if (!Datas::I()->mesurefronto ->isdataclean())
+    {
+        Datas::I()->mesurefinal->setdata(Datas::I()->mesurefronto);
+        Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9709,12 +9616,6 @@ bool Rufus::VerifCoherenceMontantPaiement()
         return true;
 }
 
-void Rufus::updateActeData(Acte *act, QString nomchamp, QVariant value)
-{
-    ItemsList::update(act, nomchamp, value);
-    MAJActesPrecs();
-}
-
 /*-----------------------------------------------------------------------------------------------------------------
 -- Valider et enregistrer le montant de la consultation en cours en cas de modification ---------------------------
 -----------------------------------------------------------------------------------------------------------------*/
@@ -9791,7 +9692,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     return true;
 }
 
-void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
+void Rufus::NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
     if (findChildren<dlg_refraction*>().size()>0)
         return;
@@ -9800,8 +9701,9 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
 
-    Procedures::TypeMesure TypeMesure = proc->TypeMesureRefraction();
-    if (TypeMesure == Procedures::Final || TypeMesure == Procedures::Subjectif)
+    switch (TypeMesure) {
+    case  Procedures::Final:
+    case  Procedures::Subjectif:
     {
         QString ARajouterEnText= proc->HtmlRefracteur();
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
@@ -9809,39 +9711,44 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         if (!Datas::I()->mesurefinal->isdataclean() && !Datas::I()->mesureacuite->isdataclean())
             proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Subjectif);
-        RefractionMesure();
+        RefractionMesure(dlg_refraction::Auto);
+        break;
     }
-    else if (TypeMesure == Procedures::Autoref)
+    case Procedures::Autoref:
         proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Autoref);
-    else if (TypeMesure == Procedures::Fronto)
+        break;
+    case Procedures::Fronto:
         proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Fronto);
-    else if (TypeMesure == Procedures::Kerato)
+        break;
+    case Procedures::Kerato:
     {
         QString ARajouterEnText= proc->HtmlKerato();
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Kerato);
+        break;
     }
-    else if (TypeMesure == Procedures::Tono)
+    case Procedures::Tono:
     {
         QString ARajouterEnText= proc->HtmlTono();
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+        break;
     }
-    else if (TypeMesure == Procedures::Pachy)
+    case Procedures::Pachy:
     {
         QString ARajouterEnText= proc->HtmlPachy();
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+        break;
     }
-    else
-    {
-        proc->setTypeMesureRefraction();
-        RefractionMesure();
+    default:
+        RefractionMesure(dlg_refraction::Manuel);
     }
+
 }
 
 

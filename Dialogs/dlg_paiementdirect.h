@@ -18,14 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_PAIEMENTDIRECT_H
 #define DLG_PAIEMENTDIRECT_H
 
-#include <QDialog>
-#include <QSqlQuery>
 #include "dlg_gestionbanques.h"
 #include "procedures.h"
-#include "database.h"
-#include "gbl_datas.h"
-#include "icons.h"
-#include "utils.h"
 #include "flags.h"
 
 namespace Ui {
