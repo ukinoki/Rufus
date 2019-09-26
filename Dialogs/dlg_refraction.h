@@ -106,7 +106,6 @@ private:
     void                    ResumePushButton_Clicked();
 
     // les autres zones de saisie
-    void                    Controle_K(QLineEdit *line);
     void                    BasePrismeTextODComboBox_Changed(int);
     void                    BasePrismeTextOGComboBox_Changed(int);
     void                    BasePrisme_ValueChanged(QSpinBox *box);
@@ -127,6 +126,7 @@ private:
     void                    VPrescritRadioButton_Clicked();
     void                    ReprendreButtonClicked();
 
+    void                    AfficheKerato();
     void                    Afficher_AVL_AVP(bool TrueFalse);
     void                    AfficherDetail(bool typ);
     void                    Afficher_AddVP(bool TrueFalse);

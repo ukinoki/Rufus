@@ -17,10 +17,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_mesurerefraction.h"
 
-MesureRefraction::MesureRefraction()
-{
+MesureRefraction::MesureRefraction() {}
 
+MesureRefraction::MesureRefraction(Refraction::Mesure typemesure)
+{
+    setmesure(typemesure);
 }
+
 void MesureRefraction::setdata(Refraction *ref)
 {
     m_sphereOD          = ref->sphereOD();
@@ -43,6 +46,7 @@ void MesureRefraction::setdata(Refraction *ref)
     m_formuleOG         = ref->formuleOG();
     m_ecartIP           = ref->ecartIP();
     m_typemesure        = ref->typemesure();
+    m_cleandatas        = false;
 }
 
 void MesureRefraction::setdata(MesureRefraction *mesure)
@@ -67,4 +71,5 @@ void MesureRefraction::setdata(MesureRefraction *mesure)
     m_formuleOG         = mesure->formuleOG();
     m_ecartIP           = mesure->ecartIP();
     m_typemesure        = mesure->typemesure();
+    m_cleandatas        = false;
 }

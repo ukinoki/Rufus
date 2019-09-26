@@ -40,18 +40,18 @@ private:
     bool m_cleandatas       = true;
 
 public:
-    double K1OD()                   { return m_K1OD; }
-    double K2OD()                   { return m_K2OD; }
-    double dioptriesK1OD()          { return m_dioptriesK1OD; }
-    double dioptriesK2OD()          { return m_dioptriesK2OD; }
-    int axeKOD()                    { return m_AxeKOD; }
-    double K1OG()                   { return m_K1OG; }
-    double K2OG()                   { return m_K2OG; }
-    double dioptriesK1OG()          { return m_dioptriesK1OG; }
-    double dioptriesK2OG()          { return m_dioptriesK2OG; }
-    int axeKOG()                    { return m_AxeKOG; }
-    double dioptriesKOD()           { return m_dioptriesK1OD - m_dioptriesK2OD; }
-    double dioptriesKOG()           { return m_dioptriesK1OG - m_dioptriesK2OG; }
+    double K1OD() const                   { return m_K1OD; }
+    double K2OD() const                   { return m_K2OD; }
+    double dioptriesK1OD() const          { return m_dioptriesK1OD; }
+    double dioptriesK2OD() const          { return m_dioptriesK2OD; }
+    int axeKOD() const                    { return m_AxeKOD; }
+    double K1OG() const                   { return m_K1OG; }
+    double K2OG() const                   { return m_K2OG; }
+    double dioptriesK1OG() const          { return m_dioptriesK1OG; }
+    double dioptriesK2OG() const          { return m_dioptriesK2OG; }
+    int axeKOG() const                    { return m_AxeKOG; }
+    double dioptriesKOD() const           { return m_dioptriesK1OD - m_dioptriesK2OD; }
+    double dioptriesKOG() const           { return m_dioptriesK1OG - m_dioptriesK2OG; }
 
     void setK1OD(double val)            { m_K1OD = val; m_cleandatas = false; }
     void setK2OD(double val)            { m_K2OD = val; m_cleandatas = false; }
@@ -80,5 +80,22 @@ public:
         m_cleandatas     = true;
     }
 };
+
+bool operator==(MesureKerato const& init, MesureKerato const& other)
+{
+    bool a = false;
+    a = (  int(init.K1OD()*100) == int(other.K1OD()*100)
+        && int(init.K2OD()*100) == int(other.K2OD()*100)
+        && init.axeKOD()        == other.axeKOD()
+        && int(init.K1OG()*100) == int(other.K1OG()*100)
+        && int(init.K2OG()*100) == int(other.K2OG()*100)
+        && init.axeKOG()        == other.axeKOG());
+    return  a;
+}
+
+bool operator!=(MesureKerato const& init, MesureKerato const& other)
+{
+    return !(init == other);
+}
 
 #endif // CLS_MESUREKERATO_H

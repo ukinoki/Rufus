@@ -93,7 +93,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->EspecesradioButton,                    &QRadioButton::clicked,                         this,           &dlg_paiementtiers::RegleAffichageTypePaiementframeDepuisBouton);
     connect (ui->ListPaiementsTiersupPushButton,        &QPushButton::clicked,                          this,           &dlg_paiementtiers::VoirListePaiements);
     connect (ui->ListeupTableWidget,                    &QTableWidget::itemEntered,                     this,           &dlg_paiementtiers::AfficheDDN);
-    connect (ui->MontantlineEdit,                       &QLineEdit::editingFinished,                    this,           [=] {ConvertitDoubleMontant(ui->CommissionlineEdit);});
+    connect (ui->MontantlineEdit,                       &QLineEdit::editingFinished,                    this,           [=] {ConvertitDoubleMontant(ui->MontantlineEdit);});
     connect (ui->MontantlineEdit,                       &QLineEdit::textEdited,                         this,           &dlg_paiementtiers::EnableOKButton);
     connect (ui->NouvTiersupPushButton,                 &QPushButton::clicked,                          this,           &dlg_paiementtiers::EnregistreNouveauPaiement);
     connect (ui->SupprimupPushButton,                   &QPushButton::clicked,                          this,           &dlg_paiementtiers::SupprimerPaiement);

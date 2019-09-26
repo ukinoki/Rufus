@@ -382,7 +382,7 @@
         <item>
          <widget class="QLineEdit" name="ObjetlineEdit">
           <property name="maxLength">
-           <number>99</number>
+           <number>50</number>
           </property>
          </widget>
         </item>

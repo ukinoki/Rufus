@@ -42,6 +42,7 @@ dlg_refraction::dlg_refraction(Acte *acte, ModeOuverture modeouverture, QWidget 
         AfficheMesureRefracteur();
     else
         RechercheMesureEnCours();
+    AfficheKerato();
 
     ui->SphereOD->setFocus();
     ui->SphereOD->selectAll();
@@ -51,7 +52,6 @@ dlg_refraction::dlg_refraction(Acte *acte, ModeOuverture modeouverture, QWidget 
 
 dlg_refraction::~dlg_refraction()
 {
-    delete ui;
 }
 
 void dlg_refraction::closeEvent(QCloseEvent *)
@@ -118,11 +118,6 @@ void dlg_refraction::ConnectSignals()
                                                                                                 this,     &dlg_refraction::BasePrismeTextOGComboBox_Changed);
     connect (ui->CommentairePrescriptionTextEdit,   &QTextEdit::textChanged,                    this,     &dlg_refraction::CommentairePrescriptionTextEdit_Changed);
 
-//    connect (ui->K1OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OD);});
-//    connect (ui->K1OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K1OG);});
-//    connect (ui->K2OD,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OD);});
-
-//    connect (ui->K2OG,                              &QLineEdit::editingFinished,                this,     [=] {Controle_K(ui->K2OG);});
     connect (ui->PressonODCheckBox,                 &QCheckBox::clicked,                        this,     &dlg_refraction::PressonCheckBox_Changed);
     connect (ui->PressonOGCheckBox,                 &QCheckBox::clicked,                        this,     &dlg_refraction::PressonCheckBox_Changed);
 
@@ -434,11 +429,6 @@ void dlg_refraction::BasePrisme_ValueChanged(QSpinBox *box)
 void dlg_refraction::CommentairePrescriptionTextEdit_Changed()    // 01.07.2014
 {
     ResumePrescription();
-}
-
-void dlg_refraction::Controle_K(QLineEdit *line)
-{
-    line->setText(QLocale().toString(QLocale().toDouble(line->text())));
 }
 
 void dlg_refraction::Refraction_ValueChanged()
@@ -3733,7 +3723,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         if (okOD || okOG)
         {
             UpdateDOPrequete +=
-                    ", OrigineK = '" + Refraction::ConvertMesure(m_mode) + "'" +
+                    ", OrigineK = 'M'"
                     ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
         }
     }
@@ -3790,6 +3780,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
+    //proc->Edit(UpdateDOPrequete);
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
 }
 
@@ -3871,21 +3862,33 @@ void dlg_refraction::AfficheMesureAutoref()
     Init_Value_DoubleSpin(ui->SphereOG, Datas::I()->mesureautoref->sphereOG());
     Init_Value_DoubleSpin(ui->CylindreOG, Datas::I()->mesureautoref->cylindreOG());
     ui->AxeCylindreOG       ->setValue(Datas::I()->mesureautoref->axecylindreOG());
-    // OEIL DROIT -----------------------------------------------------------------------------
-    if (Datas::I()->mesurekerato->K1OD() > 0)
+    AfficheKerato();
+}
+
+
+//-----------------------------------------------------------------------------------------
+// Affichage des données lues sur le port série de l'Autoref
+//-----------------------------------------------------------------------------------------
+void dlg_refraction::AfficheKerato()
+{
+    if (!Datas::I()->mesurekerato->isdataclean())
     {
-        ui->K1OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2 ));
-        ui->K2OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2 ));
-        ui->AxeKOD          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
-        m_mesureDioptrAstigmOD        = Datas::I()->mesurekerato->dioptriesKOD();
-    }
-   // OEIL GAUCHE ---------------------------------------------------------------------------
-    if (Datas::I()->mesurekerato->K2OD() > 0)
-    {
-        ui->K1OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2 ));
-        ui->K2OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2 ));
-        ui->AxeKOG          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
-        m_mesureDioptrAstigmOG        = Datas::I()->mesurekerato->dioptriesKOG();
+        // OEIL DROIT -----------------------------------------------------------------------------
+        if (Datas::I()->mesurekerato->K1OD() > 0)
+        {
+            ui->K1OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2 ));
+            ui->K2OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2 ));
+            ui->AxeKOD          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
+            m_mesureDioptrAstigmOD        = Datas::I()->mesurekerato->dioptriesKOD();
+        }
+        // OEIL GAUCHE ---------------------------------------------------------------------------
+        if (Datas::I()->mesurekerato->K2OD() > 0)
+        {
+            ui->K1OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2 ));
+            ui->K2OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2 ));
+            ui->AxeKOG          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
+            m_mesureDioptrAstigmOG        = Datas::I()->mesurekerato->dioptriesKOG();
+        }
     }
 }
 
@@ -3895,7 +3898,7 @@ void dlg_refraction::AfficheMesureAutoref()
 void dlg_refraction::AfficheMesureRefracteur()
 {
     MesureRefraction*  MesureRefracteur = Q_NULLPTR;
-    if ( Datas::I()->mesurefinal->isdataclean())
+    if ( Datas::I()->mesurefinal->isdataclean() )
     {
         RefractionRadioButton_Clicked();
         m_mode = Refraction::Acuite;

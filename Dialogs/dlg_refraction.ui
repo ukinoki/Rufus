@@ -1383,6 +1383,12 @@ et fermer</string>
        <property name="inputMethodHints">
         <set>Qt::ImhFormattedNumbersOnly</set>
        </property>
+       <property name="maxLength">
+        <number>4</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
       </widget>
       <widget class="UpLineEdit" name="K2OD">
        <property name="geometry">
@@ -1393,6 +1399,12 @@ et fermer</string>
          <height>22</height>
         </rect>
        </property>
+       <property name="maxLength">
+        <number>4</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
       </widget>
       <widget class="UpLineEdit" name="K1OG">
        <property name="geometry">
@@ -1402,6 +1414,12 @@ et fermer</string>
          <width>32</width>
          <height>22</height>
         </rect>
+       </property>
+       <property name="maxLength">
+        <number>4</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QLabel" name="labelAxeK1">
@@ -1445,6 +1463,12 @@ et fermer</string>
        <property name="inputMethodHints">
         <set>Qt::ImhNone</set>
        </property>
+       <property name="maxLength">
+        <number>4</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
       </widget>
       <widget class="UpLineEdit" name="AxeKOG">
        <property name="geometry">
@@ -1457,6 +1481,12 @@ et fermer</string>
        </property>
        <property name="inputMethodHints">
         <set>Qt::ImhFormattedNumbersOnly</set>
+       </property>
+       <property name="maxLength">
+        <number>4</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QLabel" name="labelK2">
@@ -1483,6 +1513,12 @@ et fermer</string>
        </property>
        <property name="inputMethodHints">
         <set>Qt::ImhFormattedNumbersOnly</set>
+       </property>
+       <property name="maxLength">
+        <number>4</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </widget>

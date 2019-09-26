@@ -432,16 +432,17 @@ private:
 
 public:
     enum TypeMesure {
-                None,
-                All,
-                Fronto,
-                Autoref,
-                Kerato,
-                Subjectif,
-                Final,
-                Tono,
-                Pachy
+                None        = 0x0,
+                All         = 0x1,
+                Fronto      = 0x2,
+                Autoref     = 0x4,
+                Kerato      = 0x8,
+                Subjectif   = 0x10,
+                Final       = 0x20,
+                Tono        = 0x40,
+                Pachy       = 0x80
                 };  Q_ENUM(TypeMesure)
+    Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
 signals:
     void                    NouvMesureRefraction(TypeMesure);
 
@@ -463,13 +464,16 @@ public:
                                 int idPatient,
                                 int idActe,
                                 TypeMesure = All);                  // enregistre la mesure de réfraction
-    void                    SetDataAEnvoyerAuRefracteur();
+    void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
+    void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
+    TypesMesures            FlagReglageRefracteur()                         { return m_flagreglagerefracteur; }
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
 
 private:
     QString                 m_mesureSerie;
     TypeMesure              m_typemesureRefraction;                // le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    TypesMesures            m_flagreglagerefracteur = None;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);
                                                                     //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    ClearMesures();
@@ -495,7 +499,8 @@ private:
     void                    setHtmlKerato(MesureKerato *mesure);            // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
     void                    setHtmlTono();                                  // détermine le html à inscrire dans la fiche observation à partir du QMap MesureTono
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
-    bool                    m_isnewMesureAutoref;                           // détermine si la mesure provient de l'autoref ou du dossier
+    bool                    m_isnewMesureAutoref;                           // détermine si la mesure d'autoref provient de l'autoref ou du dossier
+    bool                    m_isnewMesureKerato;                            // détermine si la mesure de kerato provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
     QString                 m_htmlMesureRefracteurSubjectif;
     QMap<QString,QVariant>  map_mesureRefracteurFinal;
@@ -506,6 +511,9 @@ private:
     void                    ReponsePortSerie_Autoref(const QString &s);
     void                    ReponsePortSerie_Fronto(const QString &s);
     void                    ReponsePortSerie_Refracteur(const QString &s);
+    QByteArray              RequestToSendNIDEK();
+    QByteArray              SendDataNIDEK(QString mesure);
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesMesures)
 
 #endif // PROCEDURES_H

@@ -586,6 +586,9 @@ pour</string>
                      <height>16777215</height>
                     </size>
                    </property>
+                   <property name="maxLength">
+                    <number>10</number>
+                   </property>
                   </widget>
                  </item>
                 </layout>

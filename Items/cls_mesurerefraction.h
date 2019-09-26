@@ -72,7 +72,8 @@ public:
     QString formuleOG() const { return m_formuleOG; }                 //!> formule de réfraction OG
     int ecartIP() const { return m_ecartIP; }                         //!> ecart interpuppilaire
 
-    void setmesure(Refraction::Mesure mesure)           { m_typemesure = mesure; }                                    //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    void setmesure(Refraction::Mesure mesure)
+                                            { m_typemesure = mesure; m_cleandatas = false; }                        //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
     void setsphereOD(double val)            { m_sphereOD = val; m_cleandatas = false; }                             //!> sphere OD
     void setcylindreOD(double val)          { m_cylindreOD = val; m_cleandatas = false; }                           //!> cylindre OD
     void setaxecylindreOD(int axe)          { m_axecylindreOD = axe; m_cleandatas = false; }                        //!> axe OD

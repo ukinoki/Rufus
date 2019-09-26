@@ -22,7 +22,7 @@ upDoubleValidator::upDoubleValidator(double bottom, double top, int decimals, QO
 {
 }
 
-QValidator::State upDoubleValidator::validate(QString & s, int &pos) const {
+QValidator::State upDoubleValidator::validate(QString &s, int &) const {
     if (s.isEmpty() || (s.startsWith("-") && s.length() == 1)) {
         // allow empty field or standalone minus sign
         return QValidator::Intermediate;

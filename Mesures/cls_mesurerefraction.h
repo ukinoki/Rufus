@@ -24,6 +24,7 @@ class MesureRefraction : public QObject
 {
 public:
     MesureRefraction();
+    MesureRefraction(Refraction::Mesure typemesure);
     void setdata(Refraction *ref);
     void setdata(MesureRefraction *mesure);
 
@@ -72,28 +73,28 @@ public:
     QString formuleOG() const { return m_formuleOG; }                 //!> formule de réfraction OG
     int ecartIP() const { return m_ecartIP; }                         //!> ecart interpuppilaire
 
-    void setmesure(Refraction::Mesure mesure)           { m_typemesure = mesure; }                                    //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
-    void setsphereOD(double val)            { m_sphereOD = val; m_cleandatas = false; }                             //!> sphere OD
-    void setcylindreOD(double val)          { m_cylindreOD = val; m_cleandatas = false; }                           //!> cylindre OD
-    void setaxecylindreOD(int axe)          { m_axecylindreOD = axe; m_cleandatas = false; }                        //!> axe OD
-    void setavlOD(QString txt)              { m_avlOD = txt; m_cleandatas = false; }                                //!> acuité de loin OD
-    void setaddVPOD(double val)             { m_addVPOD = val; m_cleandatas = false; }                              //!> addition de près OD
-    void setavpOD(QString txt)              { m_avpPOD = txt; m_cleandatas = false; }                               //!> acuité de près OD
-    void setprismeOD(double val)            { m_prismeOD = val; m_cleandatas = false; }                             //!> prismeOD
-    void setbaseprismeOD(int base)          { m_baseprismeOD = base; m_cleandatas = false; }                        //!> base prisme OD en degré
-    void setformuleOD(QString txt)          { m_formuleOD = txt; m_cleandatas = false; }                            //!> formule de réfraction OD
-    void setsphereOG(double val)            { m_sphereOG = val; m_cleandatas = false; }                             //!> sphere OG
-    void setcylindreOG(double val)          { m_cylindreOG = val; m_cleandatas = false; }                           //!> cylindre OG
-    void setaxecylindreOG(int axe)          { m_axecylindreOG = axe; m_cleandatas = false; }                        //!> axe OG
-    void setavlOG(QString txt)              { m_avlOG = txt; m_cleandatas = false; }                                //!> acuité de loin OG
-    void setaddVPOG(double val)             { m_addVPOG = val; m_cleandatas = false; }                              //!> addition de près OG
-    void setavpOG(QString txt)              { m_avpPOG = txt; m_cleandatas = false; }                               //!> acuité de près OG
-    void setprismeOG(double val)            { m_prismeOG = val; m_cleandatas = false; }                             //!> prismeOG
-    void setbaseprismeOG(int base)          { m_baseprismeOG = base; m_cleandatas = false; }                        //!> base prisme OG en degré
-    void setformuleOG(QString txt)          { m_formuleOG = txt; m_cleandatas = false; }                            //!> formule de réfraction OG
-    void setecartIP(int val)                { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
+    void setmesure(Refraction::Mesure mesure)   { m_typemesure = mesure; m_cleandatas = false; }                        //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    void setsphereOD(double val)                { m_sphereOD = val; m_cleandatas = false; }                             //!> sphere OD
+    void setcylindreOD(double val)              { m_cylindreOD = val; m_cleandatas = false; }                           //!> cylindre OD
+    void setaxecylindreOD(int axe)              { m_axecylindreOD = axe; m_cleandatas = false; }                        //!> axe OD
+    void setavlOD(QString txt)                  { m_avlOD = txt; m_cleandatas = false; }                                //!> acuité de loin OD
+    void setaddVPOD(double val)                 { m_addVPOD = val; m_cleandatas = false; }                              //!> addition de près OD
+    void setavpOD(QString txt)                  { m_avpPOD = txt; m_cleandatas = false; }                               //!> acuité de près OD
+    void setprismeOD(double val)                { m_prismeOD = val; m_cleandatas = false; }                             //!> prismeOD
+    void setbaseprismeOD(int base)              { m_baseprismeOD = base; m_cleandatas = false; }                        //!> base prisme OD en degré
+    void setformuleOD(QString txt)              { m_formuleOD = txt; m_cleandatas = false; }                            //!> formule de réfraction OD
+    void setsphereOG(double val)                { m_sphereOG = val; m_cleandatas = false; }                             //!> sphere OG
+    void setcylindreOG(double val)              { m_cylindreOG = val; m_cleandatas = false; }                           //!> cylindre OG
+    void setaxecylindreOG(int axe)              { m_axecylindreOG = axe; m_cleandatas = false; }                        //!> axe OG
+    void setavlOG(QString txt)                  { m_avlOG = txt; m_cleandatas = false; }                                //!> acuité de loin OG
+    void setaddVPOG(double val)                 { m_addVPOG = val; m_cleandatas = false; }                              //!> addition de près OG
+    void setavpOG(QString txt)                  { m_avpPOG = txt; m_cleandatas = false; }                               //!> acuité de près OG
+    void setprismeOG(double val)                { m_prismeOG = val; m_cleandatas = false; }                             //!> prismeOG
+    void setbaseprismeOG(int base)              { m_baseprismeOG = base; m_cleandatas = false; }                        //!> base prisme OG en degré
+    void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; }                            //!> formule de réfraction OG
+    void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
 
-    bool isdataclean()                      { return m_cleandatas; }
+    bool isdataclean()                          { return m_cleandatas; }
     void cleandatas()
     {
         m_sphereOD = 0;
@@ -118,5 +119,50 @@ public:
         m_cleandatas = true;
     }
 };
+
+bool operator==(MesureRefraction const& init, MesureRefraction const& other)
+{
+    bool a = false;
+    if (init.typemesure() == Refraction::Autoref)
+    a = (int(init.sphereOD()*100)           == int(other.sphereOD()*100)
+            && int(init.cylindreOD()*100)   == int(other.cylindreOD()*100)
+            && init.axecylindreOD()         == other.axecylindreOD()
+            && int(init.sphereOG()*100)     == int(other.sphereOG()*100)
+            && int(init.cylindreOG()*100)   == int(other.cylindreOG()*100)
+            && init.axecylindreOG()         == other.axecylindreOG());
+
+    else if (init.typemesure() == Refraction::Fronto || init.typemesure() == Refraction::Prescription)
+    a = (int(init.sphereOD()*100)           == int(other.sphereOD()*100)
+            && int(init.cylindreOD()*100)   == int(other.cylindreOD()*100)
+            && init.axecylindreOD()         == other.axecylindreOD()
+            && int(init.addVPOD()*100)      == int(other.addVPOD()*100)
+            && int(init.prismeOD()*100)     == int(other.prismeOD()*100)
+            && init.baseprismeOD()          == other.baseprismeOD()
+            && int(init.sphereOG()*100)     == int(other.sphereOG()*100)
+            && int(init.cylindreOG()*100)   == int(other.cylindreOG()*100)
+            && init.axecylindreOG()         == other.axecylindreOG()
+            && int(init.addVPOG()*100)      == int(other.addVPOG()*100)
+            && int(init.prismeOG()*100)     == int(other.prismeOG()*100)
+            && init.baseprismeOG()          == other.baseprismeOG());
+
+    else if (init.typemesure() == Refraction::Acuite)
+    a = (int(init.sphereOD()*100)           == int(other.sphereOD()*100)
+            && int(init.cylindreOD()*100)   == int(other.cylindreOD()*100)
+            && init.axecylindreOD()         == other.axecylindreOD()
+            && int(init.addVPOD()*100)      == int(other.addVPOD()*100)
+            && init.avlOD()                 == other.avlOD()
+            && int(init.sphereOG()*100)     == int(other.sphereOG()*100)
+            && int(init.cylindreOG()*100)   == int(other.cylindreOG()*100)
+            && init.axecylindreOG()         == other.axecylindreOG()
+            && int(init.addVPOG()*100)      == int(other.addVPOG()*100)
+            && init.avlOG()                 == other.avlOG());
+    return  a;
+}
+
+bool operator!=(MesureRefraction const& init, MesureRefraction const& other)
+{
+    return !(init == other);
+}
+
 
 #endif // CLS_MESUREREFRACTION_H

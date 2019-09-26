@@ -620,6 +620,9 @@ pour</string>
                   <height>16777215</height>
                  </size>
                 </property>
+                <property name="maxLength">
+                 <number>10</number>
+                </property>
                </widget>
               </item>
              </layout>
@@ -975,6 +978,9 @@ pour</string>
                   <height>16777215</height>
                  </size>
                 </property>
+                <property name="maxLength">
+                 <number>9</number>
+                </property>
                </widget>
               </item>
              </layout>
@@ -1220,7 +1226,7 @@ pour</string>
 un paiement</string>
           </property>
           <property name="icon">
-           <iconset resource="../assets/Images/images.qrc">
+           <iconset>
             <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
           </property>
           <property name="iconSize">
@@ -1825,14 +1831,14 @@ un paiement</string>
              <attribute name="verticalHeaderVisible">
               <bool>false</bool>
              </attribute>
+             <attribute name="verticalHeaderMinimumSectionSize">
+              <number>0</number>
+             </attribute>
              <attribute name="verticalHeaderDefaultSectionSize">
               <number>0</number>
              </attribute>
              <attribute name="verticalHeaderHighlightSections">
               <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderMinimumSectionSize">
-              <number>0</number>
              </attribute>
             </widget>
            </item>

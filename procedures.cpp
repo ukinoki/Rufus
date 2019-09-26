@@ -4393,21 +4393,9 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 {
     //qDebug() << s;
     m_mesureSerie        = s;
-
-    QString OKPourRecevoir ("");
     if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
     {
-        QByteArray DTRbuff;
-        DTRbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-        DTRbuff.append("CRL");                              //CRL
-        DTRbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-        DTRbuff.append("SD");                               //SD
-        DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-        DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-        OKPourRecevoir = DTRbuff + "\r";
-        //OKPourRecevoir = "\001CRL\002SD\017\004\r";
-        if (m_mesureSerie == OKPourRecevoir)
-        {
+        if (m_mesureSerie == SendDataNIDEK("CRL")) {
             RegleRefracteur();
             return;
         }
@@ -4425,7 +4413,8 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
         return;
     }
     setHtmlRefracteur();
-    emit NouvMesureRefraction(Subjectif);
+    if (!Datas::I()->mesureacuite->isdataclean())
+        emit NouvMesureRefraction(Subjectif);
 }
 
 void Procedures::RegleRefracteur()
@@ -4477,7 +4466,7 @@ void Procedures::RegleRefracteur()
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
         /*! réglage de l'autoref */
-        if (!Datas::I()->mesureautoref->isdataclean())
+        if (m_flagreglagerefracteur.testFlag(Procedures::Autoref) && !Datas::I()->mesureautoref->isdataclean())
         {
             initvariables();
             convertaxe(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
@@ -4507,7 +4496,7 @@ void Procedures::RegleRefracteur()
         }
 
         /*! réglage du fronto */
-        if (!Datas::I()->mesurefronto->isdataclean())
+        if (m_flagreglagerefracteur.testFlag(Procedures::Fronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -4585,38 +4574,55 @@ void Procedures::debugformule(QMap<QString, QVariant> Data, QString type)
     qDebug() << Formule;
 }
 
-void Procedures::SetDataAEnvoyerAuRefracteur()
+void Procedures::EnvoiDataPatientAuRefracteur()
 {
+    m_isnewMesureAutoref = false;
+    m_isnewMesureFronto  = false;
+    m_isnewMesureKerato  = false;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR)
-    {
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-            /*! Dans un premier temps, le PC envoie la séquence SOH "C**" STX "RS" ETB EOT -> Data a envoyer  ="\001C**\002RS\017\004"
-             * et il va attendre la réponse OKPourRecevoir = "\001CRL\002SD\027\004\r"
-             * il envoie alors les datas de réglage du refracteur
-             */
-            QString ReqPourEnvoyer ("");
-            QByteArray DTSbuff;
-            DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-            DTSbuff.append("C**");                              //C**
-            DTSbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-            DTSbuff.append("RS");                               //RS
-            DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-            DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-            ReqPourEnvoyer = DTSbuff;
-            QByteArray Data = ReqPourEnvoyer.toLocal8Bit();
             PortRefracteur()->clear();
-            PortRefracteur()->write(Data);
+            PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
-    }
+}
+
+QByteArray Procedures::RequestToSendNIDEK()
+{
+            /*! le PC envoie la séquence SOH "C**" STX "RS" ETB EOT -> Data a envoyer  ="\001C**\002RS\017\004"
+             * et va attendre la réponse OKPourRecevoir = "\001CRL\002SD\027\004\r"
+             * il envoie alors les datas de réglage du refracteur
+             */
+    QByteArray DTSbuff;
+    DTSbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
+    DTSbuff.append("C**");                              //C**
+    DTSbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+    DTSbuff.append("RS");                               //RS
+    DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
+    DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
+    return  QString(DTSbuff).toLocal8Bit();
+}
+
+QByteArray Procedures::SendDataNIDEK(QString mesure)
+{
+    /*! la séquence SendData  = "\001CRL\002SD\017\004", est envoyée par un refracteur NIDEK en réponse à une demande d'envoi de données de la part du PC ou d'un appareil de mesure
+     * Dans Rufus, cette demandee d'envoi est créée à l'ouverture d'un dossier patient et permet de régler le refracteur sur les données de ce patient */
+    QByteArray DTRbuff;
+    DTRbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
+    DTRbuff.append(mesure);                             //CRL pour le refracteur, CLM pour le fronto, CRK ou CRM pour l'autoref
+    DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+    DTRbuff.append("SD");                               //SD
+    DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
+    DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
+    return  QString(DTRbuff).toLocal8Bit();
+    //return DTRbuff + "\r";
 }
 
 void Procedures::LectureDonneesRefracteur(QString Mesure)
 {
-    ClearMesures();
     ClearHtmlMesures();
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
@@ -4667,7 +4673,6 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@LM"))                 //=> il y a une mesure pour le fronto
         {
-            Datas::I()->mesurefronto->cleandatas();
             idx                     = Mesure.indexOf("@LM");
             QString SectionFronto   = Mesure.right(Mesure.length()-idx);
             //Edit(SectionFronto + "\nOK");
@@ -4701,7 +4706,6 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
         if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
         {
-            Datas::I()->mesureautoref->cleandatas();
             idx                     = Mesure.indexOf("@RM");
             QString SectionAutoref  = Mesure.right(Mesure.length()-idx);
             //Edit(SectionAutoref);
@@ -4721,6 +4725,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mCylOG       = mesureOG.mid(6,6);
                 mAxeOG       = mesureOG.mid(12,3);
             }
+            Datas::I()->mesureautoref->cleandatas();
             Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
             Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
             Datas::I()->mesureautoref->setaxecylindreOD(mAxeOD.toInt());
@@ -4728,7 +4733,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
             Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
         }
-        if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie
+        if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie - cette mesure ne peut qu'avoir été effectuée par un autoref connecté directement à la box du refraacteur
         {
             Datas::I()->mesurekerato->cleandatas();
             idx                     = Mesure.indexOf("@KM");
@@ -4770,13 +4775,14 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesurekerato->setaxeKOG(AxeKOG);
         }
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
+        Datas::I()->mesureacuite->cleandatas();
+        Datas::I()->mesurefinal->cleandatas();
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
         {
-            Datas::I()->mesureacuite->cleandatas();
             idx                         = Mesure.indexOf("@RT");
             QString SectionRefracteur   = Mesure.right(Mesure.length()-idx);
             PD                          = SectionRefracteur.mid(SectionRefracteur.indexOf("pD")+2,2);
-            //Edit(SectionRefracteur + "\nOK");
+            Edit(SectionRefracteur + "\nOK");
 
             // les données subjectives --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
@@ -4825,8 +4831,6 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
 
             // les données finales --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
-            if (SectionRefracteur.contains("FR") || SectionRefracteur.contains("FL"))
-                Datas::I()->mesurefinal->cleandatas();
             if (SectionRefracteur.contains("FR"))
             {
                 mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("FR")+2,15)   .replace(" ","0");
@@ -4849,7 +4853,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
-            if (SectionRefracteur.contains("FR"))
+            if (SectionRefracteur.contains("FL"))
             {
                 mesureOG     = SectionRefracteur.mid(SectionRefracteur.indexOf("FL")+2,15)   .replace(" ","0");
                 mSphereOG    = mesureOG.mid(0,6);
@@ -4901,7 +4905,7 @@ void Procedures::setHtmlRefracteur()
     if (!Datas::I()->mesureautoref->isdataclean() && m_isnewMesureAutoref)
         setHtmlAutoref();
     // CALCUL DE HtmlMesureKerato ====================================================================================================================================
-    if (!Datas::I()->mesurekerato->isdataclean())
+    if (!Datas::I()->mesurekerato->isdataclean() && m_isnewMesureKerato)
         setHtmlKerato(Datas::I()->mesurekerato);
     // CALCUL DE HtmlMesureRefracteurSubjectif =======================================================================================================================
     QString Resultat = "";
@@ -5107,36 +5111,16 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     m_mesureSerie        = s;
     //qDebug() << gMesureSerie;
 
-    QString OKPourRecevoir ("");
     if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
      || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
      || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
     {
-        QByteArray DTRbuff;
-        DTRbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-        DTRbuff.append("C**");                              //C**
-        DTRbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-        DTRbuff.append("RS");                               //RS
-        DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-        DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-        OKPourRecevoir = DTRbuff;
-        if (m_mesureSerie == OKPourRecevoir)
+        if (m_mesureSerie == RequestToSendNIDEK())
         {
-            //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
-            QString ReqPourEnvoyer ("");
-            QByteArray DTSbuff;
-            DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-            DTSbuff.append("CLM");                              //CLM
-            DTSbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-            DTSbuff.append("SD");                               //SD
-            DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-            DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-            ReqPourEnvoyer = DTSbuff;
-            QByteArray Data = ReqPourEnvoyer.toLocal8Bit();
+            //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
             PortFronto()->clear();
-            PortFronto()->write(Data);
+            PortFronto()->write(SendDataNIDEK("CLM"));
             PortFronto()->waitForBytesWritten(100);
-            //QString dat = Data; qDebug() << "OK Fronto " + dat;
             return;
         }
     }
@@ -5147,27 +5131,20 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
     {
+        m_flagreglagerefracteur = Fronto;
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-            //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
-            QString ReqPourEnvoyer ("");
-            QByteArray DTSbuff;
-            DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-            DTSbuff.append("C**");                              //C**^$
-            DTSbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-            DTSbuff.append("RS");                               //RS
-            DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-            DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-            ReqPourEnvoyer = DTSbuff;
-            QByteArray Data = ReqPourEnvoyer.toLocal8Bit();
             PortRefracteur()->clear();
-            PortRefracteur()->write(Data);
+            PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
     }
-    setHtmlFronto();
-    emit NouvMesureRefraction(Fronto);
+    if (!Datas::I()->mesurefronto->isdataclean())
+    {
+        setHtmlFronto();
+        emit NouvMesureRefraction(Fronto);
+    }
 }
 
 void Procedures::LectureDonneesFronto(QString Mesure)
@@ -5399,17 +5376,8 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
     {
-        QByteArray DTSbuff;
-        DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-        DTSbuff.append("C**");                              //C**
-        DTSbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-        DTSbuff.append("RS");                               //RS
-        DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-        DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-        if (m_mesureSerie == QString(DTSbuff))               // Cas où l'autoref demande la permission d'envoyer
+        if (m_mesureSerie == RequestToSendNIDEK())       // Cas où l'autoref demande la permission d'envoyer des données
         {
-            QString ReqPourEnvoyer ("");
-            QByteArray DTSbuff;
             QString cmd;
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
@@ -5421,40 +5389,20 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
                 cmd ="CRK";
             else
-                cmd="CRM";                          //CRK ou CRM suivant les appareils
-            DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-            DTSbuff.append("CRK");
-            DTSbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-            DTSbuff.append("SD");                               //RS
-            DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-            DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-            //DTSbuff.append(QByteArray::fromHex("D"));
-            ReqPourEnvoyer = DTSbuff;
-            QByteArray Data = ReqPourEnvoyer.toLocal8Bit();
-            //QByteArray Data = "\u0001CRK\u0002SD\u0017\u0004";
-            //qDebug() << "RS = " + gMesureSerie;
-            //qDebug() << "SD = " + DTSbuff << Data;
-//            PortAutoref()->setDataTerminalReady(true);
-//            if (PortAutoref()->pinoutSignals().testFlag(QSerialPort::DataSetReadySignal))
-//            {
-                PortAutoref()->write(DTSbuff);                  // On répond à l'autoref OK pour recevoir et sortie de la procedure
-                PortAutoref()->waitForBytesWritten(100);
-                PortAutoref()->setDataTerminalReady(false);
-//                bool e = true;
-//                while (e) {
-//                    e = (PortAutoref()->pinoutSignals().testFlag(QSerialPort::DataSetReadySignal));
-//                }
-                //qDebug() << "OK"<< gMesureSerie;
-//            }
+                cmd ="CRM";                          //CRK ou CRM suivant les appareils
+            //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
+            PortAutoref()->clear();
+            PortAutoref()->write(SendDataNIDEK(cmd));
+            PortAutoref()->waitForBytesWritten(100);
         }
     }
     LectureDonneesAutoref(m_mesureSerie);
-    m_isnewMesureAutoref = true;
-    if (Datas::I()->mesureautoref->isdataclean())
+    if (Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
     {
+        m_flagreglagerefracteur = Autoref;
         // NIDEK RT-5100 - NIDEK RT-2100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
@@ -5469,35 +5417,36 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
              || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
              || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
-                setHtmlKerato(Datas::I()->mesurekerato);
-                emit NouvMesureRefraction(Kerato);
+                if (!Datas::I()->mesurekerato->isdataclean())
+                {
+                    setHtmlKerato(Datas::I()->mesurekerato);
+                    emit NouvMesureRefraction(Kerato);
+                }
             }
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
-                setHtmlTono();
-                emit NouvMesureRefraction(Tono);
-
-                setHtmlPachy();
-                emit NouvMesureRefraction(Pachy);
+                if (!map_mesureTono.isEmpty())
+                {
+                    setHtmlTono();
+                    emit NouvMesureRefraction(Tono);
+                }
+                if (!map_mesurePachy.isEmpty())
+                {
+                    setHtmlPachy();
+                    emit NouvMesureRefraction(Pachy);
+                }
             }
-            //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
-            QString ReqPourEnvoyer ("");
-            QByteArray DTSbuff;
-            DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
-            DTSbuff.append("C**");                              //C**
-            DTSbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
-            DTSbuff.append("RS");                               //RS
-            DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-            DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-            ReqPourEnvoyer = DTSbuff;
-            QByteArray Data = ReqPourEnvoyer.toLocal8Bit();
+            //Dans un premier temps, le PC envoie la requête d'envoi de données
             PortRefracteur()->clear();
-            PortRefracteur()->write(Data);
+            PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
     }
-    setHtmlAutoref();
-    emit NouvMesureRefraction(Autoref);
+    if (!Datas::I()->mesureautoref->isdataclean())
+    {
+        setHtmlAutoref();
+        emit NouvMesureRefraction(Autoref);
+    }
 }
 
 void Procedures::LectureDonneesAutoref(QString Mesure)
@@ -5731,6 +5680,7 @@ PL04.7N
         if (Ref != "")
         {
             Datas::I()->mesureautoref->cleandatas();
+            m_isnewMesureAutoref = true;
             a  = Ref.indexOf("OR");
             // OEIL DROIT -----------------------------------------------------------------------------
             if (a>=0)
@@ -5767,6 +5717,7 @@ PL04.7N
                 if (Mesure.contains("DKM"))                 //=> il y a une mesure de keratometrie
                 {
                     Datas::I()->mesurekerato->cleandatas();
+                    m_isnewMesureKerato = true;
                     a                   = Mesure.indexOf("DKM");
                     a                   = Mesure.length() - a;
                     K                   = Mesure.right(a);
@@ -5781,7 +5732,7 @@ PL04.7N
                         Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                         Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
                         Datas::I()->mesurekerato->setaxeKOD(AxeKOD);
-                        QString mOD                 = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
+                        QString mOD         = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
                         Datas::I()->mesurekerato->setdioptriesK1OD(mOD.mid(0,5).toDouble());
                         Datas::I()->mesurekerato->setdioptriesK2OD(mOD.mid(5,5).toDouble());
                     }
@@ -6124,7 +6075,6 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
 {
-    QString                 zQuelleMesure;
     if (!Datas::I()->mesurefronto->isdataclean() && Mesure == Fronto && m_isnewMesureFronto)
     {
         bool a =
@@ -6149,7 +6099,6 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
             mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
             mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
-            zQuelleMesure   = ConvertMesure(Mesure);
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
@@ -6158,14 +6107,15 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                         && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
                         && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
                     Datas::I()->refractions->SupprimeRefraction(ref);
-                ++it;
+                else
+                    ++it;
              }
 
             QHash<QString, QVariant> listbinds;
             listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
             listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
             listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-            listbinds[CP_TYPEMESURE_REFRACTIONS]            = zQuelleMesure;
+            listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
             if (Datas::I()->mesurefronto->addVPOD() > 0 || Datas::I()->mesurefronto->addVPOG() > 0)
                 listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = "2";
 
@@ -6208,20 +6158,20 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             PD              = QString::number(Datas::I()->mesureautoref->ecartIP());
             if (PD == "")
                 PD = "null";
-            zQuelleMesure   = ConvertMesure(Mesure);
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
                     Datas::I()->refractions->SupprimeRefraction(ref);
-                ++it;
+                else
+                    ++it;
              }
 
             QHash<QString, QVariant> listbinds;
             listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
             listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
             listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-            listbinds[CP_TYPEMESURE_REFRACTIONS]            = zQuelleMesure;
+            listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
 
             listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOD();
             listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOD();
@@ -6234,7 +6184,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"G");
             Datas::I()->refractions->CreationRefraction(listbinds);
 
-            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
+            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
             QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
             if (!m_ok)
                 return;
@@ -6246,8 +6196,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                         " SphereOG, CylindreOG, AxeCylindreOG, PD)"
                         " VALUES (" +
                         QString::number(idPatient)  + ", " +
-                        "NOW(), NOW(),'" +
-                        zQuelleMesure               + "'," +
+                        "NOW(), NOW(), '" +
+                        ConvertMesure(Mesure)               + "'," +
                         "null" + "," +
                         QString::number(QLocale().toDouble(mSphereOD))  + "," +
                         QString::number(QLocale().toDouble(mCylOD))     + "," +
@@ -6262,7 +6212,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             else
             {
                 requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
-                        " QuelleMesure = '" + zQuelleMesure + "'," +
+                        " QuelleMesure = '" + ConvertMesure(Mesure) + "'," +
                         " QuelleDistance = null," +
                         " DateRefOD = NOW()," +
                         " DateRefOG = NOW()," +
@@ -6279,7 +6229,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato && m_isnewMesureAutoref)
+    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato && m_isnewMesureKerato)
     {
         bool a =
                (Datas::I()->mesurekerato->K1OD() == 0.0
@@ -6294,16 +6244,18 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (patdata.size()==0)
             {
                 requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
-                        " (idPat, DateK, K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG, OrigineK)"
+                        " (idPat, QuelleMesure, DateK, K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG, OrigineK)"
                         " VALUES (" +
-                        QString::number(idPatient)  + ", " +
+                        QString::number(idPatient)  + ", '" +
+                        ConvertMesure(Autoref) + "', "
                         "NOW(), " +
                         QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2)   + "," +
                         QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2)   + "," +
                         QString::number(Datas::I()->mesurekerato->axeKOD()) + "," +
                         QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2)   + "," +
                         QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2)   + "," +
-                        QString::number(Datas::I()->mesurekerato->axeKOG()) + ",'A')";
+                        QString::number(Datas::I()->mesurekerato->axeKOG()) + ", '" +
+                        ConvertMesure(Autoref) + "')";
 
                 db->StandardSQL (requete, tr("Erreur de création de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
             }
@@ -6317,7 +6269,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                         " K1OG = " + QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2)  + "," +
                         " K2OG = " + QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2)  + "," +
                         " AxeKOG = " + QString::number(Datas::I()->mesurekerato->axeKOG())  + "," +
-                        " OrigineK = 'A'" +
+                        " OrigineK = '" + ConvertMesure(Autoref) + "'" +
                         " where idpat = "+ QString::number(idPatient);
 
                 db->StandardSQL (requete, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
@@ -6354,20 +6306,20 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
             if (PD == "")
                 PD = "null";
-            zQuelleMesure   = ConvertMesure(Mesure);
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
                 if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
                     Datas::I()->refractions->SupprimeRefraction(ref);
-                ++it;
+                else
+                    ++it;
              }
 
             QHash<QString, QVariant> listbinds;
             listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
             listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
             listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-            listbinds[CP_TYPEMESURE_REFRACTIONS]            = zQuelleMesure;
+            listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
             listbinds[CP_DISTANCEMESURE_REFRACTIONS]        = ((mAVPOD!="" || mAVPOG!="")? "2" : "L");
 
             listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOD();
@@ -6404,8 +6356,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                         " SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, AVLOG, AVPOG, PD)"
                         " VALUES (" +
                         QString::number(idPatient)  + ", " +
-                        "NOW(), NOW(),'" +
-                        zQuelleMesure               + "','" +
+                        "NOW(), NOW(), '" +
+                        ConvertMesure(Mesure)               + "','" +
                         ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "'," +
                         QString::number(QLocale().toDouble(mSphereOD))  + "," +
                         QString::number(QLocale().toDouble(mCylOD))     + "," +
@@ -6426,7 +6378,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             else
             {
                 requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
-                        " QuelleMesure = '" + zQuelleMesure + "'," +
+                        " QuelleMesure = '" + ConvertMesure(Mesure) + "'," +
                         " QuelleDistance = null," +
                         " DateRefOD = NOW()," +
                         " DateRefOG = NOW()," +

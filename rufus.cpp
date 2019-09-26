@@ -1335,6 +1335,7 @@ void Rufus::CherchePatientParID(int id)
         ui->CreerNomlineEdit->setText(pat->nom());
         ui->CreerPrenomlineEdit->setText(pat->prenom());
         wdg_nomlbl->setText(pat->nom().toUpper() + " " + pat->prenom());
+        FiltreTable(pat->nom(), pat->prenom());
         RecaleTableView(pat);
     }
     else
@@ -2869,17 +2870,17 @@ void Rufus::RechercheParID()
         FiltreTable();
     dlg_rechParId                 = new UpDialog();
     dlg_rechParId                 ->setAttribute(Qt::WA_DeleteOnClose);
-    UpLabel         *idlabel            = new UpLabel(dlg_rechParId, tr("id du patient"));
-    UpLineEdit      *idLine             = new UpLineEdit(dlg_rechParId);
-    wdg_nomlbl                              = new UpLabel(dlg_rechParId);
-    idLine                              ->setMaxLength(8);
-    idLine                              ->setValidator((new QIntValidator(1,99999999)));
+    UpLabel         *idlabel      = new UpLabel(dlg_rechParId, tr("id du patient"));
+    UpLineEdit      *idLine       = new UpLineEdit(dlg_rechParId);
+    wdg_nomlbl                    = new UpLabel(dlg_rechParId);
+    idLine                        ->setMaxLength(8);
+    idLine                        ->setValidator((new QIntValidator(1,99999999)));
     dlg_rechParId->dlglayout()    ->insertWidget(0,idlabel);
     dlg_rechParId->dlglayout()    ->insertWidget(1,idLine);
     dlg_rechParId->dlglayout()    ->insertWidget(2,wdg_nomlbl);
     dlg_rechParId                 ->AjouteLayButtons();
     connect(idLine,                   &QLineEdit::textEdited,   this,           [=] {CherchePatientParID(idLine->text().toInt());});
-    connect(dlg_rechParId->OKButton,  &QPushButton::clicked,    dlg_rechParId,  &QDialog::close);
+    connect(dlg_rechParId->OKButton,  &QPushButton::clicked,    dlg_rechParId,  [=] {ui->CreerPrenomlineEdit->clear(); dlg_rechParId->close();});
     dlg_rechParId->exec();
 }
 
@@ -2894,7 +2895,7 @@ void Rufus::RechercheParMotCle()
     }
 
     dlg_rechParMotCle                 = new UpDialog();
-    QTableView      *tabMC                  = new QTableView(dlg_rechParMotCle);
+    QTableView      *tabMC            = new QTableView(dlg_rechParMotCle);
     dlg_rechParMotCle->dlglayout()    ->insertWidget(0,tabMC);
     dlg_rechParMotCle                 ->AjouteLayButtons();
     connect(dlg_rechParMotCle->OKButton,  &QPushButton::clicked,  this, &Rufus::AfficheDossiersRechercheParMotCle);
@@ -6330,10 +6331,11 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     }
     //4 - réglage du refracteur
     Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
+    SetDatasRefractionKerato();
     if (proc->PortRefracteur()!=Q_NULLPTR)
     {
-        SetDatasRefracteur();
-        proc->SetDataAEnvoyerAuRefracteur();
+        proc->setFlagReglageRefracteur(Procedures::Autoref | Procedures::Fronto);
+        proc->EnvoiDataPatientAuRefracteur();
     }
 
     //5 - mise à jour du dossier en salle d'attente
@@ -8483,7 +8485,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
     delete Dlg_Refraction;
 }
 
-void Rufus::SetDatasRefracteur()
+void Rufus::SetDatasRefractionKerato()
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
@@ -8524,37 +8526,21 @@ void Rufus::SetDatasRefracteur()
             {
                 Datas::I()->mesureautoref->setdata(const_cast<Refraction*>(itref.value()));
                 itref.toFront();
+                qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureautoref->isdataclean()) " << Datas::I()->mesureautoref->isdataclean();
             }
         }
     }
-    if (!Datas::I()->mesureautoref ->isdataclean())
-        Datas::I()->mesureautoref->setmesure(Refraction::Autoref);
 
-    /*! Fronto      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
-                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+    /*! Fronto      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition ou de fronto */
     itref.toBack();
     while (itref.hasPrevious()) {
         itref.previous();
-        if (itref.value()->typemesure() == Refraction::Prescription && itref.value()->distance() != Refraction::Pres)
+        if ((itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto) && itref.value()->distance() != Refraction::Pres)
         {
             Datas::I()->mesurefronto->setdata(const_cast<Refraction*>(itref.value()));
             itref.toFront();
         }
     }
-    if (Datas::I()->mesurefronto ->isdataclean())
-    {
-        itref.toBack();
-        while (itref.hasPrevious()) {
-            itref.previous();
-            if (itref.value()->typemesure() == Refraction::Fronto && itref.value()->distance() != Refraction::Pres)
-            {
-                Datas::I()->mesurefronto->setdata(const_cast<Refraction*>(itref.value()));
-                itref.toFront();
-            }
-        }
-    }
-    if (!Datas::I()->mesurefronto ->isdataclean())
-        Datas::I()->mesurefronto->setmesure(Refraction::Fronto);
 
     /*! Acuite      on cherche à régler la position subjectif du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on utilise la dernière mesure d'autoref
@@ -8566,6 +8552,8 @@ void Rufus::SetDatasRefracteur()
         {
             Datas::I()->mesureacuite->setdata(const_cast<Refraction*>(itref.value()));
             itref.toFront();
+
+
         }
     }
     if (Datas::I()->mesureacuite->isdataclean())
@@ -8575,15 +8563,30 @@ void Rufus::SetDatasRefracteur()
         else if (!Datas::I()->mesureacuite->isdataclean())
             Datas::I()->mesureacuite->setdata(Datas::I()->mesurefronto);
     }
-    if (!Datas::I()->mesureacuite->isdataclean())
-        Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
 
     /*! Final      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
     if (!Datas::I()->mesurefronto ->isdataclean())
-    {
         Datas::I()->mesurefinal->setdata(Datas::I()->mesurefronto);
-        Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
+
+    Datas::I()->mesureautoref->setmesure(Refraction::Autoref);
+    Datas::I()->mesurefronto->setmesure(Refraction::Fronto);
+    Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
+    Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
+
+    bool ok;
+    QString requete = "Select K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG from " TBL_DONNEES_OPHTA_PATIENTS
+            " where idpat = "  + QString::number(Datas::I()->patients->currentpatient()->id());
+    QList<QVariantList> listK = db->StandardSelectSQL(requete, ok, tr("Erreur de création de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
+    if (ok && listK.size() > 0)
+    {
+        QVariantList K = listK.at(0);
+        Datas::I()->mesurekerato->setK1OD(K.at(0).toDouble());
+        Datas::I()->mesurekerato->setK2OD(K.at(1).toDouble());
+        Datas::I()->mesurekerato->setaxeKOD(K.at(2).toInt());
+        Datas::I()->mesurekerato->setK1OG(K.at(3).toDouble());
+        Datas::I()->mesurekerato->setK2OG(K.at(4).toDouble());
+        Datas::I()->mesurekerato->setaxeKOG(K.at(5).toInt());
     }
 }
 
@@ -9709,8 +9712,7 @@ void Rufus::NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilis
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-        if (!Datas::I()->mesurefinal->isdataclean() && !Datas::I()->mesureacuite->isdataclean())
-            proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Subjectif);
+        proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Subjectif);
         RefractionMesure(dlg_refraction::Auto);
         break;
     }
