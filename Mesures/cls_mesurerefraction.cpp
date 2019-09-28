@@ -19,11 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 MesureRefraction::MesureRefraction() {}
 
-MesureRefraction::MesureRefraction(Refraction::Mesure typemesure) : m_typemesure(typemesure) , m_cleandatas(false)
-{
-}
 
-void MesureRefraction::setdata(Refraction *ref)
+void MesureRefraction::setdatas(Refraction *ref)
 {
     m_sphereOD          = ref->sphereOD();
     m_cylindreOD        = ref->cylindreOD();
@@ -48,7 +45,7 @@ void MesureRefraction::setdata(Refraction *ref)
     m_cleandatas        = false;
 }
 
-void MesureRefraction::setdata(MesureRefraction *mesure)
+void MesureRefraction::setdatas(MesureRefraction *mesure)
 {
     m_sphereOD          = mesure->sphereOD();
     m_cylindreOD        = mesure->cylindreOD();

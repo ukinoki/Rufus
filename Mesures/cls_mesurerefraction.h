@@ -24,9 +24,8 @@ class MesureRefraction : public QObject
 {
 public:
     explicit MesureRefraction();
-    explicit MesureRefraction(Refraction::Mesure typemesure);
-    void setdata(Refraction *ref);
-    void setdata(MesureRefraction *mesure);
+    void setdatas(Refraction *ref);
+    void setdatas(MesureRefraction *mesure);
 
 private:
     Refraction::Mesure m_typemesure;//!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription
@@ -118,51 +117,52 @@ public:
         m_ecartIP = 0;
         m_cleandatas = true;
     }
+
+    bool isEqual(MesureRefraction *other) const
+    {
+        bool a = false;
+        if (m_typemesure == Refraction::Autoref)
+        a = (int(m_sphereOD*100)           == int(other->sphereOD()*100)
+                && int(m_cylindreOD*100)   == int(other->cylindreOD()*100)
+                && m_axecylindreOD         == other->axecylindreOD()
+                && int(m_sphereOG*100)     == int(other->sphereOG()*100)
+                && int(m_cylindreOG*100)   == int(other->cylindreOG()*100)
+                && m_axecylindreOG         == other->axecylindreOG());
+
+        else if (m_typemesure == Refraction::Fronto || m_typemesure == Refraction::Prescription)
+        a = (int(m_sphereOD*100)           == int(other->sphereOD()*100)
+                && int(m_cylindreOD*100)   == int(other->cylindreOD()*100)
+                && m_axecylindreOD         == other->axecylindreOD()
+                && int(m_addVPOD*100)      == int(other->addVPOD()*100)
+                && int(m_prismeOD*100)     == int(other->prismeOD()*100)
+                && m_baseprismeOD          == other->baseprismeOD()
+                && int(m_sphereOG*100)     == int(other->sphereOG()*100)
+                && int(m_cylindreOG*100)   == int(other->cylindreOG()*100)
+                && m_axecylindreOG         == other->axecylindreOG()
+                && int(m_addVPOG*100)      == int(other->addVPOG()*100)
+                && int(m_prismeOG*100)     == int(other->prismeOG()*100)
+                && m_baseprismeOG          == other->baseprismeOG());
+
+        else if (m_typemesure == Refraction::Acuite)
+        a = (int(m_sphereOD*100)           == int(other->sphereOD()*100)
+                && int(m_cylindreOD*100)   == int(other->cylindreOD()*100)
+                && m_axecylindreOD         == other->axecylindreOD()
+                && int(m_addVPOD*100)      == int(other->addVPOD()*100)
+                && m_avlOD                 == other->avlOD()
+                && int(m_sphereOG*100)     == int(other->sphereOG()*100)
+                && int(m_cylindreOG*100)   == int(other->cylindreOG()*100)
+                && m_axecylindreOG         == other->axecylindreOG()
+                && int(m_addVPOG*100)      == int(other->addVPOG()*100)
+                && m_avlOG                 == other->avlOG());
+        return  a;
+    }
+
+    bool isDifferent(MesureRefraction *other) const
+    {
+        return !(isEqual(other));
+    }
 };
 
-bool operator==(MesureRefraction const& init, MesureRefraction const& other)
-{
-    bool a = false;
-    if (init.typemesure() == Refraction::Autoref)
-    a = (int(init.sphereOD()*100)           == int(other.sphereOD()*100)
-            && int(init.cylindreOD()*100)   == int(other.cylindreOD()*100)
-            && init.axecylindreOD()         == other.axecylindreOD()
-            && int(init.sphereOG()*100)     == int(other.sphereOG()*100)
-            && int(init.cylindreOG()*100)   == int(other.cylindreOG()*100)
-            && init.axecylindreOG()         == other.axecylindreOG());
-
-    else if (init.typemesure() == Refraction::Fronto || init.typemesure() == Refraction::Prescription)
-    a = (int(init.sphereOD()*100)           == int(other.sphereOD()*100)
-            && int(init.cylindreOD()*100)   == int(other.cylindreOD()*100)
-            && init.axecylindreOD()         == other.axecylindreOD()
-            && int(init.addVPOD()*100)      == int(other.addVPOD()*100)
-            && int(init.prismeOD()*100)     == int(other.prismeOD()*100)
-            && init.baseprismeOD()          == other.baseprismeOD()
-            && int(init.sphereOG()*100)     == int(other.sphereOG()*100)
-            && int(init.cylindreOG()*100)   == int(other.cylindreOG()*100)
-            && init.axecylindreOG()         == other.axecylindreOG()
-            && int(init.addVPOG()*100)      == int(other.addVPOG()*100)
-            && int(init.prismeOG()*100)     == int(other.prismeOG()*100)
-            && init.baseprismeOG()          == other.baseprismeOG());
-
-    else if (init.typemesure() == Refraction::Acuite)
-    a = (int(init.sphereOD()*100)           == int(other.sphereOD()*100)
-            && int(init.cylindreOD()*100)   == int(other.cylindreOD()*100)
-            && init.axecylindreOD()         == other.axecylindreOD()
-            && int(init.addVPOD()*100)      == int(other.addVPOD()*100)
-            && init.avlOD()                 == other.avlOD()
-            && int(init.sphereOG()*100)     == int(other.sphereOG()*100)
-            && int(init.cylindreOG()*100)   == int(other.cylindreOG()*100)
-            && init.axecylindreOG()         == other.axecylindreOG()
-            && int(init.addVPOG()*100)      == int(other.addVPOG()*100)
-            && init.avlOG()                 == other.avlOG());
-    return  a;
-}
-
-bool operator!=(MesureRefraction const& init, MesureRefraction const& other)
-{
-    return !(init == other);
-}
 
 
 #endif // CLS_MESUREREFRACTION_H

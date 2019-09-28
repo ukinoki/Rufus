@@ -79,23 +79,44 @@ public:
         m_AxeKOG         = 0;
         m_cleandatas     = true;
     }
+
+    void setdatas(MesureKerato *ker)
+    {
+        if (ker->isdataclean())
+        {
+            cleandatas();
+            return;
+        }
+        m_K1OD           = ker->K1OD();
+        m_K2OD           = ker->K2OD();
+        m_dioptriesK1OD  = ker->dioptriesK1OD();
+        m_dioptriesK2OD  = ker->dioptriesK2OD();
+        m_AxeKOD         = ker->axeKOD();
+        m_K1OG           = ker->K1OG();
+        m_K2OG           = ker->K2OG();
+        m_dioptriesK1OG  = ker->dioptriesK1OG();
+        m_dioptriesK2OG  = ker->dioptriesK2OG();
+        m_AxeKOG         = ker->axeKOG();
+        m_cleandatas     = ker->isdataclean();
+    }
+
+    bool isEqual(MesureKerato *other) const
+    {
+        bool a = false;
+        a = (  int(m_K1OD*100) == int(other->K1OD()*100)
+            && int(m_K2OD*100) == int(other->K2OD()*100)
+            && m_AxeKOD        == other->axeKOD()
+            && int(m_K1OG*100) == int(other->K1OG()*100)
+            && int(m_K2OG*100) == int(other->K2OG()*100)
+            && m_AxeKOG        == other->axeKOG());
+        return  a;
+    }
+
+    bool isDifferent(MesureKerato *other) const
+    {
+        return !(isEqual(other));
+    }
 };
 
-bool operator==(MesureKerato const& init, MesureKerato const& other)
-{
-    bool a = false;
-    a = (  int(init.K1OD()*100) == int(other.K1OD()*100)
-        && int(init.K2OD()*100) == int(other.K2OD()*100)
-        && init.axeKOD()        == other.axeKOD()
-        && int(init.K1OG()*100) == int(other.K1OG()*100)
-        && int(init.K2OG()*100) == int(other.K2OG()*100)
-        && init.axeKOG()        == other.axeKOG());
-    return  a;
-}
-
-bool operator!=(MesureKerato const& init, MesureKerato const& other)
-{
-    return !(init == other);
-}
 
 #endif // CLS_MESUREKERATO_H

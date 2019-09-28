@@ -263,6 +263,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     else
         ModeSelectDepuisListe();
+
+    //! 16 - suppression des anciens fichiers de log
+    proc->EpureLogs();
  }
 
 Rufus::~Rufus()
@@ -8515,7 +8518,7 @@ void Rufus::SetDatasRefractionKerato()
         itref.previous();
         if (itref.value()->typemesure() == Refraction::Acuite)
         {
-            Datas::I()->mesureautoref->setdata(const_cast<Refraction*>(itref.value()));
+            Datas::I()->mesureautoref->setdatas(const_cast<Refraction*>(itref.value()));
             itref.toFront();
         }
     }
@@ -8526,7 +8529,7 @@ void Rufus::SetDatasRefractionKerato()
             itref.previous();
             if (itref.value()->typemesure() == Refraction::Autoref)
             {
-                Datas::I()->mesureautoref->setdata(const_cast<Refraction*>(itref.value()));
+                Datas::I()->mesureautoref->setdatas(const_cast<Refraction*>(itref.value()));
                 itref.toFront();
                 qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureautoref->isdataclean()) " << Datas::I()->mesureautoref->isdataclean();
             }
@@ -8539,7 +8542,7 @@ void Rufus::SetDatasRefractionKerato()
         itref.previous();
         if ((itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto) && itref.value()->distance() != Refraction::Pres)
         {
-            Datas::I()->mesurefronto->setdata(const_cast<Refraction*>(itref.value()));
+            Datas::I()->mesurefronto->setdatas(const_cast<Refraction*>(itref.value()));
             itref.toFront();
         }
     }
@@ -8552,7 +8555,7 @@ void Rufus::SetDatasRefractionKerato()
         itref.previous();
         if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres)
         {
-            Datas::I()->mesureacuite->setdata(const_cast<Refraction*>(itref.value()));
+            Datas::I()->mesureacuite->setdatas(const_cast<Refraction*>(itref.value()));
             itref.toFront();
 
 
@@ -8561,15 +8564,15 @@ void Rufus::SetDatasRefractionKerato()
     if (Datas::I()->mesureacuite->isdataclean())
     {
         if (!Datas::I()->mesureautoref->isdataclean())
-            Datas::I()->mesureacuite->setdata(Datas::I()->mesureautoref);
+            Datas::I()->mesureacuite->setdatas(Datas::I()->mesureautoref);
         else if (!Datas::I()->mesureacuite->isdataclean())
-            Datas::I()->mesureacuite->setdata(Datas::I()->mesurefronto);
+            Datas::I()->mesureacuite->setdatas(Datas::I()->mesurefronto);
     }
 
     /*! Final      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
     if (!Datas::I()->mesurefronto ->isdataclean())
-        Datas::I()->mesurefinal->setdata(Datas::I()->mesurefronto);
+        Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
 
     Datas::I()->mesureautoref->setmesure(Refraction::Autoref);
     Datas::I()->mesurefronto->setmesure(Refraction::Fronto);

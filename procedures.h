@@ -273,6 +273,7 @@ public:
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
     void                    EnChantier(bool avecMsg = false);
+    void                    EpureLogs(int anciennete = 7);          //!> supprime les fichiers de logs antérieurs à J - anciennete jours
     void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
