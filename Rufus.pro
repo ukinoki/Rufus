@@ -123,7 +123,6 @@ LIBS += -L/usr/local/lib -lpoppler-qt5
 }
 
 DISTFILES += \
-    Mesures/mesures.pri \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
     _Diagrams/Gestion des documents sous Rufus.pdf \

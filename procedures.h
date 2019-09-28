@@ -478,7 +478,7 @@ private:
                                                                     //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    ClearMesures();
     void                    ClearHtmlMesures();
-    void                    debugformule(QMap<QString,QVariant>  Data, QString type);
+    void                    debugMesureRefraction(MesureRefraction * mesure);
     bool                    Ouverture_Ports_Series();
                                                                     // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
     //LE FRONTO ----------------------------------------------------

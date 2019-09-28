@@ -60,6 +60,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
 
+#include "updoublevalidator.h"
 #include "upstandarditem.h"
 #include "conversionbase.h"
 #include "database.h"
@@ -118,6 +119,7 @@ private:
     UpLineEdit                      *wdg_MGlineEdit;
     UpLineEdit                      *wdg_autresCorresp1LineEdit, *wdg_autresCorresp2LineEdit;
     bool                            m_ok;
+    upDoubleValidator               *m_val;
 
     pyxinterf                       *m_pyxi;     // CZ001
 

@@ -23,8 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class MesureRefraction : public QObject
 {
 public:
-    MesureRefraction();
-    MesureRefraction(Refraction::Mesure typemesure);
+    explicit MesureRefraction();
+    explicit MesureRefraction(Refraction::Mesure typemesure);
     void setdata(Refraction *ref);
     void setdata(MesureRefraction *mesure);
 

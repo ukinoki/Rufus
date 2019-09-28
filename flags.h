@@ -74,6 +74,14 @@
                         * hors TCP, le timer compare la valeur du champ MAJFlagMG avec celle stockée en mémoire dans la variable m_flagcorrespondants
                             * si la valeur a augmenté, rufus.cpp reconstruit la salle d'attente
 
+             * D - Pour les utilisateurs distants
+                * si on est en accès accès distant,
+                    * au lancement du programme, rufus.cpp éxécute Flags::MAJflagUserDistant() qui incrémente la valeur de MAJFlagUserDistant dans la table rufus.flags
+                    * Flags::MAJflagUserDistant()
+                        * incrémente le champ MAJFlagUserDistant de la table rufus.flags en cas d'accès distant
+                * RufusAdmin scrute le champ MAJFlagUserDistant par le biais d'un timer et stocke sa valeur dans la variale m_flaguserdistant
+                    * si la valeur a augmenté, rufusAdmin reconstruit la liste des utilisateurs connectés
+
             * Quand RufusAdmin est utilisé,
                 * seuls les postes distants n'utilisent pas le TCP et mettent donc à jour les champs MAJFlag de la table rufus.flags
                 * RufusAdmin scrute ces champs (RufusAdmin::VerifModifsFlags() déclenché par un timer) et déclenche les messages TCP correspondants
@@ -93,18 +101,20 @@ public:
 
     void                    setTCP(bool tcp);
 
-    int                     flagCorrespondants() const;               //!> flag de mise à jour de la liste des corresondants
-    int                     flagMessages() const;                     //!> flag de vérification des messages
-    int                     flagSalleDAttente() const;                //!> flag de mise à jour de la salle d'attente
+    int                     flagCorrespondants() const; //!> flag de mise à jour de la liste des corresondants
+    int                     flagMessages() const;       //!> flag de vérification des messages
+    int                     flagSalleDAttente() const;  //!> flag de mise à jour de la salle d'attente
+    int                     flagUserDistant() const;    //!> flag de mise à jour de la liste des utilisateurs distants
 
-    void                    MAJflagCorrespondants();            //!<  MAJ du flag de la liste des correspondants
-    void                    MAJflagMessages();                  //!<  MAJ du flag de la messagerie
-    void                    MAJFlagSalleDAttente();             //!<  MAJ du flag de la salle d'attente
+    void                    MAJflagCorrespondants();    //!< MAJ du flag de la liste des correspondants
+    void                    MAJflagMessages();          //!< MAJ du flag de la messagerie
+    void                    MAJFlagSalleDAttente();     //!< MAJ du flag de la salle d'attente
+    void                    MAJflagUserDistant();       //!> MAJ du flag de mise à jour de la liste des utilisateurs distants
 
 signals:
-    void                    UpdCorrespondants(int);             //!< signal de mise à jour de la liste des correspondants - l'argument donne la nouvelle valeur du flag
-    void                    UpdMessages(int);                   //!< signal de mise à jour de la messagerie - l'argument donne la nouvelle valeur du flag
-    void                    UpdSalleDAttente(int);              //!< signal de mise à jour de la salle d'attente - l'argument donne la nouvelle valeur du flag
+    void                    UpdCorrespondants(int);     //!< signal de mise à jour de la liste des correspondants           - l'argument donne la nouvelle valeur du flag
+    void                    UpdMessages(int);           //!< signal de mise à jour de la messagerie                         - l'argument donne la nouvelle valeur du flag
+    void                    UpdSalleDAttente(int);      //!< signal de mise à jour de la salle d'attente                    - l'argument donne la nouvelle valeur du flag
 
 private:
     static Flags            *instance;

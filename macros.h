@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                57  // version de la base de données
+#define VERSION_BASE                                58  // version de la base de données
 #define VERSION_RESSOURCES                          34  // version des fichiers de ressources
 
 // Les bases
@@ -174,7 +174,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_EDITABLE_IMPRESSIONS                      "Editable"
 #define CP_MEDICAL_IMPRESSIONS                       "Medical"
 
-                            //! Table Rufus.Metadocuments
+                            //! Table Rufus.flagss
+#define CP_MAJFLAGSALDAT_FLAGS                       "MAJflagSalDat"
+#define CP_MAJFLAGCORRESPONDANTS_FLAGS               "MAJflagMG"
+#define CP_MAJFLAGMESSAGES_FLAGS                     "MAJflagMessages"
+#define CP_MAJFLAGUSERDISTANT_FLAGS                  "flagUserDistant"
+
+//! Table Rufus.Metadocuments
 #define CP_ID_DOSSIERIMPRESSIONS                     "idMetaDocument"
 #define CP_TEXTE_DOSSIERIMPRESSIONS                  "TextMetaDocument"
 #define CP_RESUME_DOSSIERIMPRESSIONS                 "ResumeMetaDocument"
@@ -409,6 +415,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /*! fin du message invitant à mettre à jour la salle d'attente */
 #define TCPMSG_MAJPatient                           "MajPatient"                                        /*! fin du message indiquant qu'un patient a été créé ou modifié */
 #define TCPMSG_MAJListeUsers                        "MajListeUsers"                                     /*! fin du message invitant à mettre à jour la liste des utilisateurs */
+#define TCPMSG_MAJListePostes                       "MajListePostes"                                    /*! fin du message invitant à mettre à jour la liste des postes connectés */
 #define TCPMSG_MsgBAL                               "MsgRecuDansBAL"                                    /*! fin du message informant de la réception d'un message de messagerie instantanée */
 #define TCPMSG_Separator                            "triumphspeedtriple1050"                            /*! separateur au sein d'un message */
 #define TCPMSG_DataSocket                           "DataSocket"                                        /*! fin du message fournissant IP et MAC et nom d'un client */

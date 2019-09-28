@@ -19,9 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 MesureRefraction::MesureRefraction() {}
 
-MesureRefraction::MesureRefraction(Refraction::Mesure typemesure)
+MesureRefraction::MesureRefraction(Refraction::Mesure typemesure) : m_typemesure(typemesure) , m_cleandatas(false)
 {
-    setmesure(typemesure);
 }
 
 void MesureRefraction::setdata(Refraction *ref)

@@ -621,7 +621,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,57,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,58,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -826,7 +826,8 @@ DROP TABLE IF EXISTS `flags`;
 CREATE TABLE `flags` (
   `MAJflagSalDat` int(11) DEFAULT NULL,
   `MAJflagMG` int(11) DEFAULT NULL,
-  `MAJflagMessages` INT(11) DEFAULT NULL
+  `MAJflagMessages` INT(11) DEFAULT NULL,
+  `flagUserDistant` INT(11) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `jointuresdocuments`;
@@ -841,7 +842,6 @@ CREATE TABLE `jointuresdocuments` (
 LOCK TABLES `jointuresdocuments` WRITE;
 INSERT INTO `jointuresdocuments` VALUES (24,6,48),(25,6,19),(26,6,49),(27,6,6),(28,1,12),(29,1,17),(30,1,44),(31,1,43),(45,9,15),(46,9,52),(47,9,18);
 UNLOCK TABLES;
-
 
 DROP TABLE IF EXISTS `listeappareils`;
 CREATE TABLE `listeappareils` (

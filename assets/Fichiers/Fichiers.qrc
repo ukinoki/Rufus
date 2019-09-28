@@ -8,7 +8,6 @@
         <file>Pied_Ordonnance_Lunettes.txt</file>
         <file>Pied_Ordonnance.txt</file>
         <file>libmysqlclient.18.dylib</file>
-        <file>basevierge.sql</file>
         <file>majbase41.sql</file>
         <file>majbase42.sql</file>
         <file>majbase43.sql</file>
@@ -25,5 +24,7 @@
         <file>majbase55.sql</file>
         <file>majbase56.sql</file>
         <file>majbase57.sql</file>
+        <file>majbase58.sql</file>
+        <file>basevierge.sql</file>
     </qresource>
 </RCC>

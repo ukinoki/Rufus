@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("27-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -111,7 +111,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             {
                 QString msg;
                 dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
-                connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
+                connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi iduser
                 msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;
                 envoieMessage(msg);
@@ -133,6 +133,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
     {
         log = tr("Connexion distante - pas d'utilisation de TCP");
+        Flags::I()->MAJflagUserDistant();
         Logs::MSGSOCKET(log);
     }
 
@@ -7655,8 +7656,9 @@ void Rufus::InitWidgets()
 
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
-    ui->ActeMontantlineEdit->setValidator(val);
-    ui->PayelineEdit->setValidator(val);
+    m_val = new upDoubleValidator(0, 10000 , 2, this);
+    ui->ActeMontantlineEdit->setValidator(m_val);
+    ui->PayelineEdit->setValidator(m_val);
     ui->TabaclineEdit->setValidator(new QRegExpValidator(Utils::rgx_tabac,this));
     wdg_MGlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     wdg_autresCorresp1LineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
@@ -8506,7 +8508,7 @@ void Rufus::SetDatasRefractionKerato()
     Datas::I()->mesurefinal->cleandatas();
     Datas::I()->mesurekerato->cleandatas();
 
-    /*! Autoref     on cherche à régler la position autoref du fronto - on utilise la dernière mesure d'acuité pour ça
+    /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
     itref.toBack();
     while (itref.hasPrevious()) {
@@ -10017,6 +10019,8 @@ void Rufus::TraiteTCPMessage(QString msg)
         Datas::I()->postesconnectes->initListe();
         Remplir_SalDat();
     }
+    else if (msg.contains(TCPMSG_MAJListePostes))
+        Datas::I()->postesconnectes->initListe();
 }
 
 void Rufus::envoieMessage(QString msg)
