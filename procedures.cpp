@@ -2572,6 +2572,7 @@ bool Procedures::VerifBaseEtRessources()
                 {
                     result = 1;
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
+                    db->initParametres();
                 }
                 else
                 {
@@ -4429,7 +4430,11 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     }
     setHtmlRefracteur();
     if (!Datas::I()->mesureacuite->isdataclean())
+    {
         emit NouvMesureRefraction(Subjectif);
+        InsertRefraction(Subjectif);
+    }
+
 }
 
 void Procedures::RegleRefracteur()
@@ -4703,8 +4708,9 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
             Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
             Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
-            if (Datas::I()->mesurefronto->isDifferent(newMesureFronto) && PortFronto() == Q_NULLPTR)
-                m_isnewMesureFronto = true;
+            if (PortFronto() == Q_NULLPTR)                                      //! au cas où le fronto est directement branché sur la box du refracteur
+                if (Datas::I()->mesurefronto->isDifferent(newMesureFronto))
+                    m_isnewMesureFronto = true;
             delete newMesureFronto;
         }
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
@@ -4739,14 +4745,14 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
             Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
             Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
-            if (Datas::I()->mesureautoref->isDifferent(newMesureAutoref) && PortAutoref() == Q_NULLPTR)
-                m_isnewMesureAutoref = true;
+            if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
+                if (Datas::I()->mesureautoref->isDifferent(newMesureAutoref))
+                    m_isnewMesureAutoref = true;
             delete newMesureAutoref;
         }
         if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie - cette mesure ne peut qu'avoir été effectuée par un autoref connecté directement à la box du refraacteur
         {
-            MesureKerato        *newMesureKerato(Datas::I()->mesurekerato);
-            Datas::I()->mesurekerato->cleandatas();
+            MesureKerato  *newMesureKerato = new MesureKerato();
             newMesureKerato->setdatas(Datas::I()->mesurekerato);
             idx                     = Mesure.indexOf("@KM");
             QString SectionKerato   = Mesure.right(Mesure.length()-idx);
@@ -4760,7 +4766,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 AxeKOD              = mesureOD.mid(10,3).toInt();
                 if (SectionKerato.contains("DR"))
                 {
-                    mesureOD            = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
+                    mesureOD        = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
                     Datas::I()->mesurekerato->setdioptriesK1OD(mesureOD.mid(0,5).toDouble());
                     Datas::I()->mesurekerato->setdioptriesK2OD(mesureOD.mid(5,5).toDouble());
                 }
@@ -4785,62 +4791,66 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
             Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
             Datas::I()->mesurekerato->setaxeKOG(AxeKOG);
-            if (Datas::I()->mesurekerato->isDifferent(newMesureKerato) && PortAutoref() == Q_NULLPTR)
-                m_isnewMesureKerato = true;
+            if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
+                if (Datas::I()->mesurekerato->isDifferent(newMesureKerato))
+                    m_isnewMesureKerato = true;
             delete newMesureKerato;
         }
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
         {
-            Datas::I()->mesureacuite->cleandatas();
-            Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
             idx                         = Mesure.indexOf("@RT");
             QString SectionRefracteur   = Mesure.right(Mesure.length()-idx);
-            PD                          = SectionRefracteur.mid(SectionRefracteur.indexOf("pD")+2,2);
 
             // les données subjectives --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
-            Datas::I()->mesureacuite->setecartIP(PD.toInt());
-            if (SectionRefracteur.contains("fR"))
+            if (SectionRefracteur.contains("fR") || SectionRefracteur.contains("fL"))
             {
-                mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("fR")+2,15)   .replace(" ","0");
-                mSphereOD    = mesureOD.mid(0,6);
-                mCylOD       = mesureOD.mid(6,6);
-                mAxeOD       = mesureOD.mid(12,3);
-                if (SectionRefracteur.indexOf("aR")>-1)
-                    mAddOD   = SectionRefracteur.mid(SectionRefracteur.indexOf("aR")+2,6)    .replace(" ","0");
-                if (SectionRefracteur.indexOf("vR")>-1)
-                    AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("vR")+2,5)    .replace(" ","0");
-                if (SectionRefracteur.indexOf("yR")>-1)
-                    AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("yR")+2,5)    .replace(" ","0");
-                Datas::I()->mesureacuite->setsphereOD(mSphereOD.toDouble());
-                Datas::I()->mesureacuite->setcylindreOD(mCylOD.toDouble());
-                Datas::I()->mesureacuite->setaxecylindreOD(mAxeOD.toInt());
-                Datas::I()->mesureacuite->setaddVPOD(mAddOD.toDouble());
-                Datas::I()->mesureacuite->setavlOD(AVLOD);
-                Datas::I()->mesureacuite->setavpOD(AVPOD);
+                Datas::I()->mesureacuite->cleandatas();
                 Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
-            }
-            // OEIL GAUCHE ---------------------------------------------------------------------------
-            if (SectionRefracteur.contains("fL"))
-            {
-                mesureOG     = SectionRefracteur.mid(SectionRefracteur.indexOf("fL")+2,15)   .replace(" ","0");
-                mSphereOG    = mesureOG.mid(0,6);
-                mCylOG       = mesureOG.mid(6,6);
-                mAxeOG       = mesureOG.mid(12,3);
-                if (SectionRefracteur.indexOf("aL")>-1)
-                    mAddOG   = SectionRefracteur.mid(SectionRefracteur.indexOf("aL")+2,6)    .replace(" ","0");
-                if (SectionRefracteur.indexOf("vL")>-1)
-                    AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("vL")+2,5)    .replace(" ","0");
-                if (SectionRefracteur.indexOf("yL")>-1)
-                    AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("yL")+2,5)    .replace(" ","0");
-                Datas::I()->mesureacuite->setsphereOG(mSphereOG.toDouble());
-                Datas::I()->mesureacuite->setcylindreOG(mCylOG.toDouble());
-                Datas::I()->mesureacuite->setaxecylindreOG(mAxeOG.toInt());
-                Datas::I()->mesureacuite->setaddVPOG(mAddOG.toDouble());
-                Datas::I()->mesureacuite->setavlOG(AVLOG);
-                Datas::I()->mesureacuite->setavpOG(AVPOG);
-                Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
+                PD               = SectionRefracteur.mid(SectionRefracteur.indexOf("pD")+2,2);
+                Datas::I()->mesureacuite->setecartIP(PD.toInt());
+                if (SectionRefracteur.contains("fR"))
+                {
+                    mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("fR")+2,15)   .replace(" ","0");
+                    mSphereOD    = mesureOD.mid(0,6);
+                    mCylOD       = mesureOD.mid(6,6);
+                    mAxeOD       = mesureOD.mid(12,3);
+                    if (SectionRefracteur.indexOf("aR")>-1)
+                        mAddOD   = SectionRefracteur.mid(SectionRefracteur.indexOf("aR")+2,6)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("vR")>-1)
+                        AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("vR")+2,5)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("yR")>-1)
+                        AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("yR")+2,5)    .replace(" ","0");
+                    Datas::I()->mesureacuite->setsphereOD(mSphereOD.toDouble());
+                    Datas::I()->mesureacuite->setcylindreOD(mCylOD.toDouble());
+                    Datas::I()->mesureacuite->setaxecylindreOD(mAxeOD.toInt());
+                    Datas::I()->mesureacuite->setaddVPOD(mAddOD.toDouble());
+                    Datas::I()->mesureacuite->setavlOD(AVLOD);
+                    Datas::I()->mesureacuite->setavpOD(AVPOD);
+                    Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
+                }
+                // OEIL GAUCHE ---------------------------------------------------------------------------
+                if (SectionRefracteur.contains("fL"))
+                {
+                    mesureOG     = SectionRefracteur.mid(SectionRefracteur.indexOf("fL")+2,15)   .replace(" ","0");
+                    mSphereOG    = mesureOG.mid(0,6);
+                    mCylOG       = mesureOG.mid(6,6);
+                    mAxeOG       = mesureOG.mid(12,3);
+                    if (SectionRefracteur.indexOf("aL")>-1)
+                        mAddOG   = SectionRefracteur.mid(SectionRefracteur.indexOf("aL")+2,6)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("vL")>-1)
+                        AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("vL")+2,5)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("yL")>-1)
+                        AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("yL")+2,5)    .replace(" ","0");
+                    Datas::I()->mesureacuite->setsphereOG(mSphereOG.toDouble());
+                    Datas::I()->mesureacuite->setcylindreOG(mCylOG.toDouble());
+                    Datas::I()->mesureacuite->setaxecylindreOG(mAxeOG.toInt());
+                    Datas::I()->mesureacuite->setaddVPOG(mAddOG.toDouble());
+                    Datas::I()->mesureacuite->setavlOG(AVLOG);
+                    Datas::I()->mesureacuite->setavpOG(AVPOG);
+                    Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
+                }
             }
 
             // les données finales --------------------------------------------------------------------------------------------------------------
@@ -4849,6 +4859,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             {
                 Datas::I()->mesurefinal->cleandatas();
                 Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
+                PD               = SectionRefracteur.mid(SectionRefracteur.indexOf("PD")+2,2);
+                Datas::I()->mesurefinal->setecartIP(PD.toInt());
                 if (SectionRefracteur.contains("FR"))
                 {
                     mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("FR")+2,15)   .replace(" ","0");
@@ -4931,7 +4943,7 @@ void Procedures::setHtmlRefracteur()
     }
     // CALCUL DE HtmlMesureKerato ====================================================================================================================================
     if (!Datas::I()->mesurekerato->isdataclean() && m_isnewMesureKerato)
-        setHtmlKerato(Datas::I()->mesurekerato);
+        setHtmlKerato();
     // CALCUL DE HtmlMesureRefracteurSubjectif =======================================================================================================================
     QString Resultat = "";
     if(!Datas::I()->mesureacuite->isdataclean())
@@ -5140,7 +5152,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
      || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
      || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
     {
-        if (m_mesureSerie == RequestToSendNIDEK())
+        if (m_mesureSerie == RequestToSendNIDEK())          //! le fronto demande la permission d'envoyer des données
         {
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
             PortFronto()->clear();
@@ -5150,7 +5162,6 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         }
     }
     LectureDonneesFronto(m_mesureSerie);
-    m_isnewMesureFronto    = true;
     if (Datas::I()->mesurefronto->isdataclean())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5165,11 +5176,10 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
             PortRefracteur()->waitForBytesWritten(100);
         }
     }
-    if (!Datas::I()->mesurefronto->isdataclean())
-    {
-        setHtmlFronto();
-        emit NouvMesureRefraction(Fronto);
-    }
+    setHtmlFronto();
+    emit NouvMesureRefraction(Fronto);
+    m_isnewMesureFronto = false;
+    InsertRefraction(Fronto);
 }
 
 void Procedures::LectureDonneesFronto(QString Mesure)
@@ -5401,20 +5411,17 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
     {
-        if (m_mesureSerie == RequestToSendNIDEK())       // Cas où l'autoref demande la permission d'envoyer des données
+        if (m_mesureSerie == RequestToSendNIDEK())       //! l'autoref demande la permission d'envoyer des données
         {
             QString cmd;
-            if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+            cmd = ((m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
-                cmd ="CRK";
-            else
-                cmd ="CRM";                          //CRK ou CRM suivant les appareils
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")?                "CRK" : "CRM");     //! CRK ou CRM suivant les appareils
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
             PortAutoref()->clear();
             PortAutoref()->write(SendDataNIDEK(cmd));
@@ -5444,8 +5451,17 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             {
                 if (!Datas::I()->mesurekerato->isdataclean())
                 {
-                    setHtmlKerato(Datas::I()->mesurekerato);
+                    setHtmlKerato();
                     emit NouvMesureRefraction(Kerato);
+                    m_isnewMesureKerato = false;
+                    InsertRefraction(Kerato);
+                }
+                if (!Datas::I()->mesureautoref->isdataclean())
+                {
+                    setHtmlAutoref();
+                    emit NouvMesureRefraction(Autoref);
+                    m_isnewMesureAutoref = false;
+                    InsertRefraction(Autoref);
                 }
             }
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
@@ -5466,11 +5482,6 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
-    }
-    if (!Datas::I()->mesureautoref->isdataclean())
-    {
-        setHtmlAutoref();
-        emit NouvMesureRefraction(Autoref);
     }
 }
 
@@ -5727,8 +5738,6 @@ PL04.7N
             a  = Ref.indexOf("PD");
             if (a>=0)
                 PD                   = Ref.mid(Ref.indexOf("PD")+2,2);
-
-            K = "";
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
@@ -5906,20 +5915,20 @@ void Procedures::setHtmlAutoref()
 // -------------------------------------------------------------------------------------
 // Generation du resumé de l'observation pour la keratométrie
 //--------------------------------------------------------------------------------------
-void Procedures::setHtmlKerato(MesureKerato *mesure)
+void Procedures::setHtmlKerato()
 {
-    QString mK1OD       = QLocale().toString(mesure->K1OD(),'f',2);
-    QString mK2OD       = QLocale().toString(mesure->K2OD(),'f',2);
-    QString mAxeKOD     = QString::number(mesure->axeKOD());
-    QString mDioptrK1OD = QLocale().toString(mesure->dioptriesK1OD(),'f',1);
-    QString mDioptrK2OD = QLocale().toString(mesure->dioptriesK2OD(),'f',1);
-    QString mDioptrKOD  = Utils::PrefixePlus(mesure->dioptriesKOD());
-    QString mK1OG       = QLocale().toString(mesure->K1OG(),'f',2);
-    QString mK2OG       = QLocale().toString(mesure->K2OG(),'f',2);
-    QString mAxeKOG     = QString::number(mesure->axeKOG());
-    QString mDioptrK1OG = QLocale().toString(mesure->dioptriesK1OG(),'f',1);
-    QString mDioptrK2OG = QLocale().toString(mesure->dioptriesK2OG(),'f',1);
-    QString mDioptrKOG  = Utils::PrefixePlus(mesure->dioptriesKOG());
+    QString mK1OD       = QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2);
+    QString mK2OD       = QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2);
+    QString mAxeKOD     = QString::number(Datas::I()->mesurekerato->axeKOD());
+    QString mDioptrK1OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OD(),'f',1);
+    QString mDioptrK2OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OD(),'f',1);
+    QString mDioptrKOD  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOD());
+    QString mK1OG       = QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2);
+    QString mK2OG       = QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2);
+    QString mAxeKOG     = QString::number(Datas::I()->mesurekerato->axeKOG());
+    QString mDioptrK1OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OG(),'f',1);
+    QString mDioptrK2OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OG(),'f',1);
+    QString mDioptrKOG  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOG());
     QString kerato = "";
 
     if (QLocale().toDouble(mK1OD)>0)
@@ -6098,8 +6107,10 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
+void Procedures::InsertRefraction(TypeMesure Mesure)
 {
+    int idPatient   = Datas::I()->patients->currentpatient()->id();
+    int idActe      = Datas::I()->actes->currentacte()->id();
     if (!Datas::I()->mesurefronto->isdataclean() && Mesure == Fronto && m_isnewMesureFronto)
     {
         bool a =

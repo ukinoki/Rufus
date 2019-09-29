@@ -30,15 +30,19 @@ class Actes: public ItemsList
 
 {
 private:
-    QMap<int, Acte*> *map_actes = Q_NULLPTR; //!< une liste d'actes
-    QSortFilterProxyModel* m_actesortmodel;
-    QSortFilterProxyModel* m_heuresortmodel;
-    QStandardItemModel *m_actesmodel;
+    QMap<int, Acte*>        *map_actes = Q_NULLPTR;                                         //!< une liste d'actes
+    Acte                    *m_currentacte = Q_NULLPTR;                                     //! l'acte en cours
+    QSortFilterProxyModel   *m_actesortmodel;
+    QSortFilterProxyModel   *m_heuresortmodel;
+    QStandardItemModel      *m_actesmodel;
 
 public:
     explicit Actes(QObject *parent = Q_NULLPTR);
 
     QMap<int, Acte *> *actes() const;
+
+    void setcurrentacte(Acte*act)   { m_currentacte = act; }
+    Acte* currentacte()             { return m_currentacte; }
 
     Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
     QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste

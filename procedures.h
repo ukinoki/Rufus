@@ -461,10 +461,7 @@ public:
     QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertRefraction(
-                                int idPatient,
-                                int idActe,
-                                TypeMesure = All);                  // enregistre la mesure de réfraction
+    void                    InsertRefraction(TypeMesure = All);     // enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
@@ -495,9 +492,9 @@ private:
     QString                 m_htmlMesureKerato;
     QString                 m_htmlMesureTono;
     QString                 m_htmlMesurePachy;
-    void                    LectureDonneesAutoref(QString Mesure);              // détermine les QMap MesureAutoref, MesureKerato et MesureTono à partir de la mesure relevée sur le port série du fronto
+    void                    LectureDonneesAutoref(QString Mesure);          // détermine les QMap MesureAutoref, MesureKerato et MesureTono à partir de la mesure relevée sur le port série du fronto
     void                    setHtmlAutoref();                               // détermine le html à inscrire dans la fiche observation à partir du QMap MesureAutoref
-    void                    setHtmlKerato(MesureKerato *mesure);            // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
+    void                    setHtmlKerato();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
     void                    setHtmlTono();                                  // détermine le html à inscrire dans la fiche observation à partir du QMap MesureTono
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
     bool                    m_isnewMesureAutoref;                           // détermine si la mesure d'autoref provient de l'autoref ou du dossier
@@ -515,6 +512,7 @@ private:
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);
 };
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesMesures)
 
 #endif // PROCEDURES_H

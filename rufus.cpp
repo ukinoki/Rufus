@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("27-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("29-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -3154,7 +3154,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     req += ") order by patnom, patprenom";
     QList<QVariantList> patlist = db->StandardSelectSQL(req,m_ok);
     int     gtotalNbreDossiers    = patlist.size();
-    QDate   date = QDate::currentDate();;
+    QDate   date = QDate::currentDate();
 
     //création de l'entête
     QString EnTete;
@@ -5539,7 +5539,7 @@ void Rufus::VerifVerrouDossier()
                     if (post->id() == pat->iduser() && post->nomposte() == pat->posteexamen())
                     {
                         posttrouve = true;
-                        break;;
+                        break;
                     }
                 }
                 if (!posttrouve)
@@ -5934,7 +5934,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             switch (keyEvent->key())
             {
             case Qt::Key_Delete:
-                Qobj->clear();;
+                Qobj->clear();
                 FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
                 return true;
             case Qt::Key_Up:
@@ -6018,6 +6018,7 @@ void Rufus::AfficheActe(Acte* acte)
     else
     {
         m_currentact    = acte;
+        Datas::I()->actes->setcurrentacte(acte);
         //1.  Retrouver l'acte défini par son idActe et afficher les champs
         ui->Acteframe               ->setVisible(true);
         ui->CreerActepushButton_2   ->setVisible(false);
@@ -6321,6 +6322,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->CreerBOpushButton_2->setVisible(true);
         ui->idActelineEdit->clear();
         m_currentact = Q_NULLPTR;
+        Datas::I()->actes->setcurrentacte(Q_NULLPTR);
     }
     else
     {
@@ -6551,7 +6553,7 @@ void Rufus::SortieAppli()
             Flags::I()->MAJFlagSalleDAttente();
         }
         else
-            return;;
+            return;
     }
 
     // le tab dossier est fermé, on vérifie s'il y a du monde en salle d'attente
@@ -6620,6 +6622,8 @@ void Rufus::SortieAppli()
         TcPConnect->close();
         delete TcPConnect;
     }
+    if (DataBase::I()->getMode() == Utils::Distant)
+        Flags::I()->MAJflagUserDistant();
     exit(0);
 }
 
@@ -6855,6 +6859,7 @@ void Rufus::CreerActe(Patient *pat)
         if(!AutorDepartConsult(false)) return;
     Acte * acte = m_listeactes->CreationActe(pat, proc->idCentre());
     m_currentact = acte;
+    Datas::I()->actes->setcurrentacte(acte);
 
     AfficheActe(m_currentact);
     if (m_listeactes->actes()->size() > 1)
@@ -7102,7 +7107,7 @@ void Rufus::CreerMenu()
     connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::ModeCreationDossier);
     connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::ModeSelectDepuisListe);
     connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] {
-                                                                                                            Patient *pat = Q_NULLPTR;;
+                                                                                                            Patient *pat = Q_NULLPTR;
                                                                                                             if (ui->tabWidget->currentWidget() == ui->tabList)
                                                                                                             {
                                                                                                                 if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() > 0)
@@ -7412,6 +7417,7 @@ bool Rufus::FermeDossier(Patient *patient)
     if (a) {
         Datas::I()->patients->currentpatient()->resetdatas();
         m_currentact = Q_NULLPTR;
+        Datas::I()->actes->setcurrentacte(Q_NULLPTR);
     }
     Flags::I()->MAJFlagSalleDAttente();
     return a;
@@ -7539,7 +7545,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                  bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
-    QString     Corps, Pied;;
+    QString     Corps, Pied;
     QTextEdit   *Etat_textEdit = new QTextEdit;
     bool        AvecNumPage = false;
     bool        aa;
@@ -8446,7 +8452,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-    Dlg_Refraction     = new dlg_refraction(m_currentact, mode, this);
+    Dlg_Refraction     = new dlg_refraction(mode, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
     proc->setFicheRefractionOuverte(false);
@@ -8973,7 +8979,7 @@ void Rufus::Remplir_SalDat()
                     patencours = pat;
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
-            UserBureau->disconnect();; // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
+            UserBureau->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
             UserBureau->setObjectName(usr->login() + "BureauupTextEdit");
             UserBureau->setIdUser(post->id());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
@@ -9708,53 +9714,43 @@ void Rufus::NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilis
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-
+    QString ARajouterEnText ("");
     switch (TypeMesure) {
     case  Procedures::Final:
     case  Procedures::Subjectif:
     {
-        QString ARajouterEnText= proc->HtmlRefracteur();
-        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-        ui->ActeTextetextEdit->setFocus();
-        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-        proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Subjectif);
+        ARajouterEnText= proc->HtmlRefracteur();
         RefractionMesure(dlg_refraction::Auto);
         break;
     }
     case Procedures::Autoref:
-        proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Autoref);
+        ARajouterEnText= proc->HtmlAutoref();
         break;
     case Procedures::Fronto:
-        proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Fronto);
+        ARajouterEnText= proc->HtmlFronto();
         break;
     case Procedures::Kerato:
     {
-        QString ARajouterEnText= proc->HtmlKerato();
-        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-        ui->ActeTextetextEdit->setFocus();
-        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-        proc->InsertRefraction(Datas::I()->patients->currentpatient()->id(), m_currentact->id(), Procedures::Kerato);
+        ARajouterEnText= proc->HtmlKerato();
         break;
     }
     case Procedures::Tono:
     {
-        QString ARajouterEnText= proc->HtmlTono();
-        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-        ui->ActeTextetextEdit->setFocus();
-        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+        ARajouterEnText= proc->HtmlTono();
         break;
     }
     case Procedures::Pachy:
     {
-        QString ARajouterEnText= proc->HtmlPachy();
-        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-        ui->ActeTextetextEdit->setFocus();
-        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+        ARajouterEnText= proc->HtmlPachy();
         break;
     }
     default:
         RefractionMesure(dlg_refraction::Manuel);
     }
+    if (ARajouterEnText != "")
+        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+    ui->ActeTextetextEdit->setFocus();
+    ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
 
 }
 
@@ -10023,7 +10019,10 @@ void Rufus::TraiteTCPMessage(QString msg)
         Remplir_SalDat();
     }
     else if (msg.contains(TCPMSG_MAJListePostes))
+    {
         Datas::I()->postesconnectes->initListe();
+        Remplir_SalDat();
+    }
 }
 
 void Rufus::envoieMessage(QString msg)

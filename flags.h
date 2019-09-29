@@ -111,6 +111,8 @@ public:
     void                    MAJFlagSalleDAttente();     //!< MAJ du flag de la salle d'attente
     void                    MAJflagUserDistant();       //!> MAJ du flag de mise à jour de la liste des utilisateurs distants
 
+    void                    remiseAZeroFlags();         //!< remet tous les flags à zero
+
 signals:
     void                    UpdCorrespondants(int);     //!< signal de mise à jour de la liste des correspondants           - l'argument donne la nouvelle valeur du flag
     void                    UpdMessages(int);           //!< signal de mise à jour de la messagerie                         - l'argument donne la nouvelle valeur du flag

@@ -38,7 +38,7 @@ public:
                 Auto,           //!> la fiche est lancée par l'envoi de données à partir du refracteur
                 Manuel          //!> la fiche est lancée par l'utilisateur
                 };  Q_ENUM(ModeOuverture)
-    dlg_refraction(Acte *acte, ModeOuverture modeouverture, QWidget *parent = Q_NULLPTR);
+    dlg_refraction(ModeOuverture modeouverture, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
     Ui::dlg_refraction          *ui;
     dlg_refractionlistemesures  *Dlg_ListeMes;
@@ -52,8 +52,6 @@ private:
 
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
-    Patient                 *m_currentpatient;
-    Acte                    *m_currentacte;
     int                     m_idrefraction;
     QStringList             m_stringliste1, m_stringliste2;
     Refraction::Mesure      m_mode;

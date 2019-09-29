@@ -20,12 +20,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_refraction.h"
 
-dlg_refraction::dlg_refraction(Acte *acte, ModeOuverture modeouverture, QWidget *parent) :
+dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_refraction)
 {
     ui->setupUi(this);
-    m_currentacte   = acte;
     m_modeouverture = modeouverture;
 
     setWindowTitle("Refraction - " + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());
@@ -1722,7 +1721,7 @@ Refraction* dlg_refraction::InsertRefraction()
 {
     QHash<QString, QVariant> listbinds;
     listbinds[CP_IDPAT_REFRACTIONS]                 = Datas::I()->patients->currentpatient()->id();
-    listbinds[CP_IDACTE_REFRACTIONS]                = m_currentacte->id();
+    listbinds[CP_IDACTE_REFRACTIONS]                = Datas::I()->actes->currentacte()->id();
     listbinds[CP_DATE_REFRACTIONS]                  = ui->DateDateEdit->date().toString("yyyy-MM-dd");
     listbinds[CP_TYPEMESURE_REFRACTIONS]            = Refraction::ConvertMesure(m_mode);
     if(m_mode != Refraction::Autoref)

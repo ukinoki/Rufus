@@ -66,7 +66,7 @@ void Flags::MAJflagCorrespondants()
     int a = 1;
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur liste de correspondants  */
     QString MAJreq = "insert into " TBL_FLAGS " (" CP_MAJFLAGCORRESPONDANTS_FLAGS ") VALUES (1)";
-    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " TBL_FLAGS, m_ok);
+    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select " CP_MAJFLAGCORRESPONDANTS_FLAGS " from " TBL_FLAGS, m_ok);
     if (m_ok && flagdata.size()>0) {
         a = flagdata.at(0).toInt() + 1;
         MAJreq = "update " TBL_FLAGS " set " CP_MAJFLAGCORRESPONDANTS_FLAGS " = " + QString::number(a);
@@ -81,7 +81,7 @@ void Flags::MAJFlagSalleDAttente()
     int a = 1;
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
     QString MAJreq = "insert into " TBL_FLAGS " (" CP_MAJFLAGSALDAT_FLAGS ") VALUES (1)";
-    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " TBL_FLAGS, m_ok);
+    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select " CP_MAJFLAGSALDAT_FLAGS " from " TBL_FLAGS, m_ok);
     if (m_ok && flagdata.size()>0) {
         a = flagdata.at(0).toInt() + 1;
         MAJreq = "update " TBL_FLAGS " set " CP_MAJFLAGSALDAT_FLAGS " = " + QString::number(a);
@@ -96,7 +96,7 @@ void Flags::MAJflagMessages()
     int a = 1;
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur liste de messages  */
     QString MAJreq = "insert into " TBL_FLAGS " (" CP_MAJFLAGMESSAGES_FLAGS ") VALUES (1)";
-    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " TBL_FLAGS, m_ok);
+    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select " CP_MAJFLAGMESSAGES_FLAGS " from " TBL_FLAGS, m_ok);
     if (m_ok && flagdata.size()>0) {
         a = flagdata.at(0).toInt() + 1;
         MAJreq = "update " TBL_FLAGS " set " CP_MAJFLAGMESSAGES_FLAGS " = " + QString::number(a);
@@ -111,10 +111,15 @@ void Flags::MAJflagUserDistant()
     int a = 1;
     /* mise à jour du flag en cas de connection d'un utilisateur distant -  surveillé par RufusAdmin  */
     QString MAJreq = "insert into " TBL_FLAGS " (" CP_MAJFLAGUSERDISTANT_FLAGS ") VALUES (1)";
-    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " TBL_FLAGS, m_ok);
+    QVariantList flagdata = DataBase::I()->getFirstRecordFromStandardSelectSQL("select " CP_MAJFLAGUSERDISTANT_FLAGS " from " TBL_FLAGS, m_ok);
     if (m_ok && flagdata.size()>0) {
         a = flagdata.at(0).toInt() + 1;
         MAJreq = "update " TBL_FLAGS " set " CP_MAJFLAGUSERDISTANT_FLAGS " = " + QString::number(a);
     }
     DataBase::I()->StandardSQL(MAJreq);
+}
+
+void Flags::remiseAZeroFlags()
+{
+    DataBase::I()->StandardSQL("update " TBL_FLAGS " set " CP_MAJFLAGUSERDISTANT_FLAGS " = 0, "  CP_MAJFLAGMESSAGES_FLAGS " = 0, "  CP_MAJFLAGCORRESPONDANTS_FLAGS " = 0, "  CP_MAJFLAGSALDAT_FLAGS " = 0");
 }
