@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTime>
+#include "macros.h"
 
 class Pachy : public QObject
 {
@@ -48,18 +49,18 @@ public:
 
     static Mode     ConvertMesure(QString Mesure)
     {
-        if (Mesure == "O")  return Optique;
-        if (Mesure == "T")  return OCT;
-        if (Mesure == "E")  return Echo;
+        if (Mesure == OPTIQUE_PACHY)    return Optique;
+        if (Mesure == OCT_PACHY)        return OCT;
+        if (Mesure == ECHO_PACHY)       return Echo;
         return  NoMesure;
     }
 
     static QString  ConvertMesure(Pachy::Mode mode)
     {
         switch (mode) {
-        case Optique:   return "O";
-        case OCT:       return "T";
-        case Echo:      return "E";
+        case Optique:   return OPTIQUE_PACHY;
+        case OCT:       return OCT_PACHY;
+        case Echo:      return ECHO_PACHY;
         default:        return "";
         }
     }
@@ -115,18 +116,18 @@ public:
 
     static Mode     ConvertMesure(QString Mesure)
     {
-        if (Mesure == "Air")        return Air;
-        if (Mesure == "Aplanation") return Aplanation;
-        if (Mesure == "Autre")      return Autre;
+        if (Mesure == AIR_TO)        return Air;
+        if (Mesure == APLANATION_TO) return Aplanation;
+        if (Mesure == AUTRE_TO)      return Autre;
         return  NoMesure;
     }
 
     static QString  ConvertMesure(Tono::Mode mode)
     {
         switch (mode) {
-        case Air:           return "Air";
-        case Aplanation:    return "Aplanation";
-        case Autre:         return "Autre";
+        case Air:           return AIR_TO;
+        case Aplanation:    return APLANATION_TO;
+        case Autre:         return AUTRE_TO;
         default: return "";
         }
     }

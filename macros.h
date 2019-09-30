@@ -538,4 +538,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MinK                        5
 #define MaxK                        9.5
 
+//modes de mesure tonométrie
+#define AIR_TO                      "Air"
+#define APLANATION_TO               "Aplanation"
+#define AUTRE_TO                    "Autre"
+
+//modes de mesure pachymétrie
+#define OPTIQUE_PACHY               "O"
+#define OCT_PACHY                   "T"
+#define ECHO_PACHY                  "E"
+
+
 #endif // MACROS_H

@@ -37,7 +37,6 @@ public:
     QWidget*            Widget() const;
 
 private:
-    Procedures          *proc = Procedures::I();
     Mode                m_mode;
     WidgTono            *widgto;
     QWidget             *m_widget;

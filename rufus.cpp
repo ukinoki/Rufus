@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("30-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("01-10-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8511,11 +8511,11 @@ void Rufus::SetDatasRefractionKerato()
      * la mesure autoref en autoref
      * et la mesure acuité en refraction subjective
      */
-    Datas::I()->mesureautoref->cleandatas();
-    Datas::I()->mesurefronto->cleandatas();
-    Datas::I()->mesureacuite->cleandatas();
-    Datas::I()->mesurefinal->cleandatas();
-    Datas::I()->mesurekerato->cleandatas();
+    Datas::I()->mesureautoref   ->cleandatas();
+    Datas::I()->mesurefronto    ->cleandatas();
+    Datas::I()->mesureacuite    ->cleandatas();
+    Datas::I()->mesurefinal     ->cleandatas();
+    Datas::I()->mesurekerato    ->cleandatas();
 
     /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
@@ -9578,11 +9578,15 @@ void Rufus::Tonometrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        WidgTono *widgtono = dynamic_cast<WidgTono*>(Dlg_AutresMes->Widget());
-        if (widgtono == Q_NULLPTR)
-            return;
-        TOD = widgtono->ui->TOODSpinBox->text();
-        TOG = widgtono->ui->TOOGSpinBox->text();
+        TOD = QString::number(Datas::I()->tono->TOD());
+        TOG = QString::number(Datas::I()->tono->TOG());
+        Methode = Tono::ConvertMesure(Datas::I()->tono->modemesure());
+        QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
+                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                + QString::number(Datas::I()->tono->TOD()) + ","
+                + QString::number(Datas::I()->tono->TOG())
+                + ", now(), '" + Methode + "')";
+        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
         if (TOD.toInt() > 21)
             TODcolor = "<font color = \"red\"><b>" + TOD + "</b></font>";
         else
@@ -9593,10 +9597,6 @@ void Rufus::Tonometrie()
             TOGcolor = "<font color = \"blue\"><b>" + TOG + "</b></font>";
         if (TOD.toInt() > 0 || TOG.toInt() > 0)
         {
-            if (widgtono->ui->AirRadioButton->isChecked())        Methode = tr("Air");
-            if (widgtono->ui->AutreRadioButton->isChecked())      Methode = tr("Autre");
-            if (widgtono->ui->AplanationRadioButton->isChecked()) Methode = tr("Aplanation");
-
             QString Tono;
             if (TOD.toInt() == 0 && TOG.toInt() > 0)
                 Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td>";

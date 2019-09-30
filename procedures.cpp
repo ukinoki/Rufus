@@ -2390,8 +2390,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                        }
                     }
                 }
+            }
+            foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
+            {
                 /*! 4b - restauration du fichier ini */
-                else if (chk->accessibleDescription() == "ini")
+                if (chk->accessibleDescription() == "ini")
                 {
                     if (chk->isChecked())
                     {
@@ -4682,7 +4685,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@LM"))                 //=> il y a une mesure pour le fronto
         {
-            MesureRefraction        *newMesureFronto(Datas::I()->mesurefronto);
+            MesureRefraction        *newMesureFronto = new MesureRefraction();
+            newMesureFronto->setdatas(Datas::I()->mesurefronto);
             idx                     = Mesure.indexOf("@LM");
             QString SectionFronto   = Mesure.right(Mesure.length()-idx);
             //Edit(SectionFronto + "\nOK");
@@ -4723,7 +4727,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
         if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
         {
-            MesureRefraction        *newMesureAutoref(Datas::I()->mesureautoref);
+            MesureRefraction        *newMesureAutoref = new MesureRefraction();
+            newMesureAutoref->setdatas(Datas::I()->mesureautoref);
             idx                     = Mesure.indexOf("@RM");
             QString SectionAutoref  = Mesure.right(Mesure.length()-idx);
             //Edit(SectionAutoref);
@@ -4811,9 +4816,9 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
 
             // les données subjectives --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
+            Datas::I()->mesureacuite->cleandatas();
             if (SectionRefracteur.contains("fR") || SectionRefracteur.contains("fL"))
             {
-                Datas::I()->mesureacuite->cleandatas();
                 Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
                 PD               = SectionRefracteur.mid(SectionRefracteur.indexOf("pD")+2,2);
                 Datas::I()->mesureacuite->setecartIP(PD.toInt());
@@ -4862,9 +4867,9 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
 
             // les données finales --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
+            Datas::I()->mesurefinal->cleandatas();
             if (SectionRefracteur.contains("FR") || SectionRefracteur.contains("FL"))
             {
-                Datas::I()->mesurefinal->cleandatas();
                 Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
                 PD               = SectionRefracteur.mid(SectionRefracteur.indexOf("PD")+2,2);
                 Datas::I()->mesurefinal->setecartIP(PD.toInt());
@@ -4902,6 +4907,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                         AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("VL")+2,5)    .replace(" ","0");
                     if (SectionRefracteur.indexOf("YL")>-1)
                         AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("YL")+2,5)    .replace(" ","0");
+
                     Datas::I()->mesurefinal->setsphereOG(mSphereOG.toDouble());
                     Datas::I()->mesurefinal->setcylindreOG(mCylOG.toDouble());
                     Datas::I()->mesurefinal->setaxecylindreOG(mAxeOG.toInt());
@@ -5757,7 +5763,7 @@ PL04.7N
                 mAxeOG               = mesureOG.mid(12,3);
             }
             a  = Ref.indexOf("PD");
-            if (a>=0)
+            if (a >= 0)
                 PD                   = Ref.mid(Ref.indexOf("PD")+2,2);
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
@@ -6136,12 +6142,12 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
     if (!Datas::I()->mesurefronto->isdataclean() && Mesure == Fronto && m_isnewMesureFronto)
     {
         bool a =
-               (Datas::I()->mesurefronto->sphereOD() == 0.0
-            &&  Datas::I()->mesurefronto->cylindreOD()   == 0.0
-            &&  Datas::I()->mesurefronto->axecylindreOD() == 0.0
-            &&  Datas::I()->mesurefronto->sphereOG() == 0.0
-            &&  Datas::I()->mesurefronto->cylindreOG()   == 0.0
-            &&  Datas::I()->mesurefronto->axecylindreOG() == 0.0
+               (Datas::I()->mesurefronto->sphereOD()        == 0.0
+            &&  Datas::I()->mesurefronto->cylindreOD()      == 0.0
+            &&  Datas::I()->mesurefronto->axecylindreOD()   == 0.0
+            &&  Datas::I()->mesurefronto->sphereOG()        == 0.0
+            &&  Datas::I()->mesurefronto->cylindreOG()      == 0.0
+            &&  Datas::I()->mesurefronto->axecylindreOG()   == 0.0
             );
         if (!a)
         {
@@ -6195,6 +6201,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             if (Datas::I()->mesurefronto->addVPOG() > 0)
                 listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOG();
             listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"G");
+            listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesurefronto->ecartIP();
             Datas::I()->refractions->CreationRefraction(listbinds);
         }
     }
@@ -6218,9 +6225,8 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             mSphereOG       = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOG());
             mCylOG          = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOG());
             mAxeOG          = QString::number(Datas::I()->mesureautoref->axecylindreOG());
-            PD              = QString::number(Datas::I()->mesureautoref->ecartIP());
-            if (PD == "")
-                PD = "null";
+            PD              = (Datas::I()->mesureautoref->ecartIP() > 0?
+                                   QString::number(Datas::I()->mesureautoref->ecartIP()) : "null");
             for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
             {
                 Refraction *ref = const_cast<Refraction*>(it.value());
@@ -6250,6 +6256,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOG();
             listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOG();
             listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"G");
+            listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesureautoref->ecartIP();
             Datas::I()->refractions->CreationRefraction(listbinds);
 
             QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";

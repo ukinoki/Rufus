@@ -84,16 +84,14 @@ bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 //-------------------------------------------------------------------------------------
 void dlg_autresmesures::EnregistreTono()
 {
-    QString TOD, TOG, Methode;
-    TOD = widgto->ui->TOODSpinBox->text();
-    TOG = widgto->ui->TOOGSpinBox->text();
-    if (widgto->ui->AirRadioButton->isChecked())        Methode = "Air";
-    if (widgto->ui->AutreRadioButton->isChecked())      Methode = "Autre";
-    if (widgto->ui->AplanationRadioButton->isChecked()) Methode = "Aplanation";
-
-    QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  (" + QString::number(Datas::I()->patients->currentpatient()->id()) + "," + TOD + "," + TOG + ", now(),'" + Methode + "')";
-    DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
-
+    Datas::I()->tono->cleandatas();
+    Datas::I()->tono->setTOD(widgto->ui->TOODSpinBox->text().toInt());
+    Datas::I()->tono->setTOG(widgto->ui->TOOGSpinBox->text().toInt());
+    QString Methode;
+    if (widgto->ui->AirRadioButton->isChecked())        Methode = AIR_TO;
+    if (widgto->ui->AutreRadioButton->isChecked())      Methode = AUTRE_TO;
+    if (widgto->ui->AplanationRadioButton->isChecked()) Methode = APLANATION_TO;
+    Datas::I()->tono->setmodemesure(Tono::ConvertMesure(Methode));
     accept();
 }
 
