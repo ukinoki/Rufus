@@ -98,7 +98,7 @@ private:
     dlg_docsexternes                *Dlg_DocsExt;
     dlg_docsscanner                 *Dlg_DocsScan;
     dlg_docsvideo                   *Dlg_DocsVideo;
-    dlg_impressions                   *Dlg_Imprs;
+    dlg_impressions                 *Dlg_Imprs;
     dlg_identificationcorresp       *Dlg_IdentCorresp;
     dlg_identificationpatient       *Dlg_IdentPatient;
     dlg_listecorrespondants         *Dlg_ListCor;
@@ -123,11 +123,6 @@ private:
 
     pyxinterf                       *m_pyxi;     // CZ001
 
-    void        ChoixMenuContextuelIdentPatient();
-    void        ChoixMenuContextuelMotsCles();
-    void        EnregistreDocScanner(Patient *pat);
-    void        EnregistreVideo(Patient *pat);
-    void        ListeCorrespondants();
 
 private:
     void        ActeMontantModifie();
@@ -152,6 +147,8 @@ private:
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
     void        EnableButtons();
+    void        EnregistreDocScanner(Patient *pat);
+    void        EnregistreVideo(Patient *pat);
     void        ExporteDocs();                                  /* exporte les documents d'imagerie inscrits dans la base pra les postes idstants
                                                                 pour les archiver en fichiers standards sur le HD du serveur*/
     void        FiltreAccueil(int idx);
@@ -166,6 +163,7 @@ private:
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
+    void        ListeCorrespondants();
     void        MajusculeCreerNom();
     void        MajusculeCreerPrenom();
     void        ModifCotationActe();
@@ -206,6 +204,8 @@ private:
     void        SupprimerMessageRecu(int idJoint);
     void        VerifSendMessage(int idMsg = -1);
 
+    void        ChoixMenuContextuelIdentPatient();
+    void        ChoixMenuContextuelMotsCles();
     void        MenuContextuelBureaux(UpTextEdit *UpText);
     void        MenuContextuelCorrespondant(UpComboBox *box);
     void            ChoixMenuContextuelCorrespondant(QString choix);

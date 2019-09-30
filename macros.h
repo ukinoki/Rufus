@@ -55,6 +55,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_DONNEES_OPHTA_PATIENTS            "Ophtalmologie.DonneesOphtaPatients"
 #define TBL_REFRACTIONS                       "Ophtalmologie.refractions"
 #define TBL_TONOMETRIE                        "Ophtalmologie.tonometries"
+#define TBL_PACHYMETRIE                       "Ophtalmologie.pachymetries"
 
 #define TBL_ACTES                             "rufus.Actes"
 #define TBL_APPAREILSCONNECTESCENTRE          "rufus.appareilsconnectescentre"

@@ -411,7 +411,6 @@ public:
     bool                    FicheRefractionOuverte();
 private:
     bool                    m_dlgrefractionouverte;
-    bool                    m_isAutorefParametre, m_isRefracteurParametre, m_isFrontoParametre, m_isTonoParametre;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
     QSerialPort             *sp_portAutoref, *sp_portRefracteur, *sp_portTono, *sp_portFronto;
     struct Settings {
@@ -485,8 +484,6 @@ private:
     void                    setHtmlFronto();                        // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
     bool                    m_isnewMesureFronto;                    // détermine si la mesure provient du fronto ou du dossier
     //L'AUTOREF ----------------------------------------------------
-    QMap<QString,QVariant>  map_mesureTono;
-    QMap<QString,QVariant>  map_mesurePachy;
     QMap<QString,QVariant>  map_dataAEnvoyerAuRefracteur;
     QString                 m_htmlMesureAutoref;
     QString                 m_htmlMesureKerato;

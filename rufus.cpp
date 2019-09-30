@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("29-09-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("30-09-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -9220,7 +9220,7 @@ void Rufus::ResumeStatut()
             {
                 // le 1er item de gListSockets est le serveur
                 m_resumeStatut += tr("ServeurTCP") + "\n\t";
-                if (statcp.split(sep).size()>3)
+                if (statcp.split(sep).size()>3) //!>* chaque item contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
                 {
                     m_resumeStatut += statcp.split(sep).at(2) + " - "
                             + statcp.split(sep).at(0) + " - "
@@ -9244,6 +9244,24 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += "\t" + tr("inconnu");
             }
         }
+    }
+    else
+    {
+        m_resumeStatut += "\n" + tr("Postes connectés") + "\n";
+        foreach (PosteConnecte *post, *Datas::I()->postesconnectes->postesconnectes())
+        {
+            if(!post->isdistant())
+                m_resumeStatut += "\t" + post->nomposte() + " - "
+                        + post->ipadress() + " - "
+                        + post->macadress() + " --- "
+                        + Datas::I()->users->getLoginById(post->id()) + "\n";
+        }
+    }
+    foreach (PosteConnecte *post, *Datas::I()->postesconnectes->postesconnectes())
+    {
+        if(post->isdistant())
+            m_resumeStatut += "\t" + Datas::I()->sites->getById(post->idlieu())->nom() + " ---- "
+                    + Datas::I()->users->getLoginById(post->id()) + "\n";
     }
 
     // l'importateur des documents

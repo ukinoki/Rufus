@@ -42,6 +42,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_recettes.h"
 #include "cls_mesurerefraction.h"
 #include "cls_mesurekerato.h"
+#include "cls_mesuredivers.h"
 
 class Datas : public QObject
 {
@@ -81,6 +82,8 @@ public:
     MesureRefraction* mesureacuite;
     MesureRefraction* mesurefinal;
     MesureKerato* mesurekerato;
+    Pachy* pachy;
+    Tono* tono;
 
 };
 

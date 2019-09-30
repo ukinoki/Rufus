@@ -295,6 +295,9 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
         layRssces->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
         dlg_buprestore->dlglayout()->insertLayout(0, layRssces);
     }
+    QDir rootimgvid = QDir(pathorigin);
+    if (rootimgvid.cdUp())
+        pathorigin = rootimgvid.absolutePath();
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
@@ -669,7 +672,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     for (int i=0; i<ListNomFiles.size(); i++)
     if (QFile(ListNomFiles.at(i)).exists())
     {
-        scriptrestore += "$MYSQL -u " + m_currentuser->login() +  " -p" +  m_currentuser->password() + " -h localhost -P " + QString::number(db->I()->getDataBase().port()) + " < " + ListNomFiles.at(i);
+        scriptrestore += "$MYSQL -u " + m_currentuser->login() +  " -p" +  m_currentuser->password() + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
         scriptrestore += "\n";
     }
     if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))
@@ -1831,12 +1834,12 @@ QString Procedures::SessionStatus()
 
 /*! --------------------------------------------------------------------------------------------------------------------------------------
     -- détermine le dossier où est stockée l'imagerie -----------------------------------------------------------
-    DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste quand il est serveur
-                                = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste sur le réseau local
-                                = l'emplacement de dossier des copies des images d'origine sur les postes distants
-                                -> utilisé par les postes pour enregistrer une copie de sauvegarde de l'original des ficiers images intégrés dans la base
+    DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste                   quand on est en mode posetr
+                                = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste quand on est en mode réseau local
+                                = l'emplacement de dossier des copies des images d'origine sur le poste quand on est en mode distant
+                                -> utilisé par les postes pour enregistrer une copie de sauvegarde de l'original des fichiers images intégrés dans la base
     DirStockageImagesServeur    = l'emplacement du dossier de l'imagerie sur le serveur - correspond au champ dirimagerie de la table parametressysteme
-                                -> utilisé par les requêtes SQL pour réintégrer le contenu de ficiers images dans la base
+                                -> utilisé par les requêtes SQL pour réintégrer le contenu de fichiers images dans la base
     ------------------------------------------------------------------------------------------------------------------------------------*/
 void Procedures::setAbsolutePathDirImagerie()
 {
@@ -1967,22 +1970,27 @@ QString Procedures::VilleParDefaut()
 
 void Procedures::setPosteImportDocs(bool a)
 {
-    // Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
-    // pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
-    //if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")
+    /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
+    * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
+    * if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")
 
-    // si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
-    // si a = false, on retire le poste en cours et on met NULL à la place.
+    * si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
+    * si a = false, on retire le poste en cours et on met NULL à la place. */
 
-    QString IpAdress("NULL");
     QString req = "USE `" DB_CONSULTS "`;";
     db->StandardSQL(req);
 
     req = "DROP PROCEDURE IF EXISTS " NOM_POSTEIMPORTDOCS ";";
     db->StandardSQL(req);
 
+    QString IpAdress("NULL");
     if (a)
-        IpAdress = QHostInfo::localHostName() + ((m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
+    {
+        if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")
+            IpAdress = QHostInfo::localHostName() + " - prioritaire" ;
+        else
+            IpAdress = QHostInfo::localHostName();
+    }
     req = "CREATE PROCEDURE " NOM_POSTEIMPORTDOCS "()\n\
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
@@ -2078,9 +2086,9 @@ qint64 Procedures::CalcBaseSize()
     qint64 basesize = 0;
     QString req = "SELECT SUM(SizeMB) from "
                       "(SELECT table_schema, round(sum(data_length+index_length)/1024/1024,4) AS SizeMB FROM information_schema.tables"
-                      " where table_schema = 'ComptaMedicale'"
-                      " or table_schema = 'Ophtalmologie'"
-                      " or table_schema = 'rufus'"
+                      " where table_schema = '" DB_COMPTA "'"
+                      " or table_schema = '" DB_CONSULTS "'"
+                      " or table_schema = '" DB_OPHTA "'"
                       " GROUP BY table_schema)"
                       " as bdd";
     QVariantList basedata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
@@ -2266,6 +2274,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QDir rootimgvid = dirtorestore;
         if (rootimgvid.cdUp())
         {
+            qDebug() << rootimgvid.absolutePath() + DIR_IMAGES;
             if (QDir(rootimgvid.absolutePath() + DIR_IMAGES).exists())
                 if (QDir(rootimgvid.absolutePath() + DIR_IMAGES).entryList(QDir::Dirs).size()>0)
                     OKImages = true;
@@ -2488,7 +2497,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             DirDestVid.removeRecursively();
                             DirDestVid.mkdir(dirdestinationvid);
                         }
-                        if (DirDestVid.exists())
+                        if (!DirDestVid.exists())
                         {
                             QString Msg = tr("le dossier de destination des videos n'existe pas");
                             dlg_message(Msg, 3000, false);
@@ -2516,7 +2525,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     }
 }
 
-//TODO : !!! checkBaseVersion doit disparaitre, c'est le serveur qui gère tout seul la version de la base sans rien demander
 bool Procedures::VerifBaseEtRessources()
 {
     int Versionencours  = 9; //correspond aux premières versions de MAJ de la base
@@ -3005,7 +3013,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         Verif_secure_file_priv();
         if (DefinitRoleUser()) //NOTE : User Role
         {
-            /* definit les iduser pour lequel le user travaille
+            /*! definit les iduser pour lequel le user travaille
                 . iduser superviseur des actes                      (int gidUserSuperViseurProv)
                     . lui-même s'il est responsable de ses actes
                     . un autre user s'il est assistant
@@ -3135,7 +3143,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
         QGroupBox *boxparent     = new QGroupBox(dlg_askUser);
         boxparent               ->setAccessibleName("Parent");
-        QString lblUsrParent    = tr("Qui enregistre vos honoraires?");
+        QString lblUsrParent    = tr("Qui enregistre les honoraires de vos actes?");
         boxparent               ->setTitle(lblUsrParent);
         boxparent               ->setVisible(false);
         boxlay                  ->addWidget(boxparent);
@@ -4093,15 +4101,15 @@ bool Procedures::Ouverture_Ports_Series()
     sp_portFronto                 = Q_NULLPTR;
     sp_portAutoref                = Q_NULLPTR;
     sp_portTono                   = Q_NULLPTR;
-    m_isFrontoParametre            = (m_settings->value("Param_Poste/Fronto").toString() != "-"
+    bool m_isFrontoParametre    = (m_settings->value("Param_Poste/Fronto").toString() != "-"
                                 && m_settings->value("Param_Poste/Fronto").toString() != ""
                                 && m_settings->value("Param_Poste/PortFronto").toString() != "Box");
-    m_isAutorefParametre           = (m_settings->value("Param_Poste/Autoref").toString() != "-"
+    bool m_isAutorefParametre   = (m_settings->value("Param_Poste/Autoref").toString() != "-"
                                 && m_settings->value("Param_Poste/Autoref").toString() != ""
                                 && m_settings->value("Param_Poste/PortAutoref").toString() != "Box");
-    m_isRefracteurParametre        = (m_settings->value("Param_Poste/Refracteur").toString() != "-"
+    bool m_isRefracteurParametre= (m_settings->value("Param_Poste/Refracteur").toString() != "-"
                                 && m_settings->value("Param_Poste/Refracteur").toString() != "");
-    m_isTonoParametre              = (m_settings->value("Param_Poste/Tonometre").toString() != "-"
+    bool m_isTonoParametre      = (m_settings->value("Param_Poste/Tonometre").toString() != "-"
                                 && m_settings->value("Param_Poste/Tonometre").toString() != "");
 
     if (m_isAutorefParametre || m_isRefracteurParametre || m_isFrontoParametre || m_isTonoParametre)
@@ -4366,8 +4374,8 @@ void Procedures::ClearMesures()
     Datas::I()->mesureacuite    ->cleandatas();
     Datas::I()->mesurefinal     ->cleandatas();
     Datas::I()->mesurekerato    ->cleandatas();
-    map_mesureTono                  .clear();
-    map_mesurePachy                 .clear();
+    Datas::I()->tono            ->cleandatas();
+    Datas::I()->pachy           ->cleandatas();
 }
 
 void Procedures::ClearHtmlMesures()
@@ -4419,9 +4427,8 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     LectureDonneesRefracteur(m_mesureSerie);
     if (Datas::I()->mesureautoref   ->isdataclean()
         && Datas::I()->mesurefronto ->isdataclean()
-        && Datas::I()->mesurekerato ->isdataclean()
-        && map_mesurePachy          .isEmpty()
-        && map_mesureTono           .isEmpty()
+        && Datas::I()->tono         ->isdataclean()
+        && Datas::I()->pachy        ->isdataclean()
         && Datas::I()->mesureacuite ->isdataclean()
         && Datas::I()->mesurefinal  ->isdataclean())
     {
@@ -4908,7 +4915,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
         {
-            map_mesureTono.clear();
+            Datas::I()->tono->cleandatas();
             idx                     = Mesure.indexOf("@NT");
             QString SectionTono     = Mesure.right(Mesure.length()-idx-5);
             SectionTono             = SectionTono.left(SectionTono.indexOf("@"));
@@ -4917,8 +4924,9 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             mTOOD                   = SectionTono.mid(SectionTono.indexOf("TR")+2,4)   .replace(" ","0");
             // OEIL GAUCHE ---------------------------------------------------------------------------
             mTOOG                   = SectionTono.mid(SectionTono.indexOf("TL")+2,4)   .replace(" ","0");
-            map_mesureTono["TOOD"]      = mTOOD;
-            map_mesureTono["TOOG"]      = mTOOG;
+            Datas::I()->tono->setTOD(mTOOD.toInt());
+            Datas::I()->tono->setTOG(mTOOG.toInt());
+            Datas::I()->tono->setmodemesure(Tono::Air);
         }
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
@@ -5088,7 +5096,7 @@ void Procedures::setHtmlRefracteur()
     }
     m_htmlMesureRefracteurSubjectif = Resultat;
     // CALCUL DE HtmlMesureTono ======================================================================================================================================
-    if (!map_mesureTono.isEmpty())
+    if (!Datas::I()->tono->isdataclean())
         setHtmlTono();
 }
 
@@ -5466,15 +5474,28 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             }
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
-                if (!map_mesureTono.isEmpty())
+                if (!Datas::I()->tono->isdataclean())
                 {
                     setHtmlTono();
                     emit NouvMesureRefraction(Tono);
+                    QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
+                            + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                            + QString::number(Datas::I()->tono->TOD()) + ","
+                            + QString::number(Datas::I()->tono->TOG())
+                            + ", now(), '" + Tono::ConvertMesure(Tono::Air) + "')";
+                    DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+
                 }
-                if (!map_mesurePachy.isEmpty())
+                if (!Datas::I()->pachy->isdataclean())
                 {
                     setHtmlPachy();
                     emit NouvMesureRefraction(Pachy);
+                    QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
+                            + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                            + QString::number(Datas::I()->pachy->pachyOD()) + ","
+                            + QString::number(Datas::I()->pachy->pachyOG())
+                            + ", now(), '" + Pachy::ConvertMesure(Pachy::Optique) + "')";
+                    DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
                 }
             }
             //Dans un premier temps, le PC envoie la requête d'envoi de données
@@ -5814,8 +5835,9 @@ PL04.7N
                     b               = TonoOG.indexOf("AV");
                     TonoOG          = TonoOG.mid(b+2,2).replace(" ","0");
                 }
-                map_mesureTono["TOOD"]      = TonoOD;
-                map_mesureTono["TOOG"]      = TonoOG;
+                Datas::I()->tono->setTOD(TonoOD.toInt());
+                Datas::I()->tono->setTOG(TonoOG.toInt());
+                Datas::I()->tono->setmodemesure(Tono::Air);
             }
             // Données de PACHYMETRIE --------------------------------------------------------------------------------------------------------
             if (Mesure.contains("DPM"))                 //=> il y a une mesure de pachymetrie
@@ -5828,8 +5850,9 @@ PL04.7N
                     PachyOD         = Pachy.mid(Pachy.indexOf(" R")+6,3);
                 if (Pachy.indexOf(" L")>=0)
                     PachyOG         = Pachy.mid(Pachy.indexOf(" L")+6,3);
-                map_mesurePachy["PachyOD"]  = PachyOD;
-                map_mesurePachy["PachyOG"]  = PachyOG;
+                Datas::I()->pachy->setpachyOD(PachyOD.toInt());
+                Datas::I()->pachy->setpachyOG(PachyOG.toInt());
+                Datas::I()->pachy->setmodemesure(Pachy::Optique);
             }
         }
     }
@@ -5963,27 +5986,27 @@ void Procedures::setHtmlKerato()
 void Procedures::setHtmlTono()
 {
     m_htmlMesureTono = "";
-    QString mTOD        = QLocale().toString(map_mesureTono["TOOD"].toDouble(),'f',0);
-    QString mTOG        = QLocale().toString(map_mesureTono["TOOG"].toDouble(),'f',0);
-    QString Methode     = tr("Air");
+    QString mTOD        = QLocale().toString(Datas::I()->tono->TOD());
+    QString mTOG        = QLocale().toString(Datas::I()->tono->TOG());
+    QString Methode     = Tono::ConvertMesure(Datas::I()->tono->modemesure());
     QString Tono        ="";
     QString TODcolor, TOGcolor;
 
     if (mTOD.toInt() > 0 || mTOG.toInt() > 0)
     {
-        if (mTOD.toInt() > 21)
+        if (Datas::I()->tono->TOD() > 21)
             TODcolor = "<font color = \"red\"><b>" + mTOD + "</b></font>";
         else
             TODcolor = "<font color = \"blue\"><b>" + mTOD + "</b></font>";
-        if (mTOG.toInt() > 21)
+        if (Datas::I()->tono->TOG() > 21)
             TOGcolor = "<font color = \"red\"><b>" + mTOG + "</b></font>";
         else
             TOGcolor = "<font color = \"blue\"><b>" + mTOG + "</b></font>";
-        if (mTOD.toInt() == 0 && mTOG.toInt() > 0)
+        if (Datas::I()->tono->TOD() == 0 && Datas::I()->tono->TOG() > 0)
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td></p>";
-        else if (mTOG.toInt() == 0 && mTOD.toInt() > 0)
+        else if (Datas::I()->tono->TOG() == 0 && Datas::I()->tono->TOD() > 0)
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td></p>";
-        else if (mTOD.toInt() == mTOG.toInt())
+        else if (Datas::I()->tono->TOD() == Datas::I()->tono->TOG())
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td></p>";
         else
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td></p>";
@@ -5997,22 +6020,21 @@ void Procedures::setHtmlTono()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlPachy()
 {
-    m_htmlMesureTono = "";
-    QString mPachyOD        = QLocale().toString(map_mesurePachy["PachyOD"].toInt());
-    QString mPachyOG        = QLocale().toString(map_mesurePachy["PachyOG"].toInt());
+    int D = Datas::I()->pachy->pachyOD();
+    int G = Datas::I()->pachy->pachyOG();
+    QString mPachyOD        = QLocale().toString(D);
+    QString mPachyOG        = QLocale().toString(G);
     QString Pachy        ="";
-    int a = mPachyOD.toInt();
-    int b = mPachyOG.toInt();
     mPachyOD = "<font color = \"blue\"><b>" + mPachyOD + "</b></font>";
     mPachyOG = "<font color = \"blue\"><b>" + mPachyOG + "</b></font>";
 
-    if (a > 0 || b > 0)
+    if (D > 0 || G > 0)
     {
-        if (a == 0 && b > 0)
+        if (D == 0 && G > 0)
             Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_currentuser->login() + "</td></p>";
-        else if (b == 0 && a > 0)
+        else if (D == 0 && G > 0)
             Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOD + "</td><td>" + m_currentuser->login() + "</td></p>";
-        else if (a == b)
+        else if (D == G)
             Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyODG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_currentuser->login() + "</td></p>";
         else
             Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + m_currentuser->login() + "</td></p>";
