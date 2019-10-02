@@ -63,7 +63,7 @@ public:
 
     //!> actions sur les enregistrements
     void    SupprimeActe(Acte *act);
-    Acte*   CreationActe(Patient *pat, int idcentre);
+    Acte*   CreationActe(Patient *pat, int idcentre, int idlieu);
 
     //!< action sur toutes les données
     void    updateActe(Acte* acte);                                                         //!> met à jour les datas d'un acte à partir des données enregistrées dans la base

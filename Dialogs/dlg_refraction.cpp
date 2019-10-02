@@ -1486,7 +1486,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_ALD_DOCSEXTERNES] =              QVariant(QVariant::String);
         listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES] =        PRESCRIPTIONLUNETTES;
-        listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
+        listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;

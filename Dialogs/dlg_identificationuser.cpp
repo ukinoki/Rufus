@@ -249,6 +249,6 @@ int dlg_identificationuser::ControleDonnees()
 
     ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
-    return db->getUserConnected()->id();
+    return db->userConnected()->id();
 }
 

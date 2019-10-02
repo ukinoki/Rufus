@@ -1049,9 +1049,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
 
         QString adresse ="";
         int nlignesadresse = 0;
+        Site *sit = Datas::I()->sites->currentsite();
         if (user != m_currentuser)
-            user->setidSite(db->loadSitesByUser(user->id()).at(0)->id()); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
-        Site * sit = Datas::I()->sites->getById(user->idsitedetravail());
+            sit = Datas::I()->sites->getById(db->loadSitesByUser(user->id()).at(0)->id()); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
         if( sit->nom().size() )
         {
             nlignesadresse  ++;
@@ -1749,7 +1749,7 @@ QString Procedures::SessionStatus()
 
 
     QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + m_currentuser->status();
-    txtstatut += "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->getById(m_currentuser->idsitedetravail())->nom();
+    txtstatut += "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom();
     txtstatut + "\n\n";
 
     txtstatut += tr("Vos données permanentes") +"\n\n" + tr("Fonction :") + "\t\t\t";
@@ -2721,9 +2721,8 @@ bool Procedures::Connexion_A_La_Base()
         return false;
 
     //initListeUsers();
-
-    m_currentuser->setidSite(CalcLieuExercice()->id());
-    if (m_currentuser->idsitedetravail() == 0)
+    CalcLieuExercice();
+    if (Datas::I()->sites->currentsite() == Q_NULLPTR)
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
 
@@ -2740,11 +2739,16 @@ bool Procedures::Connexion_A_La_Base()
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
     ----------------------------------------------------------------------------------------------------------------- */
-Site* Procedures::CalcLieuExercice()
+void Procedures::CalcLieuExercice()
 {
     QList<Site*> listEtab = Datas::I()->sites->initListeByUser(m_currentuser->id());
-    if( listEtab.size() == 1 )
-        return listEtab[0];
+    if (listEtab.size() == 0)
+        return;
+    else if (listEtab.size() == 1)
+    {
+        Datas::I()->sites->setcurrentsite(Datas::I()->sites->sites()->first());
+        return;
+    }
 
     /* Cas ou le praticien travaille dans plusieur centres
      * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
@@ -2764,7 +2768,6 @@ Site* Procedures::CalcLieuExercice()
     {
         UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
         pradiobutt->setText(etab->nom());
-        pradiobutt->setAccessibleName(QString::number(etab->id()));
         pradiobutt->setitem(etab);
         QString data("");
         if( etab->nom().size() )
@@ -2793,11 +2796,12 @@ Site* Procedures::CalcLieuExercice()
     connect(gAskLieux->OKButton,   &QPushButton::clicked,  gAskLieux, &UpDialog::accept);
     gAskLieux->exec();
     foreach (UpRadioButton * rb, boxlieux->findChildren<UpRadioButton*>())
-    {
         if( rb->isChecked() )
-            return qobject_cast<Site*>(rb->item());
-    }
-    return Q_NULLPTR;
+        {
+            Datas::I()->sites->setcurrentsite(qobject_cast<Site*>(rb->item()));
+            break;
+        }
+    delete gAskLieux;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3565,13 +3569,6 @@ int Procedures::idCentre()
     return m_idcentre;
 }
 
-int Procedures::idLieuExercice()
-{
-    if( m_currentuser )
-        return m_currentuser->idsitedetravail();
-    return -1;
-}
-
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
@@ -3635,7 +3632,10 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
-            m_currentuser->setidSite(CalcLieuExercice()->id());
+            Datas::I()->sites->initListe();
+            CalcLieuExercice();
+            if (Datas::I()->sites->currentsite() == Q_NULLPTR)
+                UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
@@ -3667,7 +3667,10 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
-            m_currentuser->setidSite(CalcLieuExercice()->id());
+            Datas::I()->sites->initListe();
+            CalcLieuExercice();
+            if (Datas::I()->sites->currentsite() == Q_NULLPTR)
+                UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
@@ -3701,7 +3704,10 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_connexionbaseOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
             db->login(m_currentuser->login(), m_currentuser->password());
             SetUserAllData(m_currentuser);
-            m_currentuser->setidSite(CalcLieuExercice()->id());
+            Datas::I()->sites->initListe();
+            CalcLieuExercice();
+            if (Datas::I()->sites->currentsite() == Q_NULLPTR)
+                UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
@@ -4685,8 +4691,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@LM"))                 //=> il y a une mesure pour le fronto
         {
-            MesureRefraction        *newMesureFronto = new MesureRefraction();
-            newMesureFronto->setdatas(Datas::I()->mesurefronto);
+            MesureRefraction        *oldMesureFronto = new MesureRefraction();
+            oldMesureFronto         ->setdatas(Datas::I()->mesurefronto);
             idx                     = Mesure.indexOf("@LM");
             QString SectionFronto   = Mesure.right(Mesure.length()-idx);
             //Edit(SectionFronto + "\nOK");
@@ -4720,15 +4726,18 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
             Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
             if (PortFronto() == Q_NULLPTR)                                      //! au cas où le fronto est directement branché sur la box du refracteur
-                if (Datas::I()->mesurefronto->isDifferent(newMesureFronto))
+                if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto))
+                {
                     m_isnewMesureFronto = true;
-            delete newMesureFronto;
+                    InsertRefraction(Fronto);
+                }
+            delete oldMesureFronto;
         }
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
         if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
         {
-            MesureRefraction        *newMesureAutoref = new MesureRefraction();
-            newMesureAutoref->setdatas(Datas::I()->mesureautoref);
+            MesureRefraction        *oldMesureAutoref = new MesureRefraction();
+            oldMesureAutoref        ->setdatas(Datas::I()->mesureautoref);
             idx                     = Mesure.indexOf("@RM");
             QString SectionAutoref  = Mesure.right(Mesure.length()-idx);
             //Edit(SectionAutoref);
@@ -4758,14 +4767,17 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
             Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->mesureautoref->isDifferent(newMesureAutoref))
+                if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref))
+                {
                     m_isnewMesureAutoref = true;
-            delete newMesureAutoref;
+                    InsertRefraction(Autoref);
+                }
+            delete oldMesureAutoref;
         }
         if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie - cette mesure ne peut qu'avoir été effectuée par un autoref connecté directement à la box du refraacteur
         {
-            MesureKerato  *newMesureKerato = new MesureKerato();
-            newMesureKerato->setdatas(Datas::I()->mesurekerato);
+            MesureKerato  *oldMesureKerato = new MesureKerato();
+            oldMesureKerato->setdatas(Datas::I()->mesurekerato);
             idx                     = Mesure.indexOf("@KM");
             QString SectionKerato   = Mesure.right(Mesure.length()-idx);
             //Edit(SectionKerato + "\nOK");
@@ -4804,9 +4816,12 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
             Datas::I()->mesurekerato->setaxeKOG(AxeKOG);
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->mesurekerato->isDifferent(newMesureKerato))
+                if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato))
+                {
                     m_isnewMesureKerato = true;
-            delete newMesureKerato;
+                    InsertRefraction(Kerato);
+                }
+            delete oldMesureKerato;
         }
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
@@ -5109,9 +5124,9 @@ void Procedures::setHtmlRefracteur()
 QString Procedures::HtmlRefracteur()
 {
     if (!Datas::I()->mesurefinal->isdataclean())
-        return m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureKerato + m_htmlMesureRefracteurSubjectif + m_htmlMesureTono;
+        return m_htmlMesureKerato + m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureRefracteurSubjectif + m_htmlMesureTono;
     else
-        return m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureKerato + m_htmlMesureTono;
+        return m_htmlMesureKerato + m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureTono;
 }
 
 bool Procedures::ReglePortFronto()
@@ -5192,7 +5207,6 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     }
     setHtmlFronto();
     emit NouvMesureRefraction(Fronto);
-    m_isnewMesureFronto = false;
     InsertRefraction(Fronto);
 }
 
@@ -5467,14 +5481,12 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 {
                     setHtmlKerato();
                     emit NouvMesureRefraction(Kerato);
-                    m_isnewMesureKerato = false;
                     InsertRefraction(Kerato);
                 }
                 if (!Datas::I()->mesureautoref->isdataclean())
                 {
                     setHtmlAutoref();
                     emit NouvMesureRefraction(Autoref);
-                    m_isnewMesureAutoref = false;
                     InsertRefraction(Autoref);
                 }
             }
@@ -5743,7 +5755,6 @@ PL04.7N
         if (Ref != "")
         {
             Datas::I()->mesureautoref->cleandatas();
-            m_isnewMesureAutoref = true;
             a  = Ref.indexOf("OR");
             // OEIL DROIT -----------------------------------------------------------------------------
             if (a>=0)
@@ -5778,7 +5789,6 @@ PL04.7N
                 if (Mesure.contains("DKM"))                 //=> il y a une mesure de keratometrie
                 {
                     Datas::I()->mesurekerato->cleandatas();
-                    m_isnewMesureKerato = true;
                     a                   = Mesure.indexOf("DKM");
                     a                   = Mesure.length() - a;
                     K                   = Mesure.right(a);
@@ -5868,7 +5878,11 @@ PL04.7N
     Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
     Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
     Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
-    Datas::I()->mesureautoref->setecartIP(PD.toInt());
+    if (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
+    || m_settings->value("Param_Poste/Autoref").toString()!= "NIDEK ARK-30")
+        Datas::I()->mesureautoref->setecartIP(PD.toInt());
+    else
+        Datas::I()->mesureautoref->setecartIP(0);
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
 }
 
@@ -6139,7 +6153,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
 {
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
-    if (!Datas::I()->mesurefronto->isdataclean() && Mesure == Fronto && m_isnewMesureFronto)
+    if (!Datas::I()->mesurefronto->isdataclean() && Mesure == Fronto)
     {
         bool a =
                (Datas::I()->mesurefronto->sphereOD()        == 0.0
@@ -6194,6 +6208,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             if (Datas::I()->mesurefronto->addVPOD() > 0)
                 listbinds[CP_ADDVPOD_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOD();
             listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"D");
+            listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
 
             listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOG();
             listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOG();
@@ -6201,11 +6216,12 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             if (Datas::I()->mesurefronto->addVPOG() > 0)
                 listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOG();
             listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"G");
+            listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
             listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesurefronto->ecartIP();
             Datas::I()->refractions->CreationRefraction(listbinds);
         }
     }
-    if (!Datas::I()->mesureautoref->isdataclean() && Mesure == Autoref && m_isnewMesureAutoref)
+    if (!Datas::I()->mesureautoref->isdataclean() && Mesure == Autoref)
     {
         bool a =
                (Datas::I()->mesureautoref->sphereOD()    == 0.0
@@ -6251,12 +6267,14 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOD();
             listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOD();
             listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"D");
+            listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
 
             listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOG();
             listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOG();
             listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOG();
             listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"G");
             listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesureautoref->ecartIP();
+            listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
             Datas::I()->refractions->CreationRefraction(listbinds);
 
             QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
@@ -6304,7 +6322,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             }
         }
     }
-    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato && m_isnewMesureKerato)
+    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato)
     {
         bool a =
                (Datas::I()->mesurekerato->K1OD() == 0.0
@@ -6410,6 +6428,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureacuite,"D");
             listbinds[CP_AVLOD_REFRACTIONS]                 = QLocale().toString(Datas::I()->mesureacuite->avlOD().toDouble()*10) + "/10";
             listbinds[CP_AVPOD_REFRACTIONS]                 = Datas::I()->mesureacuite->avpOG();
+            listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
 
             listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOG();
             listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureacuite->cylindreOG();
@@ -6419,6 +6438,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureacuite,"G");
             listbinds[CP_AVLOG_REFRACTIONS]                 = QLocale().toString(Datas::I()->mesureacuite->avlOG().toDouble()*10) + "/10";
             listbinds[CP_AVPOG_REFRACTIONS]                 = Datas::I()->mesureacuite->avpOG();
+            listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
 
             listbinds[CP_PD_REFRACTIONS]                    = QString::number(Datas::I()->mesureacuite->ecartIP());
 

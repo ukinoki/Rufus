@@ -36,6 +36,16 @@ dlg_autresmesures::dlg_autresmesures(Mode mod,  QWidget *parent) :
         widgto->ui->TOOGSpinBox->installEventFilter(this);
         setWidget(widgto);
     }
+    else if (m_mode == PACHY)
+    {
+        widgpa      = new WidgPachy(this);
+        widgpa      ->setFixedSize(275,95);
+        dlglayout()->insertWidget(0,widgpa);
+        widgpa->ui->EchoRadioButton->setChecked(true);
+        widgpa->ui->PachyODSpinBox->installEventFilter(this);
+        widgpa->ui->PachyOGSpinBox->installEventFilter(this);
+        setWidget(widgpa);
+    }
     CancelButton->installEventFilter(this);
     OKButton->installEventFilter(this);
  }
@@ -50,8 +60,8 @@ void    dlg_autresmesures::OKButtonClicked()
     case TONO:
         EnregistreTono();
         break;
-    default:
-        break;
+    case PACHY:
+        EnregistrePachy();
     }
 }
 
@@ -80,7 +90,7 @@ bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 }
 
 //-------------------------------------------------------------------------------------
-// Enregistre la Tonométrie dans la table
+// Enregistre la Tonométrie
 //-------------------------------------------------------------------------------------
 void dlg_autresmesures::EnregistreTono()
 {
@@ -92,6 +102,22 @@ void dlg_autresmesures::EnregistreTono()
     if (widgto->ui->AutreRadioButton->isChecked())      Methode = AUTRE_TO;
     if (widgto->ui->AplanationRadioButton->isChecked()) Methode = APLANATION_TO;
     Datas::I()->tono->setmodemesure(Tono::ConvertMesure(Methode));
+    accept();
+}
+
+//-------------------------------------------------------------------------------------
+// Enregistre la pachymétrie
+//-------------------------------------------------------------------------------------
+void dlg_autresmesures::EnregistrePachy()
+{
+    Datas::I()->pachy->cleandatas();
+    Datas::I()->pachy->setpachyOD(widgpa->ui->PachyODSpinBox->text().replace("µ","").toInt());
+    Datas::I()->pachy->setpachyOG(widgpa->ui->PachyOGSpinBox->text().replace("µ","").toInt());
+    QString Methode;
+    if (widgpa->ui->OptiqueRadioButton->isChecked())    Methode = OPTIQUE_PACHY;
+    if (widgpa->ui->EchoRadioButton->isChecked())       Methode = ECHO_PACHY;
+    if (widgpa->ui->OCTRadioButton->isChecked())        Methode = OCT_PACHY;
+    Datas::I()->pachy->setmodemesure(Pachy::ConvertMesure(Methode));
     accept();
 }
 

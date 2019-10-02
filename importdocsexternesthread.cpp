@@ -483,7 +483,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             + "/" + m_datetransfer + "/" + NomFileDoc + "', "
                             + "0" + ", '"
                             IMAGERIE "', "
-                            + QString::number(m_idlieuexercice) + ")";
+                            + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
 
                     if(db->StandardSQL(req))
                     {
@@ -550,7 +550,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     listbinds[formatdoc]                    = ba;
                     listbinds[CP_EMISORRECU_DOCSEXTERNES]   = "0";
                     listbinds[CP_FORMATDOC_DOCSEXTERNES]    = IMAGERIE;
-                    listbinds[CP_IDLIEU_DOCSEXTERNES]       = m_idlieuexercice;
+                    listbinds[CP_IDLIEU_DOCSEXTERNES]       = Datas::I()->sites->idcurrentsite();
                     DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
                     if(doc != Q_NULLPTR)
                     {

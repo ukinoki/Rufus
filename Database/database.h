@@ -103,7 +103,7 @@ public:
     QString                 getServer() const;                  //!> l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS
     QSqlDatabase            getDataBase() const;
     void                    getInformations();                  //! renvoie les infos de connexions SQL : host, database, login, mdp
-    User*                   getUserConnected() const;           //!> le user connecté sur ce poste
+    User*                   userConnected() const;           //!> le user connecté sur ce poste
     void                    setUserConnected(User*);            /*! utilisé uniquement lors du premier démarrage pour définir le premier user
                                                                  * normalement effectuéé par DataBase::login() mais pas possible dans ce cas
                                                                  * parce que login() utilise la table des utilisateurs connectés qui n'a pas encore été remplie à ce stade */

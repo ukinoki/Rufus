@@ -348,6 +348,7 @@ private:
     void                SupprimerActe(Acte *act);
     void                SupprimerDocsEtFactures();
     void                SupprimerDossier(Patient *pat);
+    void                Pachymetrie();
     void                Tonometrie();
     void                FiltreTableparDDN();
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");

@@ -32,7 +32,7 @@ int Acte::idUser() const                { return m_idUser; }
 int Acte::idParent() const              { return m_idUserParent; }
 int Acte::idComptable() const           { return m_idUserComptable; }
 int Acte::numcentre() const             { return m_numCentre; }
-int Acte::idlieu() const                { return m_idLieu; }
+int Acte::idsite() const                { return m_idsite; }
 QTime Acte::heure() const               { return m_heure; }
 bool Acte::effectueparremplacant() const{ return m_remplacant; }
 
@@ -53,7 +53,7 @@ void Acte::setData(QJsonObject data)
     setDataInt(data, CP_IDUSERPARENT_ACTES, m_idUserParent);
     setDataInt(data, CP_IDUSERCOMPTABLE_ACTES, m_idUserComptable);
     setDataInt(data, CP_NUMCENTRE_ACTES, m_numCentre);
-    setDataInt(data, CP_IDLIEU_ACTES, m_idLieu);
+    setDataInt(data, CP_IDLIEU_ACTES, m_idsite);
 
     setDataDouble(data, CP_MONTANT_ACTES, m_montant);
 

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("01-10-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("02-10-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -72,7 +72,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
     qApp->setStyleSheet(Styles::StyleAppli());
-    dlg_message(m_currentuser->status() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->getById(m_currentuser->idsitedetravail())->nom(), 3000);
+    dlg_message(m_currentuser->status() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
 
     //! 3 Initialisation de tout
     InitVariables();
@@ -330,6 +330,7 @@ void Rufus::ConnectSignals()
     connect (ui->SalleDAttenteupTableWidget,                        &UpTableWidget::dropsignal,                         this,   [=] {DropPatient(ui->SalleDAttenteupTableWidget->dropData());});
     connect (ui->SupprimeActepushButton,                            &QPushButton::clicked,                              this,   [=] {SupprimerActe(m_currentact);});
     connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Tonometrie);
+    connect (ui->PachymetriepushButton,                             &QPushButton::clicked,                              this,   &Rufus::Pachymetrie);
     connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
@@ -2349,7 +2350,7 @@ void Rufus::ImportDocsExternes()
         if (isPosteImport())
         {
             QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(m_currentuser->idsitedetravail());
+                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
             //qDebug()<< req;
             QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
             if (m_ok && listdocs.size()>0)
@@ -2704,7 +2705,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds["useremetteur"] =      m_currentuser->id();
        listbinds["emisrecu"] =          "0";
        listbinds["formatdoc"] =         COURRIER;
-       listbinds["idlieu"] =            m_currentuser->idsitedetravail();
+       listbinds["idlieu"] =            Datas::I()->sites->idcurrentsite();
        if(!db->InsertSQLByBinds(TBL_DOCSEXTERNES, listbinds))
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -3683,7 +3684,7 @@ void Rufus::MAJPosteConnecte()
         ItemsList::update(Datas::I()->postesconnectes->currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     else
     {
-        Datas::I()->postesconnectes->CreationPosteConnecte();
+        Datas::I()->postesconnectes->CreationPosteConnecte(Datas::I()->sites->idcurrentsite());
         Flags::I()->MAJFlagSalleDAttente();
     }
 }
@@ -5688,6 +5689,9 @@ void Rufus::keyPressEvent (QKeyEvent * event )
                 ModeCreationDossier();
             }
             break;
+        case Qt::Key_F7:
+            Pachymetrie();
+            break;
         case Qt::Key_F9:
             if (ui->tabWidget->indexOf(ui->tabDossier) < 0 && m_currentuser->isSoignant())
                 AfficheCourriersAFaire();
@@ -6857,7 +6861,7 @@ void Rufus::CreerActe(Patient *pat)
 {
     if (ui->Acteframe->isVisible())
         if(!AutorDepartConsult(false)) return;
-    Acte * acte = m_listeactes->CreationActe(pat, proc->idCentre());
+    Acte * acte = m_listeactes->CreationActe(pat, proc->idCentre(), Datas::I()->sites->idcurrentsite());
     m_currentact = acte;
     Datas::I()->actes->setcurrentacte(acte);
 
@@ -7596,7 +7600,7 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
         listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QVariant::String));
         listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_DOCSEXTERNES]        = m_currentuser->idsitedetravail();
+        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         ui->OuvreDocsExternespushButton->setEnabled(doc != Q_NULLPTR);
@@ -9566,6 +9570,67 @@ void Rufus::SupprimerDossier(Patient *pat)
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
+-- Pachymetrie -----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------*/
+void Rufus::Pachymetrie()
+{
+    if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
+
+    Dlg_AutresMes           = new dlg_autresmesures(dlg_autresmesures::PACHY);
+    QString pachyOD, pachyOG, Methode, pachyColor;
+    Dlg_AutresMes->setWindowTitle(tr("Pachymétrie - ") + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());
+
+    if (Dlg_AutresMes->exec()> 0)
+    {
+        pachyOD = QString::number(Datas::I()->pachy->pachyOD());
+        pachyOG = QString::number(Datas::I()->pachy->pachyOG());
+        Methode = Pachy::ConvertMesure(Datas::I()->pachy->modemesure());
+        QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
+                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                + QString::number(Datas::I()->pachy->pachyOD()) + ","
+                + QString::number(Datas::I()->pachy->pachyOG())
+                + ", now(), '" + Methode + "')";
+        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+        switch (Datas::I()->pachy->modemesure()) {
+        case Pachy::Optique:
+            Methode = "Optique";
+            break;
+        case Pachy::OCT:
+            Methode = "OCT";
+            break;
+        case Pachy::Echo:
+            Methode = "Echo";
+            break;
+        default:
+            break;
+        }
+        if (pachyOD.toInt() > 0 || pachyOG.toInt() > 0)
+        {
+            QString pachy;
+            if (pachyOD.toInt() == 0 && pachyOG.toInt() > 0)
+                pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy OG:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOG + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
+            if (pachyOG.toInt() == 0 && pachyOD.toInt() > 0)
+                pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy OD:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
+            if (pachyOD.toInt() > 0 && pachyOG.toInt() > 0)
+            {
+                if (pachyOD.toInt() == pachyOG.toInt())
+                    pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy ODG:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
+                else
+                    pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy:") +"</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD +  "/" + pachyOG + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
+            }
+            QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + pachy  + "</p>"
+                    + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+            ItemsList::update(Datas::I()->patients->currentpatient(), CP_RESUME_RMP, ui->ResumetextEdit->appendHtml(ARajouterEnText));
+        }
+        ui->ActeTextetextEdit->setFocus();
+        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+    }
+    Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
+    delete Dlg_AutresMes;
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
 -- Tonometrie -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::Tonometrie()
@@ -9609,7 +9674,6 @@ void Rufus::Tonometrie()
                 else
                     Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TO:") +"</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td>";
             }
-
             QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Tono  + "</p>"
                     + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
             ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));

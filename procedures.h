@@ -170,7 +170,7 @@ private:
     bool                    IdentificationUser(bool ChgtUtilisateur = false);   /*! la fiche d'identification de l'utilisateur au lancement du programme
                                                                                  * suivie de l'initialisation de tout
                                                                                  * et de la définition du rôle de l'utilisateur */
-    Site*                   CalcLieuExercice();
+    void                    CalcLieuExercice();
     void                    CalcUserParent();
     void                    CalcUserSuperviseur();
     bool                    DefinitRoleUser();                       /*! definit les iduser pour lequel le user travaille
@@ -187,7 +187,6 @@ public:
     QString                 SessionStatus();                                    /*! statut de l'utilisateur pour cette session */
 
     int                     idCentre();
-    int                     idLieuExercice();
     bool                    Init();
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
     bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::Update);

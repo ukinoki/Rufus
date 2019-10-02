@@ -60,7 +60,7 @@ private:
                                         * mais je ne sais pas faire
                                         */
     int m_emisrecu;                     //!< 0 si document emis par le cabinet, 1 si document reçu
-    int m_idlieu;                       //!< l'id du site où a été créé le document
+    int m_idsite;                       //!< l'id du site où a été créé le document
     QString m_formatdoc;                //!< le format du document quand il s'agit d'un document d'imagerie: jpg, pdf, video...etc...
     QString m_lienversfichier;          //!< le lien vers le fichier d'imagerie
     QByteArray m_blob = QByteArray();   //!< le contenu du fichier image

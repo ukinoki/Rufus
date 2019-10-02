@@ -89,7 +89,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                      || field == CP_TABAC_RMP)
                 table = TBL_RENSEIGNEMENTSMEDICAUXPATIENTS;
             loop = false;
-            break;;
+            break;
         }
         usr = dynamic_cast<PosteConnecte*>(item);
         if (usr != Q_NULLPTR)

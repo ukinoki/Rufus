@@ -15,23 +15,19 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WIDGTONO_H
-#define WIDGTONO_H
+#include "widgpachy.h"
+#include "ui_widgpachy.h"
 
-#include <QWidget>
-
-namespace Ui {
-class WidgTono;
+WidgPachy::WidgPachy(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::WidgPachy)
+{
+    ui->setupUi(this);
+    ui->PachyODSpinBox->setFocus();
+    ui->PachyODSpinBox->selectAll();
 }
 
-class WidgTono : public QWidget
+WidgPachy::~WidgPachy()
 {
-    Q_OBJECT
-
-public:
-    explicit WidgTono(QWidget *parent = Q_NULLPTR);
-    ~WidgTono();
-    Ui::WidgTono *ui;
-};
-
-#endif // WIDGTONO_H
+    delete ui;
+}

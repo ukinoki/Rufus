@@ -77,7 +77,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
                                                  int idUserEnCours, int idSalDat)
 
 {
-    QString iduser          = (idUser == 0?             QString::number(DataBase::I()->getUserConnected()->idsuperviseur()) : QString::number(idUser));
+    QString iduser          = (idUser == 0?             QString::number(DataBase::I()->userConnected()->idsuperviseur()) : QString::number(idUser));
     QString statut          = (Statut == ""?            "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
     QString heurestatut     = (heureStatut == QTime()?  "null" : "'" + heureStatut.toString("hh:mm:ss") + "'");
     QString heurerdv        = (heureRDV == QTime()?     "null" : "'" + heureRDV.toString("hh:mm:ss") + "'");
@@ -128,7 +128,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
         return Q_NULLPTR;
     PatientEnCours *pat = new PatientEnCours();
     pat->setid(idpat);
-    pat->setiduser(idUser == 0? DataBase::I()->getUserConnected()->idsuperviseur() : idUser);
+    pat->setiduser(idUser == 0? DataBase::I()->userConnected()->idsuperviseur() : idUser);
     if (Statut != "")
         pat->setstatut(Statut);
     if (heureStatut != QTime())

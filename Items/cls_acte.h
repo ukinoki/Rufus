@@ -43,7 +43,7 @@ private:
     int m_idUserParent;         //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
     int m_idUserComptable;      //!< id du User qui comptabilise l'acte
     int m_numCentre;            //!< id du lieu où se trouve le serveur
-    int m_idLieu;               //!< id du lieu où l'acte est effectué
+    int m_idsite;               //!< id du lieu où l'acte est effectué
     bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
 
     double m_montant = 0.0;     //!< montant total
@@ -85,7 +85,7 @@ public:
     bool effectueparremplacant() const;
 
     int numcentre() const;
-    int idlieu() const;
+    int idsite() const;
 
     int idParent() const;
     int idComptable() const;
@@ -99,7 +99,7 @@ public:
     void setidpatient(int id)               { m_idPatient = id; }
     void setidusercomptable(int id)         { m_idUserComptable = id; }
     void setidusercreateur(int id)          { m_idCreatedBy = id; }
-    void setidlieu(int id)                  { m_idLieu = id; }
+    void setidlieu(int id)                  { m_idsite = id; }
     void setiduserparent(int id)            { m_idUserParent = id; }
     void setnumcentre(int id)               { m_numCentre = id; }
     void setmotif(QString motif)            { m_motif = motif; }

@@ -79,7 +79,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
 
 PosteConnecte* PostesConnectes::currentpost()
 {
-    return getByStringId(Utils::getMACAdress() + " - " + QString::number(DataBase::I()->getUserConnected()->id()));
+    return getByStringId(Utils::getMACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id()));
 }
 
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
@@ -93,17 +93,17 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
         if (postit->id() == post->id() && postit->nomposte() != post->nomposte())
         {
             canremoveverrouactes = false;
-            break;;
+            break;
         }
     if (canremoveverrouactes)
         DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(post->id()));
     remove(map_postesconnectes, post);
 }
 
-PosteConnecte* PostesConnectes::CreationPosteConnecte()
+PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
 {
-    QString macadressid =  Utils::getMACAdress() + " - " + QString::number(DataBase::I()->getUserConnected()->id());
-    QString macadress = Utils::getMACAdress() +  (DataBase::I()->getUserConnected()->login() == NOM_ADMINISTRATEURDOCS? DataBase::I()->getUserConnected()->login() : "");
+    QString macadressid =  Utils::getMACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id());
+    QString macadress = Utils::getMACAdress() +  (DataBase::I()->userConnected()->login() == NOM_ADMINISTRATEURDOCS? DataBase::I()->userConnected()->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                                                                         CP_IDUSER_USRCONNECT ", "
                                                                         CP_IDUSERSUPERVISEUR_USRCONNECT ", "
@@ -111,27 +111,33 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
                                                                         CP_IDUSERPARENT_USRCONNECT ", "
                                                                         CP_NOMPOSTE_USRCONNECT ", "
                                                                         CP_MACADRESS_USRCONNECT ", "
-                                                                        CP_IPADRESS_USRCONNECT ")"
+                                                                        CP_IPADRESS_USRCONNECT ", "
+                                                                        CP_IDLIEU_USRCONNECT ", "
+                                                                        CP_DISTANT_USRCONNECT ")"
                                " VALUES(NOW()," +
-                               QString::number(DataBase::I()->getUserConnected()->id()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->idsuperviseur()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->idcomptable()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->idparent()) +",'" +
+                               QString::number(DataBase::I()->userConnected()->id()) + "," +
+                               QString::number(DataBase::I()->userConnected()->idsuperviseur()) + "," +
+                               QString::number(DataBase::I()->userConnected()->idcomptable()) + "," +
+                               QString::number(DataBase::I()->userConnected()->idparent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
                                macadress + "', '" +
-                               Utils::getIpAdress() + "')";
+                               Utils::getIpAdress() + "', " +
+                               QString::number(idsite) + ", " +
+                               (DataBase::I()->getMode() == Utils::Distant? "1" : "null") + ")";
     //qDebug() << MAJConnexionRequete;
     DataBase::I()->StandardSQL(MAJConnexionRequete, "Rufus::MetAJourUserConnectes()");
     PosteConnecte *post = new PosteConnecte();
     post->setstringid(macadressid);
-    post->setid(DataBase::I()->getUserConnected()->id());
-    post->setidsuperviseur(DataBase::I()->getUserConnected()->idsuperviseur());
-    post->setidcomptable(DataBase::I()->getUserConnected()->idcomptable());
-    post->setidparent(DataBase::I()->getUserConnected()->idparent());
+    post->setid(DataBase::I()->userConnected()->id());
+    post->setidsuperviseur(DataBase::I()->userConnected()->idsuperviseur());
+    post->setidcomptable(DataBase::I()->userConnected()->idcomptable());
+    post->setidparent(DataBase::I()->userConnected()->idparent());
     post->setheurederniereconnexion(DataBase::I()->ServerDateTime());
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);
     post->setipadress(Utils::getIpAdress());
-    add( map_postesconnectes, post );
+    post->setisdistant(DataBase::I()->getMode() == Utils::Distant);
+    post->setidlieu(idsite);
+    add( map_postesconnectes, post, Item::Update );
     return post;
 }

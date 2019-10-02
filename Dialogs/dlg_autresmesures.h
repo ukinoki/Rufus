@@ -21,6 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "widgtono.h"
 #include "ui_widgtono.h"
+#include "widgpachy.h"
+#include "ui_widgpachy.h"
 
 namespace Ui {
 class dlg_autresmesures;
@@ -39,11 +41,13 @@ public:
 private:
     Mode                m_mode;
     WidgTono            *widgto;
+    WidgPachy           *widgpa;
     QWidget             *m_widget;
     double              m_TOD, m_TOG;
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                EnregistreTono();
+    void                EnregistrePachy();
     void                OKButtonClicked();
     void                setWidget(QWidget *widget);
 };

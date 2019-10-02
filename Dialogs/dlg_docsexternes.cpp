@@ -811,7 +811,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
         listbinds[CP_DATE_DOCSEXTERNES]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = docmt->format();
-        listbinds[CP_IDLIEU_DOCSEXTERNES]        = m_currentuser->idsitedetravail();
+        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
         listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1" : QVariant(QVariant::String));
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = m_currentuser->id();
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = docmt->importance();

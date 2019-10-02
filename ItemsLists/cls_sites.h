@@ -25,7 +25,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Sites : public ItemsList
 {
 private:
-    QMap<int, Site*> *map_sites;    //!<Collection de tous les sites sans exception, généralistes ou pas
+    QMap<int, Site*> *map_sites;                        //!<Collection de tous les sites sans exception, généralistes ou pas
+    Site*           m_currentsite = Q_NULLPTR;          //!> le site en cours
 
 public:
     //GETTER
@@ -33,9 +34,12 @@ public:
 
     Sites(QObject *parent = Q_NULLPTR);
 
-    Site* getById(int id);
-    void initListe();
-    QList<Site*> initListeByUser(int idusr);
+    Site*           getById(int id);
+    void            initListe();
+    QList<Site*>    initListeByUser(int idusr);
+    Site*           currentsite() const             { return m_currentsite; }
+    void            setcurrentsite(Site* site)      { m_currentsite = site; }
+    int             idcurrentsite() const           { return (m_currentsite != Q_NULLPTR? m_currentsite->id() : -1); }
 };
 
 #endif // SITES_H

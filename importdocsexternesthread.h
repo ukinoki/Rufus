@@ -245,10 +245,9 @@ signals:
     void                        emitmsg(QStringList m_listemessages, int pause, bool bottom);
 
 private:
-    Procedures                  *proc               = Procedures::I();
-    DataBase                    *db                 = DataBase::I();
-    int                         m_idlieuexercice    = Datas::I()->users->userconnected()->idsitedetravail();
-    bool                        m_encours           = false;
+    Procedures                  *proc       = Procedures::I();
+    DataBase                    *db         = DataBase::I();
+    bool                        m_encours   = false;
 
     bool                        m_compressiondocs;
     bool                        m_ok;

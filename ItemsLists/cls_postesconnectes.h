@@ -50,7 +50,7 @@ public:
     //!> actions sur les enregistrements
     void             SupprimeAllPostesConnectes();
     void             SupprimePosteConnecte(PosteConnecte *post);
-    PosteConnecte*   CreationPosteConnecte();
+    PosteConnecte*   CreationPosteConnecte(int idsite);
 };
 
 #endif // CLS_USERSCONNECTES_H

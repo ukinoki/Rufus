@@ -15,23 +15,25 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WIDGTONO_H
-#define WIDGTONO_H
+#ifndef WIDGPACHY_H
+#define WIDGPACHY_H
 
 #include <QWidget>
 
 namespace Ui {
-class WidgTono;
+class WidgPachy;
 }
 
-class WidgTono : public QWidget
+class WidgPachy : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit WidgTono(QWidget *parent = Q_NULLPTR);
-    ~WidgTono();
-    Ui::WidgTono *ui;
+    explicit WidgPachy(QWidget *parent = nullptr);
+    ~WidgPachy();
+    Ui::WidgPachy *ui;
+
+private:
 };
 
-#endif // WIDGTONO_H
+#endif // WIDGPACHY_H

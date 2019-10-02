@@ -224,10 +224,6 @@ void User::setcomptable(User *usr)                  { m_userComptable = usr; }
 int User::idcomptable() const                       { return m_idUserComptable; }
 void User::setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
 
-int User::idsitedetravail() const                   { return  m_idsite; }
-void User::setidSite(int id)                        { m_idsite = id; }
-
-
 
 /*!
  * \brief User::status

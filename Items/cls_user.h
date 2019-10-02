@@ -123,8 +123,6 @@ private:
                                                     //!< . celui qu'il remplace si celui qu'il remplace est libéral
                                                     //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
 
-    int m_idsite = 0;                               //! l'id du site de travail en cours
-
 public:
     explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -211,9 +209,6 @@ public:
     void setcomptable(User *usr);
     int idcomptable() const;
     void setidusercomptable(int idusr);
-
-    int idsitedetravail() const;
-    void setidSite(int id);
 
     QString status() const;
 };

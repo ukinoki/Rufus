@@ -84,7 +84,7 @@ void DocExterne::setData(QJsonObject data)
     setDataString(data, CP_FORMATDOC_DOCSEXTERNES, m_formatdoc);
     setDataInt(data, CP_IMPORTANCE_DOCSEXTERNES, m_importance);
     setDataInt(data, CP_EMISORRECU_DOCSEXTERNES, m_emisrecu);
-    setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idlieu);
+    setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idsite);
     setDataInt(data, CP_IDREFRACTION_DOCSEXTERNES, m_idrefraction);
 }
 

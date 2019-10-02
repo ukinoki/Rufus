@@ -227,7 +227,7 @@ CREATE TABLE `tonometries` (
   `idPat` int(10) unsigned NOT NULL,
   `TOOD` smallint(6) DEFAULT NULL,
   `TOOG` smallint(6) DEFAULT NULL,
-  `TODate` date DEFAULT NULL,
+  `TODate` datetime DEFAULT NULL,
   `TOType` varchar(15) DEFAULT NULL,
   KEY `idPatTO_idx` (`idPat`)
 ) ENGINE=InnoDB;
@@ -237,7 +237,7 @@ CREATE TABLE `pachymetries` (
   `idPat` int(10) unsigned NOT NULL,
   `pachyOD` smallint(3) DEFAULT NULL,
   `pachyOG` smallint(3) DEFAULT NULL,
-  `pachyDate` date DEFAULT NULL,
+  `pachyDate` datetime DEFAULT NULL,
   `pachyType` varchar(15) DEFAULT NULL,
   KEY `idPatTO_idx` (`idPat`)
 ) ENGINE=InnoDB;

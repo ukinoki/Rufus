@@ -128,12 +128,12 @@ void Actes::SupprimeActe(Acte* act)
     Supprime(map_actes, act);
 }
 
-Acte* Actes::CreationActe(Patient *pat, int idcentre)
+Acte* Actes::CreationActe(Patient *pat, int idcentre, int idlieu)
 {
     if (pat == Q_NULLPTR)
         return Q_NULLPTR;
     Acte *act = Q_NULLPTR;
-    User* usr = DataBase::I()->getUserConnected();
+    User* usr = DataBase::I()->userConnected();
     QString rempla = (usr->modeenregistrementhonoraires() == User::Retrocession? "1" : "null");
     QString creerrequete =
             "INSERT INTO " TBL_ACTES
@@ -148,7 +148,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
             QString::number(usr->idparent()) + ", " +
             rempla + ", " +
             QString::number(idcentre) + ", " +
-            QString::number(usr->idsitedetravail()) +")";
+            QString::number(idlieu) +")";
     //qDebug() << creerrequete;
     DataBase::I()->locktable(TBL_ACTES);
     if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + TBL_ACTES))
@@ -174,7 +174,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     act->setiduserparent(usr->idparent());
     act->seteffectueparremplacant(rempla == "1");
     act->setnumcentre(idcentre);
-    act->setidlieu(usr->idsitedetravail());
+    act->setidlieu(idlieu);
     add(map_actes, act);
     return act;
 }

@@ -451,7 +451,8 @@ dlg_param::dlg_param(QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + Datas::I()->sites->getById(m_currentuser->idsitedetravail())->nom() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>"
+                                           + (Datas::I()->sites->currentsite() != Q_NULLPTR? Datas::I()->sites->currentsite()->nom() : "") + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(wdg_appareilswdgbuttonframe->widgButtonParent());
@@ -929,7 +930,7 @@ void dlg_param::GestionBanques()
 
 void dlg_param::GestionDatasCurrentUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
+    Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  m_currentuser->login());
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
@@ -944,7 +945,7 @@ void dlg_param::GestionDatasCurrentUser()
 
 void dlg_param::GestionUsers()
 {
-    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
+    Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
@@ -1356,7 +1357,7 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " TBL_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(m_currentuser->idsitedetravail());
+              + " and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
         db->StandardSQL(req);
         proc->settings()->remove(db->getBase() + "/DossiersDocuments/" + appdata.at(1).toString());
         Remplir_Tables();
@@ -1483,7 +1484,7 @@ void dlg_param::EnregistreAppareil()
     if (!dlg_askappareil) return;
     QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + dlg_askappareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + QString::number(m_currentuser->idsitedetravail()) + ")";
+                  + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
     db->StandardSQL(req);
     dlg_askappareil->done(0);
     Remplir_Tables();
@@ -2622,7 +2623,7 @@ void dlg_param::Remplir_Tables()
 
     QString  req = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  TBL_APPAREILSCONNECTESCENTRE " appcon , " TBL_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(m_currentuser->idsitedetravail()) +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite()) +
               " ORDER BY TitreExamen";
 
     QList<QVariantList> Applist = db->StandardSelectSQL(req, ok);
@@ -2750,7 +2751,7 @@ void dlg_param::Remplir_Tables()
 
     m_listeappareils.clear();
     req = "select NomAppareil from " TBL_LISTEAPPAREILS
-          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(m_currentuser->idsitedetravail()) + ")";
+          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
     QList<QVariantList> Appareilslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;

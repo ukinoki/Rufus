@@ -364,7 +364,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_LIENFICHIER_DOCSEXTERNES] =      lien;
             listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "1";
             listbinds[CP_FORMATDOC_DOCSEXTERNES] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
+            listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
         }
         else
         {
@@ -383,10 +383,10 @@ void dlg_docsscanner::ValideFiche()
             //            if (val.isObject())
             //                QJsonDocument doc(val.toObject());
             //listbinds[suffixe] =                         val;
-            listbinds[suffixe] =                         ba;
+            listbinds[suffixe] =                          ba;
             listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "1";
             listbinds[CP_FORMATDOC_DOCSEXTERNES] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->users->userconnected()->idsitedetravail();
+            listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
         }
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         b = (doc != Q_NULLPTR);

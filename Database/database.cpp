@@ -89,7 +89,7 @@ void DataBase::getInformations()
            "\n" + tr("port        ") + "\n ->\t" + QString::number(m_db.port()));
 }
 
-User* DataBase::getUserConnected() const
+User* DataBase::userConnected() const
 {
     return m_userConnected;
 }
@@ -932,7 +932,7 @@ QList<Impression*> DataBase::loadImpressions()
     QList<Impression*> impressions;
     QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
                   CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
-                  " WHERE (" CP_IDUSER_IMPRESSIONS " = " + QString::number(getUserConnected()->id()) + " Or (" CP_DOCPUBLIC_IMPRESSIONS " = 1 and " CP_IDUSER_IMPRESSIONS " <> " + QString::number(getUserConnected()->id()) + "))"
+                  " WHERE (" CP_IDUSER_IMPRESSIONS " = " + QString::number(userConnected()->id()) + " Or (" CP_DOCPUBLIC_IMPRESSIONS " = 1 and " CP_IDUSER_IMPRESSIONS " <> " + QString::number(userConnected()->id()) + "))"
                   " ORDER BY " CP_RESUME_IMPRESSIONS;
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
@@ -964,7 +964,7 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
     QList<DossierImpression*> dossiers;
     QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
-                       " WHERE " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(getUserConnected()->id());
+                       " WHERE " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(userConnected()->id());
                 req += " UNION \n";
                 req += "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_ID_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
                        " where " CP_IDUSER_DOSSIERIMPRESSIONS " not in\n"
