@@ -22,24 +22,41 @@ MesureRefraction::MesureRefraction() {}
 
 void MesureRefraction::setdatas(Refraction *ref)
 {
-    m_sphereOD          = ref->sphereOD();
-    m_cylindreOD        = ref->cylindreOD();
-    m_axecylindreOD     = ref->axecylindreOD();
-    m_avlOD             = ref->avlOD();
-    m_addVPOD           = ref->addVPOD();
-    m_avpPOD            = ref->avpOD();
-    m_prismeOD          = ref->prismeOD();
-    m_baseprismeOD      = ref->baseprismeOD();
-    m_formuleOD         = ref->formuleOD();
-    m_sphereOG          = ref->sphereOG();
-    m_cylindreOG        = ref->cylindreOG();
-    m_axecylindreOG     = ref->axecylindreOG();
-    m_avlOG             = ref->avlOG();
-    m_addVPOG           = ref->addVPOG();
-    m_avpPOG            = ref->avpOG();
-    m_prismeOG          = ref->prismeOG();
-    m_baseprismeOG      = ref->baseprismeOG();
-    m_formuleOG         = ref->formuleOG();
+    if (ref->isODmesure() && ref->isOGmesure())
+    {
+        cleandatas();
+        return;
+    }
+    m_isnullOD = ref->isODmesure();
+    if (m_isnullOD)
+        cleandatas(Refraction::Droit);
+    else
+    {
+        m_sphereOD          = ref->sphereOD();
+        m_cylindreOD        = ref->cylindreOD();
+        m_axecylindreOD     = ref->axecylindreOD();
+        m_avlOD             = ref->avlOD();
+        m_addVPOD           = ref->addVPOD();
+        m_avpPOD            = ref->avpOD();
+        m_prismeOD          = ref->prismeOD();
+        m_baseprismeOD      = ref->baseprismeOD();
+        m_formuleOD         = ref->formuleOD();
+    }
+    m_isnullOG = ref->isOGmesure();
+    if (m_isnullOG)
+        cleandatas(Refraction::Gauche);
+    else
+    {
+        m_sphereOG          = ref->sphereOG();
+        m_cylindreOG        = ref->cylindreOG();
+        m_axecylindreOG     = ref->axecylindreOG();
+        m_avlOG             = ref->avlOG();
+        m_addVPOG           = ref->addVPOG();
+        m_avpPOG            = ref->avpOG();
+        m_prismeOG          = ref->prismeOG();
+        m_baseprismeOG      = ref->baseprismeOG();
+        m_formuleOG         = ref->formuleOG();
+    }
     m_ecartIP           = ref->ecartIP();
     m_typemesure        = ref->typemesure();
     m_cleandatas        = false;
@@ -47,24 +64,41 @@ void MesureRefraction::setdatas(Refraction *ref)
 
 void MesureRefraction::setdatas(MesureRefraction *mesure)
 {
-    m_sphereOD          = mesure->sphereOD();
-    m_cylindreOD        = mesure->cylindreOD();
-    m_axecylindreOD     = mesure->axecylindreOD();
-    m_avlOD             = mesure->avlOD();
-    m_addVPOD           = mesure->addVPOD();
-    m_avpPOD            = mesure->avpOD();
-    m_prismeOD          = mesure->prismeOD();
-    m_baseprismeOD      = mesure->baseprismeOD();
-    m_formuleOD         = mesure->formuleOD();
-    m_sphereOG          = mesure->sphereOG();
-    m_cylindreOG        = mesure->cylindreOG();
-    m_axecylindreOG     = mesure->axecylindreOG();
-    m_avlOG             = mesure->avlOG();
-    m_addVPOG           = mesure->addVPOG();
-    m_avpPOG            = mesure->avpOG();
-    m_prismeOG          = mesure->prismeOG();
-    m_baseprismeOG      = mesure->baseprismeOG();
-    m_formuleOG         = mesure->formuleOG();
+    if (mesure->isdataclean())
+    {
+        cleandatas();
+        return;
+    }
+    m_isnullOD = mesure->isnullLOD();
+    if (m_isnullOD)
+        cleandatas(Refraction::Droit);
+    else
+    {
+        m_sphereOD          = mesure->sphereOD();
+        m_cylindreOD        = mesure->cylindreOD();
+        m_axecylindreOD     = mesure->axecylindreOD();
+        m_avlOD             = mesure->avlOD();
+        m_addVPOD           = mesure->addVPOD();
+        m_avpPOD            = mesure->avpOD();
+        m_prismeOD          = mesure->prismeOD();
+        m_baseprismeOD      = mesure->baseprismeOD();
+        m_formuleOD         = mesure->formuleOD();
+    }
+    m_isnullOG = mesure->isnullLOG();
+    if (m_isnullOG)
+        cleandatas(Refraction::Gauche);
+    else
+    {
+        m_sphereOG          = mesure->sphereOG();
+        m_cylindreOG        = mesure->cylindreOG();
+        m_axecylindreOG     = mesure->axecylindreOG();
+        m_avlOG             = mesure->avlOG();
+        m_addVPOG           = mesure->addVPOG();
+        m_avpPOG            = mesure->avpOG();
+        m_prismeOG          = mesure->prismeOG();
+        m_baseprismeOG      = mesure->baseprismeOG();
+        m_formuleOG         = mesure->formuleOG();
+    }
     m_ecartIP           = mesure->ecartIP();
     m_typemesure        = mesure->typemesure();
     m_cleandatas        = false;

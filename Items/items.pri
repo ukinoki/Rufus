@@ -5,6 +5,7 @@ INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_acte.cpp \
         $$PWD/cls_compte.cpp \
         $$PWD/cls_correspondant.cpp \
+    $$PWD/cls_donneesophtapatient.cpp \
     $$PWD/cls_impression.cpp \
         $$PWD/cls_item.cpp \
         $$PWD/cls_patient.cpp \
@@ -30,6 +31,7 @@ SOURCES += $$PWD/cls_acte.cpp \
 HEADERS += $$PWD/cls_acte.h \
         $$PWD/cls_compte.h \
         $$PWD/cls_correspondant.h \
+    $$PWD/cls_donneesophtapatient.h \
     $$PWD/cls_impression.h \
         $$PWD/cls_item.h \
         $$PWD/cls_patient.h \

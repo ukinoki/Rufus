@@ -508,6 +508,91 @@ void DataBase::setdirbkup(QString adress)
 }
 
 /*
+ * Donnes ophtapatient
+*/
+void DataBase::initDonnesOphtaPatient(int idpat)
+{
+    if (m_donneesophtapatient == Q_NULLPTR)
+        m_donneesophtapatient = new DonneesOphtaPatient();
+    QJsonObject data{};
+    QString req = "select " CP_ID_DATAOPHTA ", " CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", "
+                            CP_SPHEREOG_DATAOPHTA ", " CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_ECARTIP_DATAOPHTA
+                            " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " and " CP_MESURE_DATAOPHTA " = 'A' order by idmesure asc" ;
+    QVariantList ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
+    if(ok && ophtadata.size() > 0)
+    {
+        data[CP_ID_DATAOPHTA "A"]               = ophtadata.at(0).toInt();
+        data[CP_IDPATIENT_DATAOPHTA]            = idpat;
+
+        data[CP_SPHEREOD_DATAOPHTA "A"]         = ophtadata.at(1).toDouble();
+        data[CP_CYLINDREOD_DATAOPHTA "A"]       = ophtadata.at(2).toDouble();
+        data[CP_AXECYLINDREOD_DATAOPHTA "A"]    = ophtadata.at(3).toInt();
+        data[CP_DATEREFRACTIONOD_DATAOPHTA "A"] = ophtadata.at(4).toDate().toString("yyyy-MM-dd");
+        data[CP_SPHEREOG_DATAOPHTA "A"]         = ophtadata.at(5).toDouble();
+        data[CP_CYLINDREOG_DATAOPHTA "A"]       = ophtadata.at(6).toDouble();
+        data[CP_AXECYLINDREOG_DATAOPHTA "A"]    = ophtadata.at(7).toInt();
+        data[CP_DATEREFRACTIONOG_DATAOPHTA "A"] = ophtadata.at(8).toDate().toString("yyyy-MM-dd");
+        data[CP_ECARTIP_DATAOPHTA "A"]          = ophtadata.at(9).toInt();
+    }
+
+    req = "select " CP_K1OD_DATAOPHTA  ", " CP_K2OD_DATAOPHTA ", " CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", "
+                    CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", "
+                    CP_DIOTRIESKMOD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ", " CP_DIOTRIESKMOG_DATAOPHTA
+                    " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " order by idmesure asc" ;
+    ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
+    if(ok && ophtadata.size() > 0)
+    {
+        data[CP_K1OD_DATAOPHTA]                 = ophtadata.at(0).toDouble();
+        data[CP_K2OD_DATAOPHTA]                 = ophtadata.at(1).toDouble();
+        data[CP_AXEKOD_DATAOPHTA]               = ophtadata.at(2).toInt();
+        data[CP_K1OG_DATAOPHTA]                 = ophtadata.at(3).toDouble();
+        data[CP_K2OG_DATAOPHTA]                 = ophtadata.at(4).toDouble();
+        data[CP_AXEKOG_DATAOPHTA]               = ophtadata.at(5).toInt();
+        data[CP_MODEMESUREKERATO_DATAOPHTA]     = ophtadata.at(6).toString();
+        data[CP_DATEKERATO_DATAOPHTA]           = ophtadata.at(7).toDate().toString("yyyy-MM-dd");
+        data[CP_DIOTRIESK1OD_DATAOPHTA]         = ophtadata.at(8).toDouble();
+        data[CP_DIOTRIESK2OD_DATAOPHTA]         = ophtadata.at(9).toDouble();
+        data[CP_DIOTRIESKMOD_DATAOPHTA]         = ophtadata.at(10).toDouble();
+        data[CP_DIOTRIESK1OG_DATAOPHTA]         = ophtadata.at(11).toDouble();
+        data[CP_DIOTRIESK2OG_DATAOPHTA]         = ophtadata.at(12).toDouble();
+        data[CP_DIOTRIESKMOG_DATAOPHTA]         = ophtadata.at(13).toDouble();
+    }
+
+    req = "select " CP_ID_DATAOPHTA ", " CP_DISTANCE_DATAOPHTA ", " CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", "
+                    CP_AVLOD_DATAOPHTA ", " CP_ADDVPOD_DATAOPHTA ", " CP_AVPOD_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", " CP_SPHEREOG_DATAOPHTA ", "
+                    CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_AVLOG_DATAOPHTA ", " CP_ADDVPOG_DATAOPHTA ", " CP_AVPOG_DATAOPHTA ", "
+                    CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_ECARTIP_DATAOPHTA
+                    " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " and " CP_MESURE_DATAOPHTA " = 'R' order by idmesure asc" ;
+    ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
+    if(ok && ophtadata.size() > 0)
+    {
+        data[CP_ID_DATAOPHTA]               = ophtadata.at(0).toInt();
+        data[CP_DISTANCE_DATAOPHTA]         = ophtadata.at(1).toString();
+        data[CP_SPHEREOD_DATAOPHTA]         = ophtadata.at(2).toDouble();
+        data[CP_CYLINDREOD_DATAOPHTA]       = ophtadata.at(3).toDouble();
+        data[CP_AXECYLINDREOD_DATAOPHTA]    = ophtadata.at(4).toInt();
+        data[CP_AVLOD_DATAOPHTA]            = ophtadata.at(5).toString();
+        data[CP_ADDVPOD_DATAOPHTA]          = ophtadata.at(6).toDouble();
+        data[CP_AVPOD_DATAOPHTA]            = ophtadata.at(7).toString();
+        data[CP_DATEREFRACTIONOD_DATAOPHTA] = ophtadata.at(8).toDate().toString("yyyy-MM-dd");
+        data[CP_SPHEREOG_DATAOPHTA]         = ophtadata.at(9).toDouble();
+        data[CP_CYLINDREOG_DATAOPHTA]       = ophtadata.at(10).toDouble();
+        data[CP_AXECYLINDREOG_DATAOPHTA]    = ophtadata.at(11).toInt();
+        data[CP_AVLOG_DATAOPHTA]            = ophtadata.at(12).toString();
+        data[CP_ADDVPOG_DATAOPHTA]          = ophtadata.at(13).toDouble();
+        data[CP_AVPOG_DATAOPHTA]            = ophtadata.at(14).toString();
+        data[CP_DATEREFRACTIONOG_DATAOPHTA] = ophtadata.at(15).toDate().toString("yyyy-MM-dd");
+        data[CP_ECARTIP_DATAOPHTA]          = ophtadata.at(16).toInt();
+    }
+    m_donneesophtapatient->setData(data);
+    return;
+}
+
+DonneesOphtaPatient* DataBase::donneesophtapatient()
+{
+    return m_donneesophtapatient;
+}
+/*
  * Users
 */
 QJsonObject DataBase::login(QString login, QString password)
@@ -940,15 +1025,15 @@ QList<Impression*> DataBase::loadImpressions()
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_ID_IMPRESSIONS] = doclist.at(i).at(0).toInt();
-        jData[CP_TEXTE_IMPRESSIONS] = doclist.at(i).at(1).toString();
-        jData[CP_RESUME_IMPRESSIONS] = doclist.at(i).at(2).toString();
-        jData[CP_CONCLUSION_IMPRESSIONS] = doclist.at(i).at(3).toString();
-        jData[CP_IDUSER_IMPRESSIONS] = doclist.at(i).at(4).toInt();
-        jData[CP_DOCPUBLIC_IMPRESSIONS] = (doclist.at(i).at(5).toInt()==1);
-        jData[CP_PRESCRIPTION_IMPRESSIONS] = (doclist.at(i).at(6).toInt()==1);
-        jData[CP_EDITABLE_IMPRESSIONS ] = (doclist.at(i).at(7).toInt()==1);
-        jData[CP_MEDICAL_IMPRESSIONS] = (doclist.at(i).at(8).toInt()==1);
+        jData[CP_ID_IMPRESSIONS]            = doclist.at(i).at(0).toInt();
+        jData[CP_TEXTE_IMPRESSIONS]         = doclist.at(i).at(1).toString();
+        jData[CP_RESUME_IMPRESSIONS]        = doclist.at(i).at(2).toString();
+        jData[CP_CONCLUSION_IMPRESSIONS]    = doclist.at(i).at(3).toString();
+        jData[CP_IDUSER_IMPRESSIONS]        = doclist.at(i).at(4).toInt();
+        jData[CP_DOCPUBLIC_IMPRESSIONS]     = (doclist.at(i).at(5).toInt()==1);
+        jData[CP_PRESCRIPTION_IMPRESSIONS]  = (doclist.at(i).at(6).toInt()==1);
+        jData[CP_EDITABLE_IMPRESSIONS ]     = (doclist.at(i).at(7).toInt()==1);
+        jData[CP_MEDICAL_IMPRESSIONS]       = (doclist.at(i).at(8).toInt()==1);
         Impression *doc = new Impression(jData);
         if (doc != Q_NULLPTR)
             impressions << doc;
@@ -982,8 +1067,8 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_ID_DOSSIERIMPRESSIONS] = doclist.at(i).at(1).toInt();
-        jData[CP_TEXTE_DOSSIERIMPRESSIONS] = doclist.at(i).at(4).toString();
+        jData[CP_ID_DOSSIERIMPRESSIONS]     = doclist.at(i).at(1).toInt();
+        jData[CP_TEXTE_DOSSIERIMPRESSIONS]  = doclist.at(i).at(4).toString();
         jData[CP_RESUME_DOSSIERIMPRESSIONS] = doclist.at(i).at(0).toString();
         jData[CP_IDUSER_DOSSIERIMPRESSIONS] = doclist.at(i).at(2).toInt();
         jData[CP_PUBLIC_DOSSIERIMPRESSIONS] = (doclist.at(i).at(3).toInt()==1);

@@ -125,7 +125,7 @@ public:
     void setmesure(Mesure mesure)           { m_typemesure = mesure; }                          //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
     void setdistance(Distance distance)     { m_distance = distance; }                          //!> la distance de mesure: loin, près, les 2
     void setisdilate(bool logic)            { m_dilate = (logic? Dilatation : NoDilatation); }  //!> examen sous cycloplegie ou non
-    void setisODmesure(bool logic)          { m_isODmesure = logic; }                           //!> l'OD a été mesuré
+    void setODmesure(bool logic)            { m_isODmesure = logic; }                           //!> l'OD a été mesuré
     void setsphereOD(double val)            { m_sphereOD = val; }                               //!> sphere OD
     void setcylindreOD(double val)          { m_cylindreOD = val; }                             //!> cylindre OD
     void setaxecylindreOD(int axe)          { m_axecylindreOD = axe; }                          //!> axe OD
@@ -140,7 +140,7 @@ public:
     void sethasplanOD(bool logic)           { m_hasplanOD = (logic? True : False); }            //!> un verre plan est utilisé sur l'OD
     void setryserOD(int val)                { m_ryserOD = val; }                                //!> puissance Ryser OD
     void setformuleOD(QString txt)          { m_formuleOD = txt; }                              //!> formule de réfraction OD
-    void setisOGmesure(bool logic)          { m_isOGmesure = logic; }                           //!> l'OG a été mesuré
+    void setOGmesure(bool logic)            { m_isOGmesure = logic; }                           //!> l'OG a été mesuré
     void setsphereOG(double val)            { m_sphereOG = val; }                               //!> sphere OG
     void setcylindreOG(double val)          { m_cylindreOG = val; }                             //!> cylindre OG
     void setaxecylindreOG(int axe)          { m_axecylindreOG = axe; }                          //!> axe OG

@@ -56,6 +56,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_ville.h"
 #include "cls_compte.h"
 #include "cls_parametressysteme.h"
+#include "cls_donneesophtapatient.h"
 
 #include "log.h"
 #include "utils.h"
@@ -72,6 +73,7 @@ private:
 
     User *m_userConnected = Q_NULLPTR;
     ParametresSysteme *m_parametres = Q_NULLPTR;
+    DonneesOphtaPatient *m_donneesophtapatient = new DonneesOphtaPatient();
 
     Utils::ModeAcces m_mode;
     QString m_base;
@@ -181,6 +183,11 @@ public:
     void setheurebkup(QTime time = QTime());
     void setdirbkup(QString adress = "");
 
+    /*
+     * Donnees ophta patient
+    */
+    void initDonnesOphtaPatient(int idpat);                     //! charge les données optha d'un patient
+    DonneesOphtaPatient* donneesophtapatient();
     /*
      * Users
     */

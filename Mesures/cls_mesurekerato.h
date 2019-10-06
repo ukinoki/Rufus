@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_MESUREKERATO_H
 #define CLS_MESUREKERATO_H
 
-#include <QObject>
+#include "cls_refraction.h"
 
 class MesureKerato : public QObject
 {
@@ -38,6 +38,8 @@ private:
     double m_dioptriesK2OG  = 0;
     int m_AxeKOG            = 0;
     bool m_cleandatas       = true;
+    bool m_isnullOD         = true;         //!> aucune mesure n'a été effectuée à droite
+    bool m_isnullOG         = true;         //!> aucune mesure n'a été effectuée à gauche
 
 public:
     double K1OD() const                   { return m_K1OD; }
@@ -53,31 +55,55 @@ public:
     double dioptriesKOD() const           { return m_dioptriesK1OD - m_dioptriesK2OD; }
     double dioptriesKOG() const           { return m_dioptriesK1OG - m_dioptriesK2OG; }
 
-    void setK1OD(double val)            { m_K1OD = val; m_cleandatas = false; }
-    void setK2OD(double val)            { m_K2OD = val; m_cleandatas = false; }
-    void setdioptriesK1OD(double val)   { m_dioptriesK1OD = val; m_cleandatas = false; }
-    void setdioptriesK2OD(double val)   { m_dioptriesK2OD = val; m_cleandatas = false; }
-    void setaxeKOD(int axe)             { m_AxeKOD = axe; m_cleandatas = false; }
-    void setK1OG(double val)            { m_K1OG = val; m_cleandatas = false; }
-    void setK2OG(double val)            { m_K2OG = val; m_cleandatas = false; }
-    void setdioptriesK1OG(double val)   { m_dioptriesK1OG = val; m_cleandatas = false; }
-    void setdioptriesK2OG(double val)   { m_dioptriesK2OG = val; m_cleandatas = false; }
-    void setaxeKOG(int axe)             { m_AxeKOD = axe; m_cleandatas = false; }
+    void setK1OD(double val)            { m_K1OD = val; m_cleandatas = false; m_isnullOD = false; }
+    void setK2OD(double val)            { m_K2OD = val; m_cleandatas = false; m_isnullOD = false; }
+    void setdioptriesK1OD(double val)   { m_dioptriesK1OD = val; m_cleandatas = false; m_isnullOD = false; }
+    void setdioptriesK2OD(double val)   { m_dioptriesK2OD = val; m_cleandatas = false; m_isnullOD = false; }
+    void setaxeKOD(int axe)             { m_AxeKOD = axe; m_cleandatas = false; m_isnullOD = false; }
+    void setK1OG(double val)            { m_K1OG = val; m_cleandatas = false; m_isnullOG = false; }
+    void setK2OG(double val)            { m_K2OG = val; m_cleandatas = false; m_isnullOG = false; }
+    void setdioptriesK1OG(double val)   { m_dioptriesK1OG = val; m_cleandatas = false; m_isnullOG = false; }
+    void setdioptriesK2OG(double val)   { m_dioptriesK2OG = val; m_cleandatas = false; m_isnullOG = false; }
+    void setaxeKOG(int axe)             { m_AxeKOD = axe; m_cleandatas = false; m_isnullOG = false; }
 
-    bool isdataclean()                  { return m_cleandatas; }
-    void cleandatas()
+    bool isdataclean() const            { return m_cleandatas; }
+    bool isnullLOD() const              { return m_isnullOD; }
+    bool isnullLOG() const              { return m_isnullOG; }
+    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
-        m_K1OD           = 0;
-        m_K2OD           = 0;
-        m_dioptriesK1OD  = 0;
-        m_dioptriesK2OD  = 0;
-        m_AxeKOD         = 0;
-        m_K1OG           = 0;
-        m_K2OG           = 0;
-        m_dioptriesK1OG  = 0;
-        m_dioptriesK2OG  = 0;
-        m_AxeKOG         = 0;
-        m_cleandatas     = true;
+        switch (cote) {
+        case Refraction::Les2:
+            m_K1OD           = 0;
+            m_K2OD           = 0;
+            m_dioptriesK1OD  = 0;
+            m_dioptriesK2OD  = 0;
+            m_AxeKOD         = 0;
+            m_K1OG           = 0;
+            m_K2OG           = 0;
+            m_dioptriesK1OG  = 0;
+            m_dioptriesK2OG  = 0;
+            m_AxeKOG         = 0;
+            m_cleandatas     = true;
+            m_isnullOD       = true;
+            m_isnullOG       = true;
+            break;
+        case Refraction::Droit:
+            m_K1OD           = 0;
+            m_K2OD           = 0;
+            m_dioptriesK1OD  = 0;
+            m_dioptriesK2OD  = 0;
+            m_AxeKOD         = 0;
+            m_isnullOD       = true;
+            break;
+        case Refraction::Gauche:
+            m_K1OG           = 0;
+            m_K2OG           = 0;
+            m_dioptriesK1OG  = 0;
+            m_dioptriesK2OG  = 0;
+            m_AxeKOG         = 0;
+            m_isnullOG       = true;
+            break;
+        }
     }
 
     void setdatas(MesureKerato *ker)
@@ -87,6 +113,8 @@ public:
             cleandatas();
             return;
         }
+        m_isnullOD       = ker->isnullLOD();
+        m_isnullOG       = ker->isnullLOG();
         m_K1OD           = ker->K1OD();
         m_K2OD           = ker->K2OD();
         m_dioptriesK1OD  = ker->dioptriesK1OD();
@@ -100,15 +128,58 @@ public:
         m_cleandatas     = ker->isdataclean();
     }
 
+    void setnullOD()
+    {
+        if (m_isnullOG)
+            cleandatas();
+        else
+        {
+            m_K1OD           = 0;
+            m_K2OD           = 0;
+            m_dioptriesK1OD  = 0;
+            m_dioptriesK2OD  = 0;
+            m_AxeKOD         = 0;
+            m_isnullOD = true;
+        }
+    }
+
+    void setnullOG()
+    {
+        if (m_isnullOD)
+            cleandatas();
+        else
+        {
+            m_K1OG           = 0;
+            m_K2OG           = 0;
+            m_dioptriesK1OG  = 0;
+            m_dioptriesK2OG  = 0;
+            m_AxeKOG         = 0;
+            m_isnullOG = true;
+        }
+    }
+
     bool isEqual(MesureKerato *other) const
     {
         bool a = false;
-        a = (  int(m_K1OD*100) == int(other->K1OD()*100)
-            && int(m_K2OD*100) == int(other->K2OD()*100)
-            && m_AxeKOD        == other->axeKOD()
-            && int(m_K1OG*100) == int(other->K1OG()*100)
-            && int(m_K2OG*100) == int(other->K2OG()*100)
-            && m_AxeKOG        == other->axeKOG());
+        if (isnullLOD() && !isnullLOG())
+            a = (  other->isnullLOD()
+                && !other->isnullLOG()
+                && int(m_K1OG*100) == int(other->K1OG()*100)
+                && int(m_K2OG*100) == int(other->K2OG()*100)
+                && m_AxeKOG        == other->axeKOG());
+        else if (isnullLOG() && !isnullLOD())
+            a = (  other->isnullLOG()
+                && !other->isnullLOD()
+                && int(m_K1OD*100) == int(other->K1OD()*100)
+                && int(m_K2OD*100) == int(other->K2OD()*100)
+                && m_AxeKOD        == other->axeKOD());
+        else
+            a = (  int(m_K1OD*100) == int(other->K1OD()*100)
+                && int(m_K2OD*100) == int(other->K2OD()*100)
+                && m_AxeKOD        == other->axeKOD()
+                && int(m_K1OG*100) == int(other->K1OG()*100)
+                && int(m_K2OG*100) == int(other->K2OG()*100)
+                && m_AxeKOG        == other->axeKOG());
         return  a;
     }
 

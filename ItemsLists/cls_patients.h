@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <cls_patient.h>
 #include "database.h"
 #include "cls_itemslist.h"
+#include "cls_donneesophtapatient.h"
 
  /*! La classe patients initialise
   * 2 QMap de patients
@@ -44,6 +45,9 @@ public:
     Patient* dossierpatientaouvrir()          { return m_dossierpatientaouvrir; }
     void setcurrentpatient(int id);
     void setdossierpatientaouvrir(int id);
+
+    DonneesOphtaPatient* donneesophtapatients();
+    void setdonneesophtapatients ();
 
 
     Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge le patient corresondant à l'id

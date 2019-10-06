@@ -1,9 +1,8 @@
 #ifndef CLS_MESUREDIVERS_H
 #define CLS_MESUREDIVERS_H
 
-#include <QObject>
-#include <QTime>
-#include "macros.h"
+#include "cls_refraction.h"
+
 
 class Pachy : public QObject
 {
@@ -16,30 +15,80 @@ private:
     int m_pachyOG       = 0;
     Mode m_modemesure   = NoMesure;
     bool m_cleandatas   = true;
+    bool m_isnullOD     = true;         //!> aucune mesure n'a été effectuée à droite
+    bool m_isnullOG     = true;         //!> aucune mesure n'a été effectuée à gauche
 
 public:
     int pachyOD() const         { return m_pachyOD; }
     int pachyOG() const         { return m_pachyOG; }
     Mode modemesure() const     { return m_modemesure; }
 
-    void setpachyOD(int pa)         { m_pachyOD = pa; m_cleandatas = false; }
-    void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; }
+    void setpachyOD(int pa)         { m_pachyOD = pa; m_cleandatas = false; m_isnullOD = false; }
+    void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOD = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
-    bool isdataclean()              { return m_cleandatas; }
-    void cleandatas()
+    bool isdataclean() const        { return m_cleandatas; }
+    bool isnullLOD() const          { return m_isnullOD; }
+    bool isnullLOG() const          { return m_isnullOG; }
+    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
-        m_pachyOD       = 0;
-        m_pachyOG       = 0;
-        m_modemesure    = NoMesure;
-        m_cleandatas    = true;
+        switch (cote) {
+        case Refraction::Les2:
+            m_pachyOD       = 0;
+            m_pachyOG       = 0;
+            m_modemesure    = NoMesure;
+            m_cleandatas    = true;
+            m_isnullOD      = true;
+            m_isnullOG      = true;
+            break;
+        case Refraction::Droit:
+            m_pachyOD       = 0;
+            m_isnullOD      = true;
+            break;
+        case Refraction::Gauche:
+            m_pachyOG       = 0;
+            m_isnullOG      = true;
+            break;
+        }
+    }
+
+    void setnullOD()
+    {
+        if (m_isnullOG)
+            cleandatas();
+        else
+        {
+            m_pachyOD  = 0;
+            m_isnullOD = true;
+        }
+    }
+
+    void setnullOG()
+    {
+        if (m_isnullOD)
+            cleandatas();
+        else
+        {
+            m_pachyOG           = 0;
+            m_isnullOG = true;
+        }
     }
 
     bool isEqual(Pachy *other) const
     {
-        return  (m_pachyOD         == other->pachyOD()
-                && m_pachyOG       == other->pachyOG()
-                && m_modemesure    == other->modemesure());
+        if (m_isnullOD & !m_isnullOG)
+            return (other               ->isnullLOD()
+                    && !other           ->isnullLOG()
+                    && m_pachyOG        == other->pachyOG()
+                    && m_modemesure     == other->modemesure());
+        else if (m_isnullOG && !m_isnullOD)
+            return ( other              ->isnullLOG()
+                     && !other          ->isnullLOD()
+                     && m_pachyOD       == other->pachyOD()
+                     && m_modemesure    == other->modemesure());
+        return  (m_pachyOD              == other->pachyOD()
+                && m_pachyOG            == other->pachyOG()
+                && m_modemesure         == other->modemesure());
     }
 
     bool isDifferent(Pachy *other) const
@@ -79,6 +128,8 @@ private:
     QTime m_heuremesure = QTime();
     Mode m_modemesure   = NoMesure;
     bool m_cleandatas   = true;
+    bool m_isnullOD     = true;         //!> aucune mesure n'a été effectuée à droite
+    bool m_isnullOG     = true;         //!> aucune mesure n'a été effectuée à gauche
 
 public:
     int TOD() const                 { return m_TOD; }
@@ -86,26 +137,73 @@ public:
     QTime heuremesure() const       { return m_heuremesure; }
     Mode modemesure() const         { return m_modemesure; }
 
-    void setTOD(int to)             { m_TOD = to; m_cleandatas = false; }
-    void setTOG(int to)             { m_TOG = to; m_cleandatas = false; }
+    void setTOD(int to)             { m_TOD = to; m_cleandatas = false; m_isnullOD = false; }
+    void setTOG(int to)             { m_TOG = to; m_cleandatas = false; m_isnullOD = false; }
     void setheuremesure(QTime time) { m_heuremesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
-    bool isdataclean()              { return m_cleandatas; }
-    void cleandatas()
+    bool isdataclean() const        { return m_cleandatas; }
+    bool isnullLOD() const          { return m_isnullOD; }
+    bool isnullLOG() const          { return m_isnullOG; }
+    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
-        m_TOD           = 0;
-        m_TOG           = 0;
-        m_heuremesure   = QTime();
-        m_modemesure    = NoMesure;
-        m_cleandatas    = true;
+        switch (cote) {
+        case Refraction::Les2:
+            m_TOD           = 0;
+            m_TOG           = 0;
+            m_heuremesure   = QTime();
+            m_modemesure    = NoMesure;
+            m_cleandatas    = true;
+            m_isnullOD      = true;
+            m_isnullOG      = true;
+            break;
+        case Refraction::Droit:
+            m_TOD           = 0;
+            m_isnullOD      = true;
+            break;
+        case Refraction::Gauche:
+            m_TOG           = 0;
+            m_isnullOG      = true;
+            break;
+        }
+    }
+
+    void setnullOD()
+    {
+        if (m_isnullOG)
+            cleandatas();
+        else
+        {
+            m_TOD           = 0;
+            m_isnullOD = true;
+        }
+    }
+
+    void setnullOG()
+    {
+        if (m_isnullOD)
+            cleandatas();
+        else
+        {
+            m_TOG           = 0;
+            m_isnullOG = true;
+        }
     }
 
     bool isEqual(Tono *other) const
     {
+        if (m_isnullOD & !m_isnullOG)
+            return (other           ->isnullLOD()
+                    && !other       ->isnullLOG()
+                    && m_TOG        == other->TOG()
+                    && m_modemesure == other->modemesure());
+        else if (m_isnullOG && !m_isnullOD)
+            return ( other          ->isnullLOG()
+                    && !other       ->isnullLOD()
+                    && m_TOD        == other->TOD()
+                    && m_modemesure == other->modemesure());
         return  (m_TOD              == other->TOD()
                 && m_TOG            == other->TOG()
-                && m_heuremesure    == other->heuremesure()
                 && m_modemesure     == other->modemesure());
     }
 
@@ -131,6 +229,22 @@ public:
         default: return "";
         }
     }
+    void setdatas(Tono *tono)
+    {
+        if (tono->isdataclean())
+        {
+            cleandatas();
+            return;
+        }
+        m_isnullOD      = tono->isnullLOD();
+        m_isnullOG      = tono->isnullLOG();
+        m_TOD           = tono->TOD();
+        m_TOG           = tono->TOG();
+        m_heuremesure   = tono->heuremesure();
+        m_modemesure    = tono->modemesure();
+        m_cleandatas    = tono->isdataclean();
+    }
+
 };
 
 #endif // CLS_MESUREDIVERS_H

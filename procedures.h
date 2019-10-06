@@ -495,6 +495,7 @@ private:
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
     bool                    m_isnewMesureAutoref;                           // détermine si la mesure d'autoref provient de l'autoref ou du dossier
     bool                    m_isnewMesureKerato;                            // détermine si la mesure de kerato provient de l'autoref ou du dossier
+    bool                    m_isnewMesureTono;                            // détermine si la mesure de tono provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
     QString                 m_htmlMesureRefracteurSubjectif;
     QMap<QString,QVariant>  map_mesureRefracteurFinal;

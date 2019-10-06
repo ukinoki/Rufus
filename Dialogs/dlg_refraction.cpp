@@ -2738,7 +2738,7 @@ void dlg_refraction::ResumeObservation()
             m_resultPubliAutoref = ResultatVLOD + " / " + ResultatVLOG;
 
         QString kerato = "";
-        if (QLocale().toDouble(ui->K1OD->text())>0)
+        if (QLocale().toDouble(ui->K1OD->text())>0 && m_modeouverture == Manuel)
         {
             if (m_mesureDioptrAstigmOD!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
@@ -2748,7 +2748,7 @@ void dlg_refraction::ResumeObservation()
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
-        if (QLocale().toDouble(ui->K1OG->text())>0)
+        if (QLocale().toDouble(ui->K1OG->text())>0 && m_modeouverture == Manuel)
         {
             if (m_mesureDioptrAstigmOG!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
@@ -3914,26 +3914,41 @@ void dlg_refraction::AfficheMesureRefracteur()
         UpMessageBox::Watch(this, tr("pas de données reçues du refracteur"));
         return;
     }
-
-    Init_Value_DoubleSpin(ui->SphereOD, MesureRefracteur->sphereOD());
-    Init_Value_DoubleSpin(ui->CylindreOD, MesureRefracteur->cylindreOD());
-    ui->AxeCylindreOD   ->setValue(MesureRefracteur->axecylindreOD());
-    ui->AddVPOD->setValue(MesureRefracteur->addVPOD());
+    QString AVLOD (""), AVLOG ("");
+    // OEIL DROIT ---------------------------------------------------------------------------
+    if (!MesureRefracteur->isnullLOD())
+    {
+        Init_Value_DoubleSpin(ui->SphereOD, MesureRefracteur->sphereOD());
+        Init_Value_DoubleSpin(ui->CylindreOD, MesureRefracteur->cylindreOD());
+        ui->AxeCylindreOD   ->setValue(MesureRefracteur->axecylindreOD());
+        ui->AddVPOD->setValue(MesureRefracteur->addVPOD());
+        AVLOD = QString::number(MesureRefracteur->avlOD().toDouble()*10) + "/10";
+    }
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, MesureRefracteur->sphereOG());
-    Init_Value_DoubleSpin(ui->CylindreOG, MesureRefracteur->cylindreOG());
-    ui->AxeCylindreOG   ->setValue(MesureRefracteur->axecylindreOG());
-    ui->AddVPOG->setValue(MesureRefracteur->addVPOG());
-    QString AVLOD = QString::number(MesureRefracteur->avlOD().toDouble()*10) + "/10";
-    QString AVLOG = QString::number(MesureRefracteur->avlOG().toDouble()*10) + "/10";
+    if (!MesureRefracteur->isnullLOG())
+    {
+        Init_Value_DoubleSpin(ui->SphereOG, MesureRefracteur->sphereOG());
+        Init_Value_DoubleSpin(ui->CylindreOG, MesureRefracteur->cylindreOG());
+        ui->AxeCylindreOG   ->setValue(MesureRefracteur->axecylindreOG());
+        ui->AddVPOG->setValue(MesureRefracteur->addVPOG());
+        AVLOG = QString::number(MesureRefracteur->avlOG().toDouble()*10) + "/10";
+    }
 
+    ui->ODCheckBox->setChecked(!MesureRefracteur->isnullLOD());
+    ui->OGCheckBox->setChecked(!MesureRefracteur->isnullLOG());
     switch (m_mode) {
     case Refraction::Acuite:
     {
-        ui->AVLODupComboBox->setCurrentText(AVLOD);
-        ui->AVPODupComboBox->setCurrentText(MesureRefracteur->avpOD());
-        ui->AVLOGupComboBox->setCurrentText(AVLOG);
-        ui->AVPOGupComboBox->setCurrentText(MesureRefracteur->avpOG());
+        if (!MesureRefracteur->isnullLOD())
+        {
+            ui->AVLODupComboBox->setCurrentText(AVLOD);
+            ui->AVPODupComboBox->setCurrentText(MesureRefracteur->avpOD());
+        }
+        if (!MesureRefracteur->isnullLOG())
+        {
+            ui->AVLOGupComboBox->setCurrentText(AVLOG);
+            ui->AVPOGupComboBox->setCurrentText(MesureRefracteur->avpOG());
+        }
         ui->V2RadioButton->setChecked(MesureRefracteur->addVPOD() > 0 || MesureRefracteur->addVPOG() > 0);
         ui->VPRadioButton->setChecked(false);
         ui->VLRadioButton->setChecked(MesureRefracteur->addVPOD() == 0.0 && MesureRefracteur->addVPOG() == 0.0);
@@ -3948,6 +3963,7 @@ void dlg_refraction::AfficheMesureRefracteur()
         break;
     }
     MesureRefracteur = Q_NULLPTR;
+    delete MesureRefracteur;
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
 }
 

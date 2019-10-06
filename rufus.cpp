@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-10-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("06-10-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6339,7 +6339,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
             OuvrirActesPrecedents();            //! depuis AfficheDossier()
         ui->ActeMotiftextEdit->setFocus();
     }
-    //4 - réglage du refracteur
+    //4 - rapel des réfractions et réglage du refracteur
+    qDebug() << Datas::I()->patients->donneesophtapatients()->idpat();
     Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     SetDatasRefractionKerato();
     if (proc->PortRefracteur()!=Q_NULLPTR)
@@ -6411,7 +6412,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
             else if (msgbox.clickedButton() == &FBouton)
                 Sexe = "F";
             if (Sexe != ""){
-                db->StandardSQL("update " TBL_PATIENTS " set sexe = '" + Sexe + "' where PatPrenom = '" + prenom + "' and sexe = ''");
+                db->StandardSQL("update " TBL_PATIENTS " set sexe = '" + Sexe + "' where PatPrenom = '" + prenom + "' and (sexe is null or sexe = '')");
                 req ="select idpat from " TBL_PATIENTS " where sexe = ''";
                 QList<QVariantList> patlist = db->StandardSelectSQL(req,m_ok);
                 if (m_ok && patlist.size()>0)
@@ -6565,10 +6566,10 @@ void Rufus::SortieAppli()
     QList<QVariantList> saldatlist = db->StandardSelectSQL(req,m_ok);
     if (m_ok && saldatlist.size()>0)
     {
-        /* 2 possibilités
+    /* 2 possibilités
      * 1. C'est le seul poste connecté pour cet utilisateur
      * 2. cet utilisateur est connecté sur d'autres postes, on peut partir
-    */
+     */
         bool IlResteDesPostesConnectesAvecCeUser = false;
         foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
         {
@@ -7635,6 +7636,7 @@ void Rufus::InitWidgets()
     a = -1;
     proc->ModifTailleFont(ui->RefractionpushButton,a);
     proc->ModifTailleFont(ui->TonometriepushButton,a);
+    proc->ModifTailleFont(ui->PachymetriepushButton,a);
     proc->ModifTailleFont(ui->OuvrirDocumentpushButton,a);
     proc->ModifTailleFont(ui->OuvreActesPrecspushButton,a);
     proc->ModifTailleFont(ui->OuvreDocsExternespushButton,a);
@@ -8520,6 +8522,8 @@ void Rufus::SetDatasRefractionKerato()
     Datas::I()->mesureacuite    ->cleandatas();
     Datas::I()->mesurefinal     ->cleandatas();
     Datas::I()->mesurekerato    ->cleandatas();
+    Datas::I()->tono            ->cleandatas();
+    Datas::I()->pachy           ->cleandatas();
 
     /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
@@ -8584,15 +8588,10 @@ void Rufus::SetDatasRefractionKerato()
     if (!Datas::I()->mesurefronto ->isdataclean())
         Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
 
-    Datas::I()->mesureautoref->setmesure(Refraction::Autoref);
-    Datas::I()->mesurefronto->setmesure(Refraction::Fronto);
-    Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
-    Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
-
     bool ok;
     QString requete = "Select K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG from " TBL_DONNEES_OPHTA_PATIENTS
             " where idpat = "  + QString::number(Datas::I()->patients->currentpatient()->id());
-    QList<QVariantList> listK = db->StandardSelectSQL(requete, ok, tr("Erreur de création de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
+    QList<QVariantList> listK = db->StandardSelectSQL(requete, ok, tr("Erreur de selection de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
     if (ok && listK.size() > 0)
     {
         QVariantList K = listK.at(0);
