@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("07-10-2019/1");       //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version;
+    qApp->setApplicationVersion("08-10-2019/1");       //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -139,9 +139,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus            = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
-    t_timerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    t_timerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    t_timerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    t_timerSalDat                = new QTimer(this);     /* scrutation des modifs de la salle d'attente */                  //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    t_timerCorrespondants        = new QTimer(this);     /* scrutation des modifs de la liste des correspondants */         //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    t_timerVerifMessages         = new QTimer(this);     /* scrutation des nouveaux message */                              //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerPosteConnecte         = new QTimer(this);     // mise à jour de la connexion à la base de données
     t_timerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     t_timerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
@@ -443,7 +443,7 @@ void Rufus::MAJDocsExternes()
 void Rufus::Moulinette()
 {
 
-    // MODIFICATION DES TABLES CCAM ============================================================================================================================================================
+    //! MODIFICATION DES TABLES CCAM ============================================================================================================================================================
     bool ok;
     QString req = "select codeccam from rufus.ccam";
     QList<QVariantList> listcodes = db->StandardSelectSQL(req, ok);
@@ -1167,8 +1167,8 @@ void Rufus::AppelPaiementDirect(Origin origin)
         QString Msg;
         PatientEnCours *pat = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
         if (pat == Q_NULLPTR)
-            m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                             //! idPat
-                                                     m_currentuser->idsuperviseur(),         //! idUser
+            m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),       //! idPat
+                                                     m_currentuser->idsuperviseur(),                    //! idUser
                                                      RETOURACCUEIL,                                     //! Statut
                                                      db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
@@ -1200,9 +1200,9 @@ void Rufus::AppelPaiementDirect(Origin origin)
         QString Msg;
         PatientEnCours *pat = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
         if (pat == Q_NULLPTR)
-            m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                             //! idPat
-                                                     m_currentuser->idsuperviseur(),         //! idUser
-                                                     ENCOURSEXAMEN + m_currentuser->login(),         //! Statut
+            m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),       //! idPat
+                                                     m_currentuser->idsuperviseur(),                    //! idUser
+                                                     ENCOURSEXAMEN + m_currentuser->login(),            //! Statut
                                                      db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
                                                      QTime(),                                           //! heureArrivee
@@ -1288,7 +1288,6 @@ void Rufus::BasculerMontantActe()
         }
         else
         {
-
             ui->ActeMontantlineEdit->setText(QLocale().toString(MontantConv,'f',2));
             ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif habituellement pratiqué"));
         }
@@ -1576,8 +1575,8 @@ void Rufus::CreerBilanOrtho()
                 ", HEcranVPASCD, HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC"     // 60,61,62,63,64
                 ", HMaddoxVPSCD, HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD"      // 65,66,67,68,69
                 ") \nVALUES \n(";
-        bilanorthorequete += QString::number(m_currentact->id());                                                                          //0 idActe
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Motif) + "'\n";                           //1 Motif
+        bilanorthorequete += QString::number(m_currentact->id());                                                               //0 idActe
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Motif) + "'\n";                                                     //1 Motif
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVODlineEdit->text()) + "'\n";                     //2
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVOGlineEdit->text()) + "'\n";                     //3
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->OcclAlterncomboBox->currentText()) + "'\n";        //4
@@ -1590,45 +1589,45 @@ void Rufus::CreerBilanOrtho()
             bilanorthorequete += ", 'G'";
         else
             bilanorthorequete += ", ''";
-        if (Dlg_BlOrtho->ui->ODOrientationradioButton->isChecked())                                                               //9 Orientation
+        if (Dlg_BlOrtho->ui->ODOrientationradioButton->isChecked())                                                              //9 Orientation
             bilanorthorequete += ", 'D'";
         else if (Dlg_BlOrtho->ui->OGOrientationradioButton->isChecked())
             bilanorthorequete += ", 'G'";
         else
             bilanorthorequete += ", ''";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLSCcomboBox->currentText()) + "'\n";          //10 EcranVLSC
-        if (Dlg_BlOrtho->ui->EcranVLSCDcomboBox->currentText() != "-")                                                            //11 EcranVLSCD
+        if (Dlg_BlOrtho->ui->EcranVLSCDcomboBox->currentText() != "-")                                                           //11 EcranVLSCD
             bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (Dlg_BlOrtho->ui->fixSCVLcomboBox->currentText() != "-")                                                               //12 EcranfixresVLSC
+        if (Dlg_BlOrtho->ui->fixSCVLcomboBox->currentText() != "-")                                                              //12 EcranfixresVLSC
             bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixSCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPSCcomboBox->currentText()) + "'\n";          //13 EcranVPSC
-        if (Dlg_BlOrtho->ui->EcranVPSCDcomboBox->currentText() != "-")                                                            //14 ECranVPSCD
+        if (Dlg_BlOrtho->ui->EcranVPSCDcomboBox->currentText() != "-")                                                           //14 ECranVPSCD
             bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (Dlg_BlOrtho->ui->fixSCVPcomboBox->currentText() != "-")                                                               //15 EcranfixresVPSC
+        if (Dlg_BlOrtho->ui->fixSCVPcomboBox->currentText() != "-")                                                              //15 EcranfixresVPSC
             bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixSCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLASCcomboBox->currentText()) + "'\n";         //16 EcranVLASC
-        if (Dlg_BlOrtho->ui->EcranVLASCDcomboBox->currentText() != "-")                                                           //17 EcranVLASCD
+        if (Dlg_BlOrtho->ui->EcranVLASCDcomboBox->currentText() != "-")                                                          //17 EcranVLASCD
             bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (Dlg_BlOrtho->ui->fixASCVLcomboBox->currentText() != "-")                                                              //18 EcranfixresVLASC
+        if (Dlg_BlOrtho->ui->fixASCVLcomboBox->currentText() != "-")                                                             //18 EcranfixresVLASC
             bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixASCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPASCcomboBox->currentText()) + "'\n";         //19 EcranVPASC
-        if (Dlg_BlOrtho->ui->EcranVPASCDcomboBox->currentText() != "-")                                                           //20 EcranVPASCD
+        if (Dlg_BlOrtho->ui->EcranVPASCDcomboBox->currentText() != "-")                                                          //20 EcranVPASCD
             bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (Dlg_BlOrtho->ui->fixASCVPcomboBox->currentText() != "-")                                                              //21 EcranfixresVPASC
+        if (Dlg_BlOrtho->ui->fixASCVPcomboBox->currentText() != "-")                                                             //21 EcranfixresVPASC
             bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixASCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
@@ -3325,7 +3324,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     {
         QMap<QString, QVariant> map;
         map["null"] = true;
-        SendMessage(map, Datas::I()->patients->dossierpatientaouvrir()->id());                           //depuis menu contextuel ListePatients
+        SendMessage(map, Datas::I()->patients->dossierpatientaouvrir()->id());                                            //depuis menu contextuel ListePatients
     }
 }
 
@@ -3487,7 +3486,6 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
         AppelPaiementDirect(Accueil);
     else if (choix == "Modifier")
         IdentificationPatient(dlg_identificationpatient::Modification, Datas::I()->patients->dossierpatientaouvrir());  //appelé depuis le menu contextuel de la table salle d'attente
-
     else if (choix == "Ouvrir")
         ChoixDossier(Datas::I()->patients->dossierpatientaouvrir());
     else if (choix == "Retirer" || choix == "Fermer")
@@ -6340,7 +6338,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->ActeMotiftextEdit->setFocus();
     }
     //4 - rapel des réfractions et réglage du refracteur
-    qDebug() << Datas::I()->patients->donneesophtapatients()->idpat();
+    Datas::I()->patients->setdonneesophtapatients();
     Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     SetDatasRefractionKerato();
     if (proc->PortRefracteur()!=Q_NULLPTR)
@@ -8545,7 +8543,6 @@ void Rufus::SetDatasRefractionKerato()
             {
                 Datas::I()->mesureautoref->setdatas(const_cast<Refraction*>(itref.value()));
                 itref.toFront();
-                qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureautoref->isdataclean()) " << Datas::I()->mesureautoref->isdataclean();
             }
         }
     }
@@ -8588,20 +8585,21 @@ void Rufus::SetDatasRefractionKerato()
     if (!Datas::I()->mesurefronto ->isdataclean())
         Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
 
-    bool ok;
-    QString requete = "Select K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG from " TBL_DONNEES_OPHTA_PATIENTS
-            " where idpat = "  + QString::number(Datas::I()->patients->currentpatient()->id());
-    QList<QVariantList> listK = db->StandardSelectSQL(requete, ok, tr("Erreur de selection de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
-    if (ok && listK.size() > 0)
-    {
-        QVariantList K = listK.at(0);
-        Datas::I()->mesurekerato->setK1OD(K.at(0).toDouble());
-        Datas::I()->mesurekerato->setK2OD(K.at(1).toDouble());
-        Datas::I()->mesurekerato->setaxeKOD(K.at(2).toInt());
-        Datas::I()->mesurekerato->setK1OG(K.at(3).toDouble());
-        Datas::I()->mesurekerato->setK2OG(K.at(4).toDouble());
-        Datas::I()->mesurekerato->setaxeKOG(K.at(5).toInt());
-    }
+    Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesophtapatient()->K1OD());
+    Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesophtapatient()->K2OD());
+    Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesophtapatient()->axeKOD());
+    Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesophtapatient()->dioptriesK1OD());
+    Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesophtapatient()->dioptriesK2OD());
+    Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesophtapatient()->K1OG());
+    Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesophtapatient()->K2OG());
+    Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesophtapatient()->axeKOG());
+    Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesophtapatient()->dioptriesK1OG());
+    Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesophtapatient()->dioptriesK2OG());
+
+//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureautoref->isdataclean()) " << Datas::I()->mesureautoref->isdataclean();
+//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesurekerato->isdataclean()) " << Datas::I()->mesurekerato->isdataclean();
+//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureacuite->isdataclean()) " << Datas::I()->mesureacuite->isdataclean();
+//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesurefinal->isdataclean()) " << Datas::I()->mesurefinal->isdataclean();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

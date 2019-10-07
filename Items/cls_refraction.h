@@ -38,7 +38,7 @@ private:
     Mesure m_typemesure;            //!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription
     Distance m_distance = Inconnu;  //!> la distance de mesure: loin, près, les 2
     Cycloplegie m_dilate = NoLoSo;  //!> examen sous cycloplegie ou non
-    bool m_isODmesure;              //!> l'OD a été mesuré
+    bool m_isODmesure = false;      //!> l'OD a été mesuré
     double m_sphereOD = 0;          //!> sphere OD
     double m_cylindreOD = 0;        //!> cylindre OD
     int m_axecylindreOD = 0;        //!> axe OD
@@ -48,12 +48,12 @@ private:
     double m_prismeOD = 0;          //!> prismeOD
     int m_baseprismeOD = 0;         //!> base prisme OD en degré
     QString m_baseprismetextOD;     //!> base prisme OD en texte (nasal, temporal, supérieur, inférieur
-    Logic m_haspressonOD = Null;    //!> un presson est utilisé sur l'OD
-    Logic m_hasdepoliOD = Null;     //!> un dépoli est utilisé sur l'OD
-    Logic m_hasplanOD = Null;       //!> un verre plan est utilisé sur l'OD
+    bool m_haspressonOD = false;     //!> un presson est utilisé sur l'OD
+    bool m_hasdepoliOD = false;      //!> un dépoli est utilisé sur l'OD
+    bool m_hasplanOD = false;        //!> un verre plan est utilisé sur l'OD
     int m_ryserOD = 0;              //!> puissance Ryser OD
     QString m_formuleOD;            //!> formule de réfraction OD
-    bool m_isOGmesure;              //!> l'OG a été mesuré
+    bool m_isOGmesure = false;      //!> l'OG a été mesuré
     double m_sphereOG = 0;          //!> sphere OG
     double m_cylindreOG = 0;        //!> cylindre OG
     int m_axecylindreOG = 0;        //!> axe OG
@@ -63,9 +63,9 @@ private:
     double m_prismeOG = 0;          //!> prismeOG
     int m_baseprismeOG = 0;         //!> base prisme OG en degré
     QString m_baseprismetextOG;     //!> base prisme OG en texte (nasal, temporal, supérieur, inférieur
-    Logic m_haspressonOG = Null;    //!> un presson est utilisé sur l'OG
-    Logic m_hasdepoliOG = Null;     //!> un dépoli est utilisé sur l'OG
-    Logic m_hasplanOG = Null;       //!> un verre plan est utilisé sur l'OG
+    bool m_haspressonOG = false;     //!> un presson est utilisé sur l'OG
+    bool m_hasdepoliOG = false;      //!> un dépoli est utilisé sur l'OG
+    bool m_hasplanOG = false;        //!> un verre plan est utilisé sur l'OG
     int m_ryserOG = 0;              //!> puissance Ryser OG
     QString m_formuleOG;            //!> formule de réfraction OG
     QString m_commentaireordo;      //!> commentaire de l'ordonnace de verres
@@ -92,9 +92,9 @@ public:
     double prismeOD() { return m_prismeOD; }                    //!> prismeOD
     int baseprismeOD() { return m_baseprismeOD; }               //!> base prisme OD en degré
     QString baseprismetextOD() { return m_baseprismetextOD; }   //!> base prisme OD en texte (nasal, temporal, supérieur, inférieur
-    bool haspressonOD() { return m_haspressonOD == True; }      //!> un presson est utilisé sur l'OD
-    bool hasdepoliOD() { return m_hasdepoliOD == True; }        //!> un dépoli est utilisé sur l'OD
-    bool hasplanOD() { return m_hasplanOD == True; }            //!> un verre plan est utilisé sur l'OD
+    bool haspressonOD() { return m_haspressonOD; }              //!> un presson est utilisé sur l'OD
+    bool hasdepoliOD() { return m_hasdepoliOD; }                //!> un dépoli est utilisé sur l'OD
+    bool hasplanOD() { return m_hasplanOD; }                    //!> un verre plan est utilisé sur l'OD
     int ryserOD() { return m_ryserOD; }                         //!> puissance Ryser OD
     QString formuleOD() { return m_formuleOD; }                 //!> formule de réfraction OD
     bool isOGmesure() { return m_isOGmesure; }                  //!> l'OG a été mesuré
@@ -107,9 +107,9 @@ public:
     double prismeOG() { return m_prismeOG; }                    //!> prismeOG
     int baseprismeOG() { return m_baseprismeOG; }               //!> base prisme OG en degré
     QString baseprismetextOG() { return m_baseprismetextOG; }   //!> base prisme OG en texte (nasal, temporal, supérieur, inférieur
-    bool haspressonOG() { return m_haspressonOG == True; }      //!> un presson est utilisé sur l'OG
-    bool hasdepoliOG() { return m_hasdepoliOG == True; }        //!> un dépoli est utilisé sur l'OG
-    bool hasplanOG() { return m_hasplanOG == True; }            //!> un verre plan est utilisé sur l'OG
+    bool haspressonOG() { return m_haspressonOG; }              //!> un presson est utilisé sur l'OG
+    bool hasdepoliOG() { return m_hasdepoliOG; }                //!> un dépoli est utilisé sur l'OG
+    bool hasplanOG() { return m_hasplanOG; }                    //!> un verre plan est utilisé sur l'OG
     int ryserOG() { return m_ryserOG; }                         //!> puissance Ryser OG
     QString formuleOG() { return m_formuleOG; }                 //!> formule de réfraction OG
     QString commentaireordo() { return m_commentaireordo; }     //!> commentaire de l'ordonnace de verres

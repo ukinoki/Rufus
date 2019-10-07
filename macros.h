@@ -415,11 +415,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ECARTIP_DATAOPHTA                "PD"
 #define CP_DIOTRIESK1OD_DATAOPHTA           "DioptrieK1OD"
 #define CP_DIOTRIESK2OD_DATAOPHTA           "DioptrieK2OD"
-#define CP_DIOTRIESKMOD_DATAOPHTA           "DioptrieKOD"
 #define CP_DIOTRIESK1OG_DATAOPHTA           "DioptrieK1OG"
 #define CP_DIOTRIESK2OG_DATAOPHTA           "DioptrieK2OG"
-#define CP_DIOTRIESKMOG_DATAOPHTA           "DioptrieKOG"
-
 
 // Divers
 #define PDF                                         "pdf"

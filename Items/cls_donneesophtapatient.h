@@ -125,6 +125,54 @@ public:
     int axecylindreOGautoref() const    { return m_axecylindreOGautoref; }
     QDate daterefOGautoref() const      { return m_daterefOGautoref; }
     int ecartIPautoref() const          { return m_ecartIPautoref; }
+    void cleandatas()
+    {
+        m_idpat = 0;
+        m_mesure = "";
+        m_idsubjectif = 0;
+        m_daterefOG = QDate();
+        m_distance = "";
+        m_sphereOD = 0;
+        m_cylindreOD = 0;
+        m_axecylindreOD = 0;
+        m_AVLOD = "";
+        m_addVPOD = 0;
+        m_AVPOD = "";
+        m_daterefOD = QDate();
+        m_sphereOG = 0;
+        m_cylindreOG = 0;
+        m_axecylindreOG = 0;
+        m_AVLOG = "";
+        m_addVPOG = 0;
+        m_AVPOG = "";
+        m_ecartIP = 0;
+
+        //!< les données mesurées par l'autoref : kératométrie et autoref
+        m_idautoref = 0;
+        m_dateK = QDate();
+        m_origineK = "";
+        m_K1OD = 0;
+        m_K2OD = 0;
+        m_axeKOD = 0;
+        m_dioptriesK1OD = 0;
+        m_dioptriesK2OD = 0;
+        m_K1OG = 0;
+        m_K2OG = 0;
+        m_axeKOG = 0;
+        m_dioptriesK1OG = 0;
+        m_dioptriesK2OG = 0;
+
+        m_sphereODautoref = 0;
+        m_cylindreODautoref = 0;
+        m_axecylindreODautoref = 0;
+        m_daterefODautoref = QDate();
+        m_sphereOGautoref = 0;
+        m_cylindreOGautoref = 0;
+        m_axecylindreOGautoref = 0;
+        m_daterefOGautoref = QDate();
+        m_ecartIPautoref = 0;
+
+    }
 };
 
 #endif // DONNEESOPHTAPATIENT_H

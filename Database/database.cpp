@@ -534,6 +534,11 @@ void DataBase::initDonnesOphtaPatient(int idpat)
         data[CP_DATEREFRACTIONOG_DATAOPHTA "A"] = ophtadata.at(8).toDate().toString("yyyy-MM-dd");
         data[CP_ECARTIP_DATAOPHTA "A"]          = ophtadata.at(9).toInt();
     }
+    else
+    {
+        m_donneesophtapatient->cleandatas();
+        return;
+    }
 
     req = "select " CP_K1OD_DATAOPHTA  ", " CP_K2OD_DATAOPHTA ", " CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", "
                     CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", "
@@ -2276,6 +2281,8 @@ QJsonObject             DataBase::loadRefractionData(QVariantList refdata)      
     data[CP_MONTURE_REFRACTIONS]            = refdata.at(40).toString();
     data[CP_VERRETEINTE_REFRACTIONS]        = (refdata.at(41).toInt() == 1);
     data[CP_PD_REFRACTIONS]                 = refdata.at(42).toInt();
+    data["isODmesure"]                      = (refdata.at(8) != QVariant());
+    data["isOGmesure"]                      = (refdata.at(23) != QVariant());
     return data;
 }
 

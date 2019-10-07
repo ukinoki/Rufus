@@ -22,12 +22,12 @@ MesureRefraction::MesureRefraction() {}
 
 void MesureRefraction::setdatas(Refraction *ref)
 {
-    if (ref->isODmesure() && ref->isOGmesure())
+    if (!ref->isODmesure() && !ref->isOGmesure())
     {
         cleandatas();
         return;
     }
-    m_isnullOD = ref->isODmesure();
+    m_isnullOD = !ref->isODmesure();
     if (m_isnullOD)
         cleandatas(Refraction::Droit);
     else
@@ -42,7 +42,7 @@ void MesureRefraction::setdatas(Refraction *ref)
         m_baseprismeOD      = ref->baseprismeOD();
         m_formuleOD         = ref->formuleOD();
     }
-    m_isnullOG = ref->isOGmesure();
+    m_isnullOG = !ref->isOGmesure();
     if (m_isnullOG)
         cleandatas(Refraction::Gauche);
     else

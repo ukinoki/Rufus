@@ -4730,7 +4730,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             }
             //debugMesureRefraction(Datas::I()->mesurefronto);
             if (PortFronto() == Q_NULLPTR)                                      //! au cas où le fronto est directement branché sur la box du refracteur
-                if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto))
+                if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto)&& !Datas::I()->mesurefronto->isdataclean())
                 {
                     m_isnewMesureFronto = true;
                     InsertRefraction(Fronto);
@@ -4773,7 +4773,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             }
             //debugMesureRefraction(Datas::I()->mesureautoref);
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref))
+                if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
                 {
                     m_isnewMesureAutoref = true;
                     InsertRefraction(Autoref);
@@ -4826,7 +4826,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 }
             }
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato))
+                if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
                 {
                     m_isnewMesureKerato = true;
                     InsertRefraction(Kerato);
@@ -5302,6 +5302,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         /* Le fichier de sortie ressemble à ça
             LM2RK   No=00036   R: S=-04.50 C=-00.50 A=103 PX=+00.25 PY=+04.00 PD=00.0 ADD=+2.00 UR=  0   L: S=-05.00 C=-00.50 A=110 PX=+00.00 PY=+05.50 PD=00.0 ADD=+5.00 UL=  0   E$
             */
+        // qDebug() << Mesure;
         // OEIL DROIT -----------------------------------------------------------------------------
         int idxOD = Mesure.indexOf("R: ");
         if (idxOD > 0)
@@ -6203,343 +6204,312 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
 {
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
-    if (!Datas::I()->mesurefronto->isdataclean() && Mesure == Fronto)
+    if (Mesure == Fronto)
     {
-        bool a =
-               (Datas::I()->mesurefronto->sphereOD()        == 0.0
-            &&  Datas::I()->mesurefronto->cylindreOD()      == 0.0
-            &&  Datas::I()->mesurefronto->axecylindreOD()   == 0.0
-            &&  Datas::I()->mesurefronto->sphereOG()        == 0.0
-            &&  Datas::I()->mesurefronto->cylindreOG()      == 0.0
-            &&  Datas::I()->mesurefronto->axecylindreOG()   == 0.0
-            );
-        if (!a)
+        QString mSphereOD, mSphereOG;
+        QString mCylOD, mCylOG;
+        QString mAxeOD, mAxeOG;
+        QString mAddOD, mAddOG;
+        mSphereOD       = Utils::PrefixePlus(Datas::I()->mesurefronto->sphereOD());
+        mCylOD          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOD());
+        mAxeOD          = QString::number(Datas::I()->mesurefronto->axecylindreOD());
+        mAddOD          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOD());
+        mSphereOG       = Utils::PrefixePlus(Datas::I()->mesurefronto->sphereOG());
+        mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
+        mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
+        mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
+        foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+            if (ref->idacte() == idActe
+                    && ref->typemesure() == Refraction::Fronto
+                    && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
+                    && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
+                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
+        listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
+        listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
+        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
+        if (Datas::I()->mesurefronto->addVPOD() > 0 || Datas::I()->mesurefronto->addVPOG() > 0)
+            listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = "2";
+
+        listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOD();
+        listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOD();
+        listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesurefronto->axecylindreOD();
+        if (Datas::I()->mesurefronto->addVPOD() > 0)
+            listbinds[CP_ADDVPOD_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOD();
+        listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"D");
+        listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
+
+        listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOG();
+        listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOG();
+        listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesurefronto->axecylindreOG();
+        if (Datas::I()->mesurefronto->addVPOG() > 0)
+            listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOG();
+        listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"G");
+        listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
+        listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesurefronto->ecartIP();
+        Datas::I()->refractions->CreationRefraction(listbinds);
+    }
+    if (Mesure == Autoref)
+    {
+        QString mSphereOD, mSphereOG;
+        QString mCylOD, mCylOG;
+        QString mAxeOD, mAxeOG;
+        QString PD;
+        mSphereOD       = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOD());
+        mCylOD          = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOD());
+        mAxeOD          = QString::number(Datas::I()->mesureautoref->axecylindreOD());
+        mSphereOG       = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOG());
+        mCylOG          = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOG());
+        mAxeOG          = QString::number(Datas::I()->mesureautoref->axecylindreOG());
+        PD              = (Datas::I()->mesureautoref->ecartIP() > 0?
+                               QString::number(Datas::I()->mesureautoref->ecartIP()) : "null");
+        foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
+                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
+        listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
+        listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
+        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
+
+        listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOD();
+        listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOD();
+        listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOD();
+        listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"D");
+        listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
+
+        listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOG();
+        listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOG();
+        listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOG();
+        listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"G");
+        listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesureautoref->ecartIP();
+        listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
+        Datas::I()->refractions->CreationRefraction(listbinds);
+
+        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
+        QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
+        if (!m_ok)
+            return;
+        if (patdata.size()==0)
         {
-            QString mSphereOD, mSphereOG;
-            QString mCylOD, mCylOG;
-            QString mAxeOD, mAxeOG;
-            QString mAddOD, mAddOG;
-            mSphereOD       = Utils::PrefixePlus(Datas::I()->mesurefronto->sphereOD());
-            mCylOD          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOD());
-            mAxeOD          = QString::number(Datas::I()->mesurefronto->axecylindreOD());
-            mAddOD          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOD());
-            mSphereOG       = Utils::PrefixePlus(Datas::I()->mesurefronto->sphereOG());
-            mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
-            mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
-            mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
-            foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
-                if (ref->idacte() == idActe
-                        && ref->typemesure() == Refraction::Fronto
-                        && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
-                        && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
-                    Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+            requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
+                    " (" CP_IDPATIENT_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", " CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_MESURE_DATAOPHTA ", "
+                    CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ","
+                    CP_SPHEREOG_DATAOPHTA ", " CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_ECARTIP_DATAOPHTA ")"
+                    " VALUES (" +
+                    QString::number(idPatient)  + ", " +
+                    "CURDATE(), CURDATE(), '" +
+                    ConvertMesure(Mesure) + "'," +
+                    QString::number(QLocale().toDouble(mSphereOD))  + "," +
+                    QString::number(QLocale().toDouble(mCylOD))     + "," +
+                    mAxeOD     + "," +
+                    QString::number(QLocale().toDouble(mSphereOG))  + "," +
+                    QString::number(QLocale().toDouble(mCylOG))     + "," +
+                    mAxeOG     + "," +
+                    PD + ")";
 
-            QHash<QString, QVariant> listbinds;
-            listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
-            listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
-            listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-            listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
-            if (Datas::I()->mesurefronto->addVPOD() > 0 || Datas::I()->mesurefronto->addVPOG() > 0)
-                listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = "2";
+            db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
+        }
+        else
+        {
+            requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
+                    CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Mesure) + "'," +
+                    CP_DATEREFRACTIONOD_DATAOPHTA " = CURDATE(), " +
+                    CP_DATEREFRACTIONOG_DATAOPHTA " = CURDATE(), " +
+                    CP_SPHEREOD_DATAOPHTA " = "      + QString::number(QLocale().toDouble(mSphereOD))  + ", " +
+                    CP_CYLINDREOD_DATAOPHTA " = "    + QString::number(QLocale().toDouble(mCylOD))     + ", " +
+                    CP_AXECYLINDREOD_DATAOPHTA " = " + mAxeOD + ", " +
+                    CP_SPHEREOG_DATAOPHTA " = "      + QString::number(QLocale().toDouble(mSphereOG))  + ", " +
+                    CP_CYLINDREOG_DATAOPHTA " = "    + QString::number(QLocale().toDouble(mCylOG))     + ", " +
+                    CP_AXECYLINDREOG_DATAOPHTA " = " + mAxeOG + ", " +
+                    CP_ECARTIP_DATAOPHTA " = "       + PD +
+                    " where " CP_IDPATIENT_DATAOPHTA " = "   + QString::number(idPatient);
 
-            listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOD();
-            listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOD();
-            listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesurefronto->axecylindreOD();
-            if (Datas::I()->mesurefronto->addVPOD() > 0)
-                listbinds[CP_ADDVPOD_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOD();
-            listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"D");
-            listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
-
-            listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOG();
-            listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOG();
-            listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesurefronto->axecylindreOG();
-            if (Datas::I()->mesurefronto->addVPOG() > 0)
-                listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOG();
-            listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"G");
-            listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
-            listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesurefronto->ecartIP();
-            Datas::I()->refractions->CreationRefraction(listbinds);
+            db->StandardSQL (requete, tr("Erreur de mise à jour de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    if (!Datas::I()->mesureautoref->isdataclean() && Mesure == Autoref)
+    if (Mesure == Kerato)
     {
-        bool a =
-               (Datas::I()->mesureautoref->sphereOD()    == 0.0
-            &&  Datas::I()->mesureautoref->cylindreOD()  == 0.0
-            &&  Datas::I()->mesureautoref->sphereOG()    == 0.0
-            &&  Datas::I()->mesureautoref->cylindreOG()  == 0.0
-            );
-        if (!a)
+        QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
+        QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+        if (!m_ok)
+            return;
+        if (patdata.size()==0)
         {
-            QString mSphereOD, mSphereOG;
-            QString mCylOD, mCylOG;
-            QString mAxeOD, mAxeOG;
-            QString PD;
-            mSphereOD       = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOD());
-            mCylOD          = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOD());
-            mAxeOD          = QString::number(Datas::I()->mesureautoref->axecylindreOD());
-            mSphereOG       = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOG());
-            mCylOG          = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOG());
-            mAxeOG          = QString::number(Datas::I()->mesureautoref->axecylindreOG());
-            PD              = (Datas::I()->mesureautoref->ecartIP() > 0?
-                                   QString::number(Datas::I()->mesureautoref->ecartIP()) : "null");
-            foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
-                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
-                    Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+            req = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
+                    " (" CP_IDPATIENT_DATAOPHTA ", " CP_MESURE_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_K1OD_DATAOPHTA ", " CP_K2OD_DATAOPHTA ", "
+                    CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", " CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", "
+                    CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ")"
+                    " VALUES (" +
+                    QString::number(idPatient)  + ", '" +
+                    ConvertMesure(Autoref) + "', "
+                    "CURDATE(), " +
+                    (Datas::I()->mesurekerato->K1OD() > 0.0? QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2) : "null")   + ", " +
+                    (Datas::I()->mesurekerato->K2OD() > 0.0? QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2) : "null")   + ", " +
+                    (Datas::I()->mesurekerato->axeKOD() > 0? QString::number(Datas::I()->mesurekerato->axeKOD()) : "null") + ", " +
+                    (Datas::I()->mesurekerato->K1OG() > 0.0? QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2) : "null")   + ", " +
+                    (Datas::I()->mesurekerato->K2OG() > 0.0? QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2) : "null")   + ", " +
+                    (Datas::I()->mesurekerato->axeKOG() > 0? QString::number(Datas::I()->mesurekerato->axeKOG()) : "null") + ", '" +
+                    ConvertMesure(Autoref) + "', " +
+                    (Datas::I()->mesurekerato->dioptriesK1OD() > 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2) : "null") + ", " +
+                    (Datas::I()->mesurekerato->dioptriesK2OD() > 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2) : "null")   + ", " +
+                    (Datas::I()->mesurekerato->dioptriesK1OG() > 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2) : "null")   + ", " +
+                    (Datas::I()->mesurekerato->dioptriesK2OG() > 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2) : "null") + ")";
 
-            QHash<QString, QVariant> listbinds;
-            listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
-            listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
-            listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-            listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
-
-            listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOD();
-            listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOD();
-            listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOD();
-            listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"D");
-            listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
-
-            listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOG();
-            listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOG();
-            listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOG();
-            listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"G");
-            listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesureautoref->ecartIP();
-            listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
-            Datas::I()->refractions->CreationRefraction(listbinds);
-
-            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
-            if (!m_ok)
-                return;
-            if (patdata.size()==0)
-            {
-                requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
-                        " (idPat, DateRefOD, DateRefOG, QuelleMesure,"
-                        " SphereOD, CylindreOD, AxeCylindreOD,"
-                        " SphereOG, CylindreOG, AxeCylindreOG, PD)"
-                        " VALUES (" +
-                        QString::number(idPatient)  + ", " +
-                        "NOW(), NOW(), '" +
-                        ConvertMesure(Mesure) + "'," +
-                        QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                        QString::number(QLocale().toDouble(mCylOD))     + "," +
-                        mAxeOD     + "," +
-                        QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                        QString::number(QLocale().toDouble(mCylOG))     + "," +
-                        mAxeOG     + "," +
-                        PD + ")";
-
-                db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
-            }
-            else
-            {
-                requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
-                        " QuelleMesure = '" + ConvertMesure(Mesure) + "'," +
-                        " DateRefOD = NOW()," +
-                        " DateRefOG = NOW()," +
-                        " SphereOD = "      + QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                        " CylindreOD = "    + QString::number(QLocale().toDouble(mCylOD))     + "," +
-                        " AxeCylindreOD = " + mAxeOD + "," +
-                        " SphereOG = "      + QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                        " CylindreOG = "    + QString::number(QLocale().toDouble(mCylOG))     + "," +
-                        " AxeCylindreOG = " + mAxeOG + "," +
-                        " PD = "            + PD +
-                        " where idpat = "   + QString::number(idPatient);
-
-                db->StandardSQL (requete, tr("Erreur de mise à jour de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
-            }
+            db->StandardSQL (req, tr("Erreur de création de données de kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
-    }
-    if (!Datas::I()->mesurekerato->isdataclean() && Mesure == Kerato)
-    {
-        bool a =
-               (Datas::I()->mesurekerato->K1OD() == 0.0
-            &&  Datas::I()->mesurekerato->K1OG() == 0.0
-            );
-        if (!a)
+        else
         {
-            QString req = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Autoref) + "'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-            if (!m_ok)
-                return;
-            if (patdata.size()==0)
+            req = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
+                    CP_DATEKERATO_DATAOPHTA " = CURDATE(), "
+                    CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
+            if (!Datas::I()->mesurekerato->isnullLOD())
             {
-                req = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
-                        " (" CP_IDPATIENT_DATAOPHTA ", " CP_MESURE_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_K1OD_DATAOPHTA ", " CP_K2OD_DATAOPHTA ", "
-                             CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", " CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", "
-                             CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ")"
-                        " VALUES (" +
-                        QString::number(idPatient)  + ", '" +
-                        ConvertMesure(Autoref) + "', "
-                        "NOW(), " +
-                        (Datas::I()->mesurekerato->K1OD() == 0.0? QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2) : "null")   + "," +
-                        (Datas::I()->mesurekerato->K2OD() == 0.0? QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2) : "null")   + "," +
-                        (Datas::I()->mesurekerato->axeKOD() == 0? QString::number(Datas::I()->mesurekerato->axeKOD()) : "null") + "," +
-                        (Datas::I()->mesurekerato->K1OG() == 0.0? QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2) : "null")   + "," +
-                        (Datas::I()->mesurekerato->K2OG() == 0.0? QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2) : "null")   + "," +
-                        (Datas::I()->mesurekerato->axeKOG() == 0? QString::number(Datas::I()->mesurekerato->axeKOG()) : "null") + ", '" +
-                        (Datas::I()->mesurekerato->dioptriesK1OD() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2) : "null") + "," +
-                        (Datas::I()->mesurekerato->dioptriesK2OD() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2) : "null")   + "," +
-                        (Datas::I()->mesurekerato->dioptriesK1OG() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2) : "null")   + "," +
-                        (Datas::I()->mesurekerato->dioptriesK2OG() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2) : "null") + ", '" +
-                        ConvertMesure(Autoref) +
-                        "')";
-
-                db->StandardSQL (req, tr("Erreur de création de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
-            }
-            else
-            {
-                req = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
-                        CP_DATEKERATO_DATAOPHTA " = NOW(), "
-                        CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
-                if (!Datas::I()->mesurekerato->isnullLOD())
-                {
-                    req +=
+                req +=
                         ", " CP_K1OD_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2) +
                         ", " CP_K2OD_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2) +
                         ", " CP_AXEKOD_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->axeKOD());
-                    if (Datas::I()->mesurekerato->dioptriesK1OD() > 0)
-                        req +=
+                if (Datas::I()->mesurekerato->dioptriesK1OD() > 0)
+                    req +=
                             ", " CP_DIOTRIESK1OD_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2)  +
                             ", " CP_DIOTRIESK2OD_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2);
 
-                }
-                if (!Datas::I()->mesurekerato->isnullLOG())
-                {
-                    req +=
+            }
+            if (!Datas::I()->mesurekerato->isnullLOG())
+            {
+                req +=
                         ", " CP_K1OG_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2) +
                         ", " CP_K2OG_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2) +
                         ", " CP_AXEKOG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->axeKOG()) ;
-                    if (Datas::I()->mesurekerato->dioptriesK1OG() > 0)
-                        req +=
+                if (Datas::I()->mesurekerato->dioptriesK1OG() > 0)
+                    req +=
                             ", " CP_DIOTRIESK1OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2)  +
                             ", " CP_DIOTRIESK2OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2);
 
-                }
-                req += " where idpat = "+ QString::number(idPatient);
-                db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
             }
-            Datas::I()->patients->setdonneesophtapatients();
+            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient);
+            db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    if (!Datas::I()->mesureacuite->isdataclean() && Mesure == Subjectif)
+    if (Mesure == Subjectif)
     {
-        bool a =
-               (Datas::I()->mesureacuite->avlOD().toDouble() == 0.0
-            &&  Datas::I()->mesureacuite->avlOG().toDouble() == 0.0
-            );
-        if (!a)
+        QString mSphereOD, mSphereOG;
+        QString mCylOD, mCylOG;
+        QString mAxeOD, mAxeOG;
+        QString mAddOD, mAddOG;
+        QString mAVLOD, mAVLOG;
+        QString mAVPOD, mAVPOG;
+        QString PD;
+        mSphereOD       = Utils::PrefixePlus(Datas::I()->mesureacuite->sphereOD());
+        mCylOD          = Utils::PrefixePlus(Datas::I()->mesureacuite->cylindreOD());
+        mAxeOD          = QString::number(Datas::I()->mesureacuite->axecylindreOD());
+        mAddOD          = Utils::PrefixePlus(Datas::I()->mesureacuite->addVPOD());
+        mAVLOD          = QLocale().toString(Datas::I()->mesureacuite->avlOD().toDouble()*10) + "/10";
+        mAVPOD          = Datas::I()->mesureacuite->avpOD();
+        mSphereOG       = Utils::PrefixePlus(Datas::I()->mesureacuite->sphereOG());
+        mCylOG          = Utils::PrefixePlus(Datas::I()->mesureacuite->cylindreOG());
+        mAxeOG          = QString::number(Datas::I()->mesureacuite->axecylindreOG());
+        mAddOG          = Utils::PrefixePlus(Datas::I()->mesureacuite->addVPOG());
+        mAVLOG          = QLocale().toString(Datas::I()->mesureacuite->avlOG().toDouble()*10) + "/10";
+        mAVPOG          = Datas::I()->mesureacuite->avpOG();
+        PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
+        if (PD == "")
+            PD = "null";
+        foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
+                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
+        listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
+        listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
+        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
+        listbinds[CP_DISTANCEMESURE_REFRACTIONS]        = ((mAVPOD!="" || mAVPOG!="")? "2" : "L");
+
+        listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOD();
+        listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureacuite->cylindreOD();
+        listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesureacuite->axecylindreOD();
+        if (Datas::I()->mesureacuite->addVPOD() > 0)
+            listbinds[CP_ADDVPOD_REFRACTIONS]           = Datas::I()->mesureacuite->addVPOD();
+        listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureacuite,"D");
+        listbinds[CP_AVLOD_REFRACTIONS]                 = QLocale().toString(Datas::I()->mesureacuite->avlOD().toDouble()*10) + "/10";
+        listbinds[CP_AVPOD_REFRACTIONS]                 = Datas::I()->mesureacuite->avpOG();
+        listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
+
+        listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOG();
+        listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureacuite->cylindreOG();
+        listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureacuite->axecylindreOG();
+        if (Datas::I()->mesureacuite->addVPOG() > 0)
+            listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesureacuite->addVPOG();
+        listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureacuite,"G");
+        listbinds[CP_AVLOG_REFRACTIONS]                 = QLocale().toString(Datas::I()->mesureacuite->avlOG().toDouble()*10) + "/10";
+        listbinds[CP_AVPOG_REFRACTIONS]                 = Datas::I()->mesureacuite->avpOG();
+        listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
+
+        listbinds[CP_PD_REFRACTIONS]                    = QString::number(Datas::I()->mesureacuite->ecartIP());
+
+        Datas::I()->refractions->CreationRefraction(listbinds);
+
+        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Subjectif) + "'";
+        QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
+        if (!m_ok)
+            return;
+        if (patdata.size()==0)
         {
-            QString mSphereOD, mSphereOG;
-            QString mCylOD, mCylOG;
-            QString mAxeOD, mAxeOG;
-            QString mAddOD, mAddOG;
-            QString mAVLOD, mAVLOG;
-            QString mAVPOD, mAVPOG;
-            QString PD;
-            mSphereOD       = Utils::PrefixePlus(Datas::I()->mesureacuite->sphereOD());
-            mCylOD          = Utils::PrefixePlus(Datas::I()->mesureacuite->cylindreOD());
-            mAxeOD          = QString::number(Datas::I()->mesureacuite->axecylindreOD());
-            mAddOD          = Utils::PrefixePlus(Datas::I()->mesureacuite->addVPOD());
-            mAVLOD          = QLocale().toString(Datas::I()->mesureacuite->avlOD().toDouble()*10) + "/10";
-            mAVPOD          = Datas::I()->mesureacuite->avpOD();
-            mSphereOG       = Utils::PrefixePlus(Datas::I()->mesureacuite->sphereOG());
-            mCylOG          = Utils::PrefixePlus(Datas::I()->mesureacuite->cylindreOG());
-            mAxeOG          = QString::number(Datas::I()->mesureacuite->axecylindreOG());
-            mAddOG          = Utils::PrefixePlus(Datas::I()->mesureacuite->addVPOG());
-            mAVLOG          = QLocale().toString(Datas::I()->mesureacuite->avlOG().toDouble()*10) + "/10";
-            mAVPOG          = Datas::I()->mesureacuite->avpOG();
-            PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
-            if (PD == "")
-                PD = "null";
-            foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
-                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
-                    Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+            requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
+                    " (" CP_IDPATIENT_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", " CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_MESURE_DATAOPHTA ", " CP_DISTANCE_DATAOPHTA ", "
+                    CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", " CP_ADDVPOD_DATAOPHTA ", " CP_AVLOD_DATAOPHTA ", " CP_AVPOD_DATAOPHTA ", "
+                    CP_SPHEREOG_DATAOPHTA ", " CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_ADDVPOG_DATAOPHTA ", " CP_AVLOG_DATAOPHTA ", " CP_AVPOG_DATAOPHTA ", "
+                    CP_ECARTIP_DATAOPHTA ")"
+                                         " VALUES (" +
+                    QString::number(idPatient)  + ", " +
+                    "CURDATE(), CURDATE(), '" +
+                    ConvertMesure(Mesure)               + "','" +
+                    ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "'," +
+                    QString::number(QLocale().toDouble(mSphereOD))  + "," +
+                    QString::number(QLocale().toDouble(mCylOD))     + "," +
+                    mAxeOD     + "," +
+                    (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + ",'" +
+                    mAVLOD + "','" +
+                    mAVPOD + "'," +
+                    QString::number(QLocale().toDouble(mSphereOG))  + "," +
+                    QString::number(QLocale().toDouble(mCylOG))     + "," +
+                    mAxeOG     + "," +
+                    (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
+                    mAVLOG + "','" +
+                    mAVPOG + "'," +
+                    PD + ")";
 
-            QHash<QString, QVariant> listbinds;
-            listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
-            listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
-            listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-            listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
-            listbinds[CP_DISTANCEMESURE_REFRACTIONS]        = ((mAVPOD!="" || mAVPOG!="")? "2" : "L");
+            db->StandardSQL(requete, tr("Erreur création de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
+        }
+        else
+        {
+            requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
+                    CP_MESURE_DATAOPHTA " = '"      + ConvertMesure(Mesure) + "', "
+                    CP_DISTANCE_DATAOPHTA " = '"    + ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "', "
+                    CP_DATEREFRACTIONOD_DATAOPHTA " = CURDATE(),"
+                    CP_DATEREFRACTIONOG_DATAOPHTA " = CURDATE()," +
+                    CP_SPHEREOD_DATAOPHTA " = "     + QString::number(QLocale().toDouble(mSphereOD))  + ","
+                    CP_CYLINDREOD_DATAOPHTA " = "   + QString::number(QLocale().toDouble(mCylOD))     + "," +
+                    CP_AXECYLINDREOD_DATAOPHTA " = " + mAxeOD + "," +
+                    CP_ADDVPOD_DATAOPHTA " = "      + (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + "," +
+                    CP_AVLOD_DATAOPHTA " = '"       + mAVLOD + "'," +
+                    CP_AVPOD_DATAOPHTA " = '"       + mAVPOD + "'," +
+                    CP_SPHEREOG_DATAOPHTA " = "     + QString::number(QLocale().toDouble(mSphereOG))  + "," +
+                    CP_CYLINDREOG_DATAOPHTA " = "   + QString::number(QLocale().toDouble(mCylOG))     + "," +
+                    CP_AXECYLINDREOG_DATAOPHTA " = " + mAxeOG + "," +
+                    CP_ADDVPOG_DATAOPHTA " = "      + (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + "," +
+                    CP_AVLOG_DATAOPHTA " = '"       + mAVLOG + "'," +
+                    CP_AVPOG_DATAOPHTA " = '"       + mAVPOG + "'," +
+                    CP_ECARTIP_DATAOPHTA " = "      + PD +
+                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient);
 
-            listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOD();
-            listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureacuite->cylindreOD();
-            listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesureacuite->axecylindreOD();
-            if (Datas::I()->mesureacuite->addVPOD() > 0)
-                listbinds[CP_ADDVPOD_REFRACTIONS]           = Datas::I()->mesureacuite->addVPOD();
-            listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureacuite,"D");
-            listbinds[CP_AVLOD_REFRACTIONS]                 = QLocale().toString(Datas::I()->mesureacuite->avlOD().toDouble()*10) + "/10";
-            listbinds[CP_AVPOD_REFRACTIONS]                 = Datas::I()->mesureacuite->avpOG();
-            listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
-
-            listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOG();
-            listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesureacuite->cylindreOG();
-            listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureacuite->axecylindreOG();
-            if (Datas::I()->mesureacuite->addVPOG() > 0)
-                listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesureacuite->addVPOG();
-            listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureacuite,"G");
-            listbinds[CP_AVLOG_REFRACTIONS]                 = QLocale().toString(Datas::I()->mesureacuite->avlOG().toDouble()*10) + "/10";
-            listbinds[CP_AVPOG_REFRACTIONS]                 = Datas::I()->mesureacuite->avpOG();
-            listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
-
-            listbinds[CP_PD_REFRACTIONS]                    = QString::number(Datas::I()->mesureacuite->ecartIP());
-
-            Datas::I()->refractions->CreationRefraction(listbinds);
-
-            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
-            if (!m_ok)
-                return;
-            if (patdata.size()==0)
-            {
-                requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
-                        " (idPat, DateRefOD, DateRefOG, QuelleMesure, QuelleDistance,"
-                        " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, AVLOD, AVPOD,"
-                        " SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, AVLOG, AVPOG, PD)"
-                        " VALUES (" +
-                        QString::number(idPatient)  + ", " +
-                        "NOW(), NOW(), '" +
-                        ConvertMesure(Mesure)               + "','" +
-                        ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "'," +
-                        QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                        QString::number(QLocale().toDouble(mCylOD))     + "," +
-                        mAxeOD     + "," +
-                        (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + ",'" +
-                        mAVLOD + "','" +
-                        mAVPOD + "'," +
-                        QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                        QString::number(QLocale().toDouble(mCylOG))     + "," +
-                        mAxeOG     + "," +
-                        (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
-                        mAVLOG + "','" +
-                        mAVPOG + "'," +
-                        PD + ")";
-
-                db->StandardSQL(requete, tr("Erreur création de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
-            }
-            else
-            {
-                requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
-                        " QuelleMesure = '" + ConvertMesure(Mesure) + "'," +
-                        " QuelleDistance = " + ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + ", " +
-                        " DateRefOD = NOW()," +
-                        " DateRefOG = NOW()," +
-                        " SphereOD = "      + QString::number(QLocale().toDouble(mSphereOD))  + "," +
-                        " CylindreOD = "    + QString::number(QLocale().toDouble(mCylOD))     + "," +
-                        " AxeCylindreOD = " + mAxeOD + "," +
-                        " AVLOD = '"        + mAVLOD + "'," +
-                        " AVPOD = '"        + mAVPOD + "'," +
-                        " SphereOG = "      + QString::number(QLocale().toDouble(mSphereOG))  + "," +
-                        " CylindreOG = "    + QString::number(QLocale().toDouble(mCylOG))     + "," +
-                        " AxeCylindreOG = " + mAxeOG + "," +
-                        " AVLOG = '"        + mAVLOG + "'," +
-                        " AVPOG = '"        + mAVPOG + "'," +
-                        " PD = "            + PD +
-                        " where idpat = "   + QString::number(idPatient);
-
-                db->StandardSQL (requete, tr("Erreur de mise à jour de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
-            }
+            db->StandardSQL (requete, tr("Erreur de mise à jour de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
+    if (Mesure != Fronto)
+        Datas::I()->patients->actualisedonneesophtapatients();
 }
