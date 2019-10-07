@@ -171,6 +171,8 @@ public:
             m_formuleOD = "";
             m_ecartIP = 0;
             m_isnullOD = true;
+            if (m_isnullOG)
+                m_cleandatas = true;
         }
     }
 
@@ -191,13 +193,19 @@ public:
             m_formuleOG = "";
             m_ecartIP = 0;
             m_isnullOG = true;
+            if (m_isnullOD)
+                m_cleandatas = true;
         }
     }
 
     bool isEqual(MesureRefraction *other) const
     {
         bool a = false;
-        if (m_typemesure == Refraction::Autoref)
+        if (isdataclean() && other->isdataclean())
+            return true;
+        else if (isdataclean() != other->isdataclean())
+            return false;
+        else if (m_typemesure == Refraction::Autoref)
         a = (int(m_sphereOD*100)           == int(other->sphereOD()*100)
                 && int(m_cylindreOD*100)   == int(other->cylindreOD()*100)
                 && m_axecylindreOD         == other->axecylindreOD()

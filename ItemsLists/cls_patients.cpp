@@ -59,6 +59,11 @@ void Patients::setdonneesophtapatients ()
         DataBase::I()->initDonnesOphtaPatient(m_currentpatient->id());
 }
 
+void Patients::actualisedonneesophtapatients ()
+{
+    DataBase::I()->initDonnesOphtaPatient(m_currentpatient->id());
+}
+
 
 /*! charge les données du patient corresondant à l'id * \brief Patients::getById
  * \param id l'id du patient recherché

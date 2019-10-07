@@ -44,33 +44,15 @@ public:
         case Refraction::Droit:
             m_pachyOD       = 0;
             m_isnullOD      = true;
+            if (m_isnullOG)
+                m_cleandatas = true;
             break;
         case Refraction::Gauche:
             m_pachyOG       = 0;
             m_isnullOG      = true;
+            if (m_isnullOD)
+                m_cleandatas = true;
             break;
-        }
-    }
-
-    void setnullOD()
-    {
-        if (m_isnullOG)
-            cleandatas();
-        else
-        {
-            m_pachyOD  = 0;
-            m_isnullOD = true;
-        }
-    }
-
-    void setnullOG()
-    {
-        if (m_isnullOD)
-            cleandatas();
-        else
-        {
-            m_pachyOG           = 0;
-            m_isnullOG = true;
         }
     }
 
@@ -160,33 +142,15 @@ public:
         case Refraction::Droit:
             m_TOD           = 0;
             m_isnullOD      = true;
+            if (m_isnullOG)
+                m_cleandatas = true;
             break;
         case Refraction::Gauche:
             m_TOG           = 0;
             m_isnullOG      = true;
+            if (m_isnullOD)
+                m_cleandatas = true;
             break;
-        }
-    }
-
-    void setnullOD()
-    {
-        if (m_isnullOG)
-            cleandatas();
-        else
-        {
-            m_TOD           = 0;
-            m_isnullOD = true;
-        }
-    }
-
-    void setnullOG()
-    {
-        if (m_isnullOD)
-            cleandatas();
-        else
-        {
-            m_TOG           = 0;
-            m_isnullOG = true;
         }
     }
 
@@ -231,18 +195,22 @@ public:
     }
     void setdatas(Tono *tono)
     {
-        if (tono->isdataclean())
+        if (tono->isdataclean()|| (tono->isnullLOD() && tono->isnullLOG()))
         {
             cleandatas();
             return;
         }
-        m_isnullOD      = tono->isnullLOD();
-        m_isnullOG      = tono->isnullLOG();
-        m_TOD           = tono->TOD();
-        m_TOG           = tono->TOG();
         m_heuremesure   = tono->heuremesure();
         m_modemesure    = tono->modemesure();
-        m_cleandatas    = tono->isdataclean();
+        if  (tono->isnullLOD())
+            cleandatas(Refraction::Droit);
+        else
+            setTOD(tono->TOD());
+        if  (tono->isnullLOG())
+            cleandatas(Refraction::Gauche);
+        else
+            setTOG(tono->TOG());
+        m_cleandatas    = false;
     }
 
 };

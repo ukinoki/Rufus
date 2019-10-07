@@ -22,8 +22,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     Datas::I();
 
-    // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("06-10-2019/1");       // doit impérativement être composé de date version / n°version;
+    //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
+    qApp->setApplicationVersion("07-10-2019/1");       //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -199,7 +199,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     connect (t_timerPosteConnecte,           &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
     connect (t_timerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
-    connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
+    connect (gTimerPatientsVus,              &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
 
     //! 7 - Nettoyage des erreurs éventuelles de la salle d'attente
     m_listepatientsencours->initListeAll();

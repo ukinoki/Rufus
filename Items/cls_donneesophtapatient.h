@@ -58,13 +58,11 @@ private:
     int m_axeKOD = 0;                   //!> AxeKOD
     double m_dioptriesK1OD = 0;         //!> diotries K1OD
     double m_dioptriesK2OD = 0;         //!> diotries K2OD
-    double m_dioptriesKOD = 0;          //!> diotries KMOD
     double m_K1OG = 0;                  //!> K1OG
     double m_K2OG = 0;                  //!> K2OG
     int m_axeKOG = 0;                   //!> AxeKOG
     double m_dioptriesK1OG = 0;         //!> diotries K1OG
     double m_dioptriesK2OG = 0;         //!> diotries K2OG
-    double m_dioptriesKOG = 0;          //!> diotries KMOG
 
     double m_sphereODautoref;           //!> sphereODautoref
     double m_cylindreODautoref;         //!> cylindreODautoref
@@ -106,15 +104,17 @@ public:
     double K1OD() const                 { return m_K1OD; }
     double K2OD() const                 { return m_K2OD; }
     int axeKOD() const                  { return m_axeKOD; }
-    double dioptrieK1OD() const         { return m_dioptriesK1OD; }
-    double dioptrieK2OD() const         { return m_dioptriesK2OD; }
-    double dioptrieKMOD() const         { return m_dioptriesKOD; }
+    double dioptriesK1OD() const        { return m_dioptriesK1OD; }
+    double dioptriesK2OD() const        { return m_dioptriesK2OD; }
+    double dioptriesKOD() const         { return (m_dioptriesK1OD - m_dioptriesK2OD); }
+    double dioptriesKMOD() const        { return (m_dioptriesK1OD + m_dioptriesK2OD)/2; }
     double K1OG() const                 { return m_K1OG; }
     double K2OG() const                 { return m_K2OG; }
     int axeKOG() const                  { return m_axeKOG; }
-    double dioptrieK1OG() const         { return m_dioptriesK1OG; }
-    double dioptrieK2OG() const         { return m_dioptriesK2OG; }
-    double dioptrieKMOG() const         { return m_dioptriesKOG; }
+    double dioptriesK1OG() const        { return m_dioptriesK1OG; }
+    double dioptriesK2OG() const        { return m_dioptriesK2OG; }
+    double dioptriesKMG() const         { return (m_dioptriesK1OG - m_dioptriesK2OG); }
+    double dioptriesKMOG() const        { return (m_dioptriesK1OG + m_dioptriesK2OG)/2; }
 
     double sphereODautoref() const      { return m_sphereODautoref; }
     double cylindreODautoref() const    { return m_cylindreODautoref; }

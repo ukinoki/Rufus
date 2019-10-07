@@ -537,7 +537,7 @@ void DataBase::initDonnesOphtaPatient(int idpat)
 
     req = "select " CP_K1OD_DATAOPHTA  ", " CP_K2OD_DATAOPHTA ", " CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", "
                     CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", "
-                    CP_DIOTRIESKMOD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ", " CP_DIOTRIESKMOG_DATAOPHTA
+                    CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA
                     " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " order by idmesure asc" ;
     ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
     if(ok && ophtadata.size() > 0)
@@ -552,10 +552,8 @@ void DataBase::initDonnesOphtaPatient(int idpat)
         data[CP_DATEKERATO_DATAOPHTA]           = ophtadata.at(7).toDate().toString("yyyy-MM-dd");
         data[CP_DIOTRIESK1OD_DATAOPHTA]         = ophtadata.at(8).toDouble();
         data[CP_DIOTRIESK2OD_DATAOPHTA]         = ophtadata.at(9).toDouble();
-        data[CP_DIOTRIESKMOD_DATAOPHTA]         = ophtadata.at(10).toDouble();
-        data[CP_DIOTRIESK1OG_DATAOPHTA]         = ophtadata.at(11).toDouble();
-        data[CP_DIOTRIESK2OG_DATAOPHTA]         = ophtadata.at(12).toDouble();
-        data[CP_DIOTRIESKMOG_DATAOPHTA]         = ophtadata.at(13).toDouble();
+        data[CP_DIOTRIESK1OG_DATAOPHTA]         = ophtadata.at(10).toDouble();
+        data[CP_DIOTRIESK2OG_DATAOPHTA]         = ophtadata.at(11).toDouble();
     }
 
     req = "select " CP_ID_DATAOPHTA ", " CP_DISTANCE_DATAOPHTA ", " CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", "

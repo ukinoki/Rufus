@@ -56,10 +56,8 @@ void DonneesOphtaPatient::setData(QJsonObject data)
     setDataInt(data, CP_ECARTIP_DATAOPHTA, m_ecartIP);
     setDataDouble(data, CP_DIOTRIESK1OD_DATAOPHTA, m_dioptriesK1OD);
     setDataDouble(data, CP_DIOTRIESK2OD_DATAOPHTA, m_dioptriesK2OD);
-    setDataDouble(data, CP_DIOTRIESKMOD_DATAOPHTA, m_dioptriesKOD);
     setDataDouble(data, CP_DIOTRIESK1OG_DATAOPHTA, m_dioptriesK1OG);
     setDataDouble(data, CP_DIOTRIESK2OG_DATAOPHTA, m_dioptriesK2OG);
-    setDataDouble(data, CP_DIOTRIESKMOG_DATAOPHTA, m_dioptriesKOG);
 
     setDataInt(data, CP_ID_DATAOPHTA "A", m_idautoref);
     setDataDouble(data, CP_SPHEREOD_DATAOPHTA "A", m_sphereODautoref);

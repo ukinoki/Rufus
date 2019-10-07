@@ -48,6 +48,7 @@ public:
 
     DonneesOphtaPatient* donneesophtapatients();
     void setdonneesophtapatients ();
+    void actualisedonneesophtapatients ();
 
 
     Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge le patient corresondant à l'id

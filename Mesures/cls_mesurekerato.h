@@ -38,22 +38,24 @@ private:
     double m_dioptriesK2OG  = 0;
     int m_AxeKOG            = 0;
     bool m_cleandatas       = true;
-    bool m_isnullOD         = true;         //!> aucune mesure n'a été effectuée à droite
-    bool m_isnullOG         = true;         //!> aucune mesure n'a été effectuée à gauche
+    bool m_isnullOD         = true;     //!> aucune mesure n'a été effectuée à droite
+    bool m_isnullOG         = true;     //!> aucune mesure n'a été effectuée à gauche
 
 public:
-    double K1OD() const                   { return m_K1OD; }
-    double K2OD() const                   { return m_K2OD; }
-    double dioptriesK1OD() const          { return m_dioptriesK1OD; }
-    double dioptriesK2OD() const          { return m_dioptriesK2OD; }
-    int axeKOD() const                    { return m_AxeKOD; }
-    double K1OG() const                   { return m_K1OG; }
-    double K2OG() const                   { return m_K2OG; }
-    double dioptriesK1OG() const          { return m_dioptriesK1OG; }
-    double dioptriesK2OG() const          { return m_dioptriesK2OG; }
-    int axeKOG() const                    { return m_AxeKOG; }
-    double dioptriesKOD() const           { return m_dioptriesK1OD - m_dioptriesK2OD; }
-    double dioptriesKOG() const           { return m_dioptriesK1OG - m_dioptriesK2OG; }
+    double K1OD() const                 { return m_K1OD; }
+    double K2OD() const                 { return m_K2OD; }
+    int axeKOD() const                  { return m_AxeKOD; }
+    double dioptriesK1OD() const        { return m_dioptriesK1OD; }
+    double dioptriesK2OD() const        { return m_dioptriesK2OD; }
+    double dioptriesKOD() const         { return m_dioptriesK1OD - m_dioptriesK2OD; }
+    double dioptriesKMOD() const        { return (m_dioptriesK1OD + m_dioptriesK2OD)/2; }
+    double K1OG() const                 { return m_K1OG; }
+    double K2OG() const                 { return m_K2OG; }
+    int axeKOG() const                  { return m_AxeKOG; }
+    double dioptriesK1OG() const        { return m_dioptriesK1OG; }
+    double dioptriesK2OG() const        { return m_dioptriesK2OG; }
+    double dioptriesKOG() const         { return m_dioptriesK1OG - m_dioptriesK2OG; }
+    double dioptriesKMOG() const        { return (m_dioptriesK1OG + m_dioptriesK2OG)/2; }
 
     void setK1OD(double val)            { m_K1OD = val; m_cleandatas = false; m_isnullOD = false; }
     void setK2OD(double val)            { m_K2OD = val; m_cleandatas = false; m_isnullOD = false; }
@@ -94,6 +96,8 @@ public:
             m_dioptriesK2OD  = 0;
             m_AxeKOD         = 0;
             m_isnullOD       = true;
+            if (m_isnullOG)
+                m_cleandatas = true;
             break;
         case Refraction::Gauche:
             m_K1OG           = 0;
@@ -102,66 +106,52 @@ public:
             m_dioptriesK2OG  = 0;
             m_AxeKOG         = 0;
             m_isnullOG       = true;
+            if (m_isnullOD)
+                m_cleandatas = true;
             break;
         }
     }
 
     void setdatas(MesureKerato *ker)
     {
-        if (ker->isdataclean())
+        if (ker->isdataclean() || (ker->isnullLOD() && ker->isnullLOG()))
         {
             cleandatas();
             return;
         }
-        m_isnullOD       = ker->isnullLOD();
-        m_isnullOG       = ker->isnullLOG();
-        m_K1OD           = ker->K1OD();
-        m_K2OD           = ker->K2OD();
-        m_dioptriesK1OD  = ker->dioptriesK1OD();
-        m_dioptriesK2OD  = ker->dioptriesK2OD();
-        m_AxeKOD         = ker->axeKOD();
-        m_K1OG           = ker->K1OG();
-        m_K2OG           = ker->K2OG();
-        m_dioptriesK1OG  = ker->dioptriesK1OG();
-        m_dioptriesK2OG  = ker->dioptriesK2OG();
-        m_AxeKOG         = ker->axeKOG();
-        m_cleandatas     = ker->isdataclean();
-    }
-
-    void setnullOD()
-    {
-        if (m_isnullOG)
-            cleandatas();
+        if  (ker->isnullLOD())
+            cleandatas(Refraction::Droit);
         else
         {
-            m_K1OD           = 0;
-            m_K2OD           = 0;
-            m_dioptriesK1OD  = 0;
-            m_dioptriesK2OD  = 0;
-            m_AxeKOD         = 0;
-            m_isnullOD = true;
+            m_isnullOD       = false;
+            m_K1OD           = ker->K1OD();
+            m_K2OD           = ker->K2OD();
+            m_dioptriesK1OD  = ker->dioptriesK1OD();
+            m_dioptriesK2OD  = ker->dioptriesK2OD();
+            m_AxeKOD         = ker->axeKOD();
         }
-    }
-
-    void setnullOG()
-    {
-        if (m_isnullOD)
-            cleandatas();
+        if  (ker->isnullLOG())
+            cleandatas(Refraction::Gauche);
         else
         {
-            m_K1OG           = 0;
-            m_K2OG           = 0;
-            m_dioptriesK1OG  = 0;
-            m_dioptriesK2OG  = 0;
-            m_AxeKOG         = 0;
-            m_isnullOG = true;
+            m_isnullOG       = false;
+            m_K1OG           = ker->K1OG();
+            m_K2OG           = ker->K2OG();
+            m_dioptriesK1OG  = ker->dioptriesK1OG();
+            m_dioptriesK2OG  = ker->dioptriesK2OG();
+            m_AxeKOG         = ker->axeKOG();
         }
+        m_cleandatas     = false;
     }
 
     bool isEqual(MesureKerato *other) const
     {
         bool a = false;
-        if (isnullLOD() && !isnullLOG())
+        if (isdataclean() && other->isdataclean())
+            return true;
+        else if (isdataclean() != other->isdataclean())
+            return false;
+        else if (isnullLOD() && !isnullLOG())
             a = (  other->isnullLOD()
                 && !other->isnullLOG()
                 && int(m_K1OG*100) == int(other->K1OG()*100)

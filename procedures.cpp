@@ -910,7 +910,6 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     return Corps;
 }
 
-//TODO : à déplacer
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -6020,7 +6019,7 @@ void Procedures::setHtmlKerato()
         QString mDioptrK1OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OD(),'f',1);
         QString mDioptrK2OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OD(),'f',1);
         QString mDioptrKOD  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOD());
-        QString mDioptrmOD  = QString::number((Datas::I()->mesurekerato->dioptriesK1OD() + Datas::I()->mesurekerato->dioptriesK2OD())/2,'f',2);
+        QString mDioptrmOD  = QString::number(Datas::I()->mesurekerato->dioptriesKMOD(),'f',2);
         if (QLocale().toDouble(mDioptrK1OD)!=0.0)
             kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + "/" + mK2OD + " Km = " + mDioptrmOD + "</td>"
@@ -6038,7 +6037,7 @@ void Procedures::setHtmlKerato()
         QString mDioptrK1OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OG(),'f',1);
         QString mDioptrK2OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OG(),'f',1);
         QString mDioptrKOG  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOG());
-        QString mDioptrmOG  = QString::number((Datas::I()->mesurekerato->dioptriesK1OG() + Datas::I()->mesurekerato->dioptriesK2OG())/2,'f',2);
+        QString mDioptrmOG  = QString::number(Datas::I()->mesurekerato->dioptriesKMOG(),'f',2);
         if (QLocale().toDouble(mDioptrK1OG)!=0.0)
             kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OG + "/" + mK2OG + " Km = " + mDioptrmOG + "</td>"
@@ -6359,43 +6358,68 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             );
         if (!a)
         {
-            QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
+            QString req = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Autoref) + "'";
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
             if (!m_ok)
                 return;
             if (patdata.size()==0)
             {
-                requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
-                        " (idPat, QuelleMesure, DateK, K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG, OrigineK)"
+                req = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
+                        " (" CP_IDPATIENT_DATAOPHTA ", " CP_MESURE_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_K1OD_DATAOPHTA ", " CP_K2OD_DATAOPHTA ", "
+                             CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", " CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", "
+                             CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ")"
                         " VALUES (" +
                         QString::number(idPatient)  + ", '" +
                         ConvertMesure(Autoref) + "', "
                         "NOW(), " +
-                        QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2)   + "," +
-                        QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2)   + "," +
-                        QString::number(Datas::I()->mesurekerato->axeKOD()) + "," +
-                        QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2)   + "," +
-                        QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2)   + "," +
-                        QString::number(Datas::I()->mesurekerato->axeKOG()) + ", '" +
-                        ConvertMesure(Autoref) + "')";
+                        (Datas::I()->mesurekerato->K1OD() == 0.0? QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2) : "null")   + "," +
+                        (Datas::I()->mesurekerato->K2OD() == 0.0? QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2) : "null")   + "," +
+                        (Datas::I()->mesurekerato->axeKOD() == 0? QString::number(Datas::I()->mesurekerato->axeKOD()) : "null") + "," +
+                        (Datas::I()->mesurekerato->K1OG() == 0.0? QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2) : "null")   + "," +
+                        (Datas::I()->mesurekerato->K2OG() == 0.0? QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2) : "null")   + "," +
+                        (Datas::I()->mesurekerato->axeKOG() == 0? QString::number(Datas::I()->mesurekerato->axeKOG()) : "null") + ", '" +
+                        (Datas::I()->mesurekerato->dioptriesK1OD() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2) : "null") + "," +
+                        (Datas::I()->mesurekerato->dioptriesK2OD() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2) : "null")   + "," +
+                        (Datas::I()->mesurekerato->dioptriesK1OG() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2) : "null")   + "," +
+                        (Datas::I()->mesurekerato->dioptriesK2OG() == 0.0? QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2) : "null") + ", '" +
+                        ConvertMesure(Autoref) +
+                        "')";
 
-                db->StandardSQL (requete, tr("Erreur de création de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
+                db->StandardSQL (req, tr("Erreur de création de données kératométrie  dans ") + TBL_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
-                requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
-                        " DateK = NOW(),"
-                        " K1OD = " + QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2)  + "," +
-                        " K2OD = " + QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2)  + "," +
-                        " AxeKOD = " + QString::number(Datas::I()->mesurekerato->axeKOD())  + "," +
-                        " K1OG = " + QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2)  + "," +
-                        " K2OG = " + QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2)  + "," +
-                        " AxeKOG = " + QString::number(Datas::I()->mesurekerato->axeKOG())  + "," +
-                        " OrigineK = '" + ConvertMesure(Autoref) + "'" +
-                        " where idpat = "+ QString::number(idPatient);
+                req = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set"
+                        CP_DATEKERATO_DATAOPHTA " = NOW(), "
+                        CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
+                if (!Datas::I()->mesurekerato->isnullLOD())
+                {
+                    req +=
+                        ", " CP_K1OD_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2) +
+                        ", " CP_K2OD_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2) +
+                        ", " CP_AXEKOD_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->axeKOD());
+                    if (Datas::I()->mesurekerato->dioptriesK1OD() > 0)
+                        req +=
+                            ", " CP_DIOTRIESK1OD_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2)  +
+                            ", " CP_DIOTRIESK2OD_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2);
 
-                db->StandardSQL (requete, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
+                }
+                if (!Datas::I()->mesurekerato->isnullLOG())
+                {
+                    req +=
+                        ", " CP_K1OG_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2) +
+                        ", " CP_K2OG_DATAOPHTA   " = " + QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2) +
+                        ", " CP_AXEKOG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->axeKOG()) ;
+                    if (Datas::I()->mesurekerato->dioptriesK1OG() > 0)
+                        req +=
+                            ", " CP_DIOTRIESK1OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2)  +
+                            ", " CP_DIOTRIESK2OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2);
+
+                }
+                req += " where idpat = "+ QString::number(idPatient);
+                db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
             }
+            Datas::I()->patients->setdonneesophtapatients();
         }
     }
     if (!Datas::I()->mesureacuite->isdataclean() && Mesure == Subjectif)
