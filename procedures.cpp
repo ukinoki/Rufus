@@ -4646,7 +4646,12 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
 
 void Procedures::LectureDonneesRefracteur(QString Mesure)
 {
-    ClearHtmlMesures();
+    m_htmlMesureFronto.clear();
+    m_htmlMesureAutoref.clear();
+    m_htmlMesureKerato.clear();
+    m_htmlMesureRefracteurSubjectif.clear();
+    m_htmlMesureRefracteurFinal.clear();
+    m_htmlMesureTono.clear();
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
@@ -5234,8 +5239,6 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
 
 void Procedures::LectureDonneesFronto(QString Mesure)
 {
-    ClearMesures();
-    ClearHtmlMesures();
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
@@ -5247,6 +5250,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
     QString mAddOG      = "+0.00";
     QString mesureOD, mesureOG;
     Datas::I()->mesurefronto->cleandatas();
+    m_htmlMesureFronto.clear();
 
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (m_settings->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
@@ -5552,7 +5556,6 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 if (!Datas::I()->tono->isdataclean())
                 {
                     setHtmlTono();
-                    emit NouvMesureRefraction(Tono);
                     QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
                             + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
                             + QString::number(Datas::I()->tono->TOD()) + ","
@@ -5583,9 +5586,8 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 
 void Procedures::LectureDonneesAutoref(QString Mesure)
 {
-    ClearMesures();
-    ClearHtmlMesures();
     //Edit(Mesure);
+    m_htmlMesureAutoref.clear();
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
     QString mAxeOD      = "000";
@@ -5855,6 +5857,7 @@ PL04.7N
                     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
             {
                 // Données de KERATOMETRIE --------------------------------------------------------------------------------------------------------
+                m_htmlMesureKerato.clear();
                 if (Mesure.contains("DKM"))                 //=> il y a une mesure de keratometrie
                 {
                     Datas::I()->mesurekerato->cleandatas();
@@ -5896,6 +5899,8 @@ PL04.7N
         }
         if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
         {
+            m_htmlMesureTono.clear();
+            m_htmlMesurePachy.clear();
             // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
             Datas::I()->tono->cleandatas();
             if (Mesure.contains("DNT"))                 //=> il y a une mesure de tonometrie
@@ -6232,23 +6237,28 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
         if (Datas::I()->mesurefronto->addVPOD() > 0 || Datas::I()->mesurefronto->addVPOG() > 0)
             listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = "2";
-
-        listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOD();
-        listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOD();
-        listbinds[CP_AXECYLOD_REFRACTIONS]              = Datas::I()->mesurefronto->axecylindreOD();
-        if (Datas::I()->mesurefronto->addVPOD() > 0)
-            listbinds[CP_ADDVPOD_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOD();
-        listbinds[CP_FORMULEOD_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"D");
-        listbinds[CP_ODMESURE_REFRACTIONS]              = 1;
-
-        listbinds[CP_SPHEREOG_REFRACTIONS]              = Datas::I()->mesurefronto->sphereOG();
-        listbinds[CP_CYLINDREOG_REFRACTIONS]            = Datas::I()->mesurefronto->cylindreOG();
-        listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesurefronto->axecylindreOG();
-        if (Datas::I()->mesurefronto->addVPOG() > 0)
-            listbinds[CP_ADDVPOG_REFRACTIONS]           = Datas::I()->mesurefronto->addVPOG();
-        listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesurefronto,"G");
-        listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
-        listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesurefronto->ecartIP();
+        if (!Datas::I()->mesurefronto->isnullLOD())
+        {
+            listbinds[CP_SPHEREOD_REFRACTIONS]          = Datas::I()->mesurefronto->sphereOD();
+            listbinds[CP_CYLINDREOD_REFRACTIONS]        = Datas::I()->mesurefronto->cylindreOD();
+            listbinds[CP_AXECYLOD_REFRACTIONS]          = Datas::I()->mesurefronto->axecylindreOD();
+            if (Datas::I()->mesurefronto->addVPOD() > 0)
+                listbinds[CP_ADDVPOD_REFRACTIONS]       = Datas::I()->mesurefronto->addVPOD();
+            listbinds[CP_FORMULEOD_REFRACTIONS]         = CalculeFormule(Datas::I()->mesurefronto,"D");
+            listbinds[CP_ODMESURE_REFRACTIONS]          = 1;
+        }
+        if (!Datas::I()->mesurefronto->isnullLOG())
+        {
+            listbinds[CP_SPHEREOG_REFRACTIONS]          = Datas::I()->mesurefronto->sphereOG();
+            listbinds[CP_CYLINDREOG_REFRACTIONS]        = Datas::I()->mesurefronto->cylindreOG();
+            listbinds[CP_AXECYLOG_REFRACTIONS]          = Datas::I()->mesurefronto->axecylindreOG();
+            if (Datas::I()->mesurefronto->addVPOG() > 0)
+                listbinds[CP_ADDVPOG_REFRACTIONS]       = Datas::I()->mesurefronto->addVPOG();
+            listbinds[CP_FORMULEOG_REFRACTIONS]         = CalculeFormule(Datas::I()->mesurefronto,"G");
+            listbinds[CP_OGMESURE_REFRACTIONS]          = 1;
+        }
+        if (!Datas::I()->mesurefronto->isnullLOD() && !Datas::I()->mesurefronto->isnullLOG())
+            listbinds[CP_PD_REFRACTIONS]                = Datas::I()->mesurefronto->ecartIP();
         Datas::I()->refractions->CreationRefraction(listbinds);
     }
     if (Mesure == Autoref)

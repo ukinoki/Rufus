@@ -9813,11 +9813,6 @@ void Rufus::NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilis
         ARajouterEnText= proc->HtmlKerato();
         break;
     }
-    case Procedures::Tono:
-    {
-        ARajouterEnText= proc->HtmlTono();
-        break;
-    }
     case Procedures::Pachy:
     {
         ARajouterEnText= proc->HtmlPachy();
@@ -9830,7 +9825,6 @@ void Rufus::NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilis
         ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
     ui->ActeTextetextEdit->setFocus();
     ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-
 }
 
 
