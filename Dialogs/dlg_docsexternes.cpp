@@ -303,9 +303,12 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
         }
     };
 
-    int imp = 1;
-    if (imptce == Min) imp = 0;
-    else if (imptce == Max) imp = 2;
+    int imp;
+    switch (imptce) {
+    case Min:   imp = 0; break;
+    case Norm:  imp = 1; break;
+    case Max:   imp = 2; break;
+    }
     QStandardItem *item = getItemFromDocument(m_modele, docmt);
     if (item == Q_NULLPTR)
         return;
@@ -321,8 +324,11 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
 
     bool hasimportants = false;
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
-        while (!hasimportants)
-            hasimportants = (doc->importance() == 2);
+    {
+        hasimportants = (doc->importance() == 2);
+        if (hasimportants)
+            break;
+    }
     wdg_onlyimportantsdocsupcheckbox->setEnabled( hasimportants || wdg_onlyimportantsdocsupcheckbox->isChecked());
 }
 
@@ -923,7 +929,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
 {
     DocExterne *docmt = getDocumentFromIndex(idx);
     UpDialog * dlg              = new UpDialog();
-    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);;
+    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
     QDateEdit   *dateedit       = new QDateEdit(dlg);
     UpLabel     *label          = new UpLabel(dlg);
     dlg->dlglayout()->insertWidget(0,dateedit);
@@ -1249,7 +1255,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         {
             //static int eventEnumIndex = QEvent::staticMetaObject.indexOfEnumerator("Type");
             //qDebug() << QEvent::staticMetaObject.enumerator(eventEnumIndex).valueToKey(event->type());
-            ZoomDoc();;
+            ZoomDoc();
         }
 
      }

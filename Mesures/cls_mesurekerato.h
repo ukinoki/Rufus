@@ -49,6 +49,7 @@ public:
     double dioptriesK2OD() const        { return m_dioptriesK2OD; }
     double dioptriesKOD() const         { return m_dioptriesK1OD - m_dioptriesK2OD; }
     double dioptriesKMOD() const        { return (m_dioptriesK1OD + m_dioptriesK2OD)/2; }
+
     double K1OG() const                 { return m_K1OG; }
     double K2OG() const                 { return m_K2OG; }
     int axeKOG() const                  { return m_AxeKOG; }
@@ -62,11 +63,12 @@ public:
     void setdioptriesK1OD(double val)   { m_dioptriesK1OD = val; m_cleandatas = false; m_isnullOD = false; }
     void setdioptriesK2OD(double val)   { m_dioptriesK2OD = val; m_cleandatas = false; m_isnullOD = false; }
     void setaxeKOD(int axe)             { m_AxeKOD = axe; m_cleandatas = false; m_isnullOD = false; }
+
     void setK1OG(double val)            { m_K1OG = val; m_cleandatas = false; m_isnullOG = false; }
     void setK2OG(double val)            { m_K2OG = val; m_cleandatas = false; m_isnullOG = false; }
     void setdioptriesK1OG(double val)   { m_dioptriesK1OG = val; m_cleandatas = false; m_isnullOG = false; }
     void setdioptriesK2OG(double val)   { m_dioptriesK2OG = val; m_cleandatas = false; m_isnullOG = false; }
-    void setaxeKOG(int axe)             { m_AxeKOD = axe; m_cleandatas = false; m_isnullOG = false; }
+    void setaxeKOG(int axe)             { m_AxeKOG = axe; m_cleandatas = false; m_isnullOG = false; }
 
     bool isdataclean() const            { return m_cleandatas; }
     bool isnullLOD() const              { return m_isnullOD; }

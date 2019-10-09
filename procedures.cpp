@@ -2273,7 +2273,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QDir rootimgvid = dirtorestore;
         if (rootimgvid.cdUp())
         {
-            qDebug() << rootimgvid.absolutePath() + DIR_IMAGES;
+            //qDebug() << rootimgvid.absolutePath() + DIR_IMAGES;
             if (QDir(rootimgvid.absolutePath() + DIR_IMAGES).exists())
                 if (QDir(rootimgvid.absolutePath() + DIR_IMAGES).entryList(QDir::Dirs).size()>0)
                     OKImages = true;
@@ -6053,7 +6053,7 @@ void Procedures::setHtmlKerato()
                       "<td width=\"180\">"  + mK1OG +  tr(" à ") + mAxeKOG + "°/" + mK2OG
                       + " Km = " + mDioptrmOG + "</td></p>";
     }
-    m_htmlMesureKerato  = kerato;
+    m_htmlMesureKerato = kerato;
 }
 
 // -------------------------------------------------------------------------------------
@@ -6336,7 +6336,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
                     CP_CYLINDREOG_DATAOPHTA " = "    + QString::number(QLocale().toDouble(mCylOG))     + ", " +
                     CP_AXECYLINDREOG_DATAOPHTA " = " + mAxeOG + ", " +
                     CP_ECARTIP_DATAOPHTA " = "       + PD +
-                    " where " CP_IDPATIENT_DATAOPHTA " = "   + QString::number(idPatient);
+                    " where " CP_IDPATIENT_DATAOPHTA " = "   + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
 
             db->StandardSQL (requete, tr("Erreur de mise à jour de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
@@ -6400,7 +6400,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
                             ", " CP_DIOTRIESK2OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2);
 
             }
-            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient);
+            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Autoref) + "'";
             db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
@@ -6515,7 +6515,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
                     CP_AVLOG_DATAOPHTA " = '"       + mAVLOG + "'," +
                     CP_AVPOG_DATAOPHTA " = '"       + mAVPOG + "'," +
                     CP_ECARTIP_DATAOPHTA " = "      + PD +
-                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient);
+                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Subjectif) + "'";
 
             db->StandardSQL (requete, tr("Erreur de mise à jour de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }

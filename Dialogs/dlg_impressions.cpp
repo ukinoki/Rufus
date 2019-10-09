@@ -922,27 +922,20 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         if (a == false) return;
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),5));
         Impression *impr = getDocumentFromRow(line->Row());
-        QString b = "null";
-        if (lbl->pixmap() == Q_NULLPTR)
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+        impr->setmedical(!impr->ismedical());
+        if (impr->ismedical())
+            lbl->clear();                                           //! le document était administratif et devient médical
         else
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));    //! le document était médical et devient administratif
+        ui->DocAdministratifcheckBox->setChecked(!impr->ismedical());
+        QString val = (impr->ismedical()? "1" : "null");
+        db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_MEDICAL_IMPRESSIONS " = " + val + " where " CP_ID_IMPRESSIONS " = " +  QString::number(impr->id()));
+        if (impr->isprescription() && !impr->ismedical())
         {
-            b = "1";
-            lbl->clear();
-        }
-        ui->DocAdministratifcheckBox->toggle();
-        if (m_mode == Selection)
-        {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_MEDICAL_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
+            impr->setprescription(false);
+            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_PRESCRIPTION_IMPRESSIONS " = null where " CP_ID_IMPRESSIONS " = " +
                             QString::number(impr->id()));
-            impr->setmedical(b == 1);
-            if (impr->isprescription() && !impr->ismedical())
-            {
-                impr->setprescription(false);
-                db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_PRESCRIPTION_IMPRESSIONS " = null where " CP_ID_IMPRESSIONS " = " +
-                                QString::number(impr->id()));
-                ui->PrescriptioncheckBox->setChecked(false);
-            }
+            ui->PrescriptioncheckBox->setChecked(false);
         }
     }
     else if (choix  == "PublicDossier")
@@ -1627,7 +1620,7 @@ void dlg_impressions::Validation()
                         QString titre                   = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->text();
                         datasdocaimprimer.insert(Titre, titre);
                         datasdocaimprimer.insert(Prescription, (impr->isprescription()? "1": ""));
-                        datasdocaimprimer.insert(Administratif, (impr->ismedical()? "1": ""));
+                        datasdocaimprimer.insert(Administratif, (impr->ismedical()? "": "1"));
                         datasdocaimprimer.insert(Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
                         // on visualise le document pour correction s'il est éditable
                         txtdoc                          = (impr->iseditable()? proc->Edit(txtdoc, titre): txtdoc);

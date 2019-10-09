@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("08-10-2019/1");       //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version;
+    qApp->setApplicationVersion("09-10-2019/1");       //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5484,8 +5484,8 @@ void Rufus::VerifVerrouDossier()
             qDebug() << "m_currentuser->id()" << m_currentuser->id();
             qDebug() << "post->macadress()" << post->macadress();
             qDebug() << "Utils::getMACAdress()" << Utils::getMACAdress();
-            //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 120 secondes
-            //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
+            //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
+            //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
             int length                  = blabla.size();
             foreach (PatientEnCours* pat, m_listepatientsencours->patientsencours()->values())
@@ -9785,7 +9785,9 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     return true;
 }
 
-void Rufus::NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
+void Rufus::
+
+NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
     if (findChildren<dlg_refraction*>().size()>0)
         return;

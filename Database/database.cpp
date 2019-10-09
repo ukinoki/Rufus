@@ -518,6 +518,7 @@ void DataBase::initDonnesOphtaPatient(int idpat)
     QString req = "select " CP_ID_DATAOPHTA ", " CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", "
                             CP_SPHEREOG_DATAOPHTA ", " CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_ECARTIP_DATAOPHTA
                             " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " and " CP_MESURE_DATAOPHTA " = 'A' order by idmesure asc" ;
+    //qDebug() << req;
     QVariantList ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
     if(ok && ophtadata.size() > 0)
     {
