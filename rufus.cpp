@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-10-2019/1");
+    qApp->setApplicationVersion("11-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8585,22 +8585,21 @@ void Rufus::SetDatasRefractionKerato()
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
     if (!Datas::I()->mesurefronto ->isdataclean())
         Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
+    if (DataBase::I()->donneesophtapatient()->ismesurekerato())
+    {
+        Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesophtapatient()->K1OD());
+        Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesophtapatient()->K2OD());
+        Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesophtapatient()->axeKOD());
+        Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesophtapatient()->dioptriesK1OD());
+        Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesophtapatient()->dioptriesK2OD());
+        Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesophtapatient()->K1OG());
+        Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesophtapatient()->K2OG());
+        Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesophtapatient()->axeKOG());
+        Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesophtapatient()->dioptriesK1OG());
+        Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesophtapatient()->dioptriesK2OG());
+    }
 
-    Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesophtapatient()->K1OD());
-    Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesophtapatient()->K2OD());
-    Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesophtapatient()->axeKOD());
-    Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesophtapatient()->dioptriesK1OD());
-    Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesophtapatient()->dioptriesK2OD());
-    Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesophtapatient()->K1OG());
-    Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesophtapatient()->K2OG());
-    Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesophtapatient()->axeKOG());
-    Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesophtapatient()->dioptriesK1OG());
-    Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesophtapatient()->dioptriesK2OG());
-
-//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureautoref->isdataclean()) " << Datas::I()->mesureautoref->isdataclean();
-//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesurekerato->isdataclean()) " << Datas::I()->mesurekerato->isdataclean();
-//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesureacuite->isdataclean()) " << Datas::I()->mesureacuite->isdataclean();
-//    qDebug() <<  "SetDatasRefractionKerato() - Datas::I()->mesurefinal->isdataclean()) " << Datas::I()->mesurefinal->isdataclean();
+    //proc->debugMesure(Datas::I()->mesurekerato);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

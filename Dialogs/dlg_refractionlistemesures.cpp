@@ -145,11 +145,33 @@ void dlg_refractionlistemesures::DetruireLaMesure(Refraction *ref)
     QString mesure = Refraction::ConvertMesure(ref->typemesure());
     if (mesure != "")
     {
-        QString requete = "DELETE  FROM " TBL_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
+        QString req ("");
+        switch (ref->typemesure()) {
+        case Refraction::Acuite:
+            req = "DELETE  FROM " TBL_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
                     + mesure + "' and idpat = " + QString::number(ref->idpat());
-        db->StandardSQL(requete, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
+            db->StandardSQL(req, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
+            break;
+        case Refraction::Autoref:
+            req = "update "  TBL_DONNEES_OPHTA_PATIENTS " set "
+                    CP_SPHEREOD_DATAOPHTA           " = null, "
+                    CP_CYLINDREOD_DATAOPHTA         " = null, "
+                    CP_AXECYLINDREOD_DATAOPHTA      " = null, "
+                    CP_DATEREFRACTIONOD_DATAOPHTA   " = null, "
+                    CP_SPHEREOG_DATAOPHTA           " = null, "
+                    CP_CYLINDREOG_DATAOPHTA         " = null, "
+                    CP_AXECYLINDREOG_DATAOPHTA      " = null, "
+                    CP_DATEREFRACTIONOG_DATAOPHTA   " = null, "
+                    CP_ECARTIP_DATAOPHTA            " = null "
+                    " WHERE  QuelleMesure = '" + mesure + "' and idpat = " + QString::number(ref->idpat());
+            db->StandardSQL(req, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
+            break;
+        default:
+            break;
+        }
     }
     Datas::I()->refractions->SupprimeRefraction(ref);
+    Datas::I()->patients->actualisedonneesophtapatient();
 }
 
 Refraction* dlg_refractionlistemesures::RefractionAOuvrir() const

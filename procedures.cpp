@@ -4437,12 +4437,13 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
             return;
         }
     }
-    LectureDonneesRefracteur(m_mesureSerie);
+    if (!LectureDonneesRefracteur(m_mesureSerie))
+        return;
     setHtmlRefracteur();
     if (!Datas::I()->mesureacuite->isdataclean())
     {
-        emit NouvMesureRefraction(Subjectif);
         InsertRefraction(Subjectif);
+        emit NouvMesureRefraction(Subjectif);
     }
 }
 
@@ -4652,7 +4653,7 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     return reponse;
 }
 
-void Procedures::LectureDonneesRefracteur(QString Mesure)
+bool Procedures::LectureDonneesRefracteur(QString Mesure)
 {
     m_htmlMesureFronto.clear();
     m_htmlMesureAutoref.clear();
@@ -4677,6 +4678,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
     QString K1OD("null"), K2OD("null"), K1OG("null"), K2OG("null");
     int     AxeKOD(0), AxeKOG(0);
     QString mTOOD(""), mTOOG("");
+
+    bool dataok = false;
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
@@ -4709,6 +4712,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@LM"))                 //=> il y a une mesure pour le fronto
         {
+            dataok = true;
             MesureRefraction        *oldMesureFronto = new MesureRefraction();
             oldMesureFronto         ->setdatas(Datas::I()->mesurefronto);
             Datas::I()->mesurefronto->cleandatas();
@@ -4754,6 +4758,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
         if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
         {
+            dataok = true;
             MesureRefraction        *oldMesureAutoref = new MesureRefraction();
             oldMesureAutoref        ->setdatas(Datas::I()->mesureautoref);
             Datas::I()->mesureautoref->cleandatas();
@@ -4794,6 +4799,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
 
         if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie - cette mesure ne peut qu'avoir été effectuée par un autoref connecté directement à la box du refraacteur
         {
+            dataok = true;
             MesureKerato  *oldMesureKerato = new MesureKerato();
             oldMesureKerato->setdatas(Datas::I()->mesurekerato);
             Datas::I()->mesurekerato->cleandatas();
@@ -4846,6 +4852,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
         {
+            dataok = true;
             idx                         = Mesure.indexOf("@RT");
             QString SectionRefracteur   = Mesure.right(Mesure.length()-idx);
 
@@ -4950,6 +4957,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
         {
+            dataok = true;
             class Tono  *oldMesureTono = new class Tono();
             oldMesureTono->setdatas(Datas::I()->tono);
             Datas::I()->tono->cleandatas();
@@ -4979,6 +4987,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
+    return dataok;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5218,8 +5227,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
             return;
         }
     }
-    LectureDonneesFronto(m_mesureSerie);
-    if (Datas::I()->mesurefronto->isdataclean())
+    if (!LectureDonneesFronto(m_mesureSerie))
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
@@ -5234,11 +5242,11 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         }
     }
     setHtmlFronto();
-    emit NouvMesureRefraction(Fronto);
     InsertRefraction(Fronto);
+    emit NouvMesureRefraction(Fronto);
 }
 
-void Procedures::LectureDonneesFronto(QString Mesure)
+bool Procedures::LectureDonneesFronto(QString Mesure)
 {
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
@@ -5252,6 +5260,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
     QString mesureOD, mesureOG;
     Datas::I()->mesurefronto->cleandatas();
     m_htmlMesureFronto.clear();
+    bool dataok = false;
 
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (m_settings->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
@@ -5273,6 +5282,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         int idxOD = Mesure.indexOf("LR");
         if (idxOD > 0)
         {
+            dataok = true;
             mesureOD            = Mesure.mid(idxOD+2,15)   .replace(" ","0");
             mSphereOD            = mesureOD.mid(0,6);
             mCylOD               = mesureOD.mid(6,6);
@@ -5288,6 +5298,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         int idxOG = Mesure.indexOf("LL");
         if (idxOG > 0)
         {
+            dataok = true;
             mesureOG            = Mesure.mid(idxOG+2,15)   .replace(" ","0");
             mSphereOG            = mesureOG.mid(0,6);
             mCylOG               = mesureOG.mid(6,6);
@@ -5312,6 +5323,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         int idxOD = Mesure.indexOf("R: ");
         if (idxOD > 0)
         {
+            dataok = true;
             mesureOD            = Mesure.mid(idxOD+3);
             mSphereOD           = mesureOD.mid(mesureOD.indexOf("S=")+2,6);
             mCylOD              = mesureOD.mid(mesureOD.indexOf("C=")+2,6);
@@ -5326,6 +5338,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         int idxOG = Mesure.indexOf("L: ");
         if (idxOG > 0)
         {
+            dataok = true;
             mesureOG            = Mesure.mid(idxOG+3);
             mSphereOG           = mesureOG.mid(mesureOG.indexOf("S=")+2,6);
             mCylOG              = mesureOG.mid(mesureOG.indexOf("C=")+2,6);
@@ -5346,6 +5359,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         int idxOD = Mesure.indexOf(" R");
         if (idxOD > 0)
         {
+            dataok = true;
             mesureOD            = Mesure.mid(idxOD+2,15)   .replace(" ","0");
             mSphereOD            = mesureOD.mid(0,6);
             mCylOD               = mesureOD.mid(6,6);
@@ -5361,6 +5375,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
         int idxOG = Mesure.indexOf(" L");
         if (idxOG > 0)
         {
+            dataok = true;
             mesureOG            = Mesure.mid(idxOG+2,15)   .replace(" ","0");
             mSphereOG            = mesureOG.mid(0,6);
             mCylOG               = mesureOG.mid(6,6);
@@ -5373,6 +5388,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
             Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
         }
     }
+    return dataok;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5519,8 +5535,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             PortAutoref()->waitForBytesWritten(100);
         }
     }
-    LectureDonneesAutoref(m_mesureSerie);
-    if (Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
+    if (!LectureDonneesAutoref(m_mesureSerie))
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
@@ -5543,14 +5558,14 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 if (!Datas::I()->mesurekerato->isdataclean())
                 {
                     setHtmlKerato();
-                    emit NouvMesureRefraction(Kerato);
                     InsertRefraction(Kerato);
+                    emit NouvMesureRefraction(Kerato);
                 }
                 if (!Datas::I()->mesureautoref->isdataclean())
                 {
                     setHtmlAutoref();
-                    emit NouvMesureRefraction(Autoref);
                     InsertRefraction(Autoref);
+                    emit NouvMesureRefraction(Autoref);
                 }
             }
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
@@ -5569,13 +5584,13 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 if (!Datas::I()->pachy->isdataclean())
                 {
                     setHtmlPachy();
-                    emit NouvMesureRefraction(Pachy);
                     QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
                             + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
                             + QString::number(Datas::I()->pachy->pachyOD()) + ","
                             + QString::number(Datas::I()->pachy->pachyOG())
                             + ", now(), '" + Pachy::ConvertMesure(Pachy::Optique) + "')";
                     DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+                    emit NouvMesureRefraction(Pachy);
                 }
             }
             //Dans un premier temps, le PC envoie la requête d'envoi de données
@@ -5586,7 +5601,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
     }
 }
 
-void Procedures::LectureDonneesAutoref(QString Mesure)
+bool Procedures::LectureDonneesAutoref(QString Mesure)
 {
     //Edit(Mesure);
     m_htmlMesureAutoref.clear();
@@ -5603,6 +5618,8 @@ void Procedures::LectureDonneesAutoref(QString Mesure)
     QString K1OD("null"), K2OD("null"), K1OG("null"), K2OG("null");
     int     AxeKOD(0), AxeKOG(0);
     int     a(0);
+
+    bool dataok = false;
 
     QString test;
     test =
@@ -5820,6 +5837,7 @@ PL04.7N
             // OEIL DROIT -----------------------------------------------------------------------------
             if (a>=0)
             {
+                dataok = true;
                 mesureOD             = Ref.mid(Ref.indexOf("OR")+2,15)   .replace(" ","0");
                 mSphereOD            = mesureOD.mid(0,6);
                 mCylOD               = mesureOD.mid(6,6);
@@ -5832,6 +5850,7 @@ PL04.7N
             a  = Ref.indexOf("OL");
             if (a>=0)
             {
+                dataok = true;
                 mesureOG             = Ref.mid(Ref.indexOf("OL")+2,15)   .replace(" ","0");
                 mSphereOG            = mesureOG.mid(0,6);
                 mCylOG               = mesureOG.mid(6,6);
@@ -5896,7 +5915,9 @@ PL04.7N
                         Datas::I()->mesurekerato->setdioptriesK1OG(mOG.mid(0,5).toDouble());
                         Datas::I()->mesurekerato->setdioptriesK2OG(mOG.mid(5,5).toDouble());
                     }
-                 }
+                    if (K1OD !="null" || K1OG != "null")
+                            dataok = true;
+                }
             }
         }
         if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
@@ -5928,6 +5949,8 @@ PL04.7N
                     b               = TonoOG.indexOf("AV");
                     TonoOG          = TonoOG.mid(b+2,2).replace(" ","0");
                 }
+                if (TonoOD != "" || TonoOG != "")
+                    dataok = true;
                 Datas::I()->tono->setTOD(TonoOD.toInt());
                 Datas::I()->tono->setTOG(TonoOG.toInt());
                 Datas::I()->tono->setmodemesure(Tono::Air);
@@ -5944,6 +5967,8 @@ PL04.7N
                     PachyOD         = Pachy.mid(Pachy.indexOf(" R")+6,3);
                 if (Pachy.indexOf(" L")>=0)
                     PachyOG         = Pachy.mid(Pachy.indexOf(" L")+6,3);
+                if (PachyOD != "" || PachyOG != "")
+                    dataok = true;
                 Datas::I()->pachy->setpachyOD(PachyOD.toInt());
                 Datas::I()->pachy->setpachyOG(PachyOG.toInt());
                 Datas::I()->pachy->setmodemesure(Pachy::Optique);
@@ -5951,6 +5976,7 @@ PL04.7N
         }
     }
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
+    return dataok;
 }
 
 
@@ -6523,5 +6549,5 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         }
     }
     if (Mesure != Fronto)
-        Datas::I()->patients->actualisedonneesophtapatients();
+        Datas::I()->patients->actualisedonneesophtapatient();
 }

@@ -450,6 +450,7 @@ public:
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();
+    void                    debugMesure(QObject *mesure, QString titre = "");
     //LE FRONTO ----------------------------------------------------
     QString                 HtmlFronto();                           // accesseur pour le html de mesure fronto à afficher;
     //L'AUTOREF ----------------------------------------------------
@@ -474,34 +475,33 @@ private:
                                                                     //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    ClearMesures();
     void                    ClearHtmlMesures();
-    void                    debugMesure(QObject *mesure, QString titre = "");
     bool                    Ouverture_Ports_Series();
-                                                                    // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
+
     //LE FRONTO ----------------------------------------------------
     QString                 m_htmlMesureFronto;
-    void                    LectureDonneesFronto(QString Mesure);       // détermine le QMap MesureFronto à partir de la mesure relevée sur le port série du fronto
-    void                    setHtmlFronto();                        // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
-    bool                    m_isnewMesureFronto;                    // détermine si la mesure provient du fronto ou du dossier
+    bool                    LectureDonneesFronto(QString Mesure);           // lit les données envoyées sur le port série du fronto
+    void                    setHtmlFronto();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
+    bool                    m_isnewMesureFronto;                            // détermine si la mesure provient du fronto ou du dossier
     //L'AUTOREF ----------------------------------------------------
     QMap<QString,QVariant>  map_dataAEnvoyerAuRefracteur;
     QString                 m_htmlMesureAutoref;
     QString                 m_htmlMesureKerato;
     QString                 m_htmlMesureTono;
     QString                 m_htmlMesurePachy;
-    void                    LectureDonneesAutoref(QString Mesure);          // détermine les QMap MesureAutoref, MesureKerato et MesureTono à partir de la mesure relevée sur le port série du fronto
+    bool                    LectureDonneesAutoref(QString Mesure);          // lit les données envoyées sur le port série du fronto
     void                    setHtmlAutoref();                               // détermine le html à inscrire dans la fiche observation à partir du QMap MesureAutoref
     void                    setHtmlKerato();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
     void                    setHtmlTono();                                  // détermine le html à inscrire dans la fiche observation à partir du QMap MesureTono
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
     bool                    m_isnewMesureAutoref;                           // détermine si la mesure d'autoref provient de l'autoref ou du dossier
     bool                    m_isnewMesureKerato;                            // détermine si la mesure de kerato provient de l'autoref ou du dossier
-    bool                    m_isnewMesureTono;                            // détermine si la mesure de tono provient de l'autoref ou du dossier
+    bool                    m_isnewMesureTono;                              // détermine si la mesure de tono provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
     QString                 m_htmlMesureRefracteurSubjectif;
     QMap<QString,QVariant>  map_mesureRefracteurFinal;
     QString                 m_htmlMesureRefracteurFinal;
-    void                    LectureDonneesRefracteur(QString Mesure);   // détermine le QMap MesureRefracteur à partir de la mesure relevée sur le port série du refracteur
-    void                    setHtmlRefracteur();                    // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif
+    bool                    LectureDonneesRefracteur(QString Mesure);       // lit les données envoyées sur le port série du refracteur
+    void                    setHtmlRefracteur();                            // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif
     void                    RegleRefracteur();
     void                    ReponsePortSerie_Autoref(const QString &s);
     void                    ReponsePortSerie_Fronto(const QString &s);

@@ -59,7 +59,7 @@ void Patients::setdonneesophtapatients ()
         DataBase::I()->initDonnesOphtaPatient(m_currentpatient->id());
 }
 
-void Patients::actualisedonneesophtapatients ()
+void Patients::actualisedonneesophtapatient ()
 {
     DataBase::I()->initDonnesOphtaPatient(m_currentpatient->id());
 }

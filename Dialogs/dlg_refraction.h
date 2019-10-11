@@ -172,7 +172,6 @@ private:
 
 // les connexions aux appareils de mesure
 private:
-    double                  m_mesureDioptrAstigmOD, m_mesureDioptrAstigmOG;
     void                    NouvMesureRefraction(Procedures::TypeMesure TypeMesure);
 public:
     void                    AfficheMesureFronto();

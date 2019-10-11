@@ -923,8 +923,6 @@ void dlg_refraction::Init_variables()
     m_commentaire           = CommentaireObligatoire();
     m_commentaireresume     = "";
     m_escapeflag              = true;
-    m_mesureDioptrAstigmOD            = 0;
-    m_mesureDioptrAstigmOG            = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1718,6 +1716,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
+   Datas::I()->patients->actualisedonneesophtapatient();
 }
 
 //---------------------------------------------------------------------------------
@@ -2748,20 +2747,20 @@ void dlg_refraction::ResumeObservation()
         QString kerato = "";
         if (QLocale().toDouble(ui->K1OD->text())>0 && m_modeouverture == Manuel)
         {
-            if (m_mesureDioptrAstigmOD!=0.0)
+            if (DataBase::I()->donneesophtapatient()->dioptriesKOD()!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OD->text() + "/" + ui->K2OD->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2)
-                        + "</td><td width=\"120\">" + QString::number(m_mesureDioptrAstigmOD,'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
+                        + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesophtapatient()->dioptriesKOD(),'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
             else
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
         if (QLocale().toDouble(ui->K1OG->text())>0 && m_modeouverture == Manuel)
         {
-            if (m_mesureDioptrAstigmOG!=0.0)
+            if (DataBase::I()->donneesophtapatient()->dioptriesKOG()!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() + "/" + ui->K2OG->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2)
-                        + "</td><td width=\"120\">" + QString::number(m_mesureDioptrAstigmOG,'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
+                        + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesophtapatient()->dioptriesKOG(),'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
             else
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
@@ -3795,6 +3794,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
     //proc->Edit(UpdateDOPrequete);
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
+    Datas::I()->patients->actualisedonneesophtapatient();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -3862,9 +3862,6 @@ void dlg_refraction::AfficheMesureAutoref()
         UpMessageBox::Watch(this, tr("pas de données reçues de l'autorefractomètre"));
         return;
     }
-    m_mesureDioptrAstigmOD        = 0;
-    m_mesureDioptrAstigmOG        = 0;
-
     AutorefRadioButton_Clicked();
 
     // OEIL DROIT -----------------------------------------------------------------------------
@@ -3884,23 +3881,33 @@ void dlg_refraction::AfficheMesureAutoref()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheKerato()
 {
-    if (!Datas::I()->mesurekerato->isdataclean())
+    if (DataBase::I()->donneesophtapatient()->ismesurekerato())
     {
         // OEIL DROIT -----------------------------------------------------------------------------
-        if (!Datas::I()->mesurekerato->isnullLOD())
+        if (DataBase::I()->donneesophtapatient()->K1OD() >0)
         {
-            ui->K1OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2 ));
-            ui->K2OD            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2 ));
-            ui->AxeKOD          ->setText(QString::number(Datas::I()->mesurekerato->axeKOD()));
-            m_mesureDioptrAstigmOD        = Datas::I()->mesurekerato->dioptriesKOD();
+            ui->K1OD            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K1OD(),'f',2 ));
+            ui->K2OD            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K2OD(),'f',2 ));
+            ui->AxeKOD          ->setText(QString::number(DataBase::I()->donneesophtapatient()->axeKOD()));
+        }
+        else
+        {
+            ui->K1OD            ->clear();
+            ui->K2OD            ->clear();
+            ui->AxeKOD          ->clear();
         }
         // OEIL GAUCHE ---------------------------------------------------------------------------
-        if (!Datas::I()->mesurekerato->isnullLOG())
+        if (DataBase::I()->donneesophtapatient()->K1OG() >0)
         {
-            ui->K1OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2 ));
-            ui->K2OG            ->setText(QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2 ));
-            ui->AxeKOG          ->setText(QString::number(Datas::I()->mesurekerato->axeKOG()));
-            m_mesureDioptrAstigmOG        = Datas::I()->mesurekerato->dioptriesKOG();
+            ui->K1OG            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K1OG(),'f',2 ));
+            ui->K2OG            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K2OG(),'f',2 ));
+            ui->AxeKOG          ->setText(QString::number(DataBase::I()->donneesophtapatient()->axeKOG()));
+        }
+        else
+        {
+            ui->K1OG            ->clear();
+            ui->K2OG            ->clear();
+            ui->AxeKOG          ->clear();
         }
     }
 }
