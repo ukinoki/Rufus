@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("11-10-2019/1");
+    qApp->setApplicationVersion("12-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6339,7 +6339,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->ActeMotiftextEdit->setFocus();
     }
     //4 - rapel des réfractions et réglage du refracteur
-    Datas::I()->patients->setdonneesophtapatients();
+    Datas::I()->patients->setDonneesOphtaCurrentPatient();
     Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     SetDatasRefractionKerato();
     if (proc->PortRefracteur()!=Q_NULLPTR)
@@ -8585,18 +8585,18 @@ void Rufus::SetDatasRefractionKerato()
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
     if (!Datas::I()->mesurefronto ->isdataclean())
         Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
-    if (DataBase::I()->donneesophtapatient()->ismesurekerato())
+    if (DataBase::I()->donneesOphtaPatient()->ismesurekerato())
     {
-        Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesophtapatient()->K1OD());
-        Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesophtapatient()->K2OD());
-        Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesophtapatient()->axeKOD());
-        Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesophtapatient()->dioptriesK1OD());
-        Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesophtapatient()->dioptriesK2OD());
-        Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesophtapatient()->K1OG());
-        Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesophtapatient()->K2OG());
-        Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesophtapatient()->axeKOG());
-        Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesophtapatient()->dioptriesK1OG());
-        Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesophtapatient()->dioptriesK2OG());
+        Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesOphtaPatient()->K1OD());
+        Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesOphtaPatient()->K2OD());
+        Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesOphtaPatient()->axeKOD());
+        Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesOphtaPatient()->dioptriesK1OD());
+        Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesOphtaPatient()->dioptriesK2OD());
+        Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesOphtaPatient()->K1OG());
+        Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesOphtaPatient()->K2OG());
+        Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesOphtaPatient()->axeKOG());
+        Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesOphtaPatient()->dioptriesK1OG());
+        Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesOphtaPatient()->dioptriesK2OG());
     }
 
     //proc->debugMesure(Datas::I()->mesurekerato);
@@ -9795,36 +9795,39 @@ NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilisé pour ouvr
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-    QString ARajouterEnText ("");
+
     switch (TypeMesure) {
     case  Procedures::Final:
     case  Procedures::Subjectif:
     {
-        ARajouterEnText= proc->HtmlRefracteur();
+        if (proc->HtmlRefracteur() != "")
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlRefracteur()));
         RefractionMesure(dlg_refraction::Auto);
         break;
     }
     case Procedures::Autoref:
-        ARajouterEnText= proc->HtmlAutoref();
+        if (proc->HtmlAutoref() != "")
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlAutoref()));
         break;
     case Procedures::Fronto:
-        ARajouterEnText= proc->HtmlFronto();
+        if (proc->HtmlFronto() != "")
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlFronto()));
         break;
     case Procedures::Kerato:
     {
-        ARajouterEnText= proc->HtmlKerato();
+        if (proc->HtmlKerato() != "")
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlKerato()));
         break;
     }
     case Procedures::Pachy:
     {
-        ARajouterEnText= proc->HtmlPachy();
+        if (proc->HtmlPachy() != "")
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlPachy()));
         break;
     }
     default:
         RefractionMesure(dlg_refraction::Manuel);
     }
-    if (ARajouterEnText != "")
-        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
     ui->ActeTextetextEdit->setFocus();
     ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
 }

@@ -49,7 +49,7 @@ public:
     void        settable(QString tablecorrespondant);
     QString     table() const;
     void        setText(const QString &text);
-    QString     appendHtml(QString &appendtext, QString ancredebut = "", QString ancrefin = "",  bool supprimeLesLignesVidesDuMilieu = false);
+    QString     appendHtml(QString appendtext, QString ancredebut = "", QString ancrefin = "",  bool supprimeLesLignesVidesDuMilieu = false);
 
 private:
     void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;

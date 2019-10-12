@@ -187,7 +187,7 @@ public:
      * Donnees ophta patient
     */
     void initDonnesOphtaPatient(int idpat);                     //! charge les données optha d'un patient
-    DonneesOphtaPatient* donneesophtapatient();
+    DonneesOphtaPatient* donneesOphtaPatient();
     /*
      * Users
     */

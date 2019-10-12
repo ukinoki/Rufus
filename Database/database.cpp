@@ -592,7 +592,7 @@ void DataBase::initDonnesOphtaPatient(int idpat)
     return;
 }
 
-DonneesOphtaPatient* DataBase::donneesophtapatient()
+DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 {
     return m_donneesophtapatient;
 }

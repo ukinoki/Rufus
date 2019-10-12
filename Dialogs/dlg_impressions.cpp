@@ -2760,30 +2760,64 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
 
     if (texte.contains("{{" + KERATO + "}}"))
     {
-        QString req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " TBL_DONNEES_OPHTA_PATIENTS
-              " where idpat = " + QString::number(m_currentpatient->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
-        QList<QVariantList> listker = db->StandardSelectSQL(req,m_ok);
-        if (listker.size()>0)
+        if (DataBase::I()->donneesOphtaPatient()->ismesurekerato())
         {
-            QVariantList ker = listker.last();
             QString kerato = "";
-            if (ker.at(0).toDouble()>0)
+            if (DataBase::I()->donneesOphtaPatient()->K1OD() >0)
             {
-                if (ker.at(3).toDouble()!=0.0)
-                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOD:") + "</b></font> " + QString::number(ker.at(0).toDouble(),'f',2) + "/" + QString::number(ker.at(1).toDouble(),'f',2) + " Km = " + QString::number((ker.at(0).toDouble() + ker.at(1).toDouble())/2,'f',2) +
-                              " - " + QString::number(ker.at(3).toDouble(),'f',2) + "/" + QString::number(ker.at(4).toDouble(),'f',2) + " " + QString::number(ker.at(5).toDouble(),'f',2) +  " à " + ker.at(2).toString() + "°</td></p>";
+                if (DataBase::I()->donneesOphtaPatient()->dioptriesK1OD()!=0.0)
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOD:") + "</b></font> "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K1OD(),'f',2)
+                            + "/"
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K2OD(),'f',2)
+                            + " Km = "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->KMOD(),'f',2)
+                            + " - "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesK1OD(),'f',2)
+                            + "/"
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesK2OD(),'f',2)
+                            + " "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesKOD(),'f',2)
+                            +  " à "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->axeKOD()) + "°";
                 else
-                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOD:") + "</b></font> " + QString::number(ker.at(0).toDouble(),'f',2) + " à " + ker.at(2).toString() + "°/" + QString::number(ker.at(1).toDouble(),'f',2) + " Km = " + QString::number((ker.at(0).toDouble() + ker.at(1).toDouble())/2,'f',2) ;
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOD:") + "</b></font> "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K1OD(),'f',2)
+                            + " à "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->axeKOD())
+                            + "°/"
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K2OD(),'f',2)
+                            + " Km = "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->KMOD(),'f',2) ;
             }
-            if (ker.at(0).toDouble()>0 && ker.at(6).toDouble()>0)
+            if (DataBase::I()->donneesOphtaPatient()->dioptriesK1OD()!=0.0 && DataBase::I()->donneesOphtaPatient()->dioptriesK1OG()!=0.0)
                 kerato += "<br/>";
-            if (ker.at(6).toDouble()>0.0)
+            if (DataBase::I()->donneesOphtaPatient()->K1OG() >0)
             {
-                if (ker.at(9).toDouble()!=0.0)
-                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOG:") + "</b></font> " + QString::number(ker.at(6).toDouble(),'f',2) + "/" +QString::number( ker.at(7).toDouble(),'f',2) + " Km = " + QString::number((ker.at(6).toDouble() + ker.at(7).toDouble())/2,'f',2) +
-                            " - " + QString::number(ker.at(9).toDouble(),'f',2) + "/" + QString::number(ker.at(10).toDouble(),'f',2) + " " + QString::number(ker.at(11).toDouble(),'f',2) +  " à " + ker.at(8).toString() + "°</td></p>";
+                if (DataBase::I()->donneesOphtaPatient()->dioptriesK1OG()!=0.0)
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOG:") + "</b></font> "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K1OG(),'f',2)
+                            + "/"
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K2OG(),'f',2)
+                            + " Km = "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->KMOG(),'f',2)
+                            + " - "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesK1OG(),'f',2)
+                            + "/"
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesK2OG(),'f',2)
+                            + " "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesKOG(),'f',2)
+                            +  " à "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->axeKOG()) + "°";
                 else
-                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOG:") + "</b></font> " + QString::number(ker.at(6).toDouble(),'f',2) + " à " + ker.at(8).toString() + "°/" + QString::number(ker.at(7).toDouble(),'f',2) + " Km = " + QString::number((ker.at(6).toDouble() + ker.at(7).toDouble())/2,'f',2) ;
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOG:") + "</b></font> "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K1OG(),'f',2)
+                            + " à "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->axeKOG())
+                            + "°/"
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->K2OG(),'f',2)
+                            + " Km = "
+                            + QString::number(DataBase::I()->donneesOphtaPatient()->KMOG(),'f',2) ;
             }
             texte.replace("{{" + KERATO + "}}",kerato);
         }
@@ -2817,7 +2851,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
             if (okOD)
                 refract += "<font color = " COULEUR_TITRES "><b>" + tr("OD:") + "</b></font> " + formuleOD;
             if (okOD && okOG)
-                refract += "<br />";
+                refract += "<br/>";
             if (okOG)
                 refract += "<font color = " COULEUR_TITRES "><b>" + tr("OG:") + "</b></font> " + formuleOG;
             texte.replace("{{" + REFRACT + "}}",refract);

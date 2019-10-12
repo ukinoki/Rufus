@@ -1716,7 +1716,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
-   Datas::I()->patients->actualisedonneesophtapatient();
+   Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }
 
 //---------------------------------------------------------------------------------
@@ -2747,20 +2747,20 @@ void dlg_refraction::ResumeObservation()
         QString kerato = "";
         if (QLocale().toDouble(ui->K1OD->text())>0 && m_modeouverture == Manuel)
         {
-            if (DataBase::I()->donneesophtapatient()->dioptriesKOD()!=0.0)
+            if (DataBase::I()->donneesOphtaPatient()->dioptriesKOD()!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OD->text() + "/" + ui->K2OD->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2)
-                        + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesophtapatient()->dioptriesKOD(),'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
+                        + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesKOD(),'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
             else
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
         if (QLocale().toDouble(ui->K1OG->text())>0 && m_modeouverture == Manuel)
         {
-            if (DataBase::I()->donneesophtapatient()->dioptriesKOG()!=0.0)
+            if (DataBase::I()->donneesOphtaPatient()->dioptriesKOG()!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() + "/" + ui->K2OG->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2)
-                        + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesophtapatient()->dioptriesKOG(),'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
+                        + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesKOG(),'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
             else
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
@@ -3794,7 +3794,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
     //proc->Edit(UpdateDOPrequete);
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
-    Datas::I()->patients->actualisedonneesophtapatient();
+    Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -3881,14 +3881,14 @@ void dlg_refraction::AfficheMesureAutoref()
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheKerato()
 {
-    if (DataBase::I()->donneesophtapatient()->ismesurekerato())
+    if (DataBase::I()->donneesOphtaPatient()->ismesurekerato())
     {
         // OEIL DROIT -----------------------------------------------------------------------------
-        if (DataBase::I()->donneesophtapatient()->K1OD() >0)
+        if (DataBase::I()->donneesOphtaPatient()->K1OD() >0)
         {
-            ui->K1OD            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K1OD(),'f',2 ));
-            ui->K2OD            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K2OD(),'f',2 ));
-            ui->AxeKOD          ->setText(QString::number(DataBase::I()->donneesophtapatient()->axeKOD()));
+            ui->K1OD            ->setText(QLocale().toString(DataBase::I()->donneesOphtaPatient()->K1OD(),'f',2 ));
+            ui->K2OD            ->setText(QLocale().toString(DataBase::I()->donneesOphtaPatient()->K2OD(),'f',2 ));
+            ui->AxeKOD          ->setText(QString::number(DataBase::I()->donneesOphtaPatient()->axeKOD()));
         }
         else
         {
@@ -3897,11 +3897,11 @@ void dlg_refraction::AfficheKerato()
             ui->AxeKOD          ->clear();
         }
         // OEIL GAUCHE ---------------------------------------------------------------------------
-        if (DataBase::I()->donneesophtapatient()->K1OG() >0)
+        if (DataBase::I()->donneesOphtaPatient()->K1OG() >0)
         {
-            ui->K1OG            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K1OG(),'f',2 ));
-            ui->K2OG            ->setText(QLocale().toString(DataBase::I()->donneesophtapatient()->K2OG(),'f',2 ));
-            ui->AxeKOG          ->setText(QString::number(DataBase::I()->donneesophtapatient()->axeKOG()));
+            ui->K1OG            ->setText(QLocale().toString(DataBase::I()->donneesOphtaPatient()->K1OG(),'f',2 ));
+            ui->K2OG            ->setText(QLocale().toString(DataBase::I()->donneesOphtaPatient()->K2OG(),'f',2 ));
+            ui->AxeKOG          ->setText(QString::number(DataBase::I()->donneesOphtaPatient()->axeKOG()));
         }
         else
         {

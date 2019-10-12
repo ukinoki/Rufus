@@ -171,7 +171,7 @@ void dlg_refractionlistemesures::DetruireLaMesure(Refraction *ref)
         }
     }
     Datas::I()->refractions->SupprimeRefraction(ref);
-    Datas::I()->patients->actualisedonneesophtapatient();
+    Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }
 
 Refraction* dlg_refractionlistemesures::RefractionAOuvrir() const

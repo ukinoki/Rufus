@@ -51,6 +51,7 @@ private:
 
     //!< les données mesurées par l'autoref : kératométrie et autoref
     int m_idautoref = 0;                //!> le no de l'enregistrement d'autoref dans la table
+
     QDate m_dateK = QDate();            //!> date keratométrie
     QString m_origineK = "";            //!> origine de la mesure de keratométrie A = autoref T = Topographe
     double m_K1OD = 0;                  //!> K1OD
@@ -103,6 +104,7 @@ public:
     QString origineK() const            { return m_origineK; }
     double K1OD() const                 { return m_K1OD; }
     double K2OD() const                 { return m_K2OD; }
+    double KMOD() const                 { return (m_K1OD + m_K2OD)/2;}
     int axeKOD() const                  { return m_axeKOD; }
     double dioptriesK1OD() const        { return m_dioptriesK1OD; }
     double dioptriesK2OD() const        { return m_dioptriesK2OD; }
@@ -110,6 +112,7 @@ public:
     double dioptriesKMOD() const        { return (m_dioptriesK1OD + m_dioptriesK2OD)/2; }
     double K1OG() const                 { return m_K1OG; }
     double K2OG() const                 { return m_K2OG; }
+    double KMOG() const                 { return (m_K1OG + m_K2OG)/2;}
     int axeKOG() const                  { return m_axeKOG; }
     double dioptriesK1OG() const        { return m_dioptriesK1OG; }
     double dioptriesK2OG() const        { return m_dioptriesK2OG; }

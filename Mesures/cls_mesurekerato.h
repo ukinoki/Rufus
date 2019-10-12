@@ -44,6 +44,7 @@ private:
 public:
     double K1OD() const                 { return m_K1OD; }
     double K2OD() const                 { return m_K2OD; }
+    double KMOD() const                 { return (m_K1OD + m_K2OG)/2;}
     int axeKOD() const                  { return m_AxeKOD; }
     double dioptriesK1OD() const        { return m_dioptriesK1OD; }
     double dioptriesK2OD() const        { return m_dioptriesK2OD; }
@@ -52,6 +53,7 @@ public:
 
     double K1OG() const                 { return m_K1OG; }
     double K2OG() const                 { return m_K2OG; }
+    double KMOG() const                 { return (m_K1OG + m_K2OG)/2;}
     int axeKOG() const                  { return m_AxeKOG; }
     double dioptriesK1OG() const        { return m_dioptriesK1OG; }
     double dioptriesK2OG() const        { return m_dioptriesK2OG; }

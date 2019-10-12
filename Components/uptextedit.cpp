@@ -317,7 +317,7 @@ void UpTextEdit::setText(const QString &text)
         QTextEdit::setText(text);
 }
 
-QString UpTextEdit::appendHtml(QString &appendtext, QString ancredebut, QString ancrefin, bool supprimeLesLignesVidesDuMilieu)
+QString UpTextEdit::appendHtml(QString appendtext, QString ancredebut, QString ancrefin, bool supprimeLesLignesVidesDuMilieu)
 {
     QString texte = toHtml();
     if (ancredebut != "")

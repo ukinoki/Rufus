@@ -6049,6 +6049,7 @@ void Procedures::setHtmlKerato()
     {
         QString mK1OD       = QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2);
         QString mK2OD       = QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2);
+        QString mKOD        = QLocale().toString(Datas::I()->mesurekerato->KMOD(),'f',2);
         QString mAxeKOD     = QString::number(Datas::I()->mesurekerato->axeKOD());
         QString mDioptrK1OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OD(),'f',1);
         QString mDioptrK2OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OD(),'f',1);
@@ -6056,7 +6057,7 @@ void Procedures::setHtmlKerato()
         QString mDioptrmOD  = QString::number(Datas::I()->mesurekerato->dioptriesKMOD(),'f',2);
         if (QLocale().toDouble(mDioptrK1OD)!=0.0)
             kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
-                      "<td width=\"180\">" + mK1OD + "/" + mK2OD + " Km = " + mDioptrmOD + "</td>"
+                      "<td width=\"180\">" + mK1OD + "/" + mK2OD + " Km = " + mKOD + "</td>"
                       "<td width=\"180\">" + mDioptrK1OD + "/" + mDioptrK2OD + " " + mDioptrKOD +  tr(" à ") + mAxeKOD + "°</td></p>";
         else
             kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
@@ -6067,6 +6068,7 @@ void Procedures::setHtmlKerato()
     {
         QString mK1OG       = QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2);
         QString mK2OG       = QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2);
+        QString mKOG        = QLocale().toString(Datas::I()->mesurekerato->KMOG(),'f',2);
         QString mAxeKOG     = QString::number(Datas::I()->mesurekerato->axeKOG());
         QString mDioptrK1OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OG(),'f',1);
         QString mDioptrK2OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OG(),'f',1);
@@ -6074,7 +6076,7 @@ void Procedures::setHtmlKerato()
         QString mDioptrmOG  = QString::number(Datas::I()->mesurekerato->dioptriesKMOG(),'f',2);
         if (QLocale().toDouble(mDioptrK1OG)!=0.0)
             kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
-                      "<td width=\"180\">" + mK1OG + "/" + mK2OG + " Km = " + mDioptrmOG + "</td>"
+                      "<td width=\"180\">" + mK1OG + "/" + mK2OG + " Km = " + mKOG + "</td>"
                       "<td width=\"180\">" + mDioptrK1OG + "/" + mDioptrK2OG + " " + mDioptrKOG +  tr(" à ") + mAxeKOG + "°</td></p>";
         else
             kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
@@ -6549,5 +6551,5 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         }
     }
     if (Mesure != Fronto)
-        Datas::I()->patients->actualisedonneesophtapatient();
+        Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }

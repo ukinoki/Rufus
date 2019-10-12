@@ -48,18 +48,18 @@ void Patients::setdossierpatientaouvrir(int id)
     DataBase::I()->loadPatientById(id, m_dossierpatientaouvrir, Item::LoadDetails);
 }
 
-DonneesOphtaPatient* Patients::donneesophtapatients()
+DonneesOphtaPatient* Patients::donneesophtacurrentpatient()
 {
-    setdonneesophtapatients();
-    return DataBase::I()->donneesophtapatient();
+    setDonneesOphtaCurrentPatient();
+    return DataBase::I()->donneesOphtaPatient();
 }
-void Patients::setdonneesophtapatients ()
+void Patients::setDonneesOphtaCurrentPatient()
 {
-    if(DataBase::I()->donneesophtapatient()->id() != m_currentpatient->id())
+    if(DataBase::I()->donneesOphtaPatient()->id() != m_currentpatient->id())
         DataBase::I()->initDonnesOphtaPatient(m_currentpatient->id());
 }
 
-void Patients::actualisedonneesophtapatient ()
+void Patients::actualiseDonneesOphtaCurrentPatient()
 {
     DataBase::I()->initDonnesOphtaPatient(m_currentpatient->id());
 }
