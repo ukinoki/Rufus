@@ -283,7 +283,7 @@ private:
     void                AfficheActe(Acte *acte);
     void                AfficheActeCompta(Acte *acte);
     void                AfficheDossier(Patient *pat, int idacte = 0);
-    void                AfficheMessageImport(QStringList listmsg, int pause, bool bottom=true);
+    void                AfficheMessageImport(QStringList listmsg, int pause);
     bool                AutorDepartConsult(bool ChgtDossier);
     QString             CalcHtmlIdentificationPatient(Patient *pat);
     QIcon               CalcIconPatient(Patient *pat);                              //!> renvoie l'icone qui représente le patient dans le html et sur le tab

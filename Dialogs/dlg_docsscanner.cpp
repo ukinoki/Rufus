@@ -47,7 +47,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet \"ce poste\" /Onglet \"") + NomOnglet + "</b></font>";
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 6000, false);
+        Message::I()->TrayMessage(listmsg, 6000);
         m_initok = false;
         return;
     }
@@ -317,7 +317,7 @@ void dlg_docsscanner::ValideFiche()
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 3000, false);
+        Message::I()->TrayMessage(listmsg, 3000);
         return;
     }
 
@@ -458,7 +458,7 @@ void dlg_docsscanner::ValideFiche()
     case Facture:       msg = tr("Facture ") + sstypedoc +  tr(" enregistrée");     break;
     case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;
     }
-    dlg_message(QStringList() << msg, 1000, false);
+    Message::I()->TrayMessage(QStringList() << msg, 1000);
     accept();
 }
 

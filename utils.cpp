@@ -336,7 +336,7 @@ bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfer
         QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + QObject::tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 3000, false);
+        Message::I()->TrayMessage(listmsg, 3000);
         return false;
     }
     /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
@@ -346,7 +346,7 @@ bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfer
         QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + QObject::tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 3000, false);
+        Message::I()->TrayMessage(listmsg, 3000);
         return false;
     }
 

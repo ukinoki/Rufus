@@ -365,7 +365,7 @@ QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &O
 
 void DataBase::VideDatabases()
 {
-    dlg_message(tr("Suppression de l'ancienne base Rufus en cours"));
+    Message::I()->TrayMessage(tr("Suppression de l'ancienne base Rufus en cours"));
     StandardSQL ("drop database if exists " DB_COMPTA );
     StandardSQL ("drop database if exists " DB_OPHTA );
     StandardSQL ("drop database if exists " DB_CONSULTS );

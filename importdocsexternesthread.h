@@ -242,7 +242,7 @@ public:
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
 signals:
-    void                        emitmsg(QStringList m_listemessages, int pause, bool bottom);
+    void                        emitmsg(QStringList m_listemessages, int pause);
 
 private:
     Procedures                  *proc       = Procedures::I();

@@ -322,7 +322,7 @@ void dlg_GestionLieux::SupprLieu()
     if (UpMessageBox::Question(this,tr("Suppression d'un lieu de soins"),tr("voulez vous vraiment supprimer") + "\n" + lieu + " ?") == UpSmallButton::STARTBUTTON)
     {
         db->SupprRecordFromTable(idLieuASupprimer, "idLieu", TBL_LIEUXEXERCICE);
-        dlg_message(QStringList() << lieu + " supprimé", 3000);
+        Message::I()->TrayMessage(QStringList() << lieu + " supprimé", 3000);
         Datas::I()->sites->initListe();
         ReconstruitModel();
         connect(wdg_bigtable->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_GestionLieux::AfficheDetails);

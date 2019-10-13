@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("12-10-2019/1");
+    qApp->setApplicationVersion("13-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -73,7 +73,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
     qApp->setStyleSheet(Styles::StyleAppli());
-    dlg_message(m_currentuser->status() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
+    Message::I()->TrayMessage(m_currentuser->status() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
 
     //! 3 Initialisation de tout
     InitVariables();
@@ -101,7 +101,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         {
             log = tr("Aucun serveur TCP enregistré dans la base");
             Logs::MSGSOCKET(log);
-            dlg_message(QStringList() << log, false);
+            Message::I()->TrayMessage(QStringList() << log, false);
         }
         else
         {
@@ -111,7 +111,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             if (m_utiliseTCP)
             {
                 QString msg;
-                dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
+                Message::I()->TrayMessage(QStringList() << tr("Connexion TCP OK"), 3000);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi iduser
                 msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;
@@ -586,7 +586,7 @@ void Rufus::Moulinette()
             QTime dieTime= QTime::currentTime().addMSecs(1);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            dlg_message("correction des actes - acte n° " + imp.value(0).toString());
+            Message::I()->TrayMessage("correction des actes - acte n° " + imp.value(0).toString());
         }
         b+=1;
     }
@@ -614,7 +614,7 @@ void Rufus::Moulinette()
             QTime dieTime= QTime::currentTime().addMSecs(1);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            dlg_message("correction des impressions - impression n° " + imp2.value(0).toString());
+            Message::I()->TrayMessage("correction des impressions - impression n° " + imp2.value(0).toString());
         }
         b+=1;
     }
@@ -678,7 +678,7 @@ void Rufus::Moulinette()
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idPat = " + idpat, ok);
         if (patdata.size()>0)
             AncNom = patdata.at(0).toString();
-            //dlg_message(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
+            //Message::I()->TrayMessage(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
             //qDebug() << quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s);
         copierequete = "update rufus.patients2 set patnom = '" + Utils::correctquoteSQL(listNoms.at(idauhasard)) + "' where idPat = " + idpat;
         db->StandardSQL(copierequete);
@@ -1857,7 +1857,7 @@ void Rufus::ExporteDocs()
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Emplacement de stockage des documents archivés") + "</b></font>";
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 6000, false);
+        Message::I()->TrayMessage(listmsg, 6000);
         return;
     }
     QString CheminEchecTransfrDir   = pathDirImagerie + DIR_ECHECSTRANSFERTS;
@@ -1866,7 +1866,7 @@ void Rufus::ExporteDocs()
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 6000, false);        return;
+        Message::I()->TrayMessage(listmsg, 6000);        return;
     }
 
     int total = db->StandardSelectSQL("SELECT idimpression FROM " TBL_DOCSEXTERNES " where jpg is not null or pdf is not null",m_ok).size();
@@ -1905,7 +1905,7 @@ void Rufus::ExporteDocs()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            dlg_message(listmsg, 3000, false);
+            Message::I()->TrayMessage(listmsg, 3000);
             return;
         }
 
@@ -1936,7 +1936,7 @@ void Rufus::ExporteDocs()
                         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
                         QStringList listmsg;
                         listmsg << msg;
-                        dlg_message(listmsg, 3000, false);
+                        Message::I()->TrayMessage(listmsg, 3000);
                         return;
                     }
                 QString NomFileDoc = listexportjpg.at(i).at(1).toString() + "_" + listexportjpg.at(i).at(6).toString() + "-"
@@ -1991,7 +1991,7 @@ void Rufus::ExporteDocs()
                 QTime dieTime= QTime::currentTime().addMSecs(2);
                 while (QTime::currentTime() < dieTime)
                     QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-                dlg_message(listmsg, 10);
+                Message::I()->TrayMessage(listmsg, 10);
             }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -2019,7 +2019,7 @@ void Rufus::ExporteDocs()
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
                     QStringList listmsg;
                     listmsg << msg;
-                    dlg_message(listmsg, 3000, false);
+                    Message::I()->TrayMessage(listmsg, 3000);
                     return;
                 }
             QString NomFileDoc = listexportpdf.at(i).at(1).toString() + "_" + listexportpdf.at(i).at(7).toString() + "-"
@@ -2036,7 +2036,7 @@ void Rufus::ExporteDocs()
             {
                 QStringList listmsg;
                 listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-                dlg_message(listmsg, 3000, false);
+                Message::I()->TrayMessage(listmsg, 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
                 QFile   echectrsfer(echectrsfername);
                 if (echectrsfer.open(QIODevice::Append))
@@ -2083,13 +2083,13 @@ void Rufus::ExporteDocs()
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            dlg_message(listmsg, 10);
+            Message::I()->TrayMessage(listmsg, 10);
         }
     int totdoc = listexportjpg.size() + listexportpdf.size();
     if (totdoc > 0)
     {
         listmsg <<  tr("export terminé") << QString::number(totdoc) + (totdoc>1? tr(" documents exportés en ") : tr(" document exporté en "))  + duree;
-        dlg_message(listmsg, 3000);
+        Message::I()->TrayMessage(listmsg, 3000);
     }
 
 
@@ -2108,7 +2108,7 @@ void Rufus::ExporteDocs()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            dlg_message(listmsg, 3000, false);
+            Message::I()->TrayMessage(listmsg, 3000);
             return;
         }
 
@@ -2169,7 +2169,7 @@ void Rufus::ExporteDocs()
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
                     QStringList listmsg;
                     listmsg << msg;
-                    dlg_message(listmsg, 3000, false);
+                    Message::I()->TrayMessage(listmsg, 3000);
                     return;
                 }
 
@@ -2220,7 +2220,7 @@ void Rufus::ExporteDocs()
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            dlg_message(listmsg, 10);
+            Message::I()->TrayMessage(listmsg, 10);
         }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -2275,7 +2275,7 @@ void Rufus::ExporteDocs()
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
                     QStringList listmsg;
                     listmsg << msg;
-                    dlg_message(listmsg, 3000, false);
+                    Message::I()->TrayMessage(listmsg, 3000);
                     return;
                 }
             QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "." PDF;
@@ -2288,7 +2288,7 @@ void Rufus::ExporteDocs()
             {
                 QStringList listmsg;
                 listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-                dlg_message(listmsg, 3000, false);
+                Message::I()->TrayMessage(listmsg, 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
                 QFile   echectrsfer(echectrsfername);
                 if (echectrsfer.open(QIODevice::Append))
@@ -2334,13 +2334,13 @@ void Rufus::ExporteDocs()
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            dlg_message(listmsg, 10);
+            Message::I()->TrayMessage(listmsg, 10);
         }
     int totfac = listexportjpgfact.size() + listexportpdffact.size();
     if (totfac > 0)
     {
         listmsg <<  tr("export terminé") << QString::number(totfac) + (totfac>1? tr(" documents comptables exportés en ") :tr(" document comptable exporté en ")) + duree;
-        dlg_message(listmsg, 3000);
+        Message::I()->TrayMessage(listmsg, 3000);
     }
 }
 
@@ -4333,7 +4333,7 @@ void Rufus::VerifSendMessage(int idMsg)
     //TODO : SQL
     if (dlg_ask->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
-        dlg_message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
+        Message::I()->TrayMessage(tr("Vous avez oublié de rédiger le texte de votre message!"),2000);
         return;
     }
     bool checkusr = false;
@@ -4346,7 +4346,7 @@ void Rufus::VerifSendMessage(int idMsg)
         }
     if (!checkusr)
     {
-        dlg_message(tr("Vous avez oublié de choisir un destinataire!"),2000,false);
+        Message::I()->TrayMessage(tr("Vous avez oublié de choisir un destinataire!"),2000);
         return;
     }
     QStringList locklist;
@@ -4496,13 +4496,13 @@ void Rufus::VerifSendMessage(int idMsg)
         }
         db->commit();
     }
-    dlg_message(tr("Message enregistré"),1000,false);
+    Message::I()->TrayMessage(tr("Message enregistré"),1000);
     dlg_ask->accept();
 }
 
-void Rufus::AfficheMessageImport(QStringList listmsg, int pause, bool bottom)
+void Rufus::AfficheMessageImport(QStringList listmsg, int pause)
 {
-    dlg_message(listmsg, pause, bottom);
+    Message::I()->TrayMessage(listmsg, pause);
 }
 
 void Rufus::AfficheMessageLimitDate(bool a)
@@ -4728,7 +4728,7 @@ void Rufus::SupprimerDocsEtFactures()
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        dlg_message(listmsg, 3000, false);
+        Message::I()->TrayMessage(listmsg, 3000);
         return;
     }
     req = "select LienFichier from " TBL_FACTURESASUPPRIMER;
@@ -4744,7 +4744,7 @@ void Rufus::SupprimerDocsEtFactures()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            dlg_message(listmsg, 3000, false);
+            Message::I()->TrayMessage(listmsg, 3000);
             continue;
         }
         QFile(NomDirStockageImagerie + DIR_FACTURES + lienfichier).copy(NomDirStockageImagerie + DIR_FACTURESSANSLIEN + lienfichier);
@@ -5189,7 +5189,7 @@ void Rufus::EnregMsgResp(int idmsg)
 {
      if (dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
-        dlg_message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
+        Message::I()->TrayMessage(tr("Vous avez oublié de rédiger le texte de votre message!"),2000);
         return;
     }
     QString req = "select idemetteur, tache, datelimite, urge from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg);
@@ -5236,7 +5236,7 @@ void Rufus::EnregMsgResp(int idmsg)
     }
     else
     {
-        dlg_message(tr("Message enregistré"),1000,false);
+        Message::I()->TrayMessage(tr("Message enregistré"),1000);
         db->commit();
         envoieMessageA(QList<int>() << iddest);
     }
@@ -5512,7 +5512,7 @@ void Rufus::VerifVerrouDossier()
        {
            QString nomposte = post->nomposte();
            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
-           dlg_message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
+           Message::I()->TrayMessage(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
        }
        Flags::I()->MAJFlagSalleDAttente();
     }
@@ -10018,7 +10018,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     {
         ReconstruitCombosCorresp();             // maj par le TCPSocket
         // TODO signifier à dlg_identificationpatient la modification au cas où cette fiche serait ouverte
-        //dlg_message(QStringList() << tr("Mise à jour de la liste des correspondants"), 3000);
+        //Message::I()->TrayMessage(QStringList() << tr("Mise à jour de la liste des correspondants"), 3000);
     }
     else if (msg.contains(TCPMSG_MsgBAL))
     {

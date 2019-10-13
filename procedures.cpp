@@ -427,7 +427,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
         OKFactures = false;
     }
 
-    dlg_message(tr("Sauvegarde en cours"),3000,false);
+    Message::I()->TrayMessage(tr("Sauvegarde en cours"),3000);
     emit ConnectTimers(false);
 
     bool result = true;
@@ -449,7 +449,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
             msg = tr("Sauvegarde effectuée avec succès");
         else
             msg = tr("Incident pendant la sauvegarde");
-        dlg_message(msg,3000,false);
+        Message::I()->TrayMessage(msg,3000);
         QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
         if (b)
         {
@@ -468,25 +468,25 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
         {
             QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            dlg_message(Msg, 3000);
+            Message::I()->TrayMessage(Msg, 3000);
             QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_IMAGES + " " + dest);
-            dlg_message(tr("Fichiers d'imagerie sauvegardés!"), 3000, false);
+            Message::I()->TrayMessage(tr("Fichiers d'imagerie sauvegardés!"), 3000);
         }
         if (OKFactures)
         {
             QString Msg = (tr("Sauvegarde des factures\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            dlg_message(Msg, 3000);
+            Message::I()->TrayMessage(Msg, 3000);
             QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_FACTURES + " " + dest);
-            dlg_message(tr("Fichiers factures sauvegardés!"), 3000, false);
+            Message::I()->TrayMessage(tr("Fichiers factures sauvegardés!"), 3000);
         }
         if (OKVideos)
         {
             QString Msg = (tr("Sauvegarde des fichiers videos\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            dlg_message(Msg, 3000);
+            Message::I()->TrayMessage(Msg, 3000);
             QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_VIDEOS + " " + dest);
-            dlg_message(tr("Fichiers video sauvegardés!"), 3000, false);
+            Message::I()->TrayMessage(tr("Fichiers video sauvegardés!"), 3000);
         }
     }
     if (OKImages)
@@ -1749,7 +1749,7 @@ QString Procedures::SessionStatus()
 
     QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + m_currentuser->status();
     txtstatut += "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom();
-    txtstatut + "\n\n";
+    txtstatut += "\n\n";
 
     txtstatut += tr("Vos données permanentes") +"\n\n" + tr("Fonction :") + "\t\t\t";
     if (ophtalmo)
@@ -2371,7 +2371,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         {
                             //! Suppression de toutes les tables
                             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
-                            dlg_message(Msg, 3000, false);
+                            Message::I()->TrayMessage(Msg, 3000);
                             db->VideDatabases();
                             int a = 99;
 
@@ -2384,7 +2384,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                              if (dumpProcess.exitStatus() == QProcess::NormalExit)
                                 a = dumpProcess.exitCode();
                             if (a != 0)
-                                dlg_message(tr("Incident pendant la restauration"),3000,false);
+                                Message::I()->TrayMessage(tr("Incident pendant la restauration"),3000);
                             QFile::remove(QDir::homePath() + SCRIPTRESTOREFILE);
                        }
                     }
@@ -2404,7 +2404,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         QFile rufusini(fileini);
                         rufusini.copy(m_nomFichierIni);
                         msg += tr("Fichier de paramétrage Rufus.ini restauré\n");
-                        dlg_message(tr("Fichier de paramétrage Rufus.ini restauré"), 3000, false);
+                        Message::I()->TrayMessage(tr("Fichier de paramétrage Rufus.ini restauré"), 3000);
                     }
                 }
                 /*! 4c - restauration des fichiers ressources */
@@ -2424,7 +2424,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             ficACopier.copy(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES + "/" + nomficACopier);
                         }
                         msg += tr("Fichiers de ressources d'impression restaurés\n");
-                        dlg_message(tr("Fichiers de ressources d'impression restaurés"), 3000, false);
+                        Message::I()->TrayMessage(tr("Fichiers de ressources d'impression restaurés"), 3000);
                     }
                 }
                 /*! 4d - restauration des images */
@@ -2442,18 +2442,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         if (!DirDestImg.exists())
                         {
                             QString Msg = tr("le dossier de destination de l'imagerie n'existe pas");
-                            dlg_message(Msg, 3000, false);
+                            Message::I()->TrayMessage(Msg, 3000);
                         }
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers d'imagerie\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
-                            dlg_message(Msg, 3000);
+                            Message::I()->TrayMessage(Msg, 3000);
                             QDir dirrestaureimagerie    = QDir(rootimgvid.absolutePath() + DIR_IMAGES);
                             QString task  = "cp -R " + dirrestaureimagerie.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(task);
                             msg += tr("Fichiers d'imagerie restaurés\n");
-                            dlg_message(tr("Fichiers d'imagerie restaurés"), 3000, false);
+                            Message::I()->TrayMessage(tr("Fichiers d'imagerie restaurés"), 3000);
                         }
                     }
                 }
@@ -2472,18 +2472,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         if (!DirDestFact.exists())
                         {
                             QString Msg = tr("le dossier de destination des factures n'existe pas");
-                            dlg_message(Msg, 3000, false);
+                            Message::I()->TrayMessage(Msg, 3000);
                         }
                         else
                         {
                             QString Msg = (tr("Restauration des factures\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
-                            dlg_message(Msg, 3000);
+                            Message::I()->TrayMessage(Msg, 3000);
                             QDir dirrestaurefactures    = QDir(rootimgvid.absolutePath() + DIR_FACTURES);
                             QString task = "cp -R " + dirrestaurefactures.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(task);
                             msg += tr("Fichiers factures restaurés\n");
-                            dlg_message(tr("Fichiers factures restaurés"), 3000, false);
+                            Message::I()->TrayMessage(tr("Fichiers factures restaurés"), 3000);
                         }
                     }
                 }
@@ -2502,18 +2502,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         if (!DirDestVid.exists())
                         {
                             QString Msg = tr("le dossier de destination des videos n'existe pas");
-                            dlg_message(Msg, 3000, false);
+                            Message::I()->TrayMessage(Msg, 3000);
                         }
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers videos\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-                            dlg_message(Msg, 3000, false);
+                            Message::I()->TrayMessage(Msg, 3000);
                             QDir dirrestaurevideo = QDir(rootimgvid.absolutePath() + DIR_VIDEOS);
                             QString task = "cp -R " + dirrestaurevideo.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(task);
                             msg += tr("Fichiers videos restaurés\n");
-                            dlg_message(tr("Fichiers videos restaurés"), 3000);
+                            Message::I()->TrayMessage(tr("Fichiers videos restaurés"), 3000);
                         }
                     }
                 }
@@ -2560,7 +2560,7 @@ bool Procedures::VerifBaseEtRessources()
                         return false;
                 BupDone = true;
             }
-            dlg_message(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000, false);
+            Message::I()->TrayMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
             if (DumpFile.exists())
@@ -2626,7 +2626,7 @@ bool Procedures::VerifBaseEtRessources()
         PremierParametrageRessources();
         m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
         m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
-        dlg_message(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000, false);
+        Message::I()->TrayMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
     }
     return true;
 }

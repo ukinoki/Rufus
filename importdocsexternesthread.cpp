@@ -596,7 +596,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
     }
 
     if (m_listemessages.size()>0)
-        emit emitmsg(m_listemessages, 3000, true);
+        emit emitmsg(m_listemessages, 3000);
     m_encours = false;
 }
 
@@ -625,7 +625,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirstockageprovisoire + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        emit emitmsg(listmsg, 3000, false);
+        emit emitmsg(listmsg, 3000);
         return false;
     }
     m_pathdirOKtransfer      = m_pathdirstockageimagerie + DIR_IMAGES + "/" + m_datetransfer;
@@ -634,7 +634,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirOKtransfer + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        emit emitmsg(listmsg, 3000, false);
+        emit emitmsg(listmsg, 3000);
         return false;
     }
     m_pathdirechectransfer   = m_pathdirstockageimagerie + DIR_ECHECSTRANSFERTS;
@@ -643,7 +643,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirechectransfer + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
-        emit emitmsg(listmsg, 3000, false);
+        emit emitmsg(listmsg, 3000);
         return false;
     }
 
@@ -655,7 +655,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdiroriginOKtransfer + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            emit emitmsg(listmsg, 3000, false);
+            emit emitmsg(listmsg, 3000);
             return false;
         }
     }
@@ -667,7 +667,7 @@ void ImportDocsExternesThread::EchecImport(QString txt)
     QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(file_origine).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;
     listmsg << msg;
-    emit emitmsg(listmsg, 3000, false);
+    emit emitmsg(listmsg, 3000);
 
     QString CheminEchecTransfrDoc   = m_pathdirechectransfer + "/" + QFileInfo(file_origine).fileName();
     file_origine.copy(CheminEchecTransfrDoc);
