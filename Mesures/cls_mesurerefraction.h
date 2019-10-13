@@ -18,9 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_MESUREREFRACTION_H
 #define CLS_MESUREREFRACTION_H
 
+#include "cls_mesure.h"
 #include "cls_refraction.h"
 
-class MesureRefraction : public QObject
+class MesureRefraction : public Mesure
 {
     Q_OBJECT
 public:
@@ -49,9 +50,6 @@ private:
     int m_baseprismeOG = 0;         //!> base prisme OG en degré
     QString m_formuleOG = "";       //!> formule de réfraction OG
     int m_ecartIP = 0;              //!> ecart interpuppilaire
-    bool m_cleandatas = true;       //!> les données sont vierges
-    bool m_isnullOD = true;         //!> aucune mesure n'a été effectuée à droite
-    bool m_isnullOG = true;         //!> aucune mesure n'a été effectuée à gauche
 
 public:
     Refraction::Mesure typemesure() const { return m_typemesure; }    //!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription
@@ -96,9 +94,6 @@ public:
     void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; m_isnullOG = false; }        //!> formule de réfraction OG
     void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
 
-    bool isdataclean() const                          { return m_cleandatas; }
-    bool isnullLOD() const                            { return m_isnullOD; }
-    bool isnullLOG() const                            { return m_isnullOG; }
     void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {

@@ -126,3 +126,5 @@ void dlg_message::LogMessage(QString msg)
         testfile.close();
     }
 }
+
+Message* Message::instance = Q_NULLPTR;

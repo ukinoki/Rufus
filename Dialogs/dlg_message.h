@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplabel.h"
 #include <QHBoxLayout>
 #include <QDesktopWidget>
+#include <QSystemTrayIcon>
 #include <QTimer>
 #include <QDebug>
 #include <QScreen>
@@ -47,6 +48,31 @@ private:
     void            AfficheMsg(QStringList listmes, int pause, bool bottom);
     void            delay(int msec);
     void            LogMessage(QString msg);
+};
+
+class Message : public QObject
+{
+    Q_OBJECT
+
+public:
+    static Message *instance;
+    static Message* I()
+    {
+        if( !instance )
+            instance = new Message();
+        return instance;
+    }
+    void TrayMessage(QString msg, int duree)
+    {
+        ict_messageIcon->setIcon(Icons::icSunglasses());
+        ict_messageIcon->show();
+        ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icSunglasses(), duree);
+        QTimer::singleShot(duree + 200, this, [=]{ ict_messageIcon->hide();});
+    }
+
+private:
+    Message() {}
+    QSystemTrayIcon  *ict_messageIcon = new QSystemTrayIcon;
 };
 
 #endif // DLG_MESSAGE_H

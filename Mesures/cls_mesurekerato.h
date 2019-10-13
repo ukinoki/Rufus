@@ -18,9 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_MESUREKERATO_H
 #define CLS_MESUREKERATO_H
 
+#include "cls_mesure.h"
 #include "cls_refraction.h"
 
-class MesureKerato : public QObject
+class MesureKerato : public Mesure
 {
     Q_OBJECT
 public:
@@ -37,9 +38,6 @@ private:
     double m_dioptriesK1OG  = 0;
     double m_dioptriesK2OG  = 0;
     int m_AxeKOG            = 0;
-    bool m_cleandatas       = true;
-    bool m_isnullOD         = true;     //!> aucune mesure n'a été effectuée à droite
-    bool m_isnullOG         = true;     //!> aucune mesure n'a été effectuée à gauche
 
 public:
     double K1OD() const                 { return m_K1OD; }
@@ -72,9 +70,6 @@ public:
     void setdioptriesK2OG(double val)   { m_dioptriesK2OG = val; m_cleandatas = false; m_isnullOG = false; }
     void setaxeKOG(int axe)             { m_AxeKOG = axe; m_cleandatas = false; m_isnullOG = false; }
 
-    bool isdataclean() const            { return m_cleandatas; }
-    bool isnullLOD() const              { return m_isnullOD; }
-    bool isnullLOG() const              { return m_isnullOG; }
     void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {

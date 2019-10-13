@@ -1,10 +1,27 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef CLS_MESUREDIVERS_H
 #define CLS_MESUREDIVERS_H
 
+#include "cls_mesure.h"
 #include "cls_refraction.h"
 
-
-class Pachy : public QObject
+class Pachy : public Mesure
 {
     Q_OBJECT
 public:
@@ -14,9 +31,6 @@ private:
     int m_pachyOD       = 0;
     int m_pachyOG       = 0;
     Mode m_modemesure   = NoMesure;
-    bool m_cleandatas   = true;
-    bool m_isnullOD     = true;         //!> aucune mesure n'a été effectuée à droite
-    bool m_isnullOG     = true;         //!> aucune mesure n'a été effectuée à gauche
 
 public:
     int pachyOD() const         { return m_pachyOD; }
@@ -27,9 +41,6 @@ public:
     void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOD = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
-    bool isdataclean() const        { return m_cleandatas; }
-    bool isnullLOD() const          { return m_isnullOD; }
-    bool isnullLOG() const          { return m_isnullOG; }
     void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {
@@ -98,7 +109,7 @@ public:
 
 };
 
-class Tono : public QObject
+class Tono : public Mesure
 {
     Q_OBJECT
 public:
@@ -107,33 +118,27 @@ public:
 private:
     int m_TOD           = 0;
     int m_TOG           = 0;
-    QTime m_heuremesure = QTime();
+    QDateTime m_timemesure = QDateTime();
     Mode m_modemesure   = NoMesure;
-    bool m_cleandatas   = true;
-    bool m_isnullOD     = true;         //!> aucune mesure n'a été effectuée à droite
-    bool m_isnullOG     = true;         //!> aucune mesure n'a été effectuée à gauche
 
 public:
     int TOD() const                 { return m_TOD; }
     int TOG() const                 { return m_TOG; }
-    QTime heuremesure() const       { return m_heuremesure; }
+    QDateTime timemesure() const    { return m_timemesure; }
     Mode modemesure() const         { return m_modemesure; }
 
-    void setTOD(int to)             { m_TOD = to; m_cleandatas = false; m_isnullOD = false; }
-    void setTOG(int to)             { m_TOG = to; m_cleandatas = false; m_isnullOD = false; }
-    void setheuremesure(QTime time) { m_heuremesure = time; m_cleandatas = false; }
-    void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
+    void setTOD(int to)                 { m_TOD = to; m_cleandatas = false; m_isnullOD = false; }
+    void setTOG(int to)                 { m_TOG = to; m_cleandatas = false; m_isnullOD = false; }
+    void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
+    void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
-    bool isdataclean() const        { return m_cleandatas; }
-    bool isnullLOD() const          { return m_isnullOD; }
-    bool isnullLOG() const          { return m_isnullOG; }
     void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {
         case Refraction::Les2:
             m_TOD           = 0;
             m_TOG           = 0;
-            m_heuremesure   = QTime();
+            m_timemesure    = QDateTime();
             m_modemesure    = NoMesure;
             m_cleandatas    = true;
             m_isnullOD      = true;
@@ -200,7 +205,7 @@ public:
             cleandatas();
             return;
         }
-        m_heuremesure   = tono->heuremesure();
+        m_timemesure    = tono->timemesure();
         m_modemesure    = tono->modemesure();
         if  (tono->isnullLOD())
             cleandatas(Refraction::Droit);
