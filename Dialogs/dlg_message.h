@@ -63,6 +63,7 @@ public:
         for (int i=0; i<listmsg.size(); i++)
             TrayMessage(listmsg.at(i), duree);
     }
+    void SplashMessage(QString msg, int duree = 3000);
 
 private:
     Message() {}

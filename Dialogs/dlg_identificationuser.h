@@ -29,7 +29,6 @@ class dlg_identificationuser;
 
 class dlg_identificationuser : public QDialog
 {
-    Q_OBJECT
 
 public:
     explicit dlg_identificationuser(bool ChgUser = false, QWidget *parent = Q_NULLPTR);
@@ -38,7 +37,6 @@ public:
 
 private:
     DataBase                *db = DataBase::I();
-    int                     m_iduser, m_sqlport;
     bool                    m_chgmtuser;
     bool                    eventFilter(QObject *, QEvent *);
     int                     ControleDonnees();

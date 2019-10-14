@@ -46,7 +46,6 @@ private:
     User                    *m_currentuser  = Datas::I()->users->userconnected();
 
     DocsExternes            *m_docsexternes;
-    DocExterne              *m_docencours;
     Patient                 *m_currentpatient;
 
     QGraphicsScene          *obj_graphicscene;
@@ -71,7 +70,6 @@ private:
     QSize                   m_sizeorigin;
 
     bool                    m_avecprevisu;
-    bool                    m_initok;
     double                  m_idealproportion;
     int                     m_hdelta , m_wdelta;
     int                     m_hdeltaframe, m_wdeltaframe;

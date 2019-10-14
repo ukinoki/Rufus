@@ -43,7 +43,6 @@ private:
     DataBase            *db                 = DataBase::I();
     Correspondant       *m_correspondant    = Q_NULLPTR;
 
-    int                 m_idcorrespondant;
     bool                m_onlydoctors;
     bool                m_modifdatascor;
     QString             m_nomcor, m_prenomcor, m_sexecor;

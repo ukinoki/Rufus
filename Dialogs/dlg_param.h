@@ -38,7 +38,6 @@ class dlg_param;
 class dlg_param : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_param(QWidget *parent = Q_NULLPTR);
     ~dlg_param();
@@ -61,10 +60,6 @@ private:
     QString                 m_nouveauMDP            = "nouv";
     QString                 m_ancienMDP             = "anc";
     QString                 m_confirmeMDP           = "confirm";
-
-
-
-
 
     dlg_gestionbanques      *Dlg_Banq;
     dlg_gestioncotations    *Dlg_CrrCot;

@@ -52,7 +52,6 @@ private:
 
     Mode                        m_mode;
     double                      m_opacity;
-    bool                        m_ok;
     QMap<QString,QString>       map_champs;
     QStringList                 m_listid;
     QStringList                 m_listtexts;   /*! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires

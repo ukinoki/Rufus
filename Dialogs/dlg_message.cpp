@@ -36,3 +36,52 @@ void Message::LogMessage(QString msg)
         testfile.close();
     }
 }
+
+void Message::SplashMessage(QString msg, int duree)
+{
+    QDialog *dlg = new QDialog();
+    dlg                 ->setAttribute(Qt::WA_DeleteOnClose);
+    dlg                 ->setSizeGripEnabled(false);
+
+    UpLabel *imglbl     = new UpLabel(dlg);
+    imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
+
+    UpTextEdit *Msgtxt  = new UpTextEdit(dlg);
+    Msgtxt              ->setAttribute( Qt::WA_NoSystemBackground, true );
+    Msgtxt              ->setText(msg);
+    Msgtxt              ->setReadOnly(true);
+    Msgtxt              ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Msgtxt              ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QStringList lmsg            = Msgtxt->toPlainText().split("\n");
+    int         w               = 0;
+    double      hauteurligne    = QFontMetrics(qApp->font()).height()*1.2;
+    int         nlignes         = lmsg.size();
+    for (int k=0; k<nlignes; k++)
+    {
+        int x   = int(QFontMetrics(qApp->font()).width(lmsg.at(k))*1.1); //le 1.1 est là pour tenir compte des éventuels caractères gras
+        w       = (x>w? x : w);
+    }
+    Msgtxt              ->setFixedSize(w,int(hauteurligne)*nlignes);
+    QHBoxLayout *lay    = new QHBoxLayout(dlg);
+    lay                 ->addWidget(imglbl);
+    lay                 ->addWidget(Msgtxt);
+    int marge           = 8;
+    lay                 ->setContentsMargins( marge, marge*2, marge, marge*2);
+    lay                 ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg                 ->setLayout(lay);
+    dlg                 ->setWindowFlags(Qt::SplashScreen);
+
+    int yy              = qApp->desktop()->availableGeometry().height();
+    int xx              = qApp->desktop()->availableGeometry().width();
+    dlg                 ->move(xx - w - 45 - (marge*2) - lay->spacing()-15, yy - (int(hauteurligne)*nlignes) - marge*2);
+    dlg                 ->show();
+    //        qDebug() << " desktop xx = " + QString::number(xx) << "widh() = " +
+    //                    QString::number(w - 45 - (marge*2) - 10) << "desktop yy = " +
+    //                    QString::number(yy)  << "heigth() = " +
+    //                    QString::number((hauteurligne*nlignes) - marge*2);
+    QTimer *timer       = new QTimer(dlg);
+    timer               ->setSingleShot(true);
+    connect(timer,      &QTimer::timeout, dlg, &QDialog::reject);
+    timer               ->start(duree);
+}

@@ -43,7 +43,6 @@ private:
     WidgTono            *widgto;
     WidgPachy           *widgpa;
     QWidget             *m_widget;
-    double              m_TOD, m_TOG;
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                EnregistreTono();

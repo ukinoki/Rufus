@@ -27,8 +27,6 @@ class dlg_remisecheques;
 
 class dlg_remisecheques : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit dlg_remisecheques(QWidget *parent = Q_NULLPTR);
     ~dlg_remisecheques();

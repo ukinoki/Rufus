@@ -31,11 +31,10 @@ namespace Ui {
 
 class dlg_refraction : public QDialog
 {
-    Q_OBJECT
 
 public:
     enum ModeOuverture {
-                Auto,           //!> la fiche est lancée par l'envoi de données à partir du refracteur
+                Auto,           //!> la fiche est lancée par l'envoi de données depuis le refracteur
                 Manuel          //!> la fiche est lancée par l'utilisateur
                 };  Q_ENUM(ModeOuverture)
     dlg_refraction(ModeOuverture modeouverture, QWidget *parent = Q_NULLPTR);
@@ -64,14 +63,6 @@ private:
     bool                    m_affichedetail;
     bool                    m_escapeflag;
     bool                    m_fermecommentaire;
-    double                  m_sphereOD;
-    double                  m_cylindreOD;
-    double                  m_axecylindreOD;
-    double                  m_additionVPOD;
-    double                  m_sphereOG;
-    double                  m_cylindreOg;
-    double                  m_axecylindreOG;
-    double                  m_additionVPOG;
     int                     m_flagbugvalidenter; // Modif 17/04
     QString                 m_resultFronto, m_resultPubliFronto;
     QString                 m_resultAutorefnonDilate, m_resultPubliAutoref, m_resultAutorefDilate;

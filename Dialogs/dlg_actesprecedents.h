@@ -42,7 +42,6 @@ class dlg_actesprecedents;
 
 class dlg_actesprecedents : public QDialog
 {
-    Q_OBJECT
 
 public:
     dlg_actesprecedents(Actes *actes, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);

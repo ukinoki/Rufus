@@ -27,13 +27,10 @@ class dlg_salledattente;
 
 class dlg_salledattente : public UpDialog
 {
-    Q_OBJECT
-
 public:
     explicit dlg_salledattente(Acte *act, QString Titre, QWidget *parent = Q_NULLPTR);
     ~dlg_salledattente();
     Ui::dlg_salledattente *ui;
-
 private:
     Acte                *m_currentact;
     void                OKButtonClicked();

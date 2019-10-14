@@ -50,9 +50,7 @@ private:
 
     Mode                        m_mode;
     QStandardItemModel          *m_recettesmodel;
-    QSortFilterProxyModel       *m_sortfilterrecettesmodel;
 
-    QCheckBox                   *wdg_supervcheckbox;
     QGroupBox                   *wdg_classmtupgrpbox;
     QHBoxLayout                 *wdg_lblbox;
     QHBoxLayout                 *wdg_hboxsup;

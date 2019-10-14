@@ -22,7 +22,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_listecorrespondants : public UpDialog
 {
-    Q_OBJECT
 
 public:
     explicit                dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);

@@ -80,7 +80,6 @@ private:
 
     dlg_gestioncomptes      *Dlg_GestComptes;
     UpDialog                *dlg_ask;
-    int                     m_iduserdepart;
     int                     m_idlieu;
     User                    *m_userencours;
     QString                 gLoginupLineEdit, gMDPupLineEdit, gConfirmMDPupLineEdit;

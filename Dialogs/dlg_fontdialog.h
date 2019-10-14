@@ -24,7 +24,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_fontdialog : public UpDialog
 {
-    Q_OBJECT
 
 public:
     explicit            dlg_fontdialog(QString nomSettings, QString m_position, QWidget *parent = Q_NULLPTR);
