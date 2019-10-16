@@ -662,6 +662,7 @@ QJsonObject DataBase::loadUserData(int idUser)
 
             //+ "  and userdesactive is null";
             // SL cette ligne est retirée parce qu'elle bloque l'affichage des utilisateurs désactivés dans dlg_gestionsusers
+    //qDebug() << req;
 
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
     if (!ok)

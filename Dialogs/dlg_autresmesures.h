@@ -31,7 +31,6 @@ class dlg_autresmesures;
 class dlg_autresmesures : public UpDialog
 {
     Q_OBJECT
-
 public:
     ~dlg_autresmesures();
     enum Mode {TONO, PACHY};    Q_ENUM(Mode)

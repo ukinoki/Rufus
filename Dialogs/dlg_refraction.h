@@ -31,7 +31,7 @@ namespace Ui {
 
 class dlg_refraction : public QDialog
 {
-
+    Q_OBJECT
 public:
     enum ModeOuverture {
                 Auto,           //!> la fiche est lancée par l'envoi de données depuis le refracteur

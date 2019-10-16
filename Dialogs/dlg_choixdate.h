@@ -27,7 +27,7 @@ class dlg_choixdate;
 
 class dlg_choixdate : public QDialog
 {
-
+    Q_OBJECT
 public:
     explicit                dlg_choixdate(QWidget *parent = Q_NULLPTR);
     ~dlg_choixdate();

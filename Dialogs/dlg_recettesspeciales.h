@@ -28,7 +28,6 @@ class dlg_recettesspeciales;
 class dlg_recettesspeciales : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_recettesspeciales(QWidget *parent = Q_NULLPTR);
     Ui::dlg_recettesspeciales   *ui;

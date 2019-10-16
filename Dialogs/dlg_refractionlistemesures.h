@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_refractionlistemesures : public UpDialog
 {
+    Q_OBJECT
 public:
     enum Mode               {Supprimer, Recuperer};   Q_ENUM(Mode)
     explicit                dlg_refractionlistemesures(Mode mode, QWidget *parent = Q_NULLPTR);

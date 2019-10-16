@@ -27,7 +27,6 @@ class dlg_comptes;
 class dlg_comptes : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit            dlg_comptes(QWidget *parent = Q_NULLPTR);
     ~dlg_comptes();

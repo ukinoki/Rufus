@@ -34,7 +34,6 @@ class dlg_gestionusers;
 class dlg_gestionusers : public UpDialog
 {
     Q_OBJECT
-
 public:
     enum                    UserMode {PREMIERUSER, ADMIN, MODIFUSER}; Q_ENUM(UserMode)
     enum                    Mode {Creer, Modifier, PremierUsr};       Q_ENUM(Mode)

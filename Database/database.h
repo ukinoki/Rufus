@@ -81,7 +81,7 @@ private:
     int m_port;
     bool m_useSSL;
     bool ok;
-    QSqlDatabase m_db;
+    QSqlDatabase m_db = QSqlDatabase();
 
 public:
     static DataBase*        I();

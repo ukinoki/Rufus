@@ -31,7 +31,6 @@ class dlg_depenses;
 class dlg_depenses : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_depenses(QWidget *parent = Q_NULLPTR);
     ~dlg_depenses();

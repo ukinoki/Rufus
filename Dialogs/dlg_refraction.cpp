@@ -3355,7 +3355,7 @@ void dlg_refraction::ResumePrescription()
         if (ODPrisme == "" && OGPrisme != "")
             Resultat = Resultat + "\n" + OGPrisme;
         if (ODPrisme != "" && OGPrisme != "")
-            Resultat = Resultat + "\n" + ODPrisme + "\n" + OGPrisme;;
+            Resultat = Resultat + "\n" + ODPrisme + "\n" + OGPrisme;
     }
 
     //4-5 La monture

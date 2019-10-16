@@ -37,7 +37,6 @@ class dlg_gestionbanques;
 class dlg_gestionbanques : public UpDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_gestionbanques(QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
     ~dlg_gestionbanques();

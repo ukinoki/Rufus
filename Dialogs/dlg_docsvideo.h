@@ -27,6 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_docsvideo : public UpDialog
 {
+    Q_OBJECT
 public:
     dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
     void                NavigueVers(QString);

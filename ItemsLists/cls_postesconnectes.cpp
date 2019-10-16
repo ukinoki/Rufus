@@ -103,7 +103,7 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
 {
     QString macadressid =  Utils::getMACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id());
-    QString macadress = Utils::getMACAdress() +  (DataBase::I()->userConnected()->login() == NOM_ADMINISTRATEURDOCS? DataBase::I()->userConnected()->login() : "");
+    QString macadress = Utils::getMACAdress() +  (DataBase::I()->userConnected()->login() == NOM_ADMINISTRATEURDOCS? " - " + DataBase::I()->userConnected()->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                                                                         CP_IDUSER_USRCONNECT ", "
                                                                         CP_IDUSERSUPERVISEUR_USRCONNECT ", "

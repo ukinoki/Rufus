@@ -41,7 +41,6 @@ bool bottom     = si true le message est affiché en bas à droite de l'écran, 
 class Message : public QObject
 {
     Q_OBJECT
-
 public:
     static Message *instance;
     static Message* I()

@@ -31,7 +31,6 @@ class dlg_impressions;
 class dlg_impressions : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit                                    dlg_impressions(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_impressions();

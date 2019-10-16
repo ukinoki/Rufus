@@ -32,7 +32,6 @@ class dlg_gestioncomptes;
 class dlg_gestioncomptes : public UpDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_gestioncomptes(User *user,
                                 bool societe,

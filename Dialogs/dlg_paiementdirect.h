@@ -38,7 +38,6 @@ class dlg_paiementdirect;
 class dlg_paiementdirect : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_paiementdirect();

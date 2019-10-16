@@ -33,7 +33,6 @@ namespace Ui {
 class dlg_identificationpatient : public UpDialog
 {
     Q_OBJECT
-
 public:
     enum Mode                       {Copie, Creation, Modification};    Q_ENUM(Mode)
     explicit                        dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);

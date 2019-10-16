@@ -30,7 +30,6 @@ class dlg_identificationcorresp;
 class dlg_identificationcorresp : public UpDialog
 {
     Q_OBJECT
-
 public:
     enum Mode   {Creation, Modification};    Q_ENUM(Mode)
     explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);

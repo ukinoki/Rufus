@@ -29,7 +29,6 @@ class dlg_commentaires;
 class dlg_commentaires : public UpDialog
 {
     Q_OBJECT
-
 public:
     dlg_commentaires(QWidget *parent = Q_NULLPTR);
     ~dlg_commentaires();

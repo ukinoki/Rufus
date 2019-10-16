@@ -30,7 +30,6 @@ class dlg_paiementtiers;
 class dlg_paiementtiers : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit dlg_paiementtiers(QWidget *parent = Q_NULLPTR);
     ~dlg_paiementtiers();

@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("14-10-2019/1");
+    qApp->setApplicationVersion("16-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8451,6 +8451,7 @@ void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
 {
+//    if (proc->FicheRefractionOuverte())
     if (findChildren<dlg_refraction*>().size()>0)
         return;
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR || m_currentact == Q_NULLPTR)

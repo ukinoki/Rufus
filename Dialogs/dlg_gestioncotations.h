@@ -23,7 +23,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class dlg_gestioncotations : public UpDialog
 {
     Q_OBJECT
-
 public:
     enum Mode       {Creation, Modification};    Q_ENUM(Mode)
     enum TypeActe   {Association, HorsNomenclature};    Q_ENUM(TypeActe)

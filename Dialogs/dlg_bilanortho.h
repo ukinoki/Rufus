@@ -26,7 +26,7 @@ class dlg_bilanortho;
 
 class dlg_bilanortho : public QDialog
 {
-
+    Q_OBJECT
 public:
     explicit dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent = Q_NULLPTR);
     ~dlg_bilanortho();

@@ -1921,6 +1921,10 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::
 //Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::MDPAdmin()
 {
+    if (m_parametres == Q_NULLPTR)
+        m_parametres = db->parametres();
+    if (m_parametres == Q_NULLPTR)
+        return NOM_MDPADMINISTRATEUR;
     if (m_parametres->mdpadmin() == "")
         db->setmdpadmin(NOM_MDPADMINISTRATEUR);
     return m_parametres->mdpadmin();
@@ -3377,7 +3381,7 @@ bool Procedures::SetUserAllData(User *usr, Item::UPDATE upd)
         if(data.isEmpty())
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
-                                + usr->login() + tr("ne sont pas retrouvés"));
+                                + usr->login() + tr(" ne sont pas retrouvés"));
             return false;
         }
         usr->setData( data ); //on charge le reste des données
@@ -3632,10 +3636,10 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             PremierParametrageMateriel();
             PremierParametrageRessources();
             Datas::I()->sites->initListe();
+            SetUserAllData(m_currentuser);
             CalcLieuExercice();
             if (Datas::I()->sites->currentsite() == Q_NULLPTR)
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-            SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
             if (!m_connexionbaseOK)
@@ -3660,18 +3664,11 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Restauration de la base
             if (!RestaureBase(false, true, false))
                 return false;
-            Datas::I()->banques->initListe();
-            Datas::I()->users->initListe();
-            Datas::I()->comptes->initListe();
-            m_parametres = db->parametres();
-            PremierParametrageMateriel();
-            PremierParametrageRessources();
-            Datas::I()->sites->initListe();
-            CalcLieuExercice();
-            if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-                UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-            SetUserAllData(m_currentuser);
-            Datas::I()->users->initListe();
+            if (QMessageBox::question(Q_NULLPTR,"", tr("Reinitialiser les fichiers de paramétrage du matériel et d'impression?")) == QMessageBox::Yes)
+            {
+                PremierParametrageMateriel();
+                PremierParametrageRessources();
+            }
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
             if (!m_connexionbaseOK)
                 return false;
@@ -3823,7 +3820,8 @@ void Procedures::PremierParametrageRessources()
     if (m_modeacces == Utils::Poste)
     {
         QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
-        db->setdirimagerie(NomDirImg);
+        if (db->getDataBase().isOpen())
+            db->setdirimagerie(NomDirImg);
     }
  }
 
@@ -3873,7 +3871,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             QFile rufusini(fileini);
             rufusini.copy(m_nomFichierIni);
             m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
-            if (QMessageBox::question(Q_NULLPTR,"", tr("Restaurer aussi les fichiers modèles d'impression?")) != QMessageBox::NoButton)
+            if (QMessageBox::question(Q_NULLPTR,"", tr("Restaurer aussi les fichiers modèles d'impression?")) == QMessageBox::Yes)
                 PremierParametrageRessources();
             reponse = true;
         }
@@ -3902,7 +3900,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     }
     else if (msgbox->clickedButton()==&ReconstruitBaseBouton)
     {
-        //reconstruire la base de données vierge ou à partir d'un dump
+        //reconstruire la base de données à partir d'un dump
         reponse = RestaureBase(false, false, false);
         if (reponse)
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
@@ -3964,8 +3962,8 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         m_settings->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
         //! du premier utilisateur à se connecter, on ne connait que le login et le pwd
-        m_currentuser = new User(Dlg_ParamConnex->ui->LoginlineEdit->text(),Dlg_ParamConnex->ui->MDPlineEdit->text());
-        db->setUserConnected(m_currentuser);
+        db->login(Dlg_ParamConnex->ui->LoginlineEdit->text(),Dlg_ParamConnex->ui->MDPlineEdit->text());
+        m_currentuser = db->userConnected();
 
         m_connexionbaseOK = true;
         delete Dlg_ParamConnex;
