@@ -35,7 +35,7 @@ public:
     void setData(QJsonObject data);
 
 private:
-    //!< m_id = Id de l'utilisateur en base
+    //!< m_id = id de l'utilisateur en base
     //!< m_stringid = l'adresses mac du poste connecté suivi de l'id de l'utilisateur séparé par " - "
 
     QString m_nomposte;                 //!< nom du poste connexté
