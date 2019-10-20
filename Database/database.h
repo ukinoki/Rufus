@@ -66,6 +66,7 @@ class DataBase : public QObject
     Q_OBJECT
 public:
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
+    enum QueryResult { Error, Empty, OK}; Q_ENUM(QueryResult)
 
 private:
     DataBase();
@@ -191,7 +192,7 @@ public:
     /*
      * Users
     */
-    QJsonObject             login(QString login, QString password);     /*! connecte à la base mYSQL SQL avec le login login et le password password
+    QueryResult             login(QString login, QString password);     /*! connecte à la base mYSQL SQL avec le login login et le password password
                                                                         * crée l'utilisateur en cours m_userconnected  et complète tous les renseignements concernant cet utilisateur
                                                                         * renvoie un QJsonObject contenant les id d la réussite ou l'échec de la connection */
     QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts

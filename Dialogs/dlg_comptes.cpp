@@ -490,7 +490,8 @@ void dlg_comptes::VoirArchives()
     m_dateencours = m_dateencours.addDays(-m_intervalledate);
     m_archivescptencours = new Archives();
     m_archivescptencours->addArchive(listarchives);
-
+    if (listarchives.size()==0)
+        UpMessageBox::Watch(this, tr("Aucune écriture archivée depuis ") + QString::number(m_intervalledate) + tr("jours"));
     // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
     foreach (Archive * arc, *m_archivescptencours->archives())

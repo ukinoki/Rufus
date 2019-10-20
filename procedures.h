@@ -93,6 +93,8 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     DataBase                *db;
+    QString                 m_login = "";
+    QString                 m_password = "";
     Utils::ModeAcces        m_modeacces;
     bool                    m_connexionbaseOK;
     bool                    m_ok;
@@ -110,7 +112,7 @@ private:
                                      bool ReconstruitBase = true,
                                      bool PremDemarrage = false,
                                      bool BaseVierge = false);
-    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
+    bool                    VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
     int                     VerifUserBase(QString Login, QString MDP);          //! Vérifie que l'utilisateur existe dans la base

@@ -71,19 +71,11 @@ void dlg_identificationuser::Validation()
         return;
     }
 
-    int a = ControleDonnees();
-    if (a == -3 || a == -4 || a > 0)
-        //l'erreur -1 se produit quand le couple identifiant/mot de passe est erroné
-        //l'erreur -2 quand les droits utilisateurs sur le serveur sont incomplets
-        //l'erreur -5 quand l'utilisateur ne fait pas partie de la liste des utilisateurs référencés dans la base Rufus
-        //-> L'erreur -5 ne doit pas exister, utiliser uniquement l'erreur -1, pour ne pas faciliter le piratage de compte
-        //l'erreur -6 quand l'utilisateur est déjà connecté sur un autre poste
-        // ces 4 erreurs peuvent correspondre à une faute de frappe et ne ferment donc pas la fiche
-    {
-        done (a);
-        return;
-    }
-    //on le reactive
+    LoginResult a = ControleDonnees();
+    if (a == OK)
+        accept();
+    else if (a != NoUser && a != NoConnexion)
+        done(-1);
     ui->OKpushButton->setEnabled(true);
 }
 
@@ -118,7 +110,7 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
 /*--------------------------------------------------------------------------------------------------------------
 -- Recherche de l'utilisateur ----------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------*/
-int dlg_identificationuser::ControleDonnees()
+dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
 {
     bool ok;
     //TODO : SQL
@@ -126,8 +118,8 @@ int dlg_identificationuser::ControleDonnees()
     QString Login = ui->LoginlineEdit->text();
     QString Password = ui->MDPlineEdit->text();
 
-    if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
-    if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
+    if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus();    return NoUser;}
+    if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
     if (!m_chgmtuser)
     {
@@ -144,7 +136,7 @@ int dlg_identificationuser::ControleDonnees()
                             + tr(" et ce mot de passe") + "\n"
                             + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
                             + error);
-            return -1;
+            return NoConnexion;
         }
 
         QString Client;
@@ -173,7 +165,7 @@ int dlg_identificationuser::ControleDonnees()
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de retrouver les droits de l'utilisateur ") + Login + "\n" +
                             tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
-            return -2;
+            return UnDefinedRights;
         }
         QString reponse = grantsdata.at(0).toString();
         if (reponse.left(9) != "GRANT ALL")
@@ -184,7 +176,7 @@ int dlg_identificationuser::ControleDonnees()
                             tr("L'utilisateur ") + Login
                             + tr(" existe mais ne dispose pas de toutes les autorisations pour modifier/créer des données sur le serveur.")
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
-            return -2;
+            return UnCorrectRights;
         }
 
 
@@ -197,7 +189,7 @@ int dlg_identificationuser::ControleDonnees()
             ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
             Utils::Pause(600);
             //TODO : Erreur non géré
-            return -3;
+            return CorruptedBase;
         }
 //END
     }
@@ -207,48 +199,33 @@ int dlg_identificationuser::ControleDonnees()
         Utils::Pause(150);
     }
 
-    QJsonObject rep = db->login(Login, Password);
-    if (rep["code"] == -3)
+    DataBase::QueryResult rep = db->login(Login, Password);
+    if (rep == DataBase::Error)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
         Utils::Pause(150);
 
         UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
-                        tr("Impossible d'ouvrir la table Utilisateurs")
-                        + " \n" + tr("requete = ") + rep["request"].toString() + "\n"); //a mettre plutot dans un fichier de log
-        return -3;
+                        tr("Impossible d'ouvrir la table Utilisateurs"));
+        return CorruptedBase;
     }
 
     ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
-    if( rep["code"] == -1 )
+    if( rep == DataBase::Empty )
     {
         ui->IconUserOKupLabel->setPixmap(Icons::pxError());
         Utils::Pause(150);
         UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
                         tr("Identifiant ou mot de passe incorrect") );
-        return -1;
+        return CorruptedUser;
     }
 
     ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
-    /*if (rep["code"] == -6)  // ce cas de figure est désactivé parce que dans certains cabinets, il est possible à un seul utilisateur d'être connecté sur plusieurs postes en même temps
-    {
-        ui->IconUserOKupLabel->setPixmap(Icons::pxError());
-        Utils::Pause(600);
-        UpMessageBox::Watch(this, tr("Utilisateur déjà connecté"),
-                        tr("Impossible de vous connecter sur ce poste!") + "\n"
-                        + tr("Vous semblez être déjà connecté sur le poste") + "\n" + rep["poste"].toString() + "\n"
-                        + tr("Si ce n'est pas le cas, il faut retirer votre identifiant de la table des utilisateurs connectés.") + "\n"
-                        + tr("Pour cela, redémarrez Rufus sur le poste ") + rep["poste"].toString()
-                        + tr(" puis quittez Rufus.") + "\n"
-                        + tr("Cela purgera la table des utilisateurs connectés.") + "/n");
-
-        return -6;
-    }*/
 
     ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
-    return db->userConnected()->id();
+    return OK;
 }
 

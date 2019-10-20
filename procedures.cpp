@@ -237,6 +237,8 @@ bool Procedures::AutresPostesConnectes(bool msg)
  */
 void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos, bool OKfactures)
 {
+    if (!QDir(pathdestination).exists())
+        Utils::mkpath(pathdestination);
     QMap<QString, qint64>      DataDir;
     // taille de la base de données ----------------------------------------------------------------------------------------------------------------------------------------------
     m_basesize = 0;
@@ -670,11 +672,14 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     scriptrestore += "/mysql";
     scriptrestore += "\n";
     for (int i=0; i<ListNomFiles.size(); i++)
-    if (QFile(ListNomFiles.at(i)).exists())
-    {
-        scriptrestore += "$MYSQL -u " + m_currentuser->login() +  " -p" +  m_currentuser->password() + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
-        scriptrestore += "\n";
-    }
+        if (QFile(ListNomFiles.at(i)).exists())
+        {
+            if (m_currentuser == Q_NULLPTR)
+                scriptrestore += "$MYSQL -u " + m_login +  " -p" +  m_password + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
+            else
+                scriptrestore += "$MYSQL -u " + m_currentuser->login() +  " -p" +  m_currentuser->password() + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
+            scriptrestore += "\n";
+        }
     if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))
         QFile::remove(QDir::homePath() + SCRIPTRESTOREFILE);
     QFile fbackup(QDir::homePath() + SCRIPTRESTOREFILE);
@@ -2248,7 +2253,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
             return false;
         }
-        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP((PremierDemarrage? NOM_MDPADMINISTRATEUR : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
 
@@ -2290,30 +2295,34 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 3 - détermination de l'emplacement de destination des fichiers d'imagerie */
-        QString NomDirStockageImagerie = m_parametres->dirimagerie();
-        if (!QDir(NomDirStockageImagerie).exists())
+        QString NomDirStockageImagerie = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
+        if (OKImages || OKVideos || OKFactures)
         {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage valide"),
-                                tr("Le dossier spécifié pour le stockage de l'imagerie n'est pas valide") + "\n"
-                                + tr("Indiquez un dossier valide dans la boîte de dialogue qui suit"));
-            QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , QDir::homePath() + DIR_RUFUS);
-            dialogimg.setViewMode(QFileDialog::List);
-            dialogimg.setFileMode(QFileDialog::DirectoryOnly);
-            bool b = (dialogimg.exec()>0);
-            if (!b)
-                return false;
-            QDir dirstock = dialogimg.directory();
-            NomDirStockageImagerie = dirstock.dirName();
-            if (NomDirStockageImagerie=="")
-                return false;
-            NomDirStockageImagerie = dirstock.absolutePath();
-            if (NomDirStockageImagerie.contains(" "))
+            NomDirStockageImagerie = (PremierDemarrage? "" : m_parametres->dirimagerie());
+            if (PremierDemarrage || !QDir(NomDirStockageImagerie).exists())
             {
-                UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
-                return false;
+                UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage d'imagerie"),
+                                    tr("Indiquez un dossier valide dans la boîte de dialogue qui suit"));
+                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , QDir::homePath() + DIR_RUFUS);
+                dialogimg.setViewMode(QFileDialog::List);
+                dialogimg.setFileMode(QFileDialog::DirectoryOnly);
+                bool b = (dialogimg.exec()>0);
+                if (!b)
+                    return false;
+                QDir dirstock = dialogimg.directory();
+                NomDirStockageImagerie = dirstock.dirName();
+                if (NomDirStockageImagerie=="")
+                    return false;
+                NomDirStockageImagerie = dirstock.absolutePath();
+                if (NomDirStockageImagerie.contains(" "))
+                {
+                    UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
+                    return false;
+                }
+                m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", NomDirStockageImagerie);
+                if (!PremierDemarrage)
+                    db->setdirimagerie(NomDirStockageImagerie);
             }
-            m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", NomDirStockageImagerie);
-            db->setdirimagerie(NomDirStockageImagerie);
         }
 
         /*! 4 - choix des éléments à restaurer */
@@ -2997,10 +3006,10 @@ bool Procedures::IdentificationUser(bool ChgUsr)
 {
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser(ChgUsr);
     dlg_IdentUser   ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
-    bool a = false;
-
+    if (m_currentuser != Q_NULLPTR)
+        delete m_currentuser;
+    m_currentuser = Q_NULLPTR;
     int result = dlg_IdentUser->exec();
-
     if( result > 0 )
     {
         m_parametres = db->parametres();
@@ -3063,23 +3072,16 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                 m_currentuser->setparent(Datas::I()->users->getById(m_currentuser->idparent()));
 
             m_idcentre = m_parametres->numcentre();
-            a = true;
         }
     }
-    else if (result == -1 || result == -2 || result == -5 ) // erreur de couple login-MDP
+    else if ( result < 0 ) // anomalie sur la base - table utilisateurs manquante ou corrompue
     {
-        // traité en amont
-        // -1 : erreur de couple login-MDP
-        // -2 : erreur des droits utilisateur sur le serveur
-        // -5 : table utilisateurs non vide mais utilisateur non référencé
-    }
-    //BUG : A SUPP, géré par le serveur
-    else if (result == -3) // anomalie sur la base - table utilisateurs manquante ou corrompue
-    {
-        UpMessageBox     msgbox;
-        UpSmallButton    AnnulBouton(tr("Annuler"));
-        UpSmallButton    RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
-        UpSmallButton    BaseViergeBouton(tr("Nouvelle base patients vierge"));
+        m_login         = dlg_IdentUser->ui->LoginlineEdit->text();
+        m_password      = dlg_IdentUser->ui->MDPlineEdit->text();
+        UpMessageBox    msgbox;
+        UpSmallButton   AnnulBouton(tr("Annuler"));
+        UpSmallButton   RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
+        UpSmallButton   BaseViergeBouton(tr("Nouvelle base patients vierge"));
         msgbox.setText(tr("Base de données endommagée!"));
         msgbox.setInformativeText(tr("La base de données semble endommagée.\n"
                                   "Voulez-vous la reconstruire à partir"
@@ -3089,40 +3091,32 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         msgbox.addButton(&BaseViergeBouton, UpSmallButton::STARTBUTTON);
         msgbox.addButton(&RestaureBaseBouton, UpSmallButton::COPYBUTTON);
         msgbox.exec();
-        if( (msgbox.clickedButton() == &RestaureBaseBouton) && RestaureBase(false,false,false))
+        if( (msgbox.clickedButton() == &RestaureBaseBouton))
         {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
-            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+            if (RestaureBase(false,true,false))
+            {
+                UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+                Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
-            exit(0);
+                exit(0);
+            }
         }
-        if (msgbox.clickedButton() == &BaseViergeBouton)
+        else if (msgbox.clickedButton() == &BaseViergeBouton)
         {
             Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES);
             if (!RestaureBase(true, true))
                 exit(0);
             // Création de l'utilisateur
             //TODO : ICI
-            m_connexionbaseOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
+            m_connexionbaseOK = CreerPremierUser(m_login, m_password);
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             exit(0);
         }
     }
-    //BUG : A SUPP, géré par le serveur
-    else if (result == -4) // table utilisateurs vide
-    {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Erreur sur la base patients!"),
-                               tr("La connexion au serveur fonctionne mais\n"
-                                  "Il n'y a aucun utilisateur enregistré\n"
-                                  "avec ce login dans la table des utilisateurs.\n"
-                                  "Connectez-vous avec un login enregistré dans la base Rufus"));
-        exit(0);
-    }
     delete dlg_IdentUser;
-
-    return a;
+    return (m_currentuser != Q_NULLPTR);
 }
 
 bool Procedures::DefinitRoleUser() //NOTE : User Role Function
@@ -3625,9 +3619,10 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_FACTURES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_IMAGES);
     m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
+    QString login (""), MDP("");
     if (protoc == BaseExistante)
     {
-        if (VerifParamConnexion())
+        if (VerifParamConnexion(login, MDP))
         {
             Datas::I()->banques->initListe();
             Datas::I()->users->initListe();
@@ -3636,6 +3631,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             PremierParametrageMateriel();
             PremierParametrageRessources();
             Datas::I()->sites->initListe();
+            db->login(login, MDP);
+            m_currentuser = db->userConnected();
             SetUserAllData(m_currentuser);
             CalcLieuExercice();
             if (Datas::I()->sites->currentsite() == Q_NULLPTR)
@@ -3657,11 +3654,13 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     else if (protoc == BaseRestauree)
     {
         bool SansAccesDistant = false;
-        if (VerifParamConnexion(SansAccesDistant))
+        if (VerifParamConnexion(login, MDP, SansAccesDistant))
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Connexion réussie"),
                                   tr("Bien, la connexion au serveur MySQL fonctionne,\n"));
             // Restauration de la base
+            m_login = login;
+            m_password = MDP;
             if (!RestaureBase(false, true, false))
                 return false;
             if (QMessageBox::question(Q_NULLPTR,"", tr("Reinitialiser les fichiers de paramétrage du matériel et d'impression?")) == QMessageBox::Yes)
@@ -3669,6 +3668,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                 PremierParametrageMateriel();
                 PremierParametrageRessources();
             }
+            db->login(login, MDP);
+            m_currentuser = db->userConnected();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
             if (!m_connexionbaseOK)
                 return false;
@@ -3683,7 +3684,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     else if (protoc == BaseVierge)
     {
         bool SansAccesDistant = false;
-        if (VerifParamConnexion(SansAccesDistant))
+        if (VerifParamConnexion(login, MDP, SansAccesDistant))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne "
@@ -3697,7 +3698,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_parametres = db->parametres();
 
             // Création de l'utilisateur
-            m_connexionbaseOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
+            m_connexionbaseOK = CreerPremierUser(login, MDP);
             db->login(m_currentuser->login(), m_currentuser->password());
             SetUserAllData(m_currentuser);
             Datas::I()->sites->initListe();
@@ -3882,9 +3883,12 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         //1. on demande les paramètres de connexion au serveur - mode d'accès / user / mdp / port / SSL
         QFile(m_nomFichierIni).remove();
         m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
-        reponse = VerifParamConnexion();
+        QString login(""), MDP ("");
+        reponse = VerifParamConnexion(login, MDP);
         if (reponse)
         {
+            db->login(login, MDP);
+            m_currentuser = db->userConnected();
             int idusr = VerifUserBase(m_currentuser->login(), m_currentuser->password());
             m_connexionbaseOK = (idusr > -1);
             if (!m_connexionbaseOK)
@@ -3932,7 +3936,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
 //???
-bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
+bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant, QString)
 {
     Dlg_ParamConnex = new dlg_paramconnexion(OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
@@ -3961,11 +3965,9 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         m_settings->setValue(Base + "/Active",    "YES");
         m_settings->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        //! du premier utilisateur à se connecter, on ne connait que le login et le pwd
-        db->login(Dlg_ParamConnex->ui->LoginlineEdit->text(),Dlg_ParamConnex->ui->MDPlineEdit->text());
-        m_currentuser = db->userConnected();
-
         m_connexionbaseOK = true;
+        MDP = Dlg_ParamConnex->ui->MDPlineEdit->text();
+        login = Dlg_ParamConnex->ui->LoginlineEdit->text();
         delete Dlg_ParamConnex;
         return true;
     }

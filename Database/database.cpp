@@ -389,11 +389,7 @@ void DataBase::initParametres()
                   " from " TBL_PARAMSYSTEME;
     QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
     if(!ok || paramdata.size() == 0)
-    {
-        delete m_parametres;
-        m_parametres = Q_NULLPTR;
         return ;
-    }
     paramData[CP_MDPADMIN_PARAMSYSTEME]               = paramdata.at(0).toString();
     paramData[CP_NUMCENTRE_PARAMSYSTEME]              = paramdata.at(1).toInt();
     paramData[CP_IDLIEUPARDEFAUT_PARAMSYSTEME]        = paramdata.at(2).toInt();
@@ -426,52 +422,52 @@ void DataBase::setmdpadmin(QString mdp)
 {
     QString value = (mdp != ""? "'" + Utils::correctquoteSQL(mdp) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = " + value);
-    m_parametres->setmdpadmin(mdp);
+    parametres()->setmdpadmin(mdp);
 }
 void DataBase::setnumcentre(int id)
 {
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_NUMCENTRE_PARAMSYSTEME " = " + QString::number(id));
-    m_parametres->setnumcentre(id);
+    parametres()->setnumcentre(id);
 }
 void DataBase::setidlieupardefaut(int id)
 {
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_IDLIEUPARDEFAUT_PARAMSYSTEME " = " + QString::number(id));
-    m_parametres->setidlieupardefaut(id);
+    parametres()->setidlieupardefaut(id);
 }
 void DataBase::setdocscomprimes(bool one)
 {
     QString a = (one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DOCSCOMPRIMES_PARAMSYSTEME " = " + a);
-    m_parametres->setdocscomprimes(one);
+    parametres()->setdocscomprimes(one);
 }
 void DataBase::setversionbase(int version)
 {
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONBASE_PARAMSYSTEME " = " + QString::number(version));
-    m_parametres->setversionbase(version);
+    parametres()->setversionbase(version);
 }
 void DataBase::setsanscompta(bool one)
 {
     QString a = (!one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_SANSCOMPTA_PARAMSYSTEME " = " + a);
-    m_parametres->setsanscompta(one);
+    parametres()->setsanscompta(one);
 }
 void DataBase::setadresseserveurlocal(QString  adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME " = " + value);
-    m_parametres->setadresseserveurlocal(adress);
+    parametres()->setadresseserveurlocal(adress);
 }
 void DataBase::setadresseserveurdistant(QString adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME " = " + value);
-    m_parametres->setadresseserveurdistant(adress);
+    parametres()->setadresseserveurdistant(adress);
 }
 void DataBase::setdirimagerie(QString adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRIMAGERIE_PARAMSYSTEME " = " + value);
-    m_parametres->setdirimagerie(adress);
+    parametres()->setdirimagerie(adress);
 }
 void DataBase::setdaysbkup(Utils::Days days)
 {
@@ -492,19 +488,19 @@ void DataBase::setdaysbkup(Utils::Days days)
     val = (days.testFlag(Utils::Dimanche)?  "'1'" : "null");
     req += CP_DIMANCHEBKUP_PARAMSYSTEME " = " + val;
     StandardSQL(req);
-    m_parametres->setdaysbkup(days);
+    parametres()->setdaysbkup(days);
 }
 void DataBase::setheurebkup(QTime time)
 {
     QString value = (time != QTime()? "'" + time.toString("HH:mm:ss") + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_HEUREBKUP_PARAMSYSTEME " = " + value);
-    m_parametres->setheurebkup(time);
+    parametres()->setheurebkup(time);
 }
 void DataBase::setdirbkup(QString adress)
 {
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRBKUP_PARAMSYSTEME " = " + value);
-    m_parametres->setdirbkup(adress);
+    parametres()->setdirbkup(adress);
 }
 
 /*
@@ -599,50 +595,26 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 /*
  * Users
 */
-QJsonObject DataBase::login(QString login, QString password)
+DataBase::QueryResult DataBase::login(QString login, QString password)
 {
-    QJsonObject jrep{};
-    int userOffset = 3;
+    m_userConnected = Q_NULLPTR;
 
     //TODO : SQL USER : récupérer tout le reste
-    QString req = "SELECT u.idUser, u.UserNom, u.UserPrenom, "
-                    "uc.NomPosteconnecte "
+    QString req = "SELECT idUser "
                   " FROM " TBL_UTILISATEURS " u "
-                  " LEFT JOIN " TBL_USERSCONNECTES " uc on uc.idUSer = u.idUser "
                   " WHERE UserLogin = '" + login + "' "
                   " AND UserMDP = '" + password + "' ";
+    //qDebug() << req;
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok)
-    {
-        jrep["code"] = -3;
-        jrep["request"] = req;
-        return jrep;
-    }
-
+        return Error;
     if(usrdata.size()==0)
-    {
-        jrep["code"] = -1;
-        return jrep;
-    }
+        return Empty;
 
-    if( !usrdata.at(userOffset).isNull() && usrdata.at(userOffset).toString() != QHostInfo::localHostName().left(60) )
-    {
-        jrep["code"] = -6;
-        jrep["poste"] = usrdata.at(userOffset).toString();
-        // cette erreur n'est pas exploitée parce que dans certaines structures, un même utilisateur peut travailler sur plusieurs postes
-        //return jrep;
-    }
-
-    jrep["code"] = 0;
-
-    QJsonObject userData{};
-    userData["id"] = usrdata.at(0).toInt();
-    userData["nom"] = usrdata.at(1).toString();
-    userData["prenom"] = usrdata.at(2).toString();
-
-    m_userConnected = new User(login, password, userData);
-    m_userConnected->setData(loadUserData(usrdata.at(0).toInt()));
-    return jrep;
+    m_userConnected = new User(login, password);
+    int id = usrdata.at(0).toInt();
+    m_userConnected->setData(loadUserData(id));
+    return OK;
 }
 
 QJsonObject DataBase::loadUserData(int idUser)
@@ -1269,6 +1241,7 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
                   " where idCompte = " + QString::number(compte->id())
                 + " and lignedateconsolidation > '" + date.addDays(-intervalle).toString("yyyy-MM-dd") + "'"
                 + " and lignedateconsolidation <= '" + date.toString("yyyy-MM-dd") + "'";
+    //qDebug() << req;
     QList<QVariantList> arclist = StandardSelectSQL(req,ok);
     if(!ok || arclist.size()==0)
         return archives;
