@@ -1545,61 +1545,54 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
 void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
 
 {
-    m_modifpaiementencours    = true;
-    m_mode                   = EnregistrePaiementTiers;
-    m_idrecette               = idRecetteAModifier;
+    m_modifpaiementencours  = true;
+    m_mode                  = EnregistrePaiementTiers;
+    m_idrecette             = idRecetteAModifier;
     QString                 requete;
-    m_listactesamodifier.clear();
-    m_montantactesamodifier.clear();
+    m_listactesamodifier    .clear();
+    m_montantactesamodifier .clear();
 
     // on fait la liste des actes et des montants payés de la recette à modifier
     QString Retrouverequete = "SELECT idActe, Paye FROM " TBL_LIGNESPAIEMENTS " WHERE idRecette = " + QString::number(m_idrecette);
     QList<QVariantList> actlist = db->StandardSelectSQL(Retrouverequete,m_ok);
     for (int i = 0; i < actlist.size(); i++)
     {
-        m_listactesamodifier     << actlist.at(i).at(0).toInt();
-        m_montantactesamodifier   << actlist.at(i).at(1).toString();
+        m_listactesamodifier    << actlist.at(i).at(0).toInt();
+        m_montantactesamodifier << actlist.at(i).at(1).toString();
     }
 
     // Remplir les infos sur la recette concernée
     RecetteComptable* rec = db->loadRecetteComptablebyId(m_idrecette);
     if (rec == Q_NULLPTR)
         return;
-    ui->dateEdit->setDate(rec->date());
+    ui->dateEdit    ->setDate(rec->date());
     QRadioButton *RadioAClicker = Q_NULLPTR;
-    QString mp = rec->modepaiement();
+    QString mp      = rec->modepaiement();
     if (mp == "V")
     {
-        RadioAClicker = ui->VirementradioButton;
-        QString Commission = QLocale().toString(rec->commission(),'f',2);
+        RadioAClicker       = ui->VirementradioButton;
+        QString Commission  = QLocale().toString(rec->commission(),'f',2);
         ui->CommissionlineEdit->setText(Commission);
     }
     else if (mp == "E") RadioAClicker = ui->EspecesradioButton;
     else if (mp == "C") RadioAClicker = ui->ChequeradioButton;
     if (RadioAClicker != Q_NULLPTR)
-        RadioAClicker->setChecked(true);
+        RadioAClicker   ->setChecked(true);
     ui->ComptesupComboBox->clearEditText();
     if (rec->compteid() > 0)
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
     ui->TierscomboBox->setCurrentText(rec->payeur());
     if (mp == "C")
     {
-        ui->TireurChequelineEdit->setText(rec->tireurcheque());
-        ui->BanqueChequecomboBox->setCurrentText(rec->banquecheaque());
+        ui->TireurChequelineEdit    ->setText(rec->tireurcheque());
+        ui->BanqueChequecomboBox    ->setCurrentText(rec->banquecheaque());
     }
     QString Montant = QLocale().toString(rec->montant(),'f',2);
     ui->MontantlineEdit->setText(Montant);
 
     /* Verifier si on peut modifier la recette - impossible si:
- . la date d'enregistrement remonte à plus de 90 jours
  . c'est un chèque et il a été déposé en banque
  . c'est un virement et il a été pointé sur le compte*/
-    if (rec->dateenregistrement().daysTo(QDate::currentDate()) > 90)                                            //!> la date d'enregistrement remonte à plus de 90 jours
-    {
-        UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
-                                  tr("Il a été enregistré il y a plus de 90 jours!"));
-        m_modiflignerecettepossible = false;
-    }
     if (rec->modepaiement() == "C" && rec->idremisecheque() > 0)                                                //!> c'est un chèque et il a été déposé en banque
     {
         UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
@@ -1624,6 +1617,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
             if (m_ok && ligndata.size() > 0)
                 Consolide = true;
         }
+
         if (Consolide)
         {
             UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
