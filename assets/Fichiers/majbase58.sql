@@ -68,6 +68,7 @@ DROP TABLE IF EXISTS `ProgrammesOperatoires`;
 CREATE TABLE `ProgrammesOperatoires` (
   `idLigneProgramme` INT NOT NULL,
   `ProgDate` DATETIME NULL,
+  `idUser` INT NULL,
   `idPat` INT NULL,
   `idLieu` INT NULL,
   `TypeAnesthesie` VARCHAR(45) NULL,
