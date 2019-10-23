@@ -278,6 +278,7 @@ private:
     void                ConnectSignals();
 
                     // Fonctions ---------------------------------------------------------------------------------------------------
+    void                closeEvent(QCloseEvent *);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                keyPressEvent ( QKeyEvent * event );
     void                AfficheActe(Acte *acte);

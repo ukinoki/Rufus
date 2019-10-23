@@ -750,7 +750,7 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
         posteData[CP_IDLIEU_USRCONNECT]                     = postlist.at(i).at(5).toInt();
         posteData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(postlist.at(i).at(6).toDate(), postlist.at(i).at(6).toTime()).toMSecsSinceEpoch();
         posteData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(7).toInt();
-        posteData["stringid"]                               = macadress.split(" ").at(0) + " - " + postlist.at(i).at(0).toString();
+        posteData["stringid"]                               = macadress.split(" ").at(0) + " - " + QString::number(iduser);
         posteData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(8).toString();
     }
     return posteData;

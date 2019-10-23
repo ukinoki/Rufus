@@ -449,7 +449,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /*! fin du message invitant à mettre à jour la salle d'attente */
 #define TCPMSG_MAJPatient                           "MajPatient"                                        /*! fin du message indiquant qu'un patient a été créé ou modifié */
 #define TCPMSG_MAJListeUsers                        "MajListeUsers"                                     /*! fin du message invitant à mettre à jour la liste des utilisateurs */
-#define TCPMSG_MAJListePostes                       "MajListePostes"                                    /*! fin du message invitant à mettre à jour la liste des postes connectés */
 #define TCPMSG_MsgBAL                               "MsgRecuDansBAL"                                    /*! fin du message informant de la réception d'un message de messagerie instantanée */
 #define TCPMSG_Separator                            "triumphspeedtriple1050"                            /*! separateur au sein d'un message */
 #define TCPMSG_DataSocket                           "DataSocket"                                        /*! fin du message fournissant IP et MAC et nom d'un client */

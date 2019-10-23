@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("20-10-2019/1");
+    qApp->setApplicationVersion("23-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5458,6 +5458,9 @@ void Rufus::VerifCorrespondants()
 
 void Rufus::VerifVerrouDossier()
 {
+    // Seuls le poste importateur dees documents et les postes distants utilisent cette fonction
+    if (!proc->isPosteImportDocs() && DataBase::I()->getMode() != Utils::Distant)
+        return;
     /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
      * elle n'est utilisée qu'en cas de non utilisation du tcp
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
@@ -5466,33 +5469,24 @@ void Rufus::VerifVerrouDossier()
     Datas::I()->patientsencours->initListeAll();
     QDateTime timenow = db->ServerDateTime();
     QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
+    bool mettreajourlasalledattente     = false;
     foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
-        /*
-        qDebug() << "post->id()" << post->id();
-        qDebug() << "m_currentuser->id()" << m_currentuser->id();
-        qDebug() << "post->macadress()" << post->macadress();
-        qDebug() << "Utils::getMACAdress()" << Utils::getMACAdress();
-        */
         qint64 tempsecouledepuisactualisation = post->heurederniereconnexion().secsTo(timenow);
         if (tempsecouledepuisactualisation > 120)
         {
-            qDebug() << "VerifVerrouDossier()" << timenow;
-            qDebug() << "VerifVerrouDossier()" << post->heurederniereconnexion();
-            qDebug() << "VerifVerrouDossier()" << tempsecouledepuisactualisation;
-            qDebug() << "VerifVerrouDossier()" << post->stringid();
-            qDebug() << "post->id()" << post->id();
-            qDebug() << "m_currentuser->id()" << m_currentuser->id();
-            qDebug() << "post->macadress()" << post->macadress();
-            qDebug() << "Utils::getMACAdress()" << Utils::getMACAdress();
+            qDebug() << "Suppression d'un poste débranché accidentellement" << "Rufus::VerifVerrouDossier()";
+            qDebug() << "timenow = " << timenow;
+            qDebug() << "heure dernière connexion = " << post->heurederniereconnexion();
+            qDebug() << "temps ecoule depuis actualisation = " << tempsecouledepuisactualisation;
+            qDebug() << "nom du poste)" << post->stringid();
+            qDebug() << "user = " << Datas::I()->users->getById(post->id())->login();
             //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
             //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
-            QString blabla              = ENCOURSEXAMEN;
-            int length                  = blabla.size();
             foreach (PatientEnCours* pat, m_listepatientsencours->patientsencours()->values())
             {
                 if (pat != Q_NULLPTR)
-                    if (pat->iduserencoursexam() == post->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == post->nomposte())
+                    if (pat->iduserencoursexam() == post->id() && pat->statut().contains(ENCOURSEXAMEN) && pat->posteexamen() == post->nomposte())
                     {
                         ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                         ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
@@ -5504,7 +5498,7 @@ void Rufus::VerifVerrouDossier()
         }
         if (post->id() != m_currentuser->id() && post->macadress() == Utils::getMACAdress())
             if (!listpostsAEliminer.contains(post))
-                listpostsAEliminer << post;
+                listpostsAEliminer << post;            
     }
     if (listpostsAEliminer.size() > 0)
     {
@@ -5514,26 +5508,28 @@ void Rufus::VerifVerrouDossier()
            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
            Message::I()->TrayMessage(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
        }
-       Flags::I()->MAJFlagSalleDAttente();
+       mettreajourlasalledattente       = true;
     }
 
+    // on retire de la salle d'attente les patients qui n'existent pas
+    QString req = "delete from " TBL_SALLEDATTENTE " where idpat not in (select idpat from " TBL_PATIENTS ")";
+    db->StandardSQL(req);
+    QVariantList ndel = db->getFirstRecordFromStandardSelectSQL("SELECT ROW_COUNT() as DelRowCount;", m_ok);
+    if (m_ok)
+        if (ndel.size() > 0 && ndel.at(0).toInt() > 0)
+        {
+            Datas::I()->patientsencours->initListeAll();
+            mettreajourlasalledattente = true;
+        }
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam n'est plus present sur ce poste examen dans la liste des users connectes
-    QString blabla              = ENCOURSEXAMEN;
-    int length                  = blabla.size();
     QList<PatientEnCours*> listpatasupprimer = QList<PatientEnCours*>();
     foreach (PatientEnCours *pat, m_listepatientsencours->patientsencours()->values())
     {
         if (pat != Q_NULLPTR)
         {
-            // on retire de la salle d'attente les patients qui n'existent pas
-            if (m_patients->getById(pat->id(), Item::NoLoadDetails) == Q_NULLPTR)
-                listpatasupprimer << pat;
-            if (listpatasupprimer.size() > 0)
-                for (int i=0; i<listpatasupprimer.size(); i++)
-                    m_listepatientsencours->SupprimePatientEnCours(listpatasupprimer.at(i));
-            if (pat->statut().left(length) == ENCOURSEXAMEN)
+            if (pat->statut().contains(ENCOURSEXAMEN))
             {
-                bool posttrouve = false;
+                bool posttrouve = true;
                 foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
                 {
                     if (post->id() == pat->iduser() && post->nomposte() == pat->posteexamen())
@@ -5547,11 +5543,13 @@ void Rufus::VerifVerrouDossier()
                     ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                     ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
                     ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                    mettreajourlasalledattente      = true;
                 }
             }
         }
     }
-
+    if (mettreajourlasalledattente)
+        Flags::I()->MAJFlagSalleDAttente();
 }
 
 bool Rufus::isPosteImport()
@@ -5764,6 +5762,41 @@ int Rufus::getRowFromPatient(Patient *pat)
             break;
         }
     return row;
+}
+
+void Rufus::closeEvent(QCloseEvent *)
+{
+    qDebug() << "closeevent";
+    PosteConnecte *post = Datas::I()->postesconnectes->currentpost();
+    int iduserposte = 0;
+    if (post != Q_NULLPTR)
+        iduserposte = post->id();
+    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
+        proc->setPosteImportDocs(false);
+
+    QString req = "update " TBL_UTILISATEURS " set datederniereconnexion = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+            + "' where idUser = " + QString::number(m_currentuser->id());
+    db->StandardSQL(req);
+    if (DataBase::I()->getMode() == Utils::Distant)
+        Flags::I()->MAJflagUserDistant();
+    //! on retire cet utilisateur de la table des utilisateurs connectés
+    //! avec TCP, les actions qui suivent sont effectuées par RufusAdmin
+    if (!m_utiliseTCP)
+    {
+        if (post != Q_NULLPTR)
+            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
+        Flags::I()->MAJFlagSalleDAttente();
+        //!> on déverrouille les actes verrouillés en comptabilité par cet utilisateur s'il n'est plus connecté sur aucun poste
+        bool usernotconnectedever = true;
+        foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
+            if(post->id() == iduserposte)
+            {
+                usernotconnectedever = false;
+                break;
+            }
+        if (usernotconnectedever)
+            db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(iduserposte));
+    }
 }
 
 // ------------------------------------------------------------------------------------------
@@ -6609,25 +6642,7 @@ void Rufus::SortieAppli()
                 }
             }
     }
-
-    // on retire cet utilisateur de la table des utilisateurs connectés
-    PosteConnecte *post = Datas::I()->postesconnectes->currentpost();
-    if (post != Q_NULLPTR)
-        Datas::I()->postesconnectes->SupprimePosteConnecte(post);
-    Flags::I()->MAJFlagSalleDAttente();
-    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
-        proc->setPosteImportDocs(false);
-
-    req = "update " TBL_UTILISATEURS " set datederniereconnexion = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
-            + "' where idUser = " + QString::number(m_currentuser->id());
-    db->StandardSQL(req);
-    if (m_utiliseTCP && TcPConnect->state() == QAbstractSocket::ConnectedState)
-    {
-        TcPConnect->close();
-        delete TcPConnect;
-    }
-    if (DataBase::I()->getMode() == Utils::Distant)
-        Flags::I()->MAJflagUserDistant();
+    close();
     exit(0);
 }
 
@@ -8713,7 +8728,7 @@ void Rufus::Remplir_SalDat()
               << itempat;
         m_listepatientsencoursmodel->appendRow(items);
     }
-    Datas::I()->patients->initListeSalDat(listidpat);
+    Datas::I()->patients->initListeSalDat(listidpat);  // charge les data des patientsencours
     QList<PatientEnCours*> listpat;
     m_listepatientsencoursmodel->sort(0);
     for (int i=0; i<m_listepatientsencoursmodel->rowCount(); ++i)
@@ -10094,11 +10109,6 @@ void Rufus::TraiteTCPMessage(QString msg)
             //qDebug() << data;
         }
         ResumeStatut();
-        Datas::I()->postesconnectes->initListe();
-        Remplir_SalDat();
-    }
-    else if (msg.contains(TCPMSG_MAJListePostes))
-    {
         Datas::I()->postesconnectes->initListe();
         Remplir_SalDat();
     }

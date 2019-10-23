@@ -93,7 +93,7 @@ void TcpSocket::TraiteDonneesRecues()
 void TcpSocket::erreurSocket()
 {
     QAbstractSocket::SocketError erreur = error();
-    qDebug() << erreur;
+    //qDebug() << erreur;
     switch(erreur)
     {
         case QAbstractSocket::RemoteHostClosedError:
@@ -113,12 +113,12 @@ void TcpSocket::erreurSocket()
      || erreur == QAbstractSocket::HostNotFoundError           /************** LE SERVER NE RÉPOND PAS ************************** */
      || erreur == QAbstractSocket::SocketTimeoutError)         /************** LE SERVER N'A PAS RÉPONDU À UN ENVOI ************************** */
     {
-        qDebug() << m_erreurmsg + " - " + m_currentmsg;
+        //qDebug() << m_erreurmsg + " - " + m_currentmsg;
         TcpConnectToServer();
     }
     else
     {
-        qDebug() << m_erreurmsg + " - " + m_currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)";
+        //qDebug() << m_erreurmsg + " - " + m_currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)";
         return;
     }
 }

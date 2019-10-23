@@ -58,22 +58,22 @@ private:
 
     //!< m_id = Id de l'utilsateur en base
 
-    QString m_login; //!< Identifiant de l'utilisateur
-    QString m_password;
-    QString m_prenom; //!< prénom de l'utilisateur
-    QString m_nom; //!< nom de l'utilisateur
-    QString m_droits;
-    QString m_mail;
-    QString m_titre; //!< titre, ex: Docteur
-    QString m_fonction;
-    QString m_specialite;
-    QString m_numCO;
-    QString m_portable;
-    QString m_web;
-    QString m_memo;
-    QString m_policeEcran;
-    QString m_policeAttribut;
-    QString m_nomCompteEncaissHonoraires;
+    QString m_login = "";               //!< Identifiant de l'utilisateur
+    QString m_password = "";            //!> mot de passe de l'utilisateur
+    QString m_prenom = "";              //!< prénom de l'utilisateur
+    QString m_nom = "";                 //!< nom de l'utilisateur
+    QString m_droits = "";              //!> les droits de l'utilisateur - correspond à l'enum METIER -> Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
+    QString m_mail = "";                //!> le mail
+    QString m_titre = "";               //!< titre, ex: Docteur
+    QString m_fonction = "";            //! la fonction précise de l'utilisateur
+    QString m_specialite = "";          //!> la spécialité
+    QString m_numCO = "";               //!> le no du conseil de l'ordre
+    QString m_portable = "";            //!> le no de téléphone portable
+    QString m_web = "";                 //!> le site web
+    QString m_memo = "";                //!> memo sur l'utilisateur
+    QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
+    QString m_policeAttribut = "";      //! lle choix d'attribut de la police d'écran
+    QString m_nomCompteEncaissHonoraires = "";  //!> le compte sur lequel sont encaissés les honoraires
 
     int m_soignant;
     qlonglong m_numPS;
