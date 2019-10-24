@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-10-2019/1");
+    qApp->setApplicationVersion("24-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1855,18 +1855,14 @@ void Rufus::ExporteDocs()
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + pathDirImagerie + "</b></font>" + tr(" n'existe pas");
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Emplacement de stockage des documents archivés") + "</b></font>";
-        QStringList listmsg;
-        listmsg << msg;
-        Message::I()->TrayMessage(listmsg, 6000);
+        Message::I()->SplashMessage(msg, 6000);
         return;
     }
     QString CheminEchecTransfrDir   = pathDirImagerie + DIR_ECHECSTRANSFERTS;
     if (!Utils::mkpath(CheminEchecTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
-        QStringList listmsg;
-        listmsg << msg;
-        Message::I()->TrayMessage(listmsg, 6000);        return;
+        Message::I()->SplashMessage(msg, 6000);        return;
     }
 
     int total = db->StandardSelectSQL("SELECT idimpression FROM " TBL_DOCSEXTERNES " where jpg is not null or pdf is not null",m_ok).size();
@@ -1903,9 +1899,7 @@ void Rufus::ExporteDocs()
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
         {
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            Message::I()->TrayMessage(listmsg, 3000);
+            Message::I()->SplashMessage(msg, 3000);
             return;
         }
 
@@ -1934,9 +1928,7 @@ void Rufus::ExporteDocs()
                     if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
                     {
                         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                        QStringList listmsg;
-                        listmsg << msg;
-                        Message::I()->TrayMessage(listmsg, 3000);
+                        Message::I()->SplashMessage(msg, 3000);
                         return;
                     }
                 QString NomFileDoc = listexportjpg.at(i).at(1).toString() + "_" + listexportjpg.at(i).at(6).toString() + "-"
@@ -2017,9 +2009,7 @@ void Rufus::ExporteDocs()
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
                 {
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                    QStringList listmsg;
-                    listmsg << msg;
-                    Message::I()->TrayMessage(listmsg, 3000);
+                    Message::I()->SplashMessage(msg, 3000);
                     return;
                 }
             QString NomFileDoc = listexportpdf.at(i).at(1).toString() + "_" + listexportpdf.at(i).at(7).toString() + "-"
@@ -2106,9 +2096,7 @@ void Rufus::ExporteDocs()
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
         {
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            Message::I()->TrayMessage(listmsg, 3000);
+            Message::I()->SplashMessage(msg, 3000);
             return;
         }
 
@@ -2167,9 +2155,7 @@ void Rufus::ExporteDocs()
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
                 {
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                    QStringList listmsg;
-                    listmsg << msg;
-                    Message::I()->TrayMessage(listmsg, 3000);
+                    Message::I()->SplashMessage(msg, 3000);
                     return;
                 }
 
@@ -2273,9 +2259,7 @@ void Rufus::ExporteDocs()
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
                 {
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                    QStringList listmsg;
-                    listmsg << msg;
-                    Message::I()->TrayMessage(listmsg, 3000);
+                    Message::I()->SplashMessage(msg, 3000);
                     return;
                 }
             QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "." PDF;
@@ -4502,7 +4486,9 @@ void Rufus::VerifSendMessage(int idMsg)
 
 void Rufus::AfficheMessageImport(QStringList listmsg, int pause)
 {
-    Message::I()->TrayMessage(listmsg, pause);
+    //qDebug() << "Rufus::AfficheMessageImport(QStringList listmsg, int pause)";
+    for (int i=0; i < listmsg.size(); ++i)
+        Message::I()->SplashMessage(listmsg.at(i), pause);
 }
 
 void Rufus::AfficheMessageLimitDate(bool a)
@@ -4726,9 +4712,7 @@ void Rufus::SupprimerDocsEtFactures()
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-        QStringList listmsg;
-        listmsg << msg;
-        Message::I()->TrayMessage(listmsg, 3000);
+        Message::I()->SplashMessage(msg, 3000);
         return;
     }
     req = "select LienFichier from " TBL_FACTURESASUPPRIMER;
@@ -4742,9 +4726,7 @@ void Rufus::SupprimerDocsEtFactures()
         if (!Utils::mkpath(CheminOKTransfrDir))
         {
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            Message::I()->TrayMessage(listmsg, 3000);
+            Message::I()->SplashMessage(msg, 3000);
             continue;
         }
         QFile(NomDirStockageImagerie + DIR_FACTURES + lienfichier).copy(NomDirStockageImagerie + DIR_FACTURESSANSLIEN + lienfichier);

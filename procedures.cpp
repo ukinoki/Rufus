@@ -2573,7 +2573,7 @@ bool Procedures::VerifBaseEtRessources()
                         return false;
                 BupDone = true;
             }
-            Message::I()->TrayMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
+            Message::I()->SplashMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
             if (DumpFile.exists())
@@ -2639,7 +2639,7 @@ bool Procedures::VerifBaseEtRessources()
         PremierParametrageRessources();
         m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
         m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
-        Message::I()->TrayMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
+        Message::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
     }
     return true;
 }

@@ -63,6 +63,11 @@ public:
             TrayMessage(listmsg.at(i), duree);
     }
     void SplashMessage(QString msg, int duree = 3000);
+    void SplashMessage(QStringList listmsg, int duree = 3000)
+    {
+        for (int i=0; i<listmsg.size(); i++)
+            SplashMessage(listmsg.at(i), duree);
+    }
 
 private:
     Message() {}
