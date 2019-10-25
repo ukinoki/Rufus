@@ -235,14 +235,14 @@ bool Procedures::AutresPostesConnectes(bool msg)
  *  \param OKfactures :         les factures sont sauvegardées
  *
  */
-void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos, bool OKfactures)
+void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos, bool OKfactures)
 {
     if (!QDir(pathdestination).exists())
         Utils::mkpath(pathdestination);
     QMap<QString, qint64>      DataDir;
     // taille de la base de données ----------------------------------------------------------------------------------------------------------------------------------------------
     m_basesize = 0;
-    if (Restore)
+    if (op == RestoreOp)
     {
         QStringList filters, listnomsfilestorestore;
         filters << "*.sql";
@@ -264,10 +264,10 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
 
     dlg_buprestore = new UpDialog();
     dlg_buprestore->setModal(true);
-    dlg_buprestore->setWindowTitle(Restore? tr("Dossiers à restaurer") : tr("Dossiers à sauvegarder"));
+    dlg_buprestore->setWindowTitle(op == RestoreOp? tr("Dossiers à restaurer") : tr("Dossiers à sauvegarder"));
     int labelsize = 15;
 
-    if (Restore)
+    if (op == RestoreOp)
     {
         QHBoxLayout *layini = new QHBoxLayout;
         UpLabel *labelini = new UpLabel();
@@ -296,10 +296,10 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
         layRssces->addWidget(Rssceschk);
         layRssces->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
         dlg_buprestore->dlglayout()->insertLayout(0, layRssces);
+        QDir rootimgvid = QDir(pathorigin);
+        if (rootimgvid.cdUp())
+            pathorigin = rootimgvid.absolutePath();
     }
-    QDir rootimgvid = QDir(pathorigin);
-    if (rootimgvid.cdUp())
-        pathorigin = rootimgvid.absolutePath();
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
@@ -314,8 +314,8 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             layVideos->addWidget(labeVideos);
             UpCheckBox *Videoschk  = new UpCheckBox();
             Videoschk->setText("Videos");
-            Videoschk->setEnabled(OKvideos || !Restore);
-            Videoschk->setChecked(OKvideos || !Restore);
+            Videoschk->setEnabled(OKvideos || op == BackupOp);
+            Videoschk->setChecked(OKvideos || op == BackupOp);
             Videoschk->setAccessibleDescription("videos");
             layVideos->addWidget(Videoschk);
             layVideos->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -340,8 +340,8 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             layImges->addWidget(labelmges);
             UpCheckBox *Imgeschk  = new UpCheckBox();
             Imgeschk->setText("Images");
-            Imgeschk->setEnabled(OKimages || !Restore);
-            Imgeschk->setChecked(OKimages || !Restore);
+            Imgeschk->setEnabled(OKimages || op == BackupOp);
+            Imgeschk->setChecked(OKimages || op == BackupOp);
             Imgeschk->setAccessibleDescription("images");
             layImges->addWidget(Imgeschk);
             layImges->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -366,8 +366,8 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             layFctures->addWidget(labelmges);
             UpCheckBox *Fctureschk  = new UpCheckBox();
             Fctureschk->setText("Factures");
-            Fctureschk->setEnabled(OKimages || !Restore);
-            Fctureschk->setChecked(OKimages || !Restore);
+            Fctureschk->setEnabled(OKimages || op == BackupOp);
+            Fctureschk->setChecked(OKimages || op == BackupOp);
             Fctureschk->setAccessibleDescription("factures");
             layFctures->addWidget(Fctureschk);
             layFctures->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -414,7 +414,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     CalcTimeBupRestore();
 }
 
-bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool isbkupauto)
+bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures)
 {
     if (QDir(m_parametres->dirimagerie()).exists())
     {
@@ -439,7 +439,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
         bool b = precBup.exists();
         if (b)
             precBup.copy(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE);
-        DefinitScriptBackup(dirSauv, OKImages, OKVideos);
+        DefinitScriptBackup(pathdirdestination, OKImages, OKVideos);
         QString msg = "sh " + QDir::homePath() + SCRIPTBACKUPFILE;
         QProcess dumpProcess(parent());
         dumpProcess.start(msg);
@@ -462,7 +462,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
     }
     else
     {
-        QString dest = dirSauv + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+        QString dest = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
         QDir dirdest;
         if (OKImages || OKVideos)
             dirdest.mkdir(dest);
@@ -491,15 +491,19 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVide
             Message::I()->TrayMessage(tr("Fichiers video sauvegardés!"), 3000);
         }
     }
+    if (OKImages || OKFactures || OKVideos)
+    {
+        QDir rootimgvid = QDir(pathdirdestination);
+        if (rootimgvid.cdUp())
+            pathdirdestination = rootimgvid.absolutePath();
+    }
     if (OKImages)
-        Utils::cleanfolder(dirSauv + DIR_IMAGES);
+        Utils::cleanfolder(pathdirdestination + DIR_IMAGES);
     if (OKFactures)
-        Utils::cleanfolder(dirSauv + DIR_FACTURES);
+        Utils::cleanfolder(pathdirdestination + DIR_FACTURES);
     if (OKVideos)
-        Utils::cleanfolder(dirSauv + DIR_VIDEOS);
+        Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
     emit ConnectTimers(true);
-    if (!isbkupauto)
-        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde terminée"));
     return result;
 }
 
@@ -520,7 +524,7 @@ void Procedures::BackupWakeUp()
         if (!m_parametres->daysbkup().testFlag(daybkup))
             return;
         if (!AutresPostesConnectes(false))
-            Backup(m_parametres->dirbkup(), true, true, true, true, true);
+            Backup(m_parametres->dirbkup(), true, true, true, true);
     }
 }
 
@@ -729,7 +733,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     }
     else
     {
-        AskBupRestore(false, m_parametres->dirimagerie(), dirdestination );
+        AskBupRestore(BackupOp, m_parametres->dirimagerie(), dirdestination );
         if (dlg_buprestore->exec()==0)
             return false;
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
@@ -747,7 +751,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     }
     if (!OKbase && !OKImages && !OKVideos && !OKFactures)
         return false;
-    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures, false);
+    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures);
 }
 
 void Procedures::EffaceBDDDataBackup()
@@ -2326,7 +2330,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 4 - choix des éléments à restaurer */
-        AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos, OKFactures);
+        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos, OKFactures);
         int result = dlg_buprestore->exec();
         if (result > 0)
         {

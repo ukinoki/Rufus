@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("24-10-2019/1");
+    qApp->setApplicationVersion("25-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -4486,9 +4486,7 @@ void Rufus::VerifSendMessage(int idMsg)
 
 void Rufus::AfficheMessageImport(QStringList listmsg, int pause)
 {
-    //qDebug() << "Rufus::AfficheMessageImport(QStringList listmsg, int pause)";
-    for (int i=0; i < listmsg.size(); ++i)
-        Message::I()->SplashMessage(listmsg.at(i), pause);
+    Message::I()->SplashMessage(listmsg, pause);
 }
 
 void Rufus::AfficheMessageLimitDate(bool a)

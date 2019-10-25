@@ -364,7 +364,7 @@ signals:
          */
 
     public:
-       void                    EffaceBDDDataBackup();
+       void                     EffaceBDDDataBackup();
                                 /*! efface le paramétrage de la sauvegarde (moment et emplacement) dans la base de données */
         void                    EffaceProgrammationBackup();
                                 /*! efface la programmation de la sauvegarde qui a été créé sur le poste à partir du paramètrage enregistré dans la base de données
@@ -380,12 +380,13 @@ signals:
                                 */
         bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
         bool                    ReinitBase();
+        enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
 
     private:
         QTimer                  t_timerbackup;
-        void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
+        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-        bool                    Backup(QString dirSauv, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool isbkupauto);
+        bool                    Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures);
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
                                 * et par le timer t_timerbackup sous Linux pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();
