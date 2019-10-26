@@ -429,6 +429,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         OKFactures = false;
     }
 
+    QString msg = tr("Sauvegarde effectuée avec succès");
     Message::I()->TrayMessage(tr("Sauvegarde en cours"),3000);
     emit ConnectTimers(false);
 
@@ -444,25 +445,22 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         int  a = 99;
         if (dumpProcess.exitStatus() == QProcess::NormalExit)
             a = dumpProcess.exitCode();
-        if (a == 0)
-            msg = tr("Sauvegarde effectuée avec succès");
-        else
+        if (a != 0)
             msg = tr("Incident pendant la sauvegarde");
-        Message::I()->TrayMessage(msg,3000);
         result = (a==0);
     }
     else
     {
-        QString dest = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+        pathdirdestination += "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
         QDir dirdest;
         if (OKImages || OKVideos || OKFactures)
-            dirdest.mkdir(dest);
+            dirdest.mkdir(pathdirdestination);
         if (OKImages)
         {
             QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
             Message::I()->TrayMessage(Msg, 3000);
-            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_IMAGES + " " + dest);
+            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_IMAGES + " " + pathdirdestination);
             Message::I()->TrayMessage(tr("Fichiers d'imagerie sauvegardés!"), 3000);
         }
         if (OKFactures)
@@ -470,7 +468,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             QString Msg = (tr("Sauvegarde des factures\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
             Message::I()->TrayMessage(Msg, 3000);
-            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_FACTURES + " " + dest);
+            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_FACTURES + " " + pathdirdestination);
             Message::I()->TrayMessage(tr("Fichiers factures sauvegardés!"), 3000);
         }
         if (OKVideos)
@@ -478,15 +476,9 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             QString Msg = (tr("Sauvegarde des fichiers videos\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
             Message::I()->TrayMessage(Msg, 3000);
-            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_VIDEOS + " " + dest);
+            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_VIDEOS + " " + pathdirdestination);
             Message::I()->TrayMessage(tr("Fichiers video sauvegardés!"), 3000);
         }
-    }
-    if (OKImages || OKFactures || OKVideos)
-    {
-        QDir rootimgvid = QDir(pathdirdestination);
-        if (rootimgvid.cdUp())
-            pathdirdestination = rootimgvid.absolutePath();
     }
     if (OKImages)
         Utils::cleanfolder(pathdirdestination + DIR_IMAGES);
@@ -494,6 +486,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         Utils::cleanfolder(pathdirdestination + DIR_FACTURES);
     if (OKVideos)
         Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
+    Message::I()->TrayMessage(msg,3000);
     emit ConnectTimers(true);
     return result;
 }
@@ -501,13 +494,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 
 void Procedures::BackupWakeUp()
 {
-    if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().addSecs(-300).toString("HH:mm:ss"))
-        if (QDir(m_parametres->dirimagerie()).exists())
-        {
-            Utils::cleanfolder(m_parametres->dirimagerie() + DIR_IMAGES);
-            Utils::cleanfolder(m_parametres->dirimagerie() + DIR_FACTURES);
-            Utils::cleanfolder(m_parametres->dirimagerie() + DIR_VIDEOS);
-        }
     if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm")+ ":00")
     {
         int day = QDate::currentDate().dayOfWeek();
@@ -730,9 +716,9 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     if (full)
     {
         OKbase = true;
-        OKImages = true && QDir(m_parametres->dirimagerie()).exists();
-        OKVideos = true && QDir(m_parametres->dirimagerie()).exists();
-        OKFactures = true && QDir(m_parametres->dirimagerie()).exists();
+        OKImages = QDir(m_parametres->dirimagerie()).exists();
+        OKVideos = QDir(m_parametres->dirimagerie()).exists();
+        OKFactures = QDir(m_parametres->dirimagerie()).exists();
     }
     else
     {
