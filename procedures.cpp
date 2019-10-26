@@ -782,6 +782,20 @@ void Procedures::ParamAutoBackup()
     t_timerbackup.stop();
     t_timerbackup.start(1000);
     connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp();});
+    /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
+#ifdef Q_OS_MACX
+    if (QFile::exists(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE))
+    {
+        QFile::remove(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE);
+        // décharge du launchd
+        QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
+        unload += SCRIPT_MACOS_PLIST_FILE "\"\"";
+        QProcess dumpProcess(parent());
+        dumpProcess.start(unload);
+        dumpProcess.waitForFinished();
+    }
+#endif
+
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX
     DefinitScriptBackup(m_parametres->dirbkup());
