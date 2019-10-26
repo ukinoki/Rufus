@@ -492,7 +492,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define FILE_INI                                  "/Documents/Rufus/Rufus.ini"
 #define SCRIPTBACKUPFILE                          "/Documents/Rufus/RufusScriptBackup.sh"
 #define SCRIPTRESTOREFILE                         "/Documents/Rufus/RufusScriptRestore.sh"
+/*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #define SCRIPT_MACOS_PLIST_FILE                   "/Library/LaunchAgents/rufus.bup.plist"
+*/
 
 // Variables mysql
 #define MAX_ALLOWED_PACKET                          "16"

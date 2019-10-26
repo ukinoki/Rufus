@@ -435,11 +435,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     bool result = true;
     if (OKBase)
     {
-        QFile precBup(QDir::homePath() + SCRIPTBACKUPFILE);
-        bool b = precBup.exists();
-        if (b)
-            precBup.copy(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE);
-        DefinitScriptBackup(pathdirdestination, OKImages, OKVideos);
+        QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
+        DefinitScriptBackup(pathdirdestination, OKImages, OKVideos, OKFactures);
         QString msg = "sh " + QDir::homePath() + SCRIPTBACKUPFILE;
         QProcess dumpProcess(parent());
         dumpProcess.start(msg);
@@ -452,19 +449,13 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         else
             msg = tr("Incident pendant la sauvegarde");
         Message::I()->TrayMessage(msg,3000);
-        QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
-        if (b)
-        {
-            QFile(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE).copy(QDir::homePath() + SCRIPTBACKUPFILE);
-            QFile::remove(QDir::homePath() + DIR_RUFUS DIR_PROV SCRIPTBACKUPFILE);
-        }
         result = (a==0);
     }
     else
     {
         QString dest = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
         QDir dirdest;
-        if (OKImages || OKVideos)
+        if (OKImages || OKVideos || OKFactures)
             dirdest.mkdir(dest);
         if (OKImages)
         {
@@ -510,7 +501,13 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 
 void Procedures::BackupWakeUp()
 {
-
+    if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().addSecs(-300).toString("HH:mm:ss"))
+        if (QDir(m_parametres->dirimagerie()).exists())
+        {
+            Utils::cleanfolder(m_parametres->dirimagerie() + DIR_IMAGES);
+            Utils::cleanfolder(m_parametres->dirimagerie() + DIR_FACTURES);
+            Utils::cleanfolder(m_parametres->dirimagerie() + DIR_VIDEOS);
+        }
     if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm")+ ":00")
     {
         int day = QDate::currentDate().dayOfWeek();
@@ -524,11 +521,11 @@ void Procedures::BackupWakeUp()
         if (!m_parametres->daysbkup().testFlag(daybkup))
             return;
         if (!AutresPostesConnectes(false))
-            Backup(m_parametres->dirbkup(), true, true, true, true);
+            Backup(m_parametres->dirbkup());
     }
 }
 
-void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages, bool AvecVideos)
+void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
 {
     if (!QDir(NomDirDestination).exists())
         return;
@@ -550,6 +547,9 @@ void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages,
         {
             scriptbackup += "DIR_IMAGES=\"" + m_parametres->dirimagerie() + DIR_IMAGES + "\"";
             scriptbackup += "\n";
+        }
+        if (AvecFactures)
+        {
             scriptbackup += "DIR_FACTURES=\"" + m_parametres->dirimagerie() + DIR_FACTURES + "\"";
             scriptbackup += "\n";
         }
@@ -622,6 +622,9 @@ void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages,
             scriptbackup += "\n";
             scriptbackup += "cp -R -f $DIR_IMAGES $BACKUP_DIR";
             scriptbackup += "\n";
+        }
+        if (AvecFactures)
+        {
             scriptbackup += "mkdir -p $BACKUP_DIR" DIR_FACTURES;
             scriptbackup += "\n";
             scriptbackup += "cp -R -f $DIR_FACTURES $BACKUP_DIR";
@@ -766,19 +769,20 @@ void Procedures::EffaceProgrammationBackup()
 {
     if (QFile::exists(QDir::homePath() + SCRIPTBACKUPFILE))
         QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
-#ifdef Q_OS_LINUX
+    t_timerbackup.disconnect();
     t_timerbackup.stop();
-#endif
+    /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX
-    QString file = QDir::homePath() + SCRIPT_MACOS_PLIST_FILE;                          /*! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist" */
+    QString file = QDir::homePath() + SCRIPT_MACOS_PLIST_FILE;                          //! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"
     if (!QFile::exists(file))
         return;
-    QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             /*! unload = "bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"" */
+    QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             //! unload = "bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist""
     QProcess dumpProcess(parent());
     dumpProcess.start(unload);
     dumpProcess.waitForFinished();
     QFile::remove(file);
 #endif
+    */
 }
 
 void Procedures::ParamAutoBackup()
@@ -788,11 +792,11 @@ void Procedures::ParamAutoBackup()
         EffaceProgrammationBackup();
         return;
     }
-#ifdef Q_OS_LINUX
+    t_timerbackup.disconnect();
     t_timerbackup.stop();
     t_timerbackup.start(1000);
     connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp();});
-#endif
+    /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX
     DefinitScriptBackup(m_parametres->dirbkup());
     // elaboration de rufus.bup.plist
@@ -864,6 +868,7 @@ void Procedures::ParamAutoBackup()
     dumpProcess.start(load);
     dumpProcess.waitForFinished();
 #endif
+*/
 }
 
 void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup)

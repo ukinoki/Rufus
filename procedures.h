@@ -386,7 +386,7 @@ signals:
         QTimer                  t_timerbackup;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-        bool                    Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures);
+        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true);
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
                                 * et par le timer t_timerbackup sous Linux pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();
@@ -395,7 +395,7 @@ signals:
                                 /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
-        void                    DefinitScriptBackup(QString NomDirDestination, bool AvecImages= true, bool AvecVideos = true);
+        void                    DefinitScriptBackup(QString NomDirDestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         void                    DefinitScriptRestore(QStringList ListNomFiles);
                                 /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL */
