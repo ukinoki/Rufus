@@ -430,7 +430,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     }
 
     QString msg = tr("Sauvegarde effectuée avec succès");
-    Message::I()->TrayMessage(tr("Sauvegarde en cours"),3000);
+    int a = 0;
+    Message::I()->PriorityMessage(tr("Sauvegarde en cours"),a);
     emit ConnectTimers(false);
 
     bool result = true;
@@ -487,6 +488,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     if (OKVideos)
         Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
     Message::I()->TrayMessage(msg,3000);
+    Message::I()->ClosePriorityMessage(a);
     emit ConnectTimers(true);
     return result;
 }
@@ -494,7 +496,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 
 void Procedures::BackupWakeUp()
 {
-    if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm")+ ":00")
+    if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm:ss"))
     {
         int day = QDate::currentDate().dayOfWeek();
         Utils::Day daybkup = Utils::Lundi;
@@ -782,19 +784,6 @@ void Procedures::ParamAutoBackup()
     t_timerbackup.stop();
     t_timerbackup.start(1000);
     connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp();});
-    /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
-#ifdef Q_OS_MACX
-    if (QFile::exists(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE))
-    {
-        QFile::remove(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE);
-        // décharge du launchd
-        QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
-        unload += SCRIPT_MACOS_PLIST_FILE "\"\"";
-        QProcess dumpProcess(parent());
-        dumpProcess.start(unload);
-        dumpProcess.waitForFinished();
-    }
-#endif
 
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX

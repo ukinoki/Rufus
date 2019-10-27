@@ -41,6 +41,11 @@ bool bottom     = si true le message est affiché en bas à droite de l'écran, 
 class Message : public QObject
 {
     Q_OBJECT
+private:
+    QSystemTrayIcon *ict_messageIcon = new QSystemTrayIcon();
+    Message()       {  }
+    int             idprioritymessage = 0;
+    void            LogMessage(QString msg);
 public:
     static Message *instance;
     static Message* I()
@@ -68,11 +73,12 @@ public:
         for (int i=0; i<listmsg.size(); i++)
             SplashMessage(listmsg.at(i), duree);
     }
+    void PriorityMessage(QString msg, int &idmessage);
+    void ClosePriorityMessage(int idmsg) { emit closeprioiritydlg(idmsg); }
 
-private:
-    Message() {}
-    QSystemTrayIcon *ict_messageIcon = new QSystemTrayIcon;
-    void LogMessage(QString msg);
+
+signals:
+    void closeprioiritydlg(int iddlg);
 
 };
 

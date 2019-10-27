@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-10-2019/1");
+    qApp->setApplicationVersion("28-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -246,9 +246,17 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 13 - mise à jour du programmateur de sauvegarde
     if (db->getMode() == Utils::Poste)
         proc->ParamAutoBackup();
+    /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
 #ifdef Q_OS_MACX
-    else
-        proc->EffaceProgrammationBackup();
+    if (QFile::exists(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE))
+    {
+        QFile::remove(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE);
+        // décharge du launchd
+        QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath() + SCRIPT_MACOS_PLIST_FILE "\"\"";
+        QProcess dumpProcess(this);
+        dumpProcess.start(unload);
+        dumpProcess.waitForFinished();
+    }
 #endif
 
     //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires
