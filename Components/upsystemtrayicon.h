@@ -15,27 +15,24 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "uptableview.h"
+#ifndef UPSYSTEMTRAYICON_H
+#define UPSYSTEMTRAYICON_H
 
-UpTableView::UpTableView(QWidget *parent) : QTableView(parent)
+#include <QSystemTrayIcon>
+#include <QTimer>
+#include <QTime>
+#include <QStandardItem>
+
+class UpSystemTrayIcon : public QSystemTrayIcon
 {
+    Q_OBJECT
+public:
+    explicit    UpSystemTrayIcon();
+    void        showMessage(QString title, QString msg, QIcon icon, int duree);
+private:
+    QList<QMap<QString, QVariant>>  list_messages; //!> chaque QMap de la liste contient ["titre"] , ["texte"], ["duree"]
+    QList<QIcon>                    list_icons;
+    void                            showListMessages();
+};
 
-}
-
-void UpTableView::FixLargeurTotale()
-{
-    int larg = 0;
-    for (int i=0; i < model()->columnCount(); i++)
-        if (!isColumnHidden(i))
-            larg += columnWidth(i);
-    setFixedWidth(larg+2);
-}
-
-int UpTableView::rowNoHiddenCount() const
-{
-    int nrow = 0;
-    for (int i=0; i<model()->rowCount(); i++)
-        if (!isRowHidden(i))
-            nrow += 1;
-    return nrow;
-}
+#endif // UPSYSTEMTRAYICON_H

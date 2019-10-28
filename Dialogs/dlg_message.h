@@ -30,6 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScreen>
 #include "icons.h"
 #include "uptextedit.h"
+#include "upsystemtrayicon.h"
 
 /* Cette classe sert à afficher un message dans une fenêtre popo-up, sans bouton, sans bandeau de titre
 Les paramètres sont :
@@ -42,9 +43,16 @@ class Message : public QObject
 {
     Q_OBJECT
 private:
-    QSystemTrayIcon *ict_messageIcon = new QSystemTrayIcon();
-    Message()       {  }
-    int             idprioritymessage = 0;
+    UpSystemTrayIcon *ict_messageIcon;
+    QTimer t_timer;
+    Message()       {
+        ict_messageIcon = new UpSystemTrayIcon();
+        ict_messageIcon->setIcon(Icons::icSunglasses());
+        idprioritymessage = 0;
+        t_timer.setSingleShot(true);
+        connect(&t_timer, &QTimer::timeout, this, [=]{ ict_messageIcon->hide();});
+    }
+    qintptr         idprioritymessage;
     void            LogMessage(QString msg);
 public:
     static Message *instance;
@@ -56,12 +64,9 @@ public:
     }
     void TrayMessage(QString msg, int duree = 3000)
     {
-        ict_messageIcon->setIcon(Icons::icSunglasses());
-        ict_messageIcon->show();
         ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icSunglasses(), duree);
-        QTimer::singleShot(duree + 200, this, [=]{ ict_messageIcon->hide();});
-        LogMessage(msg);
     }
+
     void TrayMessage(QStringList listmsg, int duree = 3000)
     {
         for (int i=0; i<listmsg.size(); i++)
@@ -73,12 +78,12 @@ public:
         for (int i=0; i<listmsg.size(); i++)
             SplashMessage(listmsg.at(i), duree);
     }
-    void PriorityMessage(QString msg, int &idmessage);
-    void ClosePriorityMessage(int idmsg) { emit closeprioiritydlg(idmsg); }
+    void PriorityMessage(QString msg, qintptr &idmessage);
+    void ClosePriorityMessage(qintptr idmsg) { emit closeprioiritydlg(idmsg); }
 
 
 signals:
-    void closeprioiritydlg(int iddlg);
+    void closeprioiritydlg(qintptr iddlg);
 
 };
 

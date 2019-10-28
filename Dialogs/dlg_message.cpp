@@ -80,13 +80,10 @@ void Message::SplashMessage(QString msg, int duree)
     //                    QString::number(w - 45 - (marge*2) - 10) << "desktop yy = " +
     //                    QString::number(yy)  << "heigth() = " +
     //                    QString::number((hauteurligne*nlignes) - marge*2);
-    QTimer *timer       = new QTimer(dlg);
-    timer               ->setSingleShot(true);
-    connect(timer,      &QTimer::timeout, dlg, &QDialog::reject);
-    timer               ->start(duree);
+    QTimer::singleShot(duree, dlg, &QDialog::reject);
 }
 
-void Message::PriorityMessage(QString msg, int &idmessage)
+void Message::PriorityMessage(QString msg, qintptr &idmessage)
 {
     idprioritymessage ++;
     idmessage           = idprioritymessage;
@@ -128,5 +125,5 @@ void Message::PriorityMessage(QString msg, int &idmessage)
     prioritydlg         ->move(xx/2 - w/2 - marge - lay->spacing()-15, yy/2 - (int(hauteurligne)*nlignes)/2 - marge);
     prioritydlg         ->show();
     Utils::Pause(500);
-    connect(this,   &Message::closeprioiritydlg, prioritydlg, [=](int a) { if (idmessage == a) prioritydlg->reject(); });
+    connect(this,   &Message::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) prioritydlg->reject(); });
 }
