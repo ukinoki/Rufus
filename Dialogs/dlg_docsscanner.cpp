@@ -454,7 +454,7 @@ void dlg_docsscanner::ValideFiche()
     case Facture:       msg = tr("Facture ") + sstypedoc +  tr(" enregistrée");     break;
     case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;
     }
-    Message::I()->TrayMessage(QStringList() << msg, 1000);
+    UpSystemTrayIcon::I()->showMessage(tr("Messages"), msg, Icons::icSunglasses(), 1000);
     accept();
 }
 

@@ -18,6 +18,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_message.h"
 
 Message* Message::instance = Q_NULLPTR;
+Message* Message::I()
+{
+    if( !instance )
+        instance = new Message();
+    return instance;
+}
+Message::Message()
+{
+    idprioritymessage = 0;
+}
 
 void Message::LogMessage(QString msg)
 {
@@ -117,8 +127,8 @@ void Message::PriorityMessage(QString msg, qintptr &idmessage)
     int marge           = 8;
     lay                 ->setContentsMargins( marge, marge*2, marge, marge*2);
     lay                 ->setSizeConstraint(QLayout::SetFixedSize);
-    prioritydlg                 ->setLayout(lay);
-    prioritydlg                 ->setWindowFlags(Qt::SplashScreen);
+    prioritydlg         ->setLayout(lay);
+    prioritydlg         ->setWindowFlags(Qt::SplashScreen);
 
     int yy              = qApp->desktop()->availableGeometry().height();
     int xx              = qApp->desktop()->availableGeometry().width();

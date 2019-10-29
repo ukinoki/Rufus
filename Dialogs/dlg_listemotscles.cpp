@@ -115,12 +115,12 @@ void dlg_listemotscles::VerifMC()
     QString nouvMC= dlg_ask->findChildren<UpLineEdit*>().at(0)->text();
     if (nouvMC == "")
     {
-        Message::I()->TrayMessage(tr("Vous n'avez pas rempli le mot clé"),2000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous n'avez pas rempli le mot clé"), Icons::icSunglasses(), 2000);
         return;
     }
     if (m_listemotscles.contains(nouvMC, Qt::CaseInsensitive))
     {
-        Message::I()->TrayMessage(tr("Ce mot-clé existe déjà"),2000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Ce mot-clé existe déjà"), Icons::icSunglasses(), 2000);
         if (m_model->findItems(nouvMC, Qt::MatchExactly).size()>0)
             wdg_bigtable->scrollTo(m_model->findItems(nouvMC, Qt::MatchExactly).at(0)->index());
         return;

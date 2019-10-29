@@ -26,7 +26,7 @@ class SerialThread : public QThread
     Q_OBJECT
 
 public:
-    explicit SerialThread(QSerialPort *PortProc);
+    explicit        SerialThread(QSerialPort *PortProc);
     void            transaction();
     void            run() Q_DECL_OVERRIDE;
 

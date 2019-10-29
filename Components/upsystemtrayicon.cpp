@@ -18,8 +18,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upsystemtrayicon.h"
 #include "icons.h"
 
-UpSystemTrayIcon::UpSystemTrayIcon()
+UpSystemTrayIcon* UpSystemTrayIcon::instance =  Q_NULLPTR;
+UpSystemTrayIcon* UpSystemTrayIcon::I()
 {
+    if( !instance )
+        instance = new UpSystemTrayIcon();
+    return instance;
 }
 
 void UpSystemTrayIcon::showMessage(QString title, QString msg, QIcon icon, int duree)
@@ -33,6 +37,12 @@ void UpSystemTrayIcon::showMessage(QString title, QString msg, QIcon icon, int d
     list_icons      .append(icon);
     if (!isVisible())
         showListMessages();
+}
+
+void UpSystemTrayIcon::showMessages(QString title, QStringList listmsg, QIcon icon, int duree)
+{
+    for (int i=0; i<listmsg.size(); ++i)
+        showMessage(title, listmsg.at(i), icon, duree);
 }
 
 void UpSystemTrayIcon::showListMessages()

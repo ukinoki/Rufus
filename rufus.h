@@ -72,6 +72,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "pyxinterf.h"
 #include "styles.h"
 #include "tcpsocket.h"
+#include "upsystemtrayicon.h"
 
 
 namespace Ui {

@@ -27,9 +27,12 @@ class UpSystemTrayIcon : public QSystemTrayIcon
 {
     Q_OBJECT
 public:
-    explicit    UpSystemTrayIcon();
+    static      UpSystemTrayIcon* I();
     void        showMessage(QString title, QString msg, QIcon icon, int duree);
+    void        showMessages(QString title, QStringList msg, QIcon icon, int duree);
 private:
+    static UpSystemTrayIcon *instance;
+    UpSystemTrayIcon() {}
     QList<QMap<QString, QVariant>>  list_messages; //!> chaque QMap de la liste contient ["titre"] , ["texte"], ["duree"]
     QList<QIcon>                    list_icons;
     void                            showListMessages();

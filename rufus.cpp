@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("28-10-2019/1");
+    qApp->setApplicationVersion("29-10-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -101,7 +101,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         {
             log = tr("Aucun serveur TCP enregistré dans la base");
             Logs::MSGSOCKET(log);
-            Message::I()->TrayMessage(QStringList() << log, false);
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), log, Icons::icSunglasses(), 3000);
         }
         else
         {
@@ -111,7 +111,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             if (m_utiliseTCP)
             {
                 QString msg;
-                Message::I()->TrayMessage(QStringList() << tr("Connexion TCP OK"), 3000);
+                UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Connexion TCP OK"), Icons::icSunglasses(), 3000);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi iduser
                 msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;
@@ -1991,7 +1991,7 @@ void Rufus::ExporteDocs()
                 QTime dieTime= QTime::currentTime().addMSecs(2);
                 while (QTime::currentTime() < dieTime)
                     QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-                Message::I()->TrayMessage(listmsg, 10);
+                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 10);
             }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -2032,9 +2032,8 @@ void Rufus::ExporteDocs()
             Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
             if (!document || document->isLocked() || document == Q_NULLPTR)
             {
-                QStringList listmsg;
-                listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-                Message::I()->TrayMessage(listmsg, 3000);
+                QString msg = tr("Impossible de charger le document ") + NomFileDoc;
+                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
                 QFile   echectrsfer(echectrsfername);
                 if (echectrsfer.open(QIODevice::Append))
@@ -2081,13 +2080,13 @@ void Rufus::ExporteDocs()
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            Message::I()->TrayMessage(listmsg, 10);
+            UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 10);
         }
     int totdoc = listexportjpg.size() + listexportpdf.size();
     if (totdoc > 0)
     {
         listmsg <<  tr("export terminé") << QString::number(totdoc) + (totdoc>1? tr(" documents exportés en ") : tr(" document exporté en "))  + duree;
-        Message::I()->TrayMessage(listmsg, 3000);
+        UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
     }
 
 
@@ -2214,7 +2213,7 @@ void Rufus::ExporteDocs()
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            Message::I()->TrayMessage(listmsg, 10);
+            UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 10);
         }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -2280,7 +2279,7 @@ void Rufus::ExporteDocs()
             {
                 QStringList listmsg;
                 listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-                Message::I()->TrayMessage(listmsg, 3000);
+                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
                 QFile   echectrsfer(echectrsfername);
                 if (echectrsfer.open(QIODevice::Append))
@@ -2326,13 +2325,13 @@ void Rufus::ExporteDocs()
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            Message::I()->TrayMessage(listmsg, 10);
+            UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 10);
         }
     int totfac = listexportjpgfact.size() + listexportpdffact.size();
     if (totfac > 0)
     {
         listmsg <<  tr("export terminé") << QString::number(totfac) + (totfac>1? tr(" documents comptables exportés en ") :tr(" document comptable exporté en ")) + duree;
-        Message::I()->TrayMessage(listmsg, 3000);
+        UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
     }
 }
 
@@ -4325,7 +4324,7 @@ void Rufus::VerifSendMessage(int idMsg)
     //TODO : SQL
     if (dlg_ask->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
-        Message::I()->TrayMessage(tr("Vous avez oublié de rédiger le texte de votre message!"),2000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"), Icons::icSunglasses(), 2000);
         return;
     }
     bool checkusr = false;
@@ -4338,7 +4337,7 @@ void Rufus::VerifSendMessage(int idMsg)
         }
     if (!checkusr)
     {
-        Message::I()->TrayMessage(tr("Vous avez oublié de choisir un destinataire!"),2000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de choisir un destinataire!"),Icons::icSunglasses(), 2000);
         return;
     }
     QStringList locklist;
@@ -4488,7 +4487,7 @@ void Rufus::VerifSendMessage(int idMsg)
         }
         db->commit();
     }
-    Message::I()->TrayMessage(tr("Message enregistré"),1000);
+    UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
     dlg_ask->accept();
 }
 
@@ -5177,7 +5176,7 @@ void Rufus::EnregMsgResp(int idmsg)
 {
      if (dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
-        Message::I()->TrayMessage(tr("Vous avez oublié de rédiger le texte de votre message!"),2000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"),Icons::icSunglasses(), 2000);
         return;
     }
     QString req = "select idemetteur, tache, datelimite, urge from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg);
@@ -5224,7 +5223,7 @@ void Rufus::EnregMsgResp(int idmsg)
     }
     else
     {
-        Message::I()->TrayMessage(tr("Message enregistré"),1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
         db->commit();
         envoieMessageA(QList<int>() << iddest);
     }
@@ -5494,7 +5493,7 @@ void Rufus::VerifVerrouDossier()
        {
            QString nomposte = post->nomposte();
            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
-           Message::I()->TrayMessage(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
+           UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),Icons::icSunglasses(), 1000);
        }
        mettreajourlasalledattente       = true;
     }

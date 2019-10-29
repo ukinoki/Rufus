@@ -28,7 +28,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QDialog>
 #include <QScreen>
-#include "icons.h"
 #include "uptextedit.h"
 #include "upsystemtrayicon.h"
 
@@ -43,35 +42,13 @@ class Message : public QObject
 {
     Q_OBJECT
 private:
-    UpSystemTrayIcon *ict_messageIcon;
-    QTimer t_timer;
-    Message()       {
-        ict_messageIcon = new UpSystemTrayIcon();
-        ict_messageIcon->setIcon(Icons::icSunglasses());
-        idprioritymessage = 0;
-        t_timer.setSingleShot(true);
-        connect(&t_timer, &QTimer::timeout, this, [=]{ ict_messageIcon->hide();});
-    }
     qintptr         idprioritymessage;
-    void            LogMessage(QString msg);
-public:
     static Message *instance;
-    static Message* I()
-    {
-        if( !instance )
-            instance = new Message();
-        return instance;
-    }
-    void TrayMessage(QString msg, int duree = 3000)
-    {
-        ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icSunglasses(), duree);
-    }
+    Message();
+    void            LogMessage(QString msg);
 
-    void TrayMessage(QStringList listmsg, int duree = 3000)
-    {
-        for (int i=0; i<listmsg.size(); i++)
-            TrayMessage(listmsg.at(i), duree);
-    }
+public:
+    static Message* I();
     void SplashMessage(QString msg, int duree = 3000);
     void SplashMessage(QStringList listmsg, int duree = 3000)
     {
@@ -80,7 +57,6 @@ public:
     }
     void PriorityMessage(QString msg, qintptr &idmessage);
     void ClosePriorityMessage(qintptr idmsg) { emit closeprioiritydlg(idmsg); }
-
 
 signals:
     void closeprioiritydlg(qintptr iddlg);

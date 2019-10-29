@@ -74,7 +74,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         int max = 4;
 
         // Prescriptions
-        Message::I()->TrayMessage("importation des prescripions",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des prescripions", Icons::icSunglasses(), 1000);
         req = "select imp.Numéropatient, dateconsultation, objetordonnance, TypeOrdonnance, Abrègè, nompatient, prénom from (\n"
               "select ord.Numéropatient, ord.dateconsultation, objetordonnance, TypeOrdonnance, Abrègè\n from "  + NomBase + ".ordonnancespatients ord, "
                 +  NomBase + ".consultations cs\n"
@@ -161,14 +161,14 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                 QTime dieTime= QTime::currentTime().addMSecs(2);
                 while (QTime::currentTime() < dieTime)
                     QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-                Message::I()->TrayMessage("importation des prescriptions - patient n° " + idPat);
+                UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des prescriptions - patient n° " + idPat, Icons::icSunglasses(), 3000);
             }
             b+=1;
         }
-        Message::I()->TrayMessage("table " TBL_DOCSEXTERNES " importée",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_DOCSEXTERNES " importée", Icons::icSunglasses(), 1000);
 
         // Refractions
-        Message::I()->TrayMessage("importation des réfractions",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des réfractions", Icons::icSunglasses(), 1000);
         QString QuelleMesure;
         req = "select NuméroPatient, DateConsultation, HeureConsultation, Idx, SphèreDroit"                     //0,1,2,3,4
               ", CylindreDroit, AxeDroit, SphèreGauche, CylindreGauche, AxeGauche"                              //5,6,7,8,9
@@ -215,7 +215,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                                                             "AVLOD, AVLOG, AVPOD, AVPOG) values " + ref;
             db->StandardSQL(insertreq);
         }
-        Message::I()->TrayMessage("table " TBL_REFRACTIONS " importée",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_REFRACTIONS " importée", Icons::icSunglasses(), 1000);
 
         // - Importation des données patients -------------------------------------------------------------------------------------------------------------------------------------------
         req = "select Numéropatient, nompatient, prénom, datenaiss, sexe, DateCréation,"
@@ -225,7 +225,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         QList<QVariantList> patlist = db->StandardSelectSQL(req,ok);
         //proc->Edit(req);
         max = patlist.size();
-        Message::I()->TrayMessage("importation des données patients",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des données patients", Icons::icSunglasses(), 1000);
         for (int i=0; i<max; i++)
         {
             DDN             = QDate::fromString(patlist.at(i).at(3).toString().left(10),"yyyy-MM-dd");
@@ -285,12 +285,12 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             db->StandardSQL(req);
         }
 
-        Message::I()->TrayMessage("table " TBL_PATIENTS " importée",1000);
-        Message::I()->TrayMessage("table " TBL_DONNEESSOCIALESPATIENTS " importée",1000);
-        Message::I()->TrayMessage("table " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " importée",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_PATIENTS " importée", Icons::icSunglasses(), 1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_DONNEESSOCIALESPATIENTS " importée", Icons::icSunglasses(), 1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " importée", Icons::icSunglasses(), 1000);
 
         // - Importation des actes -------------------------------------------------------------------------------------------------------------------------------------------
-        Message::I()->TrayMessage("importation des actes - date, motif et diagnostic",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des actes - date, motif et diagnostic", Icons::icSunglasses(), 1000);
         req = "select NuméroConsultation, numéroPatient, DateConsultation, Motif, Diagnostic, HeureConsultation"
               " from " + NomBase + ".examensymdiagmotif order by numéroconsultation";
         QList<QVariantList> actlist = db->StandardSelectSQL(req,ok);
@@ -316,7 +316,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         }
 
         // Corps des consultations et honoraires
-        Message::I()->TrayMessage("importation des actes - texte des consultations",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des actes - texte des consultations", Icons::icSunglasses(), 1000);
         req = "select NuméroConsultation, numéroPatient, Abrégé, DateConsultation, TexteConsultation, TotalActesE, HeureConsultation"
               " from " + NomBase + ".consultations order by numéroconsultation";
         QList<QVariantList> cslist = db->StandardSelectSQL(req,ok);
@@ -431,7 +431,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
 
 
         // Cotations
-        Message::I()->TrayMessage("importation des actes - cotations",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des actes - cotations", Icons::icSunglasses(), 1000);
         req = "select Numéroconsultation, acte from "  + NomBase + ".actespatients order by numéroconsultation";
         QList<QVariantList> cotlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< cotlist.size(); i++)
@@ -441,10 +441,10 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             db->StandardSQL(req);
         }
         db->StandardSQL("update " TBL_ACTES " set actecotation = 'xxx' where actecotation is null");
-        Message::I()->TrayMessage("table " TBL_ACTES " importée",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_ACTES " importée", Icons::icSunglasses(), 1000);
 
         // Paiements
-        Message::I()->TrayMessage("paiements - espèces pour tout le monde",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "paiements - espèces pour tout le monde", Icons::icSunglasses(), 1000);
         req = "select idActe, actemontant, idUser, actedate from " TBL_ACTES;
         QList<QVariantList> pmtlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< pmtlist.size(); i++)
@@ -465,12 +465,12 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                 db->StandardSQL(req);
             }
         }
-        Message::I()->TrayMessage("table " TBL_TYPEPAIEMENTACTES " importée",1000);
-        Message::I()->TrayMessage("table " TBL_LIGNESPAIEMENTS " importée",1000);
-        Message::I()->TrayMessage("table " TBL_RECETTES " importée",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_TYPEPAIEMENTACTES " importée", Icons::icSunglasses(), 1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_LIGNESPAIEMENTS " importée", Icons::icSunglasses(), 1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_RECETTES " importée", Icons::icSunglasses(), 1000);
 
         // Correspondants
-        Message::I()->TrayMessage("médecins correspondants",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "médecins correspondants", Icons::icSunglasses(), 1000);
         req = "select NuméroConfrère, Nom, Prénom, Adresse, CPostal, Ville, Téléphone, Fax, Spécialité from " + NomBase + ".Confrères";
         QList<QVariantList> corlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< corlist.size(); i++)
@@ -496,6 +496,6 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             req = "update " TBL_CORRESPONDANTS " set cornom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(corlist.at(i).at(1).toString())) + "' where idcor = "  + corlist.at(i).at(0).toString();
             db->StandardSQL(req);
         }
-        Message::I()->TrayMessage("table " TBL_CORRESPONDANTS " importée",1000);
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_CORRESPONDANTS " importée", Icons::icSunglasses(), 1000);
     }
 }
