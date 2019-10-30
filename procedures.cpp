@@ -104,20 +104,21 @@ Procedures::Procedures(QObject *parent) :
        return;
    }
 
-    m_nomImprimante  = "";
+   m_nomImprimante  = "";
 
-    Ouverture_Ports_Series();
-    m_typemesureRefraction               = None;
-    m_dlgrefractionouverte    = false;
-    m_initok                  = true;
-    int margemm         = TailleTopMarge(); // exprimé en mm
-    p_printer             = new QPrinter(QPrinter::HighResolution);
-    p_printer             ->setFullPage(true);
-    m_rect                = p_printer->paperRect();
-    m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
-                Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
+   Ouverture_Ports_Series();
+   m_typemesureRefraction               = None;
+   m_dlgrefractionouverte    = false;
+   m_initok                  = true;
+   int margemm         = TailleTopMarge(); // exprimé en mm
+   p_printer             = new QPrinter(QPrinter::HighResolution);
+   p_printer             ->setFullPage(true);
+   m_rect                = p_printer->paperRect();
+   m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
+                 Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
                 -Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 -Utils::mmToInches(margemm) * p_printer->logicalDpiY());
+   connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
 }
 
 void Procedures::ab(int i)
@@ -416,6 +417,11 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
 
 bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures)
 {
+    auto result = [] (qintptr handle, Procedures *proc)
+    {
+        Message::I()->ClosePriorityMessage(handle);
+        proc->emit ConnectTimers(true);
+    };
     if (QDir(m_parametres->dirimagerie()).exists())
     {
         Utils::cleanfolder(m_parametres->dirimagerie() + DIR_IMAGES);
@@ -429,68 +435,138 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         OKFactures = false;
     }
 
-    QString msg = tr("Sauvegarde effectuée avec succès");
-    qintptr a = 0;
-    Message::I()->PriorityMessage(tr("Sauvegarde en cours"),a);
+    QString msgEchec = tr("Incident pendant la sauvegarde");
+    qintptr handledlg = 0;
+    Message::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
     emit ConnectTimers(false);
 
-    bool result = true;
     if (OKBase)
     {
         QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
         DefinitScriptBackup(pathdirdestination, OKImages, OKVideos, OKFactures);
-        QString msg = "sh " + QDir::homePath() + SCRIPTBACKUPFILE;
-        QProcess dumpProcess(parent());
-        dumpProcess.start(msg);
-        dumpProcess.waitForFinished(1000000000);
-        int  a = 99;
-        if (dumpProcess.exitStatus() == QProcess::NormalExit)
-            a = dumpProcess.exitCode();
-        if (a != 0)
-            msg = tr("Incident pendant la sauvegarde");
-        result = (a==0);
+        QString Msg = (tr("Sauvegarde de la base de données\n")
+                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+        const QString task = "sh " + QDir::homePath() + SCRIPTBACKUPFILE;
+        const QString msgOK = tr("Base de données sauvegardée!");
+        m_controller.disconnect(SIGNAL(result(const int &)));
+        connect(&m_controller, &Controller::result, this, [=](int a) {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
+            if (OKImages)
+                Utils::cleanfolder(pathdirdestination + DIR_IMAGES);
+            if (OKFactures)
+                Utils::cleanfolder(pathdirdestination + DIR_FACTURES);
+            if (OKVideos)
+                Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
+            result(handledlg, this);
+            return result;
+        });
+        m_controller.execute(task);
     }
     else
     {
-        pathdirdestination += "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
         QDir dirdest;
         if (OKImages || OKVideos || OKFactures)
             dirdest.mkdir(pathdirdestination);
-        if (OKImages)
+        else
         {
-            QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
-                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_IMAGES + " " + pathdirdestination);
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers d'imagerie sauvegardés!"),Icons::icSunglasses(),  3000);
+            result(handledlg, this);
+            return false;
         }
-        if (OKFactures)
-        {
-            QString Msg = (tr("Sauvegarde des factures\n")
-                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_FACTURES + " " + pathdirdestination);
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers factures sauvegardés!"), Icons::icSunglasses(), 3000);
-        }
-        if (OKVideos)
-        {
-            QString Msg = (tr("Sauvegarde des fichiers videos\n")
-                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-            QProcess::execute("cp -R " + m_parametres->dirimagerie() + DIR_VIDEOS + " " + pathdirdestination);
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers video sauvegardés!"), Icons::icSunglasses(), 3000);
-        }
+        pathdirdestination += "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+        emit backupDossiers(pathdirdestination, handledlg, OKFactures, OKImages, OKVideos);
     }
-    if (OKImages)
-        Utils::cleanfolder(pathdirdestination + DIR_IMAGES);
-    if (OKFactures)
-        Utils::cleanfolder(pathdirdestination + DIR_FACTURES);
-    if (OKVideos)
-        Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
-    UpSystemTrayIcon::I()->showMessage(tr("Messages"), msg, Icons::icSunglasses(), 3000);
-    Message::I()->ClosePriorityMessage(a);
-    emit ConnectTimers(true);
-    return result;
+    result(handledlg, this);
+    return true;
+}
+
+void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool factures, bool images, bool videos)
+{
+    auto result = [] (qintptr handle, Procedures *proc)
+    {
+        Message::I()->ClosePriorityMessage(handle);
+        proc->emit ConnectTimers(true);
+    };
+    QString msgEchec = tr("Incident pendant la sauvegarde");
+    if (factures) {
+        QString Msg = (tr("Sauvegarde des factures\n")
+                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+        const QString task = "cp -R " + m_parametres->dirimagerie() + DIR_FACTURES + " " + dirdestination;
+        const QString msgOK = tr("Fichiers factures sauvegardés!");
+        m_controller.disconnect(SIGNAL(result(const int &)));
+        connect(&m_controller,
+                &Controller::result,
+                this,
+                [=, &factures](int a) {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
+            Utils::cleanfolder(dirdestination + DIR_FACTURES);
+            factures = false;
+            //qDebug() << "factures" << factures << images << videos;
+            if (!images && !videos)
+            {
+                result(handledlg, this);
+                return;
+            }
+            else
+                emit backupDossiers(dirdestination, handledlg, false, images, videos);
+        });
+        m_controller.execute(task);
+        return;
+    }
+    else if (images) {
+        QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
+                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+        const QString task = "cp -R " + m_parametres->dirimagerie() + DIR_IMAGES + " " + dirdestination;
+        const QString msgOK = tr("Fichiers d'imagerie sauvegardés!");
+        m_controller.disconnect(SIGNAL(result(const int &)));
+        connect(&m_controller,
+                &Controller::result,
+                this,
+                [=, &images](int a) {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
+            Utils::cleanfolder(dirdestination + DIR_IMAGES);
+            images = false;
+            //qDebug() << "images" << factures << images << videos;
+            if (!factures && !videos)
+            {
+                result(handledlg, this);
+                return;
+            }
+            else
+                emit backupDossiers(dirdestination, handledlg, factures, false, videos);
+        });
+        m_controller.execute(task);
+        return;
+    }
+    else if (videos) {
+        QString Msg = (tr("Sauvegarde des videos\n")
+                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+        const QString task = "cp -R " + m_parametres->dirimagerie() + DIR_VIDEOS + " " + dirdestination;
+        const QString msgOK = tr("Fichiers videos sauvegardés!");
+        m_controller.disconnect(SIGNAL(result(const int &)));
+        connect(&m_controller,
+                &Controller::result,
+                this,
+                [=, &videos](int a) {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
+            Utils::cleanfolder(dirdestination + DIR_VIDEOS);
+            //qDebug() << "videos" << factures << images << videos;
+            videos = false;
+            if (!images && !factures)
+            {
+                result(handledlg, this);
+                return;
+            }
+            else
+                emit backupDossiers(dirdestination, handledlg, factures, images, false);
+        });
+        m_controller.execute(task);
+       return;
+    }
+    result(handledlg, this);
 }
 
 

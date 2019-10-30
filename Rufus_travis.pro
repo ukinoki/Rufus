@@ -41,7 +41,8 @@ linux-g++ {
 }
 
 SOURCES += main.cpp\
-        rufus.cpp \
+    ostask.cpp \
+    rufus.cpp \
     procedures.cpp \
     pyxinterf.cpp \
     textprinter.cpp \
@@ -53,6 +54,7 @@ SOURCES += main.cpp\
     flags.cpp
 
 HEADERS += rufus.h \
+    ostask.h \
     procedures.h \
     pyxinterf.h \
     textprinter.h \

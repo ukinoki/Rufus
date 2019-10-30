@@ -53,6 +53,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upcheckbox.h"
 #include "textprinter.h"
 #include "serialthread.h"
+#include "ostask.h"
 #include "dlg_paramconnexion.h"
 #include "ui_dlg_paramconnexion.h"
 #include "dlg_choixdate.h"
@@ -79,6 +80,7 @@ private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     QSettings               *m_settings;
     ParametresSysteme       *m_parametres;
+    Controller              m_controller;
 
 public:
     static Procedures       *I();
@@ -399,6 +401,9 @@ signals:
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         void                    DefinitScriptRestore(QStringList ListNomFiles);
                                 /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL */
+        void                    BackupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
+signals:
+        void                    backupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
 
     /*! fin sauvegardes -------------------------------------------------------------------------------------------------------- */
 
