@@ -459,24 +459,22 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             if (OKVideos)
                 Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
             result(handledlg, this);
-            return result;
+            return true;
         });
         m_controller.execute(task);
     }
-    else
+    else if (OKImages || OKVideos || OKFactures)
     {
         QDir dirdest;
-        if (OKImages || OKVideos || OKFactures)
-            dirdest.mkdir(pathdirdestination);
-        else
-        {
-            result(handledlg, this);
-            return false;
-        }
+        dirdest.mkdir(pathdirdestination);
         pathdirdestination += "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
         emit backupDossiers(pathdirdestination, handledlg, OKFactures, OKImages, OKVideos);
     }
-    result(handledlg, this);
+    else
+    {
+        result(handledlg, this);
+        return false;
+    }
     return true;
 }
 
@@ -2522,10 +2520,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         QString dirdestinationimg   = NomDirStockageImagerie + DIR_IMAGES;
                         QDir DirDestImg(dirdestinationimg);
                         if (DirDestImg.exists())
-                        {
                             DirDestImg.removeRecursively();
-                            DirDestImg.mkdir(dirdestinationimg);
-                        }
+                        DirDestImg.mkdir(dirdestinationimg);
                         if (!DirDestImg.exists())
                         {
                             QString Msg = tr("le dossier de destination de l'imagerie n'existe pas");
@@ -2552,10 +2548,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         QString dirdestinationfact  = NomDirStockageImagerie + DIR_FACTURES;
                         QDir DirDestFact(dirdestinationfact);
                         if (DirDestFact.exists())
-                        {
                             DirDestFact.removeRecursively();
-                            DirDestFact.mkdir(dirdestinationfact);
-                        }
+                        DirDestFact.mkdir(dirdestinationfact);
                         if (!DirDestFact.exists())
                         {
                             QString Msg = tr("le dossier de destination des factures n'existe pas");
@@ -2582,10 +2576,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         QString dirdestinationvid   =  NomDirStockageImagerie + DIR_VIDEOS;
                         QDir DirDestVid(dirdestinationvid);
                         if (DirDestVid.exists())
-                        {
                             DirDestVid.removeRecursively();
-                            DirDestVid.mkdir(dirdestinationvid);
-                        }
+                        DirDestVid.mkdir(dirdestinationvid);
                         if (!DirDestVid.exists())
                         {
                             QString Msg = tr("le dossier de destination des videos n'existe pas");

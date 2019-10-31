@@ -16,20 +16,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upsystemtrayicon.h"
-#include "icons.h"
 
 UpSystemTrayIcon* UpSystemTrayIcon::instance =  Q_NULLPTR;
 UpSystemTrayIcon* UpSystemTrayIcon::I()
 {
     if( !instance )
-        instance = new UpSystemTrayIcon();
+        instance = new UpSystemTrayIcon(Icons::icSunglasses());
     return instance;
 }
 
 void UpSystemTrayIcon::showMessage(QString title, QString msg, QIcon icon, int duree)
 {
     QMap<QString, QVariant> map_messages;
-
     map_messages["titre"] = title;
     map_messages["texte"] = msg;
     map_messages["duree"] = duree;
@@ -54,9 +52,8 @@ void UpSystemTrayIcon::showListMessages()
     }
     if (!isVisible())
         show();
-    QMap<QString, QVariant> map_messages = list_messages.first();
-    int duree = map_messages["duree"].toInt();
-    QSystemTrayIcon::showMessage(map_messages["titre"].toString(), map_messages["texte"].toString(), list_icons.first(), duree);
+    int duree = list_messages.first()["duree"].toInt();
+    QSystemTrayIcon::showMessage(list_messages.first()["titre"].toString(), list_messages.first()["texte"].toString(), list_icons.first(), duree);
     list_messages.removeAt(0);
     list_icons.removeAt(0);
     QTimer::singleShot(duree, this, &UpSystemTrayIcon::showListMessages);

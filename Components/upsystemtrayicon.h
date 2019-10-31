@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QTime>
 #include <QStandardItem>
+#include "icons.h"
 
 class UpSystemTrayIcon : public QSystemTrayIcon
 {
@@ -32,7 +33,7 @@ public:
     void        showMessages(QString title, QStringList msg, QIcon icon, int duree);
 private:
     static UpSystemTrayIcon *instance;
-    UpSystemTrayIcon() {}
+    UpSystemTrayIcon(const QIcon icon, QObject *parent = Q_NULLPTR) : QSystemTrayIcon(icon, parent) {}
     QList<QMap<QString, QVariant>>  list_messages; //!> chaque QMap de la liste contient ["titre"] , ["texte"], ["duree"]
     QList<QIcon>                    list_icons;
     void                            showListMessages();
