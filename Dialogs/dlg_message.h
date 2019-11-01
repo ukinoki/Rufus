@@ -43,6 +43,7 @@ class Message : public QObject
     Q_OBJECT
 private:
     qintptr         idprioritymessage;
+    QWidget         *m_parent = Q_NULLPTR;
     static Message *instance;
     Message();
     void            LogMessage(QString msg);
@@ -55,7 +56,7 @@ public:
         for (int i=0; i<listmsg.size(); i++)
             SplashMessage(listmsg.at(i), duree);
     }
-    void PriorityMessage(QString msg, qintptr &idmessage);
+    void PriorityMessage(QString msg, qintptr &idmessage, QWidget *parent= Q_NULLPTR);
     void ClosePriorityMessage(qintptr idmsg) { emit closeprioiritydlg(idmsg); }
 
 signals:

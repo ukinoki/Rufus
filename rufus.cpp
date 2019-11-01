@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("31-10-2019/1");
+    qApp->setApplicationVersion("01-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -188,12 +188,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         m_flagcorrespondants    = Flags::I()->flagCorrespondants();
         m_flagsalledattente     = Flags::I()->flagSalleDAttente();
         m_flagmessages          = Flags::I()->flagMessages();
-        connect (t_timerSalDat,              &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
-        connect (t_timerCorrespondants,      &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
-        connect (t_timerVerifImportateurDocs,&QTimer::timeout,   this,   &Rufus::VerifImportateur);
-        connect (t_timerVerifVerrou,         &QTimer::timeout,   this,   &Rufus::VerifVerrouDossier);
-        connect (t_timerVerifMessages,       &QTimer::timeout,   this,   &Rufus::VerifMessages);
-        connect (t_timerImportDocsExternes,  &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
+        connect (t_timerSalDat,              &QTimer::timeout,  this,   &Rufus::VerifSalleDAttente);
+        connect (t_timerCorrespondants,      &QTimer::timeout,  this,   &Rufus::VerifCorrespondants);
+        connect (t_timerVerifImportateurDocs,&QTimer::timeout,  this,   &Rufus::VerifImportateur);
+        connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   &Rufus::VerifVerrouDossier);
+        connect (t_timerVerifMessages,       &QTimer::timeout,  this,   &Rufus::VerifMessages);
+        connect (t_timerImportDocsExternes,  &QTimer::timeout,  this,   &Rufus::ImportDocsExternes);
         if (db->getMode() != Utils::Distant)
             connect(t_timerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
@@ -2337,16 +2337,15 @@ void Rufus::ExporteDocs()
 
 void Rufus::ImportDocsExternes()
 {
-    if (ImportDocsExtThread != Q_NULLPTR)
-        if (isPosteImport())
-        {
-            QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
-            //qDebug()<< req;
-            QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
-            if (m_ok && listdocs.size()>0)
-                ImportDocsExtThread->RapatrieDocumentsThread(listdocs);
-        }
+    if (isPosteImport())
+    {
+        QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
+                      " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
+        //qDebug()<< req;
+        QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
+        if (m_ok && listdocs.size()>0)
+            m_importcontroller.execute(listdocs);
+    }
 }
 
 void Rufus::ImprimeDossier(Patient *pat)
@@ -5557,11 +5556,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         */
     if (db->getMode() == Utils::Distant)
     {
-        if (ImportDocsExtThread == Q_NULLPTR)
-        {
-            ImportDocsExtThread = new ImportDocsExternesThread();
-            connect(ImportDocsExtThread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
-        }
+        connect(&m_importcontroller, &ImportController::emitmsg, this, &Rufus::AfficheMessageImport);
         m_isposteImport = true;
         return;
     }
@@ -5623,12 +5618,9 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         if (isPosteImport())
         {
             connect(t_timerExportDocs,           &QTimer::timeout,   this,   &Rufus::ExporteDocs);
-            if (ImportDocsExtThread == Q_NULLPTR)
-                if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
-                {
-                    ImportDocsExtThread = new ImportDocsExternesThread();
-                    connect(ImportDocsExtThread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
-                }
+            if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES"
+             || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
+                connect(&m_importcontroller, &ImportController::emitmsg, this, &Rufus::AfficheMessageImport);
         }
         else
             t_timerExportDocs->disconnect();
@@ -7894,18 +7886,17 @@ void Rufus::InitMenus()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitVariables()
 {
-    m_autorModifConsult          = false;
+    m_autorModifConsult         = false;
     m_patients                  = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
-    m_lignespaiements            = Datas::I()->lignespaiements;
-    m_datepardefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
-    m_isTotalMessagesAffiche        = true;
+    m_lignespaiements           = Datas::I()->lignespaiements;
+    m_datepardefaut             = QDate::fromString("2000-01-01", "yyyy-MM-dd");
+    m_isTotalMessagesAffiche    = true;
 
-    wdg_MGlineEdit                  = new UpLineEdit();
-    wdg_autresCorresp1LineEdit      = new UpLineEdit();
-    wdg_autresCorresp2LineEdit      = new UpLineEdit();
-    ImportDocsExtThread         = Q_NULLPTR;
-    m_datederniermessageuser     = QDateTime();
+    wdg_MGlineEdit              = new UpLineEdit();
+    wdg_autresCorresp1LineEdit  = new UpLineEdit();
+    wdg_autresCorresp2LineEdit  = new UpLineEdit();
+    m_datederniermessageuser    = QDateTime();
 
     ui->AtcdtsOphstextEdit      ->setchamp(CP_ATCDTSOPH_RMP);
     ui->AtcdtsOphstextEdit      ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
@@ -7925,12 +7916,12 @@ void Rufus::InitVariables()
     ui->AutresToxiquestextEdit  ->setchamp(CP_AUTRESTOXIQUES_RMP);
     ui->AutresToxiquestextEdit  ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
 
-    wdg_MGlineEdit                  ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    wdg_MGlineEdit                  ->setchamp(CP_IDMG_RMP);
-    wdg_autresCorresp1LineEdit      ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    wdg_autresCorresp1LineEdit      ->setchamp(CP_IDSPE1_RMP);
-    wdg_autresCorresp2LineEdit      ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    wdg_autresCorresp2LineEdit      ->setchamp(CP_IDSPE2_RMP);
+    wdg_MGlineEdit              ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    wdg_MGlineEdit              ->setchamp(CP_IDMG_RMP);
+    wdg_autresCorresp1LineEdit  ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    wdg_autresCorresp1LineEdit  ->setchamp(CP_IDSPE1_RMP);
+    wdg_autresCorresp2LineEdit  ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    wdg_autresCorresp2LineEdit  ->setchamp(CP_IDSPE2_RMP);
     ui->TabaclineEdit           ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
     ui->TabaclineEdit           ->setchamp(CP_TABAC_RMP);
 

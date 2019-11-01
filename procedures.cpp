@@ -2370,12 +2370,16 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString NomDirStockageImagerie = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
         if (OKImages || OKVideos || OKFactures)
         {
-            NomDirStockageImagerie = (PremierDemarrage? "" : m_parametres->dirimagerie());
-            if (PremierDemarrage || !QDir(NomDirStockageImagerie).exists())
+            NomDirStockageImagerie = (PremierDemarrage? QDir::homePath() + DIR_RUFUS DIR_IMAGERIE : m_parametres->dirimagerie());
+            if (!QDir(NomDirStockageImagerie).exists())
             {
+                bool exist = QDir().exists(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE);
+                QString existdir = (exist? "" : "\n" + tr("Créez-le au besoin"));
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage d'imagerie"),
-                                    tr("Indiquez un dossier valide dans la boîte de dialogue qui suit"));
-                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , QDir::homePath() + DIR_RUFUS);
+                                    tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
+                                    tr("Utilisez de préférence le dossier ") + QDir::homePath() + DIR_RUFUS DIR_IMAGERIE +
+                                    existdir);
+                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , QDir::homePath() + DIR_RUFUS + (exist? DIR_IMAGERIE : ""));
                 dialogimg.setViewMode(QFileDialog::List);
                 dialogimg.setFileMode(QFileDialog::DirectoryOnly);
                 bool b = (dialogimg.exec()>0);

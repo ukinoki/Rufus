@@ -150,15 +150,15 @@ private:
     void        EnableButtons();
     void        EnregistreDocScanner(Patient *pat);
     void        EnregistreVideo(Patient *pat);
-    void        ExporteDocs();                                  /* exporte les documents d'imagerie inscrits dans la base pra les postes idstants
+    void        ExporteDocs();                                  /*! exporte les documents d'imagerie inscrits dans la base pra les postes idstants
                                                                 pour les archiver en fichiers standards sur le HD du serveur*/
     void        FiltreAccueil(int idx);
     void        FiltreSalleDAttente();
     void        GestionComptes();
-    void        ImportDocsExternes();                           /* vérifie si le poste est le poste responsable de l'import des documents d'imagerie et si oui
+    void        ImportDocsExternes();                           /*! vérifie si le poste est le poste responsable de l'import des documents d'imagerie et si oui
                                                                 lance le thread impotrtdocsexternesthread qui va importer les documents d'imagerie
                                                                 enregistrés sur les dossiers d'échanges par les appareils d'imagerie*/
-    void        VerifImportateur();                             /* vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
+    void        VerifImportateur();                             /*! vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier(Patient *pat);
     void        ImprimeListPatients(QVariant var);
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
@@ -230,7 +230,7 @@ private:
 
 private:
 
-    MesureRefraction *shortref_acuite       = Q_NULLPTR;
+    MesureRefraction        *shortref_acuite       = Q_NULLPTR;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};
@@ -268,7 +268,7 @@ private:
     QDialog                 *dlg_msgRepons, *dlg_msgDialog;
     QSystemTrayIcon         *ict_messageIcon;
 
-    ImportDocsExternesThread*ImportDocsExtThread;
+    ImportController        m_importcontroller;
     bool                    isPosteImport();
     bool                    m_isposteImport;
     bool                    m_pasDExportPourLeMoment = false;

@@ -93,11 +93,11 @@ void Message::SplashMessage(QString msg, int duree)
     QTimer::singleShot(duree, dlg, &QDialog::reject);
 }
 
-void Message::PriorityMessage(QString msg, qintptr &idmessage)
+void Message::PriorityMessage(QString msg, qintptr &idmessage, QWidget *parent)
 {
     idprioritymessage ++;
     idmessage           = idprioritymessage;
-    QDialog             *prioritydlg = new QDialog();
+    QDialog             *prioritydlg = new QDialog(parent);
     prioritydlg         ->setAttribute(Qt::WA_DeleteOnClose);
     prioritydlg         ->setSizeGripEnabled(false);
 
@@ -134,6 +134,13 @@ void Message::PriorityMessage(QString msg, qintptr &idmessage)
     int xx              = qApp->desktop()->availableGeometry().width();
     prioritydlg         ->move(xx/2 - w/2 - marge - lay->spacing()-15, yy/2 - (int(hauteurligne)*nlignes)/2 - marge);
     prioritydlg         ->show();
+    if (parent != Q_NULLPTR)
+        parent->setEnabled(false);
     Utils::Pause(500);
-    connect(this,   &Message::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) prioritydlg->reject(); });
+    connect(this,   &Message::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
+            if (prioritydlg->parent() != Q_NULLPTR)
+                static_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
+            prioritydlg->reject();
+        }
+        });
 }
