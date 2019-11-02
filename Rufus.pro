@@ -83,6 +83,7 @@ HEADERS += rufus.h \
     serialthread.h \
     importdocsexternesthread.h \
     macros.h \
+    timerthread.h \
     utils.h \
     icons.h \
     log.h \

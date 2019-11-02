@@ -69,6 +69,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "gbl_datas.h"
+#include "timerthread.h"
 
 class Procedures : public QObject
 {
@@ -385,7 +386,7 @@ signals:
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
 
     private:
-        QTimer                  t_timerbackup;
+        TimerController         t_timerbackup;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
         bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true);

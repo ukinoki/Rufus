@@ -570,16 +570,22 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
 
 void Procedures::BackupWakeUp()
 {
-    if (QTime::currentTime().toString("HH:mm:ss") == m_parametres->heurebkup().toString("HH:mm:ss"))
+    //qDebug() << "BKUP" << "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss");
+    //Logs::trace("BKUP", "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss"));
+    if (QTime::currentTime().toString("HH:mm") == m_parametres->heurebkup().toString("HH:mm"))
     {
-        int day = QDate::currentDate().dayOfWeek();
+        //qDebug() << "LANCEMENT DU BKUP" << "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss");
+        //Logs::trace("LANCEMENT DU BKUP", "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss"));
         Utils::Day daybkup = Utils::Lundi;
-        if (day==2)      daybkup = Utils::Mardi;
-        else if (day==3) daybkup = Utils::Mercredi;
-        else if (day==4) daybkup = Utils::Jeudi;
-        else if (day==5) daybkup = Utils::Vendredi;
-        else if (day==6) daybkup = Utils::Samedi;
-        else if (day==7) daybkup = Utils::Dimanche;
+        switch (QDate::currentDate().dayOfWeek()) {
+        case 1: daybkup = Utils::Lundi; break;
+        case 2: daybkup = Utils::Mardi; break;
+        case 3: daybkup = Utils::Mercredi; break;
+        case 4: daybkup = Utils::Jeudi; break;
+        case 5: daybkup = Utils::Vendredi; break;
+        case 6: daybkup = Utils::Samedi; break;
+        case 7: daybkup = Utils::Dimanche;
+        }
         if (!m_parametres->daysbkup().testFlag(daybkup))
             return;
         if (!AutresPostesConnectes(false))
@@ -831,7 +837,7 @@ void Procedures::EffaceProgrammationBackup()
 {
     if (QFile::exists(QDir::homePath() + SCRIPTBACKUPFILE))
         QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
-    t_timerbackup.disconnect();
+    t_timerbackup.disconnect(SIGNAL(timeout()));
     t_timerbackup.stop();
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX
@@ -854,10 +860,10 @@ void Procedures::ParamAutoBackup()
         EffaceProgrammationBackup();
         return;
     }
-    t_timerbackup.disconnect();
+    t_timerbackup.disconnect(SIGNAL(timeout()));
     t_timerbackup.stop();
-    t_timerbackup.start(1000);
-    connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp();});
+    t_timerbackup.start(60000);
+    connect(&t_timerbackup, &TimerController::timeout, this, [=] {BackupWakeUp();});
 
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX

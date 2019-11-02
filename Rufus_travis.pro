@@ -61,6 +61,7 @@ HEADERS += rufus.h \
     conversionbase.h \
     serialthread.h \
     importdocsexternesthread.h \
+    timerthread.h \
     macros.h \
     utils.h \
     icons.h \
