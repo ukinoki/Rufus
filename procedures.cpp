@@ -570,12 +570,9 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
 
 void Procedures::BackupWakeUp()
 {
-    //qDebug() << "BKUP" << "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss");
     //Logs::trace("BKUP", "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss"));
-    if (QTime::currentTime().toString("HH:mm") == m_parametres->heurebkup().toString("HH:mm"))
+    if (QTime::currentTime().toString("HH:mm") == m_parametres->heurebkup().toString("HH:mm") && QDate::currentDate() > m_lastbackupdate)
     {
-        //qDebug() << "LANCEMENT DU BKUP" << "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss");
-        //Logs::trace("LANCEMENT DU BKUP", "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss"));
         Utils::Day daybkup = Utils::Lundi;
         switch (QDate::currentDate().dayOfWeek()) {
         case 1: daybkup = Utils::Lundi; break;
@@ -586,10 +583,13 @@ void Procedures::BackupWakeUp()
         case 6: daybkup = Utils::Samedi; break;
         case 7: daybkup = Utils::Dimanche;
         }
-        if (!m_parametres->daysbkup().testFlag(daybkup))
-            return;
-        if (!AutresPostesConnectes(false))
-            Backup(m_parametres->dirbkup());
+        if (m_parametres->daysbkup().testFlag(daybkup))
+            if (!AutresPostesConnectes())
+            {
+                Logs::trace("LANCEMENT DU BKUP", "currentTime() = " + QTime::currentTime().toString("HH:mm:ss") + " - m_parametres->heurebkup() = " + m_parametres->heurebkup().toString("HH:mm:ss"));
+                m_lastbackupdate = QDate::currentDate();
+                Backup(m_parametres->dirbkup());
+            }
     }
 }
 
@@ -862,7 +862,10 @@ void Procedures::ParamAutoBackup()
     }
     t_timerbackup.disconnect(SIGNAL(timeout()));
     t_timerbackup.stop();
-    t_timerbackup.start(60000);
+    t_timerbackup.start(30000); /*! le timer de déclenchement de la sauvegrade est lancé plus d'une fois par mintue à cause de la grande imprécision des QTimer
+                                  * si on le lance toutes les 60", il est possible que le timer ne soit pas lancé dans la minute définie pour la sauvegarde.
+                                  * En le lançant toutes les 30", ça marche.
+                                  * C'est de la bidouille, je sais */
     connect(&t_timerbackup, &TimerController::timeout, this, [=] {BackupWakeUp();});
 
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents

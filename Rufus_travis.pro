@@ -41,7 +41,6 @@ linux-g++ {
 }
 
 SOURCES += main.cpp\
-    ostask.cpp \
     rufus.cpp \
     procedures.cpp \
     pyxinterf.cpp \

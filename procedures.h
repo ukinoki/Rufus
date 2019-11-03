@@ -386,6 +386,10 @@ signals:
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
 
     private:
+        QDate                   m_lastbackupdate = QDate::currentDate().addDays(-1);
+                                /*! la variable m_lastbackupdate est utilisée parce que les Qtimer ont parfois une imprécision énorme
+                                 *  et peuvent se lancer à plusieurs reprises dans le même intervalle ou ne pas se lancer aubout du même intervalle.
+                                 * Cela évite de lancer 2 fois la sauvegarde */
         TimerController         t_timerbackup;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
@@ -393,7 +397,7 @@ signals:
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
                                 * et par le timer t_timerbackup sous Linux pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();
-                                /*! sous Linux, déclenche le backup au moment programmé */
+                                /*! déclenche le backup au moment programmé */
         qint64                  CalcBaseSize();
                                 /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
