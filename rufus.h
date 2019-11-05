@@ -268,7 +268,7 @@ private:
     QDialog                 *dlg_msgRepons, *dlg_msgDialog;
     QSystemTrayIcon         *ict_messageIcon;
 
-    ImportController        m_importcontroller;
+    ImportDocsExternesThread        *m_importdocsexternesthread;
     bool                    isPosteImport();
     bool                    m_isposteImport;
     bool                    m_pasDExportPourLeMoment = false;

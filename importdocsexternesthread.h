@@ -231,28 +231,26 @@ II - SUPPRESSION D'UN FICHIER
 
  */
 
-
-class ImportDocsExternes : public QObject
+class ImportDocsExternesThread : public QObject
 {
     Q_OBJECT
 public:
-    explicit                    ImportDocsExternes();
+    explicit                    ImportDocsExternesThread();
+    void                        RapatrieDocumentsThread(QList<QVariantList> listdocs);
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
-
-public slots:
-    void                        RapatrieDocumentsThread(const QList<QVariantList> &listdocs);
 
 signals:
     void                        emitmsg(QStringList m_listemessages, int pause);
 
 private:
     Procedures                  *proc       = Procedures::I();
+    DataBase                    *db         = DataBase::I();
     bool                        m_encours   = false;
 
     bool                        m_compressiondocs;
     bool                        m_ok;
-    QString                     m_pathdirstockageimagerie;
     QString                     m_pathdirstockageprovisoire;
+    QString                     m_pathdirstockageimagerie;
     QString                     m_pathdirOKtransfer;
     QString                     m_pathdiroriginOKtransfer;
     QString                     m_pathdirechectransfer;
@@ -260,44 +258,11 @@ private:
     QStringList                 m_listemessages;
     QFile                       file_image, file_origine;
 
+    QThread                     m_thread;
     Acces                       m_acces;
 
     bool                        DefinitDossiers();
     void                        EchecImport(QString txt);
 };
-
-class ImportController : public QObject
-{
-    Q_OBJECT
-    QThread m_thread;
-
-private:
-    ImportDocsExternes *m_task = Q_NULLPTR;
-public:
-    ImportController() {
-        qRegisterMetaType<QList<QVariantList>>("QList"); //! permet de connecter le signal operate(const QList<QVariantList> &)
-    }
-    ~ImportController() {
-        m_thread.quit();
-        m_thread.wait();
-    }
-    void execute(const QList<QVariantList> &list) {
-        disconnect(SIGNAL(operate(const QList<QVariantList> &)));
-        m_thread.disconnect();
-        if (m_task != Q_NULLPTR)
-            delete m_task;
-        m_task  = new ImportDocsExternes();
-        m_task  ->moveToThread(&m_thread);
-        connect(&m_thread,      &QThread::finished,                 m_task, &QObject::deleteLater);
-        connect(this,           &ImportController::operate,         m_task, &ImportDocsExternes::RapatrieDocumentsThread);
-        connect(m_task,         &ImportDocsExternes::emitmsg,       this,   &ImportController::emitmsg);
-        m_thread.start();
-        emit operate(list);
-    }
-signals:
-    void operate(const QList<QVariantList> &);
-    void emitmsg(QStringList m_listemessages, int pause);
-};
-
 
 #endif // IMPORTDOCSEXTERNESTHREAD_H

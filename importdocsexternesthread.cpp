@@ -17,16 +17,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "importdocsexternesthread.h"
 
-ImportDocsExternes::ImportDocsExternes()
+ImportDocsExternesThread::ImportDocsExternesThread()
 {
-    m_acces = (DataBase::I()->getMode()!=Utils::Distant? Local : Distant);
+    moveToThread(&m_thread);
+    m_acces           = (db->getMode()!=Utils::Distant? Local : Distant);
+    m_thread          .start();
 }
 
-void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &listdocs)
+void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listdocs)
 {
     /* req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
           " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idlieuExercice);
-
     -> listdocs.at(i).at(0) = le titre de l'examen
     -> listdocs.at(i).at(1) = le nom de l'appareil*/
     if (m_encours)
@@ -41,7 +42,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
     }
     for (int itr=0; itr<listdocs.size(); itr++)
     {
-        QString NomDirDoc = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), DataBase::I()->getMode());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -218,7 +219,6 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                      * 368_Zammit - Sauveur - 2017 - 06 - 14T17_39_21Z - eidon_20129 - right - 0 - visible - 2017 - 06 - 14T17_39_26Z -    - report.pdf
                      * 368_Zammit - Sauveur - 2017 - 06 - 16T12_27_13Z - eidon_20129 - right - 0 - af      - 2017 - 06 - 16T12_27_18Z -    - image.jpg
                      * 0          - 1       - 2    - 3  - 4            - 5           - 6     - 7 - 8       - 9    - 10 - 11           - 12 - 13
-
                      * version 2019
                      * 9303  - Caro_Fernando  - - 2019 - 01 - 31T12_13_04Z - eidon_20005 - right - 0 - visible - 2019 - 01 - 31T12_13_03Z - 2019 - 01 - 31_121345 - image.jpg
                      * 15179 - Viottolo_Louis - - 2019 - 01 - 31T13_31_04Z - eidon_20005 - right - 0 - visible - 2019 - 01 - 31T13_31_03Z - 2019 - 01 - 31_133138 - image.jpg
@@ -371,7 +371,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                                       " and patprenom like '" + prenom  + "'"
                                       " and patDDN = '" + annee + "-" + mois + "-" + jour + "'";
                     //qDebug() << req;
-                    QVariantList patlst = DataBase::I()->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                    QVariantList patlst = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                     if (!m_ok || patlst.size()==0)
                     {
                         commentechec =  tr("Impossible d'ouvrir le fichier");
@@ -440,7 +440,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                     continue;
                 }
                 QString identpat;
-                QVariantList patlst = DataBase::I()->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idpat = " + idPatient, m_ok);
+                QVariantList patlst = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idpat = " + idPatient, m_ok);
                 if (!m_ok || patlst.size()==0)
                 {
                     commentechec =  tr("Pas de patient pour cet idPatient") + " -> " + idPatient;
@@ -456,7 +456,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                  * Si on est en accès distant, l'enregistrement se fait dans la table Impressions et le contenu du fichier est copié dans le champ blob de la table de la table
                  * _______________________________________________________________________________________________________________________________________________________
                 */
-                int idimpr = DataBase::I()->selectMaxFromTable("idimpression",  TBL_DOCSEXTERNES, m_ok)+1;
+                int idimpr = db->selectMaxFromTable("idimpression",  TBL_DOCSEXTERNES, m_ok)+1;
 
                 QString NomFileDoc = idPatient + "_"
                         + Typedoc + "_"
@@ -483,7 +483,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                             IMAGERIE "', "
                             + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
 
-                    if(DataBase::I()->StandardSQL(req))
+                    if(db->StandardSQL(req))
                     {
                         QString CheminOKTransfrDoc          = m_pathdirOKtransfer + "/" + NomFileDoc;
                         QString CheminOKTransfrDocOrigin    = m_pathdiroriginOKtransfer + "/" + nomdoc;
@@ -521,7 +521,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                             //qDebug() << "xx = " + QString::number(xx) << "x = " + QString::number(xx-DlgMess->width()-50) << "yy = " + QString::number(yy)  << "y = " + QString::number(yy-DlgMess->height()*(k+1))  << "itr = " << QString::number(k);
                         }
                         else
-                            DataBase::I()->SupprRecordFromTable(idimpr, "idimpression", TBL_DOCSEXTERNES);
+                            db->SupprRecordFromTable(idimpr, "idimpression", TBL_DOCSEXTERNES);
                     }
                     else
                     {
@@ -581,7 +581,7 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
                             //qDebug() << "xx = " + QString::number(xx) << "x = " + QString::number(xx-DlgMess->width()-50) << "yy = " + QString::number(yy)  << "y = " + QString::number(yy-DlgMess->height()*(k+1))  << "itr = " << QString::number(k);
                         }
                         else
-                            DataBase::I()->SupprRecordFromTable(idimpr, "idimpression", TBL_DOCSEXTERNES);
+                            db->SupprRecordFromTable(idimpr, "idimpression", TBL_DOCSEXTERNES);
                     }
                     else
                     {
@@ -598,20 +598,20 @@ void ImportDocsExternes::RapatrieDocumentsThread(const QList<QVariantList> &list
     m_encours = false;
 }
 
-bool ImportDocsExternes::DefinitDossiers()
+bool ImportDocsExternesThread::DefinitDossiers()
 {
     QString NomOnglet;
-    if (DataBase::I()->getMode() == Utils::Poste)
+    if (db->getMode() == Utils::Poste)
     {
         NomOnglet = tr("Monoposte");
-        m_pathdirstockageimagerie = DataBase::I()->parametres()->dirimagerie();
+        m_pathdirstockageimagerie = db->parametres()->dirimagerie();
     }
-    if (DataBase::I()->getMode() == Utils::ReseauLocal)
+    if (db->getMode() == Utils::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
         m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     }
-    if (DataBase::I()->getMode() == Utils::Distant)
+    if (db->getMode() == Utils::Distant)
     {
         NomOnglet = tr("Accès distant");
         m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
@@ -660,7 +660,7 @@ bool ImportDocsExternes::DefinitDossiers()
     return true;
 }
 
-void ImportDocsExternes::EchecImport(QString txt)
+void ImportDocsExternesThread::EchecImport(QString txt)
 {
     QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(file_origine).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;
