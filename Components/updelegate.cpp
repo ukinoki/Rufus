@@ -16,12 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
-#include "uplabeldelegate.h"
-
-UpLabelDelegate::UpLabelDelegate(QObject *parent) : QStyledItemDelegate(parent)
-{
-
-}
+#include "updelegate.h"
 
 QWidget* UpLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex &index) const
 {
@@ -39,7 +34,7 @@ void UpLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) c
 {
     QString value = index.model()->data(index).toString();
     UpLabel *Lbl = dynamic_cast<UpLabel*>(editor);
-    if (Lbl)
+    if (Lbl != Q_NULLPTR)
         Lbl->setText(value);
 }
 
@@ -47,5 +42,30 @@ bool UpLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const
 {
     if(event->type() == QEvent::MouseButtonRelease)
          emit focusitem(index.row());
-    return QAbstractItemDelegate ::editorEvent(event, model, option, index);
+    return QAbstractItemDelegate::editorEvent(event, model, option, index);
+}
+
+
+QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &, const QModelIndex &index) const
+{
+    UpLineEdit *line = new UpLineEdit(parent);
+    line->setValidator(new QRegExpValidator(Utils::rgx_recherche));
+    line->setRow(index.row());
+    connect(line, &QLineEdit::editingFinished, this, &UpLineDelegate::editingFinished);
+    return line;
+}
+
+void UpLineDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
+{
+    QString value = index.model()->data(index).toString();
+    UpLineEdit *line = dynamic_cast<UpLineEdit*>(editor);
+    if (line != Q_NULLPTR)
+        line->setText(value);
+}
+
+bool UpLineDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    if(event->type() == QEvent::MouseButtonRelease)
+         emit focusitem(index.row());
+    return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }

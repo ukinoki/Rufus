@@ -26,9 +26,7 @@ DataBase* DataBase::instance = Q_NULLPTR;
 DataBase* DataBase::I()
 {
     if( !instance )
-    {
         instance = new DataBase();
-    }
     return instance;
 }
 
@@ -1133,10 +1131,10 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
     QList<Depense*> depenses;
     QString req = "SELECT idDep, DateDep , dep.RefFiscale, Objet, Montant,"
                         " dep.FamFiscale, Monnaie, idRec, ModePaiement, Compte,"
-                        " NoCheque, dep.idFacture, LienFichier, Echeancier, Intitule,"
+                        " NoCheque, dep." CP_IDFACTURE_DEPENSES ", " CP_LIENFICHIER_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_INTITULE_FACTURES ","
                         " idRubrique"
                         " FROM " TBL_DEPENSES " dep"
-                        " left join " TBL_FACTURES " fac on dep.idFacture = fac.idFacture"
+                        " left join " TBL_FACTURES " fac on dep.idFacture = fac." CP_IDFACTURE_FACTURES
                         " left join " TBL_RUBRIQUES2035 " rub on dep.RefFiscale = rub.RefFiscale"
                         " WHERE dep.idUser = " + QString::number(idUser);
     //qDebug() << req;
@@ -1159,9 +1157,9 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
         jData[CP_COMPTE_DEPENSES]         = deplist.at(i).at(9).toInt();
         jData[CP_NUMCHEQUE_DEPENSES]      = deplist.at(i).at(10).toInt();
         jData[CP_IDFACTURE_DEPENSES]      = deplist.at(i).at(11).toInt();
-        jData["lienfacture"]              = deplist.at(i).at(12).toString();
-        jData["echeancier"]               = (deplist.at(i).at(13).toInt()==1);
-        jData["objetecheancier"]          = deplist.at(i).at(14).toString();
+        jData[CP_LIENFICHIER_FACTURES]    = deplist.at(i).at(12).toString();
+        jData[CP_ECHEANCIER_FACTURES]     = (deplist.at(i).at(13).toInt()==1);
+        jData[CP_INTITULE_FACTURES]       = deplist.at(i).at(14).toString();
         jData["idrubrique"]               = deplist.at(i).at(15).toInt();
         Depense *dep = new Depense(jData);
         if (dep != Q_NULLPTR)
@@ -1403,7 +1401,7 @@ QList<Recette*> DataBase::loadRecettesByDate(QDate datedebut, QDate datefin)
             QJsonObject jData{};
             jData["id"] = i;
             jData["idacte"] = (recetteslist.at(i).at(0) == QVariant()? -1 : recetteslist.at(i).at(0).toInt());
-            jData["date"] = recetteslist.at(i).at(1).toDate().toString("yyyy-MM-dd");;
+            jData["date"] = recetteslist.at(i).at(1).toDate().toString("yyyy-MM-dd");
             jData["payeur"] = recetteslist.at(i).at(2).toString();
             jData["cotationacte"] = recetteslist.at(i).at(3).toString();
             jData["montant"] = recetteslist.at(i).at(4).toDouble();

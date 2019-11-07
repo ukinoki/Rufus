@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_comptes.h"
 #include "dlg_docsscanner.h"
 #include "gbl_datas.h"
+#include "updelegate.h"
 #include "ui_dlg_depenses.h"
 
 namespace Ui {

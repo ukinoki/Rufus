@@ -15,18 +15,20 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UPLABELDELEGATE_H
-#define UPLABELDELEGATE_H
+#ifndef UPDELEGATE_H
+#define UPDELEGATE_H
 
 #include <QStyledItemDelegate>
 #include "uplabel.h"
+#include "uplineedit.h"
+#include "utils.h"
 
 class UpLabelDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    UpLabelDelegate(QObject* parent = Q_NULLPTR);
+    UpLabelDelegate(QObject* parent = Q_NULLPTR) : QStyledItemDelegate(parent) {}
 
     QWidget*    createEditor    (QWidget* parent,   const QStyleOptionViewItem& option, const QModelIndex &index) const  Q_DECL_OVERRIDE;
     void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
@@ -36,4 +38,20 @@ signals:
     void        focusitem(int a);
 };
 
-#endif // UPLABELDELEGATE_H
+class UpLineDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    UpLineDelegate(QObject* parent = Q_NULLPTR) : QStyledItemDelegate(parent) {}
+
+    QWidget*    createEditor    (QWidget* parent, const QStyleOptionViewItem&, const QModelIndex &index) const  Q_DECL_OVERRIDE;
+    void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
+    bool        editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)  Q_DECL_OVERRIDE;
+
+signals:
+    void        focusitem(int a);
+    void        editingFinished();
+};
+
+#endif // UPDELEGATE_H

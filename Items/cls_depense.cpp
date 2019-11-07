@@ -73,9 +73,9 @@ void Depense::setData(QJsonObject data)
     setDataInt(data,    CP_COMPTE_DEPENSES,         m_compte);
     setDataInt(data,    CP_NUMCHEQUE_DEPENSES,      m_nocheque);
     setDataInt(data,    CP_IDFACTURE_DEPENSES,      m_idfacture);
-    setDataString(data, "lienfacture",              m_lienfacture);
-    setDataBool(data,   "echeancier",               m_echeancier);
-    setDataString(data, "objetecheancier",          m_objetecheancier);
+    setDataString(data, CP_LIENFICHIER_FACTURES,    m_lienfacture);
+    setDataBool(data,   CP_ECHEANCIER_FACTURES,     m_echeancier);
+    setDataString(data, CP_INTITULE_FACTURES,       m_objetecheancier);
     setDataInt(data,    "idrubrique",               m_idrubriquefiscale);
     m_data = data;
 }

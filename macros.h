@@ -321,6 +321,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_NUMCHEQUE_DEPENSES                       "Nocheque"
 #define CP_IDFACTURE_DEPENSES                       "idFacture"
 
+                            //! Table ComptaMedicale.Factures
+#define CP_IDFACTURE_FACTURES                       "idFacture"
+#define CP_DATEFACTURE_FACTURES                     "DateFacture"
+#define CP_LIENFICHIER_FACTURES                     "LienFichier"
+#define CP_INTITULE_FACTURES                        "Intitule"
+#define CP_ECHEANCIER_FACTURES                      "Echeancier"
+#define CP_IDDEPENSE_FACTURES                       "idDepense"
+#define CP_PDF_FACTURES                             "pdf"
+#define CP_JPG_FACTURES                             "jpg"
+
                             //! Table ComptaMedicale.lignesrecettes
 #define CP_IDRECETTE_LIGNRECETTES                   "idRecette"
 #define CP_IDUSER_LIGNRECETTES                      "idUser"

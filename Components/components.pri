@@ -4,12 +4,12 @@
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/upcheckbox.cpp \
         $$PWD/upcombobox.cpp \
+    $$PWD/updelegate.cpp \
         $$PWD/updialog.cpp \
         $$PWD/updoublespinbox.cpp \
         $$PWD/updoublevalidator.cpp \
         $$PWD/upgroupbox.cpp \
         $$PWD/uplabel.cpp \
-    $$PWD/uplabeldelegate.cpp \
         $$PWD/uplineedit.cpp \
         $$PWD/upmessagebox.cpp \
         $$PWD/uppushbutton.cpp \
@@ -27,12 +27,12 @@ SOURCES += $$PWD/upcheckbox.cpp \
 
 HEADERS += $$PWD/upcheckbox.h \
         $$PWD/upcombobox.h \
+    $$PWD/updelegate.h \
         $$PWD/updialog.h \
         $$PWD/updoublespinbox.h \
         $$PWD/updoublevalidator.h \
         $$PWD/upgroupbox.h \
         $$PWD/uplabel.h \
-    $$PWD/uplabeldelegate.h \
         $$PWD/uplineedit.h \
         $$PWD/upmessagebox.h \
         $$PWD/uppushbutton.h \

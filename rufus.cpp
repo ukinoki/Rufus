@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-11-2019/1");
+    qApp->setApplicationVersion("07-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1874,7 +1874,7 @@ void Rufus::ExporteDocs()
     }
 
     int total = db->StandardSelectSQL("SELECT idimpression FROM " TBL_DOCSEXTERNES " where jpg is not null or pdf is not null",m_ok).size();
-    total +=    db->StandardSelectSQL("SELECT idFacture FROM " TBL_FACTURES " where jpg is not null or pdf is not null", m_ok).size();
+    total +=    db->StandardSelectSQL("SELECT " CP_IDFACTURE_FACTURES " FROM " TBL_FACTURES " where " CP_JPG_FACTURES " is not null or " CP_PDF_FACTURES " is not null", m_ok).size();
     if (total>100)
     {
         int min = total/180;
@@ -1965,7 +1965,7 @@ void Rufus::ExporteDocs()
                 }
                 if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
                 {
-                    db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
+                    db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
                     continue;
                 }
                 QFile prov(CheminOKTransfrProv);
@@ -2110,8 +2110,8 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES JPG
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    req = "SELECT idFacture, DateFacture, LienFichier, Intitule, Echeancier, idDepense, jpg FROM " TBL_FACTURES
-                  " where jpg is not null";
+    req = "SELECT " CP_IDFACTURE_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_JPG_FACTURES " FROM " TBL_FACTURES
+                  " where " CP_JPG_FACTURES " is not null";
     //qDebug() << req;
     QList<QVariantList> listexportjpgfact = db->StandardSelectSQL(req, m_ok);
     if (m_ok)
@@ -2123,7 +2123,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = pathDirImagerie + DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    db->StandardSQL("update " TBL_FACTURES " set jpg = null where idfacture = " + listexportjpgfact.at(i).at(0).toString());
+                    db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null where " CP_IDFACTURE_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2150,7 +2150,7 @@ void Rufus::ExporteDocs()
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
-                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
+                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
                 continue;
             }
             user = Listeusr.at(0).at(1).toString();
@@ -2188,7 +2188,7 @@ void Rufus::ExporteDocs()
             }
             if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
             {
-                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
+                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
                 continue;
             }
             QFile prov(CheminOKTransfrProv);
@@ -2199,8 +2199,8 @@ void Rufus::ExporteDocs()
             }
             else
                 return;
-            db->StandardSQL("update " TBL_FACTURES " set jpg = null, LienFichier = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
-                            " where idFacture = " + listexportjpgfact.at(i).at(0).toString());
+            db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
+                            " where " CP_IDFACTURE_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
@@ -2219,8 +2219,8 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES PDF
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    reqpdf = "SELECT idFacture, DateFacture, LienFichier, Intitule, Echeancier, idDepense, pdf FROM " TBL_FACTURES
-                  " where pdf is not null";
+    reqpdf = "SELECT " CP_IDFACTURE_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_PDF_FACTURES " FROM " TBL_FACTURES
+                  " where " CP_PDF_FACTURES " is not null";
     QList<QVariantList> listexportpdffact = db->StandardSelectSQL(reqpdf, m_ok );
     if (m_ok)
         for (int i=0; i<listexportpdffact.size(); i++)
@@ -2230,7 +2230,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = pathDirImagerie + DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    db->StandardSQL("update " TBL_FACTURES " set pdf = null where idFacture = " + listexportpdffact.at(i).at(0).toString());
+                    db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2254,7 +2254,7 @@ void Rufus::ExporteDocs()
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
-                db->SupprRecordFromTable(listexportpdffact.at(i).at(0).toInt(), "idFacture", TBL_FACTURES);
+                db->SupprRecordFromTable(listexportpdffact.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
                 continue;
             }
             user = Listeusr.at(0).at(1).toString();
@@ -2294,7 +2294,7 @@ void Rufus::ExporteDocs()
                         out << listexportpdffact.at(i).at(6).toByteArray() ;
                     }
                 }
-                QString delreq = "delete from  " TBL_FACTURES " where idFacture = " + listexportpdffact.at(i).at(0).toString();
+                QString delreq = "delete from  " TBL_FACTURES " where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 delete document;
@@ -2311,8 +2311,8 @@ void Rufus::ExporteDocs()
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
-            db->StandardSQL("update " TBL_FACTURES " set pdf = null, LienFichier = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc)  + "." PDF "'"
-                            " where idFacture = " + listexportpdffact.at(i).at(0).toString());
+            db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc)  + "." PDF "'"
+                            " where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;

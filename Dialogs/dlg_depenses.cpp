@@ -992,7 +992,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     if (supprimerlafacture)
     {
         /* on détruit l'enregistrement dans la table factures*/
-        db->SupprRecordFromTable(dep->idfacture(),"idFacture",TBL_FACTURES);
+        db->SupprRecordFromTable(dep->idfacture(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
         /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
          * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
          * se chargera de supprimer les fichiers du disque
@@ -1573,19 +1573,44 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, dlg_docsscanner::Facture, m_depenseencours->objet(), this);
     else if (typedoc == ECHEANCIER)
     {
+        auto itemintitulechange  = [] (QStandardItem *item, QString oldintitule, Depense * dep) {
+            qDebug() << item->text();
+            int rowit           = item->row();
+            int idech           = item->model()->item(rowit,0)->text().toInt();
+            QString oldlien     = item->model()->item(rowit,2)->text();
+            QString newlien     = oldlien;
+            newlien             .replace(oldintitule, item->text());
+            QString req         = "update " TBL_FACTURES " set " CP_LIENFICHIER_FACTURES " = '" + newlien + "', " CP_INTITULE_FACTURES " = '" + item->text() + "' "
+                                  " where " CP_IDFACTURE_FACTURES " = " + QString::number(idech);
+            DataBase::I()       ->StandardSQL(req);
+            QString newfilename = Procedures::I()->AbsolutePathDirImagerie() +  DIR_FACTURES + newlien;
+            QString oldfilename = Procedures::I()->AbsolutePathDirImagerie() +  DIR_FACTURES + oldlien;
+            QFile(oldfilename)  .rename(newfilename);
+            foreach (Depense *depacorriger, *Datas::I()->depenses->depenses())
+            {
+                if (depacorriger->idfacture() == dep->idfacture())
+                {
+                    depacorriger->setlienfacture(newlien);
+                    depacorriger->setobjetecheancier(item->text());
+                    depacorriger->setfactureformat("");
+                    depacorriger->setfactureblob(QByteArray());
+                }
+            }
+
+        };
         /* on recherche s'il y a d'autres échéanciers enregistrés dans la table factures pour cet utilisateur*/
-        QString req = "select distinct dep.idfacture, Intitule, LienFichier from " TBL_DEPENSES " dep"
+        QString req = "select distinct dep." CP_IDFACTURE_DEPENSES ", " CP_INTITULE_FACTURES ", " CP_LIENFICHIER_FACTURES " from " TBL_DEPENSES " dep"
                       " left join " TBL_FACTURES " fac"
-                      " on dep.idfacture = fac.idfacture"
-                      " where Echeancier = 1"
-                      " and idUser = " + QString::number(m_userencours->id()) +
-                      " order by Intitule";
+                      " on dep." CP_IDFACTURE_DEPENSES " = fac." CP_IDFACTURE_FACTURES
+                      " where " CP_ECHEANCIER_FACTURES " = 1"
+                      " and " CP_IDUSER_DEPENSES " = " + QString::number(m_userencours->id()) +
+                      " order by " CP_INTITULE_FACTURES;
         //qDebug() << req;
         bool ok = true;
         QList<QVariantList> ListeEch = db->StandardSelectSQL(req, ok);
         if (ListeEch.size()>0)
         {
-            dlg_ask                      = new UpDialog(this);
+            dlg_ask                         = new UpDialog(this);
             QListView   *listview           = new QListView(dlg_ask);
             listview->setMinimumWidth(200);
             listview->setMinimumHeight(150);
@@ -1594,66 +1619,65 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             dlg_ask->dlglayout()->insertWidget(0,listview);
 
 
-            dlg_ask      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            dlg_ask      ->AjouteLayButtons(UpDialog::ButtonEdit | UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask      ->setWindowTitle(tr("Choisissez un échéancier"));
             dlg_ask      ->AjouteWidgetLayButtons(creerecheancier, false);
             dlg_ask->OKButton->setEnabled(false);
+            dlg_ask->EditButton->setEnabled(false);
 
-            int *idfactarecuperer = new int(0);
-            QStandardItemModel model;
-            listview->setModel(&model);
-            listview->setModelColumn(0);
+            QStandardItemModel *model = new QStandardItemModel();
             for (int i=0; i< ListeEch.size(); ++i)
             {
-                model.setItem(i,0, new QStandardItem(ListeEch.at(i).at(1).toString()));
-                model.setItem(i,1, new QStandardItem(ListeEch.at(i).at(0).toString()));
+                model->setItem(i,0, new QStandardItem(ListeEch.at(i).at(0).toString()));    //! idfacture
+                model->setItem(i,1, new QStandardItem(ListeEch.at(i).at(1).toString()));    //! Intitule
+                model->setItem(i,2, new QStandardItem(ListeEch.at(i).at(2).toString()));    //! LienFichier
             }
-            connect (listview->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=] {dlg_ask->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);});
-            connect(dlg_ask->OKButton,           &QPushButton::clicked,                  this,   [=]
-                {
-                *idfactarecuperer = static_cast<QStandardItemModel*>(listview->model())->item(listview->selectionModel()->selectedIndexes().at(0).row(),1)->text().toInt();;
-                dlg_ask->accept();
-                });
-            connect(creerecheancier,         &QPushButton::clicked,  dlg_ask, &UpDialog::accept);
-            connect(dlg_ask->CancelButton,   &QPushButton::clicked,  dlg_ask, &UpDialog::reject);
+            listview->setModel(model);
+            UpLineDelegate *linedeleg = new UpLineDelegate();
+            listview->setModelColumn(1);
+            listview->setItemDelegate(linedeleg);
+            connect(linedeleg, &UpLineDelegate::editingFinished, this, [=] {
+                QStandardItem *item = model->itemFromIndex(listview->selectionModel()->selectedIndexes().at(0));
+                QString oldintitule = ListeEch.at(item->row()).at(1).toString();
+                itemintitulechange(item, oldintitule, m_depenseencours);
+            });
+            connect (listview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] {
+                                                                        dlg_ask->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
+                                                                        dlg_ask->EditButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
+                                                                        });
+            connect(dlg_ask->OKButton,       &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) dlg_ask->accept(); });
+            connect(creerecheancier,         &QPushButton::clicked,  dlg_ask,   &UpDialog::accept);
+            connect(dlg_ask->CancelButton,   &QPushButton::clicked,  dlg_ask,   &UpDialog::reject);
+            connect(dlg_ask->EditButton,     &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) listview->edit(listview->selectionModel()->selectedIndexes().at(0)); });
 
-            int a = dlg_ask->exec();
-            int fact = *idfactarecuperer;
-            delete idfactarecuperer;
-            idfactarecuperer = Q_NULLPTR;
-            int row = -1;
-            QString lienfichier(""), objet("");
-            if (listview->selectionModel()->selectedIndexes().size()>0)
+            if (dlg_ask->exec()==0)
             {
-                row = listview->selectionModel()->selectedIndexes().at(0).row();
-                lienfichier = ListeEch.at(row).at(2).toString();
-                objet       = ListeEch.at(row).at(1).toString();
-            }
-            if (a>0)
-            {
-                if (fact>0)
-                {
-                    /* on a récupéré un idfacture à utiliser comme échéancier pour cette dépense*/
-                    ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, fact);
-                    m_depenseencours->setlienfacture(lienfichier);
-                    m_depenseencours->setecheancier(true);
-                    m_depenseencours->setobjetecheancier(objet);
-                    ui->FactureupPushButton     ->setVisible(false);
-                    ui->EcheancierupPushButton  ->setVisible(false);
-                    ui->VisuDocupTableWidget    ->setVisible(true);
-                    proc->CalcImage(m_depenseencours, true, true);
-                    QMap<QString,QVariant> doc;
-                    doc.insert("ba", m_depenseencours->factureblob());
-                    doc.insert("type", m_depenseencours->factureformat());
-                    m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
-                    SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
-                    return;
-                }
-            }
-            else
+                delete model;
                 return;
+            }
+            int row             = listview->selectionModel()->selectedIndexes().at(0).row();
+            int idfact          = static_cast<QStandardItemModel*>(listview->model())->item(row,0)->text().toInt();
+            QString lienfichier = static_cast<QStandardItemModel*>(listview->model())->item(row,2)->text();
+            QString objet       = static_cast<QStandardItemModel*>(listview->model())->item(row,1)->text();
+            delete model;
+            /* on a récupéré un idfacture à utiliser comme échéancier pour cette dépense*/
+            ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
+            m_depenseencours->setlienfacture(lienfichier);
+            m_depenseencours->setecheancier(true);
+            m_depenseencours->setobjetecheancier(objet);
+            ui->FactureupPushButton     ->setVisible(false);
+            ui->EcheancierupPushButton  ->setVisible(false);
+            ui->VisuDocupTableWidget    ->setVisible(true);
+            proc->CalcImage(m_depenseencours, true, true);
+            QMap<QString,QVariant> doc;
+            doc.insert("ba", m_depenseencours->factureblob());
+            doc.insert("type", m_depenseencours->factureformat());
+            m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+            SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
+            return;
         }
-        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, dlg_docsscanner::Echeancier, "", this);
+        else
+            Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, dlg_docsscanner::Echeancier, "", this);
     }
     if (Dlg_DocsScan->exec() > 0)
     {

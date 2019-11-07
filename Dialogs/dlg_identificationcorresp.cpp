@@ -43,7 +43,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 
     dlglayout()     ->insertWidget(0,ui->SpegroupBox);
     dlglayout()     ->insertWidget(0,ui->Principalframe);
-    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);;
+    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     AjouteWidgetLayButtons(ui->idDossierlabel, false);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     QFont font = qApp->font();

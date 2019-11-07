@@ -655,7 +655,7 @@ void dlg_remisecheques::ToolTip(int A, int B)
                 if (RecSpec == "1")
                 {
                     ABC += listtips.at(i).at(0).toString() + " du " + listtips.at(i).at(1).toDate().toString(tr("dd-MM-yyyy"));
-                    break;;
+                    break;
                 }
                 else
                 {

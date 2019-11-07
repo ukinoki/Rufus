@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VILLECPWIDGET_H
 #define VILLECPWIDGET_H
 
-#include "uplabeldelegate.h"
+#include "updelegate.h"
 #include <QCompleter>
 #include <QSound>
 #include <QSqlDatabase>
