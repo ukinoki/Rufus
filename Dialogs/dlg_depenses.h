@@ -72,6 +72,7 @@ private:
     void                        DefinitArchitectureBigTable();
     void                        EnregistreDepense();
     void                        EnregistreFacture(QString typedoc);
+    void                        EnregistreDocScanne(dlg_docsscanner::Mode);
     void                        ExportTable();
     void                        PrintTable();
     void                        FiltreTable();
