@@ -67,31 +67,30 @@ puis, on l'utilise avec, par exemple:
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent, QString Son) :
+VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::VilleCPWidget)
 {
     ui->setupUi(this);
     ui->CPlineEdit              ->setValidator(new QRegExpValidator(Utils::rgx_CP,this));
     ui->VillelineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_ville,this));
-    m_alarme                      = Son;
     m_villes                    = villes;
 
     setFocusProxy(ui->CPlineEdit);
 
-    QCompleter *complListVilles = new QCompleter(m_villes->getListVilles(),this);
+    QCompleter *complListVilles = new QCompleter(m_villes->ListeVilles(),this);
     complListVilles             ->setCaseSensitivity(Qt::CaseInsensitive);
     complListVilles             ->setCompletionMode(QCompleter::PopupCompletion);
     complListVilles             ->setFilterMode(Qt::MatchStartsWith);
     ui->VillelineEdit           ->setCompleter(complListVilles);
 
-    QCompleter *complListCP     = new QCompleter(m_villes->getListCodePostal(),this);
+    QCompleter *complListCP     = new QCompleter(m_villes->ListeCodesPostaux(),this);
     complListCP                 ->setCaseSensitivity(Qt::CaseInsensitive);
     complListCP                 ->setCompletionMode(QCompleter::InlineCompletion);
     ui->CPlineEdit              ->setCompleter(complListCP);
 
 
-    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { ChercheCodePostal(false); emit villecpmodified(); });
+    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), [=] { ChercheCodePostal(false); emit villecpmodified(); });
     //connect(complListCP,        QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { qDebug()<<"CP Completer"; ChercheVille(false); emit villecpmodified(); });
     connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
         connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
@@ -135,7 +134,7 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
             UpMessageBox::Watch(this, err.value("errorMessage").toString());
         else if( err.value("errorCode").toInt() == 2 )
         {
-            QSound::play(m_alarme);
+            QSound::play(NOM_ALARME);
             UpMessageBox::Watch(this, err.value("errorMessage").toString());
             ui->VillelineEdit->clear();
             ui->VillelineEdit->setFocus();
@@ -150,7 +149,7 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
         return;
     }
     // on a trouvé plusieurs villes
-    QString newValue = dialogList(villes, "nom", tr("Nom de la ville"));
+    QString newValue = dialogList(villes, VilleListModel::NOM, tr("Nom de la ville"));
     if (newValue != Q_NULLPTR)
         ui->VillelineEdit->setText(newValue);
 }
@@ -183,7 +182,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     QList<Ville*> villes = m_villes->getVilleByName(ville);
     if( villes.isEmpty() )
     {
-        QSound::play(m_alarme);
+        QSound::play(NOM_ALARME);
         UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
@@ -200,7 +199,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     QString newValue = "";
     while(newValue.isEmpty() ) //pour etre sur que l'utilisateur choississe bien un code postal
     {
-        newValue = dialogList(villes, "codepostal", tr("Code postal"));
+        newValue = dialogList(villes, VilleListModel::CODEPOSTAL, tr("Code postal"));
         if( newValue.isEmpty() )
         {
             //TODO : METTRE POPUP : tr(veillez choisir un Code Postal)
@@ -214,7 +213,7 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
     QList<Ville*> villes = m_villes->getVilleByName(ville, true);
     if( villes.isEmpty() )
     {
-        QSound::play(m_alarme);
+        QSound::play(NOM_ALARME);
         UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
@@ -227,10 +226,10 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
     }
 
     // on a trouvé plusieurs villes
-    return dialogList(villes, "nom", tr("Nom de la ville"));
+    return dialogList(villes, VilleListModel::NOM, tr("Nom de la ville"));
 }
 
-QString VilleCPWidget::dialogList(QList<Ville*> &listData, QString fieldName, QString headerName)
+QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName)
 {
     UpDialog *gAsk                 = new UpDialog();
     gAsk                           ->setModal(true);

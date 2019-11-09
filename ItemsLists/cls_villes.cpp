@@ -23,23 +23,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 /*
  * VilleListModel
 */
-VilleListModel::VilleListModel(const QList<Ville*> &villes, QString fieldName, QObject *parent) : QAbstractListModel(parent)
+VilleListModel::VilleListModel(const QList<Ville*> &villes, FieldName fieldName, QObject *parent) : QAbstractListModel(parent)
 {
     m_villes = villes;
     setFieldName(fieldName);
 }
 
-void VilleListModel::setFieldName(QString fieldName)
+void VilleListModel::setFieldName(FieldName fieldName)
 {
     m_fieldName = fieldName;
 
-    if( m_fieldName.toLower() == "nom" )
+    if( m_fieldName == NOM )
         std::sort( m_villes.begin(), m_villes.end(), VilleListModel::sortByName );
 
-    if( m_fieldName.toLower() == "codepostal" )
+    if( m_fieldName == CODEPOSTAL )
         std::sort( m_villes.begin(), m_villes.end(), VilleListModel::sortByCodePostal );
 }
-int VilleListModel::rowCount(const QModelIndex& parent) const { Q_UNUSED(parent); return m_villes.size(); }
+int VilleListModel::rowCount(const QModelIndex& parent) const { Q_UNUSED(parent) return m_villes.size(); }
+
 QVariant VilleListModel::data(const QModelIndex& index, int role) const
 {
     // Check that the index is valid and within the correct range first:
@@ -48,10 +49,10 @@ QVariant VilleListModel::data(const QModelIndex& index, int role) const
             || role != Qt::DisplayRole )
         return QVariant();
 
-    if( m_fieldName.toLower() == "nom" )
+    if( m_fieldName == NOM )
         return QString(m_villes.at(index.row())->nom());
 
-    if( m_fieldName.toLower() == "codepostal" )
+    if( m_fieldName == CODEPOSTAL )
         return QString(m_villes.at(index.row())->codePostal());
 
     return QVariant();
@@ -75,12 +76,6 @@ bool Villes::add(Ville *ville)
 {
     if (ville == Q_NULLPTR)
         return false;
-
-    if( map_codespostaux.contains(ville->codePostal()) )
-    {
-        delete ville;
-        return false;
-    }
     map_villes.insert(ville->nom(), ville);
     map_codespostaux.insert(ville->codePostal(), ville);
     return true;
@@ -98,14 +93,14 @@ void Villes::addList(QList<Ville*> listvilles)
 
 
 
-QStringList Villes::getListVilles()
+QStringList Villes::ListeVilles()
 {
    if( m_listeNomVilles.isEmpty() )
         m_listeNomVilles = QStringList(map_villes.uniqueKeys());
 
     return m_listeNomVilles;
 }
-QStringList Villes::getListCodePostal()
+QStringList Villes::ListeCodesPostaux()
 {
     if( m_listeCodePostal.isEmpty() )
         m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());

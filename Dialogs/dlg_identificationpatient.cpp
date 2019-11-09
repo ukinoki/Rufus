@@ -517,7 +517,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->Adresse2lineEdit->clear();
         ui->Adresse3lineEdit->clear();
         QString CP = Procedures::CodePostalParDefaut();
-        wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
         // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         wdg_CPlineedit          ->setText(CP);
         wdg_villelineedit->setText(Procedures::VilleParDefaut());
@@ -549,7 +549,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
             CP = Procedures::CodePostalParDefaut();
         else
             CP = m_currentpatient->codepostal();
-        wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
         // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
 
         wdg_CPlineedit          ->setText(CP);

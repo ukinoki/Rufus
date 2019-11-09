@@ -31,18 +31,17 @@ public: //STATIC
     static bool sortByName(const Ville *v1, const Ville *v2) { return v1->nom() < v2->nom(); }
     static bool sortByCodePostal(const Ville *v1, const Ville *v2) { return v1->codePostal() < v2->codePostal(); }
 
-private:
-    QList<Ville *> m_villes;
-    QString m_fieldName;
-
 public:
-    explicit VilleListModel(const QList<Ville*> &villes, QString fieldName, QObject *parent = Q_NULLPTR);
+    enum FieldName {NOM, CODEPOSTAL}; Q_ENUM(FieldName)
+    explicit VilleListModel(const QList<Ville*> &villes, FieldName fieldName, QObject *parent = Q_NULLPTR);
 
-    void setFieldName(QString fieldName);
+    void setFieldName(FieldName fieldName);
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
 private:
+    QList<Ville *>  m_villes;
+    FieldName       m_fieldName;
 
 };
 
@@ -61,8 +60,8 @@ public:
     Villes(QObject *parent = Q_NULLPTR);
     void initListe();
 
-    QStringList getListVilles();
-    QStringList getListCodePostal();
+    QStringList ListeVilles();
+    QStringList ListeCodesPostaux();
 
     QList<Ville *> getVilleByCodePostal(QString codePostal, bool testIntegrite = true);
     QList<Ville *> getVilleByName(QString name, bool distinct=false);

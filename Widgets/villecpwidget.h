@@ -38,14 +38,13 @@ class VilleCPWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit VilleCPWidget(Villes *villes, QWidget *parent = Q_NULLPTR, QString Son = NOM_ALARME);
+    explicit VilleCPWidget(Villes *villes, QWidget *parent = Q_NULLPTR);
     ~VilleCPWidget();
     Ui::VilleCPWidget       *ui;
 
     Villes          *villes() const;
 
 private:
-    QString         m_alarme;
     Villes          *m_villes;
 
     void            StartChercheVille();
@@ -54,7 +53,7 @@ private:
     QString         ConfirmeVille(QString ville);
     void            ChercheCodePostal(bool confirmerlaville = true);
 
-    QString         dialogList(QList<Ville*> &listData, QString fieldName, QString headerName);
+    QString         dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName);
     void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
 
 signals:

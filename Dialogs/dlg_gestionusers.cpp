@@ -1217,7 +1217,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     }
     ui->PortableuplineEdit          ->setText(m_userencours->portable());
     ui->MailuplineEdit              ->setText(m_userencours->mail());
-    ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->getNumPS()));
+    ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->NumPS()));
     ui->NumCOupLineEdit             ->setText(m_userencours->numOrdre());
     ui->InactivUsercheckBox         ->setChecked(m_userencours->isDesactive());
 
@@ -1238,7 +1238,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     if (ophtalmo)
     {
         ui->NumCOupLineEdit             ->setText(m_userencours->numOrdre());
-        ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->getNumPS()));
+        ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->NumPS()));
         ui->OPHupRadioButton            ->setChecked(true);
         ui->AutreSoignantupLineEdit     ->clear();
         ui->AutreFonctionuplineEdit     ->clear();
@@ -1254,7 +1254,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     else if (orthoptist)
     {
         ui->NumCOupLineEdit             ->clear();
-        ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->getNumPS()));
+        ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->NumPS()));
         ui->OrthoptistupRadioButton       ->setChecked(true);
         ui->AutreSoignantupLineEdit     ->clear();
         ui->AutreFonctionuplineEdit     ->clear();

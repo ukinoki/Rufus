@@ -369,7 +369,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         ui->Adresse2lineEdit    ->setText(m_correspondant->adresse2());
         ui->Adresse3lineEdit    ->setText(m_correspondant->adresse3());
         QString CP              = m_correspondant->codepostal();
-        wdg_CPlineedit              ->completer()->setCurrentRow(wdg_villeCP->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        wdg_CPlineedit              ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         wdg_CPlineedit              ->setText(CP);
         wdg_villelineedit           ->setText(m_correspondant->ville());

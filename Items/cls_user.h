@@ -144,13 +144,34 @@ public:
     QString titre() const;
     int numspecialite() const;
     QString specialite() const;
-    qlonglong getNumPS() const;
+    qlonglong NumPS() const;
     QString numOrdre() const;
     bool isAGA() const;
     int idemployeur() const;
     int idcompteencaissementhonoraires() const;
     void setidcompteencaissementhonoraires(int id);
     QString fonction() const;
+
+    QFont police() const {
+                    QString attribut = m_policeAttribut;
+                    QFont policeEcran = QFont(m_policeEcran);
+                    if (!attribut.contains("Regular",Qt::CaseInsensitive))
+                    {
+                        if (attribut.contains("Italic",Qt::CaseInsensitive))
+                            policeEcran.setStyle(QFont::StyleItalic);
+                        if (attribut.contains("Light",Qt::CaseInsensitive))
+                            policeEcran.setWeight(QFont::Light);
+                        if (attribut.contains("Normal",Qt::CaseInsensitive))
+                            policeEcran.setWeight(QFont::Normal);
+                        if (attribut.contains("SemiBold",Qt::CaseInsensitive))
+                            policeEcran.setWeight(QFont::DemiBold);
+                        if (attribut.contains("Bold",Qt::CaseInsensitive))
+                            policeEcran.setWeight(QFont::Bold);
+                        if (attribut.contains("Black",Qt::CaseInsensitive))
+                            policeEcran.setWeight(QFont::Black);
+                    }
+                    return policeEcran; }
+    QString policeattribut() const  { return m_policeAttribut; }
 
     RESPONSABLE responsableactes() const;
 

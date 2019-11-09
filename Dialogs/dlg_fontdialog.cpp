@@ -154,8 +154,12 @@ void dlg_fontdialog::Redessinelabel(QTreeWidgetItem *item)
     wdg_lbl->setFont(fontlabel);
 }
 
-QFont   dlg_fontdialog::font() const
+QFont dlg_fontdialog::font()
 {
+#ifdef Q_OS_LINUX
+    int ps = m_font.pointSize()+3;
+    m_font.setPointSize(ps);
+#endif
     return m_font;
 }
 

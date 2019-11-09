@@ -1164,9 +1164,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         if( user->numOrdre().size() )
         {
             NumSS = user->numOrdre();
-            if( user->getNumPS() > 0 ) NumSS += " - ";
+            if( user->NumPS() > 0 ) NumSS += " - ";
         }
-        if (user->getNumPS() > 0) NumSS += "RPPS " + QString::number(user->getNumPS());
+        if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
         Entete.replace("{{NUMSS}}", NumSS);
         Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
 
@@ -1859,7 +1859,7 @@ QString Procedures::SessionStatus()
     }
 
     if (soigntnonassistant)
-        txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(m_currentuser->getNumPS());
+        txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(m_currentuser->NumPS());
     if (medecin && ! assistant)
         txtstatut += "\nADELI :\t\t\t" + m_currentuser->numOrdre();
     if (soignant)
@@ -3103,6 +3103,13 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         Datas::I()->motifs          ->initListe();
         m_currentuser = Datas::I()->users->userconnected();
         SetUserAllData(m_currentuser);
+        m_applicationfont = m_currentuser->police();
+#ifdef Q_OS_LINUX
+        int ps = m_applicationfont.pointSize()-3;
+        m_applicationfont.setPointSize(ps);
+#endif
+        qApp->setFont(m_applicationfont);
+
         if (!VerifBaseEtRessources())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
