@@ -170,6 +170,7 @@ public:
                         if (attribut.contains("Black",Qt::CaseInsensitive))
                             policeEcran.setWeight(QFont::Black);
                     }
+                    Utils::CalcFontSize(policeEcran);
                     return policeEcran; }
     QString policeattribut() const  { return m_policeAttribut; }
 

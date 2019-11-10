@@ -40,7 +40,7 @@ Procedures::Procedures(QObject *parent) :
     m_nomFichierIni     = QDir::homePath() + FILE_INI;
     QFile FichierIni(m_nomFichierIni);
     m_applicationfont = QFont(POLICEPARDEFAUT);
-    m_applicationfont.setPointSize(POINTPARDEFAUT);
+    Utils::CalcFontSize(m_applicationfont);
     qApp->setFont(m_applicationfont);
 
     m_connexionbaseOK           = false;
@@ -180,16 +180,14 @@ void Procedures::EpureLogs(int anciennete)
 // ----------------------------------------------------------------------------------
 // Modidife la taille de la police utilisée pour les widget d'une liste
 // ----------------------------------------------------------------------------------
-void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
+void Procedures::ModifTailleFont(QWidget *widg, int siz, QFont font)
 {
     font.setPointSize(font.pointSize() + siz);
-    QWidget *widg = dynamic_cast<QWidget*>(obj);
-    if (widg != Q_NULLPTR)
-        widg->setFont(font);
-    for (int i=0; i<obj->findChildren<QWidget*>().size(); i++)
+    widg->setFont(font);
+    for (int i=0; i<widg->findChildren<QWidget*>().size(); i++)
     {
         //qDebug() << obj->findChildren<QWidget*>().at(i)->objectName();
-        obj->findChildren<QWidget*>().at(i)->setFont(font);
+        widg->findChildren<QWidget*>().at(i)->setFont(font);
     }
 }
 
@@ -2084,12 +2082,7 @@ void Procedures::setPosteImportDocs(bool a)
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
           END ;";
-    m_isposteimportdocs = db->StandardSQL(req);
-}
-
-bool Procedures::isPosteImportDocs()
-{
-    return m_isposteimportdocs;
+    db->StandardSQL(req);
 }
 
 QString Procedures::PosteImportDocs()
@@ -3084,7 +3077,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 bool Procedures::IdentificationUser(bool ChgUsr)
 {
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser(ChgUsr);
-    dlg_IdentUser   ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
+    dlg_IdentUser   ->setFont(m_applicationfont);
     if (m_currentuser != Q_NULLPTR)
         delete m_currentuser;
     m_currentuser = Q_NULLPTR;
@@ -3104,10 +3097,6 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         m_currentuser = Datas::I()->users->userconnected();
         SetUserAllData(m_currentuser);
         m_applicationfont = m_currentuser->police();
-#ifdef Q_OS_LINUX
-        int ps = m_applicationfont.pointSize()-3;
-        m_applicationfont.setPointSize(ps);
-#endif
         qApp->setFont(m_applicationfont);
 
         if (!VerifBaseEtRessources())
@@ -4026,7 +4015,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool OKAccesD
 {
     Dlg_ParamConnex = new dlg_paramconnexion(OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
-    Dlg_ParamConnex ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
+    Dlg_ParamConnex ->setFont(m_applicationfont);
 
     if (Dlg_ParamConnex->exec()>0)
     {
@@ -5665,7 +5654,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                             + QString::number(Datas::I()->tono->TOG())
                             + ", now(), '" + Tono::ConvertMesure(Tono::Air) + "')";
                     DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
-
+                    emit NouvMesureRefraction(Tono);
                 }
                 if (!Datas::I()->pachy->isdataclean())
                 {
@@ -6021,7 +6010,7 @@ PL04.7N
                 int b                   = Tono.indexOf("DPM");
                 if (b>=0)
                     Tono                = Tono.left(b-1);
-                a= Tono.indexOf(" R");
+                a = Tono.indexOf(" R");
                 if (a>=0)
                 {
                     TonoOD          = Tono.right(Tono.length()-a-1);

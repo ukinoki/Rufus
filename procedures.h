@@ -245,10 +245,7 @@ public:
 /*! --------------------------------------------------------------------------------------------------------
 * l'import des documents
 * -------------------------------------------------------------------------------------------------------- */
-private:
-    bool                    m_isposteimportdocs;                                /*! le poste est celui qui importe les documents */
 public:
-    bool                    isPosteImportDocs();
     QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
     void                    setPosteImportDocs(bool a = true);
@@ -278,7 +275,7 @@ public:
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
     void                    EnChantier(bool avecMsg = false);
     void                    EpureLogs(int anciennete = 7);          //!> supprime les fichiers de logs antérieurs à J - anciennete jours
-    void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
+    void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
 signals:

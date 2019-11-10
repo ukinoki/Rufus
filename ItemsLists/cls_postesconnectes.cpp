@@ -67,7 +67,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         if (jadmin.size() > 0)
             idAdministrateur = jadmin.value("id").toInt();
         foreach (PosteConnecte *post, *map_postesconnectes)
-            if(post->id() == idAdministrateur && idAdministrateur > -1)
+            if(post->id() == idAdministrateur && idAdministrateur > -1 && post->heurederniereconnexion().secsTo(DataBase::I()->ServerDateTime()) < 120)
             {
                 m_admin = post;
                 break;
@@ -97,6 +97,13 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
         }
     if (canremoveverrouactes)
         DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(post->id()));
+    if (post->isadmin()) {
+        adminset = true;
+        if (m_admin != Q_NULLPTR) {
+            delete m_admin;
+            m_admin = Q_NULLPTR;
+        }
+    }
     remove(map_postesconnectes, post);
 }
 

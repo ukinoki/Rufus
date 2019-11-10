@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("09-11-2019/1");
+    qApp->setApplicationVersion("10-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -86,18 +86,19 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     FiltreTable();                              //! InitTables()
-    if (Datas::I()->postesconnectes->admin() == Q_NULLPTR)
+    PosteConnecte* post = Datas::I()->postesconnectes->admin();
+    if (post == Q_NULLPTR)
         VerifVerrouDossier();
     MAJPosteConnecte();
 
     //! 5 - lancement du TCP
     m_utiliseTCP = false;
     QString log;
-    if (Datas::I()->postesconnectes->admin() != Q_NULLPTR)
+    if (post != Q_NULLPTR)
     {
         log = tr("RufusAdmin présent");
         Logs::MSGSOCKET(log);
-        if (Datas::I()->postesconnectes->admin()->ipadress() == "")
+        if (post->ipadress() == "")
         {
             log = tr("Aucun serveur TCP enregistré dans la base");
             Logs::MSGSOCKET(log);
@@ -107,7 +108,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         {
             Utils::Pause(100);
             TcPConnect = TcpSocket::I();
-            m_utiliseTCP = TcPConnect->TcpConnectToServer(Datas::I()->postesconnectes->admin()->ipadress());
+            m_utiliseTCP = TcPConnect->TcpConnectToServer(post->ipadress());
             if (m_utiliseTCP)
             {
                 QString msg;
@@ -115,10 +116,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi iduser
                 msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;
-                envoieMessage(msg);
+                envoieTCPMessage(msg);
                 // envoi adresse IP, adresse MAC, nom d'hôte
                 msg = Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket;
-                envoieMessage(msg);
+                envoieTCPMessage(msg);
             }
             else {
                 log = tr("RufusAdmin présent mais échec connexion");
@@ -151,7 +152,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     t_timerVerifVerrou           = new QTimer(this);     // utilisé en  l'absence de TCPServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     t_timerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
 
-    gTimerPatientsVus   ->setSingleShot(true);          // il est singleshot et n'est démarré que quand on affiche la liste des patients vus
+    gTimerPatientsVus   ->setSingleShot(true);           // il est singleshot et n'est démarré que quand on affiche la liste des patients vus
     gTimerPatientsVus   ->setInterval(20000);
     // Lancement des timers de gestion des documents
     t_timerVerifImportateurDocs      ->start(60000);
@@ -234,7 +235,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 10 - Mise à jour des salles d'attente
     Remplir_SalDat();
     if(m_utiliseTCP)
-        envoieMessage(TCPMSG_MAJSalAttente);
+        envoieTCPMessage(TCPMSG_MAJSalAttente);
 
     //! 11 - Vérification de la messagerie
     ReconstruitListeMessages();
@@ -353,14 +354,14 @@ void Rufus::ConnectSignals()
 
     // MAJ Salle d'attente ----------------------------------------------------------------------------------
     connect(Flags::I(),                                             &Flags::UpdSalleDAttente,                           this,   [=](int a)  {   if (m_utiliseTCP)
-                                                                                                                                                    envoieMessage(TCPMSG_MAJSalAttente);
+                                                                                                                                                    envoieTCPMessage(TCPMSG_MAJSalAttente);
                                                                                                                                                 else
                                                                                                                                                     m_flagsalledattente = a;
                                                                                                                                                 Remplir_SalDat();
                                                                                                                                             } );
     // MAJ Correspondants ----------------------------------------------------------------------------------
     connect(Flags::I(),                                             &Flags::UpdCorrespondants,                          this,   [=](int a)  {   if (m_utiliseTCP)
-                                                                                                                                                    envoieMessage(TCPMSG_MAJCorrespondants);
+                                                                                                                                                    envoieTCPMessage(TCPMSG_MAJCorrespondants);
                                                                                                                                                 else
                                                                                                                                                     m_flagcorrespondants = a;
                                                                                                                                                 ReconstruitCombosCorresp(false);
@@ -4417,7 +4418,7 @@ void Rufus::VerifSendMessage(int idMsg)
             return;
         }
         db->commit();
-        envoieMessageA(listidusr);
+        envoieTCPMessageA(listidusr);
     }
     else  //    modification d'un message existant
     {
@@ -5224,7 +5225,7 @@ void Rufus::EnregMsgResp(int idmsg)
     {
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
         db->commit();
-        envoieMessageA(QList<int>() << iddest);
+        envoieTCPMessageA(QList<int>() << iddest);
     }
     dlg_msgRepons->accept();
 }
@@ -5445,7 +5446,7 @@ void Rufus::VerifCorrespondants()
 void Rufus::VerifVerrouDossier()
 {
     // Seuls le poste importateur dees documents et les postes distants utilisent cette fonction
-    if (!proc->isPosteImportDocs() && DataBase::I()->getMode() != Utils::Distant)
+    if (!isPosteImport() && DataBase::I()->getMode() != Utils::Distant)
         return;
     /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
      * elle n'est utilisée qu'en cas de non utilisation du tcp
@@ -5462,10 +5463,10 @@ void Rufus::VerifVerrouDossier()
         if (tempsecouledepuisactualisation > 120)
         {
             qDebug() << "Suppression d'un poste débranché accidentellement" << "Rufus::VerifVerrouDossier()";
+            qDebug() << "nom du poste)" << post->stringid();
             qDebug() << "timenow = " << timenow;
             qDebug() << "heure dernière connexion = " << post->heurederniereconnexion();
             qDebug() << "temps ecoule depuis actualisation = " << tempsecouledepuisactualisation;
-            qDebug() << "nom du poste)" << post->stringid();
             qDebug() << "user = " << Datas::I()->users->getById(post->id())->login();
             //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
             //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
@@ -7538,7 +7539,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         }
     }
     if (unpatientaetecreeoumodifie)
-        envoieMessage(QString::number(Dlg_IdentPatient->currentpatient()->id()) + TCPMSG_MAJPatient);
+        envoieTCPMessage(QString::number(Dlg_IdentPatient->currentpatient()->id()) + TCPMSG_MAJPatient);
     delete Dlg_IdentPatient;
     return unpatientaetecreeoumodifie;
 }
@@ -9825,6 +9826,12 @@ NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilisé pour ouvr
             ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlPachy()));
         break;
     }
+    case Procedures::Tono:
+    {
+        if (proc->HtmlTono() != "")
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlTono()));
+        break;
+    }
     default:
         RefractionMesure(dlg_refraction::Manuel);
     }
@@ -10005,7 +10012,7 @@ void Rufus::SaisieFSE()
 
 void Rufus::TesteConnexion()
 {
-    envoieMessage(TCPMSG_TestConnexion);
+    envoieTCPMessage(TCPMSG_TestConnexion);
 }
 
 
@@ -10098,7 +10105,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
 }
 
-void Rufus::envoieMessage(QString msg)
+void Rufus::envoieTCPMessage(QString msg)
 {
     if (!m_utiliseTCP)
         return;
@@ -10106,7 +10113,7 @@ void Rufus::envoieMessage(QString msg)
     TcPConnect->envoieMessage(msg);
 }
 
-void Rufus::envoieMessageA(QList<int> listidusr)
+void Rufus::envoieTCPMessageA(QList<int> listidusr)
 {
     Flags::I()->MAJflagMessages();
     if (!m_utiliseTCP)

@@ -136,17 +136,7 @@ void dlg_fontdialog::Redessinelabel(QTreeWidgetItem *item)
         fontlabel.setFamily(child);
         m_fontattribut = "";
     }
-    for (int i = 5; i < 30; i++)
-    {
-        fontlabel.setPointSize(i);
-        QFontMetrics fm(fontlabel);
-        int Htaille = fm.width("date de naissance");
-        if (Htaille > 108 || fm.height()*1.1 > 20)
-        {
-            fontlabel.setPointSize(i-1);
-            i=30;
-        }
-    }
+    Utils::CalcFontSize(fontlabel);
     m_font = fontlabel;
     wdg_uppushbutton->setFont(fontlabel);
     QString a = child + " " + QString::number(fontlabel.pointSize()) + " pt";
@@ -156,10 +146,6 @@ void dlg_fontdialog::Redessinelabel(QTreeWidgetItem *item)
 
 QFont dlg_fontdialog::font()
 {
-#ifdef Q_OS_LINUX
-    int ps = m_font.pointSize()+3;
-    m_font.setPointSize(ps);
-#endif
     return m_font;
 }
 

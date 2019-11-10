@@ -474,9 +474,10 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->VendrediradioButton ->setChecked(m_parametres->daysbkup().testFlag(Utils::Vendredi));
     ui->SamediradioButton   ->setChecked(m_parametres->daysbkup().testFlag(Utils::Samedi));
     ui->DimancheradioButton ->setChecked(m_parametres->daysbkup().testFlag(Utils::Dimanche));
-    if (Datas::I()->postesconnectes->admin() != Q_NULLPTR)
+    PosteConnecte* post = Datas::I()->postesconnectes->admin(Item::NoUpdate);
+    if (post != Q_NULLPTR)
         ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
-                            + "<font color=\"green\"><b>" + Datas::I()->postesconnectes->admin()->ipadress() + "</b></font>"
+                            + "<font color=\"green\"><b>" + post->ipadress() + "</b></font>"
                             + "<font color=\"black\"> " + " - " + tr("Port") + " " + "</font>"
                             + "<font color=\"green\"><b> " NOM_PORT_TCPSERVEUR "</b></font>");
     else
@@ -706,7 +707,7 @@ void dlg_param::ChoixFontpushButtonClicked()
     Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
     {
-        QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->font().toString()
+        QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->font().family()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->fontAttribut()
                                 + "' where idUser = " + QString::number(m_currentuser->id());
         db->StandardSQL(fontrequete,"dlg_param::ChoixFontpushButtonClicked()");
@@ -803,12 +804,12 @@ void dlg_param::EnableModif(QWidget *obj)
 
     else if (obj == ui->LockParamGeneralupLabel)
     {
-        QString A = proc->PosteImportDocs();
-        if(A.contains(" - " NOM_ADMINISTRATEURDOCS))
+        PosteConnecte* post = Datas::I()->postesconnectes->admin(Item::NoUpdate);
+        if (post != Q_NULLPTR)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier les paramètres généraux"),
                                      tr("Une session de RufusAdmin est actuellement active sur le poste") + " "
-                                     + A.remove(" - " NOM_ADMINISTRATEURDOCS));
+                                     + post->nomposte());
             return;
         }
         if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
@@ -1873,8 +1874,9 @@ void dlg_param::RestaureBase()
 
 void dlg_param::VerifPosteImportDocs()
 {
+    PosteConnecte* post = Datas::I()->postesconnectes->admin(Item::NoUpdate);
+    ui->LockParamGeneralupLabel->setEnabled(post == Q_NULLPTR);
     QString A = proc->PosteImportDocs();
-    ui->LockParamGeneralupLabel->setEnabled(!A.contains(" - " NOM_ADMINISTRATEURDOCS));
     if (A == "")
     {
         ui->PosteImportDocslabel->setText(tr("Pas de poste paramétré"));

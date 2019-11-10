@@ -523,14 +523,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TAILLEMAXIIMAGES                            262144
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
-#ifdef Q_OS_MACX
 #define POLICEPARDEFAUT         "Comic Sans MS"
-#define POINTPARDEFAUT          13
+#ifdef Q_OS_MACX
 #define CORRECTION_td_width     1
 #endif
 #ifdef Q_OS_LINUX
-#define POLICEPARDEFAUT         "Comic Sans MS"
-#define POINTPARDEFAUT          10
 #define CORRECTION_td_width     1.3
 #endif
 

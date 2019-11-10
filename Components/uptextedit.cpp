@@ -311,6 +311,7 @@ void UpTextEdit::setText(const QString &text)
         if (text.contains(HTMLCOMMENT_LINUX))
             txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
+        txt.replace(QRegExp("font-family:'([a-zA-Z -]*)'"),"font-family:'" + qApp->font().family() + "'");
         QTextEdit::setText(txt);
     }
     else

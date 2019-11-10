@@ -134,6 +134,9 @@ public:
 
     //! renvoie la valeur littérale d'un enum (à condition d'avoir placé la macro Q_ENUM(nomdelenum) dans la définition de l'enum
     static QString EnumDescription(QMetaEnum metaEnum, int val);
+
+    //! calcule la taille idéale d'une police
+    static void CalcFontSize(QFont &font);
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 
