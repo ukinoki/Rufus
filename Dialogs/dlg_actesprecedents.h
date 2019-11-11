@@ -47,9 +47,8 @@ public:
     dlg_actesprecedents(Actes *actes, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
     ~dlg_actesprecedents();
     int                     idcurrentpatient() const;       //!> renvoie à rufus.cpp le patient concerné
-    void                    Actualise();
+    void                    Actualise(QMap<int, Acte*> *map);
     void                    ActesPrecsAfficheActe(Acte *acte); // Affiche l'acte défini
-    void                    ActesPrecsAfficheActe();
     Acte*                   currentacte() const;
 
 private:
@@ -59,13 +58,16 @@ private:
     Patient                             *m_currentpatient;
     QMap<int, Acte*>::const_iterator    it_currentacte;
     Actes                               *m_listeactes;
+    QMap<int, Acte*>                    *map_actes = Q_NULLPTR;
     bool                                m_avantdernieracte;
     int                                 m_idpatient;
+    int                                 mapsize;
 
     void                    wheelEvent(QWheelEvent *event);
     virtual void            keyPressEvent(QKeyEvent *keyEvent); //PAS UTILISE
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
+    void                    ActesPrecsAfficheActe();
     bool                    NavigationConsult(ItemsList::POSITION i);
 };
 

@@ -55,11 +55,13 @@ ui(new Ui::dlg_actesprecedents)
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
 
-    Actualise();
+    Actualise(m_listeactes->actes());
 }
 
 dlg_actesprecedents::~dlg_actesprecedents()
 {
+    if (map_actes != Q_NULLPTR)
+        delete map_actes;
     delete ui;
 }
 
@@ -68,38 +70,34 @@ dlg_actesprecedents::~dlg_actesprecedents()
  * Cette fonction est appelée par Rufus.cpp
  * quand un acte est créé ou supprimé
  */
-void dlg_actesprecedents::Actualise()
+void dlg_actesprecedents::Actualise(QMap<int, Acte *> *map)
 {
-    if( m_listeactes->actes()->size() == 0 )
-    {
-        //ERROR
-        //tr("Impossible de retrouver la dernière consultation")
+    if( map->size() == 0 )
         return;
-    }
-
+    if (map_actes != Q_NULLPTR)
+        delete map_actes;
+    map_actes = new QMap<int, Acte*>;
+    foreach (Acte* act,  *map)
+        map_actes->insert(act->id(), act);
+    mapsize = map_actes->size();
+    if (m_avantdernieracte)
+        map_actes->remove(map_actes->lastKey());
+    if( map_actes->size() == 0 )
+        close();
     int initScrollValue;
-    it_currentacte = m_listeactes->getLast();
-    initScrollValue = m_listeactes->actes()->size() - 1;
-    if( m_avantdernieracte )
-    {
-        --initScrollValue;
-        --it_currentacte;
-        if( it_currentacte == Q_NULLPTR )
-        {
-            initScrollValue = 0;
-            it_currentacte = m_listeactes->actes()->constBegin();
-        }
-    }
+    it_currentacte = map_actes->find(map_actes->lastKey());
+    initScrollValue = map_actes->size();
+
     ui->ScrollBar->disconnect();
     ui->ScrollBar->setMinimum(0);
-    ui->ScrollBar->setMaximum(m_listeactes->actes()->size() - 1);
+    ui->ScrollBar->setMaximum(map_actes->size());
     ui->ScrollBar->setSingleStep(1);
     ui->ScrollBar->setValue(initScrollValue);
     ActesPrecsAfficheActe();
 
     if( ui->ScrollBar->maximum() > 0 )
         connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
-            it_currentacte = m_listeactes->getAt(newValue);
+            it_currentacte = map_actes->find(map_actes->keys().at(newValue));
             ActesPrecsAfficheActe();
         });
 }
@@ -125,7 +123,7 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
 
         --it_currentacte;
         if( it_currentacte == Q_NULLPTR)
-            it_currentacte = m_listeactes->actes()->constBegin();
+            it_currentacte = map_actes->constBegin();
         ActesPrecsAfficheActe();
     }
 
@@ -204,8 +202,8 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 {
-    it_currentacte = m_listeactes->actes()->find(acte->id());
-    if( it_currentacte == m_listeactes->actes()->constEnd() )
+    it_currentacte = map_actes->find(acte->id());
+    if( it_currentacte == map_actes->constEnd() )
         return;
     ActesPrecsAfficheActe();
 }
@@ -271,25 +269,25 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
                                          tr(" pour ") + usr->login()); //Avant idPatient
 
     //3. Mettre à jour le numéro d'acte
-    if( m_listeactes->actes()->size() > 1 )
+    if( map_actes->size() > 1 )
     {
-        int scrolPos = m_listeactes->actes()->keys().indexOf(acte->id());
+        int scrolPos = map_actes->keys().indexOf(acte->id());
         ui->ScrollBar->setValue(scrolPos);
     }
 
-    bool canprec = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) > 0);
+    bool canprec = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) > 0);
     ui->ActePrecedentpushButton->setEnabled(canprec);
 
-    bool cansui = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) < m_listeactes->actes()->size() - 1);
+    bool cansui = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) < map_actes->size() - 1);
     ui->ActeSuivantpushButton->setEnabled(cansui);
 
-    bool canfirst = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) > 0);
+    bool canfirst = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) > 0);
     ui->PremierActepushButton->setEnabled(canfirst);
 
-    bool canlast = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) < m_listeactes->actes()->size() - 1);
+    bool canlast = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) < map_actes->size() - 1);
     ui->DernierActepushButton->setEnabled(canlast);
 
-    ui->NoActelabel->setText(QString::number(m_listeactes->actes()->keys().indexOf(acte->id()) + 1) + " / " + QString::number(m_listeactes->actes()->size()));
+    ui->NoActelabel->setText(QString::number(map_actes->keys().indexOf(acte->id()) + 1) + " / " + QString::number(mapsize));
 
     //4. Afficher les renseignements comptables
     ui->ActeCotationlineEdit->setText(acte->cotation());
@@ -394,22 +392,22 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     if (i == ItemsList::Suiv)
     {
         ++it_currentacte;
-        if( it_currentacte == m_listeactes->actes()->constEnd() )
-            it_currentacte = m_listeactes->getLast();
+        if( it_currentacte == map_actes->constEnd() )
+            it_currentacte = map_actes->find(map_actes->lastKey());
     }
     else if (i == ItemsList::Prec)
     {
         --it_currentacte;
         if( it_currentacte == Q_NULLPTR )
-            it_currentacte = m_listeactes->actes()->constBegin();
+            it_currentacte = map_actes->constBegin();
     }
     else if (i == ItemsList::Debut)
     {
-        it_currentacte = m_listeactes->actes()->constBegin();
+        it_currentacte = map_actes->constBegin();
     }
     else if (i == ItemsList::Fin)
     {
-        it_currentacte = m_listeactes->getLast();
+        it_currentacte = map_actes->find(map_actes->lastKey());
     }
 
     idActe = it_currentacte.value()->id();

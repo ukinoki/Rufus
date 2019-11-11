@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-11-2019/1");
+    qApp->setApplicationVersion("11-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5821,7 +5821,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     Corps.append(HTMLCOMMENT_MAC);
         #endif
                     if (objUpText->table() == TBL_ACTES)
+                    {
                         ItemsList::update(m_currentact, objUpText->champ(), Corps);
+                        MAJActesPrecs();
+                    }
                     else if (objUpText->table() == TBL_MESSAGES)
                     {
                         requetemodif =   "UPDATE " + objUpText->table() + " SET " + objUpText->champ() + " = '"
@@ -6876,7 +6879,7 @@ void Rufus::CreerActe(Patient *pat)
         if (findChildren<dlg_actesprecedents *>().size() == 0)
             OuvrirActesPrecedents();            //! depuis CreerActe()
         else
-            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
+            findChildren<dlg_actesprecedents *>().at(0)->Actualise(Datas::I()->actes->actes());
     }
     else
     {
@@ -9453,7 +9456,7 @@ void Rufus::SupprimerActe(Acte *act)
         if (m_listeactes->actes()->size() < 2)
             findChildren<dlg_actesprecedents *>().at(0)->close();
         else
-            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
+            findChildren<dlg_actesprecedents *>().at(0)->Actualise(Datas::I()->actes->actes());
     }
 }
 
