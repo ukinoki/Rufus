@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("11-11-2019/1");
+    qApp->setApplicationVersion("12-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -374,7 +374,7 @@ void Rufus::ConnectSignals()
 
     // Nouvelle mesure d'appareil de refraction ----------------------------------------------------------------------------------
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
-        connect(proc,                                               &Procedures::NouvMesureRefraction,                  this,   &Rufus::NouvelleMesureRefraction);
+        connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
     ui->MoulinettepushButton->setVisible(false);
@@ -9583,15 +9583,10 @@ void Rufus::Pachymetrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
+        proc->InsertMesure(Procedures::Pachy, Tono::NoMesure, Datas::I()->pachy->modemesure());
         pachyOD = QString::number(Datas::I()->pachy->pachyOD());
         pachyOG = QString::number(Datas::I()->pachy->pachyOG());
         Methode = Pachy::ConvertMesure(Datas::I()->pachy->modemesure());
-        QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
-                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
-                + QString::number(Datas::I()->pachy->pachyOD()) + ","
-                + QString::number(Datas::I()->pachy->pachyOG())
-                + ", now(), '" + Methode + "')";
-        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
         switch (Datas::I()->pachy->modemesure()) {
         case Pachy::Optique:
             Methode = "Optique";
@@ -9644,15 +9639,10 @@ void Rufus::Tonometrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
+        proc->InsertMesure(Procedures::Tono, Datas::I()->tono->modemesure(), Pachy::NoMesure);
         TOD = QString::number(Datas::I()->tono->TOD());
         TOG = QString::number(Datas::I()->tono->TOG());
         Methode = Tono::ConvertMesure(Datas::I()->tono->modemesure());
-        QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
-                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
-                + QString::number(Datas::I()->tono->TOD()) + ","
-                + QString::number(Datas::I()->tono->TOG())
-                + ", now(), '" + Methode + "')";
-        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
         if (TOD.toInt() > 21)
             TODcolor = "<font color = \"red\"><b>" + TOD + "</b></font>";
         else
@@ -9791,11 +9781,13 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
 
 void Rufus::
 
-NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
+NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
-    if (findChildren<dlg_refraction*>().size()>0)
+    if (findChildren<dlg_refraction*>().size()>0 && TypeMesure != Procedures::Pachy && TypeMesure != Procedures::Tono)
         return;
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR || m_currentact == Q_NULLPTR)
+        return;
+    if (Datas::I()->patients->currentpatient()->isnull())
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;

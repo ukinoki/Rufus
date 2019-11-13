@@ -132,7 +132,7 @@ void dlg_refraction::ConnectSignals()
     connect (ui->ReprendrePushButton,               &QPushButton::clicked,                      this,     &dlg_refraction::ReprendreButtonClicked);
 
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
-        connect (proc,                              &Procedures::NouvMesureRefraction,          this,     &dlg_refraction::NouvMesureRefraction);
+        connect (proc,                              &Procedures::NouvMesure,                    this,     &dlg_refraction::NouvMesureRefraction);
 }
 
 //1. Les RadioButton, checkBox, combo...etc...--------------------------------------------------------------------------------

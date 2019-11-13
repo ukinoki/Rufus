@@ -4517,8 +4517,8 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     setHtmlRefracteur();
     if (!Datas::I()->mesureacuite->isdataclean())
     {
-        InsertRefraction(Subjectif);
-        emit NouvMesureRefraction(Subjectif);
+        InsertMesure(Subjectif);
+        emit NouvMesure(Subjectif);
     }
 }
 
@@ -4822,10 +4822,10 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             }
             //debugMesureRefraction(Datas::I()->mesurefronto);
             if (PortFronto() == Q_NULLPTR)                                      //! au cas où le fronto est directement branché sur la box du refracteur
-                if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto)&& !Datas::I()->mesurefronto->isdataclean())
+                if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
                 {
                     m_isnewMesureFronto = true;
-                    InsertRefraction(Fronto);
+                    InsertMesure(Fronto);
                 }
             delete oldMesureFronto;
         }
@@ -4867,7 +4867,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
                 if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
                 {
                     m_isnewMesureAutoref = true;
-                    InsertRefraction(Autoref);
+                    InsertMesure(Autoref);
                 }
             delete oldMesureAutoref;
         }
@@ -4919,7 +4919,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
                 if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
                 {
                     m_isnewMesureKerato = true;
-                    InsertRefraction(Kerato);
+                    InsertMesure(Kerato);
                 }
             delete oldMesureKerato;
         }
@@ -5048,15 +5048,10 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->tono->setTOG(mTOOG.toInt());
             Datas::I()->tono->setmodemesure(Tono::Air);
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->tono->isDifferent(oldMesureTono))
+                if (Datas::I()->tono->isDifferent(oldMesureTono) && !Datas::I()->tono->isdataclean())
                 {
                     m_isnewMesureTono = true;
-                    QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
-                            + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
-                            + QString::number(Datas::I()->tono->TOD()) + ","
-                            + QString::number(Datas::I()->tono->TOG())
-                            + ", now(), '" + Tono::ConvertMesure(Tono::Air) + "')";
-                    DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+                    InsertMesure(Tono);
                 }
         }
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
@@ -5317,8 +5312,8 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         }
     }
     setHtmlFronto();
-    InsertRefraction(Fronto);
-    emit NouvMesureRefraction(Fronto);
+    InsertMesure(Fronto);
+    emit NouvMesure(Fronto);
 }
 
 bool Procedures::LectureDonneesFronto(QString Mesure)
@@ -5633,14 +5628,14 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 if (!Datas::I()->mesurekerato->isdataclean())
                 {
                     setHtmlKerato();
-                    InsertRefraction(Kerato);
-                    emit NouvMesureRefraction(Kerato);
+                    InsertMesure(Kerato);
+                    emit NouvMesure(Kerato);
                 }
                 if (!Datas::I()->mesureautoref->isdataclean())
                 {
                     setHtmlAutoref();
-                    InsertRefraction(Autoref);
-                    emit NouvMesureRefraction(Autoref);
+                    InsertMesure(Autoref);
+                    emit NouvMesure(Autoref);
                 }
             }
             if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
@@ -5648,24 +5643,14 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 if (!Datas::I()->tono->isdataclean())
                 {
                     setHtmlTono();
-                    QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
-                            + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
-                            + QString::number(Datas::I()->tono->TOD()) + ","
-                            + QString::number(Datas::I()->tono->TOG())
-                            + ", now(), '" + Tono::ConvertMesure(Tono::Air) + "')";
-                    DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
-                    emit NouvMesureRefraction(Tono);
+                    InsertMesure(Tono);
+                    emit NouvMesure(Tono);
                 }
                 if (!Datas::I()->pachy->isdataclean())
                 {
                     setHtmlPachy();
-                    QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
-                            + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
-                            + QString::number(Datas::I()->pachy->pachyOD()) + ","
-                            + QString::number(Datas::I()->pachy->pachyOG())
-                            + ", now(), '" + Pachy::ConvertMesure(Pachy::Optique) + "')";
-                    DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
-                    emit NouvMesureRefraction(Pachy);
+                    InsertMesure(Pachy);
+                    emit NouvMesure(Pachy);
                 }
             }
             //Dans un premier temps, le PC envoie la requête d'envoi de données
@@ -6310,11 +6295,15 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-void Procedures::InsertRefraction(TypeMesure Mesure)
+void Procedures::InsertMesure(TypeMesure typemesure, Tono::Mode  modetono, Pachy::Mode modepachy)
 {
+    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+        return;
+    if (Datas::I()->patients->currentpatient()->isnull())
+        return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
-    if (Mesure == Fronto)
+    if (typemesure == Fronto)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -6339,7 +6328,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
         listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
         listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
+        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(typemesure);
         if (Datas::I()->mesurefronto->addVPOD() > 0 || Datas::I()->mesurefronto->addVPOG() > 0)
             listbinds[CP_DISTANCEMESURE_REFRACTIONS]    = "2";
         if (!Datas::I()->mesurefronto->isnullLOD())
@@ -6366,7 +6355,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             listbinds[CP_PD_REFRACTIONS]                = Datas::I()->mesurefronto->ecartIP();
         Datas::I()->refractions->CreationRefraction(listbinds);
     }
-    if (Mesure == Autoref)
+    else if (typemesure == Autoref)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -6388,7 +6377,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
         listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
         listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
+        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(typemesure);
 
         listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureautoref->sphereOD();
         listbinds[CP_CYLINDREOD_REFRACTIONS]            = Datas::I()->mesureautoref->cylindreOD();
@@ -6404,7 +6393,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
         Datas::I()->refractions->CreationRefraction(listbinds);
 
-        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
+        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(typemesure) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
             return;
@@ -6417,7 +6406,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
                     " VALUES (" +
                     QString::number(idPatient)  + ", " +
                     "CURDATE(), CURDATE(), '" +
-                    ConvertMesure(Mesure) + "'," +
+                    ConvertMesure(typemesure) + "'," +
                     QString::number(QLocale().toDouble(mSphereOD))  + "," +
                     QString::number(QLocale().toDouble(mCylOD))     + "," +
                     mAxeOD     + "," +
@@ -6431,7 +6420,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         else
         {
             requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
-                    CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Mesure) + "'," +
+                    CP_MESURE_DATAOPHTA " = '" + ConvertMesure(typemesure) + "'," +
                     CP_DATEREFRACTIONOD_DATAOPHTA " = CURDATE(), " +
                     CP_DATEREFRACTIONOG_DATAOPHTA " = CURDATE(), " +
                     CP_SPHEREOD_DATAOPHTA " = "      + QString::number(QLocale().toDouble(mSphereOD))  + ", " +
@@ -6441,12 +6430,12 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
                     CP_CYLINDREOG_DATAOPHTA " = "    + QString::number(QLocale().toDouble(mCylOG))     + ", " +
                     CP_AXECYLINDREOG_DATAOPHTA " = " + mAxeOG + ", " +
                     CP_ECARTIP_DATAOPHTA " = "       + PD +
-                    " where " CP_IDPATIENT_DATAOPHTA " = "   + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Mesure) + "'";
+                    " where " CP_IDPATIENT_DATAOPHTA " = "   + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(typemesure) + "'";
 
             db->StandardSQL (requete, tr("Erreur de mise à jour de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    if (Mesure == Kerato)
+    else if (typemesure == Kerato)
     {
         QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
@@ -6509,7 +6498,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    if (Mesure == Subjectif)
+    else if (typemesure == Subjectif)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -6541,7 +6530,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
         listbinds[CP_IDACTE_REFRACTIONS]                = idActe;
         listbinds[CP_DATE_REFRACTIONS]                  = db->ServerDateTime().date();
-        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(Mesure);
+        listbinds[CP_TYPEMESURE_REFRACTIONS]            = ConvertMesure(typemesure);
         listbinds[CP_DISTANCEMESURE_REFRACTIONS]        = ((mAVPOD!="" || mAVPOG!="")? "2" : "L");
 
         listbinds[CP_SPHEREOD_REFRACTIONS]              = Datas::I()->mesureacuite->sphereOD();
@@ -6582,7 +6571,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
                                          " VALUES (" +
                     QString::number(idPatient)  + ", " +
                     "CURDATE(), CURDATE(), '" +
-                    ConvertMesure(Mesure)               + "','" +
+                    ConvertMesure(typemesure)               + "','" +
                     ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "'," +
                     QString::number(QLocale().toDouble(mSphereOD))  + "," +
                     QString::number(QLocale().toDouble(mCylOD))     + "," +
@@ -6603,7 +6592,7 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
         else
         {
             requete = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
-                    CP_MESURE_DATAOPHTA " = '"      + ConvertMesure(Mesure) + "', "
+                    CP_MESURE_DATAOPHTA " = '"      + ConvertMesure(typemesure) + "', "
                     CP_DISTANCE_DATAOPHTA " = '"    + ((mAVPOD!="" || mAVPOG!="")? "2" : "L") + "', "
                     CP_DATEREFRACTIONOD_DATAOPHTA " = CURDATE(),"
                     CP_DATEREFRACTIONOG_DATAOPHTA " = CURDATE()," +
@@ -6625,6 +6614,24 @@ void Procedures::InsertRefraction(TypeMesure Mesure)
             db->StandardSQL (requete, tr("Erreur de mise à jour de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    if (Mesure != Fronto)
+    else if (typemesure == Tono)
+    {
+        QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
+                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                + QString::number(Datas::I()->tono->TOD()) + ","
+                + QString::number(Datas::I()->tono->TOG())
+                + ", now(), '" + Tono::ConvertMesure(modetono) + "')";
+        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+    }
+    else if (typemesure == Pachy)
+    {
+        QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
+                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                + QString::number(Datas::I()->pachy->pachyOD()) + ","
+                + QString::number(Datas::I()->pachy->pachyOG())
+                + ", now(), '" + Pachy::ConvertMesure(modepachy) + "')";
+        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+    }
+    if (typemesure != Fronto && typemesure != Tono && typemesure != Pachy)
         Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }

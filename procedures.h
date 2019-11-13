@@ -453,7 +453,7 @@ public:
                 };  Q_ENUM(TypeMesure)
     Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
 signals:
-    void                    NouvMesureRefraction(TypeMesure);
+    void                    NouvMesure(TypeMesure);
 
 public:
     QSerialPort*            PortAutoref();
@@ -470,7 +470,7 @@ public:
     QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertRefraction(TypeMesure = All);     // enregistre la mesure de réfraction
+    void                    InsertMesure(TypeMesure  typemesure = All, Tono::Mode  modetono = Tono::Air, Pachy::Mode modepachy = Pachy::Optique);         // enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }

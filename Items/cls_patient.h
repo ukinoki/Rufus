@@ -156,6 +156,7 @@ public:
     void  setautrestoxiques(QString tox = "")       { m_toxiques = tox; }
 
     void resetdatas();
+    bool isnull() const                             { return m_id == 0; }
 };
 
 #endif // CLS_PATIENT_H

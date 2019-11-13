@@ -170,7 +170,7 @@ private:
     void        ModifCotationActe();
     void        ModifierTerrain();
     void        Moulinette();
-    void        NouvelleMesureRefraction(Procedures::TypeMesure TypeMesure);                     // les connexions aux appareils de mesure
+    void        NouvelleMesure(Procedures::TypeMesure TypeMesure);
     void        OKModifierTerrain(Patient *pat, bool recalclesdonnees = true);                  //!> recalcule le TreeWidgtet résumant le terrain
     void        OuvrirActesPrecspushButtonClicked();
     void        OuvrirJournalDepenses();
