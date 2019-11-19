@@ -23,7 +23,7 @@ dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *paren
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     m_mode       = mode;
 
-    wdg_bigtable              = new QTableView(this);
+    wdg_bigtable = new QTableView(this);
 
     dlglayout()->insertWidget(0,wdg_bigtable);
 
@@ -148,12 +148,12 @@ void dlg_refractionlistemesures::DetruireLaMesure(Refraction *ref)
         QString req ("");
         switch (ref->typemesure()) {
         case Refraction::Acuite:
-            req = "DELETE  FROM " TBL_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
-                    + mesure + "' and idpat = " + QString::number(ref->idpat());
+            req = "DELETE  FROM " TBL_DONNEES_OPHTA_PATIENTS " WHERE " CP_MESURE_DATAOPHTA " = '"
+                    + mesure + "' and " CP_IDPATIENT_DATAOPHTA " = " + QString::number(ref->idpat());
             db->StandardSQL(req, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
             break;
         case Refraction::Autoref:
-            req = "update "  TBL_DONNEES_OPHTA_PATIENTS " set "
+            req = "update " TBL_DONNEES_OPHTA_PATIENTS " set "
                     CP_SPHEREOD_DATAOPHTA           " = null, "
                     CP_CYLINDREOD_DATAOPHTA         " = null, "
                     CP_AXECYLINDREOD_DATAOPHTA      " = null, "
@@ -163,7 +163,7 @@ void dlg_refractionlistemesures::DetruireLaMesure(Refraction *ref)
                     CP_AXECYLINDREOG_DATAOPHTA      " = null, "
                     CP_DATEREFRACTIONOG_DATAOPHTA   " = null, "
                     CP_ECARTIP_DATAOPHTA            " = null "
-                    " WHERE  QuelleMesure = '" + mesure + "' and idpat = " + QString::number(ref->idpat());
+                    " WHERE " CP_MESURE_DATAOPHTA " = '" + mesure + "' and " CP_IDPATIENT_DATAOPHTA " = " + QString::number(ref->idpat());
             db->StandardSQL(req, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
             break;
         default:

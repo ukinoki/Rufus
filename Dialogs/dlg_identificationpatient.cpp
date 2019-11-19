@@ -110,12 +110,12 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     connect (CancelButton,                  &QPushButton::clicked,                      this,   &dlg_identificationpatient::AnnulpushButtonClicked);
     connect (ui->ModifierDDNupPushButton,   &QPushButton::clicked,                      this,   &dlg_identificationpatient::ModifDDN);
 
-    connect (ui->NomlineEdit,               &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->NomlineEdit);});
-    connect (ui->PrenomlineEdit,            &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->PrenomlineEdit);});
-    connect (ui->Adresse1lineEdit,          &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->Adresse1lineEdit);});
-    connect (ui->Adresse2lineEdit,          &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->Adresse2lineEdit);});
-    connect (ui->Adresse3lineEdit,          &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->Adresse3lineEdit);});
-    connect (ui->ProfessionlineEdit,        &QLineEdit::editingFinished,                this,   [=] {Majuscule(ui->ProfessionlineEdit);});
+    connect (ui->NomlineEdit,               &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->NomlineEdit);});
+    connect (ui->PrenomlineEdit,            &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->PrenomlineEdit);});
+    connect (ui->Adresse1lineEdit,          &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,          &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,          &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->ProfessionlineEdit,        &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->ProfessionlineEdit);});
     connect (ui->DDNdateEdit,               &QDateEdit::dateChanged,                    this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->NomlineEdit,               &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->PrenomlineEdit,            &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
@@ -268,6 +268,10 @@ void    dlg_identificationpatient::OKpushButtonClicked()
             UpMessageBox::Watch(this,tr("Vous devez spécifier le sexe!"));
             return;
         }
+        UpLineEdit* line = dynamic_cast<UpLineEdit*>(focusWidget());
+        if (line != Q_NULLPTR)
+            if (line == ui->PrenomlineEdit || line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit || line == ui->ProfessionlineEdit)
+                line->setText(Utils::trimcapitilize(line->text()));
 
         // C - On vérifie ensuite si ce dossier existe déjà
         QString requete = "select idPat from " TBL_PATIENTS

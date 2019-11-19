@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("12-11-2019/1");
+    qApp->setApplicationVersion("18-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -97,11 +97,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (post != Q_NULLPTR)
     {
         log = tr("RufusAdmin présent");
-        Logs::MSGSOCKET(log);
+        Logs::LogSktMessage(log);
         if (post->ipadress() == "")
         {
             log = tr("Aucun serveur TCP enregistré dans la base");
-            Logs::MSGSOCKET(log);
+            Logs::LogSktMessage(log);
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), log, Icons::icSunglasses(), 3000);
         }
         else
@@ -123,20 +123,20 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
             else {
                 log = tr("RufusAdmin présent mais échec connexion");
-                Logs::MSGSOCKET(log);
+                Logs::LogSktMessage(log);
             }
         }
     }
     else if (DataBase::I()->getMode() != Utils::Distant)
     {
         log = tr("RufusAdmin absent");
-        Logs::MSGSOCKET(log);
+        Logs::LogSktMessage(log);
     }
     else
     {
         log = tr("Connexion distante - pas d'utilisation de TCP");
         Flags::I()->MAJflagUserDistant();
-        Logs::MSGSOCKET(log);
+        Logs::LogSktMessage(log);
     }
 
     //! 6 - mettre en place le TcpSocket et/ou les timer
@@ -9583,18 +9583,18 @@ void Rufus::Pachymetrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        proc->InsertMesure(Procedures::Pachy, Tono::NoMesure, Datas::I()->pachy->modemesure());
+        proc->InsertMesure(Procedures::Pachy, Tonometrie::NoMesure, Datas::I()->pachy->modemesure());
         pachyOD = QString::number(Datas::I()->pachy->pachyOD());
         pachyOG = QString::number(Datas::I()->pachy->pachyOG());
-        Methode = Pachy::ConvertMesure(Datas::I()->pachy->modemesure());
+        Methode = Pachymetrie::ConvertMesure(Datas::I()->pachy->modemesure());
         switch (Datas::I()->pachy->modemesure()) {
-        case Pachy::Optique:
+        case Pachymetrie::Optique:
             Methode = "Optique";
             break;
-        case Pachy::OCT:
+        case Pachymetrie::OCT:
             Methode = "OCT";
             break;
-        case Pachy::Echo:
+        case Pachymetrie::Echo:
             Methode = "Echo";
             break;
         default:
@@ -9639,10 +9639,10 @@ void Rufus::Tonometrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        proc->InsertMesure(Procedures::Tono, Datas::I()->tono->modemesure(), Pachy::NoMesure);
+        proc->InsertMesure(Procedures::Tono, Datas::I()->tono->modemesure(), Pachymetrie::NoMesure);
         TOD = QString::number(Datas::I()->tono->TOD());
         TOG = QString::number(Datas::I()->tono->TOG());
-        Methode = Tono::ConvertMesure(Datas::I()->tono->modemesure());
+        Methode = Tonometrie::ConvertMesure(Datas::I()->tono->modemesure());
         if (TOD.toInt() > 21)
             TODcolor = "<font color = \"red\"><b>" + TOD + "</b></font>";
         else

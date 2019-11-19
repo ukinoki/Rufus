@@ -82,8 +82,8 @@ public:
     MesureRefraction* mesureacuite;
     MesureRefraction* mesurefinal;
     MesureKerato* mesurekerato;
-    Pachy* pachy;
-    Tono* tono;
+    Pachymetrie* pachy;
+    Tonometrie* tono;
 
 };
 

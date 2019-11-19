@@ -22,7 +22,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    wdg_bigtable              = new QTableView();
+    wdg_bigtable = new QTableView();
     RemplirTableView();
     wdg_bigtable->verticalHeader()->setVisible(false);
     wdg_bigtable->setFocusPolicy(Qt::StrongFocus);

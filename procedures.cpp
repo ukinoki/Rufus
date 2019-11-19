@@ -591,9 +591,11 @@ void Procedures::BackupWakeUp()
     }
 }
 
-void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
+void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
 {
-    if (!QDir(NomDirDestination).exists())
+    if (!Utils::mkpath(pathdirdestination))
+        return;
+    if (!QDir(pathdirdestination).exists())
         return;
     // élaboration du script de backup
     QString scriptbackup = "#!/bin/bash";
@@ -602,7 +604,7 @@ void Procedures::DefinitScriptBackup(QString NomDirDestination, bool AvecImages,
     scriptbackup += "DATE=$(date +\"%Y%m%d-%H%M\")";
     //# Dossier où sauvegarder les backups (créez le d'abord!)
     scriptbackup += "\n";
-    scriptbackup += "BACKUP_DIR=\"" + NomDirDestination + "\"";
+    scriptbackup += "BACKUP_DIR=\"" + pathdirdestination + "\"";
     //# Dossier de  ressources
     scriptbackup += "\n";
     scriptbackup += "DIR_RESSOURCES=\"" + QDir::homePath() + DIR_RUFUS DIR_RESSOURCES + "\"";
@@ -4176,14 +4178,14 @@ GESTION DES PORTS SERIES -------------------------------------------------------
 bool Procedures::Ouverture_Ports_Series()
 {
     QString NomPort             = "";
-    m_portRefracteur             = "";
-    m_portFronto                 = "";
-    m_portAutoref                = "";
-    m_portTono                   = "";
-    sp_portRefracteur             = Q_NULLPTR;
-    sp_portFronto                 = Q_NULLPTR;
-    sp_portAutoref                = Q_NULLPTR;
-    sp_portTono                   = Q_NULLPTR;
+    m_portRefracteur            = "";
+    m_portFronto                = "";
+    m_portAutoref               = "";
+    m_portTono                  = "";
+    sp_portRefracteur           = Q_NULLPTR;
+    sp_portFronto               = Q_NULLPTR;
+    sp_portAutoref              = Q_NULLPTR;
+    sp_portTono                 = Q_NULLPTR;
     bool m_isFrontoParametre    = (m_settings->value("Param_Poste/Fronto").toString() != "-"
                                 && m_settings->value("Param_Poste/Fronto").toString() != ""
                                 && m_settings->value("Param_Poste/PortFronto").toString() != "Box");
@@ -4194,10 +4196,10 @@ bool Procedures::Ouverture_Ports_Series()
                                 && m_settings->value("Param_Poste/Refracteur").toString() != "");
     bool m_isTonoParametre      = (m_settings->value("Param_Poste/Tonometre").toString() != "-"
                                 && m_settings->value("Param_Poste/Tonometre").toString() != "");
-    Datas::I()->mesureautoref->setmesure(Refraction::Autoref);
-    Datas::I()->mesurefronto->setmesure(Refraction::Fronto);
-    Datas::I()->mesurefinal->setmesure(Refraction::Prescription);
-    Datas::I()->mesureacuite->setmesure(Refraction::Acuite);
+    Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
+    Datas::I()->mesurefronto    ->settypemesure(Refraction::Fronto);
+    Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
+    Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
 
 
     if (m_isAutorefParametre || m_isRefracteurParametre || m_isFrontoParametre || m_isTonoParametre)
@@ -4293,6 +4295,7 @@ bool Procedures::Ouverture_Ports_Series()
             else
             {
                 UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le frontofocomètre") + "\n" + sp_portFronto->errorString());
+                delete sp_portFronto;
                 sp_portFronto = Q_NULLPTR;
             }
         }
@@ -4369,6 +4372,7 @@ bool Procedures::Ouverture_Ports_Series()
             else
             {
                 UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le refracteur") + "\n" + sp_portRefracteur->errorString());
+                delete sp_portRefracteur;
                 sp_portRefracteur = Q_NULLPTR;
             }
         }
@@ -4444,6 +4448,7 @@ bool Procedures::Ouverture_Ports_Series()
             else
             {
                 UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter l'autorefractomètre") + "\n" + sp_portAutoref->errorString());
+                delete sp_portAutoref;
                 sp_portAutoref = Q_NULLPTR;
             }
         }
@@ -5033,12 +5038,14 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
         if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
         {
             dataok = true;
-            class Tono  *oldMesureTono = new class Tono();
+            Tonometrie  *oldMesureTono = new Tonometrie();
             oldMesureTono->setdatas(Datas::I()->tono);
+            logmesure("LectureDonneesRefracteur() - ancienne mesure tono -> TOD = " + QString::number(Datas::I()->tono->TOD()) + " - TOG = " + QString::number(Datas::I()->tono->TOG()));
             Datas::I()->tono->cleandatas();
             idx                     = Mesure.indexOf("@NT");
             QString SectionTono     = Mesure.right(Mesure.length()-idx-5);
             SectionTono             = SectionTono.left(SectionTono.indexOf("@"));
+            logmesure("LectureDonneesRefracteur() - " + SectionTono);
             //Edit(SectionTono+ "\nOK");
             // OEIL DROIT -----------------------------------------------------------------------------
             mTOOD                   = SectionTono.mid(SectionTono.indexOf("TR")+2,4)   .replace(" ","0");
@@ -5046,13 +5053,24 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             mTOOG                   = SectionTono.mid(SectionTono.indexOf("TL")+2,4)   .replace(" ","0");
             Datas::I()->tono->setTOD(mTOOD.toInt());
             Datas::I()->tono->setTOG(mTOOG.toInt());
-            Datas::I()->tono->setmodemesure(Tono::Air);
+            Datas::I()->tono->setmodemesure(Tonometrie::Air);
+            logmesure("LectureDonneesRefracteur() - nouvelle mesure tono -> TOD = " + QString::number(Datas::I()->tono->TOD()) + " - TOG = " + QString::number(Datas::I()->tono->TOG()));
+            QString portautoref = (PortAutoref() == Q_NULLPTR? "Q_NULLPTR" : "OK");
+            logmesure("LectureDonneesRefracteur() - PortAutoref() = " + portautoref);
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
+            {
+                QString isdifferentmesure = (Datas::I()->tono->isDifferent(oldMesureTono)? "true" : "false");
+                logmesure("LectureDonneesRefracteur() - Datas::I()->tono->isDifferent(oldMesureTono) = " + isdifferentmesure);
+                QString iscleandatas = (Datas::I()->tono->isdataclean()? "true" : "false");
+                logmesure("LectureDonneesRefracteur() - Datas::I()->tono->isdataclean()) = " + iscleandatas);
                 if (Datas::I()->tono->isDifferent(oldMesureTono) && !Datas::I()->tono->isdataclean())
                 {
+                    logmesure("LectureDonneesRefracteur() - OK nouvelle mesure tono");
                     m_isnewMesureTono = true;
                     InsertMesure(Tono);
                 }
+            }
+            delete oldMesureTono;
         }
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
@@ -5225,7 +5243,10 @@ void Procedures::setHtmlRefracteur()
     m_htmlMesureRefracteurSubjectif = Resultat;
     // CALCUL DE HtmlMesureTono ======================================================================================================================================
     if (!Datas::I()->tono->isdataclean() && m_isnewMesureTono)
+    {
         setHtmlTono();
+        logmesure("setHtmlRefracteur() -> m_htmlMesureTono = " + m_htmlMesureTono);
+    }
 }
 
 QString Procedures::HtmlRefracteur()
@@ -6013,7 +6034,7 @@ PL04.7N
                     dataok = true;
                 Datas::I()->tono->setTOD(TonoOD.toInt());
                 Datas::I()->tono->setTOG(TonoOG.toInt());
-                Datas::I()->tono->setmodemesure(Tono::Air);
+                Datas::I()->tono->setmodemesure(Tonometrie::Air);
             }
             // Données de PACHYMETRIE --------------------------------------------------------------------------------------------------------
             Datas::I()->pachy->cleandatas();
@@ -6031,7 +6052,7 @@ PL04.7N
                     dataok = true;
                 Datas::I()->pachy->setpachyOD(PachyOD.toInt());
                 Datas::I()->pachy->setpachyOG(PachyOG.toInt());
-                Datas::I()->pachy->setmodemesure(Pachy::Optique);
+                Datas::I()->pachy->setmodemesure(Pachymetrie::Optique);
             }
         }
     }
@@ -6151,10 +6172,11 @@ void Procedures::setHtmlKerato()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlTono()
 {
+    logmesure("setHtmlTono() -> anc m_htmlMesureTono = " + m_htmlMesureTono);
     m_htmlMesureTono = "";
     QString mTOD        = QLocale().toString(Datas::I()->tono->TOD());
     QString mTOG        = QLocale().toString(Datas::I()->tono->TOG());
-    QString Methode     = Tono::ConvertMesure(Datas::I()->tono->modemesure());
+    QString Methode     = Tonometrie::ConvertMesure(Datas::I()->tono->modemesure());
     QString Tono        ="";
     QString TODcolor, TOGcolor;
 
@@ -6179,6 +6201,7 @@ void Procedures::setHtmlTono()
 
     }
     m_htmlMesureTono = Tono;
+    logmesure("setHtmlTono() -> new m_htmlMesureTono = " + m_htmlMesureTono);
 }
 
 // -------------------------------------------------------------------------------------
@@ -6295,7 +6318,7 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-void Procedures::InsertMesure(TypeMesure typemesure, Tono::Mode  modetono, Pachy::Mode modepachy)
+void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono, Pachymetrie::Mode modepachy)
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
@@ -6620,7 +6643,7 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tono::Mode  modetono, Pachy
                 + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
                 + QString::number(Datas::I()->tono->TOD()) + ","
                 + QString::number(Datas::I()->tono->TOG())
-                + ", now(), '" + Tono::ConvertMesure(modetono) + "')";
+                + ", now(), '" + Tonometrie::ConvertMesure(modetono) + "')";
         DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
     }
     else if (typemesure == Pachy)
@@ -6629,7 +6652,7 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tono::Mode  modetono, Pachy
                 + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
                 + QString::number(Datas::I()->pachy->pachyOD()) + ","
                 + QString::number(Datas::I()->pachy->pachyOG())
-                + ", now(), '" + Pachy::ConvertMesure(modepachy) + "')";
+                + ", now(), '" + Pachymetrie::ConvertMesure(modepachy) + "')";
         DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
     }
     if (typemesure != Fronto && typemesure != Tono && typemesure != Pachy)

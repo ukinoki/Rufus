@@ -35,8 +35,8 @@ public:
 private:
     DataBase                *db = DataBase::I();
     Procedures              *proc = Procedures::I();
-    bool                    m_accesdistant = (db->getMode()==Utils::Distant);
-    QString                 m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
+    bool                    m_accesdistant;
+    QString                 m_pathdirstockageimagerie;
 
     int                     m_iditem;
     bool                    m_initok;

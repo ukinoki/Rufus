@@ -21,11 +21,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_mesure.h"
 #include "cls_refraction.h"
 
-class Pachy : public Mesure
+class Pachymetrie : public Mesure
 {
     Q_OBJECT
 public:
-    explicit Pachy() {}
+    explicit Pachymetrie() {}
     enum Mode {Echo, Optique, OCT, NoMesure};      Q_ENUM(Mode)
 private:
     int m_pachyOD       = 0;
@@ -67,7 +67,7 @@ public:
         }
     }
 
-    bool isEqual(Pachy *other) const
+    bool isEqual(Pachymetrie *other) const
     {
         if (m_isnullOD & !m_isnullOG)
             return (other               ->isnullLOD()
@@ -84,12 +84,12 @@ public:
                 && m_modemesure         == other->modemesure());
     }
 
-    bool isDifferent(Pachy *other) const
+    bool isDifferent(Pachymetrie *other) const
     {
         return !(isEqual(other));
     }
 
-    static Mode     ConvertMesure(QString Mesure)
+    static Mode ConvertMesure(QString Mesure)
     {
         if (Mesure == OPTIQUE_PACHY)    return Optique;
         if (Mesure == OCT_PACHY)        return OCT;
@@ -97,7 +97,7 @@ public:
         return  NoMesure;
     }
 
-    static QString  ConvertMesure(Pachy::Mode mode)
+    static QString ConvertMesure(Pachymetrie::Mode mode)
     {
         switch (mode) {
         case Optique:   return OPTIQUE_PACHY;
@@ -109,11 +109,11 @@ public:
 
 };
 
-class Tono : public Mesure
+class Tonometrie : public Mesure
 {
     Q_OBJECT
 public:
-    explicit Tono() {}
+    explicit Tonometrie() {}
     enum Mode {Air, Aplanation, Autre, NoMesure};      Q_ENUM(Mode)
 private:
     int m_TOD           = 0;
@@ -159,7 +159,7 @@ public:
         }
     }
 
-    bool isEqual(Tono *other) const
+    bool isEqual(Tonometrie *other) const
     {
         if (m_isnullOD & !m_isnullOG)
             return (other           ->isnullLOD()
@@ -176,12 +176,12 @@ public:
                 && m_modemesure     == other->modemesure());
     }
 
-    bool isDifferent(Tono *other) const
+    bool isDifferent(Tonometrie *other) const
     {
         return !(isEqual(other));
     }
 
-    static Mode     ConvertMesure(QString Mesure)
+    static Mode ConvertMesure(QString Mesure)
     {
         if (Mesure == AIR_TO)        return Air;
         if (Mesure == APLANATION_TO) return Aplanation;
@@ -189,7 +189,7 @@ public:
         return  NoMesure;
     }
 
-    static QString  ConvertMesure(Tono::Mode mode)
+    static QString ConvertMesure(Tonometrie::Mode mode)
     {
         switch (mode) {
         case Air:           return AIR_TO;
@@ -198,7 +198,7 @@ public:
         default: return "";
         }
     }
-    void setdatas(Tono *tono)
+    void setdatas(Tonometrie *tono)
     {
         if (tono->isdataclean()|| (tono->isnullLOD() && tono->isnullLOG()))
         {

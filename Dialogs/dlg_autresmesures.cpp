@@ -101,7 +101,7 @@ void dlg_autresmesures::EnregistreTono()
     if (widgto->ui->AirRadioButton->isChecked())        Methode = AIR_TO;
     if (widgto->ui->AutreRadioButton->isChecked())      Methode = AUTRE_TO;
     if (widgto->ui->AplanationRadioButton->isChecked()) Methode = APLANATION_TO;
-    Datas::I()->tono->setmodemesure(Tono::ConvertMesure(Methode));
+    Datas::I()->tono->setmodemesure(Tonometrie::ConvertMesure(Methode));
     accept();
 }
 
@@ -117,7 +117,7 @@ void dlg_autresmesures::EnregistrePachy()
     if (widgpa->ui->OptiqueRadioButton->isChecked())    Methode = OPTIQUE_PACHY;
     if (widgpa->ui->EchoRadioButton->isChecked())       Methode = ECHO_PACHY;
     if (widgpa->ui->OCTRadioButton->isChecked())        Methode = OCT_PACHY;
-    Datas::I()->pachy->setmodemesure(Pachy::ConvertMesure(Methode));
+    Datas::I()->pachy->setmodemesure(Pachymetrie::ConvertMesure(Methode));
     accept();
 }
 

@@ -1714,6 +1714,7 @@ void dlg_param::DirLocalStockage()
         QDir dockdir = dialog.directory();
         ui->LocalStockageupLineEdit->setText(dockdir.path());
         proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", dockdir.path());
+        proc->setAbsolutePathDirImagerie();
     }
 }
 
@@ -1730,6 +1731,7 @@ void dlg_param::DirDistantStockage()
         QDir dockdir = dialog.directory();
         ui->DistantStockageupLineEdit->setText(dockdir.path());
         proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", dockdir.path());
+        proc->setAbsolutePathDirImagerie();
     }
 }
 
@@ -1756,6 +1758,7 @@ void dlg_param::DirPosteStockage()
         }
         ui->PosteStockageupLineEdit->setText(dockdir.path());
         db->setdirimagerie(dockdir.path());
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", dockdir.path());
         proc->setAbsolutePathDirImagerie();
     }
 }

@@ -128,7 +128,7 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QLineEdit" name="FaxlineEdit">
+   <widget class="UpLineEdit" name="FaxlineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -141,7 +141,7 @@
      <number>15</number>
     </property>
    </widget>
-   <widget class="QLineEdit" name="TellineEdit">
+   <widget class="UpLineEdit" name="TellineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -208,7 +208,7 @@
      <string>Fax</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="MaillineEdit">
+   <widget class="UpLineEdit" name="MaillineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -359,7 +359,7 @@
      <string>Complément d'adresse</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="Adresse1lineEdit">
+   <widget class="UpLineEdit" name="Adresse1lineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -401,7 +401,7 @@
      <string>Portable</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="Adresse2lineEdit">
+   <widget class="UpLineEdit" name="Adresse2lineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -417,7 +417,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="Adresse3lineEdit">
+   <widget class="UpLineEdit" name="Adresse3lineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -481,7 +481,7 @@
      <string>Nom</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="PortablelineEdit">
+   <widget class="UpLineEdit" name="PortablelineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>

@@ -40,6 +40,8 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);*/
+    m_accesdistant = (db->getMode()==Utils::Distant);
+    m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
 
     if (!QDir(m_pathdirstockageimagerie).exists() || m_pathdirstockageimagerie == "")
     {

@@ -399,7 +399,7 @@ signals:
                                 /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
-        void                    DefinitScriptBackup(QString NomDirDestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
+        void                    DefinitScriptBackup(QString pathdirdestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         void                    DefinitScriptRestore(QStringList ListNomFiles);
                                 /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL */
@@ -470,7 +470,7 @@ public:
     QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure  typemesure = All, Tono::Mode  modetono = Tono::Air, Pachy::Mode modepachy = Pachy::Optique);         // enregistre la mesure de réfraction
+    void                    InsertMesure(TypeMesure  typemesure = All, Tonometrie::Mode  modetono = Tonometrie::Air, Pachymetrie::Mode modepachy = Pachymetrie::Optique);         // enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
@@ -518,6 +518,8 @@ private:
     void                    ReponsePortSerie_Refracteur(const QString &s);
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);
+
+    void                    logmesure(QString mesure)                       { Logs::LogToFile("refraction.txt", mesure); }
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesMesures)

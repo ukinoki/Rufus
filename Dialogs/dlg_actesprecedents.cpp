@@ -93,6 +93,7 @@ void dlg_actesprecedents::Actualise(QMap<int, Acte *> *map)
     ui->ScrollBar->setMaximum(map_actes->size()-1);
     ui->ScrollBar->setSingleStep(1);
     ui->ScrollBar->setValue(initScrollValue);
+    ui->ScrollBar->setVisible(map_actes->size()>1);
     ActesPrecsAfficheActe();
 
     if( ui->ScrollBar->maximum() > 0 )

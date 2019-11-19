@@ -28,9 +28,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    QStringList ports;
-    ports << "3306" << "3307";
-    ui->PortcomboBox        ->addItems(ports);
+    ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");
     ui->IPlabel             ->setVisible(false);
     ui->IPlineEdit          ->setVisible(false);
     ui->DistantradioButton  ->setEnabled(OKAccesDistant);

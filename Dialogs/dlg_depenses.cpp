@@ -1688,6 +1688,8 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
     if (mode == dlg_docsscanner::Document)
         return;
     Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
+    if (!Dlg_DocsScan->initOK())
+        return;
     if (Dlg_DocsScan->exec() > 0)
     {
         QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
