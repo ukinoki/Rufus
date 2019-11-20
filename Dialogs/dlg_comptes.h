@@ -42,7 +42,6 @@ private:
 
     double          m_soldesurreleve;
     int             m_idcompte;
-    int             m_idligneasupprimer;
     Archives        *m_archivescptencours;
     Compte          *m_compteencours;
     QList<int>      *m_comptesusr;
@@ -65,7 +64,8 @@ private:
     void            RemplitLaTable(int idCompteAVoir);
     void            RemplirTableArchives();
     void            RedessineFicheArchives();
-    void            SupprimerEcriture(QString);
+    void            ModifMontant(int id);
+    void            SupprimerEcriture(QString, int idligne);
     void            AnnulArchive();
     void            Archiver();
     void            AnnulConsolidations();

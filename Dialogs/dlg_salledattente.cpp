@@ -81,8 +81,8 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
         ui->UsercomboBox->insertItems(0,ListUser);
     }
     OKButton->setEnabled(false);
-    ui->MsgtextEdit->setEnabled(false);
-    ui->Msglabel->setEnabled(false);
+    ui->MsgtextEdit->setVisible(false);
+    ui->Msglabel->setVisible(false);
     ui->RetourAccueilradioButton->setText(tr("Examen terminé, en attente des informations de paiement"));
 }
 
@@ -151,8 +151,8 @@ void dlg_salledattente::EnableOKButton()
     QRadioButton *btu   = dynamic_cast<QRadioButton*>(sender());
     if (btu != Q_NULLPTR)
     {
-        ui->MsgtextEdit ->setEnabled(btu==ui->RetourAccueilradioButton);
-        ui->Msglabel    ->setEnabled(btu==ui->RetourAccueilradioButton);
+        ui->MsgtextEdit ->setVisible(btu==ui->RetourAccueilradioButton);
+        ui->Msglabel    ->setVisible(btu==ui->RetourAccueilradioButton);
     }
 }
 

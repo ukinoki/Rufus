@@ -253,14 +253,13 @@ void dlg_comptes::AnnulConsolidations()
 void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 {
     int row = lbl->Row();
-    m_idligneasupprimer = lbl->iD();
     QString msg = static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,3))->text()
             + " - du " + static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,1))->text();
     QString ecriture = tr("Supprimer l'écriture") + " -" + msg + "?";
 
     QMenu *menuContextuel       = new QMenu(this);
     QAction *pAction_SupprEcriture = menuContextuel->addAction(ecriture) ;
-    connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg);});
+    connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg, lbl->iD());});
 
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -536,7 +535,31 @@ void dlg_comptes::VoirArchives()
     m_archivescptencours = Q_NULLPTR;
 }
 
-void dlg_comptes::SupprimerEcriture(QString msg)
+void dlg_comptes::ModifMontant(int id)
+{
+//    UpMessageBox msgbox;
+//    msgbox.setText(tr("Suppression d'une écriture!"));
+//    msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
+//                              + msg + "\n\n" +
+//                              tr("Cette suppression est définitive mais ne supprimera pas l'opération de recette/dépense correspondante.") + "\n" +
+//                              tr("Supprimer une écriture du compte bancaire sert en général à équilibrer le compte pour le rendre conforme au relevé") + ".\n" +
+//                              tr("Confirmez vous la suppression?") + "\n\n");
+//    msgbox.setIcon(UpMessageBox::Warning);
+//    UpSmallButton OKBouton;
+//    OKBouton.setText(tr("Supprimer"));
+//    UpSmallButton NoBouton;
+//    NoBouton.setText(tr("Annuler"));
+//    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+//    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+//    msgbox.exec();
+//    if (msgbox.clickedButton() == &OKBouton)
+//    {
+//        db->StandardSQL("delete from " TBL_LIGNESCOMPTES " where idligne = " + QString::number(idligne));
+//        RemplitLaTable(m_idcompte);
+//    }
+}
+
+void dlg_comptes::SupprimerEcriture(QString msg, int idligne)
 {
     UpMessageBox msgbox;
     msgbox.setText(tr("Suppression d'une écriture!"));
@@ -555,7 +578,7 @@ void dlg_comptes::SupprimerEcriture(QString msg)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        db->StandardSQL("delete from " TBL_LIGNESCOMPTES " where idligne = " + QString::number(m_idligneasupprimer));
+        db->StandardSQL("delete from " TBL_LIGNESCOMPTES " where idligne = " + QString::number(idligne));
         RemplitLaTable(m_idcompte);
     }
 }

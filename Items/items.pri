@@ -8,6 +8,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_donneesophtapatient.cpp \
     $$PWD/cls_impression.cpp \
         $$PWD/cls_item.cpp \
+    $$PWD/cls_lignecompte.cpp \
         $$PWD/cls_patient.cpp \
     $$PWD/cls_posteconnecte.cpp \
     $$PWD/cls_recettecomptable.cpp \
@@ -34,6 +35,7 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_donneesophtapatient.h \
     $$PWD/cls_impression.h \
         $$PWD/cls_item.h \
+    $$PWD/cls_lignecompte.h \
         $$PWD/cls_patient.h \
     $$PWD/cls_posteconnecte.h \
     $$PWD/cls_recettecomptable.h \

@@ -1065,7 +1065,7 @@ QList<Compte*> DataBase::loadComptesAll()
     bool ok;
     QString req = "SELECT idCompte, idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive "
           " FROM " TBL_COMPTES;
-    QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
+    QList<QVariantList> cptlist = StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return listcomptes;
     for (int i=0; i<cptlist.size(); ++i)
@@ -1094,7 +1094,7 @@ QJsonObject DataBase::loadCompteDataById(int id)
     QString req = "SELECT idCompte, idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive "
           " FROM " TBL_COMPTES
           " where idCompte = " + QString::number(id);
-    QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
+    QList<QVariantList> cptlist = StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return jData;
     for (int i=0; i<cptlist.size(); ++i)
@@ -1120,6 +1120,87 @@ int DataBase::getIdMaxTableComptesTableArchives()
     return (((a<b)?b:a)+1);
 }
 
+
+/*
+ * LignesComptes
+*/
+QList<LigneCompte*> DataBase::loadLignesComptesByCompte(int idcompte)
+{
+    QList<LigneCompte*> listlignes = QList<LigneCompte*>();
+    bool ok;
+    QList<QVariantList> lignlist = SelectRecordsFromTable(QStringList() << CP_IDLIGNE_LIGNCOMPTES
+                                                                        << CP_IDDEP_LIGNCOMPTES
+                                                                        << CP_IDREC_LIGNCOMPTES
+                                                                        << CP_IDRECSPEC_LIGNCOMPTES
+                                                                        << CP_IDREMCHEQ_LIGNCOMPTES
+                                                                        << CP_DATE_LIGNCOMPTES
+                                                                        << CP_LIBELLE_LIGNCOMPTES
+                                                                        << CP_MONTANT_LIGNCOMPTES
+                                                                        << CP_DEBITCREDIT_LIGNCOMPTES
+                                                                        << CP_TYPEOPERATION_LIGNCOMPTES
+                                                                        << CP_CONSOLIDE_LIGNCOMPTES,
+                                                                        TBL_LIGNESCOMPTES,
+                                                                        ok,
+                                                                        "where " CP_IDCOMPTE_LIGNCOMPTES " = " + QString::number(idcompte),
+                                                                        "order by " CP_DATE_LIGNCOMPTES ", " CP_LIBELLE_LIGNCOMPTES ", " CP_MONTANT_LIGNCOMPTES );
+    if(!ok || lignlist.size()==0)
+        return listlignes;
+    for (int i=0; i<lignlist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData[CP_IDLIGNE_LIGNCOMPTES]       = lignlist.at(i).at(0).toInt();
+        jData[CP_IDCOMPTE_LIGNCOMPTES]      = idcompte;
+        jData[CP_IDDEP_LIGNCOMPTES]         = lignlist.at(i).at(1).toInt();
+        jData[CP_IDREC_LIGNCOMPTES]         = lignlist.at(i).at(2).toString();
+        jData[CP_IDRECSPEC_LIGNCOMPTES]     = lignlist.at(i).at(3).toString();
+        jData[CP_IDREMCHEQ_LIGNCOMPTES]     = lignlist.at(i).at(4).toString();
+        jData[CP_DATE_LIGNCOMPTES]          = lignlist.at(i).at(5).toDate().toString("yyyy-MM-dd");
+        jData[CP_LIBELLE_LIGNCOMPTES]       = lignlist.at(i).at(6).toString();
+        jData[CP_MONTANT_LIGNCOMPTES]       = lignlist.at(i).at(7).toDouble();
+        jData[CP_DEBITCREDIT_LIGNCOMPTES]   = (lignlist.at(i).at(8).toInt() == 1);
+        jData[CP_TYPEOPERATION_LIGNCOMPTES] = lignlist.at(i).at(9).toString();
+        jData[CP_CONSOLIDE_LIGNCOMPTES]     = (lignlist.at(i).at(8).toInt() == 1);
+        LigneCompte *lign = new LigneCompte(jData);
+        if (lign != Q_NULLPTR)
+            listlignes << lign;
+    }
+    return listlignes;
+}
+
+QJsonObject DataBase::loadLigneCompteDataById(int id)
+{
+    QJsonObject jData{};
+    bool ok;
+    QString req = "SELECT " CP_IDCOMPTE_LIGNCOMPTES ", "
+            CP_IDDEP_LIGNCOMPTES ", "
+            CP_IDREC_LIGNCOMPTES ", "
+            CP_IDRECSPEC_LIGNCOMPTES ", "
+            CP_IDREMCHEQ_LIGNCOMPTES ", "
+            CP_DATE_LIGNCOMPTES ", "
+            CP_LIBELLE_LIGNCOMPTES ", "
+            CP_MONTANT_LIGNCOMPTES ", "
+            CP_DEBITCREDIT_LIGNCOMPTES ", "
+            CP_TYPEOPERATION_LIGNCOMPTES ", "
+            CP_CONSOLIDE_LIGNCOMPTES " FROM "
+            TBL_LIGNESCOMPTES
+            " where " CP_IDLIGNE_LIGNCOMPTES " = " + QString::number(id);
+    QVariantList lign = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || lign.size()==0)
+        return jData;
+    jData[CP_IDLIGNE_LIGNCOMPTES]       = id;
+    jData[CP_IDCOMPTE_LIGNCOMPTES]      = lign.at(0).toInt();
+    jData[CP_IDDEP_LIGNCOMPTES]         = lign.at(1).toInt();
+    jData[CP_IDREC_LIGNCOMPTES]         = lign.at(2).toString();
+    jData[CP_IDRECSPEC_LIGNCOMPTES]     = lign.at(3).toString();
+    jData[CP_IDREMCHEQ_LIGNCOMPTES]     = lign.at(4).toString();
+    jData[CP_DATE_LIGNCOMPTES]          = lign.at(5).toDate().toString("yyyy-MM-dd");
+    jData[CP_LIBELLE_LIGNCOMPTES]       = lign.at(6).toString();
+    jData[CP_MONTANT_LIGNCOMPTES]       = lign.at(7).toDouble();
+    jData[CP_DEBITCREDIT_LIGNCOMPTES]   = (lign.at(8).toInt() == 1);
+    jData[CP_TYPEOPERATION_LIGNCOMPTES] = lign.at(9).toString();
+    jData[CP_CONSOLIDE_LIGNCOMPTES]     = (lign.at(8).toInt() == 1);
+    return jData;
+}
 
 /*
  * Depenses

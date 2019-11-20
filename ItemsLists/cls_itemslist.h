@@ -300,6 +300,13 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<LigneCompte*>(item) != Q_NULLPTR)
+        {
+            table = TBL_LIGNESCOMPTES;
+            idname = CP_IDLIGNE_LIGNCOMPTES;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table != "" && idname != "")

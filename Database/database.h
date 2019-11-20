@@ -55,6 +55,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_site.h"
 #include "cls_ville.h"
 #include "cls_compte.h"
+#include "cls_lignecompte.h"
 #include "cls_parametressysteme.h"
 #include "cls_donneesophtapatient.h"
 
@@ -233,6 +234,10 @@ public:
     */
     QList<Compte*>          loadComptesAll();                           //! charge tous les comptes bancaires sans exception
     QJsonObject             loadCompteDataById(int id);                 //! charge les datas d'un compte bancaire défini par son id
+
+    QList<LigneCompte*>     loadLignesComptesByCompte(int idcompte);    //! charge tous les lignes de comptes bancaires pas encore archivées
+    QJsonObject             loadLigneCompteDataById(int id);            //! charge les datas d'une ligne de compte bancaire défini par son id
+
     QList<Depense*>         loadDepensesByUser(int idUser);             //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
     void                    loadDepenseArchivee(Depense *dep);          //! charge tous renseignements sur une dépense archivée
     QStringList             ListeRubriquesFiscales();                   //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035
