@@ -1159,7 +1159,7 @@ QList<LigneCompte*> DataBase::loadLignesComptesByCompte(int idcompte)
         jData[CP_MONTANT_LIGNCOMPTES]       = lignlist.at(i).at(7).toDouble();
         jData[CP_DEBITCREDIT_LIGNCOMPTES]   = (lignlist.at(i).at(8).toInt() == 1);
         jData[CP_TYPEOPERATION_LIGNCOMPTES] = lignlist.at(i).at(9).toString();
-        jData[CP_CONSOLIDE_LIGNCOMPTES]     = (lignlist.at(i).at(8).toInt() == 1);
+        jData[CP_CONSOLIDE_LIGNCOMPTES]     = (lignlist.at(i).at(10).toInt() == 1);
         LigneCompte *lign = new LigneCompte(jData);
         if (lign != Q_NULLPTR)
             listlignes << lign;
@@ -1198,7 +1198,7 @@ QJsonObject DataBase::loadLigneCompteDataById(int id)
     jData[CP_MONTANT_LIGNCOMPTES]       = lign.at(7).toDouble();
     jData[CP_DEBITCREDIT_LIGNCOMPTES]   = (lign.at(8).toInt() == 1);
     jData[CP_TYPEOPERATION_LIGNCOMPTES] = lign.at(9).toString();
-    jData[CP_CONSOLIDE_LIGNCOMPTES]     = (lign.at(8).toInt() == 1);
+    jData[CP_CONSOLIDE_LIGNCOMPTES]     = (lign.at(10).toInt() == 1);
     return jData;
 }
 

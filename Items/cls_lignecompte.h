@@ -20,6 +20,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_item.h"
 
+/*!
+ * \brief LigneCompte class
+ * l'ensemble des informations concernant les lignes non rapprochées des comptes bancaires
+ */
+
 
 class LigneCompte : public Item
 {
@@ -53,17 +58,17 @@ public:
     bool isconsolide() const            { return m_isconsolide; }           //! opération consolidée ou pas
     double montant() const              { return m_montant; }               //! montant
 
-    void setidcompte(int id)              { m_idcompte = id; }              //! le compte bancaire de la ligne
-    void setiddepense(int id)             { m_iddep = id; }                 //! la dépense concernée si c'est une dépense
-    void setidrecette(int id)             { m_idrecette = id; }             //! la recette concernée si c'est une recette
-    void setidrecettespeciale(int id)     { m_idrecettespeciale = id; }     //! la recette spéciale concernée si c'est une recette spéciale
-    void setidremisecheque(int id)        { m_idremisecheque = id; }        //! l'id de la remise de chèque si c'est une remise de chèque
-    void setdate(QDate date)              { m_date = date; }                //! la date
-    void setlibelle(QString text)         { m_libelle = text; }             //! le libellé de l'opération
-    void settypeoperation(QString text)   { m_typeoperation = text; }       //! le type d'opération
-    void setiscredit(bool logic)          { m_iscredit = logic; }           //! true = opération créditrice false = opération débitrice
-    void setisconsolide(bool logic)       { m_isconsolide = logic; }        //! opération consolidée ou pas
-    void setmontant(double montant)       { m_montant = montant; }          //! montant
+    void setidcompte(int id)            { m_idcompte = id; }                //! le compte bancaire de la ligne
+    void setiddepense(int id)           { m_iddep = id; }                   //! la dépense concernée si c'est une dépense
+    void setidrecette(int id)           { m_idrecette = id; }               //! la recette concernée si c'est une recette
+    void setidrecettespeciale(int id)   { m_idrecettespeciale = id; }       //! la recette spéciale concernée si c'est une recette spéciale
+    void setidremisecheque(int id)      { m_idremisecheque = id; }          //! l'id de la remise de chèque si c'est une remise de chèque
+    void setdate(QDate date)            { m_date = date; }                  //! la date
+    void setlibelle(QString text)       { m_libelle = text; }               //! le libellé de l'opération
+    void settypeoperation(QString text) { m_typeoperation = text; }         //! le type d'opération
+    void setcredit(bool logic)          { m_iscredit = logic; }             //! true = opération créditrice false = opération débitrice
+    void setconsolide(bool logic)       { m_isconsolide = logic; }          //! opération consolidée ou pas
+    void setmontant(double montant)     { m_montant = montant; }            //! montant
 
 };
 

@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("19-11-2019/1");
+    qApp->setApplicationVersion("21-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7672,8 +7672,6 @@ void Rufus::InitWidgets()
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
-    QDoubleValidator *val = new QDoubleValidator(this);
-    val->setDecimals(2);
     m_val = new upDoubleValidator(0, 10000 , 2, this);
     ui->ActeMontantlineEdit->setValidator(m_val);
     ui->PayelineEdit->setValidator(m_val);

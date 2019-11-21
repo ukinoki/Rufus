@@ -104,8 +104,8 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
     connect (ui->SupprimerupPushButton,         &QPushButton::clicked,          [=] {SupprimerRecette();});
 
-    connect (wdg_enreguppushbutton,                 &QPushButton::clicked,          [=] {m_mode == Enregistrer? EnregistreRecette() : ModifierRecette();});
-    connect (wdg_annuluppushbutton,                 &QPushButton::clicked,          [=] {AnnulEnreg();});
+    connect (wdg_enreguppushbutton,             &QPushButton::clicked,          [=] {m_mode == Enregistrer? EnregistreRecette() : ModifierRecette();});
+    connect (wdg_annuluppushbutton,             &QPushButton::clicked,          [=] {AnnulEnreg();});
 
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);

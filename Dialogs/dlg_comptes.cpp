@@ -213,7 +213,7 @@ void dlg_comptes::Archiver()
         db->rollback();
         return;
     }
-    if (!db->StandardSQL(" delete from " TBL_LIGNESCOMPTES " where idligne in " + reponse + ")"))
+    if (!db->StandardSQL(" delete from " TBL_LIGNESCOMPTES " where " CP_IDLIGNE_LIGNCOMPTES " in " + reponse + ")"))
     {
         db->rollback();
         return;
@@ -245,37 +245,47 @@ void dlg_comptes::AnnulConsolidations()
             for (int n = 0; n <  allCheck.size(); n++)
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
+        LigneCompte *lign = getLigneCompteFromRow(i);
+        if  (lign != Q_NULLPTR)
+            lign->setconsolide(false);
     }
-    db->StandardSQL("update " TBL_LIGNESCOMPTES " set Ligneconsolide = null");
+    db->StandardSQL("update " TBL_LIGNESCOMPTES " set " CP_CONSOLIDE_LIGNCOMPTES " = null where " CP_IDCOMPTE_LIGNCOMPTES " = " +  QString::number(m_idcompte));
     CalculeTotal();
 }
 
 void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 {
     int row = lbl->Row();
-    QString msg = static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,3))->text()
-            + " - du " + static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,1))->text();
-    QString ecriture = tr("Supprimer l'écriture") + " -" + msg + "?";
+    LigneCompte *lign = getLigneCompteFromRow(row);
+    if  (lign != Q_NULLPTR)
+    {
+        QMenu *menuContextuel       = new QMenu(this);
+        QString msg = tr("Supprimer l'écriture") + " - " + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "?";
+        QAction *pAction_SupprEcriture = menuContextuel->addAction(msg) ;
+        connect (pAction_SupprEcriture, &QAction::triggered,    [=] { SupprimerEcriture(lign); });
+        msg = tr("Modifer le montant de l'écriture") + " - " + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "?";
+        QAction *pAction_ModifEcriture = menuContextuel->addAction(msg) ;
+        connect (pAction_ModifEcriture, &QAction::triggered,    [=] { ModifMontant(lign); });
 
-    QMenu *menuContextuel       = new QMenu(this);
-    QAction *pAction_SupprEcriture = menuContextuel->addAction(ecriture) ;
-    connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg, lbl->iD());});
-
-    // ouvrir le menu
-    menuContextuel->exec(cursor().pos());
-    delete menuContextuel;
-    menuContextuel = Q_NULLPTR;
+        menuContextuel->exec(cursor().pos());
+        delete menuContextuel;
+        menuContextuel = Q_NULLPTR;
+    }
 }
 
-void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
+void dlg_comptes::RenvoieRangee(UpCheckBox* Check)
 {
     int R = Check->rowTable();
-    QLabel* lbl = dynamic_cast<QLabel*>(wdg_bigtable->cellWidget(R,0));
-    QString requete = "update " TBL_LIGNESCOMPTES " set Ligneconsolide = ";
-    requete += (Coche? "1" : "null");
-    requete += " where idligne = " + lbl->text();
-    db->StandardSQL(requete);
-    CalculeTotal();
+    LigneCompte *lign = getLigneCompteFromRow(R);
+    if  (lign != Q_NULLPTR)
+    {
+        lign->setconsolide(Check->isChecked());
+        QString requete = "update " TBL_LIGNESCOMPTES " set " CP_CONSOLIDE_LIGNCOMPTES " = ";
+        requete += (Check->isChecked()? "1" : "null");
+        requete += " where " CP_IDLIGNE_LIGNCOMPTES " = " + QString::number(lign->id());
+        db->StandardSQL(requete);
+        CalculeTotal();
+    }
 }
 
 void dlg_comptes::RedessineFicheArchives()
@@ -433,13 +443,13 @@ void dlg_comptes::RemplirTableArchives()
 }
 void dlg_comptes::VoirArchives()
 {
-    dlg_archives       = new UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionArchives", this);
-    wdg_tablearchives  = new UpTableWidget();
-    wdg_listarchivescombo  = new QComboBox();
-    wdg_lbltitre       = new UpLabel();
-    QHBoxLayout     *titreLay       = new QHBoxLayout();
-    wdg_loupbouton     = new UpSmallButton();
-    wdg_flechehtbouton = new UpSmallButton();
+    dlg_archives            = new UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionArchives", this);
+    wdg_tablearchives       = new UpTableWidget();
+    wdg_listarchivescombo   = new QComboBox();
+    wdg_lbltitre            = new UpLabel();
+    QHBoxLayout *titreLay   = new QHBoxLayout();
+    wdg_loupbouton          = new UpSmallButton();
+    wdg_flechehtbouton      = new UpSmallButton();
 
     wdg_tablearchives      ->setFocusPolicy(Qt::NoFocus);
     wdg_tablearchives      ->setPalette(QPalette(Qt::white));
@@ -535,36 +545,79 @@ void dlg_comptes::VoirArchives()
     m_archivescptencours = Q_NULLPTR;
 }
 
-void dlg_comptes::ModifMontant(int id)
+void dlg_comptes::ModifMontant(LigneCompte *lign)
 {
-//    UpMessageBox msgbox;
-//    msgbox.setText(tr("Suppression d'une écriture!"));
-//    msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
-//                              + msg + "\n\n" +
-//                              tr("Cette suppression est définitive mais ne supprimera pas l'opération de recette/dépense correspondante.") + "\n" +
-//                              tr("Supprimer une écriture du compte bancaire sert en général à équilibrer le compte pour le rendre conforme au relevé") + ".\n" +
-//                              tr("Confirmez vous la suppression?") + "\n\n");
-//    msgbox.setIcon(UpMessageBox::Warning);
-//    UpSmallButton OKBouton;
-//    OKBouton.setText(tr("Supprimer"));
-//    UpSmallButton NoBouton;
-//    NoBouton.setText(tr("Annuler"));
-//    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
-//    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-//    msgbox.exec();
-//    if (msgbox.clickedButton() == &OKBouton)
-//    {
-//        db->StandardSQL("delete from " TBL_LIGNESCOMPTES " where idligne = " + QString::number(idligne));
-//        RemplitLaTable(m_idcompte);
-//    }
+    UpDialog *dlg_montant = new UpDialog(this);
+    dlg_montant     ->setModal(true);
+    dlg_montant     ->setWindowTitle(tr("Modification d'une écriture!"));
+    QString txtlbl = (tr("Vous avez choisi de modifier le montant de l'écriture") + "\n" +
+                      lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +
+                      tr("Cette modification est définitive mais ne supprimera") + "\n" +
+                      tr("pas l'opération de recette/dépense correspondante.") + "\n" +
+                      tr("Modifier le montant d'une ligne du compte bancaire") + "\n" +
+                      tr("sert en général à équilibrer le compte pour le rendre") + "\n" +
+                      tr("conforme au relevé") + ".\n\n" +
+                      tr("Entrez le nouveau montant") + ".\n");
+
+    UpLineEdit *line = new UpLineEdit(dlg_montant);
+    line->setMaxLength(10);
+    line->setFixedWidth(100);
+    line->setText(QString::number(lign->montant(), 'f', 2));
+    line->setAlignment(Qt::AlignRight);
+    QDoubleValidator *val = new QDoubleValidator(this);
+    val->setDecimals(2);
+    line->setValidator(val);
+    QHBoxLayout *linelay = new QHBoxLayout();
+    linelay     ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    linelay     ->addWidget(line);
+    linelay     ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    linelay     ->setContentsMargins(0,0,0,0);
+    dlg_montant->dlglayout()->insertLayout(0,linelay);
+    UpLabel *lbl = new UpLabel();
+    lbl->setText(txtlbl);
+    dlg_montant->dlglayout()->insertWidget(0,lbl);
+    line->setFocus();
+
+    dlg_montant->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_montant->OKButton, &QPushButton::clicked, this, [=]
+    {
+        int row = getRowFromLigneCompte(lign);
+        lign->setmontant(QLocale().toDouble(line->text()));
+        SetLigneCompteToRow(lign, row);
+        QString req = "update " TBL_LIGNESCOMPTES " set " CP_MONTANT_LIGNCOMPTES " = " + QString::number(lign->montant()) + " where " CP_IDLIGNE_LIGNCOMPTES " = " + QString::number(lign->id());
+        DataBase::I()->StandardSQL(req);
+        CalculeTotal();
+        dlg_montant->accept();
+    });
+    connect(dlg_montant->CancelButton,  &QPushButton::clicked, dlg_montant, &QDialog::reject);
+    dlg_montant->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    dlg_montant->exec();
 }
 
-void dlg_comptes::SupprimerEcriture(QString msg, int idligne)
+int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
+{
+    int row = -1;
+    for (int i=0; i<wdg_bigtable->rowCount(); ++i)
+    {
+        UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_bigtable->cellWidget(i,0));
+        if (lbl == Q_NULLPTR)
+            continue;
+        if (lbl->iD() == lign->id())
+        {
+            row = i;
+            break;
+        }
+    }
+    return row;
+}
+
+void dlg_comptes::SupprimerEcriture(LigneCompte *lign)
 {
     UpMessageBox msgbox;
     msgbox.setText(tr("Suppression d'une écriture!"));
     msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
-                              + msg + "\n\n" +
+                              + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +
                               tr("Cette suppression est définitive mais ne supprimera pas l'opération de recette/dépense correspondante.") + "\n" +
                               tr("Supprimer une écriture du compte bancaire sert en général à équilibrer le compte pour le rendre conforme au relevé") + ".\n" +
                               tr("Confirmez vous la suppression?") + "\n\n");
@@ -578,7 +631,7 @@ void dlg_comptes::SupprimerEcriture(QString msg, int idligne)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        db->StandardSQL("delete from " TBL_LIGNESCOMPTES " where idligne = " + QString::number(idligne));
+        Datas::I()->lignescomptes->SupprimeLigne(lign);
         RemplitLaTable(m_idcompte);
     }
 }
@@ -587,45 +640,22 @@ void dlg_comptes::CalculeTotal()
 {
     double Total = m_soldesurreleve;
     double TotalConsolide = m_soldesurreleve;
-    if (wdg_bigtable->rowCount() > 0)
+    foreach (LigneCompte *lign, Datas::I()->lignescomptes->lignescomptes()->values())
     {
-        for (int k = 0; k < wdg_bigtable->rowCount(); k++)
-        {
-            QLabel *Lbl = dynamic_cast<QLabel*>(wdg_bigtable->cellWidget(k,4));
-            if (Lbl)
-            {
-                Total += QLocale().toDouble(Lbl->text());
-                QWidget *Wdg = dynamic_cast<QWidget*>(wdg_bigtable->cellWidget(k,6));
-                if (Wdg)
-                {
-                    QList<UpCheckBox *> allCheck = Wdg->findChildren<UpCheckBox *>();
-                    for (int n = 0; n <  allCheck.size(); n++)
-                        if (allCheck.at(n)->isChecked())
-                            TotalConsolide += QLocale().toDouble(Lbl->text());
-               }
-            }
-            QLabel *Lbl2 = dynamic_cast<QLabel*>(wdg_bigtable->cellWidget(k,5));
-            if (Lbl2)
-            {
-                Total += QLocale().toDouble(Lbl2->text());
-                QWidget *Wdg = dynamic_cast<QWidget*>(wdg_bigtable->cellWidget(k,6));
-                if (Wdg)
-                {
-                    QList<UpCheckBox *> allCheck = Wdg->findChildren<UpCheckBox *>();
-                    for (int n = 0; n <  allCheck.size(); n++)
-                        if (allCheck.at(n)->isChecked())
-                            TotalConsolide += QLocale().toDouble(Lbl2->text());
-                }
-            }
-        }
+        double montantligne = lign->montant();
+        if (!lign->iscredit())
+            montantligne = montantligne*-1;
+        Total += montantligne;
+        if (lign->isconsolide())
+            TotalConsolide +=  montantligne;
+    }
     ui->MontantSoldeBrutlabel->setText(QLocale().toString(Total,'f',2) + " ");
     ui->MontantSoldeConsolidelabel->setText(QLocale().toString(TotalConsolide,'f',2) + " ");
-    }
 }
 
-void dlg_comptes::ChangeCompte(int idx)
+void dlg_comptes::ChangeCompte(int idcompte)
 {
-    m_idcompte = ui->BanquecomboBox->itemData(idx).toInt();
+    m_idcompte = ui->BanquecomboBox->itemData(idcompte).toInt();
     m_compteencours = Datas::I()->comptes->getById(m_idcompte);
     if (m_compteencours != Q_NULLPTR)
     {
@@ -743,16 +773,11 @@ void dlg_comptes::DefinitArchitetureTable()
 
 }
 
-void dlg_comptes::RemplitLaTable(int idCompteAVoir)
+void dlg_comptes::RemplitLaTable(int idcompte)
 {
-    bool ok = true;
-    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "idLigne" << "idCompte" << "idDep" << "idRec" << "LigneDate" << "LigneLibelle"
-                                                                       << "LigneMontant" << "LigneDebitCredit" << "LigneTypeOperation" << "LigneConsolide",
-                                                                       TBL_LIGNESCOMPTES, ok,
-                                                                       "where idCompte = " + QString::number(idCompteAVoir),
-                                                                       "order by LigneDate, lignelibelle, ligneMontant");
+    Datas::I()->lignescomptes->initListe(idcompte);
 
-    if (listfamfiscale.size()==0)
+    if (Datas::I()->lignescomptes->lignescomptes()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Pas d'écriture sur le compte"));
         wdg_bigtable->clearContents();
@@ -762,17 +787,28 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
     }
     wdg_bigtable->clearContents();
 
-    wdg_bigtable->setRowCount(listfamfiscale.size());
+    wdg_bigtable->setRowCount(Datas::I()->lignescomptes->lignescomptes()->size());
 
-
-    for (int i = 0; i < listfamfiscale.size(); i++)
+    int i = 0;
+    foreach (LigneCompte *lign, Datas::I()->lignescomptes->lignescomptes()->values())
     {
-        InsertLigneSurLaTable(listfamfiscale.at(i),i);
+        SetLigneCompteToRow(lign, i);
+        ++ i;
     }
     CalculeTotal();
  }
 
-void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
+LigneCompte* dlg_comptes::getLigneCompteFromRow(int row)
+{
+    int idcompte = 0;
+    UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
+    if (lbl == Q_NULLPTR)
+        return Q_NULLPTR;
+    idcompte = lbl->iD();
+    return Datas::I()->lignescomptes->getById(idcompte);
+}
+
+void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
 {
     UpLabel *      lbl0;
     UpLabel *      lbl1;
@@ -804,14 +840,14 @@ void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
     lbl5->setContextMenuPolicy(Qt::CustomContextMenu);
     lbl7->setContextMenuPolicy(Qt::CustomContextMenu);
     lbl8->setContextMenuPolicy(Qt::CustomContextMenu);
-    lbl0->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl1->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl2->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl3->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl4->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl5->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl7->setiD(ligne.at(0).toInt());                      // idLigne
-    lbl8->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl0->setiD(lign->id());                      // idLigne
+    lbl1->setiD(lign->id());                      // idLigne
+    lbl2->setiD(lign->id());                      // idLigne
+    lbl3->setiD(lign->id());                      // idLigne
+    lbl4->setiD(lign->id());                      // idLigne
+    lbl5->setiD(lign->id());                      // idLigne
+    lbl7->setiD(lign->id());                      // idLigne
+    lbl8->setiD(lign->id());                      // idLigne
     lbl0->setRow(row);
     lbl1->setRow(row);
     lbl2->setRow(row);
@@ -832,33 +868,33 @@ void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
 
     int col = 0;
 
-    A = ligne.at(0).toString();                                                             // idLigne - col = 0
+    A = QString::number(lign->id());                                                             // idLigne - col = 0
     lbl0->setText(A + " ");
     lbl0->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     lbl0->setFocusPolicy(Qt::NoFocus);
     wdg_bigtable->setCellWidget(row,col,lbl0);
     col++;
 
-    A = ligne.at(4).toDate().toString(tr("d MMM yyyy"));                                        // Date - col = 1
+    A = lign->date().toString(tr("d MMM yyyy"));                                        // Date - col = 1
     lbl1->setText(A + " ");
     lbl1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     lbl1->setFocusPolicy(Qt::NoFocus);
     wdg_bigtable->setCellWidget(row,col,lbl1);
     col++;
 
-    lbl2->setText(" " + ligne.at(8).toString());                                                // Type opération - col = 2
+    lbl2->setText(" " + lign->typeoperation());                                                // Type opération - col = 2
     lbl2->setFocusPolicy(Qt::NoFocus);
     wdg_bigtable->setCellWidget(row,col,lbl2);
     col++;
 
-    lbl3->setText(" " + ligne.at(5).toString());                                                // Libellé opération - col = 3;
+    lbl3->setText(" " + lign->libelle());                                                // Libellé opération - col = 3;
     lbl3->setFocusPolicy(Qt::NoFocus);
     wdg_bigtable->setCellWidget(row,col,lbl3);
     col++;
 
-    if (ligne.at(7).toInt() > 0)                                                                // Crédit - col = 4
+    if (lign->iscredit())                                                                // Crédit - col = 4
     {
-        A = QLocale().toString(ligne.at(6).toDouble(),'f',2);
+        A = QLocale().toString(lign->montant(),'f',2);
         lbl4->setText(A + " ");
         lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
         lbl4->setFocusPolicy(Qt::NoFocus);
@@ -869,9 +905,9 @@ void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
         lbl5->setFocusPolicy(Qt::NoFocus);
         wdg_bigtable->setCellWidget(row,col,lbl5);
     }
-    if (ligne.at(7).toInt() < 1)                                                                // Débit - col = 5
+    else                                                                // Débit - col = 5
     {
-        A = QLocale().toString(ligne.at(6).toDouble()*-1,'f',2);
+        A = QLocale().toString(lign->montant()*-1,'f',2);
         lbl4->setText("");
         lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
         lbl4->setFocusPolicy(Qt::NoFocus);
@@ -884,17 +920,16 @@ void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
     }
     col++;
 
-    int b = ligne.at(9).toInt();                                                                // Consolidé - col = 6
     wdg = new QWidget(this);
     Checkbx = new UpCheckBox(wdg);
-    if (b == 1)
+    if (lign->isconsolide())
         Checkbx->setCheckState(Qt::Checked);
     else
         Checkbx->setCheckState(Qt::Unchecked);
     Checkbx->setRowTable(row);
     Checkbx->setFocusPolicy(Qt::NoFocus);
 
-    connect(Checkbx,      &QCheckBox::clicked,  [=] {RenvoieRangee(Checkbx->isChecked(), Checkbx);});
+    connect(Checkbx,      &QCheckBox::clicked,  [=] {RenvoieRangee(Checkbx);});
     l = new QHBoxLayout(wdg);
     l->setContentsMargins(0,0,0,0);
     l->setAlignment( Qt::AlignCenter );
@@ -903,14 +938,15 @@ void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
     wdg_bigtable->setCellWidget(row,col,wdg);
     col++;
 
-    lbl7->setText(ligne.at(2).toString());
+    lbl7->setText(QString::number(lign->iddepense()));
     lbl7->setFocusPolicy(Qt::NoFocus);
     wdg_bigtable->setCellWidget(row,col,lbl7);
     col++;
 
-    lbl8->setText(ligne.at(3).toString());
+    lbl8->setText(QString::number(lign->idrecette()));
     lbl8->setFocusPolicy(Qt::NoFocus);
     wdg_bigtable->setCellWidget(row,col,lbl8);
 
     wdg_bigtable->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
+
 }

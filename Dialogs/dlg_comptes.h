@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_COMPTES_H
 
 #include "procedures.h"
+#include "updoublevalidator.h"
 
 namespace Ui {
 class dlg_comptes;
@@ -60,18 +61,20 @@ private:
     bool            eventFilter(QObject *obj, QEvent *event)  ;
     void            CalculeTotal();
     void            DefinitArchitetureTable();
-    void            InsertLigneSurLaTable(QVariantList ligne, int row);
-    void            RemplitLaTable(int idCompteAVoir);
+    void            RemplitLaTable(int idcompte);
     void            RemplirTableArchives();
     void            RedessineFicheArchives();
-    void            ModifMontant(int id);
-    void            SupprimerEcriture(QString, int idligne);
+    void            ModifMontant(LigneCompte *lign);
+    void            SupprimerEcriture(LigneCompte *lign);
     void            AnnulArchive();
     void            Archiver();
     void            AnnulConsolidations();
-    void            ChangeCompte(int idCompteAVoir);
+    void            ChangeCompte(int idcompte);
     void            ContextMenuTableWidget(UpLabel *lbl);
-    void            RenvoieRangee(bool Coche, UpCheckBox *Check);
+    void            RenvoieRangee(UpCheckBox *Check);
+    LigneCompte*    getLigneCompteFromRow(int id);
+    int             getRowFromLigneCompte(LigneCompte *lign);
+    void            SetLigneCompteToRow(LigneCompte *lign, int row);
     void            VoirArchives();
 };
 

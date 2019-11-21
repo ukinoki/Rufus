@@ -43,6 +43,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_mesurerefraction.h"
 #include "cls_mesurekerato.h"
 #include "cls_mesuredivers.h"
+#include "cls_lignescomptes.h"
 
 class Datas : public QObject
 {
@@ -63,6 +64,7 @@ public:
     Cotations *cotations;               //!< Les cotations
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;         //!< Les documents externes
+    LignesComptes *lignescomptes;       //!< Les lignes non rapprochées d'un compte bancaire
     LignesPaiements *lignespaiements;   //!< Les lignes de paiement des actes d'un patient
     DossiersImpressions *metadocuments; //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
     Motifs *motifs;                     //!< tous les motifs d'actes
