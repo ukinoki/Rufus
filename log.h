@@ -88,7 +88,8 @@ public:
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << timelog << " - " << msg;
+            out << timelog << " - " << msg << "\n";
+            testfile.close();
         }
     }
 };

@@ -480,7 +480,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_HEUREDERNIERECONNECTION_USRCONNECT )
         {
-            usr->setheurederniereconnexion(newvalue.toDateTime());
+            usr->setdateheurederniereconnexion(newvalue.toDateTime());
             Utils::CalcDateTimeValueSQL(newvalue);
         }
         else if (field == CP_IDPATENCOURS_USRCONNECT )

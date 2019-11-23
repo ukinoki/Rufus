@@ -1030,8 +1030,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         else
         {
             // si le user rplct à imprimer n'est pas le superviseur du user courant, on cherche son parent
-            QString reqrp = "select userparent "
-                            "from " TBL_USERSCONNECTES
+            QString reqrp = "select userparent from " TBL_USERSCONNECTES
                             " where usersuperviseur = " + QString::number(user->id());
             QVariantList userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, m_ok);
             if (userdata.size()>0)                // le user est connecté, on cherche qui il remplace - son parent

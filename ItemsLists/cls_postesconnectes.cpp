@@ -67,7 +67,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         if (jadmin.size() > 0)
             idAdministrateur = jadmin.value("id").toInt();
         foreach (PosteConnecte *post, *map_postesconnectes)
-            if(post->id() == idAdministrateur && idAdministrateur > -1 && post->heurederniereconnexion().secsTo(DataBase::I()->ServerDateTime()) < 120)
+            if(post->id() == idAdministrateur && idAdministrateur > -1 && post->dateheurederniereconnexion().secsTo(DataBase::I()->ServerDateTime()) < 120)
             {
                 m_admin = post;
                 break;
@@ -109,6 +109,8 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 
 PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
 {
+    if (Utils::getIpAdress() == "" || Utils::getMACAdress() == "")
+        return Q_NULLPTR;
     QString macadressid =  Utils::getMACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id());
     QString macadress = Utils::getMACAdress() +  (DataBase::I()->userConnected()->login() == NOM_ADMINISTRATEURDOCS? " - " + DataBase::I()->userConnected()->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
@@ -139,7 +141,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
     post->setidsuperviseur(DataBase::I()->userConnected()->idsuperviseur());
     post->setidcomptable(DataBase::I()->userConnected()->idcomptable());
     post->setidparent(DataBase::I()->userConnected()->idparent());
-    post->setheurederniereconnexion(DataBase::I()->ServerDateTime());
+    post->setdateheurederniereconnexion(DataBase::I()->ServerDateTime());
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);
     post->setipadress(Utils::getIpAdress());

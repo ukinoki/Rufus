@@ -37,8 +37,7 @@ void PosteConnecte::setData(QJsonObject data)
     setDataInt(data, CP_IDUSERCOMPTABLE_USRCONNECT, m_idcomptable);
     setDataInt(data, CP_IDLIEU_USRCONNECT, m_idlieu);
     setDataInt(data, CP_IDPATENCOURS_USRCONNECT, m_idpatencours);
-    setDataDateTime(data, CP_HEUREDERNIERECONNECTION_USRCONNECT, m_heurederniereconnexion);
+    setDataDateTime(data, CP_HEUREDERNIERECONNECTION_USRCONNECT, m_dateheurederniereconnexion);
     setDataString(data, "stringid", m_stringid);
     m_data = data;
 }
-

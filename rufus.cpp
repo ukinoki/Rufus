@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-11-2019/1");
+    qApp->setApplicationVersion("23-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -192,7 +192,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         connect (t_timerSalDat,              &QTimer::timeout,  this,   &Rufus::VerifSalleDAttente);
         connect (t_timerCorrespondants,      &QTimer::timeout,  this,   &Rufus::VerifCorrespondants);
         connect (t_timerVerifImportateurDocs,&QTimer::timeout,  this,   &Rufus::VerifImportateur);
-        connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   &Rufus::VerifVerrouDossier);
+        connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   [=] { if (isPosteImport() || DataBase::I()->getMode() == Utils::Distant) VerifVerrouDossier();} );
         connect (t_timerVerifMessages,       &QTimer::timeout,  this,   &Rufus::VerifMessages);
         connect (t_timerImportDocsExternes,  &QTimer::timeout,  this,   &Rufus::ImportDocsExternes);
         if (db->getMode() != Utils::Distant)
@@ -1401,18 +1401,18 @@ void Rufus::ConnectTimers(bool a)
         t_timerPosteConnecte  ->start(10000);
         t_timerVerifVerrou   ->start(60000);
 
-        connect (t_timerPosteConnecte,               &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
-        connect (t_timerActualiseDocsExternes,       &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
+        connect (t_timerPosteConnecte,              &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
+        connect (t_timerActualiseDocsExternes,      &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         if (!m_utiliseTCP)
         {
-            connect (t_timerSalDat,                  &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
-            connect (t_timerCorrespondants,          &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
-            connect (t_timerVerifVerrou,             &QTimer::timeout,   this,   &Rufus::VerifVerrouDossier);
-            connect (t_timerVerifMessages,           &QTimer::timeout,   this,   &Rufus::VerifMessages);
-            connect (t_timerVerifImportateurDocs,    &QTimer::timeout,   this,   &Rufus::VerifImportateur);
-            connect (t_timerImportDocsExternes,      &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
+            connect (t_timerSalDat,                 &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
+            connect (t_timerCorrespondants,         &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
+            connect (t_timerVerifVerrou,            &QTimer::timeout,   this,   [=] { if (isPosteImport() || DataBase::I()->getMode() == Utils::Distant) VerifVerrouDossier();} );
+            connect (t_timerVerifMessages,          &QTimer::timeout,   this,   &Rufus::VerifMessages);
+            connect (t_timerVerifImportateurDocs,   &QTimer::timeout,   this,   &Rufus::VerifImportateur);
+            connect (t_timerImportDocsExternes,     &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
             if (db->getMode() != Utils::Distant)
-                connect(t_timerSupprDocs,                &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
+                connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         }
 
     }
@@ -3671,7 +3671,9 @@ void Rufus::MAJPosteConnecte()
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
     proc->settings()->setValue("PositionsFiches/Rufus", saveGeometry());
     if (Datas::I()->postesconnectes->currentpost() != Q_NULLPTR)
+    {
         ItemsList::update(Datas::I()->postesconnectes->currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
+    }
     else
     {
         Datas::I()->postesconnectes->CreationPosteConnecte(Datas::I()->sites->idcurrentsite());
@@ -5446,8 +5448,6 @@ void Rufus::VerifCorrespondants()
 void Rufus::VerifVerrouDossier()
 {
     // Seuls le poste importateur dees documents et les postes distants utilisent cette fonction
-    if (!isPosteImport() && DataBase::I()->getMode() != Utils::Distant)
-        return;
     /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
      * elle n'est utilisée qu'en cas de non utilisation du tcp
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
@@ -5459,13 +5459,13 @@ void Rufus::VerifVerrouDossier()
     bool mettreajourlasalledattente     = false;
     foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
-        qint64 tempsecouledepuisactualisation = post->heurederniereconnexion().secsTo(timenow);
+        qint64 tempsecouledepuisactualisation = post->dateheurederniereconnexion().secsTo(timenow);
         if (tempsecouledepuisactualisation > 120)
         {
             qDebug() << "Suppression d'un poste débranché accidentellement" << "Rufus::VerifVerrouDossier()";
             qDebug() << "nom du poste)" << post->stringid();
             qDebug() << "timenow = " << timenow;
-            qDebug() << "heure dernière connexion = " << post->heurederniereconnexion();
+            qDebug() << "heure dernière connexion = " << post->dateheurederniereconnexion();
             qDebug() << "temps ecoule depuis actualisation = " << tempsecouledepuisactualisation;
             qDebug() << "user = " << Datas::I()->users->getById(post->id())->login();
             //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
@@ -5485,7 +5485,7 @@ void Rufus::VerifVerrouDossier()
         }
         if (post->id() != m_currentuser->id() && post->macadress() == Utils::getMACAdress())
             if (!listpostsAEliminer.contains(post))
-                listpostsAEliminer << post;            
+                listpostsAEliminer << post;
     }
     if (listpostsAEliminer.size() > 0)
     {

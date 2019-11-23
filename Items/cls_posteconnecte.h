@@ -52,32 +52,32 @@ private:
      * le couple user-macadress actualise l'heure de dernière connexion toutes les 10 secondes
      * un poste désigné par la fonction Procedures::setPosteImportDocs(bool a) surveille les users connectes toutes les mintutes
      * si un couple user-macadress n'a pas remis à jour sa connection depuis plus d'une minute, il est supprimé de la liste des users connectés */
-    QDateTime   m_heurederniereconnexion;   //!> la date et l'heure de la connexion
+    QDateTime   m_dateheurederniereconnexion;   //!> la date et l'heure de la connexion
 
 public:
 
-    QString nomposte() const                    { return m_nomposte; }
-    QString macadress() const                   { return m_macadress; }
-    bool isdistant() const                      { return m_accesdistant; }
-    int idsuperviseur() const                   { return m_idsuperviseur; }
-    int idparent() const                        { return m_idparent; }
-    int idcomptable() const                     { return m_idcomptable; }
-    int idlieu() const                          { return m_idlieu; }
-    int idpatencours() const                    { return m_idpatencours; }
-    QDateTime heurederniereconnexion() const    { return m_heurederniereconnexion; }
-    QString ipadress() const                    { return m_ipadress; }
-    bool isadmin() const                        { return m_macadress.contains(NOM_ADMINISTRATEURDOCS);}
+    QString nomposte() const                        { return m_nomposte; }
+    QString macadress() const                       { return m_macadress; }
+    bool isdistant() const                          { return m_accesdistant; }
+    int idsuperviseur() const                       { return m_idsuperviseur; }
+    int idparent() const                            { return m_idparent; }
+    int idcomptable() const                         { return m_idcomptable; }
+    int idlieu() const                              { return m_idlieu; }
+    int idpatencours() const                        { return m_idpatencours; }
+    QDateTime dateheurederniereconnexion() const    { return m_dateheurederniereconnexion; }
+    QString ipadress() const                        { return m_ipadress; }
+    bool isadmin() const                            { return m_macadress.contains(NOM_ADMINISTRATEURDOCS);}
 
-    void setnomposte(QString txt)                       { m_nomposte = txt; }
-    void setmacadress(QString txt)                      { m_macadress = txt; }
-    void setipadress(QString txt)                       { m_ipadress = txt; }
-    void setisdistant(bool logic)                       { m_accesdistant = logic; }
-    void setidsuperviseur(int id)                       { m_idsuperviseur = id; }
-    void setidparent(int id)                            { m_idparent = id; }
-    void setidcomptable(int id)                         { m_idcomptable = id; }
-    void setidlieu(int id)                              { m_idlieu = id; }
-    void setidpatencours(int id)                        { m_idpatencours = id; }
-    void setheurederniereconnexion(QDateTime datetime)  { m_heurederniereconnexion = datetime; }
+    void setnomposte(QString txt)                           { m_nomposte = txt; }
+    void setmacadress(QString txt)                          { m_macadress = txt; }
+    void setipadress(QString txt)                           { m_ipadress = txt; }
+    void setisdistant(bool logic)                           { m_accesdistant = logic; }
+    void setidsuperviseur(int id)                           { m_idsuperviseur = id; }
+    void setidparent(int id)                                { m_idparent = id; }
+    void setidcomptable(int id)                             { m_idcomptable = id; }
+    void setidlieu(int id)                                  { m_idlieu = id; }
+    void setidpatencours(int id)                            { m_idpatencours = id; }
+    void setdateheurederniereconnexion(QDateTime datetime)  { m_dateheurederniereconnexion = datetime; }
 };
 
 #endif // CLS_POSTECONNECTE_H

@@ -498,10 +498,7 @@ QString Utils::getIpAdress()
 
 QString Utils::getMACAdress()
 {
-    QString IPadress = "";
-    foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-            IPadress = address.toString();
+    QString IPadress = getIpAdress();
     QString MACAddress = "";
        QString localNetmask;
        foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {
