@@ -42,7 +42,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_commentaires::Annulation);
     connect (ui->upTextEdit,    &QTextEdit::textChanged,    this,   &dlg_commentaires::EnableOKPushbutton);
     connect (ui->upTextEdit,    &UpTextEdit::dblclick,      this,   &dlg_commentaires::dblClicktextEdit);
-    connect(wdg_buttonframe,    &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
+    connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
 
 
     // Mise en forme du formulaire

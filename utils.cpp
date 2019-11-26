@@ -457,48 +457,56 @@ QString Utils::getExpressionSize(qint64 size)
 
 qint32 Utils::ArrayToInt(QByteArray source)
 {
-    qint32 temp;
+    qint32 number;
     QDataStream data(&source, QIODevice::ReadWrite);
-    data >> temp;
-    return temp;
+    data >> number;
+    return number;
 }
 
 QByteArray Utils::IntToArray(int source)
 {
     //permet d'éviter le cast
-    QByteArray temp;
-    QDataStream data(&temp, QIODevice::ReadWrite);
+    QByteArray ba;
+    QDataStream data(&ba, QIODevice::ReadWrite);
     data << source;
-    return temp;
+    return ba;
 }
 
-QString Utils::getIpAdress()
+QString Utils::IPAdress()
 {
     QString IPadress = "";
-    foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-            IPadress = address.toString();
-    return IPadress;
 
     //autre méthode
-    /*
-    // use the first non-localhost IPv4 address
-    for (int i = 0; i < ipAddressesList.size(); ++i) {
-        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-            ipAddressesList.at(i).toIPv4Address()) {
-            ipAddress = ipAddressesList.at(i).toString();
+    /*!
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress::LocalHost)
+        {
+            IPadress = address.toString();
             break;
         }
-    }
-    // if we did not find one, use IPv4 localhost
-    if (ipAddress.isEmpty())
-        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
     */
+
+    //autre méthode
+    foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
+    {
+        QNetworkInterface::InterfaceFlags flags = netInterface.flags();
+        if(flags.testFlag(QNetworkInterface::IsRunning) && !flags.testFlag(QNetworkInterface::IsLoopBack))
+            foreach (const QNetworkAddressEntry &address, netInterface.addressEntries())
+                if(address.ip().protocol() == QAbstractSocket::IPv4Protocol)
+                {
+                    IPadress = address.ip().toString();
+                    break;
+                }
+        if (IPadress != "")
+            break;
+    }
+
+    return IPadress;
 }
 
-QString Utils::getMACAdress()
+QString Utils::MACAdress()
 {
-    QString IPadress = getIpAdress();
+    QString IPadress = IPAdress();
     QString MACAddress = "";
        QString localNetmask;
        foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {

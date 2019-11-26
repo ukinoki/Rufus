@@ -97,8 +97,8 @@ public:
     static qint32                   ArrayToInt(QByteArray source);
     static int                      MaxInt()    {return std::numeric_limits<int>::max();}
     static QByteArray               IntToArray(int source);
-    static QString                  getIpAdress();
-    static QString                  getMACAdress();
+    static QString                  IPAdress();
+    static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
     static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 

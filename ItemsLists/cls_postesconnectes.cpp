@@ -79,7 +79,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
 
 PosteConnecte* PostesConnectes::currentpost()
 {
-    return getByStringId(Utils::getMACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id()));
+    return getByStringId(Utils::MACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id()));
 }
 
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
@@ -109,10 +109,10 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 
 PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
 {
-    if (Utils::getIpAdress() == "" || Utils::getMACAdress() == "")
+    if (Utils::IPAdress() == "" || Utils::MACAdress() == "")
         return Q_NULLPTR;
-    QString macadressid =  Utils::getMACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id());
-    QString macadress = Utils::getMACAdress() +  (DataBase::I()->userConnected()->login() == NOM_ADMINISTRATEURDOCS? " - " + DataBase::I()->userConnected()->login() : "");
+    QString macadressid =  Utils::MACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id());
+    QString macadress = Utils::MACAdress() +  (DataBase::I()->userConnected()->login() == NOM_ADMINISTRATEURDOCS? " - " + DataBase::I()->userConnected()->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                                                                         CP_IDUSER_USRCONNECT ", "
                                                                         CP_IDUSERSUPERVISEUR_USRCONNECT ", "
@@ -130,7 +130,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
                                QString::number(DataBase::I()->userConnected()->idparent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
                                macadress + "', '" +
-                               Utils::getIpAdress() + "', " +
+                               Utils::IPAdress() + "', " +
                                QString::number(idsite) + ", " +
                                (DataBase::I()->getMode() == Utils::Distant? "1" : "null") + ")";
     //qDebug() << MAJConnexionRequete;
@@ -144,7 +144,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(int idsite)
     post->setdateheurederniereconnexion(DataBase::I()->ServerDateTime());
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);
-    post->setipadress(Utils::getIpAdress());
+    post->setipadress(Utils::IPAdress());
     post->setisdistant(DataBase::I()->getMode() == Utils::Distant);
     post->setidlieu(idsite);
     add( map_postesconnectes, post, Item::Update );

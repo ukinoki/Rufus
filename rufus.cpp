@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-11-2019/1");
+    qApp->setApplicationVersion("26-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -118,7 +118,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;
                 envoieTCPMessage(msg);
                 // envoi adresse IP, adresse MAC, nom d'hôte
-                msg = Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket;
+                msg = Utils::IPAdress() + TCPMSG_Separator + Utils::MACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket;
                 envoieTCPMessage(msg);
             }
             else {
@@ -275,7 +275,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         ModeSelectDepuisListe();
 
     //! 16 - suppression des anciens fichiers de log
-    proc->EpureLogs();
+    Logs::EpureLogs();
  }
 
 Rufus::~Rufus()
@@ -5483,7 +5483,7 @@ void Rufus::VerifVerrouDossier()
             if (!listpostsAEliminer.contains(post))
                 listpostsAEliminer << post;
         }
-        if (post->id() != m_currentuser->id() && post->macadress() == Utils::getMACAdress())
+        if (post->id() != m_currentuser->id() && post->macadress() == Utils::MACAdress())
             if (!listpostsAEliminer.contains(post))
                 listpostsAEliminer << post;
     }
@@ -5757,7 +5757,7 @@ void Rufus::closeEvent(QCloseEvent *)
     int iduserposte = 0;
     if (post != Q_NULLPTR)
         iduserposte = post->id();
-    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
+    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::IPAdress())
         proc->setPosteImportDocs(false);
 
     QString req = "update " TBL_UTILISATEURS " set datederniereconnexion = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")

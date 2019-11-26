@@ -163,20 +163,6 @@ void Procedures::EnChantier(bool avecMsg)
     msgbox.exec();
 }
 
-//!> supprime les fichiers de logs antérieurs à J - anciennete jours
-void Procedures::EpureLogs(int anciennete)
-{
-    QDir dirlogs = QDir(QDir::homePath() + DIR_RUFUS DIR_LOGS);
-    QStringList listfiles = dirlogs.entryList();
-    for (int i=0; i<listfiles.size(); ++i)
-    {
-        QFile file(listfiles.at(i));
-        QDate datefile = QDate::fromString(file.fileName().left(10), "yyyy-MM-dd");
-        if (datefile < QDate::currentDate().addDays(-anciennete))
-            QFile::remove(QDir::homePath() + DIR_RUFUS DIR_LOGS + "/" + file.fileName());
-    }
-}
-
 // ----------------------------------------------------------------------------------
 // Modidife la taille de la police utilisée pour les widget d'une liste
 // ----------------------------------------------------------------------------------
@@ -196,7 +182,7 @@ bool Procedures::AutresPostesConnectes(bool msg)
     int id = 0;
     if (Datas::I()->users->userconnected() != Q_NULLPTR)
         id = Datas::I()->users->userconnected()->id();
-    PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getByStringId(Utils::getMACAdress() + " - " + QString::number(id));
+    PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getByStringId(Utils::MACAdress() + " - " + QString::number(id));
     if (m_currentposteconnecte == Q_NULLPTR)
     {
         UpMessageBox::Information(Q_NULLPTR, tr("Problème avec ce poste!"),
@@ -2917,7 +2903,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     //2. On crée 3 comptes SQL avec ce login et ce MDP: local en localshost, réseau local (p.e. 192.168.1.%) et distant en %-SSL et login avec SSL à la fin
     //TODO : pas de compte SQL, uniquement interne au système Rufus pour des questions de sécurités, sinon, n'importe qui peux attaquer la base directement.
     // Serge Oui c'est une grosse erreur de conception mais tant que le logiciel ne sera pas modifié, il est impossible d'installler le programme sans en passer par là
-    QString AdressIP (Utils::getIpAdress()), MasqueReseauLocal;
+    QString AdressIP (Utils::IPAdress()), MasqueReseauLocal;
     QStringList listIP = AdressIP.split(".");
     for (int i=0;i<listIP.size()-1;i++)
         MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
@@ -5683,7 +5669,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 
 bool Procedures::LectureDonneesAutoref(QString Mesure)
 {
-    //Edit(Mesure);
+    Logs::LogToFile("MesuresAutoref.txt", Mesure);
     m_htmlMesureAutoref.clear();
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";

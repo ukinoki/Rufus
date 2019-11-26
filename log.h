@@ -92,6 +92,21 @@ public:
             testfile.close();
         }
     }
+    //!> supprime les fichiers de logs antérieurs à J - anciennete jours
+    static void EpureLogs(int anciennete = 7)
+    {
+        QDir dirlogs = QDir(QDir::homePath() + DIR_RUFUS DIR_LOGS);
+        QStringList listfiles = dirlogs.entryList();
+        for (int i=0; i<listfiles.size(); ++i)
+        {
+            QFile file(listfiles.at(i));
+            QDate datefile = QDate::fromString(file.fileName().left(10), "yyyy-MM-dd");
+            if (datefile < QDate::currentDate().addDays(-anciennete))
+                QFile::remove(QDir::homePath() + DIR_RUFUS DIR_LOGS + "/" + file.fileName());
+        }
+    }
+
+
 };
 
 #endif // LOG_H

@@ -25,7 +25,7 @@ class UpStandardItem : public QStandardItem
 {
 public:
     UpStandardItem();
-    UpStandardItem(QString txt);
+    UpStandardItem(QString txt, Item* item = Q_NULLPTR);
     void    setitem(Item* item);
     Item*   item() const;
 

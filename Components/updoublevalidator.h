@@ -22,6 +22,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QValidator>
 #include <QLocale>
 
+
+/*! la classe updoublevalidator permet de créer un QdoubleValidator avec
+ * \param une limite haute
+ * \param une limite basse
+ * \param un nombre défini de chiffres après lavirgule
+ */
 class upDoubleValidator: public QDoubleValidator
 {
 public:

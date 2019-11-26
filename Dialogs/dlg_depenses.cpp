@@ -728,16 +728,116 @@ void dlg_depenses::ChoixMenu(QString choix)
 {
     if (choix == "ChercheVal")
     {
-        QMessageBox msgbox;
-        msgbox.setText("...");
-        msgbox.setDetailedText("...");
-        msgbox.setInformativeText(tr("Entrez la valeur à rechercher..."));
-        msgbox.setTextInteractionFlags(Qt::TextEditable);
-        UpSmallButton OKBouton;
-        OKBouton.setUpButtonStyle(UpSmallButton::STARTBUTTON);
-        msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
-        msgbox.exec();
-        proc->EnChantier();
+        auto completebox = [=] (UpDialog *dlg, UpComboBox *box, double montant)
+        {
+            box->clear();
+            QStandardItemModel *listdep = new QStandardItemModel();
+            foreach( Depense *dep, *Datas::I()->depenses->depenses())
+            {
+                if (dep->montant() == montant)
+                {
+                    UpStandardItem *item = new UpStandardItem(dep->date().toString("d-MMM-yy") + " - " + dep->objet(), dep);
+                    listdep->appendRow(item);
+                }
+            }
+            box->setVisible(listdep->rowCount() > 0);
+            if (listdep->rowCount() > 0)
+            {
+                box->setModel(listdep);
+                box->setEditable(false);
+            }
+            dlg->OKButton->setEnabled(box->isVisible());
+        };
+        UpDialog *dlg_ask           = new UpDialog(this);
+        UpLineEdit *line            = new UpLineEdit(dlg_ask);
+        UpLabel *label              = new UpLabel();
+        UpComboBox *box             = new UpComboBox();
+        upDoubleValidator *m_val    = new upDoubleValidator(0, 10000000 , 2, this);
+        QList<double> listmontants;
+        // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
+
+        QStandardItemModel *listmontant = new QStandardItemModel();
+        foreach( Depense *dep, *Datas::I()->depenses->depenses())
+        {
+            if (!listmontants.contains(dep->montant()))
+            {
+                listmontants << dep->montant();
+                UpStandardItem *item = new UpStandardItem(QLocale().toString(dep->montant(),'f',2));
+                item->setitem(dep);
+                listmontant->appendRow(item);
+            }
+        }
+        listmontant->sort(0);
+        QCompleter *compMOntantDepenses = new QCompleter(listmontant);
+        compMOntantDepenses->setCompletionMode(QCompleter::InlineCompletion);
+        line->setCompleter(compMOntantDepenses);
+        dlg_ask     ->setModal(true);
+        label       ->setText(tr("Entrez le montant à rechercher"));
+        int labelwidth = Utils::CalcSize(label->text()).width();
+        label       ->setFixedWidth(labelwidth);
+        line        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+        line        ->setAlignment(Qt::AlignRight);
+        line        ->setMaxLength(9);
+        line        ->setValidator(m_val);
+        int linewidth = Utils::CalcSize("000000000").width();
+        line        ->setFixedWidth(linewidth);
+        connect(line, &QLineEdit::textEdited, line, [=]{completebox(dlg_ask, box,QLocale().toDouble(line->text()));});
+        QHBoxLayout *hlay = new QHBoxLayout();
+        hlay        ->insertSpacerItem(0, new QSpacerItem(5,5, QSizePolicy::Expanding));
+        hlay        ->insertWidget(1,line);
+        hlay        ->setSizeConstraint(QLayout::SetFixedSize);
+        dlg_ask     ->dlglayout()->insertWidget(0,label);
+        dlg_ask     ->dlglayout()->insertItem(1,hlay);
+        //dlg_ask     ->dlglayout()->insertWidget(1,line);
+        dlg_ask     ->dlglayout()->insertWidget(2,box);
+        box         ->setVisible(false);
+        line        ->setFocus();
+
+        dlg_ask     ->AjouteLayButtons(UpDialog::ButtonOK);
+        dlg_ask     ->dlglayout()->setSpacing(5);
+        dlg_ask     ->setWindowTitle(tr("Recherche de montant"));
+        connect(dlg_ask->OKButton,    &QPushButton::clicked, dlg_ask, &QDialog::accept);
+        dlg_ask     ->OKButton->setEnabled(false);
+        //dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+        dlg_ask     ->setFixedWidth(labelwidth + 10);
+        dlg_ask     ->setMaximumHeight(150);
+        if (dlg_ask->exec() >0)
+        {
+            if (box->count() == 0)
+                return;
+            if (ui->Rubriques2035comboBox->currentIndex() > 0)
+            {
+                ui->Rubriques2035comboBox->setCurrentIndex(0);
+                FiltreTable();
+            }
+            QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(box->model());
+            if (model != Q_NULLPTR)
+            {
+                QModelIndex idx = box->model()->index(box->currentIndex(),0);
+                UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(model->itemFromIndex(idx));
+                if (upitem != Q_NULLPTR) {
+                    Depense *dep = Datas::I()->depenses->getById(upitem->item()->id());
+                    if (dep != Q_NULLPTR)
+                    {
+                        if (dep->annee() != ui->AnneecomboBox->currentText().toInt())
+                            ui->AnneecomboBox->setCurrentIndex(ui->AnneecomboBox->findText(QString::number(dep->annee())));
+                        for (int i=0; i< wdg_bigtable->rowCount(); i++)
+                            if (getDepenseFromRow(i) == dep){
+                                wdg_bigtable->scrollTo(wdg_bigtable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
+                                wdg_bigtable->selectRow(i);
+                                wdg_bigtable->setCurrentCell(i,0);
+                                break;
+                            }
+                        m_mode = Lire;
+                        wdg_bigtable->disconnect();
+                        RegleAffichageFiche(Lire);
+                        MetAJourFiche();
+                        connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+                    }
+                }
+            }
+        }
     }
     else
     {
@@ -756,18 +856,18 @@ void dlg_depenses::ChoixMenu(QString choix)
         ui->RefFiscalelabel             ->setEnabled(true);
         ui->OKupPushButton              ->setEnabled(false);
         ui->GestionComptesupPushButton  ->setEnabled(false);
-        wdg_supprimeruppushbutton           ->setVisible(false);
-        wdg_modifieruppushbutton            ->setVisible(false);
-        wdg_enreguppushbutton               ->setVisible(true);
-        wdg_annuluppushbutton               ->setVisible(true);
+        wdg_supprimeruppushbutton       ->setVisible(false);
+        wdg_modifieruppushbutton        ->setVisible(false);
+        wdg_enreguppushbutton           ->setVisible(true);
+        wdg_annuluppushbutton           ->setVisible(true);
         ui->NouvelleDepenseupPushButton ->setEnabled(false);
-        wdg_bigtable                       ->setEnabled(false);
-        wdg_bigtable                       ->disconnect();
+        wdg_bigtable                    ->setEnabled(false);
+        wdg_bigtable                    ->disconnect();
         ui->DateDepdateEdit             ->setDate(QDate::currentDate());
-        wdg_enreguppushbutton               ->setText("Enregistrer");
+        wdg_enreguppushbutton           ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
-        wdg_modifieruppushbutton            ->setShortcut(QKeySequence());
-        wdg_enreguppushbutton               ->setShortcut(QKeySequence("Meta+Return"));
+        wdg_modifieruppushbutton        ->setShortcut(QKeySequence());
+        wdg_enreguppushbutton           ->setShortcut(QKeySequence("Meta+Return"));
         ui->EcheancierupPushButton      ->setVisible(false);
         ui->FactureupPushButton         ->setVisible(false);
         ui->VisuDocupTableWidget        ->setVisible(false);

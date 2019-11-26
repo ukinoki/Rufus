@@ -21,8 +21,10 @@ UpStandardItem::UpStandardItem()
 {
 }
 
-UpStandardItem::UpStandardItem(QString txt) : QStandardItem(txt)
+UpStandardItem::UpStandardItem(QString txt, Item *item) : QStandardItem(txt)
 {
+    if (item != Q_NULLPTR)
+        setitem(item);
 }
 
 void UpStandardItem::setitem(Item* item)
