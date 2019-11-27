@@ -75,7 +75,7 @@ void Message::SplashMessage(QString msg, int duree)
     QTimer::singleShot(duree, dlg, &QDialog::reject);
 }
 
-void Message::PriorityMessage(QString msg, qintptr &idmessage, QWidget *parent)
+void Message::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidget *parent)
 {
     idprioritymessage ++;
     idmessage           = idprioritymessage;
@@ -125,4 +125,7 @@ void Message::PriorityMessage(QString msg, qintptr &idmessage, QWidget *parent)
             prioritydlg->reject();
         }
         });
+    if (duree > 0)
+        QTimer::singleShot(duree, prioritydlg, &QDialog::reject);
+
 }

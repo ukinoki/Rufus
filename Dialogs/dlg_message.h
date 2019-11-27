@@ -56,7 +56,7 @@ public:
         for (int i=0; i<listmsg.size(); i++)
             SplashMessage(listmsg.at(i), duree);
     }
-    void PriorityMessage(QString msg, qintptr &idmessage, QWidget *parent= Q_NULLPTR);
+    void PriorityMessage(QString msg, qintptr &idmessage, int duree = 0, QWidget *parent= Q_NULLPTR);
     void ClosePriorityMessage(qintptr idmsg) { emit closeprioiritydlg(idmsg); }
 
 signals:

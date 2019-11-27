@@ -112,7 +112,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             if (m_utiliseTCP)
             {
                 QString msg;
-                UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Connexion TCP OK"), Icons::icSunglasses(), 3000);
+                qintptr z = 0;
+                Message::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi iduser
                 msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;

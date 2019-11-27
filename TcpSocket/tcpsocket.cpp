@@ -50,7 +50,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
         disconnectFromHost();
     connect(this,     &QTcpSocket::hostFound, this,   [=] { Logs::LogSktMessage("Connexion OK"); });
     connectToHost(ipadrserver,m_portTCPserver);     // On se connecte au serveur
-    bool a = waitForConnected();
+    bool a = waitForConnected(30000);
     if (a)
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
