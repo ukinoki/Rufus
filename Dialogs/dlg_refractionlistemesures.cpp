@@ -223,7 +223,7 @@ void dlg_refractionlistemesures::RemplirTableView()
     pitem3  ->setEditable(false);
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
     {
-        pitem0  = new UpStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")));
+        pitem0  = new UpStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")), ref);
         if (m_mode == Recuperer)
             pitem0  ->setCheckable(true);
         QString Mesure = "";
@@ -231,13 +231,9 @@ void dlg_refractionlistemesures::RemplirTableView()
         else if (ref->typemesure() == Refraction::Autoref)      Mesure = tr("AutoRef");
         else if (ref->typemesure() == Refraction::Acuite)       Mesure = tr("Réfraction");
         else if (ref->typemesure() == Refraction::Prescription) Mesure = tr("Ordonnance");
-        pitem1  = new UpStandardItem(Mesure);
-        pitem2  = new UpStandardItem(ref->formuleOD());
-        pitem3  = new UpStandardItem(ref->formuleOG());
-        pitem0->setitem(ref);
-        pitem1->setitem(ref);
-        pitem2->setitem(ref);
-        pitem3->setitem(ref);
+        pitem1  = new UpStandardItem(Mesure, ref);
+        pitem2  = new UpStandardItem(ref->formuleOD(), ref);
+        pitem3  = new UpStandardItem(ref->formuleOG(), ref);
         QList<QStandardItem*> listitems;
         listitems << pitem0 << pitem1 << pitem2 << pitem3;
         m_modele ->appendRow(listitems);

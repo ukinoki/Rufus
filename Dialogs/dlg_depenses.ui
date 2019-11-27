@@ -160,7 +160,7 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,0,1,5,15">
+      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,0,0,1,5,15">
        <item>
         <widget class="UpPushButton" name="ExportupPushButton">
          <property name="minimumSize">
@@ -188,6 +188,29 @@
         <widget class="UpSmallButton" name="PrintupSmallButton">
          <property name="text">
           <string>print</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="UpPushButton" name="ChercheMontantupPushButton">
+         <property name="minimumSize">
+          <size>
+           <width>164</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>164</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Rechercher</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../assets/Images/images.qrc">
+           <normaloff>:/search.png</normaloff>:/search.png</iconset>
          </property>
         </widget>
        </item>

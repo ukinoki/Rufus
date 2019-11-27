@@ -60,8 +60,7 @@ void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont p
     foreach (Acte* act, map_actes->values())
     {
         QList<QStandardItem *> items;
-        UpStandardItem *itemact = new UpStandardItem(QString::number(act->id()));
-        itemact->setitem(act);
+        UpStandardItem *itemact = new UpStandardItem(QString::number(act->id()), act);
         items << new UpStandardItem(act->date().toString("yyyymmss"))
               << new UpStandardItem(act->heure().toString("HHmm"))
               << itemact;

@@ -366,8 +366,7 @@ void dlg_GestionLieux::ReconstruitModel()
         m_tabmodel = new QStandardItemModel;
     foreach (Site* sit, *Datas::I()->sites->sites())
     {
-        UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
-        pitem0->setitem(sit);
+        UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom(), sit);
         m_tabmodel->appendRow(QList<QStandardItem*>() << pitem0);
     }
     wdg_bigtable->setModel(m_tabmodel);

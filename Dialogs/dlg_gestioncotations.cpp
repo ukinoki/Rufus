@@ -55,16 +55,16 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     UpLabel *codelabel          = new UpLabel();
     codelabel                   ->setText("Code");
     if (m_typeacte == Association)
-        wdg_codeline                ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
+        wdg_codeline            ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
     QHBoxLayout *codelay        = new QHBoxLayout;
     codelay                     ->insertWidget(0, codelabel);
     codelay                     ->insertSpacerItem(1, new QSpacerItem(10,5));
     codelay                     ->insertWidget(2, wdg_codeline);
-    wdg_codeline                    ->setEnabled(m_mode==Creation);
-    wdg_codeline                    ->setMaxLength(15);
-    wdg_codeline                    ->setText(CodeActe);
+    wdg_codeline                ->setEnabled(m_mode==Creation);
+    wdg_codeline                ->setMaxLength(15);
+    wdg_codeline                ->setText(CodeActe);
     codelay                     ->setContentsMargins(0,0,0,0);
-    wdg_codewidg                    ->setLayout(codelay);
+    wdg_codewidg                ->setLayout(codelay);
     dlglayout()                 ->insertWidget(0, wdg_codewidg);
 
     UpLabel *tiplabel           = new UpLabel();
@@ -73,42 +73,42 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     tiplay                      ->insertWidget(0, tiplabel);
     tiplay                      ->insertSpacerItem(1, new QSpacerItem(10,5));
     tiplay                      ->insertWidget(2, wdg_tipline);
-    wdg_tipline                     ->setMaxLength(75);
+    wdg_tipline                 ->setMaxLength(75);
     tiplay                      ->setContentsMargins(0,0,0,0);
-    wdg_tipwidg                     ->setLayout(tiplay);
+    wdg_tipwidg                 ->setLayout(tiplay);
     dlglayout()                 ->insertWidget(1, wdg_tipwidg);
 
     UpLabel *tarifoptamlabel    = new UpLabel();
     tarifoptamlabel             ->setText("Tarif conventionnel OPTAM");
-    wdg_tarifoptamline              ->setValidator(val);
+    wdg_tarifoptamline          ->setValidator(val);
     QHBoxLayout *tarifoptamlay  = new QHBoxLayout;
     tarifoptamlay               ->insertWidget(0, tarifoptamlabel);
     tarifoptamlay               ->insertSpacerItem(1, new QSpacerItem(10,5));
     tarifoptamlay               ->insertWidget(2, wdg_tarifoptamline);
     tarifoptamlay               ->setContentsMargins(0,0,0,0);
-    wdg_tarifoptamwidg              ->setLayout(tarifoptamlay);
+    wdg_tarifoptamwidg           ->setLayout(tarifoptamlay);
     dlglayout()                 ->insertWidget(2, wdg_tarifoptamwidg);
 
     UpLabel *tarifnooptamlabel  = new UpLabel();
     tarifnooptamlabel           ->setText("Tarif conventionnel non OPTAM");
-    wdg_tarifnooptamline            ->setValidator(val);
+    wdg_tarifnooptamline        ->setValidator(val);
     QHBoxLayout *tarifnooptamlay= new QHBoxLayout;
     tarifnooptamlay             ->insertWidget(0, tarifnooptamlabel);
     tarifnooptamlay             ->insertSpacerItem(1, new QSpacerItem(10,5));
     tarifnooptamlay             ->insertWidget(2, wdg_tarifnooptamline);
-    tarifnooptamlay               ->setContentsMargins(0,0,0,0);
-    wdg_tarifnooptamwidg            ->setLayout(tarifnooptamlay);
+    tarifnooptamlay             ->setContentsMargins(0,0,0,0);
+    wdg_tarifnooptamwidg        ->setLayout(tarifnooptamlay);
     dlglayout()                 ->insertWidget(3, wdg_tarifnooptamwidg);
 
     UpLabel *tarifpratiquelabel  = new UpLabel();
     tarifpratiquelabel           ->setText("Tarif pratiqué");
-    wdg_tarifpratiqueline            ->setValidator(val);
+    wdg_tarifpratiqueline        ->setValidator(val);
     QHBoxLayout *tarifpratiquelay= new QHBoxLayout;
     tarifpratiquelay             ->insertWidget(0, tarifpratiquelabel);
     tarifpratiquelay             ->insertSpacerItem(1, new QSpacerItem(10,5));
     tarifpratiquelay             ->insertWidget(2, wdg_tarifpratiqueline);
-    tarifpratiquelay               ->setContentsMargins(0,0,0,0);
-    wdg_tarifpratiquewidg            ->setLayout(tarifpratiquelay);
+    tarifpratiquelay             ->setContentsMargins(0,0,0,0);
+    wdg_tarifpratiquewidg        ->setLayout(tarifpratiquelay);
     dlglayout()                  ->insertWidget(4, wdg_tarifpratiquewidg);
 
     wdg_tarifoptamwidg              ->setVisible(m_typeacte==Association);

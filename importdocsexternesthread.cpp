@@ -85,18 +85,25 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                 {
                     //1051_MIGUEL_JEAN-ROBERT_01-06-1948_Aladdin_06_06_2018_13_16.pdf
                     QStringList listn   = nomdoc.split("_");
+                    datestring          = "";
                     int n               = listn.size();
-                    QString jour        = listn.at(n-5);
-                    QString mois        = listn.at(n-4);
-                    QString annee       = listn.at(n-3);
-                    datestring          = annee + mois + jour;
+                    if (n>4)
+                    {
+                        QString jour        = listn.at(n-5);
+                        QString mois        = listn.at(n-4);
+                        QString annee       = listn.at(n-3);
+                        if (QDate(annee.toInt(), mois.toInt(), jour.toInt()).isValid())
+                            datestring      = annee + mois + jour;
+                    }
+                    if (datestring == "")
+                        datestring      = QDate::currentDate().toString("yyyyMMdd");
                     Titredoc            = "Biométrie - Aladdin";
                     Typedoc             = "Biométrie";
                     SousTypeDoc         = "Aladdin";
                 }
                 else if (Appareil == "TOPCON TRITON")
                 {
-                    if (nomdoc.split("_").size()>1)
+                    if (nomdoc.split("_").size()>3)
                     {
                         datestring  = nomdoc.split("_").at(3);
                         datestring  = datestring.left(8);

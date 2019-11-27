@@ -212,7 +212,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
     Acte *acte = it_currentacte.value();
-    User * usr = Datas::I()->users->getById(acte->idUser());
+    User * usr = Datas::I()->users->getById(acte->idUser(), Item::LoadDetails);
 
     if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
         return;
@@ -227,7 +227,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                       "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
                       "<td width=\"60\">" + Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date())["toString"].toString() + "</td>"
-                      "<td width=\"400\">" + usr->prenom() + " " + usr->nom() + "</td></p>";
+                      "<td width=\"300\">" + usr->prenom() + " " + usr->nom() + " - <font color = \"" COULEUR_TITRES "\" ><b>" + Datas::I()->sites->getById(acte->idsite())->nom() + "</b></font></td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {

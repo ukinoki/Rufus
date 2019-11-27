@@ -152,7 +152,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideLeft</enum>
@@ -3221,7 +3221,7 @@ correspondants</string>
           <property name="geometry">
            <rect>
             <x>635</x>
-            <y>360</y>
+            <y>370</y>
             <width>25</width>
             <height>25</height>
            </rect>
@@ -3254,7 +3254,7 @@ suivante</string>
           <property name="geometry">
            <rect>
             <x>610</x>
-            <y>360</y>
+            <y>370</y>
             <width>25</width>
             <height>25</height>
            </rect>
@@ -3350,7 +3350,7 @@ précédente</string>
           <property name="geometry">
            <rect>
             <x>585</x>
-            <y>360</y>
+            <y>370</y>
             <width>25</width>
             <height>25</height>
            </rect>
@@ -3383,7 +3383,7 @@ acte</string>
           <property name="geometry">
            <rect>
             <x>660</x>
-            <y>360</y>
+            <y>370</y>
             <width>25</width>
             <height>25</height>
            </rect>
@@ -3416,7 +3416,7 @@ acte</string>
           <property name="geometry">
            <rect>
             <x>720</x>
-            <y>360</y>
+            <y>370</y>
             <width>25</width>
             <height>25</height>
            </rect>
@@ -3554,7 +3554,7 @@ acte</string>
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>79</y>
+            <y>99</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -3611,7 +3611,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>110</y>
+            <y>130</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -3807,7 +3807,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>279</y>
+            <y>299</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -3862,7 +3862,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>220</y>
+            <y>240</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -3917,7 +3917,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>180</y>
+            <y>200</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -4066,7 +4066,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>310</y>
+            <y>330</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -4198,7 +4198,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>250</y>
+            <y>270</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -4266,7 +4266,7 @@ color : gray;
           <property name="geometry">
            <rect>
             <x>580</x>
-            <y>140</y>
+            <y>160</y>
             <width>180</width>
             <height>35</height>
            </rect>
@@ -4314,6 +4314,34 @@ color : gray;
           </property>
           <property name="flat">
            <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="UpLineEdit" name="SitelineEdit">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>580</x>
+            <y>70</y>
+            <width>180</width>
+            <height>18</height>
+           </rect>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="acceptDrops">
+           <bool>false</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </widget>

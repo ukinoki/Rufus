@@ -614,48 +614,40 @@ void dlg_bilanrecettes::RemplitLaTable()
         m_recettesmodel = new QStandardItemModel;
     foreach (Recette *rec, *Datas::I()->recettes->recettes())
     {
-        pitem0 = new UpStandardItem(rec->date().toString(tr("d MMM yyyy")));                        // Date - col = 0
+        pitem0 = new UpStandardItem(rec->date().toString(tr("d MMM yyyy")), rec);                   // Date - col = 0
         pitem0->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        pitem0->setitem(rec);
 
-        pitem1 = new UpStandardItem(rec->payeur());                                                 // NomPrenom - col = 1
-        pitem1->setitem(rec);
+        pitem1 = new UpStandardItem(rec->payeur(), rec);                                            // NomPrenom - col = 1
 
-        pitem2 = new UpStandardItem(rec->cotationacte());                                           // Cotation - col = 2;
-        pitem2->setitem(rec);
+        pitem2 = new UpStandardItem(rec->cotationacte(), rec);                                      // Cotation - col = 2;
 
         QString A;
         if (rec->monnaie() == "F")
             A = QLocale().toString(rec->montant()/6.55957,'f',2);                                   // Montant en F converti en euros
         else
             A = QLocale().toString(rec->montant(),'f',2);                                           // Montant - col = 3
-        pitem3 = new UpStandardItem(A);
+        pitem3 = new UpStandardItem(A, rec);
         pitem3->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        pitem3->setitem(rec);
 
         A = rec->modepaiement();                                                                    // Mode de paiement - col = 4
         QString B = A;
         if (A == "T")
             B = rec->typetiers();
-        pitem4 = new UpStandardItem(Utils::ConvertitModePaiement(B));
-        pitem4->setitem(rec);
+        pitem4 = new UpStandardItem(Utils::ConvertitModePaiement(B), rec);
 
         double C = rec->encaissement();                                                             // Reçu- col = 5
-        pitem5 = new UpStandardItem(QLocale().toString(C,'f',2));
+        pitem5 = new UpStandardItem(QLocale().toString(C,'f',2), rec);
         pitem5->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        pitem5->setitem(rec);
 
-        pitem6 = new UpStandardItem("0,00");                                                        // Divers et autres recettes - col = 6
+        pitem6 = new UpStandardItem("0,00", rec);                                                   // Divers et autres recettes - col = 6
         if (rec->isautrerecette())
             pitem6->setText(QLocale().toString(rec->encaissementautrerecette(),'f',2));
         pitem6->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        pitem6->setitem(rec);
 
-        pitem7 = new UpStandardItem("0,00");                                                       // Apport praticien - col = 7
+        pitem7 = new UpStandardItem("0,00", rec);                                                   // Apport praticien - col = 7
         if (rec->isapportpraticien())
             pitem7->setText(QLocale().toString(rec->encaissementautrerecette(),'f',2));
         pitem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        pitem7->setitem(rec);
 
         m_recettesmodel->appendRow(QList<QStandardItem*>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5 << pitem6 << pitem7);
     }

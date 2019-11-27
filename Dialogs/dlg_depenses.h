@@ -68,7 +68,7 @@ private:
     void                        keyPressEvent ( QKeyEvent * event );
     void                        AfficheFacture(Depense *dep = Q_NULLPTR);
     void                        CalculTotalDepenses();
-    void                        ChoixMenu(QString);
+    void                        CopieDepense();
     void                        DefinitArchitectureBigTable();
     void                        EnregistreDepense();
     void                        EnregistreFacture(QString typedoc);
@@ -78,6 +78,7 @@ private:
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
     bool                        initializeUserSelected();
+    void                        RechercheValeur();
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques(int idx = 0);
     void                        RegleAffichageFiche(Mode);

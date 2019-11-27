@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-11-2019/1");
+    qApp->setApplicationVersion("27-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6100,6 +6100,7 @@ void Rufus::AfficheActe(Acte* acte)
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
         ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login()
                                      + tr(" pour ") + Datas::I()->users->getById(acte->idUser())->login());
+        ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite())->nom());
 
         //3. Mettre à jour le numéro d'acte
         if (m_listeactes->actes()->size() > 0)           // Il y a des consultations
@@ -7633,6 +7634,7 @@ void Rufus::InitWidgets()
     proc->ModifTailleFont(ui->Cotationframe,a);
     proc->ModifTailleFont(ui->Comptaframe,a);
     proc->ModifTailleFont(ui->CreeParlineEdit,a);
+    proc->ModifTailleFont(ui->SitelineEdit,a);
     proc->ModifTailleFont(ui->NoActelabel,a);
     proc->ModifTailleFont(ui->InfoPatientframe,a);
     proc->ModifTailleFont(ui->EnregistrePaiementpushButton,a);
@@ -8631,18 +8633,12 @@ bool Rufus::Remplir_ListePatients_TableView()
         m_listepatientsmodel = new QStandardItemModel;
     foreach (Patient *pat, m_patients->patientstable()->values())
     {
-        pitem0  = new UpStandardItem(QString::number(pat->id()));                                   // id                           -> utilisé pour le drop event
-        pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom());                   // Nom + Prénom
-        pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
-        pitem3  = new UpStandardItem(pat->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
-        pitem4  = new UpStandardItem(pat->nom());                                                   // Nom                          -> utilisé pour le tri
-        pitem5  = new UpStandardItem(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
-        pitem0  ->setitem(pat);
-        pitem1  ->setitem(pat);
-        pitem2  ->setitem(pat);
-        pitem3  ->setitem(pat);
-        pitem4  ->setitem(pat);
-        pitem4  ->setitem(pat);
+        pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                   // id                           -> utilisé pour le drop event
+        pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                   // Nom + Prénom
+        pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);            // date de naissance
+        pitem3  = new UpStandardItem(pat->datedenaissance().toString(tr("yyyyMMdd")), pat);              // date de naissance inversée   -> utilisé pour le tri
+        pitem4  = new UpStandardItem(pat->nom(), pat);                                                   // Nom                          -> utilisé pour le tri
+        pitem5  = new UpStandardItem(pat->prenom(), pat);                                                // Prénom                       -> utilisé pour le tri
         m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
     }
     QStandardItem *itnom = new QStandardItem();
