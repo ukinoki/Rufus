@@ -1876,10 +1876,10 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
     {
         for (int i=0; i < m_listidactes.size(); i++)
         {
-            QString ChercheVerrou = "SELECT UserLogin FROM " TBL_VERROUCOMPTAACTES " ver, " TBL_UTILISATEURS " uti," TBL_ACTES " act"
+            QString ChercheVerrou = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES " ver, " TBL_UTILISATEURS " uti," TBL_ACTES " act"
                     " WHERE act." CP_IDACTE_ACTES " = "  + QString::number(m_listidactes.at(i)) +
                     " AND ver.idActe = act." CP_IDACTE_ACTES
-                    " AND PosePar = uti.idUser";
+                    " AND PosePar = uti." CP_ID_USR ;
             QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
          }
     }
@@ -2764,9 +2764,9 @@ bool dlg_paiementtiers::VerifVerrouCompta(QTableWidget *TableAVerifier, int Rang
 {
     if (t_timerafficheacteverrouilleclignotant->isActive())
         return false;
-    QString ChercheVerrou = "SELECT UserLogin FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
+    QString ChercheVerrou = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
                      " WHERE idActe = "  + TableAVerifier->item(Rangee,0)->text() +
-                     " AND PosePar = idUser";
+                     " AND PosePar = " CP_ID_USR ;
     //UpMessageBox::Watch(this,ChercheVerrou);
     QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou,m_ok);
     if (m_ok && usrdata.size() > 0)

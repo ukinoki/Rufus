@@ -47,6 +47,7 @@ public:
 
     Users(QObject *parent = Q_NULLPTR);
     User*       getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ADDTOLIST addToList = AddToList);
+    void        reload(int id);
     QString     getLoginById(int id);
     void        initListe();
     void        SupprimeUser(User *usr);

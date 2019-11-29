@@ -142,6 +142,31 @@ User* Users::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 }
 
 /*!
+ * \brief Users::reload
+ * \param id l'id de l'utilisateur recherché
+ * \return Q_NULLPTR si aucun utilisateur trouvé
+ * \return User* l'utilisateur correspondant à l'id
+ */
+void Users::reload(int id)
+{
+    User *result;
+    QJsonObject jsonUser = DataBase::I()->loadUserData(id);
+    if( jsonUser.isEmpty() )
+        return;
+    QMap<int, User*>::const_iterator user = map_users->find(id);
+    if( user == map_users->constEnd() )
+    {
+        result = new User(jsonUser);
+        add(result);
+    }
+    else
+    {
+        result = user.value();
+        result->setData(jsonUser);
+    }
+}
+
+/*!
  * \brief Users::getLoginById
  * \param id l'id de l'utilisateur recherché
  * \return "" si aucun utilisateur trouvé
@@ -180,6 +205,6 @@ void Users::SupprimeUser(User *usr)
     map_liberaux      ->remove(usr->id());
     map_parents       ->remove(usr->id());
     map_comptables    ->remove(usr->id());
-    DataBase::I()->SupprRecordFromTable(usr->id(), "idUser", TBL_UTILISATEURS);
+    DataBase::I()->SupprRecordFromTable(usr->id(), CP_ID_USR, TBL_UTILISATEURS);
     delete usr;
 }

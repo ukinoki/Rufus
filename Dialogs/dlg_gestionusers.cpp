@@ -207,7 +207,7 @@ void dlg_gestionusers::Annulation()
 {
     if (m_mode == Creer)
     {
-        db->SupprRecordFromTable(m_userencours->id(), "idUser", TBL_UTILISATEURS);
+        db->SupprRecordFromTable(m_userencours->id(), CP_ID_USR, TBL_UTILISATEURS);
         while (Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()).size() > 0)
             Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()).first()));
         RemplirTableWidget(Datas::I()->users->userconnected()->id());
@@ -368,7 +368,7 @@ void dlg_gestionusers::EnregistreNouvMDP()
         msgbox.setText(tr("Modifications enregistrées"));
         msgbox.setInformativeText(tr("Le nouveau mot de passe a été enregistré avec succès"));
         // Enregitrer le nouveau MDP de la base
-        db->StandardSQL("update " TBL_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + ui->idUseruplineEdit->text());
+        db->StandardSQL("update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + nouv + "' where " CP_ID_USR " = " + ui->idUseruplineEdit->text());
         // Enregitrer le nouveau MDP de connexion à MySQL
         db->StandardSQL("set password = '" + nouv + "'");
         QString AdressIP;
@@ -394,25 +394,25 @@ void dlg_gestionusers::EnregistreUser()
     if (!VerifFiche()) return;
     QString titre = (ui->OPHupRadioButton->isChecked()?       "'" + Utils::correctquoteSQL(ui->TitreupcomboBox->currentText()) + "'" : "null");
     QString actif = (ui->InactivUsercheckBox->isChecked()?  "1" : "null");
-    QString req = "update "         TBL_UTILISATEURS
-            " set userNom = '"      + Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomuplineEdit->text()))        + "',\n"
-            " userPrenom = "        + (ui->SocieteComptableupRadioButton->isChecked()? "null" : "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomuplineEdit->text())) + "'") + ",\n"
-            " UserPortable = '"     + ui->PortableuplineEdit->text()   + "',\n"
-            " UserMail = '"         + ui->MailuplineEdit->text()       + "',\n"
-            " UserPoliceEcran = '" POLICEPARDEFAUT "',\n"
-            " UserPoliceAttribut = 'Regular',\n"
-            " UserTitre = "         + titre + ",\n"
-            " UserDesactive = "     + actif + ",\n";
+    QString req = "update " TBL_UTILISATEURS " set "
+            CP_NOM_USR " = '"           + Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomuplineEdit->text()))        + "',\n"
+            CP_PRENOM_USR " = "         + (ui->SocieteComptableupRadioButton->isChecked()? "null" : "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomuplineEdit->text())) + "'") + ",\n"
+            CP_PORTABLE_USR " = '"      + ui->PortableuplineEdit->text()   + "',\n"
+            CP_MAIL_USR " = '"          + ui->MailuplineEdit->text()       + "',\n"
+            CP_POLICEECRAN_USR " = '"   POLICEPARDEFAUT "',\n"
+            CP_POLICEATTRIBUT_USR " = 'Regular',\n"
+            CP_TITRE_USR " = "          + titre + ",\n"
+            CP_ISDESACTIVE_USR " = "    + actif + ",\n";
     if (ui->OPHupRadioButton->isChecked())
     {
-        req += " UserFonction = '" + tr("Médecin") + "',\n"
-               " UserSpecialite = '" + tr("Ophtalmologiste") + "',\n"
-               " UserNoSpecialite = 15,\n"
-               " Soignant = 1,\n"
-               " Medecin = 1,\n"
-               " UserNumCO = '" + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n "
-               " UserNumPS = '" + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) +"',\n "
-               " ResponsableActes = ";
+        req += CP_FONCTION_USR " = '"   + tr("Médecin") + "',\n"
+               CP_SPECIALITE_USR " = '" + tr("Ophtalmologiste") + "',\n"
+               CP_IDSPECIALITE_USR " = 15,\n"
+               CP_SOIGNANTSTATUS_USR " = 1,\n"
+               CP_ISMEDECIN_USR " = 1,\n"
+               CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n "
+               CP_NUMPS_USR " = '"      + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) +"',\n "
+               CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
         else if (ui->ResponsableLes2upRadioButton->isChecked())
@@ -421,61 +421,61 @@ void dlg_gestionusers::EnregistreUser()
             req += "3,\n";
         if (ui->AssistantupRadioButton->isChecked())
         {
-            req += " Userdroits = '" OPHTAASSISTANT "', \n"
-                   " IdCompteParDefaut = null,\n"
-                   " idCompteEncaissHonoraires = null,\n"
-                   " UserEmployeur = null,\n"
-                   " UserEnregHonoraires = null,\n"
-                   " USerAGA = null,\n";
+            req += CP_DROITS_USR " = '" OPHTAASSISTANT "', \n"
+                   CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                   CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                   CP_IDEMPLOYEUR_USR " = null,\n"
+                   CP_ENREGHONORAIRES_USR " = null,\n"
+                   CP_ISAGA_USR " = null,\n";
         }
         else
         {
             if (ui->ComptaLiberalupRadioButton->isChecked())
             {
-                req += " Userdroits = '" OPHTALIBERAL "', \n"
-                       " IdCompteParDefaut = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-                       " idCompteEncaissHonoraires = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
-                       " UserEnregHonoraires = 1,\n"
-                       " UserEmployeur = null,\n";
+                req += CP_DROITS_USR " = '" OPHTALIBERAL "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 1,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n";
                 if (ui->AGAupRadioButton->isChecked())
-                    req += " USerAGA = 1,\n";
+                    req += CP_ISAGA_USR " = 1,\n";
                 else
-                    req += " USerAGA = null,\n";
+                    req += CP_ISAGA_USR " = null,\n";
             }
             else if (ui->ComptaNoLiberalupRadioButton->isChecked())
-                req += " Userdroits = '" OPHTASALARIE "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEmployeur = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
-                       " UserEnregHonoraires = 2,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" OPHTASALARIE "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 2,\n"
+                       CP_ISAGA_USR " = null,\n";
             else if (ui->ComptaRemplaupRadioButton->isChecked())
-                req += " Userdroits = '" OPHTAREMPLACANT "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEnregHonoraires = 3,\n"
-                       " UserEmployeur = null,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" OPHTAREMPLACANT "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_ENREGHONORAIRES_USR " = 3,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n"
+                       CP_ISAGA_USR " = null,\n";
             else if (ui->NoComptaupRadioButton->isChecked())
-                req += " Userdroits = '" OPHTANOCOMPTA "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEnregHonoraires = 4,\n"
-                       " UserEmployeur = null,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" OPHTANOCOMPTA "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_ENREGHONORAIRES_USR " = 4,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n"
+                       CP_ISAGA_USR " = null,\n";
         }
-        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   " UserCCAM = 1,\n" : " UserCCAM = null,\n");
+        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
     else if (ui->OrthoptistupRadioButton->isChecked())
     {
-        req += " UserFonction = '" + tr("Orthoptiste") + "',\n"
-               " UserSpecialite = '" + tr("Orthoptiste") + "',\n"
-               " UserNoSpecialite = null,\n"
-               " Soignant = 2,\n"
-               " Medecin = null,\n"
-               " UserNumCO = null,\n "
-               " UserNumPS = '" + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) +"',\n"
-               " ResponsableActes = ";
+        req += CP_FONCTION_USR " = '" + tr("Orthoptiste") + "',\n"
+               CP_SPECIALITE_USR " = '" + tr("Orthoptiste") + "',\n"
+               CP_IDSPECIALITE_USR " = null,\n"
+               CP_SOIGNANTSTATUS_USR " = 2,\n"
+               CP_ISMEDECIN_USR " = null,\n"
+               CP_NUMCO_USR " = null,\n "
+               CP_NUMPS_USR " = '" + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) +"',\n"
+               CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
         else if (ui->ResponsableLes2upRadioButton->isChecked())
@@ -484,61 +484,61 @@ void dlg_gestionusers::EnregistreUser()
             req += "3,\n";
         if (ui->AssistantupRadioButton->isChecked())
         {
-            req += " Userdroits = '" ORTHOASSISTANT "', \n"
-                   " IdCompteParDefaut = null,\n"
-                   " idCompteEncaissHonoraires = null,\n"
-                   " UserEnregHonoraires = null,\n"
-                   " UserEmployeur = null,\n"
-                   " USerAGA = null,\n";
+            req += CP_DROITS_USR " = '" ORTHOASSISTANT "', \n"
+                   CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                   CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                   CP_ENREGHONORAIRES_USR " = null,\n"
+                   CP_IDEMPLOYEUR_USR " = null,\n"
+                   CP_ISAGA_USR " = null,\n";
         }
         else
         {
             if (ui->ComptaLiberalupRadioButton->isChecked())
             {
-                req += " Userdroits = '" ORTHOLIBERAL "', \n"
-                       " IdCompteParDefaut = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-                       " idCompteEncaissHonoraires = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
-                       " UserEnregHonoraires = 1,\n"
-                       " UserEmployeur = null,\n";
+                req += CP_DROITS_USR " = '" ORTHOLIBERAL "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 1,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n";
                 if (ui->AGAupRadioButton->isChecked())
-                    req += " USerAGA = 1,\n";
+                    req += CP_ISAGA_USR " = 1,\n";
                 else
-                    req += " USerAGA = null,\n";
+                    req += CP_ISAGA_USR " = null,\n";
             }
             else if (ui->ComptaNoLiberalupRadioButton->isChecked())
-                req += " Userdroits = '" ORTHOSALARIE "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEmployeur = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
-                       " UserEnregHonoraires = 2,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" ORTHOSALARIE "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 2,\n"
+                       CP_ISAGA_USR " = null,\n";
             else if (ui->ComptaRemplaupRadioButton->isChecked())
-                req += " Userdroits = '" ORTHOREMPLACANT "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEnregHonoraires = 3,\n"
-                       " UserEmployeur = null,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" ORTHOREMPLACANT "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_ENREGHONORAIRES_USR " = 3,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n"
+                       CP_ISAGA_USR " = null,\n";
             else if (ui->NoComptaupRadioButton->isChecked())
-                req += " Userdroits = '" ORTHONOCOMPTA "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEnregHonoraires = 4,\n"
-                       " UserEmployeur = null,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" ORTHONOCOMPTA "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_ENREGHONORAIRES_USR " = 4,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n"
+                       CP_ISAGA_USR " = null,\n";
         }
-        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   " UserCCAM = 1,\n" : " UserCCAM = null,\n");
+        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
     else if (ui->AutreSoignantupRadioButton->isChecked())
     {
-        req += " UserFonction = '" + Utils::correctquoteSQL(ui->AutreSoignantupLineEdit->text()) + "',\n"
-               " UserSpecialite = '" + Utils::correctquoteSQL(ui->AutreSoignantupLineEdit->text()) + "',\n"
-               " UserNoSpecialite = null,\n"
-               " Soignant = 3,\n"
-               " Medecin = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
-               " UserNumCO = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
-               " UserNumPS = " + (ui->RPPSupLineEdit->text()==""? "null" : "'" + ui->RPPSupLineEdit->text() + "'") + ",\n"
-               " ResponsableActes = ";
+        req += CP_FONCTION_USR " = '" + Utils::correctquoteSQL(ui->AutreSoignantupLineEdit->text()) + "',\n"
+               CP_SPECIALITE_USR " = '" + Utils::correctquoteSQL(ui->AutreSoignantupLineEdit->text()) + "',\n"
+               CP_IDSPECIALITE_USR " = null,\n"
+               CP_SOIGNANTSTATUS_USR " = 3,\n"
+               CP_ISMEDECIN_USR " = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
+               CP_NUMCO_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
+               CP_NUMPS_USR " = " + (ui->RPPSupLineEdit->text()==""? "null" : "'" + ui->RPPSupLineEdit->text() + "'") + ",\n"
+               CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
         else if (ui->ResponsableLes2upRadioButton->isChecked())
@@ -547,115 +547,115 @@ void dlg_gestionusers::EnregistreUser()
             req += "3,\n";
         if (ui->AssistantupRadioButton->isChecked())
         {
-            req += " Userdroits = '" AUTRESOIGNANTASSISTANT "', \n"
-                   " IdCompteParDefaut = null,\n"
-                   " idCompteEncaissHonoraires = null,\n"
-                   " UserEnregHonoraires = null,\n"
-                   " UserEmployeur = null,\n"
-                   " USerAGA = null,\n";
+            req += CP_DROITS_USR " = '" AUTRESOIGNANTASSISTANT "', \n"
+                   CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                   CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                   CP_ENREGHONORAIRES_USR " = null,\n"
+                   CP_IDEMPLOYEUR_USR " = null,\n"
+                   CP_ISAGA_USR " = null,\n";
         }
         else
         {
             if (ui->ComptaLiberalupRadioButton->isChecked())
             {
-                req += " Userdroits = '" AUTRESOIGNANTLIBERAL "', \n"
-                       " IdCompteParDefaut = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-                       " idCompteEncaissHonoraires = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
-                       " UserEnregHonoraires = 1,\n"
-                       " UserEmployeur = null,\n";
+                req += CP_DROITS_USR " = '" AUTRESOIGNANTLIBERAL "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 1,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n";
                 if (ui->AGAupRadioButton->isChecked())
-                    req += " USerAGA = 1,\n";
+                    req += CP_ISAGA_USR " = 1,\n";
                 else
-                    req += " USerAGA = null,\n";
+                    req += CP_ISAGA_USR " = null,\n";
             }
             else if (ui->ComptaNoLiberalupRadioButton->isChecked())
-                req += " Userdroits = '" AUTRESOIGNANTSALARIE "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEmployeur = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
-                       " UserEnregHonoraires = 2,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" AUTRESOIGNANTSALARIE "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 2,\n"
+                       CP_ISAGA_USR " = null,\n";
             else if (ui->ComptaRemplaupRadioButton->isChecked())
-                req += " Userdroits = '" AUTRESOIGNANTREMPLACANT "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEnregHonoraires = 3,\n"
-                       " UserEmployeur = null,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" AUTRESOIGNANTREMPLACANT "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_ENREGHONORAIRES_USR " = 3,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n"
+                       CP_ISAGA_USR " = null,\n";
             else if (ui->NoComptaupRadioButton->isChecked())
-                req += " Userdroits = '" AUTRESOIGNANTNOCOMPTA "', \n"
-                       " IdCompteParDefaut = null,\n"
-                       " idCompteEncaissHonoraires = null,\n"
-                       " UserEnregHonoraires = 4,\n"
-                       " UserEmployeur = null,\n"
-                       " USerAGA = null,\n";
+                req += CP_DROITS_USR " = '" AUTRESOIGNANTNOCOMPTA "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+                       CP_ENREGHONORAIRES_USR " = 4,\n"
+                       CP_IDEMPLOYEUR_USR " = null,\n"
+                       CP_ISAGA_USR " = null,\n";
         }
-        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   " UserCCAM = 1,\n" : " UserCCAM = null,\n");
+        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
     else if (ui->AutreNonSoignantupRadioButton->isChecked())
-        req += " UserFonction = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
-               " UserSpecialite = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
-               " UserNoSpecialite = null,\n"
-               " Soignant = 4,\n"
-               " Medecin = null,\n"
-               " UserAGA = null,\n"
-               " ResponsableActes = null,\n"
-               " IdCompteParDefaut = null,\n"
-               " idCompteEncaissHonoraires = null,\n"
-               " UserCCAM = null,\n"
-               " UserEnregHonoraires = null,\n"
-               " UserEmployeur = null,\n"
-               " UserNumCO = null,\n "
-               " UserNumPS = null,\n "
-               " Userdroits = '" AUTREFONCTION "',\n";
+        req += CP_FONCTION_USR " = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
+               CP_SPECIALITE_USR " = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
+               CP_IDSPECIALITE_USR " = null,\n"
+               CP_SOIGNANTSTATUS_USR " = 4,\n"
+               CP_ISMEDECIN_USR " = null,\n"
+               CP_ISAGA_USR " = null,\n"
+               CP_RESPONSABLEACTES_USR " = null,\n"
+               CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+               CP_CCAM_USR " = null,\n"
+               CP_ENREGHONORAIRES_USR " = null,\n"
+               CP_IDEMPLOYEUR_USR " = null,\n"
+               CP_NUMCO_USR " = null,\n "
+               CP_NUMPS_USR " = null,\n "
+               CP_DROITS_USR " = '" AUTREFONCTION "',\n";
     else if (ui->SecretaireupRadioButton->isChecked())
-        req += " UserFonction = '" + tr("Secrétaire") + "',\n"
-               " UserSpecialite = '" + tr("Secrétaire médicale") + "',\n"
-               " UserNoSpecialite = null,\n"
-               " Soignant = 4,\n"
-               " Medecin = null,\n"
-               " UserAGA = null,\n"
-               " ResponsableActes = null,\n"
-               " IdCompteParDefaut = null,\n"
-               " idCompteEncaissHonoraires = null,\n"
-               " UserCCAM = null,\n"
-               " UserEnregHonoraires = null,\n"
-               " UserEmployeur = null,\n"
-               " UserNumCO = null,\n "
-               " UserNumPS = null,\n "
-               " Userdroits = '" SECRETAIRE "',\n";
+        req += CP_FONCTION_USR " = '" + tr("Secrétaire") + "',\n"
+               CP_SPECIALITE_USR " = '" + tr("Secrétaire médicale") + "',\n"
+               CP_IDSPECIALITE_USR " = null,\n"
+               CP_SOIGNANTSTATUS_USR " = 4,\n"
+               CP_ISMEDECIN_USR " = null,\n"
+               CP_ISAGA_USR " = null,\n"
+               CP_RESPONSABLEACTES_USR " = null,\n"
+               CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+               CP_CCAM_USR " = null,\n"
+               CP_ENREGHONORAIRES_USR " = null,\n"
+               CP_IDEMPLOYEUR_USR " = null,\n"
+               CP_NUMCO_USR " = null,\n "
+               CP_NUMPS_USR " = null,\n "
+               CP_DROITS_USR " = '" SECRETAIRE "',\n";
     else if (ui->SocieteComptableupRadioButton->isChecked())
-        req += " UserFonction = '" + tr("Société") + "',\n"
-               " UserSpecialite = '" + tr("Société") + "',\n"
-               " UserNoSpecialite = null,\n"
-               " Soignant = 5,\n"
-               " Medecin = null,\n"
-               " UserAGA = null,\n"
-               " ResponsableActes = null,\n"
-               " IdCompteParDefaut = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-               " idCompteEncaissHonoraires = null,\n"
-               " UserCCAM = null,\n"
-               " UserEnregHonoraires = null,\n"
-               " UserEmployeur = null,\n"
-               " UserNumCO = null,\n "
-               " UserNumPS = null,\n "
-               " Userdroits = '" SOCIETECOMPTABLE "',\n";
+        req += CP_FONCTION_USR " = '" + tr("Société") + "',\n"
+               CP_SPECIALITE_USR " = '" + tr("Société") + "',\n"
+               CP_IDSPECIALITE_USR " = null,\n"
+               CP_SOIGNANTSTATUS_USR " = 5,\n"
+               CP_ISMEDECIN_USR " = null,\n"
+               CP_ISAGA_USR " = null,\n"
+               CP_RESPONSABLEACTES_USR " = null,\n"
+               CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
+               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+               CP_CCAM_USR " = null,\n"
+               CP_ENREGHONORAIRES_USR " = null,\n"
+               CP_IDEMPLOYEUR_USR " = null,\n"
+               CP_NUMCO_USR " = null,\n "
+               CP_NUMPS_USR " = null,\n "
+               CP_DROITS_USR " = '" SOCIETECOMPTABLE "',\n";
     if (ui->OPHupRadioButton->isChecked() && !ui->AssistantupRadioButton->isChecked() && !ui->ComptaRemplaupRadioButton->isChecked() && ui->CotationupRadioButton->isChecked())
     {
         QString secteur = "null";
         if (ui->Secteur1upRadioButton       ->isChecked())      secteur = "1";
         if (ui->Secteur2upRadioButton       ->isChecked())      secteur = "2";
         if (ui->Secteur3upRadioButton       ->isChecked())      secteur = "3";
-        req += " UserSecteur = " + secteur + ",\n";
+        req += CP_SECTEUR_USR " = " + secteur + ",\n";
         QString Optam = ((ui->OPTAMupRadioButton->isChecked() && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()))? "1" : "null");
-        req += " OPTAM = " + Optam + "\n";
+        req += CP_ISOPTAM_USR " = " + Optam + "\n";
     }
     else
     {
-        req += " UserSecteur = null,\n";
-        req += " OPTAM = null\n";
+        req += CP_SECTEUR_USR " = null,\n";
+        req += CP_ISOPTAM_USR " = null\n";
     }
-    req +=  " where idUser = "      + ui->idUseruplineEdit->text();
+    req +=  " where " CP_ID_USR " = " + ui->idUseruplineEdit->text();
     //Edit(req);
     db->StandardSQL(req);
     int idlieu=-1;
@@ -672,6 +672,8 @@ void dlg_gestionusers::EnregistreUser()
 
     req = "update " TBL_COMPTES " set partage = ";
     db->StandardSQL(req + (ui->SocieteComptableupRadioButton->isChecked()? "1" : "null") + " where iduser = " +  ui->idUseruplineEdit->text());
+    Datas::I()->users->reload(ui->idUseruplineEdit->text().toInt());
+    RemplirTableWidget(ui->idUseruplineEdit->text().toInt());
 
     if (m_usermode==PREMIERUSER || m_usermode == MODIFUSER)
     {
@@ -764,8 +766,8 @@ void dlg_gestionusers::EnregistreNouvUser()
     }
     dlg_ask->accept();
     m_mode                       = Creer;
-    db->StandardSQL("insert into " TBL_UTILISATEURS " (UserLogin, UserMDP) VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "')");
-    QString req = "select idUser from " TBL_UTILISATEURS " where UserLogin = '" + login + "' and UserMDP = '" + MDP + "'";
+    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ") VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "')");
+    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + MDP + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,m_ok).at(0).toInt();
     RemplirTableWidget(idUser);
     wdg_buttonframe                     ->setEnabled(false);
@@ -999,10 +1001,10 @@ void dlg_gestionusers::RegleAffichage()
 void dlg_gestionusers::SupprUser()
 {
     int idUser = m_userencours->id();
-    if (db->StandardSelectSQL("select iduser from " TBL_UTILISATEURS
-                  " where iduser <> " + QString::number(idUser) +
-                  " and (Soignant = 1 or Soignant = 2 or Soignant = 3)"
-                  " and (UserEnregHonoraires = 1 or UserEnregHonoraires = 2 or UserEnregHonoraires = 4)", m_ok).size()==0)
+    if (db->StandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS
+                  " where " CP_ID_USR " <> " + QString::number(idUser) +
+                  " and (" CP_SOIGNANTSTATUS_USR " = 1 or " CP_SOIGNANTSTATUS_USR " = 2 or " CP_SOIGNANTSTATUS_USR " = 3)"
+                  " and (" CP_ENREGHONORAIRES_USR " = 1 or " CP_ENREGHONORAIRES_USR " = 2 or " CP_ENREGHONORAIRES_USR " = 4)", m_ok).size()==0)
     {
         UpMessageBox::Watch(this,tr("Impossible de supprimer ") + ui->ListUserstableWidget->selectedItems().at(1)->text() +
                                      tr(" parce que c'est le seul soignant enregistré dans la base."
@@ -1012,7 +1014,7 @@ void dlg_gestionusers::SupprUser()
     }
     // si l'utilisateur est une société comptable ou s'il est employeur, on vérifie s'il a des employés et on bloque la suppression du compte si c'est le cas
     if (m_userencours->isSocComptable() || m_userencours->isLiberal())
-        if (db->StandardSelectSQL("select iduser from " TBL_UTILISATEURS " where UserEmployeur = " + QString::number(m_userencours->id()), m_ok).size()>0)
+        if (db->StandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_IDEMPLOYEUR_USR " = " + QString::number(m_userencours->id()), m_ok).size()>0)
         {
             UpMessageBox::Watch(this, tr("Impossible de supprimer ce compte d'utilisateur!"), tr("cet utilisateur est enregistré comme employeur d'autres utilisateurs"));
             return;
@@ -1057,7 +1059,7 @@ void dlg_gestionusers::SupprUser()
                                 Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(idcpt));
         }
         db->SupprRecordFromTable(idUser, "idUser", TBL_COTATIONS);
-        db->StandardSQL("delete from " TBL_JOINTURESLIEUX " where iduser not in (select iduser from " TBL_UTILISATEURS ")");
+        db->StandardSQL("delete from " TBL_JOINTURESLIEUX " where iduser not in (select " CP_ID_USR " from " TBL_UTILISATEURS ")");
 
         QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";
         QList<QVariantList> listusr = db->StandardSelectSQL(req, m_ok);
@@ -1118,11 +1120,11 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomp
 void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
 {
     QString user = QString::number(iduser);
-    QString req = "select iduser, UserPrenom, UserNom from " TBL_UTILISATEURS
-                  " where (Soignant = 5"
-                  " or (soignant < 4 and UserEnregHonoraires = 1))"
-                  " and iduser <> " + user +
-                  " and userdesactive is null";
+    QString req = "select " CP_ID_USR ", " CP_PRENOM_USR ", " CP_NOM_USR " from " TBL_UTILISATEURS
+                  " where (" CP_SOIGNANTSTATUS_USR " = 5"
+                  " or (" CP_SOIGNANTSTATUS_USR " < 4 and " CP_ENREGHONORAIRES_USR " = 1))"
+                  " and " CP_ID_USR " <> " + user +
+                  " and " CP_ISDESACTIVE_USR " is null";
     //qDebug() << req;
     QList<QVariantList> listusr = db->StandardSelectSQL(req, m_ok, tr("Impossible de retrouver la liste des employeurs"));
     if (!m_ok)
@@ -1130,7 +1132,7 @@ void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
     ui->EmployeurcomboBox->clear();
     for (int i=0; i<listusr.size(); i++)
         ui->EmployeurcomboBox->insertItem(0, (listusr.at(i).at(1).toString() != ""? listusr.at(i).at(1).toString() + " " + listusr.at(i).at(2).toString() : listusr.at(i).at(2).toString()), listusr.at(i).at(0).toInt());
-    QVariantList idusrlst = db->getFirstRecordFromStandardSelectSQL("select UserEmployeur from " TBL_UTILISATEURS " where iduser = " + user, m_ok);
+    QVariantList idusrlst = db->getFirstRecordFromStandardSelectSQL("select " CP_IDEMPLOYEUR_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " = " + user, m_ok);
     if (m_ok && idusrlst.size()>0)
         ui->EmployeurcomboBox->setCurrentIndex(ui->EmployeurcomboBox->findData(idusrlst.at(0)));
 }
@@ -1138,7 +1140,7 @@ void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
 bool  dlg_gestionusers::AfficheParamUser(int idUser)
 {
     QString req;
-    if (db->StandardSelectSQL("select idUser from " TBL_UTILISATEURS " where iduser = " + QString::number(idUser), m_ok).size() == 0)
+    if (db->StandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " = " + QString::number(idUser), m_ok).size() == 0)
         return false;
     setDataUser(idUser);
 
@@ -1344,9 +1346,9 @@ void   dlg_gestionusers::DefinitLesVariables()
 
 bool dlg_gestionusers::ExisteEmployeur(int iduser)
 {
-    return (db->StandardSelectSQL("select iduser from " TBL_UTILISATEURS
-                      " where (((Soignant = 1 or Soignant = 2 or Soignant = 3) and UserEnregHonoraires = 1) or Soignant = 5)"
-                      " and iduser <> " + QString::number(iduser), m_ok).size()>0);
+    return (db->StandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS
+                      " where (((" CP_SOIGNANTSTATUS_USR " = 1 or " CP_SOIGNANTSTATUS_USR " = 2 or " CP_SOIGNANTSTATUS_USR " = 3) and " CP_ENREGHONORAIRES_USR " = 1) or " CP_SOIGNANTSTATUS_USR " = 5)"
+                      " and " CP_ID_USR " <> " + QString::number(iduser), m_ok).size()>0);
 }
 void dlg_gestionusers::setDataUser(int id)
 {
@@ -1453,7 +1455,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     ui->ListUserstableWidget->verticalHeader()->setVisible(false);
     ui->ListUserstableWidget->setHorizontalHeaderLabels(QStringList()<<""<<"Login");
     ui->ListUserstableWidget->setGridStyle(Qt::NoPen);
-    QList<QVariantList> usrlst = db->StandardSelectSQL("select IdUser, UserLogin from " TBL_UTILISATEURS " where userlogin <> '" NOM_ADMINISTRATEURDOCS "'",m_ok);
+    QList<QVariantList> usrlst = db->StandardSelectSQL("select " CP_ID_USR ", " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " <> '" NOM_ADMINISTRATEURDOCS "'",m_ok);
     ui->ListUserstableWidget->setRowCount(usrlst.size());
     for (int i=0; i<usrlst.size(); i++)
     {

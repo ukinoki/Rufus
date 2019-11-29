@@ -141,8 +141,8 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
     bool autorsupprimer = false;
     bool ok = true;
-    QString req = "select iduser from " TBL_UTILISATEURS
-                  " where IdCompteParDefaut = " + QString::number(idCompte) +
+    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS
+                  " where " CP_IDCOMPTEPARDEFAUT_USR " = " + QString::number(idCompte) +
                   " limit 1";
     if (db->StandardSelectSQL(req, ok).size()==0)                       // on ne peut pas supprimer un compte si quelqu'un l'utilise
     {

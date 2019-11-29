@@ -707,9 +707,9 @@ void dlg_param::ChoixFontpushButtonClicked()
     Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
     {
-        QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->font().family()
-                                + "', UserPoliceAttribut = '" + Dlg_Fonts->fontAttribut()
-                                + "' where idUser = " + QString::number(m_currentuser->id());
+        QString fontrequete = "update " TBL_UTILISATEURS " set " CP_POLICEECRAN_USR " = '" + Dlg_Fonts->font().family()
+                                + "', " CP_POLICEATTRIBUT_USR " = '" + Dlg_Fonts->fontAttribut()
+                                + "' where " CP_ID_USR " = " + QString::number(m_currentuser->id());
         db->StandardSQL(fontrequete,"dlg_param::ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
@@ -2196,16 +2196,16 @@ void dlg_param::EnregistreNouvMDPAdmin()
         //recherche de l'iUser du compte AdminDocs
         int idAdminDocs = 0;
         bool ok;
-        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select iduser from " TBL_UTILISATEURS " where UserNom = '" NOM_ADMINISTRATEURDOCS "'", ok);
+        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEURDOCS "'", ok);
         if (!ok || mdpdata.size()==0)
         {
-            db->StandardSQL("insert into " TBL_UTILISATEURS " (UserNom, UserLogin) values ('" NOM_ADMINISTRATEURDOCS "', '" NOM_ADMINISTRATEURDOCS "')");
-            mdpdata = db->getFirstRecordFromStandardSelectSQL("select iduser from " TBL_UTILISATEURS " where UserNom = '" NOM_ADMINISTRATEURDOCS "'", ok);
+            db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEURDOCS "', '" NOM_ADMINISTRATEURDOCS "')");
+            mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEURDOCS "'", ok);
         }
         idAdminDocs = mdpdata.at(0).toInt();
         db->setmdpadmin(nouv);
         // Enregitrer le nouveau MDP de la base
-        QString req = "update " TBL_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + QString::number(idAdminDocs);
+        QString req = "update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + nouv + "' where " CP_ID_USR " = " + QString::number(idAdminDocs);
         db->StandardSQL(req);
         // Enregitrer le nouveau MDP de connexion à MySQL
         req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'localhost' = '" + nouv + "'";

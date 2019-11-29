@@ -3348,9 +3348,9 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
 {
     if (t_timerafficheacteverrouilleclignotant->isActive())
         return false;
-    QString ChercheVerrou = "SELECT UserLogin FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
+    QString ChercheVerrou = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
                      " WHERE idActe = "  + TableAVerifier->item(Rangee,0)->text() +
-                     " AND PosePar = idUser";
+                     " AND PosePar = " CP_ID_USR ;
     //UpMessageBox::Watch(this,ChercheVerrou);
     QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
     if (m_ok && verroudata.size() > 0)

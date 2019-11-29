@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-11-2019/1");
+    qApp->setApplicationVersion("29-11-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -920,9 +920,9 @@ void Rufus::MAJPatientsVus()
     QString             NomPrenom, zw, A;
     QFontMetrics        fm(qApp->font());
     // PATIENTS VUS AUJOURD'HUI ---------------------------------------------------------------------------------------------------
-    QString req =   "SELECT pat.IdPat, act." CP_IDACTE_ACTES " , PatNom, PatPrenom, UserLogin, " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", TypePaiement, Tiers, usr.idUser FROM "
+    QString req =   "SELECT pat.IdPat, act." CP_IDACTE_ACTES " , PatNom, PatPrenom, " CP_LOGIN_USR ", " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", TypePaiement, Tiers, usr." CP_ID_USR " FROM "
                            TBL_PATIENTS " as pat, " TBL_ACTES " as act, " TBL_UTILISATEURS " as usr, " TBL_TYPEPAIEMENTACTES " as typ"
-                           " WHERE usr.idUser = act." CP_IDUSER_ACTES " and act." CP_IDPAT_ACTES " = pat.idPat and " CP_DATE_ACTES " = curdate()"
+                           " WHERE usr." CP_ID_USR " = act." CP_IDUSER_ACTES " and act." CP_IDPAT_ACTES " = pat.idPat and " CP_DATE_ACTES " = curdate()"
                            " and act." CP_IDPAT_ACTES " not in (select idpat from " TBL_SALLEDATTENTE ")"
                            " and act." CP_IDACTE_ACTES " = typ.idActe"
                            " ORDER BY ActeHeure DESC";
@@ -1140,9 +1140,9 @@ void Rufus::AppelPaiementDirect(Origin origin)
             return;
         }
         // On vérifie que cet acte n'est pas déjà en cours d'enregistrement sur un autre poste
-        QString req = "SELECT UserLogin FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
+        QString req = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
                       " WHERE idActe = "  + QString::number(m_currentact->id()) +
-                      " AND PosePar = idUser";
+                      " AND PosePar = " CP_ID_USR ;
         QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok)
             return;
@@ -2142,12 +2142,12 @@ void Rufus::ExporteDocs()
             // on recherche le user à l'origine de cette facture
             QList<QVariantList> Listeusr;
             if (listexportjpgfact.at(i).at(4).toInt()==1)          // c'est un échéancier
-                req = "select dep.idUser, UserLogin from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr.idUser"
+                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr." CP_ID_USR
                                                                                                               " and idFacture = " + listexportjpgfact.at(i).at(0).toString();
             else                                                // c'est une facture, l'iduser est dans la table
-                req = "select dep.idUser, UserLogin from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr.idUser"
+                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr." CP_ID_USR
                                                                                                               " and idDep = " + listexportjpgfact.at(i).at(5).toString();
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
@@ -2246,12 +2246,12 @@ void Rufus::ExporteDocs()
             // on recherche le user à l'origine de cette facture
             QList<QVariantList> Listeusr;
             if (listexportpdffact.at(i).at(4).toInt()==1)          // c'est un échéancier
-                req = "select dep.idUser, UserLogin from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr.idUser"
+                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr." CP_ID_USR
                                                                                                               " and idFacture = " + listexportpdffact.at(i).at(0).toString();
             else                                                // c'est une facture, l'iduser est dans la table
-                req = "select dep.idUser, UserLogin from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr.idUser"
+                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr." CP_ID_USR
                                                                                                               " and idDep = " + listexportpdffact.at(i).at(5).toString();
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
@@ -4225,7 +4225,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
         }
     }
 
-    QString req1 = "select idUser, UserLogin from " TBL_UTILISATEURS " where UserDesactive is NULL and userlogin is not null";
+    QString req1 = "select " CP_ID_USR ", " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_ISDESACTIVE_USR " is NULL and " CP_LOGIN_USR " is not null";
     QList<QVariantList> usrlist = db->StandardSelectSQL(req1, m_ok);
     if (m_ok && usrlist.size()>0)
     {
@@ -5114,7 +5114,7 @@ void Rufus::MsgResp(int idmsg)
     QVBoxLayout *globallay = new QVBoxLayout();
     dlg_msgRepons = new QDialog();
 
-    QString req = "select userlogin from " TBL_UTILISATEURS " where iduser in (select idemetteur from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg) +  ")";
+    QString req = "select " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " in (select idemetteur from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg) +  ")";
     QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     if (!m_ok || usrdata.size()==0)
     {
@@ -5761,8 +5761,8 @@ void Rufus::closeEvent(QCloseEvent *)
     if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::IPAdress())
         proc->setPosteImportDocs(false);
 
-    QString req = "update " TBL_UTILISATEURS " set datederniereconnexion = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
-            + "' where idUser = " + QString::number(m_currentuser->id());
+    QString req = "update " TBL_UTILISATEURS " set " CP_DATEDERNIERECONNEXION_USR " = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+            + "' where " CP_ID_USR " = " + QString::number(m_currentuser->id());
     db->StandardSQL(req);
     if (DataBase::I()->getMode() == Utils::Distant)
         Flags::I()->MAJflagUserDistant();
@@ -9852,7 +9852,7 @@ void Rufus::LireLaCPS()
         return;
         }
     // recherche utilisateur avec ce n°ADELI
-    req =   "SELECT idUser FROM " TBL_UTILISATEURS " WHERE UserNumPS = '" + numPS + "'" ;
+    req =   "SELECT " CP_ID_USR " FROM " TBL_UTILISATEURS " WHERE " CP_NUMPS_USR " = '" + numPS + "'" ;
     QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok, tr("Impossible d'ouvrir la table Utilisateurs"));
     if (!m_ok)
         return;

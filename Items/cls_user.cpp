@@ -48,45 +48,45 @@ void User::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataBool(data, "isAllLoaded", m_isAllLoaded);
+    setDataBool(data, CP_ISALLLOADED, m_isAllLoaded);
 
-    setDataInt(data, "id", m_id);
+    setDataInt(data, CP_ID_USR, m_id);
 
-    setDataString(data, "prenom", m_prenom);
-    setDataString(data, "nom", m_nom);
-    setDataString(data, "titre", m_titre);
-    setDataString(data, "login", m_login);
-    setDataString(data, "droits", m_droits);
-    setDataString(data, "password", m_password);
-    setDataString(data, "fonction", m_fonction);
-    setDataString(data, "mail", m_mail);
-    setDataString(data, "specialite", m_specialite);
-    setDataString(data, "numCO", m_numCO);
-    setDataString(data, "portable", m_portable);
-    setDataString(data, "web", m_web);
-    setDataString(data, "memo", m_memo);
-    setDataString(data, "policeEcran", m_policeEcran);
-    setDataString(data, "policeAttribut", m_policeAttribut);
-    setDataString(data, "nomCompteEncaissHonoraires", m_nomCompteEncaissHonoraires);
+    setDataString(data, CP_PRENOM_USR, m_prenom);
+    setDataString(data, CP_NOM_USR, m_nom);
+    setDataString(data, CP_TITRE_USR, m_titre);
+    setDataString(data, CP_LOGIN_USR, m_login);
+    setDataString(data, CP_DROITS_USR, m_droits);
+    setDataString(data, CP_MDP_USR, m_password);
+    setDataString(data, CP_FONCTION_USR, m_fonction);
+    setDataString(data, CP_MAIL_USR, m_mail);
+    setDataString(data, CP_SPECIALITE_USR, m_specialite);
+    setDataString(data, CP_NUMCO_USR, m_numCO);
+    setDataString(data, CP_PORTABLE_USR, m_portable);
+    setDataString(data, CP_WEBSITE_USR, m_web);
+    setDataString(data, CP_MEMO_USR, m_memo);
+    setDataString(data, CP_POLICEECRAN_USR, m_policeEcran);
+    setDataString(data, CP_POLICEATTRIBUT_USR, m_policeAttribut);
+    setDataString(data, CP_NOMABREGE_COMPTES, m_nomCompteEncaissHonoraires);
 
-    setDataInt(data, "soignant", m_soignant);
-    setDataInt(data, "responsableActes", m_responsableActes);
-    setDataLongLongInt(data, "numPS", m_numPS);
-    setDataInt(data, "noSpecialite", m_noSpecialite);
-    setDataInt(data, "idCompteParDefaut", m_idCompteParDefaut);
-    setDataInt(data, "poste", m_poste);
-    setDataInt(data, "employeur", m_employeur);
-    setDataInt(data, "medecin", m_medecin);
-    setDataInt(data, "idCompteEncaissHonoraires", m_idCompteEncaissHonoraires);
-    setDataInt(data, "enregHonoraires", m_enregHonoraires);
-    setDataInt(data, "secteur", m_secteur);
+    setDataInt(data, CP_SOIGNANTSTATUS_USR, m_soignant);
+    setDataInt(data, CP_RESPONSABLEACTES_USR, m_responsableActes);
+    setDataLongLongInt(data, CP_NUMPS_USR, m_numPS);
+    setDataInt(data, CP_IDSPECIALITE_USR, m_noSpecialite);
+    setDataInt(data, CP_IDCOMPTEPARDEFAUT_USR, m_idCompteParDefaut);
+    setDataInt(data, CP_POSTE_USR, m_poste);
+    setDataInt(data, CP_IDEMPLOYEUR_USR, m_employeur);
+    setDataInt(data, CP_ISMEDECIN_USR, m_medecin);
+    setDataInt(data, CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR, m_idCompteEncaissHonoraires);
+    setDataInt(data, CP_ENREGHONORAIRES_USR, m_enregHonoraires);
+    setDataInt(data, CP_SECTEUR_USR, m_secteur);
 
-    setDataBool(data, "AGA", m_AGA);
-    setDataBool(data, "desactive", m_desactive);
-    setDataBool(data, "OPTAM", m_OPTAM);
-    setDataBool(data, "cotation", m_ccam);
+    setDataBool(data, CP_ISAGA_USR, m_AGA);
+    setDataBool(data, CP_ISDESACTIVE_USR, m_desactive);
+    setDataBool(data, CP_ISOPTAM_USR, m_OPTAM);
+    setDataBool(data, CP_CCAM_USR, m_ccam);
 
-    setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
+    setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
     m_data = data;
     /*qDebug() << login();
     qDebug() << "m_responsableActes" << m_responsableActes;
@@ -214,7 +214,7 @@ int User::idsuperviseur() const                     { return m_idUserSuperviseur
 void User::setidsuperviseur(int idusr)              { m_idUserSuperviseur = idusr; }
 bool User::ishisownsupervisor()                     { return (m_idUserSuperviseur == m_id); }
 
-User *User::parent() const                      { return m_userParent; }
+User *User::parent() const                          { return m_userParent; }
 void User::setparent(User *usr)                     { m_userParent = usr; }
 int User::idparent() const                          { return m_idUserParent; }
 void User::setidparent(int idusr)                   { m_idUserParent = idusr; }

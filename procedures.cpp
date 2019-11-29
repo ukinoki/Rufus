@@ -1023,12 +1023,12 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                 idparent = userdata.at(0).toInt();
             else                                // le user n'est pas connecté on demande quel est son parent
             {
-                QVariantList soigndata = db->getFirstRecordFromStandardSelectSQL("select soignant from " TBL_UTILISATEURS " where iduser = " + QString::number(user->id()), m_ok);
-                QString req   = "select iduser, userlogin from " TBL_UTILISATEURS
-                        " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
-                        " and iduser <> " + QString::number(user->id()) +
-                        " and soignant = " + soigndata.at(0).toString() +
-                        " and userdesactive is null";
+                QVariantList soigndata = db->getFirstRecordFromStandardSelectSQL("select " CP_SOIGNANTSTATUS_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " = " + QString::number(user->id()), m_ok);
+                QString req   = "select " CP_ID_USR ", " CP_LOGIN_USR " from " TBL_UTILISATEURS
+                        " where (" CP_ENREGHONORAIRES_USR " = 1 or " CP_ENREGHONORAIRES_USR " = 2)"
+                        " and " CP_ID_USR " <> " + QString::number(user->id()) +
+                        " and " CP_SOIGNANTSTATUS_USR " = " + soigndata.at(0).toString() +
+                        " and " CP_ISDESACTIVE_USR " is null";
                 //qDebug() << req;
                 QList<QVariantList> soignlist = db->StandardSelectSQL(req,m_ok);
                 if (soignlist.size() == 1)               // une seule réponse, on la récupère
@@ -2803,7 +2803,7 @@ bool Procedures::Connexion_A_La_Base()
     db->StandardSQL("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;");
 
     // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
-    QString req = "select iduser from " TBL_USERSCONNECTES " where iduser = (select iduser from " TBL_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
+    QString req = "select iduser from " TBL_USERSCONNECTES " where iduser = (select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEURDOCS "')";
     return m_connexionbaseOK;
 }
 
@@ -2922,7 +2922,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "' with grant option");
     db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "' with grant option");
     db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' with grant option");
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')");
+    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_NOM_USR ", " CP_LOGIN_USR ") values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')");
 
     // On crée l'utilisateur dans la table utilisateurs
     m_idcentre               = 1;
@@ -2971,7 +2971,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
 void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 {
     //TODO : Revoir
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (" + QString::number(idusr) + ",'" + login + "', '" + mdp + "')");
+    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") VALUES (" + QString::number(idusr) + ",'" + login + "', '" + mdp + "')");
 
     int idbanq = 0;
     foreach (Banque* bq, Datas::I()->banques->banques()->values())
@@ -3014,28 +3014,28 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
         idcpt = cptdata.at(0).toString();
 
     req = "update " TBL_UTILISATEURS
-            " set userNom = 'Snow',\n"
-            " userPrenom = '" + Utils::trimcapitilize(login) +"',\n"
-            " UserPoliceEcran = '" POLICEPARDEFAUT "',\n"
-            " UserPoliceAttribut = 'Regular',\n"
-            " UserTitre = '" + tr("Docteur") + "',\n"
-            " UserFonction = '" + tr("Médecin") + "',\n"
-            " UserSpecialite = '" + tr("Ophtalmologiste") + "',\n"
-            " UserNoSpecialite = 15,\n"
-            " UserNumCO = '2 33 2 123456 1 2 3 4',\n "
-            " UserNumPS = '123456789',\n "
-            " Userdroits = '" OPHTALIBERAL "', \n"
-            " UserEnregHonoraires = 1,\n"
-            " IdCompteParDefaut = " + idcpt + ",\n"
-            " idCompteEncaissHonoraires = " + idcpt + ",\n"
-            " Soignant = 1,\n"
-            " Medecin = 1,\n"
-            " ResponsableActes = 1,\n"
-            " UserCCAM = 1,\n"
-            " USerAGA = 1,\n"
-            " USerSecteur = 1,\n"
-            " OPTAM = 1\n"
-            " where idUser = " + QString::number(idusr);
+            " set " CP_NOM_USR " = 'Snow',\n"
+            CP_PRENOM_USR " = '" + Utils::trimcapitilize(login) +"',\n"
+            CP_POLICEECRAN_USR " = '" POLICEPARDEFAUT "',\n"
+            CP_POLICEATTRIBUT_USR " = 'Regular',\n"
+            CP_TITRE_USR " = '" + tr("Docteur") + "',\n"
+            CP_FONCTION_USR " = '" + tr("Médecin") + "',\n"
+            CP_SPECIALITE_USR " = '" + tr("Ophtalmologiste") + "',\n"
+            CP_IDSPECIALITE_USR " = 15,\n"
+            CP_NUMCO_USR " = '2 33 2 123456 1 2 3 4',\n "
+            CP_NUMPS_USR " = '123456789',\n "
+            CP_DROITS_USR " = '" OPHTALIBERAL "', \n"
+            CP_ENREGHONORAIRES_USR " = 1,\n"
+            CP_IDCOMPTEPARDEFAUT_USR " = " + idcpt + ",\n"
+            CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + idcpt + ",\n"
+            CP_SOIGNANTSTATUS_USR " = 1,\n"
+            CP_ISMEDECIN_USR " = 1,\n"
+            CP_RESPONSABLEACTES_USR " = 1,\n"
+            CP_CCAM_USR " = 1,\n"
+            CP_ISAGA_USR " = 1,\n"
+            CP_SECTEUR_USR " = 1,\n"
+            CP_ISOPTAM_USR " = 1\n"
+            " where " CP_ID_USR " = " + QString::number(idusr);
     //Edit(req);
     db->StandardSQL(req);
     req = "insert into " TBL_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuCodePostal, LieuVille, LieuTelephone)  values ("
@@ -4103,13 +4103,13 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
         msgbox.exec();
         return -2;
     }
-    req =   "SELECT idUser FROM " TBL_UTILISATEURS
-            " WHERE UserLogin = '" + Utils::correctquoteSQL(Login) +
-            "' AND UserMDP = '" + Utils::correctquoteSQL(MDP) + "'" ;
+    req =   "SELECT " CP_ID_USR " FROM " TBL_UTILISATEURS
+            " WHERE " CP_LOGIN_USR " = '" + Utils::correctquoteSQL(Login) +
+            "' AND " CP_MDP_USR " = '" + Utils::correctquoteSQL(MDP) + "'" ;
     QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
     if (!m_ok || idusrdata.size()==0)
     {
-        req =   "SELECT UserLogin FROM " TBL_UTILISATEURS;
+        req =   "SELECT " CP_LOGIN_USR " FROM " TBL_UTILISATEURS;
         QList<QVariantList> usrlist = db->StandardSelectSQL(req, m_ok);
         if (!m_ok || usrlist.size()==0)
         {
