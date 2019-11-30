@@ -150,7 +150,7 @@ void Patients::SupprimePatient(Patient *pat)
     //!. Suppression des actes
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_ACTES);
     //!. Suppression des documents émis
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DOCSEXTERNES);
+    DataBase::I()->SupprRecordFromTable(pat->id(), CP_IDPAT_DOCSEXTERNES, TBL_DOCSEXTERNES);
     //!. Suppression des mots cles utilisés
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_MOTSCLESJOINTURES);
 

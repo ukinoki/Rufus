@@ -711,7 +711,7 @@ QList<User*> DataBase::loadUsers()
         jData[CP_ENREGHONORAIRES_USR]                   = usrlist.at(i).at(4).toInt();
         jData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR]    = usrlist.at(i).at(5).toInt();
         jData[CP_CCAM_USR]                              = (usrlist.at(i).at(6).toInt() == 1);
-        jData[CP_IDEMPLOYEUR_USR]                         = usrlist.at(i).at(7).toInt();
+        jData[CP_IDEMPLOYEUR_USR]                       = usrlist.at(i).at(7).toInt();
         jData[CP_NOMABREGE_COMPTES]                     = usrlist.at(i).at(8).toString();
         jData[CP_ISALLLOADED]                           = false;
         User *usr = new User(jData);
@@ -912,12 +912,12 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     QList<DocExterne*> docsexternes;
     if (pat == Q_NULLPTR)
         return QList<DocExterne*>();
-    QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
-                  " compression, lienversfichier, formatdoc, Importance from " TBL_DOCSEXTERNES
-                  " where idpat = " + QString::number(pat->id());
-#ifdef Q_OS_LINUX
-    req += " and formatdoc <> '" VIDEO "'";
-#endif
+    QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
+                  CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+                  " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
+//#ifdef Q_OS_LINUX
+//    req += " and " CP_FORMATDOC_DOCSEXTERNES " <> '" VIDEO "'";
+//#endif
 
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
@@ -925,8 +925,8 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_ISALLLOADED]                  = false;
-        jData[CP_ID_DOCSEXTERNES]     = doclist.at(i).at(0).toInt();
+        jData[CP_ISALLLOADED]                   = false;
+        jData[CP_ID_DOCSEXTERNES]               = doclist.at(i).at(0).toInt();
         jData[CP_IDPAT_DOCSEXTERNES]            = pat->id();
         jData[CP_TYPEDOC_DOCSEXTERNES]          = doclist.at(i).at(1).toString();
         jData[CP_SOUSTYPEDOC_DOCSEXTERNES]      = doclist.at(i).at(2).toString();
@@ -947,17 +947,17 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 QJsonObject DataBase::loadDocExterneData(int idDoc)
 {
     QJsonObject jData{};
-    QString req = "Select idImpression, idUser, idPat, TypeDoc, SousTypeDoc,"
-                  " Titre, TextEntete, TextCorps, TextOrigine, TextPied,"
-                  " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
-                  " formatdoc, Importance, idRefraction from " TBL_DOCSEXTERNES
-                  " where idimpression = " + QString::number(idDoc);
+    QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","
+                  CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","
+                  CP_DATE_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_ALD_DOCSEXTERNES ", " CP_IDEMETTEUR_DOCSEXTERNES ","
+                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+                  " where " CP_ID_DOCSEXTERNES " = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
         return jData;
-    jData[CP_ISALLLOADED]                  = true;
+    jData[CP_ISALLLOADED]                   = true;
 
-    jData[CP_ID_DOCSEXTERNES]     = docdata.at(0).toInt();
+    jData[CP_ID_DOCSEXTERNES]               = docdata.at(0).toInt();
     jData[CP_IDUSER_DOCSEXTERNES]           = docdata.at(1).toInt();
     jData[CP_IDPAT_DOCSEXTERNES]            = docdata.at(2).toInt();
     jData[CP_TYPEDOC_DOCSEXTERNES]          = docdata.at(3).toString();

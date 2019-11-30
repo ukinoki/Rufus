@@ -492,7 +492,7 @@ void Rufus::Moulinette()
 
     /*QString req, str;
     QTextEdit txt;
-    req = "select idimpression, Titre from " TBL_IMPRESSIONS " where soustypedoc = null and typedoc = 'DocRecu'";
+    req = "select idimpression, Titre from " TBL_IMPRESSIONS " where SousTypeDoc = null and typedoc = 'DocRecu'";
     //qDebug() << req;
     QSqlQuery idquer (req, db->getDataBase() );
     idquer.first();
@@ -500,7 +500,7 @@ void Rufus::Moulinette()
     {
         txt.setHtml(idquer.value(1).toString());
         str = txt.toPlainText();
-        req = "update " TBL_IMPRESSIONS " set soustypedoc = '" + str + "', Formatdoc = 'Prescription', emisrecu = 1 where idimpression = " + idquer.value(0).toString();
+        req = "update " TBL_IMPRESSIONS " set SousTypeDoc = '" + str + "', Formatdoc = 'Prescription', emisrecu = 1 where idimpression = " + idquer.value(0).toString();
         //qDebug() << req;
         QSqlQuery (req, db->getDataBase() );
         idquer.next();
@@ -1875,7 +1875,7 @@ void Rufus::ExporteDocs()
         Message::I()->SplashMessage(msg, 6000);        return;
     }
 
-    int total = db->StandardSelectSQL("SELECT idimpression FROM " TBL_DOCSEXTERNES " where jpg is not null or pdf is not null",m_ok).size();
+    int total = db->StandardSelectSQL("SELECT " CP_ID_DOCSEXTERNES " FROM " TBL_DOCSEXTERNES " where " CP_JPG_DOCSEXTERNES " is not null or pdf is not null",m_ok).size();
     total +=    db->StandardSelectSQL("SELECT " CP_IDFACTURE_FACTURES " FROM " TBL_FACTURES " where " CP_JPG_FACTURES " is not null or " CP_PDF_FACTURES " is not null", m_ok).size();
     if (total>100)
     {
@@ -1916,7 +1916,7 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES JPG
     //-----------------------------------------------------------------------------------------------------------------------------------------
-        QString req = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, jpg, lienversfichier, typedoc FROM " TBL_DOCSEXTERNES " where jpg is not null";
+        QString req = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES " FROM " TBL_DOCSEXTERNES " where " CP_JPG_DOCSEXTERNES " is not null";
         //qDebug() << req;
         QList<QVariantList> listexportjpg = db->StandardSelectSQL(req, m_ok );
         if (m_ok)
@@ -1928,7 +1928,7 @@ void Rufus::ExporteDocs()
                     QString CheminFichier = pathDirImagerie + DIR_IMAGES + listexportjpg.at(i).at(5).toString();
                     if (QFile(CheminFichier).exists())
                     {
-                        db->StandardSQL("update " TBL_DOCSEXTERNES " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString());
+                        db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_JPG_DOCSEXTERNES " = null where " CP_ID_DOCSEXTERNES " = " + listexportjpg.at(i).at(0).toString());
                         continue;
                     }
                 }
@@ -1978,9 +1978,9 @@ void Rufus::ExporteDocs()
                 }
                 else
                     return;
-                db->StandardSQL("update " TBL_DOCSEXTERNES " set jpg = null,"
-                                " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) +
-                                "' where idimpression = " + listexportjpg.at(i).at(0).toString() );
+                db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_JPG_DOCSEXTERNES " = null,"
+                                CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) +
+                                "' where " CP_ID_DOCSEXTERNES " = " + listexportjpg.at(i).at(0).toString() );
                 faits ++;
                 int nsec = debut.secsTo(QTime::currentTime());
                 int min = nsec/60;
@@ -1999,7 +1999,7 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES PDF
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    QString reqpdf = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, pdf, lienversfichier, compression, typedoc FROM " TBL_DOCSEXTERNES " where pdf is not null";
+    QString reqpdf = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_PDF_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES " FROM " TBL_DOCSEXTERNES " where " CP_PDF_DOCSEXTERNES " is not null";
     QList<QVariantList> listexportpdf = db->StandardSelectSQL(reqpdf, m_ok );
     if (m_ok)
         for (int i=0; i<listexportpdf.size(); i++)
@@ -2009,7 +2009,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = pathDirImagerie + DIR_IMAGES + listexportpdf.at(i).at(5).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    db->StandardSQL("update " TBL_DOCSEXTERNES " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString());
+                    db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_PDF_DOCSEXTERNES " = null where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2050,7 +2050,7 @@ void Rufus::ExporteDocs()
                         out << listexportpdf.at(i).at(4).toByteArray() ;
                     }
                 }
-                QString delreq = "delete from  " TBL_DOCSEXTERNES " where idimpression = " + listexportpdf.at(i).at(0).toString();
+                QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 delete document;
@@ -2067,9 +2067,9 @@ void Rufus::ExporteDocs()
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
-            db->StandardSQL("update " TBL_DOCSEXTERNES " set pdf = null, compression = null,"
-                            " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
-                            " where idimpression = " + listexportpdf.at(i).at(0).toString());
+            db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_PDF_DOCSEXTERNES " = null, " CP_COMPRESSION_DOCSEXTERNES " = null,"
+                            CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
+                            " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
@@ -2685,19 +2685,19 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    if (aa)
    {
        QHash<QString, QVariant> listbinds;
-       listbinds["iduser"] =            m_currentuser->id();
-       listbinds["idpat"] =             pat->id();
-       listbinds["typeDoc"] =           COURRIER;
-       listbinds["soustypedoc"] =       (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
-       listbinds["titre"] =             (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
-       listbinds["textEntete"] =        Entete;
-       listbinds["textCorps"] =         Corps;
-       listbinds["textPied"] =          Pied;
-       listbinds["dateimpression"] =    QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-       listbinds["useremetteur"] =      m_currentuser->id();
-       listbinds["emisrecu"] =          "0";
-       listbinds["formatdoc"] =         COURRIER;
-       listbinds["idlieu"] =            Datas::I()->sites->idcurrentsite();
+       listbinds[CP_IDUSER_DOCSEXTERNES]        = m_currentuser->id();
+       listbinds[CP_IDPAT_DOCSEXTERNES]         = pat->id();
+       listbinds[CP_TYPEDOC_DOCSEXTERNES]       = COURRIER;
+       listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
+       listbinds[CP_TITRE_DOCSEXTERNES]         = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
+       listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
+       listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
+       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+       listbinds[CP_DATE_DOCSEXTERNES]          = QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+       listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = m_currentuser->id();
+       listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
+       listbinds[CP_FORMATDOC_DOCSEXTERNES]     = COURRIER;
+       listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
        if(!db->InsertSQLByBinds(TBL_DOCSEXTERNES, listbinds))
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -3257,7 +3257,7 @@ void Rufus::MenuContextuelListePatients()
     QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
     connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Document");});
 
-    QString req = "Select idImpression from " TBL_DOCSEXTERNES " where idpat = " + QString::number(Datas::I()->patients->dossierpatientaouvrir()->id());
+    QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(Datas::I()->patients->dossierpatientaouvrir()->id());
     if (db->StandardSelectSQL(req,m_ok).size() > 0){
         QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
         connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
@@ -7276,10 +7276,10 @@ void Rufus::ExporteActe(Acte *act)
         return;
     QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + pat->nom() + " " + pat->prenom() + " - " + act->date().toString("d MMM yyyy");
     ImprimeListActes(QList<Acte*>() << act, false, true, nomdossier);
-    QString req = "select idimpression from " TBL_DOCSEXTERNES
-                  " where idpat = " +QString::number(pat->id()) +
-                  " and DATE(dateimpression) = '" + m_currentact->date().toString("yyyy-MM-dd") + "' "
-                  " and formatdoc = '" IMAGERIE "'";
+    QString req = "select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+                  " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id()) +
+                  " and DATE(" CP_DATE_DOCSEXTERNES ") = '" + m_currentact->date().toString("yyyy-MM-dd") + "' "
+                  " and " CP_FORMATDOC_DOCSEXTERNES " = '" IMAGERIE "'";
     QList<QVariantList> listimages = db->StandardSelectSQL(req, m_ok);
     if (m_ok && listimages.size()>0)
     {

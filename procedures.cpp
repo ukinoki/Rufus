@@ -1390,7 +1390,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
             if (!m_ok)
                 return;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
-                listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_DOCSEXTERNES " where idimpression = " + iditem
+                listimpr = db->StandardSelectSQL("select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem
                                                                       , m_ok
                                                                       , tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
         }

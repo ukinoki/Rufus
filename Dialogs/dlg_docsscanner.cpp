@@ -342,7 +342,7 @@ void dlg_docsscanner::ValideFiche()
     if ( m_mode == Document)      // c'est un document scanné
     {
         DataBase::I()->locktables(QStringList() << TBL_DOCSEXTERNES);
-        idimpr =  db->selectMaxFromTable("idimpression", TBL_DOCSEXTERNES, ok) + 1;
+        idimpr =  db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, ok) + 1;
         QString NomFileDoc = QString::number(m_iditem) + "_"
                 + wdg_typedoccombobx->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement

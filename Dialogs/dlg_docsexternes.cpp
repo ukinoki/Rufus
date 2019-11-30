@@ -1296,7 +1296,7 @@ void dlg_docsexternes::RemplirTreeView()
     }
     else
     {
-        m_modele             = new QStandardItemModel(this);
+        m_modele            = new QStandardItemModel(this);
         m_tripardatemodel   = new QStandardItemModel(this);
         m_tripartypemodel   = new QStandardItemModel(this);
     }
@@ -1394,14 +1394,15 @@ void dlg_docsexternes::RemplirTreeView()
     }
 
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
-    {        QString date = doc->date().toString(tr("dd-MM-yyyy"));
+    {
+        QString date = doc->date().toString(tr("dd-MM-yyyy"));
         QString a = doc->typedoc();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));
-        pitemtridated        = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
-        pitemtridatet        = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
+        pitemtridated       = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
+        pitemtridatet       = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
         QMap<QString, QVariant> data;
-        data.insert("id", QString::number(doc->id()));
+        data                .insert("id", QString::number(doc->id()));
         QFont fontitem      = m_font;
         fontitem            .setBold(doc->importance()==2);
         fontitem            .setItalic(doc->importance()==0);
