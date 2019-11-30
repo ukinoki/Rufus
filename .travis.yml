@@ -12,6 +12,7 @@ before_install:
  
 install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
+  - sudo apt-get -y install qtmultimedia5-dev qtmultimedia5-examples
   - source /opt/qt510/bin/qt510-env.sh
   - sudo rm /usr/lib/x86_64-linux-gnu/libmysqlclient.so.18
   - sudo cp ./libs/libmysqlclient.so.18 /usr/lib/x86_64-linux-gnu/
