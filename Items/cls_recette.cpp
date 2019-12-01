@@ -42,21 +42,21 @@ void Recette::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "id", m_id);
-    setDataInt(data, "idacte", m_idacte);
-    setDataDate(data, "date", m_date);
-    setDataString(data, "payeur", m_nompayeur);
-    setDataString(data, "cotationacte", m_actecotation);
-    setDataDouble(data, "montant", m_actemontant);
-    setDataString(data, "monnaie", m_actemonnaie);
-    setDataString(data, "modepaiement" , m_modepaiement);
-    setDataString(data, "typetiers", m_typetiers);
-    setDataDouble(data, "encaissement", m_paye);
-    setDataInt(data, "iduser", m_iduser);
-    setDataInt(data, "idparent", m_iduserparent);
-    setDataInt(data, "idcomptable", m_idusercomptable);
-    setDataDouble(data, "encaissementautrerecette", m_montantautrerecettes);
-    setDataBool(data, "apportpraticien", m_isapportparticien);
-    setDataBool(data, "autrerecette", m_isautrerecette);
+    Utils::setDataInt(data, "id", m_id);
+    Utils::setDataInt(data, "idacte", m_idacte);
+    Utils::setDataDate(data, "date", m_date);
+    Utils::setDataString(data, "payeur", m_nompayeur);
+    Utils::setDataString(data, "cotationacte", m_actecotation);
+    Utils::setDataDouble(data, "montant", m_actemontant);
+    Utils::setDataString(data, "monnaie", m_actemonnaie);
+    Utils::setDataString(data, "modepaiement" , m_modepaiement);
+    Utils::setDataString(data, "typetiers", m_typetiers);
+    Utils::setDataDouble(data, "encaissement", m_paye);
+    Utils::setDataInt(data, "iduser", m_iduser);
+    Utils::setDataInt(data, "idparent", m_iduserparent);
+    Utils::setDataInt(data, "idcomptable", m_idusercomptable);
+    Utils::setDataDouble(data, "encaissementautrerecette", m_montantautrerecettes);
+    Utils::setDataBool(data, "apportpraticien", m_isapportparticien);
+    Utils::setDataBool(data, "autrerecette", m_isautrerecette);
     m_data = data;
 }

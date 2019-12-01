@@ -27,17 +27,17 @@ void PosteConnecte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, CP_IDUSER_USRCONNECT, m_id);
-    setDataString(data, CP_NOMPOSTE_USRCONNECT, m_nomposte);
-    setDataString(data, CP_MACADRESS_USRCONNECT, m_macadress);
-    setDataString(data, CP_IPADRESS_USRCONNECT, m_ipadress);
-    setDataBool(data, CP_DISTANT_USRCONNECT, m_accesdistant);
-    setDataInt(data, CP_IDUSERSUPERVISEUR_USRCONNECT, m_idsuperviseur);
-    setDataInt(data, CP_IDUSERPARENT_USRCONNECT, m_idparent);
-    setDataInt(data, CP_IDUSERCOMPTABLE_USRCONNECT, m_idcomptable);
-    setDataInt(data, CP_IDLIEU_USRCONNECT, m_idlieu);
-    setDataInt(data, CP_IDPATENCOURS_USRCONNECT, m_idpatencours);
-    setDataDateTime(data, CP_HEUREDERNIERECONNECTION_USRCONNECT, m_dateheurederniereconnexion);
-    setDataString(data, "stringid", m_stringid);
+    Utils::setDataInt(data, CP_IDUSER_USRCONNECT, m_id);
+    Utils::setDataString(data, CP_NOMPOSTE_USRCONNECT, m_nomposte);
+    Utils::setDataString(data, CP_MACADRESS_USRCONNECT, m_macadress);
+    Utils::setDataString(data, CP_IPADRESS_USRCONNECT, m_ipadress);
+    Utils::setDataBool(data, CP_DISTANT_USRCONNECT, m_accesdistant);
+    Utils::setDataInt(data, CP_IDUSERSUPERVISEUR_USRCONNECT, m_idsuperviseur);
+    Utils::setDataInt(data, CP_IDUSERPARENT_USRCONNECT, m_idparent);
+    Utils::setDataInt(data, CP_IDUSERCOMPTABLE_USRCONNECT, m_idcomptable);
+    Utils::setDataInt(data, CP_IDLIEU_USRCONNECT, m_idlieu);
+    Utils::setDataInt(data, CP_IDPATENCOURS_USRCONNECT, m_idpatencours);
+    Utils::setDataDateTime(data, CP_HEUREDERNIERECONNECTION_USRCONNECT, m_dateheurederniereconnexion);
+    Utils::setDataString(data, "stringid", m_stringid);
     m_data = data;
 }

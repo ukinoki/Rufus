@@ -644,5 +644,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define OCT_PACHY                   "T"
 #define ECHO_PACHY                  "E"
 
+//modes de mesure biométrie
+#define OPTIQUE_BIOMETRIE           "OBM"
+#define ECHO_BIOMETRIE              "EBM"
+#define AUTRE_BIOMETRIE             "ABM"
+
 
 #endif // MACROS_H

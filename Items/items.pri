@@ -3,17 +3,16 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_acte.cpp \
-        $$PWD/cls_compte.cpp \
-        $$PWD/cls_correspondant.cpp \
+    $$PWD/cls_compte.cpp \
+    $$PWD/cls_correspondant.cpp \
     $$PWD/cls_donneesophtapatient.cpp \
     $$PWD/cls_impression.cpp \
-        $$PWD/cls_item.cpp \
     $$PWD/cls_lignecompte.cpp \
-        $$PWD/cls_patient.cpp \
+    $$PWD/cls_patient.cpp \
     $$PWD/cls_posteconnecte.cpp \
     $$PWD/cls_recettecomptable.cpp \
     $$PWD/cls_refraction.cpp \
-        $$PWD/cls_user.cpp \
+    $$PWD/cls_user.cpp \
     $$PWD/cls_depense.cpp \
     $$PWD/cls_archivebanque.cpp \
     $$PWD/cls_docexterne.cpp \
@@ -30,17 +29,17 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_lignepaiement.cpp
 
 HEADERS += $$PWD/cls_acte.h \
-        $$PWD/cls_compte.h \
-        $$PWD/cls_correspondant.h \
+    $$PWD/cls_compte.h \
+    $$PWD/cls_correspondant.h \
     $$PWD/cls_donneesophtapatient.h \
     $$PWD/cls_impression.h \
-        $$PWD/cls_item.h \
+    $$PWD/cls_item.h \
     $$PWD/cls_lignecompte.h \
-        $$PWD/cls_patient.h \
+    $$PWD/cls_patient.h \
     $$PWD/cls_posteconnecte.h \
     $$PWD/cls_recettecomptable.h \
     $$PWD/cls_refraction.h \
-        $$PWD/cls_user.h \
+    $$PWD/cls_user.h \
     $$PWD/cls_depense.h \
     $$PWD/cls_archivebanque.h \
     $$PWD/cls_docexterne.h \

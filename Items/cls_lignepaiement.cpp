@@ -31,8 +31,8 @@ void LignePaiement::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataString(data, "stringid", m_stringid);
-    setDataDouble(data, "paye", m_paye);
-    setDataString(data, "monnaie", m_monnaie);
+    Utils::setDataString(data, "stringid", m_stringid);
+    Utils::setDataDouble(data, "paye", m_paye);
+    Utils::setDataString(data, "monnaie", m_monnaie);
     m_data = data;
 }

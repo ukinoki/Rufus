@@ -26,18 +26,18 @@ void PatientEnCours::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, CP_IDPAT_SALDAT, m_id);
-    setDataInt(data, CP_IDUSER_SALDAT, m_iduser);
-    setDataString(data, CP_STATUT_SALDAT, m_statut);
-    setDataTime(data, CP_HEURESTATUT_SALDAT, m_heurestatut);
-    setDataTime(data, CP_HEURERDV_SALDAT , m_heurerdv);
-    setDataTime(data, CP_HEUREARRIVEE_SALDAT, m_heurearrivee);
-    setDataString(data, CP_MOTIF_SALDAT, m_motif);
-    setDataString(data, CP_MESSAGE_SALDAT, m_message);
-    setDataInt(data, CP_IDACTEAPAYER_SALDAT, m_idacteapayer);
-    setDataString(data, CP_POSTEEXAMEN_SALDAT, m_posteexamen);
-    setDataInt(data, CP_IDUSERENCOURSEXAM_SALDAT, m_iduserencoursexam);
-    setDataInt(data, CP_IDSALDAT_SALDAT, m_idsaldat);
+    Utils::setDataInt(data, CP_IDPAT_SALDAT, m_id);
+    Utils::setDataInt(data, CP_IDUSER_SALDAT, m_iduser);
+    Utils::setDataString(data, CP_STATUT_SALDAT, m_statut);
+    Utils::setDataTime(data, CP_HEURESTATUT_SALDAT, m_heurestatut);
+    Utils::setDataTime(data, CP_HEURERDV_SALDAT , m_heurerdv);
+    Utils::setDataTime(data, CP_HEUREARRIVEE_SALDAT, m_heurearrivee);
+    Utils::setDataString(data, CP_MOTIF_SALDAT, m_motif);
+    Utils::setDataString(data, CP_MESSAGE_SALDAT, m_message);
+    Utils::setDataInt(data, CP_IDACTEAPAYER_SALDAT, m_idacteapayer);
+    Utils::setDataString(data, CP_POSTEEXAMEN_SALDAT, m_posteexamen);
+    Utils::setDataInt(data, CP_IDUSERENCOURSEXAM_SALDAT, m_iduserencoursexam);
+    Utils::setDataInt(data, CP_IDSALDAT_SALDAT, m_idsaldat);
     m_data = data;
 }
 

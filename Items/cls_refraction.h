@@ -135,9 +135,9 @@ public:
     void setprismeOD(double val)            { m_prismeOD = val; }                               //!> prismeOD
     void setbaseprismeOD(int base)          { m_baseprismeOD = base; }                          //!> base prisme OD en degré
     void setbaseprismetextOD(QString txt)   { m_baseprismetextOD = txt; }                       //!> base prisme OD en texte (nasal, temporal, supérieur, inférieur
-    void sethaspressonOD(bool logic)        { m_haspressonOD = (logic? True : False); }         //!> un presson est utilisé sur l'OD
-    void sethasdepoliOD(bool logic)         { m_hasdepoliOD = (logic? True : False); }          //!> un dépoli est utilisé sur l'OD
-    void sethasplanOD(bool logic)           { m_hasplanOD = (logic? True : False); }            //!> un verre plan est utilisé sur l'OD
+    void sethaspressonOD(bool logic)        { m_haspressonOD = (logic? Utils::True : Utils::False); }         //!> un presson est utilisé sur l'OD
+    void sethasdepoliOD(bool logic)         { m_hasdepoliOD = (logic? Utils::True : Utils::False); }          //!> un dépoli est utilisé sur l'OD
+    void sethasplanOD(bool logic)           { m_hasplanOD = (logic? Utils::True : Utils::False); }            //!> un verre plan est utilisé sur l'OD
     void setryserOD(int val)                { m_ryserOD = val; }                                //!> puissance Ryser OD
     void setformuleOD(QString txt)          { m_formuleOD = txt; }                              //!> formule de réfraction OD
     void setOGmesure(bool logic)            { m_isOGmesure = logic; }                           //!> l'OG a été mesuré
@@ -150,9 +150,9 @@ public:
     void setprismeOG(double val)            { m_prismeOG = val; }                               //!> prismeOG
     void setbaseprismeOG(int base)          { m_baseprismeOG = base; }                          //!> base prisme OG en degré
     void setbaseprismetextOG(QString txt)   { m_baseprismetextOG = txt; }                       //!> base prisme OG en texte (nasal, temporal, supérieur, inférieur
-    void sethaspressonOG(bool logic)        { m_haspressonOG = (logic? True : False); }         //!> un presson est utilisé sur l'OG
-    void sethasdepoliOG(bool logic)         { m_hasdepoliOG = (logic? True : False); }          //!> un dépoli est utilisé sur l'OG
-    void sethasplanOG(bool logic)           { m_hasplanOG = (logic? True : False); }            //!> un verre plan est utilisé sur l'OG
+    void sethaspressonOG(bool logic)        { m_haspressonOG = (logic? Utils::True : Utils::False); }         //!> un presson est utilisé sur l'OG
+    void sethasdepoliOG(bool logic)         { m_hasdepoliOG = (logic? Utils::True : Utils::False); }          //!> un dépoli est utilisé sur l'OG
+    void sethasplanOG(bool logic)           { m_hasplanOG = (logic? Utils::True : Utils::False); }            //!> un verre plan est utilisé sur l'OG
     void setryserOG(int val)                { m_ryserOG = val; }                                //!> puissance Ryser OG
     void setformuleOG(QString txt)          { m_formuleOG = txt; }                              //!> formule de réfraction OG
     void setcommentaireordo(QString txt)    { m_commentaireordo = txt; }                        //!> commentaire de l'ordonnace de verres

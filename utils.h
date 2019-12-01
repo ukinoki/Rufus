@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHostInfo>
 #include <QMetaEnum>
 #include <QProcess>
+#include <QJsonObject>
 #include <cmath>
 
 #include "uplineedit.h"
@@ -51,6 +52,10 @@ public:
                 Dimanche    = 0x40,
               };
     Q_DECLARE_FLAGS(Days, Day)
+    enum Logic {True, False, Null};
+        /*! pour certaines données bool, on a 3 valeurs possibles, true, false et null
+         * en fait, on pourrait même faire une 4ème valeur correspondaant à "ne sait pas" -> ne sait pas si la valeeur est true, false ou null
+         */
     enum ModeAcces { Poste, ReseauLocal, Distant };
 
     static QRegExp const rgx_rx;
@@ -137,6 +142,20 @@ public:
 
     //! calcule la taille idéale d'une police
     static void CalcFontSize(QFont &font);
+
+
+    //! gestion des QJsonObject des items et des mesures
+    static void setDataString(QJsonObject data, QString key, QString &prop, bool useTrim=false);
+    static void setDataInt(QJsonObject data, QString key, int &prop);
+    static void setDataLongLongInt(QJsonObject data, QString key, qlonglong &prop);
+    static void setDataDouble(QJsonObject data, QString key, double &prop);
+    static void setDataBool(QJsonObject data, QString key, bool &prop);
+    static void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
+    static void setDataDate(QJsonObject data, QString key, QDate &prop);
+    static void setDataTime(QJsonObject data, QString key, QTime &prop);
+    static void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
+    static void setDataVariant(QJsonObject data, QString key, QVariant &prop);
+    static void setDataLogic(QJsonObject data, QString key, Logic &prop);
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

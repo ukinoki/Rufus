@@ -39,18 +39,18 @@ void Archive::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "idligne", m_id);
-    setDataInt(data, "idcompte", m_idcompte);
-    setDataInt(data, "iddepense", m_iddepense);
-    setDataInt(data, "idrecette", m_idrecette);
-    setDataInt(data, "idrecettespeciale", m_idrecettespeciale);
-    setDataInt(data, "idremisecheque", m_idremisecheque);
-    setDataDate(data, "lignedate", m_lignedate);
-    setDataString(data, "lignelibelle", m_lignelibelle);
-    setDataDouble(data, "montant", m_montant);
-    setDataString(data, "lignetypeoperation", m_lignetypeoperation);
-    setDataDate(data, "lignedateconsolidation", m_lignedateconsolidation);
-    setDataInt(data, "idarchive", m_idarchive);
+    Utils::setDataInt(data, "idligne", m_id);
+    Utils::setDataInt(data, "idcompte", m_idcompte);
+    Utils::setDataInt(data, "iddepense", m_iddepense);
+    Utils::setDataInt(data, "idrecette", m_idrecette);
+    Utils::setDataInt(data, "idrecettespeciale", m_idrecettespeciale);
+    Utils::setDataInt(data, "idremisecheque", m_idremisecheque);
+    Utils::setDataDate(data, "lignedate", m_lignedate);
+    Utils::setDataString(data, "lignelibelle", m_lignelibelle);
+    Utils::setDataDouble(data, "montant", m_montant);
+    Utils::setDataString(data, "lignetypeoperation", m_lignetypeoperation);
+    Utils::setDataDate(data, "lignedateconsolidation", m_lignedateconsolidation);
+    Utils::setDataInt(data, "idarchive", m_idarchive);
     m_data = data;
 }
 
