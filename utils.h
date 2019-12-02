@@ -57,6 +57,7 @@ public:
          * en fait, on pourrait même faire une 4ème valeur correspondaant à "ne sait pas" -> ne sait pas si la valeeur est true, false ou null
          */
     enum ModeAcces { Poste, ReseauLocal, Distant };
+    enum Cote {Droit, Gauche, Les2, NoLoSo};
 
     static QRegExp const rgx_rx;
     static QRegExp const rgx_AlphaNumeric;
@@ -143,6 +144,9 @@ public:
     //! calcule la taille idéale d'une police
     static void CalcFontSize(QFont &font);
 
+    //! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
+    static Cote     ConvertCote(QString mode);
+    static QString  ConvertCote(Cote mode);
 
     //! gestion des QJsonObject des items et des mesures
     static void setDataString(QJsonObject data, QString key, QString &prop, bool useTrim=false);

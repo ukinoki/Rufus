@@ -70,10 +70,11 @@ public:
     void setdioptriesK2OG(double val)   { m_dioptriesK2OG = val; m_cleandatas = false; m_isnullOG = false; }
     void setaxeKOG(int axe)             { m_AxeKOG = axe; m_cleandatas = false; m_isnullOG = false; }
 
-    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
+    void cleandatas(Utils::Cote cote = Utils::Les2)
     {
         switch (cote) {
-        case Refraction::Les2:
+        case Utils::Les2:
+        case Utils::NoLoSo:
             m_K1OD           = 0;
             m_K2OD           = 0;
             m_dioptriesK1OD  = 0;
@@ -88,7 +89,7 @@ public:
             m_isnullOD       = true;
             m_isnullOG       = true;
             break;
-        case Refraction::Droit:
+        case Utils::Droit:
             m_K1OD           = 0;
             m_K2OD           = 0;
             m_dioptriesK1OD  = 0;
@@ -98,7 +99,7 @@ public:
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Refraction::Gauche:
+        case Utils::Gauche:
             m_K1OG           = 0;
             m_K2OG           = 0;
             m_dioptriesK1OG  = 0;
@@ -119,7 +120,7 @@ public:
             return;
         }
         if  (ker->isnullLOD())
-            cleandatas(Refraction::Droit);
+            cleandatas(Utils::Droit);
         else
         {
             m_isnullOD       = false;
@@ -130,7 +131,7 @@ public:
             m_AxeKOD         = ker->axeKOD();
         }
         if  (ker->isnullLOG())
-            cleandatas(Refraction::Gauche);
+            cleandatas(Utils::Gauche);
         else
         {
             m_isnullOG       = false;

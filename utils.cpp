@@ -948,3 +948,22 @@ void Utils::setDataLogic(QJsonObject data, QString key, Logic &prop)
     else
         prop = Null;
 }
+
+//! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
+Utils::Cote Utils::ConvertCote(QString cote)
+{
+    if (cote == "D") return Droit;
+    if (cote == "G") return Gauche;
+    if (cote == "2") return Les2;
+    return  NoLoSo;
+}
+
+QString Utils::ConvertCote(Cote cote)
+{
+    switch (cote) {
+    case Gauche:        return "G";
+    case Droit:         return "D";
+    case Les2:          return "2";
+    default: return "";
+    }
+}

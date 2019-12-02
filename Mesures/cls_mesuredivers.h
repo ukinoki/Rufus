@@ -41,10 +41,11 @@ public:
     void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOD = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
+    void cleandatas(Utils::Cote cote = Utils::Les2)
     {
         switch (cote) {
-        case Refraction::Les2:
+        case Utils::Les2:
+        case Utils::NoLoSo:
             m_pachyOD       = 0;
             m_pachyOG       = 0;
             m_modemesure    = NoMesure;
@@ -52,13 +53,13 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Refraction::Droit:
+        case Utils::Droit:
             m_pachyOD       = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Refraction::Gauche:
+        case Utils::Gauche:
             m_pachyOG       = 0;
             m_isnullOG      = true;
             if (m_isnullOD)
@@ -132,10 +133,11 @@ public:
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
+    void cleandatas(Utils::Cote cote = Utils::Les2)
     {
         switch (cote) {
-        case Refraction::Les2:
+        case Utils::Les2:
+        case Utils::NoLoSo:
             m_TOD           = 0;
             m_TOG           = 0;
             m_timemesure    = QDateTime();
@@ -144,13 +146,13 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Refraction::Droit:
+        case Utils::Droit:
             m_TOD           = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Refraction::Gauche:
+        case Utils::Gauche:
             m_TOG           = 0;
             m_isnullOG      = true;
             if (m_isnullOD)
@@ -208,11 +210,11 @@ public:
         m_timemesure    = tono->timemesure();
         m_modemesure    = tono->modemesure();
         if  (tono->isnullLOD())
-            cleandatas(Refraction::Droit);
+            cleandatas(Utils::Droit);
         else
             setTOD(tono->TOD());
         if  (tono->isnullLOG())
-            cleandatas(Refraction::Gauche);
+            cleandatas(Utils::Gauche);
         else
             setTOG(tono->TOG());
         m_cleandatas    = false;
@@ -249,10 +251,11 @@ public:
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
+    void cleandatas(Utils::Cote cote = Utils::Les2)
     {
         switch (cote) {
-        case Refraction::Les2:
+        case Utils::Les2:
+        case Utils::NoLoSo:
             m_ALOD          = 0;
             m_ACDOD         = 0;
             m_ALOG          = 0;
@@ -263,14 +266,14 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Refraction::Droit:
+        case Utils::Droit:
             m_ALOD          = 0;
             m_ACDOD         = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Refraction::Gauche:
+        case Utils::Gauche:
             m_ALOG          = 0;
             m_ACDOG         = 0;
             m_isnullOG      = true;
@@ -333,13 +336,13 @@ public:
         m_timemesure    = biom->timemesure();
         m_modemesure    = biom->modemesure();
         if  (biom->isnullLOD())
-            cleandatas(Refraction::Droit);
+            cleandatas(Utils::Droit);
         else {
             setALOD(biom->ALOD());
             setACDOD(biom->ACDOD());
         }
         if  (biom->isnullLOG())
-            cleandatas(Refraction::Gauche);
+            cleandatas(Utils::Gauche);
         else {
             setALOG(biom->ALOG());
             setACDOG(biom->ACDOG());

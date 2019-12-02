@@ -71,6 +71,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
 #define TBL_JOINTURESLIEUX                    "rufus.jointuresLieux"
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
+#define TBL_LIGNESPRGOPERATOIRES              "rufus.ProgrammesOperatoires"
 #define TBL_LISTEAPPAREILS                    "rufus.listeappareils"
 #define TBL_LISTETIERS                        "rufus.listetiers"
 #define TBL_MESSAGES                          "rufus.Messagerie"
@@ -220,6 +221,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FORMATDOC_DOCSEXTERNES                       "FormatDoc"
 #define CP_IDLIEU_DOCSEXTERNES                          "idLieu"
 #define CP_IMPORTANCE_DOCSEXTERNES                      "Importance"
+
+                            //! Table Rufus.ProgrammesOperatoires
+#define CP_ID_LIGNPRGOPERATOIRE                          "idLigneProgramme"
+#define CP_DATE_LIGNPRGOPERATOIRE                        "ProgDate"
+#define CP_IDUSER_LIGNPRGOPERATOIRE                      "idUser"
+#define CP_IDPATIENT_LIGNPRGOPERATOIRE                   "idPat"
+#define CP_IDLIEU_LIGNPRGOPERATOIRE                      "idLieu"
+#define CP_TYPEANESTH_LIGNPRGOPERATOIRE                  "TypeAnesthesie"
+#define CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE            "TypeIntervention"
+#define CP_COTE_LIGNPRGOPERATOIRE                        "Cote"
+#define CP_IDIOL_LIGNPRGOPERATOIRE                       "idIOL"
+#define CP_PWRIOL_LIGNPRGOPERATOIRE                      "PwIOL"
+#define CP_CYLIOL_LIGNPRGOPERATOIRE                      "CylIOL"
+#define CP_OBSERV_LIGNPRGOPERATOIRE                      "Observation"
 
                             //! Table Rufus.ParametresSysteme
 #define CP_MDPADMIN_PARAMSYSTEME                        "MDPAdmin"
