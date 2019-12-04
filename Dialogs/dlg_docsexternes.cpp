@@ -759,7 +759,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
 
-    User *userEntete = Datas::I()->users->getById(docmt->iduser(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(docmt->iduser());
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));

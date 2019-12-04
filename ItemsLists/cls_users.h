@@ -46,10 +46,10 @@ public:
     QMap<int, User *> *comptables() const;
 
     Users(QObject *parent = Q_NULLPTR);
-    User*       getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ADDTOLIST addToList = AddToList);
-    void        reload(int id);
-    QString     getLoginById(int id);
+    User*       getById(int id, Item::UPDATE upd = Item::NoUpdate);
+    void        reload(User* usr);
     void        initListe();
+    void        remplaceUserListes(User *usr);
     void        SupprimeUser(User *usr);
     User*       userconnected()             { return DataBase::I()->userConnected(); }
 };

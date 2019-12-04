@@ -936,7 +936,8 @@ void dlg_param::GestionDatasCurrentUser()
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
     {
-        proc->SetUserAllData(m_currentuser, Item::Update);
+        Datas::I()->users->reload(m_currentuser);
+        proc->MAJComptesBancaires(m_currentuser);
         AfficheParamUser();
     }
     if (!m_MDPuserverifie)
@@ -951,8 +952,19 @@ void dlg_param::GestionUsers()
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
     {
-        Datas::I()->users->initListe();
-        proc->SetUserAllData(m_currentuser, Item::Update);
+        int idcomptable     = m_currentuser->idcomptable();
+        int idparent        = m_currentuser->idparent();
+        int idsuperviseur   = m_currentuser->idsuperviseur();
+        Datas::I()->users   ->initListe();
+        m_currentuser       = Datas::I()->users->getById(DataBase::I()->idUserConnected());
+        DataBase::I()       ->setUserConnected(m_currentuser);
+        m_currentuser       ->setidparent(idparent);
+        m_currentuser       ->setparent(Datas::I()->users->getById(idparent));
+        m_currentuser       ->setidusercomptable(idcomptable);
+        m_currentuser       ->setcomptable(Datas::I()->users->getById(idcomptable));
+        m_currentuser       ->setidsuperviseur(idsuperviseur);
+        m_currentuser       ->setsuperviseur(Datas::I()->users->getById(idsuperviseur));
+        proc                ->MAJComptesBancaires(m_currentuser);
         AfficheParamUser();
     }
     delete Dlg_GestUsr;

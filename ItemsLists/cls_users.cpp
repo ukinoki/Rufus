@@ -68,14 +68,10 @@ bool Users::add(User *usr)
 {
     if( usr == Q_NULLPTR)
         return false;
-    User *result = Q_NULLPTR;
 
     auto itusr = map_users->find(usr->id());
     if( itusr != map_users->constEnd() )
-    {
-        result = const_cast<User*>(itusr.value());
-        result->setData(usr->datas());
-    }
+        itusr.value()->setData(usr->datas());
     else
         map_users->insert(usr->id(), usr);
 
@@ -91,10 +87,6 @@ bool Users::add(User *usr)
         map_parents->insert(usr->id(), usr);
     if( usr->isComptable() )
         map_comptables->insert(usr->id(), usr);
-
-    if (result != Q_NULLPTR)
-        delete usr;
-
     return true;
 }
 
@@ -111,33 +103,28 @@ void Users::addList(QList<User*> listusr)
  * \return Q_NULLPTR si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
-User* Users::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
+User* Users::getById(int id, Item::UPDATE upd)
 {
-    QMap<int, User*>::const_iterator user = map_users->find(id);
+    QMap<int, User*>::const_iterator ituser = map_users->find(id);
     User *result;
-    if( user == map_users->constEnd() )
-        result = new User();
-    else
-    {
-        result = user.value();
-        if(loadDetails == Item::NoLoadDetails)
-            return result;
-        addToList = NoAddToList;
-    }
-
-    if( !result->isAllLoaded() )
+    if( ituser == map_users->constEnd() )
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
         if( jsonUser.isEmpty() )
-        {
-            delete result;
             return Q_NULLPTR;
-        }
-        else
-            result->setData(jsonUser);
+        result = new User(jsonUser);
+        add(result);
     }
-    if( addToList == AddToList )
-        add( result );
+    else
+    {
+        result = ituser.value();
+        if (upd == Item::Update)
+        {
+            QJsonObject jsonUser = DataBase::I()->loadUserData(id);
+            if( !jsonUser.isEmpty() )
+                result->setData(jsonUser);
+        }
+    }
     return result;
 }
 
@@ -147,49 +134,14 @@ User* Users::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
  * \return Q_NULLPTR si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
-void Users::reload(int id)
+void Users::reload(User *usr)
 {
-    User *usr;
-    QJsonObject jsonUser = DataBase::I()->loadUserData(id);
+    QJsonObject jsonUser = DataBase::I()->loadUserData(usr->id());
+    usr->setData(jsonUser);
     if( jsonUser.isEmpty() )
         return;
-    QMap<int, User*>::const_iterator user = map_users->find(id);
-    if( user == map_users->constEnd() )
-    {
-        usr = new User(jsonUser);
+    if( map_users->find(usr->id()) == map_users->constEnd() )
         add(usr);
-    }
-    else
-    {
-        usr = user.value();
-        usr->setData(jsonUser);
-        map_superviseurs  ->remove(usr->id());
-        map_liberaux      ->remove(usr->id());
-        map_parents       ->remove(usr->id());
-        map_comptables    ->remove(usr->id());
-        if( usr->isResponsable() || usr->isResponsableOuAssistant())
-            map_superviseurs->insert(usr->id(), usr);
-        if( usr->isLiberal() )
-            map_liberaux->insert(usr->id(), usr);
-        if( usr->isSoignant() && !usr->isRemplacant() )
-            map_parents->insert(usr->id(), usr);
-        if( usr->isComptable() )
-            map_comptables->insert(usr->id(), usr);
-    }
-}
-
-/*!
- * \brief Users::getLoginById
- * \param id l'id de l'utilisateur recherché
- * \return "" si aucun utilisateur trouvé
- * \return QString le login de l'utilisateur correspondant à l'id
- */
-QString Users::getLoginById(int id)
-{
-    User* user = getById(id);
-    if( user != Q_NULLPTR)
-        return user->login();
-    return "";
 }
 
 /*!
@@ -206,6 +158,36 @@ void Users::initListe()
     map_parents       ->clear();
     map_comptables    ->clear();
     addList(listusers);
+}
+
+/*!
+ * \brief Users::remplaceUserListes
+ * Remplace dans chaque liste un User par un autre user avec le même id
+ * utilisé p.e. quand on a un nouveau currentuser pour remplacer l'ancien dans les listes
+ */
+void Users::remplaceUserListes(User *usr)
+{
+    auto it = map_users->find(usr->id());
+    if (it != map_users->end())
+    {
+        delete it.value();
+        map_users->insert(it.key(), usr);
+        auto its = map_superviseurs->find(usr->id());
+        if (its != map_superviseurs->end())
+            map_superviseurs->insert(its.key(), usr);
+        auto itl = map_liberaux->find(usr->id());
+        if (itl != map_liberaux->end())
+            map_liberaux->insert(itl.key(), usr);
+        auto itp = map_parents->find(usr->id());
+        if (itp != map_parents->end())
+            map_parents->insert(itp.key(), usr);
+        auto itc = map_comptables->find(usr->id());
+        if (itc != map_comptables->end())
+            map_comptables->insert(itc.key(), usr);
+    }
+    else
+        add(usr);
+
 }
 
 void Users::SupprimeUser(User *usr)

@@ -178,7 +178,7 @@ private:
     void                    CalcLieuExercice();
     void                    CalcUserParent();
     void                    CalcUserSuperviseur();
-    bool                    DefinitRoleUser();                       /*! definit les iduser pour lequel le user travaille
+    bool                    DefinitRoleUser();                          /*! definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
                                                                             . un autre user s'il est assistant
@@ -186,15 +186,15 @@ private:
                                                                         . idUser soignant remplacé si le superviseur est remplaçant (int gidUserParent)
                                                                         . s'il cote les actes                            (bool gUseCotation)
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
-                                                                      */
+                                                                        */
 public:
     QString                 MDPAdmin();
-    QString                 SessionStatus();                                    /*! statut de l'utilisateur pour cette session */
+    QString                 SessionStatus();                            /*! statut de l'utilisateur pour cette session */
 
     int                     idCentre();
     bool                    Init();
+    void                    MAJComptesBancaires(User *usr);              //! actualise la liste des comptes bancaires utilisés par un user
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
-    bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::Update);
 
 /*! fin definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta) -------------------------------------------------------------------------------------------------------- */
 

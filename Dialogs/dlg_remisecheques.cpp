@@ -534,7 +534,7 @@ void dlg_remisecheques::ChangeCompte()
 void dlg_remisecheques::ChangeUser()
 {
     m_currentuser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
-    proc->SetUserAllData(m_currentuser);
+    proc->MAJComptesBancaires(m_currentuser);
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
@@ -1042,7 +1042,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    User *userEntete = Datas::I()->users->getById(iduser, Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return false;
     EnTete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
@@ -1137,7 +1137,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
     }
     m_currentuser = Datas::I()->users->userconnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (m_currentuser->comptable() != Q_NULLPTR)
+    if (Datas::I()->users->getById(m_currentuser->idcomptable()) != Q_NULLPTR)
     {
         auto itusr = map_comptablesavecchequesenattente->find(m_currentuser->id());
         if(itusr != map_comptablesavecchequesenattente->end())
@@ -1148,7 +1148,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
         m_currentuser = Datas::I()->users->getById(idusr);
-        proc->SetUserAllData(m_currentuser);
+        proc->MAJComptesBancaires(m_currentuser);
     }
 }
 

@@ -139,7 +139,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     ui->RecImageLabel->setPixmap( Icons::pxEnregistrer() );
 
-    ui->ComptablescomboBox->setEnabled(m_userConnected->comptable()==Q_NULLPTR && map_comptables->size()>1);
+    ui->ComptablescomboBox->setEnabled(Datas::I()->users->getById(m_userConnected->idcomptable()) == Q_NULLPTR && map_comptables->size()>1);
 
     // On reconstruit le combobox des utilisateurs avec la liste des comptables
     if( map_comptables->size() > 1 )
@@ -166,7 +166,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         return;
     }
 
-    proc->SetUserAllData(m_useracrediter);
+    proc->MAJComptesBancaires(m_useracrediter);
     if( m_useracrediter != Q_NULLPTR && m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
@@ -477,7 +477,7 @@ void dlg_paiementdirect::ChangeComptable(User* comptable, bool depuislecombo)
     }
 
     if (m_useracrediter != Q_NULLPTR)
-        proc->SetUserAllData(m_useracrediter);
+        proc->MAJComptesBancaires(m_useracrediter);
     if (ui->DetailupTableWidget->rowCount()>-1)
     if (ui->DetailupTableWidget->rowCount()>-1)
     RegleComptesComboBox();
@@ -872,7 +872,7 @@ void dlg_paiementdirect::RegleAffichageFiche()
     ui->PasdePaiementlabel          ->setVisible(false);
     ui->Comptablelabel              ->setVisible(m_mode!=Accueil);
     ui->ComptablescomboBox          ->setVisible(m_mode!=Accueil);
-    ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
+    ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(m_userConnected->idcomptable()) == Q_NULLPTR
                                                  && (m_mode == VoirListeActes || (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
                                                  && map_comptables->size()>1);
     ui->SupprimerupPushButton       ->setVisible(false);
@@ -1403,7 +1403,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         ChangeComptable(m_useracrediter);
 
         ui->ComptablescomboBox->setEnabled(m_userConnected->isSecretaire() && (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
-        ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
+        ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(m_userConnected->idcomptable()) == Q_NULLPTR
                                                      && ui->DetailupTableWidget->rowCount()==0
                                                      && map_comptables->size()>1);
         break;

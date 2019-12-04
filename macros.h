@@ -53,6 +53,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_BIOMETRIES                        "Ophtalmologie.biometries"
 #define TBL_COMMENTAIRESLUNETTES              "Ophtalmologie.commentaireslunettes"
 #define TBL_DONNEES_OPHTA_PATIENTS            "Ophtalmologie.DonneesOphtaPatients"
+#define TBL_IOLS                              "Ophtalmologie.IOLs"
+#define TBL_LIGNESPRGOPERATOIRES              "Ophtalmologie.ProgrammesOperatoires"
+#define TBL_TYPESINTERVENTIONS                "Ophtalmologie.TypesInterventions"
 #define TBL_REFRACTIONS                       "Ophtalmologie.refractions"
 #define TBL_TONOMETRIE                        "Ophtalmologie.tonometries"
 #define TBL_PACHYMETRIE                       "Ophtalmologie.pachymetries"
@@ -71,7 +74,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
 #define TBL_JOINTURESLIEUX                    "rufus.jointuresLieux"
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
-#define TBL_LIGNESPRGOPERATOIRES              "rufus.ProgrammesOperatoires"
 #define TBL_LISTEAPPAREILS                    "rufus.listeappareils"
 #define TBL_LISTETIERS                        "rufus.listetiers"
 #define TBL_MESSAGES                          "rufus.Messagerie"
@@ -221,20 +223,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FORMATDOC_DOCSEXTERNES                       "FormatDoc"
 #define CP_IDLIEU_DOCSEXTERNES                          "idLieu"
 #define CP_IMPORTANCE_DOCSEXTERNES                      "Importance"
-
-                            //! Table Rufus.ProgrammesOperatoires
-#define CP_ID_LIGNPRGOPERATOIRE                          "idLigneProgramme"
-#define CP_DATE_LIGNPRGOPERATOIRE                        "ProgDate"
-#define CP_IDUSER_LIGNPRGOPERATOIRE                      "idUser"
-#define CP_IDPATIENT_LIGNPRGOPERATOIRE                   "idPat"
-#define CP_IDLIEU_LIGNPRGOPERATOIRE                      "idLieu"
-#define CP_TYPEANESTH_LIGNPRGOPERATOIRE                  "TypeAnesthesie"
-#define CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE            "TypeIntervention"
-#define CP_COTE_LIGNPRGOPERATOIRE                        "Cote"
-#define CP_IDIOL_LIGNPRGOPERATOIRE                       "idIOL"
-#define CP_PWRIOL_LIGNPRGOPERATOIRE                      "PwIOL"
-#define CP_CYLIOL_LIGNPRGOPERATOIRE                      "CylIOL"
-#define CP_OBSERV_LIGNPRGOPERATOIRE                      "Observation"
 
                             //! Table Rufus.ParametresSysteme
 #define CP_MDPADMIN_PARAMSYSTEME                        "MDPAdmin"
@@ -421,6 +409,30 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CHQENATTENTE_LIGNRECETTES                   "EnAttente"
 #define CP_IDUSERENREGISTREUR_LIGNRECETTES             "EnregistrePar"
 #define CP_TYPERECETTE_LIGNRECETTES                    "TypeRecette"
+
+                            //! Table Ophtalmologie.ProgrammesOperatoires
+#define CP_ID_LIGNPRGOPERATOIRE                         "idLigneProgramme"
+#define CP_DATE_LIGNPRGOPERATOIRE                       "ProgDate"
+#define CP_IDUSER_LIGNPRGOPERATOIRE                     "idUser"
+#define CP_IDPATIENT_LIGNPRGOPERATOIRE                  "idPat"
+#define CP_IDLIEU_LIGNPRGOPERATOIRE                     "idLieu"
+#define CP_TYPEANESTH_LIGNPRGOPERATOIRE                 "TypeAnesthesie"
+#define CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE           "TypeIntervention"
+#define CP_COTE_LIGNPRGOPERATOIRE                       "Cote"
+#define CP_IDIOL_LIGNPRGOPERATOIRE                      "idIOL"
+#define CP_PWRIOL_LIGNPRGOPERATOIRE                     "PwIOL"
+#define CP_CYLIOL_LIGNPRGOPERATOIRE                     "CylIOL"
+#define CP_OBSERV_LIGNPRGOPERATOIRE                     "Observation"
+
+                            //! Table Ophtalmologie.IOLs
+#define CP_ID_IOLS                                      "idIOL"
+#define CP_IDMANUFACTURER_IOLS                          "idmanufacturer"
+#define CP_MODELNAME_IOLS                               "modelname"
+
+                            //! Table Ophtalmologie.TypeInterventions
+#define CP_ID_TYPINTERVENTION                           "idTypeIntervention"
+#define CP_TYPEINTERVENTION_TYPINTERVENTION             "TypeIntervention"
+#define CP_CODECCAM_TYPINTERVENTION                     "CodeIntervention"
 
                             //! Table Ophtalmologie.Refractions
 #define CP_ID_REFRACTIONS                              "idRefraction"

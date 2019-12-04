@@ -27,11 +27,6 @@ int User::COMPTA_SANS_COTATION_SANS_COMPTABILITE = 1; //1
 int User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE = 2; //2
 int User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE = 3; //3
 
-bool User::isAllLoaded() const
-{
-    return m_isAllLoaded;
-}
-
 User::User(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
@@ -47,8 +42,6 @@ void User::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-
-    Utils::setDataBool(data, CP_ISALLLOADED, m_isAllLoaded);
 
     Utils::setDataInt(data, CP_ID_USR, m_id);
 
@@ -89,12 +82,14 @@ void User::setData(QJsonObject data)
     Utils::setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
     m_data = data;
     /*qDebug() << login();
+
     qDebug() << "m_responsableActes" << m_responsableActes;
     qDebug() << "responsableactes() = " + Utils::EnumDescription(QMetaEnum::fromType<RESPONSABLE>(), responsableactes());
     qDebug() << "isResponsable()" << isResponsable();
     qDebug() << "isResponsableOuAssistant()" << isResponsableOuAssistant();
     qDebug() << "metier() = " + Utils::EnumDescription(QMetaEnum::fromType<METIER>(), metier());
     qDebug() << "isSoignant()" << isSoignant();
+    qDebug() << "ismedecin()" << isMedecin();
     qDebug() << "isRemplacant()" << isRemplacant();
     qDebug() << "modeenregistrementhonoraires() = " + Utils::EnumDescription(QMetaEnum::fromType<ENREGISTREMENTHONORAIRES>(), modeenregistrementhonoraires());*/
 }
@@ -146,7 +141,7 @@ User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
 QString User::titre() const                         { return m_titre; }
 int User::numspecialite() const                     { return m_noSpecialite; }
 QString User::specialite() const                    { return m_specialite; }
-qlonglong User::NumPS() const                    { return m_numPS; }
+qlonglong User::NumPS() const                       { return m_numPS; }
 QString User::numOrdre() const                      { return m_numCO; }
 bool User::isAGA() const                            { return m_AGA; }
 int User::idemployeur() const                       { return m_employeur; }
@@ -203,27 +198,6 @@ void User::setlistecomptesbancaires(QMap<int, bool> mapidcomptes)
             m_listidcomptes->append(idcpt);
     }
 }
-
-/*!
- * les données susceptibles de varier d'une session à l'autre  ==========================================================================================================================
- */
-
-User *User::superviseur() const                     { return m_userSuperviseur; }
-void User::setsuperviseur(User *usr)                { m_userSuperviseur = usr; }
-int User::idsuperviseur() const                     { return m_idUserSuperviseur; }
-void User::setidsuperviseur(int idusr)              { m_idUserSuperviseur = idusr; }
-bool User::ishisownsupervisor()                     { return (m_idUserSuperviseur == m_id); }
-
-User *User::parent() const                          { return m_userParent; }
-void User::setparent(User *usr)                     { m_userParent = usr; }
-int User::idparent() const                          { return m_idUserParent; }
-void User::setidparent(int idusr)                   { m_idUserParent = idusr; }
-
-User *User::comptable() const                       { return m_userComptable; }
-void User::setcomptable(User *usr)                  { m_userComptable = usr; }
-int User::idcomptable() const                       { return m_idUserComptable; }
-void User::setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
-
 
 /*!
  * \brief User::status

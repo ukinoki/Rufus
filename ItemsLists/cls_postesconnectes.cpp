@@ -65,7 +65,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         int idAdministrateur = -1;
         QJsonObject jadmin = DataBase::I()->loadAdminData();
         if (jadmin.size() > 0)
-            idAdministrateur = jadmin.value("id").toInt();
+            idAdministrateur = jadmin[CP_ID_USR].toInt();
         foreach (PosteConnecte *post, *map_postesconnectes)
             if(post->id() == idAdministrateur && idAdministrateur > -1 && post->dateheurederniereconnexion().secsTo(DataBase::I()->ServerDateTime()) < 120)
             {
@@ -79,7 +79,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
 
 PosteConnecte* PostesConnectes::currentpost()
 {
-    return getByStringId(Utils::MACAdress() + " - " + QString::number(DataBase::I()->userConnected()->id()));
+    return getByStringId(Utils::MACAdress() + " - " + QString::number(DataBase::I()->idUserConnected()));
 }
 
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)

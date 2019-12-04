@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INTERVENTION_H
-#define INTERVENTION_H
+#ifndef CLS_INTERVENTION_H
+#define CLS_INTERVENTION_H
 
 #include "cls_item.h"
 #include "utils.h"
@@ -81,4 +81,34 @@ public:
 
  };
 
-#endif // INTERVENTION_H
+/*!
+ * \brief classe IOL
+ * l'ensemble des informations concernant une intervention
+ */
+
+class IOL : public Item
+{
+
+public:
+    explicit IOL(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    void setData(QJsonObject data = QJsonObject{});
+
+private: //Données de l'intervention
+    //!<m_id = Id de l'ntervention en base
+    int m_idmanufacturer    = 0;                //! id du frabricant
+    QString m_modele        = "";               //! modèle de 'implant
+
+public:
+
+    int idmanufacturer() const              { return m_idmanufacturer; }
+    QString modele() const                  { return m_modele; }
+
+    void setidmanufacturer(int id)          { m_idmanufacturer = id; }
+    void setmodele(QString txt)             { m_modele = txt; }
+
+    void resetdatas();
+    bool isnull() const                     { return m_id == 0; }
+
+ };
+
+#endif // CLS_INTERVENTION_H

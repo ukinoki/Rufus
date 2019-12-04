@@ -47,8 +47,8 @@ void Refraction::setData(QJsonObject data)
     Utils::setDataInt(data, CP_IDPAT_REFRACTIONS, m_idpat);                            //!> l'id du patient
     Utils::setDataInt(data, CP_IDACTE_REFRACTIONS, m_idacte);                          //!> l'id de l'acte aucours duquel la mesure a été faite
     Utils::setDataDate(data, CP_DATE_REFRACTIONS, m_daterefraction);                   //!> la date de la refraction
-    m_typemesure = ConvertMesure(data.value( CP_TYPEMESURE_REFRACTIONS ).toString());  //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
-    m_distance = ConvertDistance(data.value( CP_DISTANCEMESURE_REFRACTIONS ).toString());         //!> la distance de mesure: loin, près, les 2
+    m_typemesure = ConvertMesure(data[CP_TYPEMESURE_REFRACTIONS].toString());          //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    m_distance = ConvertDistance(data[CP_DISTANCEMESURE_REFRACTIONS].toString());      //!> la distance de mesure: loin, près, les 2
     if (data.contains(CP_CYCLOPLEGIE_REFRACTIONS))
         m_dilate = (data[CP_CYCLOPLEGIE_REFRACTIONS].toBool()? Dilatation : NoDilatation);
     Utils::setDataBool(data, CP_ODMESURE_REFRACTIONS, m_isODmesure);                   //!> l'OD a été mesuré
@@ -82,8 +82,8 @@ void Refraction::setData(QJsonObject data)
     Utils::setDataInt(data, CP_RYSEROG_REFRACTIONS, m_ryserOG);                        //!> puissance Ryser OG
     Utils::setDataString(data, CP_FORMULEOG_REFRACTIONS, m_formuleOG);                 //!> formule de réfraction OG
     Utils::setDataString(data, CP_COMMENTAIREORDO_REFRACTIONS, m_commentaireordo);     //!> commentaire de l'ordonnace de verres
-    m_typeverres = ConvertDistance(data.value( CP_TYPEVERRES_REFRACTIONS ).toString());//!> la distance d'utilisation des verres
-    m_oeil = Utils::ConvertCote(data.value(CP_OEIL_REFRACTIONS).toString());           //!> l'oeil pour lequel les verres sont prescrits
+    m_typeverres = ConvertDistance(data[CP_TYPEVERRES_REFRACTIONS].toString());        //!> la distance d'utilisation des verres
+    m_oeil = Utils::ConvertCote(data[CP_OEIL_REFRACTIONS].toString());                 //!> l'oeil pour lequel les verres sont prescrits
     Utils::setDataInt(data, CP_MONTURE_REFRACTIONS, m_monture);                        //!> le nombre de montures
     Utils::setDataBool(data, CP_VERRETEINTE_REFRACTIONS, m_isverreteinte);             //!> les verres sont teintés
     Utils::setDataInt(data, CP_PD_REFRACTIONS, m_ecartIP);                             //!> ecart interpuppilaire

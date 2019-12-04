@@ -176,7 +176,7 @@ void dlg_gestionusers::setConfig(enum UserMode mode)
         ui->ComptaLiberalupRadioButton      ->setChecked(true);
         ui->ResponsableupRadioButton        ->setChecked(true);
         CloseButton                         ->setVisible(false);
-        wdg_buttonframe->widgButtonParent()     ->setVisible(false);
+        wdg_buttonframe->widgButtonParent() ->setVisible(false);
         ui->ModifMDPUserupLabel             ->setVisible(false);
         ui->Principalframe                  ->setEnabled(true);
         RegleAffichage();
@@ -192,12 +192,12 @@ void dlg_gestionusers::setConfig(enum UserMode mode)
         CloseButton                         ->setVisible(false);
         ui->InactivUsercheckBox             ->setVisible(false);
         ui->ModifMDPUserupLabel             ->setVisible(true);
-        wdg_buttonframe->widgButtonParent()     ->setVisible(false);
+        wdg_buttonframe->widgButtonParent() ->setVisible(false);
         break;
     case ADMIN:
         ui->ModifMDPUserupLabel             ->setVisible(false);
         ui->Principalframe                  ->setEnabled(false);
-        wdg_buttonframe                         ->setEnabled(true);
+        wdg_buttonframe                     ->setEnabled(true);
         ui->ListUserstableWidget            ->setEnabled(true);
         break;
     }
@@ -672,10 +672,10 @@ void dlg_gestionusers::EnregistreUser()
 
     req = "update " TBL_COMPTES " set partage = ";
     db->StandardSQL(req + (ui->SocieteComptableupRadioButton->isChecked()? "1" : "null") + " where iduser = " +  ui->idUseruplineEdit->text());
-    Datas::I()->users->reload(ui->idUseruplineEdit->text().toInt());
+    setDataUser(ui->idUseruplineEdit->text().toInt()); // reactualise l'item user correspondant
     RemplirTableWidget(ui->idUseruplineEdit->text().toInt());
 
-    if (m_usermode==PREMIERUSER || m_usermode == MODIFUSER)
+    if (m_usermode == PREMIERUSER)
     {
         done(ui->idUseruplineEdit->text().toInt());
         return;
@@ -1352,7 +1352,7 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 }
 void dlg_gestionusers::setDataUser(int id)
 {
-    m_userencours = Datas::I()->users->getById(id, Item::LoadDetails);
+    m_userencours = Datas::I()->users->getById(id, Item::Update);
     m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(id));
     if (m_userencours->isSalarie())
         m_userencours->setidcompteencaissementhonoraires(Datas::I()->users->getById(m_userencours->idemployeur())->idcompteencaissementhonoraires());

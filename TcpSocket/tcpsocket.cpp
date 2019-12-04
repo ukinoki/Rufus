@@ -49,8 +49,8 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
     connect(this,     &QTcpSocket::hostFound, this,   [=] { Logs::LogSktMessage("Connexion OK"); });
-    connectToHost(ipadrserver,m_portTCPserver);     // On se connecte au serveur
-    bool a = waitForConnected(30000);
+    connectToHost(ipadrserver,m_portTCPserver);
+    bool a = waitForConnected(30000);                   //! si on ne met pas le 30000 (qui est la valeur par défaut) le premier utilisateur à se connecter au TCP Server pose parfois problème (???)
     if (a)
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);

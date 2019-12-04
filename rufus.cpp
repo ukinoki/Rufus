@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("O2-12-2019/1");
+    qApp->setApplicationVersion("04-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2625,7 +2625,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool     AvecNumPage = true;
 
    //création de l'entête
-   User *userEntete = Datas::I()->users->getById(m_currentuser->idparent(), Item::LoadDetails);
+   User *userEntete = Datas::I()->users->getById(m_currentuser->idparent());
    if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -3151,7 +3151,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    User *userEntete = Datas::I()->users->getById(m_currentuser->idparent(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(m_currentuser->idparent());
     if (userEntete == Q_NULLPTR)
         return;
     EnTete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
@@ -8295,7 +8295,9 @@ void Rufus::ProgrammationIntervention(Patient *pat)
     programmLay    ->addWidget(wdg_tableprogramme);
     programmLay    ->setSpacing(5);
     programmLay    ->setContentsMargins(0,0,0,0);
-
+    programmLay    ->setStretch(0,2);
+    programmLay    ->setStretch(1,0);
+    programmLay    ->setStretch(2,6);
 
     dlg_programintervention->dlglayout()   ->insertLayout(0, programmLay);
     dlg_programintervention->dlglayout()   ->insertLayout(0, choixmedecinLay);
@@ -8306,6 +8308,23 @@ void Rufus::ProgrammationIntervention(Patient *pat)
     dlg_programintervention->dlglayout()->setStretch(0,1);
     dlg_programintervention->dlglayout()->setStretch(1,15);
 
+    QStandardItemModel *md_medecins = new QStandardItemModel();
+    foreach (User* usr, *Datas::I()->users->all())
+        if (usr->isMedecin())
+        {
+            QList<QStandardItem *> items;
+            items << new QStandardItem(usr->login())
+                  << new QStandardItem(QString::number(usr->id()));
+            if (md_medecins->findItems(usr->login()).size()==0)
+                md_medecins->appendRow(items);
+        }
+    md_medecins->sort(0, Qt::DescendingOrder);
+    for (int i=0; i< md_medecins->rowCount(); ++i)
+    {
+        wdg_listmedecinscombo->addItem(md_medecins->item(i,0)->text());
+        wdg_listmedecinscombo->setItemData(i, md_medecins->item(i,1)->text());
+    }
+
 //    QList<Archive*> listarchives = db->loadArchiveByDate(m_dateencours, m_compteencours, m_intervalledate);
 //    m_dateencours = m_dateencours.addDays(-m_intervalledate);
 //    m_archivescptencours = new Archives();
@@ -8313,17 +8332,6 @@ void Rufus::ProgrammationIntervention(Patient *pat)
 //    if (listarchives.size()==0)
 //        UpMessageBox::Watch(this, tr("Aucune écriture archivée depuis ") + QString::number(m_intervalledate) + tr("jours"));
 //    // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
-//    QStandardItemModel *model = new QStandardItemModel();
-//    foreach (Archive * arc, *m_archivescptencours->archives())
-//    {
-//        QList<QStandardItem *> items;
-//        QString titre = tr("Consolidation") + " " + QString::number(arc->idarchive()) + " "
-//                + tr("du") + " " + arc->lignedateconsolidation().toString("d MMM yyyy");
-//        items << new QStandardItem(titre)
-//              << new QStandardItem(QString::number(arc->idarchive()));
-//        if (model->findItems(titre).size()==0)
-//            model->appendRow(items);
-//    }
 //    model->sort(1);
 //    wdg_listarchivescombo->clear();
 //    for(int i=0; i<model->rowCount(); i++)
@@ -9324,7 +9332,7 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += statcp.split(sep).at(2) + " - "
                             + statcp.split(sep).at(0) + " - "
                             + statcp.split(sep).at(1) + " --- "
-                            + Datas::I()->users->getLoginById(statcp.split(sep).at(3).toInt());
+                            + Datas::I()->users->getById(statcp.split(sep).at(3).toInt())->login();
                 }
                 else
                     m_resumeStatut += tr("inconnu");
@@ -9337,7 +9345,7 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += "\t" + statcp.split(sep).at(2) + " - "
                             + statcp.split(sep).at(0) + " - "
                             + statcp.split(sep).at(1) + " --- "
-                            + Datas::I()->users->getLoginById(statcp.split(sep).at(3).toInt()) + "\n";
+                            + Datas::I()->users->getById(statcp.split(sep).at(3).toInt())->login() + "\n";
                 }
                 else
                     m_resumeStatut += "\t" + tr("inconnu");
@@ -9353,14 +9361,14 @@ void Rufus::ResumeStatut()
                 m_resumeStatut += "\t" + post->nomposte() + " - "
                         + post->ipadress() + " - "
                         + post->macadress() + " --- "
-                        + Datas::I()->users->getLoginById(post->id()) + "\n";
+                        + Datas::I()->users->getById(post->id())->login() + "\n";
         }
     }
     foreach (PosteConnecte *post, *Datas::I()->postesconnectes->postesconnectes())
     {
         if(post->isdistant())
             m_resumeStatut += "\t" + Datas::I()->sites->getById(post->idlieu())->nom() + " ---- "
-                    + Datas::I()->users->getLoginById(post->id()) + "\n";
+                    + Datas::I()->users->getById(post->id())->login() + "\n";
     }
 
     // l'importateur des documents

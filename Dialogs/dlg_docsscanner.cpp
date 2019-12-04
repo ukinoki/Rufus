@@ -306,7 +306,7 @@ void dlg_docsscanner::ValideFiche()
     QString datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
     QString user("");
     if ( m_mode != Document)
-        user = Datas::I()->users->getLoginById(Datas::I()->depenses->getById(m_iditem)->iduser());
+        user = Datas::I()->users->getById(Datas::I()->depenses->getById(m_iditem)->iduser())->login();
     QString CheminBackup = m_pathdirstockageimagerie + DIR_ORIGINAUX + ( m_mode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + m_nomfichierimageencours);

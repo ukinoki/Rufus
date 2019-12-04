@@ -1444,7 +1444,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur());
     Entete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");

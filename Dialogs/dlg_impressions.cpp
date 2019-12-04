@@ -1563,7 +1563,7 @@ void dlg_impressions::Validation()
                                     if (linecombo->accessibleDescription() == listsoignants)
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        User* usr = Datas::I()->users->getById(idusr, Item::LoadDetails);
+                                        User* usr = Datas::I()->users->getById(idusr);
                                         QString babar = (usr->isMedecin()? usr->titre() : "") + " " + usr->prenom() + " " + usr->nom();
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
@@ -1576,7 +1576,7 @@ void dlg_impressions::Validation()
                                     else
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        m_userentete = Datas::I()->users->getById(idusr, Item::LoadDetails);
+                                        m_userentete = Datas::I()->users->getById(idusr);
                                     }
                                     delete linecombo;
                                 }
@@ -2699,7 +2699,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     m_listedestinataires.clear();
     m_listtexts.clear();
 
-    User *userEntete = (m_currentuser->superviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : m_currentuser->superviseur());
+    User *userEntete = (Datas::I()->users->getById(m_currentuser->idsuperviseur()) == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(m_currentuser->idsuperviseur()));
     if (userEntete == Q_NULLPTR)
         return;
 

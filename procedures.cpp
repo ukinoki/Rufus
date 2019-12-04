@@ -1093,7 +1093,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
-            User *userRemp = Datas::I()->users->getById(idparent, Item::LoadDetails);
+            User *userRemp = Datas::I()->users->getById(idparent);
             if(userRemp && userRemp->titre().size())
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->titre() + " " + userRemp->prenom() + " " + userRemp->nom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
@@ -1860,10 +1860,10 @@ QString Procedures::SessionStatus()
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->comptes->getById(m_currentuser->idcompteencaissementhonoraires())->nomabrege() + " " + tr("de") + " " + m_currentuser->comptable()->login();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->comptes->getById(m_currentuser->idcompteencaissementhonoraires())->nomabrege() + " " + tr("de") + " " + Datas::I()->users->getById(m_currentuser->idcomptable())->login();
     else if (respsalarie)
     {
-        User *employeur = Datas::I()->users->getById(m_currentuser->idemployeur(), Item::LoadDetails);
+        User *employeur = Datas::I()->users->getById(m_currentuser->idemployeur());
         Compte *cptt = Datas::I()->comptes->getById(employeur->idcompteencaissementhonoraires());
         if (cptt != Q_NULLPTR)
         {
@@ -2932,12 +2932,15 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
 
-    m_currentuser = new User(db->loadUserData(1));
+    m_currentuser = Datas::I()->users->getById(1);
     db->setUserConnected(m_currentuser);
-    SetUserAllData(m_currentuser);
+    MAJComptesBancaires(m_currentuser);
     m_currentuser->setidsuperviseur(1);
+    m_currentuser->setsuperviseur(m_currentuser);
     m_currentuser->setidusercomptable(1);
+    m_currentuser->setcomptable(m_currentuser);
     m_currentuser->setidparent(1);
+    m_currentuser->setparent(m_currentuser);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
@@ -2953,7 +2956,18 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         if (Dlg_GestUsr->exec() > 0)
-            SetUserAllData(m_currentuser, Item::Update);
+        {
+            m_parametres = db->parametres();
+            Datas::I()->sites           ->initListe();
+            Datas::I()->comptes         ->initListe();
+            Datas::I()->users           ->initListe();
+            Datas::I()->postesconnectes ->initListe();
+            Datas::I()->banques         ->initListe();
+            m_currentuser = Datas::I()->users->getById(1);
+            MAJComptesBancaires(m_currentuser);
+            db->setUserConnected(m_currentuser);
+            m_applicationfont = m_currentuser->police();
+        }
         delete Dlg_GestUsr;
     }
     m_settings->setValue("Param_Poste/VilleParDefaut","Flayat");
@@ -3081,8 +3095,9 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         Datas::I()->tierspayants    ->initListe();
         Datas::I()->typestiers      ->initListe();
         Datas::I()->motifs          ->initListe();
-        m_currentuser = Datas::I()->users->userconnected();
-        SetUserAllData(m_currentuser);
+        m_currentuser = Datas::I()->users->getById(DataBase::I()->idUserConnected());
+        MAJComptesBancaires(m_currentuser);
+        db->setUserConnected(m_currentuser);
         m_applicationfont = m_currentuser->police();
         qApp->setFont(m_applicationfont);
 
@@ -3099,7 +3114,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                     . lui-même s'il est responsable de ses actes
                     . un autre user s'il est assistant
                     . -1 s'il est assistant pour plusieurs utilisateurs en même temps
-                    . -2 sans objet
+                    . -2 sans objet (personnel non soignant)
                 . idUser parent
                     correspond au membre permanent de la structure de soins pour qui le user travaille
                     si le User est remplaçant -> le user remplacé, sinon, le usersuperviseur
@@ -3110,7 +3125,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                         . celui qu'il remplace si celui qu'il remplace est libéral
                         . l'employeur de  celui qu'il remplace si celui qu'il remplace est salarié
                     . -1 s'il n'enregistre pas de compta
-                    . -2 sans objet
+                    . -2 sans objet (personnel non soignant)
                 . et s'il cote les actes                            (bool gUseCotationProv)
                     0 = AvecCompta
                     1 = SansCompta et sans cotation
@@ -3126,12 +3141,6 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             //qDebug() << "superviseur " << m_currentuser->getIdUserActeSuperviseur();
             //qDebug() << "comptable " << m_currentuser->getIdUserComptable();
             //qDebug() << "parent " << m_currentuser->getIdUserParent();
-            if( m_currentuser->idsuperviseur() > 0 )
-                m_currentuser->setsuperviseur(Datas::I()->users->getById(m_currentuser->idsuperviseur()));
-            if( m_currentuser->idcomptable() > 0 )
-                m_currentuser->setcomptable(Datas::I()->users->getById(m_currentuser->idcomptable()));
-            if( m_currentuser->idparent() > 0 )
-                m_currentuser->setparent(Datas::I()->users->getById(m_currentuser->idparent()));
 
             m_idcentre = m_parametres->numcentre();
         }
@@ -3299,6 +3308,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         if (listbutt.at(j)->isChecked())
                         {
                             m_currentuser->setidsuperviseur(listbutt.at(j)->accessibleName().toInt());
+                            m_currentuser->setsuperviseur(Datas::I()->users->getById(listbutt.at(j)->accessibleName().toInt()));
                             break;
                         }
                 }
@@ -3325,7 +3335,9 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         {
             // le user est assistant et travaille pour tout le monde
             m_currentuser->setidparent(User::ROLE_NON_RENSEIGNE);
+            m_currentuser->setparent(Q_NULLPTR);
             m_currentuser->setidusercomptable(User::ROLE_NON_RENSEIGNE);
+            m_currentuser->setcomptable(Q_NULLPTR);
 
             m_aveccomptaprovisoire = true;
             m_usecotation     = true;
@@ -3352,7 +3364,10 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         listUserFound << us;
                     }
                     if (listUserFound.size() == 1)
+                    {
                         m_currentuser->setidparent( listUserFound.first()->id() );
+                        m_currentuser->setparent(Datas::I()->users->getById(listUserFound.first()->id()));
+                    }
                     else if( !listUserFound.isEmpty() )
                     {
                         // on va demander qui est le soignant parent de ce remplaçant....
@@ -3387,6 +3402,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                         {
                                             //gidUserParentProv = butt->accessibleName().toInt();
                                             m_currentuser->setidparent( butt->accessibleName().toInt() );
+                                            m_currentuser->setparent(Datas::I()->users->getById(butt->accessibleName().toInt()));
                                             break;
                                         }
                             delete dlg_askUser;
@@ -3394,20 +3410,33 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                     }
                 }
                 else
+                {
                     m_currentuser->setidparent( m_currentuser->idsuperviseur() );
+                    m_currentuser->setparent(Datas::I()->users->getById(m_currentuser->idsuperviseur()));
+                }
             }
             if( Datas::I()->users->getById(m_currentuser->idparent()) != Q_NULLPTR )
             {
                 // determination de l'utilisation de la cotation
                 m_usecotation = Datas::I()->users->getById(m_currentuser->idparent())->useCCAM();
                 // determination de l'utilisation de la comptabilité
-                m_aveccomptaprovisoire = !Datas::I()->users->getById(m_currentuser->idparent())->isSansCompta();
+                int idparent = m_currentuser->idparent();
+                m_aveccomptaprovisoire = !Datas::I()->users->getById(idparent)->isSansCompta();
                 if( Datas::I()->users->getById(m_currentuser->idparent())->isLiberal() )
+                {
                     m_currentuser->setidusercomptable(Datas::I()->users->getById(m_currentuser->idparent())->id());
+                    m_currentuser->setcomptable(Datas::I()->users->getById(m_currentuser->idcomptable()));
+                }
                 else if( Datas::I()->users->getById(m_currentuser->idparent())->isSalarie() )
+                {
                     m_currentuser->setidusercomptable(Datas::I()->users->getById(m_currentuser->idparent())->idemployeur());
+                    m_currentuser->setcomptable(Datas::I()->users->getById(m_currentuser->idcomptable()));
+                }
                 else
+                {
                     m_currentuser->setidusercomptable(User::ROLE_NON_RENSEIGNE);
+                    m_currentuser->setcomptable(Q_NULLPTR);
+                }
             }
         }
         return true;
@@ -3415,8 +3444,11 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
     // il s'agit d'un administratif ou d'une société comptable
     m_currentuser->setidsuperviseur(User::ROLE_VIDE);
+    m_currentuser->setsuperviseur(Q_NULLPTR);
     m_currentuser->setidusercomptable(User::ROLE_VIDE);
+    m_currentuser->setcomptable(Q_NULLPTR);
     m_currentuser->setidparent(User::ROLE_VIDE);
+    m_currentuser->setparent(Q_NULLPTR);
     m_usecotation     = true;
     m_aveccomptaprovisoire = true; //FIXME : avecLaComptaProv
     return true;
@@ -3424,28 +3456,16 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
 /*!
  * \brief Procedures::SetUserAllData(User *usr)
- * Charge les données d'un utilisateur, y compris ses données bancaires
+ * Charge les données bancaires d'un utilisateur
  * cette fonction fait appel aux deux classes cls_user et cls_compte
  * et ne peut pas figurer dans la classe cls_user
  * en raison de référence croisées
  */
-bool Procedures::SetUserAllData(User *usr, Item::UPDATE upd)
+void Procedures::MAJComptesBancaires(User *usr)
 {
-    if (!usr->isAllLoaded() || upd == Item::Update)
-    {
-        QJsonObject data = db->loadUserData(usr->id());
-        if(data.isEmpty())
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
-                                + usr->login() + tr(" ne sont pas retrouvés"));
-            return false;
-        }
-        usr->setData( data ); //on charge le reste des données
-    }
     usr->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
     if (usr->isSalarie())
         usr->setidcompteencaissementhonoraires(Datas::I()->users->getById(usr->idemployeur())->idcompteencaissementhonoraires());
-    return true;
 }
 
 /*!
@@ -3462,7 +3482,9 @@ void Procedures::CalcUserSuperviseur()
 {
     User *user = qobject_cast<User *>(dlg_askUser->data());
     m_currentuser->setidsuperviseur(User::ROLE_INDETERMINE);
+    m_currentuser->setsuperviseur(Q_NULLPTR);
     m_currentuser->setidparent(User::ROLE_INDETERMINE);
+    m_currentuser->setparent(Q_NULLPTR);
     QGroupBox *ptbox = Q_NULLPTR;
     QList<QGroupBox*> Listgroupbx   = dlg_askUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
@@ -3492,6 +3514,7 @@ void Procedures::CalcUserSuperviseur()
     if( listUserFound.size() == 1 )
     {
         m_currentuser->setidsuperviseur( listUserFound.first()->id() );
+        m_currentuser->setsuperviseur(Datas::I()->users->getById(listUserFound.first()->id()));
     }
     else if( !listUserFound.isEmpty() )
     {
@@ -3543,6 +3566,7 @@ void Procedures::CalcUserParent()
     User *user = qobject_cast<User *>(dlg_askUser->data());
     //gidUserSuperViseurProv = user->id();
     user->setidsuperviseur( user->id() );
+    user->setsuperviseur(user);
     QGroupBox *ptbox = Q_NULLPTR;
     foreach (QGroupBox * box, dlg_askUser->findChildren<QGroupBox*>())
     {
@@ -3578,6 +3602,7 @@ void Procedures::CalcUserParent()
         {
             //gidUserParentProv = listUserFound.first()->id();
             user->setidparent( listUserFound.first()->id() );
+            m_currentuser->setparent(Datas::I()->users->getById(listUserFound.first()->id()));
         }
         else if( !listUserFound.isEmpty() )
         {
@@ -3619,6 +3644,7 @@ void Procedures::CalcUserParent()
         // *  4.   le superviseur est sans compta         -> pas de compta des actes
         //gidUserParentProv = gidUserSuperViseurProv;
         user->setidparent( user->id() );
+        m_currentuser->setparent(Datas::I()->users->getById(user->id()));
     }
     dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 }
@@ -3693,13 +3719,12 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             PremierParametrageMateriel();
             PremierParametrageRessources();
             Datas::I()->sites->initListe();
-            db->login(login, MDP);
-            m_currentuser = db->userConnected();
-            SetUserAllData(m_currentuser);
+            db->setidUserConnected(login, MDP);
+            m_currentuser = Datas::I()->users->getById(DataBase::I()->idUserConnected());
+            MAJComptesBancaires(m_currentuser);
             CalcLieuExercice();
             if (Datas::I()->sites->currentsite() == Q_NULLPTR)
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-            Datas::I()->users->initListe();
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
             if (!m_connexionbaseOK)
                 return false;
@@ -3730,8 +3755,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                 PremierParametrageMateriel();
                 PremierParametrageRessources();
             }
-            db->login(login, MDP);
-            m_currentuser = db->userConnected();
+            db->setidUserConnected(login, MDP);
+            m_currentuser = Datas::I()->users->getById(DataBase::I()->idUserConnected());
             m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
             if (!m_connexionbaseOK)
                 return false;
@@ -3755,20 +3780,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
-            if (m_modeacces == Utils::ReseauLocal)
-                db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(m_modeacces) + "/Serveur").toString());
-            m_parametres = db->parametres();
-
-            // Création de l'utilisateur
-            m_connexionbaseOK = CreerPremierUser(login, MDP);
-            db->login(m_currentuser->login(), m_currentuser->password());
-            SetUserAllData(m_currentuser);
-            Datas::I()->sites->initListe();
-            CalcLieuExercice();
-            if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-                UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-            Datas::I()->users->initListe();
-            UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
+             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -3949,8 +3961,8 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         reponse = VerifParamConnexion(login, MDP);
         if (reponse)
         {
-            db->login(login, MDP);
-            m_currentuser = db->userConnected();
+            db->setidUserConnected(login, MDP);
+            m_currentuser = Datas::I()->users->getById(DataBase::I()->idUserConnected());
             int idusr = VerifUserBase(m_currentuser->login(), m_currentuser->password());
             m_connexionbaseOK = (idusr > -1);
             if (!m_connexionbaseOK)
@@ -5609,6 +5621,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             PortAutoref()->clear();
             PortAutoref()->write(SendDataNIDEK(cmd));
             PortAutoref()->waitForBytesWritten(100);
+            return;
         }
     }
     if (!LectureDonneesAutoref(m_mesureSerie))

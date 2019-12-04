@@ -50,7 +50,6 @@ public: //static
     enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};               Q_ENUM(RESPONSABLE)
 
 private:
-    bool m_isAllLoaded = false;
 
 /*!
  * les données figées, ne variant pas d'une session à l'autre
@@ -187,8 +186,6 @@ public:
     int typecompta() const;
     void setTypeCompta(int typeCompta);
 
-    bool isAllLoaded() const;
-
     bool isOPTAM();
     bool useCCAM();
 
@@ -216,21 +213,21 @@ public:
      * les données susceptibles de varier d'une session à l'autre  ======================================================================================================================
      */
 
-    User *superviseur() const;
-    void setsuperviseur(User *usr);
-    int idsuperviseur() const;
-    void setidsuperviseur(int idusr);
-    bool ishisownsupervisor();
+    User *superviseur() const                     { return m_userSuperviseur; }
+    void setsuperviseur(User *usr)                { m_userSuperviseur = usr; }
+    int idsuperviseur() const                     { return m_idUserSuperviseur; }
+    void setidsuperviseur(int idusr)              { m_idUserSuperviseur = idusr; }
+    bool ishisownsupervisor()                     { return (m_idUserSuperviseur == m_id); }
 
-    User *parent() const;
-    void setparent(User *usr);
-    int idparent() const;
-    void setidparent(int idusr);
+    User *parent() const                          { return m_userParent; }
+    void setparent(User *usr)                     { m_userParent = usr; }
+    int idparent() const                          { return m_idUserParent; }
+    void setidparent(int idusr)                   { m_idUserParent = idusr; }
 
-    User *comptable() const;
-    void setcomptable(User *usr);
-    int idcomptable() const;
-    void setidusercomptable(int idusr);
+    User *comptable() const                       { return m_userComptable; }
+    void setcomptable(User *usr)                  { m_userComptable = usr; }
+    int idcomptable() const                       { return m_idUserComptable; }
+    void setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
 
     QString status() const;
 };

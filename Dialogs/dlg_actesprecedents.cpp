@@ -212,7 +212,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
     Acte *acte = it_currentacte.value();
-    User * usr = Datas::I()->users->getById(acte->idUser(), Item::LoadDetails);
+    User * usr = Datas::I()->users->getById(acte->idUser());
 
     if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
         return;

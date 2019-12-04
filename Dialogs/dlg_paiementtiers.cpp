@@ -62,7 +62,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
         m_initok = false;
         return;
     }
-    proc        ->SetUserAllData(m_useracrediter);
+    proc        ->MAJComptesBancaires(m_useracrediter);
     if( m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
@@ -405,7 +405,7 @@ void dlg_paiementtiers::ChangeUtilisateur()
     int id = m_useracrediter->id();
     m_useracrediter = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     if (m_useracrediter != Q_NULLPTR)
-        proc        ->SetUserAllData(m_useracrediter);
+        proc        ->MAJComptesBancaires(m_useracrediter);
     if (m_useracrediter == Q_NULLPTR || m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
@@ -413,7 +413,7 @@ void dlg_paiementtiers::ChangeUtilisateur()
         ui->UserscomboBox                   ->setCurrentIndex(ui->UserscomboBox->findData(id));
         connect (ui->UserscomboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_paiementtiers::ChangeUtilisateur);
         m_useracrediter                     = Datas::I()->users->getById(id);
-        proc                                ->SetUserAllData(m_useracrediter);
+        proc                                ->MAJComptesBancaires(m_useracrediter);
         return;
     }
 
