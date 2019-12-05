@@ -736,7 +736,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
         if (QFile(ListNomFiles.at(i)).exists())
         {
             if (m_currentuser == Q_NULLPTR)
-                scriptrestore += "$MYSQL -u " + m_login +  " -p" +  m_password + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
+                scriptrestore += "$MYSQL -u " + m_loginSQL +  " -p" +  m_passwordSQL + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
             else
                 scriptrestore += "$MYSQL -u " + m_currentuser->login() +  " -p" +  m_currentuser->password() + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
             scriptrestore += "\n";
@@ -1818,7 +1818,7 @@ QString Procedures::SessionStatus()
     bool respliberal        = soigntnonassistant && liberal;
 
 
-    QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + m_currentuser->status();
+    QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + currentuserstatus();
     txtstatut += "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom();
     txtstatut += "\n\n";
 
@@ -2936,11 +2936,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setUserConnected(m_currentuser);
     MAJComptesBancaires(m_currentuser);
     m_currentuser->setidsuperviseur(1);
-    m_currentuser->setsuperviseur(m_currentuser);
     m_currentuser->setidusercomptable(1);
-    m_currentuser->setcomptable(m_currentuser);
     m_currentuser->setidparent(1);
-    m_currentuser->setparent(m_currentuser);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
@@ -3147,8 +3144,8 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     }
     else if ( result < 0 ) // anomalie sur la base - table utilisateurs manquante ou corrompue
     {
-        m_login         = dlg_IdentUser->ui->LoginlineEdit->text();
-        m_password      = dlg_IdentUser->ui->MDPlineEdit->text();
+        m_loginSQL      = dlg_IdentUser->ui->LoginlineEdit->text();
+        m_passwordSQL   = dlg_IdentUser->ui->MDPlineEdit->text();
         UpMessageBox    msgbox;
         UpSmallButton   AnnulBouton(tr("Annuler"));
         UpSmallButton   RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
@@ -3179,7 +3176,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                 exit(0);
             // Création de l'utilisateur
             //TODO : ICI
-            m_connexionbaseOK = CreerPremierUser(m_login, m_password);
+            m_connexionbaseOK = CreerPremierUser(m_loginSQL, m_passwordSQL);
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -3308,7 +3305,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         if (listbutt.at(j)->isChecked())
                         {
                             m_currentuser->setidsuperviseur(listbutt.at(j)->accessibleName().toInt());
-                            m_currentuser->setsuperviseur(Datas::I()->users->getById(listbutt.at(j)->accessibleName().toInt()));
                             break;
                         }
                 }
@@ -3335,10 +3331,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         {
             // le user est assistant et travaille pour tout le monde
             m_currentuser->setidparent(User::ROLE_NON_RENSEIGNE);
-            m_currentuser->setparent(Q_NULLPTR);
             m_currentuser->setidusercomptable(User::ROLE_NON_RENSEIGNE);
-            m_currentuser->setcomptable(Q_NULLPTR);
-
             m_aveccomptaprovisoire = true;
             m_usecotation     = true;
         }
@@ -3364,10 +3357,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         listUserFound << us;
                     }
                     if (listUserFound.size() == 1)
-                    {
                         m_currentuser->setidparent( listUserFound.first()->id() );
-                        m_currentuser->setparent(Datas::I()->users->getById(listUserFound.first()->id()));
-                    }
                     else if( !listUserFound.isEmpty() )
                     {
                         // on va demander qui est le soignant parent de ce remplaçant....
@@ -3402,7 +3392,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                         {
                                             //gidUserParentProv = butt->accessibleName().toInt();
                                             m_currentuser->setidparent( butt->accessibleName().toInt() );
-                                            m_currentuser->setparent(Datas::I()->users->getById(butt->accessibleName().toInt()));
                                             break;
                                         }
                             delete dlg_askUser;
@@ -3412,7 +3401,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 else
                 {
                     m_currentuser->setidparent( m_currentuser->idsuperviseur() );
-                    m_currentuser->setparent(Datas::I()->users->getById(m_currentuser->idsuperviseur()));
                 }
             }
             if( Datas::I()->users->getById(m_currentuser->idparent()) != Q_NULLPTR )
@@ -3423,20 +3411,11 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 int idparent = m_currentuser->idparent();
                 m_aveccomptaprovisoire = !Datas::I()->users->getById(idparent)->isSansCompta();
                 if( Datas::I()->users->getById(m_currentuser->idparent())->isLiberal() )
-                {
                     m_currentuser->setidusercomptable(Datas::I()->users->getById(m_currentuser->idparent())->id());
-                    m_currentuser->setcomptable(Datas::I()->users->getById(m_currentuser->idcomptable()));
-                }
                 else if( Datas::I()->users->getById(m_currentuser->idparent())->isSalarie() )
-                {
                     m_currentuser->setidusercomptable(Datas::I()->users->getById(m_currentuser->idparent())->idemployeur());
-                    m_currentuser->setcomptable(Datas::I()->users->getById(m_currentuser->idcomptable()));
-                }
                 else
-                {
                     m_currentuser->setidusercomptable(User::ROLE_NON_RENSEIGNE);
-                    m_currentuser->setcomptable(Q_NULLPTR);
-                }
             }
         }
         return true;
@@ -3444,11 +3423,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
     // il s'agit d'un administratif ou d'une société comptable
     m_currentuser->setidsuperviseur(User::ROLE_VIDE);
-    m_currentuser->setsuperviseur(Q_NULLPTR);
     m_currentuser->setidusercomptable(User::ROLE_VIDE);
-    m_currentuser->setcomptable(Q_NULLPTR);
     m_currentuser->setidparent(User::ROLE_VIDE);
-    m_currentuser->setparent(Q_NULLPTR);
     m_usecotation     = true;
     m_aveccomptaprovisoire = true; //FIXME : avecLaComptaProv
     return true;
@@ -3482,9 +3458,7 @@ void Procedures::CalcUserSuperviseur()
 {
     User *user = qobject_cast<User *>(dlg_askUser->data());
     m_currentuser->setidsuperviseur(User::ROLE_INDETERMINE);
-    m_currentuser->setsuperviseur(Q_NULLPTR);
     m_currentuser->setidparent(User::ROLE_INDETERMINE);
-    m_currentuser->setparent(Q_NULLPTR);
     QGroupBox *ptbox = Q_NULLPTR;
     QList<QGroupBox*> Listgroupbx   = dlg_askUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
@@ -3512,10 +3486,7 @@ void Procedures::CalcUserSuperviseur()
     }
 
     if( listUserFound.size() == 1 )
-    {
         m_currentuser->setidsuperviseur( listUserFound.first()->id() );
-        m_currentuser->setsuperviseur(Datas::I()->users->getById(listUserFound.first()->id()));
-    }
     else if( !listUserFound.isEmpty() )
     {
         ptbox->setVisible( true );
@@ -3566,7 +3537,6 @@ void Procedures::CalcUserParent()
     User *user = qobject_cast<User *>(dlg_askUser->data());
     //gidUserSuperViseurProv = user->id();
     user->setidsuperviseur( user->id() );
-    user->setsuperviseur(user);
     QGroupBox *ptbox = Q_NULLPTR;
     foreach (QGroupBox * box, dlg_askUser->findChildren<QGroupBox*>())
     {
@@ -3602,7 +3572,6 @@ void Procedures::CalcUserParent()
         {
             //gidUserParentProv = listUserFound.first()->id();
             user->setidparent( listUserFound.first()->id() );
-            m_currentuser->setparent(Datas::I()->users->getById(listUserFound.first()->id()));
         }
         else if( !listUserFound.isEmpty() )
         {
@@ -3644,7 +3613,6 @@ void Procedures::CalcUserParent()
         // *  4.   le superviseur est sans compta         -> pas de compta des actes
         //gidUserParentProv = gidUserSuperViseurProv;
         user->setidparent( user->id() );
-        m_currentuser->setparent(Datas::I()->users->getById(user->id()));
     }
     dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 }
@@ -3746,8 +3714,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             UpMessageBox::Watch(Q_NULLPTR,tr("Connexion réussie"),
                                   tr("Bien, la connexion au serveur MySQL fonctionne,\n"));
             // Restauration de la base
-            m_login = login;
-            m_password = MDP;
+            m_loginSQL = login;
+            m_passwordSQL = MDP;
             if (!RestaureBase(false, true, false))
                 return false;
             if (QMessageBox::question(Q_NULLPTR,"", tr("Reinitialiser les fichiers de paramétrage du matériel et d'impression?")) == QMessageBox::Yes)
@@ -4649,6 +4617,69 @@ void Procedures::RegleRefracteur()
         PortRefracteur()->write(Data);
         PortRefracteur()->waitForBytesWritten(1000);
     }
+}
+
+/*!
+ * \brief Procedures::status
+ * génére un résumé des informations de l'utilisateur sur la session courante.
+ * \return Chaine de caractères
+ */
+QString Procedures::currentuserstatus() const
+{
+    const User *usr = Datas::I()->users->userconnected();
+    QString str = "" +
+            tr("utilisateur") + "\t\t= " + usr->login()  + "\n";
+
+    //qDebug() << "superviseur " << usr->idsuperviseur();
+    //qDebug() << "parent " << usr->idparent();
+    //qDebug() << "comptable " << usr->idcomptable();
+    QString strSup = "";
+    if( usr->idsuperviseur() == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
+        strSup = tr("tout le monde");
+    else if( usr->idsuperviseur() == User::ROLE_VIDE )               // le user est un administratif
+        strSup = tr("sans objet");
+    else if( usr->idsuperviseur() == User::ROLE_INDETERMINE )        // jamais utilisé
+        strSup = tr("indéterminé");
+    else if(  Datas::I()->users->getById(usr->idsuperviseur()) != Q_NULLPTR )
+        strSup = Datas::I()->users->getById(usr->idsuperviseur())->login();
+    str += tr("superviseur") + "\t\t= " + strSup + "\n";
+
+    QString strParent = "";
+    if( usr->idparent() == User::ROLE_NON_RENSEIGNE )                    // le user est soignant, assistant, travaille pour plusieurs superviseurs
+        strParent = tr("sans objet");
+    else if( usr->idparent() == User::ROLE_VIDE )                        // le user est un administratif
+        strParent = tr("sans objet");
+    else if( usr->idparent() == User::ROLE_INDETERMINE )                 // jamais utilisé
+        strParent = tr("indéterminé");
+    else if(  Datas::I()->users->getById(usr->idparent()) != Q_NULLPTR )
+        strParent = Datas::I()->users->getById(usr->idparent())->login();
+    str += tr("parent") + "\t\t= " + strParent + "\n";
+
+    QString strComptable = "";
+    if( usr->idcomptable() == User::ROLE_NON_RENSEIGNE )
+        strComptable = tr("sans objet");
+    else if( usr->idcomptable() == User::ROLE_VIDE )
+        strComptable = tr("sans objet");
+    else if( usr->idcomptable() == User::ROLE_INDETERMINE )
+        strComptable = tr("indéterminé");
+    else if(  Datas::I()->users->getById(usr->idcomptable()) != Q_NULLPTR )
+        strComptable = Datas::I()->users->getById(usr->idcomptable())->login();
+    str += tr("comptable") + "\t\t= " + strComptable + "\n";
+    if(  Datas::I()->users->getById(usr->idcomptable()) != Q_NULLPTR )
+        str += tr("cpte banque") + "\t= " + Datas::I()->comptes->getById(usr->idcompteencaissementhonoraires())->nomabrege() + "\n";
+
+    QString strCompta = "";
+    if( usr->typecompta() == User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE )
+        strCompta = "avec cotation et comptabilité";
+    else if( usr->typecompta() == User::COMPTA_SANS_COTATION_SANS_COMPTABILITE )
+        strCompta = "sans cotation ni comptabilité";
+    else if( usr->typecompta() == User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE )
+        strCompta = "avec cotation sans comptabilité";
+    else if( usr->typecompta() == User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE )
+        strCompta = "sans cotation avec comptabilité";
+    str += tr("comptabilité") + "\t= " + strCompta;
+
+    return str;
 }
 
 void Procedures::debugMesure(QObject *mesure, QString titre)

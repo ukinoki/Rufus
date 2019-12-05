@@ -955,15 +955,13 @@ void dlg_param::GestionUsers()
         int idcomptable     = m_currentuser->idcomptable();
         int idparent        = m_currentuser->idparent();
         int idsuperviseur   = m_currentuser->idsuperviseur();
+        delete m_currentuser;
         Datas::I()->users   ->initListe();
         m_currentuser       = Datas::I()->users->getById(DataBase::I()->idUserConnected());
         DataBase::I()       ->setUserConnected(m_currentuser);
         m_currentuser       ->setidparent(idparent);
-        m_currentuser       ->setparent(Datas::I()->users->getById(idparent));
         m_currentuser       ->setidusercomptable(idcomptable);
-        m_currentuser       ->setcomptable(Datas::I()->users->getById(idcomptable));
         m_currentuser       ->setidsuperviseur(idsuperviseur);
-        m_currentuser       ->setsuperviseur(Datas::I()->users->getById(idsuperviseur));
         proc                ->MAJComptesBancaires(m_currentuser);
         AfficheParamUser();
     }
@@ -1982,7 +1980,7 @@ void dlg_param::AfficheParamUser()
     bool soccomptable   = m_currentuser->isSocComptable();
     bool medecin        = m_currentuser->isMedecin();
 
-    ui->StatutComptaupTextEdit->setText(proc->SessionStatus());
+    ui->StatutComptaupTextEdit      ->setText(proc->SessionStatus());
 
     ui->TitreuplineEdit             ->setVisible(medecin);
     ui->Titrelabel                  ->setVisible(medecin);

@@ -51,7 +51,7 @@ public:
     void        initListe();
     void        remplaceUserListes(User *usr);
     void        SupprimeUser(User *usr);
-    User*       userconnected()             { return DataBase::I()->userConnected(); }
+    User*       userconnected() const            { return DataBase::I()->userConnected(); }
 };
 
 #endif // CLS_USERS_H

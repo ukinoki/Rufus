@@ -72,7 +72,6 @@ private:
     QString m_memo = "";                //!> memo sur l'utilisateur
     QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
     QString m_policeAttribut = "";      //! lle choix d'attribut de la police d'écran
-    QString m_nomCompteEncaissHonoraires = "";  //!> le compte sur lequel sont encaissés les honoraires
 
     int m_soignant;
     qlonglong m_numPS;
@@ -109,13 +108,10 @@ private:
  * les données susceptibles de varier d'une session à l'autre
  */
 
-    User *m_userSuperviseur     = Q_NULLPTR;
     int m_idUserSuperviseur = ROLE_INDETERMINE;     //!< son id s'il est responsable de ses actes
                                                     //!< l'id du user assisté s'il est assistant
-    User *m_userParent = Q_NULLPTR;
     int m_idUserParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
                                                     //!< l'id du user remplacé s'il est remplacé
-    User *m_userComptable = Q_NULLPTR;
     int m_idUserComptable = ROLE_INDETERMINE;       //!< son id s'il est responsable et libéral
                                                     //!< l'id de son employeur s'il est responsable et salarié
                                                     //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
@@ -213,23 +209,16 @@ public:
      * les données susceptibles de varier d'une session à l'autre  ======================================================================================================================
      */
 
-    User *superviseur() const                     { return m_userSuperviseur; }
-    void setsuperviseur(User *usr)                { m_userSuperviseur = usr; }
     int idsuperviseur() const                     { return m_idUserSuperviseur; }
     void setidsuperviseur(int idusr)              { m_idUserSuperviseur = idusr; }
     bool ishisownsupervisor()                     { return (m_idUserSuperviseur == m_id); }
 
-    User *parent() const                          { return m_userParent; }
-    void setparent(User *usr)                     { m_userParent = usr; }
     int idparent() const                          { return m_idUserParent; }
     void setidparent(int idusr)                   { m_idUserParent = idusr; }
 
-    User *comptable() const                       { return m_userComptable; }
-    void setcomptable(User *usr)                  { m_userComptable = usr; }
     int idcomptable() const                       { return m_idUserComptable; }
     void setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
 
-    QString status() const;
 };
 
 #endif // CLS_USER_H

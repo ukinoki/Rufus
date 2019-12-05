@@ -137,9 +137,9 @@ User* Users::getById(int id, Item::UPDATE upd)
 void Users::reload(User *usr)
 {
     QJsonObject jsonUser = DataBase::I()->loadUserData(usr->id());
-    usr->setData(jsonUser);
     if( jsonUser.isEmpty() )
         return;
+    usr->setData(jsonUser);
     if( map_users->find(usr->id()) == map_users->constEnd() )
         add(usr);
 }
@@ -202,3 +202,4 @@ void Users::SupprimeUser(User *usr)
     DataBase::I()->SupprRecordFromTable(usr->id(), CP_ID_USR, TBL_UTILISATEURS);
     delete usr;
 }
+

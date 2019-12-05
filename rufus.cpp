@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-12-2019/1");
+    qApp->setApplicationVersion("05-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -43,9 +43,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         int     b = 0;
         bool    a;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString()    == "YES")       b += 1;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString()    == "YES") b += 1;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString()  == "YES")       b += 1;
+        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES")       b += 1;
+        if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES") b += 1;
+        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES")     b += 1;
         a = (b>1);
         if (b==1)
             if (!proc->Connexion_A_La_Base())
@@ -73,7 +73,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
     qApp->setStyleSheet(Styles::StyleAppli());
-    Message::I()->SplashMessage(m_currentuser->status() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
+    Message::I()->SplashMessage(proc->currentuserstatus() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
 
     //! 3 Initialisation de tout
     InitVariables();

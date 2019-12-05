@@ -680,6 +680,11 @@ void dlg_gestionusers::EnregistreUser()
         done(ui->idUseruplineEdit->text().toInt());
         return;
     }
+    else if (m_usermode == MODIFUSER)
+    {
+        accept();
+        return;
+    }
     else if (m_mode == Creer)
     {
         //2. On crée 3 comptes avec ce login et ce MDP: local en localhost, réseau en 192.168.1.% et distant en %-SSL et login avec SSL à la fin

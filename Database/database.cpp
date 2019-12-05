@@ -621,10 +621,9 @@ QJsonObject DataBase::loadUserData(int idUser)
             CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
-            CP_ISOPTAM_USR ", cpt." CP_NOMABREGE_COMPTES                                                                                                // 30,31
-            " from " TBL_UTILISATEURS " usr "
-            " left outer join " TBL_COMPTES " cpt on usr." CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = cpt." CP_IDCOMPTE_COMPTES
-            " where usr." CP_ID_USR " = " + QString::number(idUser);
+            CP_ISOPTAM_USR                                                                                                                              // 30
+            " from " TBL_UTILISATEURS
+            " where " CP_ID_USR " = " + QString::number(idUser);
 
             //+ "  and userdesactive is null";
             // SL cette ligne est retirée parce qu'elle bloque l'affichage des utilisateurs désactivés dans dlg_gestionsusers
@@ -669,8 +668,6 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
     userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
     userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
-    if( userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR].toInt() > -1 )
-        userData[CP_NOMABREGE_COMPTES]              = usrdata.at(31).toString();
     return userData;
 }
 
@@ -693,9 +690,8 @@ QList<User*> DataBase::loadUsers()
             CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
-            CP_ISOPTAM_USR ", cpt." CP_NOMABREGE_COMPTES ", usr." CP_ID_USR                                                                                 // 30,31, 32
-            " from " TBL_UTILISATEURS " usr "
-            " left outer join " TBL_COMPTES " cpt on usr." CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = cpt." CP_IDCOMPTE_COMPTES
+            CP_ISOPTAM_USR ", " CP_ID_USR                                                                                 // 30,31
+            " from " TBL_UTILISATEURS
             " where " CP_ISDESACTIVE_USR " is null";
 
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
@@ -705,7 +701,7 @@ QList<User*> DataBase::loadUsers()
     {
         QVariantList usrdata = usrlist.at(i);
         QJsonObject userData{};
-        userData[CP_ID_USR]                             = usrdata.at(32).toInt();
+        userData[CP_ID_USR]                             = usrdata.at(31).toInt();
         userData[CP_DROITS_USR]                         = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
         userData[CP_ISAGA_USR]                          = (usrdata.at(1).toInt() == 1);
         userData[CP_LOGIN_USR]                          = usrdata.at(2).isNull() ? "" : usrdata.at(2).toString();
@@ -737,8 +733,6 @@ QList<User*> DataBase::loadUsers()
         userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
         userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
         userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
-        if( userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR].toInt() > -1 )
-            userData[CP_NOMABREGE_COMPTES]              = usrdata.at(31).toString();
         User *usr = new User(userData);
         users << usr;
     }

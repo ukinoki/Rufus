@@ -96,8 +96,8 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     DataBase                *db;
-    QString                 m_login = "";
-    QString                 m_password = "";
+    QString                 m_loginSQL = "";
+    QString                 m_passwordSQL = "";
     Utils::ModeAcces        m_modeacces;
     bool                    m_connexionbaseOK;
     bool                    m_ok;
@@ -189,6 +189,7 @@ private:
                                                                         */
 public:
     QString                 MDPAdmin();
+    QString                 currentuserstatus() const;
     QString                 SessionStatus();                            /*! statut de l'utilisateur pour cette session */
 
     int                     idCentre();

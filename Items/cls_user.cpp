@@ -60,7 +60,6 @@ void User::setData(QJsonObject data)
     Utils::setDataString(data, CP_MEMO_USR, m_memo);
     Utils::setDataString(data, CP_POLICEECRAN_USR, m_policeEcran);
     Utils::setDataString(data, CP_POLICEATTRIBUT_USR, m_policeAttribut);
-    Utils::setDataString(data, CP_NOMABREGE_COMPTES, m_nomCompteEncaissHonoraires);
 
     Utils::setDataInt(data, CP_SOIGNANTSTATUS_USR, m_soignant);
     Utils::setDataInt(data, CP_RESPONSABLEACTES_USR, m_responsableActes);
@@ -198,67 +197,4 @@ void User::setlistecomptesbancaires(QMap<int, bool> mapidcomptes)
             m_listidcomptes->append(idcpt);
     }
 }
-
-/*!
- * \brief User::status
- * génére un résumé des informations de l'utilisateur sur la session courante.
- * \return Chaine de caractères
- */
-QString User::status() const
-{
-    QString str = "" +
-            tr("utilisateur") + "\t\t= " + m_login  + "\n";
-
-    //qDebug() << "superviseur " << m_idUserActeSuperviseur;
-    //qDebug() << "parent " << m_idUserParent;
-    //qDebug() << "comptable " << m_idUserComptable;
-    QString strSup = "";
-    if( m_idUserSuperviseur == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
-        strSup = tr("tout le monde");
-    else if( m_idUserSuperviseur == User::ROLE_VIDE )               // le user est un administratif
-        strSup = tr("sans objet");
-    else if( m_idUserSuperviseur == User::ROLE_INDETERMINE )        // jamais utilisé
-        strSup = tr("indéterminé");
-    else if( m_userSuperviseur )
-        strSup = m_userSuperviseur->login();
-    str += tr("superviseur") + "\t\t= " + strSup + "\n";
-
-    QString strParent = "";
-    if( m_idUserParent == User::ROLE_NON_RENSEIGNE )                    // le user est soignant, assistant, travaille pour plusieurs superviseurs
-        strParent = tr("sans objet");
-    else if( m_idUserParent == User::ROLE_VIDE )                        // le user est un administratif
-        strParent = tr("sans objet");
-    else if( m_idUserParent == User::ROLE_INDETERMINE )                 // jamais utilisé
-        strParent = tr("indéterminé");
-    else if( m_userParent )
-        strParent = m_userParent->login();
-    str += tr("parent") + "\t\t= " + strParent + "\n";
-
-    QString strComptable = "";
-    if( m_idUserComptable == User::ROLE_NON_RENSEIGNE )
-        strComptable = tr("sans objet");
-    else if( m_idUserComptable == User::ROLE_VIDE )
-        strComptable = tr("sans objet");
-    else if( m_idUserComptable == User::ROLE_INDETERMINE )
-        strComptable = tr("indéterminé");
-    else if( m_userComptable )
-        strComptable = m_userComptable->login();
-    str += tr("comptable") + "\t\t= " + strComptable + "\n";
-    if( m_userComptable )
-        str += tr("cpte banque") + "\t= " + m_nomCompteEncaissHonoraires + "\n";
-
-    QString strCompta = "";
-    if( m_typeCompta == User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE )
-        strCompta = "avec cotation et comptabilité";
-    else if( m_typeCompta == User::COMPTA_SANS_COTATION_SANS_COMPTABILITE )
-        strCompta = "sans cotation ni comptabilité";
-    else if( m_typeCompta == User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE )
-        strCompta = "avec cotation sans comptabilité";
-    else if( m_typeCompta == User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE )
-        strCompta = "sans cotation avec comptabilité";
-    str += tr("comptabilité") + "\t= " + strCompta;
-
-    return str;
-}
-
 
