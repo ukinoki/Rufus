@@ -162,7 +162,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode, bool majfiche)
     ui->GestionComptesupPushButton  ->setEnabled(m_mode == Lire || m_mode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(m_mode == Lire);
     ui->ModifierupPushButton        ->setVisible(m_mode == Lire);
-    int sz = m_currentuser->listecomptesbancaires()->size();
+    int sz = currentuser()->listecomptesbancaires()->size();
     ui->NouvelleRecetteupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && sz>0);
     ui->NouvelleRecetteupPushButton ->setToolTip((m_mode == Lire || m_mode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
     wdg_enreguppushbutton           ->setVisible(!(m_mode == Lire || m_mode == TableVide));
@@ -194,15 +194,15 @@ void dlg_recettesspeciales::AnnulEnreg()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_recettesspeciales::initializeUserSelected()
 {
-    if( m_currentuser->listecomptesbancaires(true)->size() == 0)
+    if( currentuser()->listecomptesbancaires(true)->size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_currentuser->login());
+        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + currentuser()->login());
         return false;
     }
-    if (m_currentuser->idcomptepardefaut() == 0)
+    if (currentuser()->idcomptepardefaut() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + m_currentuser->login());
+                                     + currentuser()->login());
         return false;
     }
 
@@ -251,7 +251,7 @@ void dlg_recettesspeciales::EnregistreRecette()
                                   " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
                                   "'and Libelle = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                                   "'and Montant = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                                  " and idUser = "    + QString::number(m_currentuser->id()),OK);
+                                  " and idUser = "    + QString::number(currentuser()->id()),OK);
     if (listrec.size() > 0)
     {
         pb = tr("Elle a déjà été saisie");
@@ -266,7 +266,7 @@ void dlg_recettesspeciales::EnregistreRecette()
         listrec = db->StandardSelectSQL("select DateRecette from " TBL_RECETTESSPECIALES " where DateRecette > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
                 "'and Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(m_currentuser->id()),OK);
+                " and idUser = " + QString::number(currentuser()->id()),OK);
         if (listrec.size() > 0)
         {
             if (pb != "")
@@ -302,7 +302,7 @@ void dlg_recettesspeciales::EnregistreRecette()
         return;
     if (!db->StandardSQL("insert into " TBL_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
             " VALUES ('" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-            "', " + QString::number(m_currentuser->id()) +
+            "', " + QString::number(currentuser()->id()) +
             ", '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
             "', " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
             ", '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) +
@@ -439,7 +439,7 @@ void dlg_recettesspeciales::ChoixMenu(int id)
 void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    foreach (int idcpt, *m_currentuser->listecomptesbancaires() )
+    foreach (int idcpt, *currentuser()->listecomptesbancaires() )
     {
         Compte *cpt = Datas::I()->comptes->getById(idcpt);
         if (cpt != Q_NULLPTR)
@@ -620,10 +620,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                int idx = m_currentuser->listecomptesbancaires(true)->indexOf(recette.at(6).toInt());
+                int idx = currentuser()->listecomptesbancaires(true)->indexOf(recette.at(6).toInt());
                 if( idx > -1 )
                 {
-                    B = Datas::I()->comptes->getById(m_currentuser->listecomptesbancaires(true)->at(idx))->nomabrege();
+                    B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true)->at(idx))->nomabrege();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -667,7 +667,7 @@ void dlg_recettesspeciales::MetAJourFiche()
             ui->DateRecdateEdit->setDate(QDate::currentDate());
             ui->Comptelabel->setVisible(true);
             ui->ComptesupComboBox->setVisible(true);
-            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_currentuser->idcomptepardefaut()));
+            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(currentuser()->idcomptepardefaut()));
             ui->PaiementcomboBox->setCurrentText(VIREMENT);
             break;
         case Modifier:
@@ -908,7 +908,7 @@ void dlg_recettesspeciales::ReconstruitListeAnnees()
     bool ok = true;
     QList<QVariantList> listannees =
             db->StandardSelectSQL("SELECT distinct Annee from (SELECT year(DateRecette) as Annee FROM " TBL_RECETTESSPECIALES
-                                  " WHERE idUser = " + QString::number(m_currentuser->id()) + ") as ghf order by Annee",ok);
+                                  " WHERE idUser = " + QString::number(currentuser()->id()) + ") as ghf order by Annee",ok);
     QStringList ListeAnnees;
     for (int i = 0; i < listannees.size(); i++)
     {
@@ -936,7 +936,7 @@ void dlg_recettesspeciales::RemplitBigTable()
     wdg_bigtable->clearContents();
     QString Recrequete = "SELECT idRecette, idUser, year(DateRecette) as Annee, DateRecette, Libelle, Montant,"
                          "TypeRecette, Nooperation, Monnaie, Paiement, CompteVirement, BanqueCheque FROM " TBL_RECETTESSPECIALES
-                         " WHERE idUser = " + QString::number(m_currentuser->id());
+                         " WHERE idUser = " + QString::number(currentuser()->id());
     if (ui->AnneecomboBox->currentText() != "")
         Recrequete += " AND year(DateRecette) = " + ui->AnneecomboBox->currentText();
     Recrequete += " ORDER BY DateRecette, Libelle";
@@ -1021,9 +1021,9 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    int idx = m_currentuser->listecomptesbancaires(true)->indexOf(recette.at(10).toInt());
+                    int idx = currentuser()->listecomptesbancaires(true)->indexOf(recette.at(10).toInt());
                     if( idx > -1 )
-                        B = Datas::I()->comptes->getById(m_currentuser->listecomptesbancaires(true)->at(idx))->nomabrege();
+                        B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true)->at(idx))->nomabrege();
                 }
                 A = VIREMENT + (B==""? "" : " " + B);
             }

@@ -86,17 +86,6 @@ void DataBase::getInformations()
            "\n" + tr("password    ") + "\n ->\t" + m_db.password() +
            "\n" + tr("port        ") + "\n ->\t" + QString::number(m_db.port()));
 }
-
-User* DataBase::userConnected() const
-{
-    return m_userConnected;
-}
-
-void DataBase::setUserConnected(User *usr)
-{
-    m_userConnected = usr;
-}
-
 bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
     if (erreur.type() != QSqlError::NoError)
@@ -593,7 +582,7 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 /*
  * Users
 */
-DataBase::QueryResult DataBase::setidUserConnected(QString login, QString password)
+DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
     //TODO : SQL USER : récupérer tout le reste
     QString req = "SELECT " CP_ID_USR

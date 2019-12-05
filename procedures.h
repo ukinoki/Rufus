@@ -129,7 +129,7 @@ public:
                                                                              * vide la table EchangeImages
                                                                              * purge les champs jpg et pdf de la table Factures  */
 private:
-    User                    *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    User*                   currentuser() { return Datas::I()->users->userconnected(); } //user connected //TODO : DEPLACER DANS DATAS
     QString                 m_absolutepathDirStockageImage, m_pathDirStockageImagesServeur;
     QString                 m_CPpardefaut, m_Villepardefaut;
 public:

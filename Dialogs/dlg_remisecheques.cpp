@@ -533,8 +533,8 @@ void dlg_remisecheques::ChangeCompte()
 
 void dlg_remisecheques::ChangeUser()
 {
-    m_currentuser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
-    proc->MAJComptesBancaires(m_currentuser);
+    m_userencours = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
+    proc->MAJComptesBancaires(m_userencours);
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
@@ -703,10 +703,10 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( auto it = m_currentuser->listecomptesbancaires()->constBegin(); it != m_currentuser->listecomptesbancaires()->constEnd(); ++it )
+    for( auto it = m_userencours->listecomptesbancaires()->constBegin(); it != m_userencours->listecomptesbancaires()->constEnd(); ++it )
     {
         idlist += QString::number(*it);
-        if (it != m_currentuser->listecomptesbancaires()->constEnd()-1)
+        if (it != m_userencours->listecomptesbancaires()->constEnd()-1)
             idlist += ", ";
     }
 
@@ -833,7 +833,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " TBL_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act." CP_IDACTE_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_currentuser->id()) + "))"
+                " (SELECT act." CP_IDACTE_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_userencours->id()) + "))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND ModePaiement = 'C'";
@@ -850,7 +850,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " TBL_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act." CP_IDACTE_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_currentuser->id()) +"))"
+                " (SELECT act." CP_IDACTE_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_userencours->id()) +"))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C'";
@@ -1035,7 +1035,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
         AvecPrevisu = true;
     }
     else if (m_mode == NouvelleRemise) {
-        iduser      = m_currentuser->id();
+        iduser      = m_userencours->id();
         date        = QDate::currentDate();
     }
 
@@ -1135,27 +1135,27 @@ void dlg_remisecheques::ReconstruitListeUsers()
         m_initok = false;
         return;
     }
-    m_currentuser = Datas::I()->users->userconnected();
+    m_userencours = Datas::I()->users->userconnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (Datas::I()->users->getById(m_currentuser->idcomptable()) != Q_NULLPTR)
+    if (Datas::I()->users->getById(m_userencours->idcomptable()) != Q_NULLPTR)
     {
-        auto itusr = map_comptablesavecchequesenattente->find(m_currentuser->id());
+        auto itusr = map_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != map_comptablesavecchequesenattente->end())
-            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_currentuser->id()));
+            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
     }
     else
     {
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
-        m_currentuser = Datas::I()->users->getById(idusr);
-        proc->MAJComptesBancaires(m_currentuser);
+        m_userencours = Datas::I()->users->getById(idusr);
+        proc->MAJComptesBancaires(m_userencours);
     }
 }
 
 void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptecomboBox->clear();
-    foreach (int id, *m_currentuser->listecomptesbancaires())
+    foreach (int id, *m_userencours->listecomptesbancaires())
     {
         Compte *cpt = Datas::I()->comptes->getById(id);
         if (cpt != Q_NULLPTR)
@@ -1169,5 +1169,5 @@ void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)
                 ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
         }
     }
-    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_currentuser->idcomptepardefaut()));
+    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->idcomptepardefaut()));
 }

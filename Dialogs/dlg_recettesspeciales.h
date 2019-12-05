@@ -44,7 +44,7 @@ private:
     QStringList                 m_listerecettesfiscales;
     bool                        m_initok;
     Mode                        m_mode;
-    User                        *m_currentuser   = Datas::I()->users->userconnected();
+    User*                       currentuser() { return Datas::I()->users->userconnected(); }
     UpTableWidget               *wdg_bigtable;
     UpPushButton                *wdg_enreguppushbutton, *wdg_annuluppushbutton;
 

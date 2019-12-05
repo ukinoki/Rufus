@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_ACTES_H
 #define CLS_ACTES_H
 
-#include "database.h"
 #include "cls_acte.h"
 #include "cls_itemslist.h"
 #include <QStandardItemModel>
@@ -63,7 +62,7 @@ public:
 
     //!> actions sur les enregistrements
     void    SupprimeActe(Acte *act);
-    Acte*   CreationActe(Patient *pat, int idcentre, int idlieu);
+    Acte*   CreationActe(Patient *pat, User *usr, int idcentre, int idlieu);
 
     //!< action sur toutes les données
     void    updateActe(Acte* acte);                                                         //!> met à jour les datas d'un acte à partir des données enregistrées dans la base

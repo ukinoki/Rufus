@@ -180,7 +180,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         paction_ImportantNorm->setIcon(icon);
     else if (imptce == 2)
         paction_ImportantMax->setIcon(icon);
-    if (m_currentuser->isMedecin())
+    if (currentuser()->isMedecin())
     {
         menu->addAction(paction_ImportantMin);
         menu->addAction(paction_ImportantNorm);
@@ -213,7 +213,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
 
         // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
-        if (m_currentuser->isMedecin()
+        if (currentuser()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
             if (QDate::currentDate() == docmt->date().date())
@@ -230,7 +230,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
-    if (m_currentuser->isMedecin())
+    if (currentuser()->isMedecin())
         menu->addAction(paction_Poubelle);
 
     menu->exec(cursor().pos());
@@ -712,7 +712,7 @@ void dlg_docsexternes::ImprimeDoc()
         msgbox.setIcon(UpMessageBox::Print);
 
         msgbox.addButton(&AnnulBouton,UpSmallButton::CANCELBUTTON);
-        if (m_currentuser->isMedecin()
+        if (currentuser()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         {
             if (QDate::currentDate() == docmt->date().date())           // si le document a été émis aujourd'hui, on propose de le modifier
@@ -819,7 +819,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = docmt->format();
         listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
         listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1" : QVariant(QVariant::String));
-        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = m_currentuser->id();
+        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = docmt->importance();
         DocExterne * doc = m_docsexternes->CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
@@ -1025,7 +1025,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
     }
     if (docmt == Q_NULLPTR)
         return;
-    if (!m_currentuser->isSoignant())         //le user n'est pas un soignant
+    if (!currentuser()->isSoignant())         //le user n'est pas un soignant
     {
         if (docmt->useremetteur() != Datas::I()->users->userconnected()->id())
         {
@@ -1038,7 +1038,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Supprimer"));
         UpSmallButton NoBouton(tr("Annuler"));
-        msgbox.setText("Euuhh... " + m_currentuser->login());
+        msgbox.setText("Euuhh... " + currentuser()->login());
         msgbox.setInformativeText(tr("Etes vous certain de vouloir supprimer ce document?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(&NoBouton,UpSmallButton::CANCELBUTTON);

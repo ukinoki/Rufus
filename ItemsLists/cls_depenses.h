@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_DEPENSES_H
 
 #include "cls_depense.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class Depenses : public ItemsList

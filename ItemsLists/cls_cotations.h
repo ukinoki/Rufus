@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_COTATIONS_H
 
 #include "cls_cotation.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class Cotations : public ItemsList

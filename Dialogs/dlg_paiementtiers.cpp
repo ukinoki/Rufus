@@ -42,19 +42,19 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionPaiement").toByteArray());
 
     map_comptables = Datas::I()->users->comptables(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
-    if (m_userconnected->isLiberal())
-        m_useracrediter = m_userconnected;
-    else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
-        m_useracrediter = Datas::I()->users->getById(m_userconnected->idcomptable());
-    else if (m_userconnected->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
+    if (currentuser()->isLiberal())
+        m_useracrediter = currentuser();
+    else if (currentuser()->isSalarie() && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
+        m_useracrediter = Datas::I()->users->getById(currentuser()->idcomptable());
+    else if (currentuser()->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
     {
-        User *parent = Datas::I()->users->getById(m_userconnected->idparent());
+        User *parent = Datas::I()->users->getById(currentuser()->idparent());
         if (parent->isLiberal())
             m_useracrediter = parent;
-        else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
+        else if (currentuser()->isSalarie() && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
             m_useracrediter = Datas::I()->users->getById(parent->idcomptable());
     }
-    else if(m_userconnected->isSecretaire())
+    else if(currentuser()->isSecretaire())
         m_useracrediter = Datas::I()->users->getById(map_comptables->firstKey());
     if (m_useracrediter == Q_NULLPTR)
     {
@@ -567,7 +567,7 @@ void dlg_paiementtiers::RegleAffichageFiche()
         setFixedHeight(HAUTEUR_MINI);
         ui->Utilisateurlabel    ->setGeometry(10,15,470,20);
         ui->line0               ->setGeometry(10,50,480,15);
-        ui->UserscomboBox       ->setEnabled(m_userconnected->isSecretaire());
+        ui->UserscomboBox       ->setEnabled(currentuser()->isSecretaire());
 
         QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
         for (int n = 0; n <  allRButtons.size(); n++)
@@ -772,7 +772,7 @@ void dlg_paiementtiers::ValidePaiement()
         }
         requete = "SELECT idActe FROM " TBL_LIGNESPAIEMENTS
                 " WHERE idRecette = " + QString::number(m_idrecette) +
-                " AND idActe IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userconnected->id()) + ")";
+                " AND idActe IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(currentuser()->id()) + ")";
         QList<QVariantList> actlist = db->StandardSelectSQL(requete,m_ok);
         if (actlist.size() > 0)
         {
@@ -1148,7 +1148,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                 EnregRecetterequete += "," + idCompte;
             }
 
-            EnregRecetterequete += "," + QString::number(m_userconnected->id());                                        // EnregistrePar
+            EnregRecetterequete += "," + QString::number(currentuser()->id());                                        // EnregistrePar
             EnregRecetterequete += ",1";                                                                                // TypeRecette
             EnregRecetterequete += ",'O'";                                                                              // Tierspayant
 
@@ -1890,7 +1890,7 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::NettoieVerrousCompta()
 {
-    QString NettoieVerrousComptaActesRequete = "delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_userconnected->id()) + " or PosePar is null";
+    QString NettoieVerrousComptaActesRequete = "delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(currentuser()->id()) + " or PosePar is null";
     db->StandardSQL(NettoieVerrousComptaActesRequete);
 }
 
@@ -1907,7 +1907,7 @@ void dlg_paiementtiers::PoseVerrouCompta(int ActeAVerrouiller)
         QString VerrouilleEnreg= "INSERT INTO " TBL_VERROUCOMPTAACTES
                 " (idActe,DateTimeVerrou, PosePar)"
                 " VALUES ("  + QString::number(ActeAVerrouiller) +
-                ", NOW() ,"  + QString::number(m_userconnected->id()) + ")";
+                ", NOW() ,"  + QString::number(currentuser()->id()) + ")";
         db->StandardSQL(VerrouilleEnreg);
     }
 }

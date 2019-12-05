@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_TIERSPAYANTS_H
 #define CLS_TIERSPAYANTS_H
 
-#include "database.h"
 #include "cls_tiers.h"
 #include "cls_itemslist.h"
 

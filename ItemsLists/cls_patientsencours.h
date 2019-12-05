@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cls_patientencours.h>
-#include "database.h"
 #include "cls_itemslist.h"
 
 class PatientsEnCours : public ItemsList
@@ -51,7 +50,7 @@ public:
 
     //!> actions sur les enregistrements
     void                SupprimePatientEnCours(PatientEnCours *pat);
-    PatientEnCours*     CreationPatient(int idPat, int idUser , QString Statut, QTime heureStatut, QTime heureRDV = QTime(),
+    PatientEnCours*     CreationPatient(int idPat, User *usr , QString Statut, QTime heureStatut, QTime heureRDV = QTime(),
                                         QTime heureArrivee = QTime(), QString Motif = "", QString Message = "", int idActeAPayer = 0, QString PosteExamen = "",
                                         int idUserEnCours = 0, int idSalDat = 0);
 

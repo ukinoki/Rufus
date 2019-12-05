@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_SITES_H
 
 #include "cls_site.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class Sites : public ItemsList

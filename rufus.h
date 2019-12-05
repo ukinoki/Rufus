@@ -115,7 +115,6 @@ private:
     Procedures                      *proc;
     DataBase                        *db;
     ParametresSysteme               *m_parametres;
-    PatientsEnCours                 *m_listepatientsencours = Datas::I()->patientsencours;
     UpLabel                         *wdg_nomlbl;
     UpLineEdit                      *wdg_MGlineEdit;
     UpLineEdit                      *wdg_autresCorresp1LineEdit, *wdg_autresCorresp2LineEdit;
@@ -245,7 +244,6 @@ private:
     QString                 m_dateActe;
 
     QStandardItemModel      *m_listepatientsmodel           = Q_NULLPTR;
-    QStandardItemModel      *m_listepatientsencoursmodel    = Q_NULLPTR;
     QStandardItemModel      *m_listesuperviseursmodel       = Q_NULLPTR;
     QStandardItemModel      *m_listeparentsmodel            = Q_NULLPTR;
     QSortFilterProxyModel   *m_listepatientsproxymodel      = Q_NULLPTR;
@@ -256,7 +254,7 @@ private:
     QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerImportDocsExternes, *t_timerVerifMessages;
 
     Acte                    *m_currentact                   = Q_NULLPTR;
-    User                    *m_currentuser                  = Q_NULLPTR;
+    User*                   currentuser()                   { return Datas::I()->users->userconnected(); }
     Patients                *m_patients                     = Q_NULLPTR;
     QMap<int, Patient*>     *map_patientstable              = Q_NULLPTR;
     QMap<int, Patient*>     *map_patientssaldat             = Q_NULLPTR;

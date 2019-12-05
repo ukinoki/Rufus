@@ -203,3 +203,8 @@ void Users::SupprimeUser(User *usr)
     delete usr;
 }
 
+void Users::setuserconnected()
+{
+    m_userconnected = getById(DataBase::I()->idUserConnected());
+}
+

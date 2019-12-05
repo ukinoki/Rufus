@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_PAIEMENTSTIERS_H
 
 #include "cls_paiementtiers.h"
-#include "cls_user.h"
 #include "cls_itemslist.h"
 
 /*!

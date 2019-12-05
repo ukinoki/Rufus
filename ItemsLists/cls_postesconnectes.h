@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_itemslist.h"
 #include "cls_posteconnecte.h"
-#include "database.h"
 
 class PostesConnectes : public ItemsList
 {
@@ -50,7 +49,7 @@ public:
     //!> actions sur les enregistrements
     void             SupprimeAllPostesConnectes();
     void             SupprimePosteConnecte(PosteConnecte *post);
-    PosteConnecte*   CreationPosteConnecte(int idsite);
+    PosteConnecte*   CreationPosteConnecte(User *usr, int idsite);
 };
 
 #endif // CLS_USERSCONNECTES_H
