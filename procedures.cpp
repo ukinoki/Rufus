@@ -2957,7 +2957,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         if (Dlg_GestUsr->exec() > 0)
         {
             m_parametres = db->parametres();
-            Datas::I()->sites           ->initListe();
             Datas::I()->comptes         ->initListe();
             Datas::I()->postesconnectes ->initListe();
             Datas::I()->banques         ->initListe();
@@ -3741,6 +3740,17 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
+             if (m_modeacces == Utils::ReseauLocal)
+                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(m_modeacces) + "/Serveur").toString());
+             m_parametres = db->parametres();
+
+             // Création de l'utilisateur
+             m_connexionbaseOK = CreerPremierUser(login, MDP);
+             Datas::I()->sites->initListe();
+             CalcLieuExercice();
+             if (Datas::I()->sites->currentsite() == Q_NULLPTR)
+                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
+             Datas::I()->users->initListe();
              UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
