@@ -118,8 +118,6 @@ private:
     bool                    VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
-    int                     VerifUserBase(QString Login, QString MDP);          //! Vérifie que l'utilisateur existe dans la base
-
 public:
     bool                    AutresPostesConnectes(bool msg = true);
     bool                    FicheChoixConnexion();

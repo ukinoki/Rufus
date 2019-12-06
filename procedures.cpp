@@ -65,21 +65,24 @@ Procedures::Procedures(QObject *parent) :
         }
     }
     m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
-
-    bool k                          = (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
-                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306
-                                       || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3307)
-                                       )
-                                    || (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
-                                       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
-                                       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3306
-                                       || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3307)
-                                       )
-                                    || (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
-                                       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
-                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3306
-                                       || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3307)
-                                       );
+    QSet<int> ports = QSet<int>::fromList(QList<int>() << 3306 << 3307);
+    bool k =    (
+                  m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
+                  &&
+                  ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt()) != ports.end() )
+                )
+                ||
+                (
+                  m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
+                  && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
+                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt()) != ports.end() )
+                )
+                ||
+                (
+                  m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
+                  && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
+                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt()) != ports.end() )
+                );
    if (!k)
     {
         while (!k)
@@ -2929,10 +2932,10 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     m_usecotation            = true;
     Datas::I()->banques->initListe();
     CreerUserFactice(1, Login, MDP);
-    Datas::I()->users->initListe();
-    Datas::I()->comptes->initListe();
     db->setidUserConnected(1);
+    Datas::I()->users->initListe();
     Datas::I()->users->setuserconnected();
+    Datas::I()->comptes->initListe();
     MAJComptesBancaires(currentuser());
     currentuser()->setidsuperviseur(1);
     currentuser()->setidusercomptable(1);
@@ -2956,10 +2959,9 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
             m_parametres = db->parametres();
             Datas::I()->sites           ->initListe();
             Datas::I()->comptes         ->initListe();
-            Datas::I()->users           ->initListe();
             Datas::I()->postesconnectes ->initListe();
             Datas::I()->banques         ->initListe();
-            db->setidUserConnected(1);
+            Datas::I()->users           ->initListe();
             Datas::I()->users->setuserconnected();
             MAJComptesBancaires(currentuser());
             m_applicationfont = currentuser()->police();
@@ -3078,17 +3080,16 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     int result = dlg_IdentUser->exec();
     if( result > 0 )
     {
-        qDebug() << DataBase::I()->idUserConnected();
         m_parametres = db->parametres();
         Datas::I()->villes          ->initListe();
         Datas::I()->sites           ->initListe();
         Datas::I()->comptes         ->initListe();
-        Datas::I()->users           ->initListe();
         Datas::I()->postesconnectes ->initListe();
         Datas::I()->banques         ->initListe();
         Datas::I()->tierspayants    ->initListe();
         Datas::I()->typestiers      ->initListe();
         Datas::I()->motifs          ->initListe();
+        Datas::I()->users           ->initListe();
         Datas::I()->users           ->setuserconnected();
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
@@ -3170,10 +3171,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES);
             if (!RestaureBase(true, true))
                 exit(0);
-            // Création de l'utilisateur
-            //TODO : ICI
-            m_connexionbaseOK = CreerPremierUser(m_loginSQL, m_passwordSQL);
-            Datas::I()->users->initListe();
+            CreerPremierUser(m_loginSQL, m_passwordSQL);
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             exit(0);
@@ -3676,14 +3674,14 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     {
         if (VerifParamConnexion(login, MDP))
         {
-            Datas::I()->banques->initListe();
-            Datas::I()->users->initListe();
-            Datas::I()->comptes->initListe();
+            db->calcidUserConnected(login, MDP);
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
+            Datas::I()->banques->initListe();
+            Datas::I()->users->initListe();
+            Datas::I()->comptes->initListe();
             Datas::I()->sites->initListe();
-            db->calcidUserConnected(login, MDP);
             Datas::I()->users->setuserconnected();
             MAJComptesBancaires(currentuser());
             CalcLieuExercice();
@@ -3720,8 +3718,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                 PremierParametrageRessources();
             }
             db->calcidUserConnected(login, MDP);
-            Datas::I()->users->setuserconnected();
-            m_connexionbaseOK = (currentuser() != Q_NULLPTR);
+            m_connexionbaseOK = (DataBase::I()->idUserConnected() > 0);
             if (!m_connexionbaseOK)
                 return false;
             //gidUser     = idusr; //TODO : ICI
@@ -3922,19 +3919,8 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         QFile(m_nomFichierIni).remove();
         m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
         QString login(""), MDP ("");
-        reponse = VerifParamConnexion(login, MDP);
-        if (reponse)
+        if (VerifParamConnexion(login, MDP))
         {
-            db->calcidUserConnected(login, MDP);
-            Datas::I()->users->setuserconnected();
-            int idusr = VerifUserBase(currentuser()->login(), currentuser()->password());
-            m_connexionbaseOK = (idusr > -1);
-            if (!m_connexionbaseOK)
-            {
-                delete msgbox;
-                return false;
-            }
-            //gidUser     = idusr; //TODO : ICI
             PremierParametrageMateriel();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
             exit(0);
@@ -3973,7 +3959,6 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-//???
 bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant, QString)
 {
     Dlg_ParamConnex = new dlg_paramconnexion(OKAccesDistant);
@@ -4058,83 +4043,9 @@ bool Procedures::VerifRessources(QString Nomfile)
     return true;
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Vérifie que l'utilisateur existe dans la base  -----------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------*/
-int Procedures::VerifUserBase(QString Login, QString MDP)
-{
-    QMessageBox msgbox;
-    UpSmallButton OKBouton("OK");
-    msgbox.setIcon(QMessageBox::Information);
-    msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
-    QString req = "SHOW TABLES FROM " DB_CONSULTS " LIKE 'utilisateurs'";
-    QVariantList verifbasedata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-    if (!m_ok || verifbasedata.size()==0)
-    {
-        msgbox.setText(tr("Erreur sur la base patients"));
-        msgbox.setInformativeText(tr("La connexion au serveur fonctionne mais "
-                                  "votre base de données semble endommagée.\n"
-                                  "La table des utilisateurs n'existe pas.\n"
-                                  "Impossible de continuer."));
-        msgbox.exec();
-        return -2;
-    }
-    req =   "SELECT " CP_ID_USR " FROM " TBL_UTILISATEURS
-            " WHERE " CP_LOGIN_USR " = '" + Utils::correctquoteSQL(Login) +
-            "' AND " CP_MDP_USR " = '" + Utils::correctquoteSQL(MDP) + "'" ;
-    QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-    if (!m_ok || idusrdata.size()==0)
-    {
-        req =   "SELECT " CP_LOGIN_USR " FROM " TBL_UTILISATEURS;
-        QList<QVariantList> usrlist = db->StandardSelectSQL(req, m_ok);
-        if (!m_ok || usrlist.size()==0)
-        {
-            msgbox.setText(tr("Erreur sur la base patients"));
-            msgbox.setInformativeText(tr("La connexion au serveur fonctionne mais "
-                                      "votre base semble endommagée.\n"
-                                      "Il n'y a aucun utilisateur enregistré "
-                                      "dans la table des utilisateurs.\n"
-                                      "Impossible de continuer."));
-            msgbox.exec();
-            return -2;
-        }
-        QString listusr;
-        bool ExistLogin = false;
-        for (int i=0; i< usrlist.size(); i++)
-        {
-            if (usrlist.at(i).at(0).toString() == Login)
-                ExistLogin = true;
-            else
-                listusr += "\n\t" + usrlist.at(i).at(0).toString();
-        }
-        if (ExistLogin)
-        {
-            msgbox.setText(tr("Erreur sur le compte utilisateur"));
-            msgbox.setInformativeText(tr("Le Login ") + Login + tr(" existe bien dans la base de données mais pas avec le mot de passe que vous avez utilisé."
-                                      "Modifiez le mot de passe MySQL de ") + Login + tr(" pourqu'il soit identique à celui de la base de données Rufus\n"
-                                      "ou connectez vous avec un autre des logins référencés dans la base Rufus.\n") + listusr + "\n"
-                                      + tr("Impossible de continuer."));
-        }
-        else
-        {
-            msgbox.setText(tr("Erreur sur le compte utilisateur"));
-            msgbox.setInformativeText(tr("La connexion au serveur fonctionne et "
-                                      "la base de données de Rufus semble en bon état mais "
-                                      "il est impossible de retrouver l'utilisateur ") + Dlg_ParamConnex->ui->LoginlineEdit->text() + "!\n\n"
-                                      + tr("Connectez vous avec un login référencé dans la base Rufus\n") + listusr + "\n");
-        }
-        msgbox.exec();
-        return -3;
-    }
-    return idusrdata.at(0).toInt();
-}
 
-/* ------------------------------------------------------------------------------------------------------------------------------------------
-
-
+/*! ------------------------------------------------------------------------------------------------------------------------------------------
 GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------
-
-
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Ouverture_Ports_Series()
 {
