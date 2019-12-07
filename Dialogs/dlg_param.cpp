@@ -952,14 +952,7 @@ void dlg_param::GestionUsers()
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
     {
-        int idcomptable     = currentuser()->idcomptable();
-        int idparent        = currentuser()->idparent();
-        int idsuperviseur   = currentuser()->idsuperviseur();
         Datas::I()->users   ->initListe();
-        Datas::I()->users   ->setuserconnected();
-        currentuser()       ->setidparent(idparent);
-        currentuser()       ->setidusercomptable(idcomptable);
-        currentuser()       ->setidsuperviseur(idsuperviseur);
         proc                ->MAJComptesBancaires(currentuser());
         AfficheParamUser();
     }

@@ -29,7 +29,6 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
 {
     ui->setupUi(this);
     m_userencours           = user;
-    m_iduser                 = m_userencours->id();
 
     m_societe                = societe;
     m_affichelesolde         = AfficheLeSolde;
@@ -196,7 +195,7 @@ void dlg_gestioncomptes::DesactiveCompte()
         bool ok = true;
         QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
                                                                         TBL_LIGNESCOMPTES, ok,
-                                                                        "where iduser = " + QString::number(m_iduser) + " and desactive is null");
+                                                                        "where iduser = " + QString::number(m_userencours->id()) + " and desactive is null");
         ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
     }    
 }
@@ -413,14 +412,17 @@ void dlg_gestioncomptes::ValidCompte()
         Datas::I()->comptes->reloadCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
     }
     else if (m_mode == Nouv)
-        Datas::I()->comptes->CreationCompte(idbanque,                                          //! idBanque
-                                            m_iduser,                                           //! idUser
+    {
+        Compte* cpt = Datas::I()->comptes->CreationCompte(idbanque,                                          //! idBanque
+                                            m_userencours->id(),                               //! idUser
                                             ui->IBANuplineEdit->text(),                        //! IBAN
                                             ui->IntituleCompteuplineEdit->text(),              //! IntituleCompte
                                             ui->NomCompteAbregeuplineEdit->text(),             //! NomCompteAbrege
                                             QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
-                                            m_societe,                                          //! Partage
+                                            m_societe,                                         //! Partage
                                             ui->DesactiveComptecheckBox->isChecked());         //! Desactive
+        idcompte = cpt->id();
+    }
     m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
     m_comptencours = Datas::I()->comptes->getById(idcompte);
 

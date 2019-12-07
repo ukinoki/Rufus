@@ -2934,7 +2934,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     CreerUserFactice(1, Login, MDP);
     db->setidUserConnected(1);
     Datas::I()->users->initListe();
-    Datas::I()->users->setuserconnected();
     Datas::I()->comptes->initListe();
     MAJComptesBancaires(currentuser());
     currentuser()->setidsuperviseur(1);
@@ -2961,7 +2960,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
             Datas::I()->postesconnectes ->initListe();
             Datas::I()->banques         ->initListe();
             Datas::I()->users           ->initListe();
-            Datas::I()->users->setuserconnected();
             MAJComptesBancaires(currentuser());
             m_applicationfont = currentuser()->police();
         }
@@ -3089,7 +3087,6 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         Datas::I()->typestiers      ->initListe();
         Datas::I()->motifs          ->initListe();
         Datas::I()->users           ->initListe();
-        Datas::I()->users           ->setuserconnected();
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);
@@ -3681,7 +3678,6 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             Datas::I()->users->initListe();
             Datas::I()->comptes->initListe();
             Datas::I()->sites->initListe();
-            Datas::I()->users->setuserconnected();
             MAJComptesBancaires(currentuser());
             CalcLieuExercice();
             if (Datas::I()->sites->currentsite() == Q_NULLPTR)
