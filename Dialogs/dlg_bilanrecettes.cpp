@@ -250,9 +250,9 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     //création de l'entête
     if (m_mode==SUPERVISEUR)
-        userEntete = Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt());
+        userEntete = Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt(), Item::LoadDetails);
     else
-        userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->id());
+        userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->id(), Item::LoadDetails);
 
     if(userEntete == Q_NULLPTR)
     {
@@ -266,7 +266,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
     if (m_mode == SUPERVISEUR)
-        Entete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt())->login(): tr("Bilan global")));
+        Entete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getLoginById(wdg_supervcombobox->currentData().toInt()): tr("Bilan global")));
     else
         Entete.replace("{{PRENOM PATIENT}}"    , "");
     Entete.replace("{{NOM PATIENT}}"       , "");
@@ -425,7 +425,7 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
     if( listiD.size() > 1 )
         wdg_supervcombobox->addItem(tr("Tout le monde"),-1);
     for( int i=0; i<listiD.size(); i++)
-        wdg_supervcombobox->addItem(Datas::I()->users->getById( listiD.at(i))->login(), QString::number(listiD.at(i)) );
+        wdg_supervcombobox->addItem(Datas::I()->users->getLoginById( listiD.at(i)), QString::number(listiD.at(i)) );
 
     if (idcomptabletrouve)
         wdg_lblbox->insertWidget(0, wdg_classmtupgrpbox);

@@ -25,9 +25,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include "upmessagebox.h"
 #include "upradiobutton.h"
-#include "database.h"
-#include "icons.h"
-#include "utils.h"
 
 /* Cette classe sert à paramétrer la connexion au serveur
  * DIFFERENTE POUR RUFUS ET RUFUSADMIN

@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_REFRACTIONS_H
 #define CLS_REFRACTIONS_H
 
+#include "database.h"
 #include "cls_refraction.h"
 #include "cls_itemslist.h"
 

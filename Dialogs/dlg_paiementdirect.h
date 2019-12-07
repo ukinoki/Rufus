@@ -76,7 +76,7 @@ private:
     QMap<int, User*>            *map_comptables;
     QMap<int, Banque*>          *map_banques;
     QList<TypeTiers*>           *m_typestiers;
-    User*                       currentuser() { return Datas::I()->users->userconnected(); }
+    User                        *m_userConnected = Datas::I()->users->userconnected();
     User                        *m_useracrediter = Q_NULLPTR;
 
     QBrush                      m_textureGray;

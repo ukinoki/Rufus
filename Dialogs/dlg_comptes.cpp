@@ -30,7 +30,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
 
     // On reconstruit le combobox des comptes de l'utilisateur
     if (Datas::I()->users->userconnected()->listecomptesbancaires() == Q_NULLPTR)
-        proc->MAJComptesBancaires(Datas::I()->users->userconnected());
+        proc->SetUserAllData(Datas::I()->users->userconnected(), Item::Update);
     m_comptesusr = Datas::I()->users->userconnected()->listecomptesbancaires(true);
 
     if (m_comptesusr->size() == 0)

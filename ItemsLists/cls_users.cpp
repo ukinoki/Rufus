@@ -68,10 +68,14 @@ bool Users::add(User *usr)
 {
     if( usr == Q_NULLPTR)
         return false;
+    User *result = Q_NULLPTR;
 
     auto itusr = map_users->find(usr->id());
     if( itusr != map_users->constEnd() )
-        itusr.value()->setData(usr->datas());
+    {
+        result = const_cast<User*>(itusr.value());
+        result->setData(usr->datas());
+    }
     else
         map_users->insert(usr->id(), usr);
 
@@ -87,6 +91,10 @@ bool Users::add(User *usr)
         map_parents->insert(usr->id(), usr);
     if( usr->isComptable() )
         map_comptables->insert(usr->id(), usr);
+
+    if (result != Q_NULLPTR)
+        delete usr;
+
     return true;
 }
 
@@ -103,45 +111,48 @@ void Users::addList(QList<User*> listusr)
  * \return Q_NULLPTR si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
-User* Users::getById(int id, Item::UPDATE upd)
+User* Users::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 {
-    QMap<int, User*>::const_iterator ituser = map_users->find(id);
+    QMap<int, User*>::const_iterator user = map_users->find(id);
     User *result;
-    if( ituser == map_users->constEnd() )
+    if( user == map_users->constEnd() )
+        result = new User();
+    else
+    {
+        result = user.value();
+        if(loadDetails == Item::NoLoadDetails)
+            return result;
+        addToList = NoAddToList;
+    }
+
+    if( !result->isAllLoaded() )
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
         if( jsonUser.isEmpty() )
-            return Q_NULLPTR;
-        result = new User(jsonUser);
-        add(result);
-    }
-    else
-    {
-        result = ituser.value();
-        if (upd == Item::Update)
         {
-            QJsonObject jsonUser = DataBase::I()->loadUserData(id);
-            if( !jsonUser.isEmpty() )
-                result->setData(jsonUser);
+            delete result;
+            return Q_NULLPTR;
         }
+        else
+            result->setData(jsonUser);
     }
+    if( addToList == AddToList )
+        add( result );
     return result;
 }
 
 /*!
- * \brief Users::reload
+ * \brief Users::getLoginById
  * \param id l'id de l'utilisateur recherché
- * \return Q_NULLPTR si aucun utilisateur trouvé
- * \return User* l'utilisateur correspondant à l'id
+ * \return "" si aucun utilisateur trouvé
+ * \return QString le login de l'utilisateur correspondant à l'id
  */
-void Users::reload(User *usr)
+QString Users::getLoginById(int id)
 {
-    QJsonObject jsonUser = DataBase::I()->loadUserData(usr->id());
-    if( jsonUser.isEmpty() )
-        return;
-    usr->setData(jsonUser);
-    if( map_users->find(usr->id()) == map_users->constEnd() )
-        add(usr);
+    User* user = getById(id);
+    if( user != Q_NULLPTR)
+        return user->login();
+    return "";
 }
 
 /*!
@@ -151,66 +162,13 @@ void Users::reload(User *usr)
  */
 void Users::initListe()
 {
-    int idcomptable     = User::ROLE_INDETERMINE;
-    int idparent        = User::ROLE_INDETERMINE;
-    int idsuperviseur   = User::ROLE_INDETERMINE;
-    if (userconnected() != Q_NULLPTR)
-    {
-        idcomptable     = userconnected()->idcomptable();
-        idparent        = userconnected()->idparent();
-        idsuperviseur   = userconnected()->idsuperviseur();
-    }
     QList<User*> listusers = DataBase::I()->loadUsers();
     epurelist(map_users, &listusers);
-    map_superviseurs    ->clear();
-    map_liberaux        ->clear();
-    map_parents         ->clear();
-    map_comptables      ->clear();
+    map_superviseurs  ->clear();
+    map_liberaux      ->clear();
+    map_parents       ->clear();
+    map_comptables    ->clear();
     addList(listusers);
-    foreach (User *usr, all()->values())
-    {
-        if (usr->login() == NOM_ADMINISTRATEURDOCS)
-        {
-            m_useradmin = usr;
-            break;
-        }
-    }
-    if (userconnected() != Q_NULLPTR)
-    {
-        userconnected() ->setidparent(idparent);
-        userconnected() ->setidusercomptable(idcomptable);
-        userconnected() ->setidsuperviseur(idsuperviseur);
-    }
-}
-
-/*!
- * \brief Users::remplaceUserListes
- * Remplace dans chaque liste un User par un autre user avec le même id
- * utilisé p.e. quand on a un nouveau currentuser pour remplacer l'ancien dans les listes
- */
-void Users::remplaceUserListes(User *usr)
-{
-    auto it = map_users->find(usr->id());
-    if (it != map_users->end())
-    {
-        delete it.value();
-        map_users->insert(it.key(), usr);
-        auto its = map_superviseurs->find(usr->id());
-        if (its != map_superviseurs->end())
-            map_superviseurs->insert(its.key(), usr);
-        auto itl = map_liberaux->find(usr->id());
-        if (itl != map_liberaux->end())
-            map_liberaux->insert(itl.key(), usr);
-        auto itp = map_parents->find(usr->id());
-        if (itp != map_parents->end())
-            map_parents->insert(itp.key(), usr);
-        auto itc = map_comptables->find(usr->id());
-        if (itc != map_comptables->end())
-            map_comptables->insert(itc.key(), usr);
-    }
-    else
-        add(usr);
-
 }
 
 void Users::SupprimeUser(User *usr)
@@ -222,7 +180,6 @@ void Users::SupprimeUser(User *usr)
     map_liberaux      ->remove(usr->id());
     map_parents       ->remove(usr->id());
     map_comptables    ->remove(usr->id());
-    DataBase::I()->SupprRecordFromTable(usr->id(), CP_ID_USR, TBL_UTILISATEURS);
+    DataBase::I()->SupprRecordFromTable(usr->id(), "idUser", TBL_UTILISATEURS);
     delete usr;
 }
-

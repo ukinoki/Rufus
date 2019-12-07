@@ -42,7 +42,7 @@ private:
     Mode                    m_mode;
     QMap<int, User *>       *map_comptables;
     QMap<int, User *>       *map_comptablesavecchequesenattente;
-    User                    *m_userencours;
+    User                    *m_currentuser;
     QString                 m_valeuravantchangement;
     bool                    m_bloquecellchanged;  // ce flag sert à empêcher le déclenchement du signal cellchanged sur les tables quand on utilise certianes fonctions
 

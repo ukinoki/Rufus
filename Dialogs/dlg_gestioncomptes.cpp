@@ -29,6 +29,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
 {
     ui->setupUi(this);
     m_userencours           = user;
+    m_iduser                 = m_userencours->id();
 
     m_societe                = societe;
     m_affichelesolde         = AfficheLeSolde;
@@ -140,8 +141,8 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
     bool autorsupprimer = false;
     bool ok = true;
-    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS
-                  " where " CP_IDCOMPTEPARDEFAUT_USR " = " + QString::number(idCompte) +
+    QString req = "select iduser from " TBL_UTILISATEURS
+                  " where IdCompteParDefaut = " + QString::number(idCompte) +
                   " limit 1";
     if (db->StandardSelectSQL(req, ok).size()==0)                       // on ne peut pas supprimer un compte si quelqu'un l'utilise
     {
@@ -195,7 +196,7 @@ void dlg_gestioncomptes::DesactiveCompte()
         bool ok = true;
         QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
                                                                         TBL_LIGNESCOMPTES, ok,
-                                                                        "where iduser = " + QString::number(m_userencours->id()) + " and desactive is null");
+                                                                        "where iduser = " + QString::number(m_iduser) + " and desactive is null");
         ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
     }    
 }
@@ -413,8 +414,8 @@ void dlg_gestioncomptes::ValidCompte()
     }
     else if (m_mode == Nouv)
     {
-        Compte* cpt = Datas::I()->comptes->CreationCompte(idbanque,                                          //! idBanque
-                                            m_userencours->id(),                               //! idUser
+        Compte *cpt = Datas::I()->comptes->CreationCompte(idbanque,                            //! idBanque
+                                            m_iduser,                                          //! idUser
                                             ui->IBANuplineEdit->text(),                        //! IBAN
                                             ui->IntituleCompteuplineEdit->text(),              //! IntituleCompte
                                             ui->NomCompteAbregeuplineEdit->text(),             //! NomCompteAbrege

@@ -1444,7 +1444,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur());
+    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur(), Item::LoadDetails);
     Entete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1618,7 +1618,7 @@ void dlg_refraction::InscriptRefraction()
     else if (m_mode == Refraction::Prescription)
     {
         int idimp = db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, m_ok);
-        db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_IDREFRACTION_DOCSEXTERNES " = " + QString::number(m_idrefraction) + " where " CP_ID_DOCSEXTERNES " = " + QString::number(idimp));
+        db->StandardSQL("update " TBL_DOCSEXTERNES " set idRefraction = " + QString::number(m_idrefraction) + " where idimpression = " + QString::number(idimp));
     }
 }
 

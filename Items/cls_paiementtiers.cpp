@@ -27,22 +27,22 @@ void PaiementTiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, "id", m_id);
-    Utils::setDataDate(data, "date", m_date);
-    Utils::setDataDate(data, "dateenregistrement", m_dateenregistrement);
-    Utils::setDataDouble(data, "montant", m_montant);
-    Utils::setDataString(data, "modepaiement", m_modepaiement);
-    Utils::setDataString(data, "tireurcheque", m_tireurcheque);
-    Utils::setDataInt(data, "comptevirement", m_comptevirement);
-    Utils::setDataString(data, "banquecheque", m_banquecheque);
-    Utils::setDataString(data, "nomtiers", m_nomtiers);
-    Utils::setDataDouble(data, "commission", m_commission);
-    Utils::setDataString(data, "monnaie", m_monnaie);
-    Utils::setDataInt(data, "idremisecheque", m_idremisecheque);
-    Utils::setDataBool(data, "chequeenattente", m_chequeenattente);
-    Utils::setDataInt(data, "iduserenregistreur", m_iduserenregistreur);
-    Utils::setDataDate(data, "dateremisecheques", m_dateremisecheques);
-    Utils::setDataDouble(data, "encaissement", m_encaissement);
+    setDataInt(data, "id", m_id);
+    setDataDate(data, "date", m_date);
+    setDataDate(data, "dateenregistrement", m_dateenregistrement);
+    setDataDouble(data, "montant", m_montant);
+    setDataString(data, "modepaiement", m_modepaiement);
+    setDataString(data, "tireurcheque", m_tireurcheque);
+    setDataInt(data, "comptevirement", m_comptevirement);
+    setDataString(data, "banquecheque", m_banquecheque);
+    setDataString(data, "nomtiers", m_nomtiers);
+    setDataDouble(data, "commission", m_commission);
+    setDataString(data, "monnaie", m_monnaie);
+    setDataInt(data, "idremisecheque", m_idremisecheque);
+    setDataBool(data, "chequeenattente", m_chequeenattente);
+    setDataInt(data, "iduserenregistreur", m_iduserenregistreur);
+    setDataDate(data, "dateremisecheques", m_dateremisecheques);
+    setDataDouble(data, "encaissement", m_encaissement);
     m_data = data;
 }
 

@@ -42,7 +42,7 @@ public:
 
 private:
     DataBase                                    *db             = DataBase::I();
-    User*                                       currentuser() { return Datas::I()->users->userconnected(); }
+    User                                        *m_currentuser  = Datas::I()->users->userconnected();
     Procedures                                  *proc           = Procedures::I();
     Patient                                     *m_currentpatient;
     User                                        *m_userentete;

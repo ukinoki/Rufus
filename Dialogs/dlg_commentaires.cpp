@@ -36,7 +36,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     CancelButton    ->disconnect();
 
-    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + currentuser()->login());
+    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + m_currentuser->login());
 
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_commentaires::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_commentaires::Annulation);
@@ -234,7 +234,7 @@ void dlg_commentaires::dblClicktextEdit()
         if (a)
         {
             int idUser = ui->ComupTableWidget->item(line->Row(),4)->text().toInt();
-            if (idUser == currentuser()->id())
+            if (idUser == m_currentuser->id())
                 ConfigMode(Modification,line->Row());
         }
     }
@@ -286,7 +286,7 @@ void dlg_commentaires::MenuContextuel(UpLineEdit *line)
     {
         line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
         if (line->hasSelectedText())
-            if (ui->ComupTableWidget->item(line->Row(),3)->text().toInt() == currentuser()->id())
+            if (ui->ComupTableWidget->item(line->Row(),3)->text().toInt() == m_currentuser->id())
             {a =true; break;}
     }
     if (a)
@@ -532,7 +532,7 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
                     a = true;
                     QString b = "vous";
                     int iduser = ui->ComupTableWidget->item(i,3)->text().toInt();
-                    if (iduser != currentuser()->id())
+                    if (iduser != m_currentuser->id())
                         b = Datas::I()->users->getById(iduser)->login();
                     UpMessageBox::Watch(this, tr("Il existe déjà un commentaire portant ce nom créé par ") + b);
                     break;
@@ -643,7 +643,7 @@ void dlg_commentaires::ConfigMode(Mode mode, int row)
         pItem1->setText("0");                               // idComment
         ui->ComupTableWidget->setItem(row,col,pItem1);
         col++; //3
-        pItem2->setText(QString::number(currentuser()->id()));     // idUser
+        pItem2->setText(QString::number(m_currentuser->id()));     // idUser
         ui->ComupTableWidget->setItem(row,col,pItem2);
         col++; //4
         UpLabel*lbl = new UpLabel(ui->ComupTableWidget);
@@ -718,7 +718,7 @@ void dlg_commentaires::EnableLines()
             line->setFocusPolicy(Qt::NoFocus);
             connect(line,       &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line);});
             connect(line,       &QLineEdit::textEdited,                 [=] {EnableOKPushbutton();});
-            if (ui->ComupTableWidget->item(i,3)->text().toInt() == currentuser()->id())
+            if (ui->ComupTableWidget->item(i,3)->text().toInt() == m_currentuser->id())
                 connect(line,   &UpLineEdit::mouseDoubleClick,          [=] {if (m_mode == Selection) ConfigMode(Modification, line->Row());});
             connect(line,       &UpLineEdit::mouseRelease,              [=] {LineSelect(line->Row());});
         }
@@ -783,7 +783,7 @@ void dlg_commentaires::InsertCommentaire(int row)
             " (TextComment, ResumeComment, idUser, Pardefautcomment ) "
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->toPlainText()) +
             "','" + Utils::correctquoteSQL(line->text().left(100)) +
-            "'," + QString::number(currentuser()->id()) + ", null)";
+            "'," + QString::number(m_currentuser->id()) + ", null)";
     db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + TBL_COMMENTAIRESLUNETTES);
     Remplir_TableView();
 
@@ -835,8 +835,8 @@ void dlg_commentaires::LineSelect(int row)
         ui->upTextEdit->setVisible(true);
         ui->upTextEdit->setText(line->datas().toString());
         EffaceWidget(ui->upTextEdit);
-        wdg_buttonframe->wdg_modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == currentuser()->id());
-        wdg_buttonframe->wdg_moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == currentuser()->id());
+        wdg_buttonframe->wdg_modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
+        wdg_buttonframe->wdg_moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
     }
     line->selectAll();
 }
@@ -868,11 +868,11 @@ void dlg_commentaires::Remplir_TableView()
     }
 
     ui->ComupTableWidget->clearContents();
-    QString req = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser FROM " TBL_COMMENTAIRESLUNETTES " WHERE idUser = " + QString::number(currentuser()->id());
-    if (currentuser()->idsuperviseur() != currentuser()->id())
-        req += " Or idUser = " + QString::number(currentuser()->idsuperviseur());
-    if ((currentuser()->idparent() != currentuser()->idsuperviseur()) && (currentuser()->idparent() != currentuser()->id()))
-        req += " Or idUser = " + QString::number(currentuser()->idparent());
+    QString req = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser FROM " TBL_COMMENTAIRESLUNETTES " WHERE idUser = " + QString::number(m_currentuser->id());
+    if (m_currentuser->idsuperviseur() != m_currentuser->id())
+        req += " Or idUser = " + QString::number(m_currentuser->idsuperviseur());
+    if ((m_currentuser->idparent() != m_currentuser->idsuperviseur()) && (m_currentuser->idparent() != m_currentuser->id()))
+        req += " Or idUser = " + QString::number(m_currentuser->idparent());
         req += " ORDER BY ResumeComment";
     bool ok;
     QList<QVariantList> listcom = db->StandardSelectSQL(req, ok);
@@ -907,7 +907,7 @@ void dlg_commentaires::Remplir_TableView()
         upLine0->setFocusPolicy(Qt::NoFocus);
         upLine0->setImmediateToolTip(CalcToolTip(listcom.at(i).at(2).toString()));
         upLine0->setdatas(listcom.at(i).at(2).toString());
-        if (listcom.at(i).at(4).toInt() != currentuser()->id())
+        if (listcom.at(i).at(4).toInt() != m_currentuser->id())
         {
             upLine0->setFont(disabledFont);
             upLine0->setPalette(palette);
@@ -943,7 +943,7 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + currentuser()->login() + "?");
+    msgbox.setText("Euuhh... " + m_currentuser->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton;

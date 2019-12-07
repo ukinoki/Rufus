@@ -21,8 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_item.h"
 
 /*!
- * \brief classe Patient
- * l'ensemble des informations concernant un patient
+ * \brief The Patient class
+ * l'ensemble des informations concernant une patient
  */
 
 class Patient : public Item

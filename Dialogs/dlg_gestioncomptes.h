@@ -51,6 +51,7 @@ private:
     bool                    m_affichelesolde;
     bool                    m_societe;
     bool                    m_visible = true;
+    int                     m_iduser;
 
     Mode                    m_mode;
     QTimer                  *t_timer;

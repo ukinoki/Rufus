@@ -31,6 +31,9 @@ public:
 
 private:
     DataBase    *db = DataBase::I();
+    int         m_idcurrentuser = Datas::I()->users->userconnected()->id();
+    int         m_secteuruser   = Datas::I()->users->userconnected()->secteurconventionnel();
+
     Mode        m_mode;
     TypeActe    m_typeacte;
     QString     m_ciodeacte;

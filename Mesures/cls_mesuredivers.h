@@ -41,11 +41,10 @@ public:
     void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOD = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Refraction::Les2:
             m_pachyOD       = 0;
             m_pachyOG       = 0;
             m_modemesure    = NoMesure;
@@ -53,13 +52,13 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Utils::Droit:
+        case Refraction::Droit:
             m_pachyOD       = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Utils::Gauche:
+        case Refraction::Gauche:
             m_pachyOG       = 0;
             m_isnullOG      = true;
             if (m_isnullOD)
@@ -133,11 +132,10 @@ public:
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Refraction::Les2:
             m_TOD           = 0;
             m_TOG           = 0;
             m_timemesure    = QDateTime();
@@ -146,13 +144,13 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Utils::Droit:
+        case Refraction::Droit:
             m_TOD           = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Utils::Gauche:
+        case Refraction::Gauche:
             m_TOG           = 0;
             m_isnullOG      = true;
             if (m_isnullOD)
@@ -210,11 +208,11 @@ public:
         m_timemesure    = tono->timemesure();
         m_modemesure    = tono->modemesure();
         if  (tono->isnullLOD())
-            cleandatas(Utils::Droit);
+            cleandatas(Refraction::Droit);
         else
             setTOD(tono->TOD());
         if  (tono->isnullLOG())
-            cleandatas(Utils::Gauche);
+            cleandatas(Refraction::Gauche);
         else
             setTOG(tono->TOG());
         m_cleandatas    = false;
@@ -222,133 +220,4 @@ public:
 
 };
 
-class Biometrie : public Mesure
-{
-    Q_OBJECT
-public:
-    explicit Biometrie() {}
-    enum Mode {Optique, Echo, Autre, NoMesure};      Q_ENUM(Mode)
-private:
-    double m_ALOD       = 0;
-    double m_ACDOD      = 0;
-    double m_ALOG       = 0;
-    double m_ACDOG      = 0;
-    QDateTime m_timemesure = QDateTime();
-    Mode m_modemesure   = NoMesure;
-
-public:
-    int ALOD() const                { return m_ALOD; }
-    int ACDOD() const               { return m_ACDOD; }
-    int ALOG() const                { return m_ALOG; }
-    int ACDOG() const               { return m_ACDOG; }
-    QDateTime timemesure() const    { return m_timemesure; }
-    Mode modemesure() const         { return m_modemesure; }
-
-    void setALOD(int AL)                { m_ALOD = AL; m_cleandatas = false; m_isnullOD = false; }
-    void setACDOD(int AL)               { m_ACDOD = AL; m_cleandatas = false; m_isnullOD = false; }
-    void setALOG(int AL)                { m_ALOG = AL; m_cleandatas = false; m_isnullOD = false; }
-    void setACDOG(int AL)               { m_ACDOG = AL; m_cleandatas = false; m_isnullOD = false; }
-    void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
-    void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
-
-    void cleandatas(Utils::Cote cote = Utils::Les2)
-    {
-        switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
-            m_ALOD          = 0;
-            m_ACDOD         = 0;
-            m_ALOG          = 0;
-            m_ACDOG         = 0;
-            m_timemesure    = QDateTime();
-            m_modemesure    = NoMesure;
-            m_cleandatas    = true;
-            m_isnullOD      = true;
-            m_isnullOG      = true;
-            break;
-        case Utils::Droit:
-            m_ALOD          = 0;
-            m_ACDOD         = 0;
-            m_isnullOD      = true;
-            if (m_isnullOG)
-                m_cleandatas = true;
-            break;
-        case Utils::Gauche:
-            m_ALOG          = 0;
-            m_ACDOG         = 0;
-            m_isnullOG      = true;
-            if (m_isnullOD)
-                m_cleandatas = true;
-            break;
-        }
-    }
-
-    bool isEqual(Biometrie *other) const
-    {
-        if (m_isnullOD & !m_isnullOG)
-            return (other           ->isnullLOD()
-                    && !other       ->isnullLOG()
-                    && m_ALOG       == other->ALOG()
-                    && m_ACDOG      == other->ACDOG()
-                    && m_modemesure == other->modemesure());
-        else if (m_isnullOG && !m_isnullOD)
-            return ( other          ->isnullLOG()
-                    && !other       ->isnullLOD()
-                    && m_ALOD       == other->ALOD()
-                    && m_ACDOD      == other->ACDOD()
-                    && m_modemesure == other->modemesure());
-        return  (m_ALOD             == other->ALOD()
-                && m_ALOG           == other->ALOG()
-                && m_ACDOD          == other->ACDOD()
-                && m_ACDOG          == other->ACDOG()
-                && m_modemesure     == other->modemesure());
-    }
-
-    bool isDifferent(Biometrie *other) const
-    {
-        return !(isEqual(other));
-    }
-
-    static Mode ConvertMesure(QString Mesure)
-    {
-        if (Mesure == OPTIQUE_BIOMETRIE)    return Optique;
-        if (Mesure == ECHO_BIOMETRIE)       return Echo;
-        if (Mesure == AUTRE_BIOMETRIE)      return Autre;
-        return  NoMesure;
-    }
-
-    static QString ConvertMesure(Biometrie::Mode mode)
-    {
-        switch (mode) {
-        case Optique:   return OPTIQUE_BIOMETRIE;
-        case Echo:      return ECHO_BIOMETRIE;
-        case Autre:     return AUTRE_BIOMETRIE;
-        default: return "";
-        }
-    }
-    void setdatas(Biometrie *biom)
-    {
-        if (biom->isdataclean()|| (biom->isnullLOD() && biom->isnullLOG()))
-        {
-            cleandatas();
-            return;
-        }
-        m_timemesure    = biom->timemesure();
-        m_modemesure    = biom->modemesure();
-        if  (biom->isnullLOD())
-            cleandatas(Utils::Droit);
-        else {
-            setALOD(biom->ALOD());
-            setACDOD(biom->ACDOD());
-        }
-        if  (biom->isnullLOG())
-            cleandatas(Utils::Gauche);
-        else {
-            setALOG(biom->ALOG());
-            setACDOG(biom->ACDOG());
-        }
-        m_cleandatas    = false;
-    }
-
-};
 #endif // CLS_MESUREDIVERS_H

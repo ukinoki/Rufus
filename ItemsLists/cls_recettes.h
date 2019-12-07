@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_RECETTES_H
 #define CLS_RECETTES_H
 
+#include "database.h"
 #include "cls_recette.h"
 #include "cls_itemslist.h"
 

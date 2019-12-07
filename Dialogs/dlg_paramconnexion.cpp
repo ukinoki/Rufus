@@ -15,8 +15,11 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "database.h"
 #include "dlg_paramconnexion.h"
+#include "icons.h"
 #include "ui_dlg_paramconnexion.h"
+#include "utils.h"
 
 dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     QDialog(parent),

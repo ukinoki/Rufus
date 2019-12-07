@@ -84,7 +84,7 @@ public:
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
         QString fileName(dirlog + "/" + datelog + "_" + NomFichier);
         QFile testfile(fileName);
-        if (testfile.open(QIODevice::Append))
+        if (testfile.open(QIODevice::ReadWrite))
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
@@ -105,6 +105,8 @@ public:
                 QFile::remove(QDir::homePath() + DIR_RUFUS DIR_LOGS + "/" + file.fileName());
         }
     }
+
+
 };
 
 #endif // LOG_H

@@ -27,6 +27,7 @@ public:
     explicit Refraction(QJsonObject data = QJsonObject(), QObject *parent = Q_NULLPTR);
     enum Mesure {Fronto, Autoref, Acuite, Prescription, NoMesure};      Q_ENUM(Mesure)
     enum Distance {Loin, Pres, AllDistance, Inconnu};                   Q_ENUM(Distance)
+    enum Oeil {Droit, Gauche, Les2};                                    Q_ENUM(Oeil)
     enum Cycloplegie {Dilatation, NoDilatation, NoLoSo};                Q_ENUM(Cycloplegie)
     void setData(QJsonObject data);
 
@@ -47,9 +48,9 @@ private:
     double m_prismeOD = 0;          //!> prismeOD
     int m_baseprismeOD = 0;         //!> base prisme OD en degré
     QString m_baseprismetextOD;     //!> base prisme OD en texte (nasal, temporal, supérieur, inférieur
-    bool m_haspressonOD = false;    //!> un presson est utilisé sur l'OD
-    bool m_hasdepoliOD = false;     //!> un dépoli est utilisé sur l'OD
-    bool m_hasplanOD = false;       //!> un verre plan est utilisé sur l'OD
+    bool m_haspressonOD = false;     //!> un presson est utilisé sur l'OD
+    bool m_hasdepoliOD = false;      //!> un dépoli est utilisé sur l'OD
+    bool m_hasplanOD = false;        //!> un verre plan est utilisé sur l'OD
     int m_ryserOD = 0;              //!> puissance Ryser OD
     QString m_formuleOD;            //!> formule de réfraction OD
     bool m_isOGmesure = false;      //!> l'OG a été mesuré
@@ -62,14 +63,14 @@ private:
     double m_prismeOG = 0;          //!> prismeOG
     int m_baseprismeOG = 0;         //!> base prisme OG en degré
     QString m_baseprismetextOG;     //!> base prisme OG en texte (nasal, temporal, supérieur, inférieur
-    bool m_haspressonOG = false;    //!> un presson est utilisé sur l'OG
-    bool m_hasdepoliOG = false;     //!> un dépoli est utilisé sur l'OG
-    bool m_hasplanOG = false;       //!> un verre plan est utilisé sur l'OG
+    bool m_haspressonOG = false;     //!> un presson est utilisé sur l'OG
+    bool m_hasdepoliOG = false;      //!> un dépoli est utilisé sur l'OG
+    bool m_hasplanOG = false;        //!> un verre plan est utilisé sur l'OG
     int m_ryserOG = 0;              //!> puissance Ryser OG
     QString m_formuleOG;            //!> formule de réfraction OG
     QString m_commentaireordo;      //!> commentaire de l'ordonnace de verres
     Distance m_typeverres;          //!> la distance d'utilisation des verres
-    Utils::Cote m_oeil;             //!> l'oeil pour lequel les verres sont prescrits
+    Oeil m_oeil;                    //!> l'oeil pour lequel les verres sont prescrits
     int m_monture;                  //!> le nombre de montures
     bool m_isverreteinte;           //!> les verres sont teintés
     int m_ecartIP = 0;              //!> ecart interpuppilaire
@@ -113,7 +114,7 @@ public:
     QString formuleOG() { return m_formuleOG; }                 //!> formule de réfraction OG
     QString commentaireordo() { return m_commentaireordo; }     //!> commentaire de l'ordonnace de verres
     Distance typeverres() { return m_typeverres; }              //!> la distance d'utilisation des verres
-    Utils::Cote oeil() { return m_oeil; }                       //!> l'oeil pour lequel les verres sont prescrits
+    Oeil oeil() { return m_oeil; }                              //!> l'oeil pour lequel les verres sont prescrits
     int monture() { return m_monture; }                         //!> le nombre de montures
     bool isverreteinte() { return m_isverreteinte; }            //!> les verres sont teintés
     int ecartIP() { return m_ecartIP; }                         //!> ecart interpuppilaire
@@ -134,9 +135,9 @@ public:
     void setprismeOD(double val)            { m_prismeOD = val; }                               //!> prismeOD
     void setbaseprismeOD(int base)          { m_baseprismeOD = base; }                          //!> base prisme OD en degré
     void setbaseprismetextOD(QString txt)   { m_baseprismetextOD = txt; }                       //!> base prisme OD en texte (nasal, temporal, supérieur, inférieur
-    void sethaspressonOD(bool logic)        { m_haspressonOD = (logic? Utils::True : Utils::False); }         //!> un presson est utilisé sur l'OD
-    void sethasdepoliOD(bool logic)         { m_hasdepoliOD = (logic? Utils::True : Utils::False); }          //!> un dépoli est utilisé sur l'OD
-    void sethasplanOD(bool logic)           { m_hasplanOD = (logic? Utils::True : Utils::False); }            //!> un verre plan est utilisé sur l'OD
+    void sethaspressonOD(bool logic)        { m_haspressonOD = (logic? True : False); }         //!> un presson est utilisé sur l'OD
+    void sethasdepoliOD(bool logic)         { m_hasdepoliOD = (logic? True : False); }          //!> un dépoli est utilisé sur l'OD
+    void sethasplanOD(bool logic)           { m_hasplanOD = (logic? True : False); }            //!> un verre plan est utilisé sur l'OD
     void setryserOD(int val)                { m_ryserOD = val; }                                //!> puissance Ryser OD
     void setformuleOD(QString txt)          { m_formuleOD = txt; }                              //!> formule de réfraction OD
     void setOGmesure(bool logic)            { m_isOGmesure = logic; }                           //!> l'OG a été mesuré
@@ -149,14 +150,14 @@ public:
     void setprismeOG(double val)            { m_prismeOG = val; }                               //!> prismeOG
     void setbaseprismeOG(int base)          { m_baseprismeOG = base; }                          //!> base prisme OG en degré
     void setbaseprismetextOG(QString txt)   { m_baseprismetextOG = txt; }                       //!> base prisme OG en texte (nasal, temporal, supérieur, inférieur
-    void sethaspressonOG(bool logic)        { m_haspressonOG = (logic? Utils::True : Utils::False); }         //!> un presson est utilisé sur l'OG
-    void sethasdepoliOG(bool logic)         { m_hasdepoliOG = (logic? Utils::True : Utils::False); }          //!> un dépoli est utilisé sur l'OG
-    void sethasplanOG(bool logic)           { m_hasplanOG = (logic? Utils::True : Utils::False); }            //!> un verre plan est utilisé sur l'OG
+    void sethaspressonOG(bool logic)        { m_haspressonOG = (logic? True : False); }         //!> un presson est utilisé sur l'OG
+    void sethasdepoliOG(bool logic)         { m_hasdepoliOG = (logic? True : False); }          //!> un dépoli est utilisé sur l'OG
+    void sethasplanOG(bool logic)           { m_hasplanOG = (logic? True : False); }            //!> un verre plan est utilisé sur l'OG
     void setryserOG(int val)                { m_ryserOG = val; }                                //!> puissance Ryser OG
     void setformuleOG(QString txt)          { m_formuleOG = txt; }                              //!> formule de réfraction OG
     void setcommentaireordo(QString txt)    { m_commentaireordo = txt; }                        //!> commentaire de l'ordonnace de verres
     void settypeverres(Distance distance)   { m_typeverres = distance; }                        //!> la distance d'utilisation des verres
-    void setoeil(Utils::Cote oeil)          { m_oeil = oeil; }                                  //!> l'oeil pour lequel les verres sont prescrits
+    void setoeil(Oeil oeil)                 { m_oeil = oeil; }                                  //!> l'oeil pour lequel les verres sont prescrits
     void setmonture(int n)                  { m_monture = n; }                                  //!> le nombre de montures
     void setisverreteinte(bool logic)       { m_isverreteinte = logic; }                        //!> les verres sont teintés
     void setecartIP(int val)                { m_ecartIP = val; }                                //!> ecart interpuppilaire

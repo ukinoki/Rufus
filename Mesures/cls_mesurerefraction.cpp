@@ -29,7 +29,7 @@ void MesureRefraction::setdatas(Refraction *ref)
     }
     m_isnullOD = !ref->isODmesure();
     if (m_isnullOD)
-        cleandatas(Utils::Droit);
+        cleandatas(Refraction::Droit);
     else
     {
         m_sphereOD          = ref->sphereOD();
@@ -44,7 +44,7 @@ void MesureRefraction::setdatas(Refraction *ref)
     }
     m_isnullOG = !ref->isOGmesure();
     if (m_isnullOG)
-        cleandatas(Utils::Gauche);
+        cleandatas(Refraction::Gauche);
     else
     {
         m_sphereOG          = ref->sphereOG();
@@ -71,7 +71,7 @@ void MesureRefraction::setdatas(MesureRefraction *mesure)
     }
     m_isnullOD = mesure->isnullLOD();
     if (m_isnullOD)
-        cleandatas(Utils::Droit);
+        cleandatas(Refraction::Droit);
     else
     {
         m_sphereOD          = mesure->sphereOD();
@@ -86,7 +86,7 @@ void MesureRefraction::setdatas(MesureRefraction *mesure)
     }
     m_isnullOG = mesure->isnullLOG();
     if (m_isnullOG)
-        cleandatas(Utils::Gauche);
+        cleandatas(Refraction::Gauche);
     else
     {
         m_sphereOG          = mesure->sphereOG();

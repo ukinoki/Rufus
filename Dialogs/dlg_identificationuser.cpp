@@ -199,7 +199,7 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
         Utils::Pause(150);
     }
 
-    DataBase::QueryResult rep = db->calcidUserConnected(Login, Password);
+    DataBase::QueryResult rep = db->login(Login, Password);
     if (rep == DataBase::Error)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());

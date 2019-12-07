@@ -39,7 +39,7 @@ public:
 
 private:
     DataBase                    *db              = DataBase::I();
-    User*                       currentuser() { return Datas::I()->users->userconnected(); }
+    User                        *m_currentuser   = Datas::I()->users->userconnected();
     QTimer                      *m_timerefface    = new QTimer(this);
 
     Mode                        m_mode;

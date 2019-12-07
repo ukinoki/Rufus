@@ -306,7 +306,7 @@ void dlg_docsscanner::ValideFiche()
     QString datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
     QString user("");
     if ( m_mode != Document)
-        user = Datas::I()->users->getById(Datas::I()->depenses->getById(m_iditem)->iduser())->login();
+        user = Datas::I()->users->getLoginById(Datas::I()->depenses->getById(m_iditem)->iduser());
     QString CheminBackup = m_pathdirstockageimagerie + DIR_ORIGINAUX + ( m_mode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + m_nomfichierimageencours);
@@ -342,7 +342,7 @@ void dlg_docsscanner::ValideFiche()
     if ( m_mode == Document)      // c'est un document scanné
     {
         DataBase::I()->locktables(QStringList() << TBL_DOCSEXTERNES);
-        idimpr =  db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, ok) + 1;
+        idimpr =  db->selectMaxFromTable("idimpression", TBL_DOCSEXTERNES, ok) + 1;
         QString NomFileDoc = QString::number(m_iditem) + "_"
                 + wdg_typedoccombobx->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement

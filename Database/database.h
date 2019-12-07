@@ -73,7 +73,7 @@ private:
     DataBase();
     static DataBase *instance;
 
-    int m_iduserConnected = 0;
+    User *m_userConnected = Q_NULLPTR;
     ParametresSysteme *m_parametres = Q_NULLPTR;
     DonneesOphtaPatient *m_donneesophtapatient = new DonneesOphtaPatient();
 
@@ -107,7 +107,11 @@ public:
     QString                 getServer() const;                  //!> l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS
     QSqlDatabase            getDataBase() const;
     void                    getInformations();                  //! renvoie les infos de connexions SQL : host, database, login, mdp
-    int                     idUserConnected() const             { return m_iduserConnected; }
+    User*                   userConnected() const;           //!> le user connecté sur ce poste
+    void                    setUserConnected(User*);            /*! utilisé uniquement lors du premier démarrage pour définir le premier user
+                                                                 * normalement effectuéé par DataBase::login() mais pas possible dans ce cas
+                                                                 * parce que login() utilise la table des utilisateurs connectés qui n'a pas encore été remplie à ce stade */
+
 
 
     QString                 connectToDataBase(QString basename, QString login, QString password);   //!> idem
@@ -189,8 +193,7 @@ public:
     /*
      * Users
     */
-    void                    setidUserConnected(int id)                  { m_iduserConnected = id; }
-    QueryResult             calcidUserConnected(QString login, QString password);     /*! connecte à la base mYSQL SQL avec le login login et le password password
+    QueryResult             login(QString login, QString password);     /*! connecte à la base mYSQL SQL avec le login login et le password password
                                                                         * crée l'utilisateur en cours m_userconnected  et complète tous les renseignements concernant cet utilisateur
                                                                         * renvoie un QJsonObject contenant les id d la réussite ou l'échec de la connection */
     QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts

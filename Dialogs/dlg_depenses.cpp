@@ -253,7 +253,7 @@ void dlg_depenses::PrintTable()
     User *userEntete = Q_NULLPTR;
 
     //création de l'entête
-    userEntete = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
+    userEntete = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt(), Item::LoadDetails);
 
     if(userEntete == Q_NULLPTR)
     {
@@ -473,7 +473,7 @@ bool dlg_depenses::initializeUserSelected()
 {
     int id = ui->UserscomboBox->currentData().toInt();
     m_userencours = map_usersliberaux->find(id).value();
-    proc->MAJComptesBancaires(m_userencours);
+    proc->SetUserAllData(m_userencours);
     Datas::I()->depenses->initListeByUser(m_userencours->id());
     if( m_userencours->listecomptesbancaires()->size() == 0)
     {

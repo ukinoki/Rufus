@@ -94,11 +94,10 @@ public:
     void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; m_isnullOG = false; }        //!> formule de réfraction OG
     void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Refraction::Oeil cote = Refraction::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Refraction::Les2:
             m_sphereOD = 0;
             m_cylindreOD = 0;
             m_axecylindreOD = 0;
@@ -122,7 +121,7 @@ public:
             m_isnullOD = true;
             m_isnullOG = true;
             break;
-        case Utils::Droit:
+        case Refraction::Droit:
             m_sphereOD = 0;
             m_cylindreOD = 0;
             m_axecylindreOD = 0;
@@ -135,7 +134,7 @@ public:
             m_ecartIP = 0;
             m_isnullOD = true;
             break;
-        case Utils::Gauche:
+        case Refraction::Gauche:
             m_sphereOG = 0;
             m_cylindreOG = 0;
             m_axecylindreOG = 0;
