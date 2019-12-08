@@ -30,10 +30,10 @@ void Banque::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, CP_IDBANQUE_BANQUES, m_id);
-    setDataString(data, CP_NOMBANQUE_BANQUES, m_nombanque);
-    setDataString(data, CP_NOMABREGE_BANQUES, m_idbanqueabrege);
-    setDataInt(data, CP_CODE_BANQUES, m_codebanque);
+    Utils::setDataInt(data, CP_IDBANQUE_BANQUES, m_id);
+    Utils::setDataString(data, CP_NOMBANQUE_BANQUES, m_nombanque);
+    Utils::setDataString(data, CP_NOMABREGE_BANQUES, m_idbanqueabrege);
+    Utils::setDataInt(data, CP_CODE_BANQUES, m_codebanque);
     m_data = data;
 }
 

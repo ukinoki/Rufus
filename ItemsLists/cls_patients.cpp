@@ -150,7 +150,7 @@ void Patients::SupprimePatient(Patient *pat)
     //!. Suppression des actes
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_ACTES);
     //!. Suppression des documents émis
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DOCSEXTERNES);
+    DataBase::I()->SupprRecordFromTable(pat->id(), CP_IDPAT_DOCSEXTERNES, TBL_DOCSEXTERNES);
     //!. Suppression des mots cles utilisés
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_MOTSCLESJOINTURES);
 
@@ -230,7 +230,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     Patient *pat = Q_NULLPTR;
     DataBase::I()->locktables(QStringList() << TBL_PATIENTS << TBL_DONNEESSOCIALESPATIENTS << TBL_RENSEIGNEMENTSMEDICAUXPATIENTS );
     sets[CP_DATECREATION_PATIENTS] = DataBase::I()->ServerDateTime().date();
-    sets[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->userConnected()->id();
+    sets[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->idUserConnected();
     bool result = DataBase::I()->InsertSQLByBinds(TBL_PATIENTS, sets);
     if (!result)
     {
@@ -260,7 +260,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     }
     QJsonObject  data = QJsonObject{};
     data[CP_IDPAT_PATIENTS] = id;
-    data[CP_IDCREATEUR_PATIENTS] = DataBase::I()->userConnected()->id();
+    data[CP_IDCREATEUR_PATIENTS] = DataBase::I()->idUserConnected();
     data[CP_DATECREATION_PATIENTS] = QDate::currentDate().toString("yyyy-MM-dd");
     QString champ;
     QVariant value;

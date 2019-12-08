@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "cls_lignepaiement.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class LignesPaiements : public ItemsList

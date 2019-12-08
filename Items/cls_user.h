@@ -50,7 +50,6 @@ public: //static
     enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};               Q_ENUM(RESPONSABLE)
 
 private:
-    bool m_isAllLoaded = false;
 
 /*!
  * les données figées, ne variant pas d'une session à l'autre
@@ -73,7 +72,6 @@ private:
     QString m_memo = "";                //!> memo sur l'utilisateur
     QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
     QString m_policeAttribut = "";      //! lle choix d'attribut de la police d'écran
-    QString m_nomCompteEncaissHonoraires = "";  //!> le compte sur lequel sont encaissés les honoraires
 
     int m_soignant;
     qlonglong m_numPS;
@@ -110,13 +108,10 @@ private:
  * les données susceptibles de varier d'une session à l'autre
  */
 
-    User *m_userSuperviseur     = Q_NULLPTR;
     int m_idUserSuperviseur = ROLE_INDETERMINE;     //!< son id s'il est responsable de ses actes
                                                     //!< l'id du user assisté s'il est assistant
-    User *m_userParent = Q_NULLPTR;
     int m_idUserParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
                                                     //!< l'id du user remplacé s'il est remplacé
-    User *m_userComptable = Q_NULLPTR;
     int m_idUserComptable = ROLE_INDETERMINE;       //!< son id s'il est responsable et libéral
                                                     //!< l'id de son employeur s'il est responsable et salarié
                                                     //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
@@ -187,8 +182,6 @@ public:
     int typecompta() const;
     void setTypeCompta(int typeCompta);
 
-    bool isAllLoaded() const;
-
     bool isOPTAM();
     bool useCCAM();
 
@@ -213,26 +206,19 @@ public:
     bool isDesactive();
 
     /*!
-     * les données susceptibles de varier d'une session à l'autre  ======================================================================================================================
+     * les données susceptibles de varier d'une session à l'autre - ne concerne que le user current ======================================================================================================================
      */
 
-    User *superviseur() const;
-    void setsuperviseur(User *usr);
-    int idsuperviseur() const;
-    void setidsuperviseur(int idusr);
-    bool ishisownsupervisor();
+    int idsuperviseur() const                     { return m_idUserSuperviseur; }
+    void setidsuperviseur(int idusr)              { m_idUserSuperviseur = idusr; }
+    bool ishisownsupervisor()                     { return (m_idUserSuperviseur == m_id); }
 
-    User *parent() const;
-    void setparent(User *usr);
-    int idparent() const;
-    void setidparent(int idusr);
+    int idparent() const                          { return m_idUserParent; }
+    void setidparent(int idusr)                   { m_idUserParent = idusr; }
 
-    User *comptable() const;
-    void setcomptable(User *usr);
-    int idcomptable() const;
-    void setidusercomptable(int idusr);
+    int idcomptable() const                       { return m_idUserComptable; }
+    void setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
 
-    QString status() const;
 };
 
 #endif // CLS_USER_H

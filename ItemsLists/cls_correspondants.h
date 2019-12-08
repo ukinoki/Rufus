@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_CORRESPONDANTS_H
 
 #include "cls_correspondant.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class Correspondants : public ItemsList

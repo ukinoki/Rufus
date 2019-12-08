@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_MOTIFS_H
 
 #include "cls_motif.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class Motifs : public ItemsList

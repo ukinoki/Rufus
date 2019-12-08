@@ -51,7 +51,7 @@ private:
     DataBase                *db                     = DataBase::I();
     bool                    m_cotationsmodifiees    = false;
     bool                    m_donneesusermodifiees  = false;
-    User                    *m_currentuser          = Datas::I()->users->userconnected();
+    User*                   currentuser() { return Datas::I()->users->userconnected(); }
     ParametresSysteme       *m_parametres           = db->parametres();
 
     bool                    m_modifposte            = false;

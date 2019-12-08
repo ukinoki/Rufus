@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_DOCSEXTERNES_H
 
 #include "cls_docexterne.h"
-#include "database.h"
 #include "cls_itemslist.h"
 #include "cls_refractions.h"
 

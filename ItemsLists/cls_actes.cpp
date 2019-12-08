@@ -127,12 +127,11 @@ void Actes::SupprimeActe(Acte* act)
     Supprime(map_actes, act);
 }
 
-Acte* Actes::CreationActe(Patient *pat, int idcentre, int idlieu)
+Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
 {
     if (pat == Q_NULLPTR)
         return Q_NULLPTR;
     Acte *act = Q_NULLPTR;
-    User* usr = DataBase::I()->userConnected();
     QString rempla = (usr->modeenregistrementhonoraires() == User::Retrocession? "1" : "null");
     QString creerrequete =
             "INSERT INTO " TBL_ACTES

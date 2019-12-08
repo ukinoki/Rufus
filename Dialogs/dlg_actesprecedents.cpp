@@ -26,12 +26,12 @@ ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    m_listeactes = actes;
-    m_idpatient = m_listeactes->actes()->last()->idPatient();
-    m_currentpatient = Datas::I()->patients->getById(m_idpatient);
+    m_listeactes        = actes;
+    m_idpatient         = m_listeactes->actes()->last()->idPatient();
+    m_currentpatient    = Datas::I()->patients->getById(m_idpatient);
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
-    m_avantdernieracte   = AvantDernier;
+    m_avantdernieracte  = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_ShowWithoutActivating);
     QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
@@ -212,7 +212,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
     Acte *acte = it_currentacte.value();
-    User * usr = Datas::I()->users->getById(acte->idUser(), Item::LoadDetails);
+    User * usr = Datas::I()->users->getById(acte->idUser());
 
     if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
         return;

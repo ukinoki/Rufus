@@ -43,7 +43,7 @@ QT_USE_NAMESPACE
 
 SerialThread::SerialThread(QSerialPort *PortProc)
 {
-    Port            = PortProc;
+    Port = PortProc;
 }
 
 void SerialThread::transaction()

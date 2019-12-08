@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_itemslist.h"
 #include "cls_user.h"
-#include "database.h"
 
 /*!
  * \brief The Users class
@@ -36,6 +35,7 @@ private:
     QMap<int, User*> *map_comptables = Q_NULLPTR;      //!< map des comptables : User->isSocComptable() || User->isLiberal()
     bool add(User *usr);
     void addList(QList<User*> listusr);
+    User* m_useradmin = Q_NULLPTR;
 
 public:
     //GETTER
@@ -46,11 +46,13 @@ public:
     QMap<int, User *> *comptables() const;
 
     Users(QObject *parent = Q_NULLPTR);
-    User*       getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ADDTOLIST addToList = AddToList);
-    QString     getLoginById(int id);
+    User*       Admin()  const  { return m_useradmin; }
+    User*       getById(int id, Item::UPDATE upd = Item::NoUpdate);
+    void        reload(User* usr);
     void        initListe();
+    void        remplaceUserListes(User *usr);
     void        SupprimeUser(User *usr);
-    User*       userconnected()             { return DataBase::I()->userConnected(); }
+    User*       userconnected()     { return getById(DataBase::I()->idUserConnected()); }
 };
 
 #endif // CLS_USERS_H

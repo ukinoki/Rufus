@@ -96,8 +96,8 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     DataBase                *db;
-    QString                 m_login = "";
-    QString                 m_password = "";
+    QString                 m_loginSQL = "";
+    QString                 m_passwordSQL = "";
     Utils::ModeAcces        m_modeacces;
     bool                    m_connexionbaseOK;
     bool                    m_ok;
@@ -118,8 +118,6 @@ private:
     bool                    VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
-    int                     VerifUserBase(QString Login, QString MDP);          //! Vérifie que l'utilisateur existe dans la base
-
 public:
     bool                    AutresPostesConnectes(bool msg = true);
     bool                    FicheChoixConnexion();
@@ -129,7 +127,7 @@ public:
                                                                              * vide la table EchangeImages
                                                                              * purge les champs jpg et pdf de la table Factures  */
 private:
-    User                    *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    User*                   currentuser() { return Datas::I()->users->userconnected(); } //user connected //TODO : DEPLACER DANS DATAS
     QString                 m_absolutepathDirStockageImage, m_pathDirStockageImagesServeur;
     QString                 m_CPpardefaut, m_Villepardefaut;
 public:
@@ -178,7 +176,7 @@ private:
     void                    CalcLieuExercice();
     void                    CalcUserParent();
     void                    CalcUserSuperviseur();
-    bool                    DefinitRoleUser();                       /*! definit les iduser pour lequel le user travaille
+    bool                    DefinitRoleUser();                          /*! definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
                                                                             . un autre user s'il est assistant
@@ -186,15 +184,16 @@ private:
                                                                         . idUser soignant remplacé si le superviseur est remplaçant (int gidUserParent)
                                                                         . s'il cote les actes                            (bool gUseCotation)
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
-                                                                      */
+                                                                        */
 public:
     QString                 MDPAdmin();
-    QString                 SessionStatus();                                    /*! statut de l'utilisateur pour cette session */
+    QString                 currentuserstatus() const;
+    QString                 SessionStatus();                            /*! statut de l'utilisateur pour cette session */
 
     int                     idCentre();
     bool                    Init();
+    void                    MAJComptesBancaires(User *usr);              //! actualise la liste des comptes bancaires utilisés par un user
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
-    bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::Update);
 
 /*! fin definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta) -------------------------------------------------------------------------------------------------------- */
 

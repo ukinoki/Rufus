@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_BANQUES_H
 #define CLS_BANQUES_H
 
-#include "database.h"
 #include "cls_banque.h"
 #include "cls_itemslist.h"
 

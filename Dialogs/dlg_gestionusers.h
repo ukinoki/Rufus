@@ -98,7 +98,7 @@ private:
     void                    ReconstruitListeLieuxExercice();
     bool                    VerifFiche();
 
-    void                    setDataUser(int id);
+    void                    setDataCurrentUser(int id);
     WidgetButtonFrame       *wdg_buttonframe;
     void                    Annulation();
     void                    CreerUser();

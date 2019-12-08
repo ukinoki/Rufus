@@ -72,22 +72,22 @@ void PatientsEnCours::updatePatientEnCours(PatientEnCours *pat)
 }
 
 
-PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString Statut, QTime heureStatut, QTime heureRDV,
+PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString Statut, QTime heureStatut, QTime heureRDV,
                                                  QTime heureArrivee, QString Motif, QString Message, int idActeAPayer, QString PosteExamen,
                                                  int idUserEnCours, int idSalDat)
 
 {
-    QString iduser          = (idUser == 0?             QString::number(DataBase::I()->userConnected()->idsuperviseur()) : QString::number(idUser));
-    QString statut          = (Statut == ""?            "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
-    QString heurestatut     = (heureStatut == QTime()?  "null" : "'" + heureStatut.toString("hh:mm:ss") + "'");
-    QString heurerdv        = (heureRDV == QTime()?     "null" : "'" + heureRDV.toString("hh:mm:ss") + "'");
-    QString heurearrivee    = (heureArrivee == QTime()? "null" : "'" + heureArrivee.toString("hh:mm:ss") + "'");
-    QString motif           = (Motif == ""?             "null" : "'" + Utils::correctquoteSQL(Motif) + "'");
-    QString message         = (Message == ""?           "null" : "'" + Utils::correctquoteSQL(Message) + "'");
-    QString idacteapayer    = (idActeAPayer == 0?       "null" : QString::number(idActeAPayer));
-    QString posteexamen     = (PosteExamen == ""?       "null" : "'" + Utils::correctquoteSQL(PosteExamen) + "'");
-    QString iduserencours   = (idUserEnCours == 0?      "null" : QString::number(idUserEnCours));
-    QString idsaldat        = (idSalDat == 0?           "null" : QString::number(idSalDat));
+    QString iduser          = (QString::number(usr->id()));
+    QString statut          = (Statut == ""?                "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
+    QString heurestatut     = (heureStatut == QTime()?      "null" : "'" + heureStatut.toString("hh:mm:ss") + "'");
+    QString heurerdv        = (heureRDV == QTime()?         "null" : "'" + heureRDV.toString("hh:mm:ss") + "'");
+    QString heurearrivee    = (heureArrivee == QTime()?     "null" : "'" + heureArrivee.toString("hh:mm:ss") + "'");
+    QString motif           = (Motif == ""?                 "null" : "'" + Utils::correctquoteSQL(Motif) + "'");
+    QString message         = (Message == ""?               "null" : "'" + Utils::correctquoteSQL(Message) + "'");
+    QString idacteapayer    = (idActeAPayer == 0?           "null" : QString::number(idActeAPayer));
+    QString posteexamen     = (PosteExamen == ""?           "null" : "'" + Utils::correctquoteSQL(PosteExamen) + "'");
+    QString iduserencours   = (idUserEnCours == 0?          "null" : QString::number(idUserEnCours));
+    QString idsaldat        = (idSalDat == 0?               "null" : QString::number(idSalDat));
 
     QString req = "INSERT INTO " TBL_SALLEDATTENTE
                         " (" CP_IDPAT_SALDAT ","
@@ -128,7 +128,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
         return Q_NULLPTR;
     PatientEnCours *pat = new PatientEnCours();
     pat->setid(idpat);
-    pat->setiduser(idUser == 0? DataBase::I()->userConnected()->idsuperviseur() : idUser);
+    pat->setiduser(usr->id());
     if (Statut != "")
         pat->setstatut(Statut);
     if (heureStatut != QTime())

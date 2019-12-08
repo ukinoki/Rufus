@@ -34,7 +34,7 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
-    ui->PrescriptioncheckBox->setVisible(Datas::I()->users->userconnected()->isSoignant());
+    ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
     wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
@@ -368,7 +368,7 @@ void dlg_impressions::dblClicktextEdit()
                 break;
             }
         }
-        if (getDocumentFromRow(row)->iduser() == m_currentuser->id())
+        if (getDocumentFromRow(row)->iduser() == currentuser()->id())
             ConfigMode(ModificationDOC,row);
     }
 }
@@ -730,7 +730,7 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
         {
             line0 = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
             if (line0->hasSelectedText())
-                if (getDocumentFromRow(line0->Row())->id() == m_currentuser->id())
+                if (getDocumentFromRow(line0->Row())->id() == currentuser()->id())
                 {a =true; break;}
         }
         if (a)
@@ -1229,8 +1229,8 @@ void dlg_impressions::Validation()
     QString listusers = "ListUsers";
     QString listsoignants = "ListSoignants";
     m_userentete = Q_NULLPTR;
-    if (m_currentuser->ishisownsupervisor())
-        m_userentete = m_currentuser;
+    if (currentuser()->ishisownsupervisor())
+        m_userentete = currentuser();
 
     int ndocs = 0;
     switch (m_mode) {
@@ -1326,7 +1326,7 @@ void dlg_impressions::Validation()
             }
         }
         // On a établi la liste de questions - on prépare la fiche qui va les poser
-        if (listQuestions.size()>0 || !m_currentuser->ishisownsupervisor())
+        if (listQuestions.size()>0 || !currentuser()->ishisownsupervisor())
         {
             dlg_ask = new UpDialog(this);
             dlg_ask->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
@@ -1451,13 +1451,13 @@ void dlg_impressions::Validation()
                     lay->addWidget(Combo);
                 }
             }
-            if (listQuestions.size()>0 && !m_currentuser->ishisownsupervisor())
+            if (listQuestions.size()>0 && !currentuser()->ishisownsupervisor())
             {
                 QFrame *line = new QFrame();
                 line->setFrameShape(QFrame::HLine);
                 layWidg->addWidget(line);
             }
-            if (!m_currentuser->ishisownsupervisor())
+            if (!currentuser()->ishisownsupervisor())
             {
                 QHBoxLayout *lay = new QHBoxLayout();
                 lay->setContentsMargins(5,0,5,0);
@@ -1563,7 +1563,7 @@ void dlg_impressions::Validation()
                                     if (linecombo->accessibleDescription() == listsoignants)
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        User* usr = Datas::I()->users->getById(idusr, Item::LoadDetails);
+                                        User* usr = Datas::I()->users->getById(idusr);
                                         QString babar = (usr->isMedecin()? usr->titre() : "") + " " + usr->prenom() + " " + usr->nom();
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
@@ -1576,7 +1576,7 @@ void dlg_impressions::Validation()
                                     else
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        m_userentete = Datas::I()->users->getById(idusr, Item::LoadDetails);
+                                        m_userentete = Datas::I()->users->getById(idusr);
                                     }
                                     delete linecombo;
                                 }
@@ -1910,7 +1910,7 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
             {
                 a = true;
                 QString b = "vous";
-                if (listdocs.at(i).at(1).toInt() != m_currentuser->id())
+                if (listdocs.at(i).at(1).toInt() != currentuser()->id())
                     b = Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->login();
                 UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom créé par ") + b);
                 break;
@@ -2406,7 +2406,7 @@ void dlg_impressions::EnableLines()
             line0->deselect();
             line0->setEnabled(true);
             line0->setFocusPolicy(Qt::NoFocus);
-            if (getDocumentFromRow(i)->iduser() == m_currentuser->id())
+            if (getDocumentFromRow(i)->iduser() == currentuser()->id())
             {
                 connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
                 connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
@@ -2429,7 +2429,7 @@ void dlg_impressions::EnableLines()
             line0->deselect();
             line0->setEnabled(true);
             line0->setFocusPolicy(Qt::NoFocus);
-            if (getMetaDocumentFromRow(i)->iduser() == m_currentuser->id())
+            if (getMetaDocumentFromRow(i)->iduser() == currentuser()->id())
             {
                 connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
                 connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
@@ -2522,7 +2522,7 @@ void dlg_impressions::InsertDocument(int row)
             " (" CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ", " CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS ") "
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toHtml()) +
             "', '" + Utils::correctquoteSQL(line->text().left(100)) +
-            "', " + QString::number(m_currentuser->id());
+            "', " + QString::number(currentuser()->id());
     QString Public          = (ui->DocPubliccheckBox->isChecked()?          "1" : "null");
     QString Prescription    = (ui->PrescriptioncheckBox->isChecked()?       "1" : "null");
     QString Editable        = (ui->DocEditcheckBox->isChecked()?            "1" : "null");
@@ -2581,7 +2581,7 @@ void dlg_impressions::InsertDossier(int row)
     QString requete = "INSERT INTO " TBL_DOSSIERSIMPRESSIONS
             " (" CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ") "
             " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
-            "'," + QString::number(m_currentuser->id());
+            "'," + QString::number(currentuser()->id());
     UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,2));
     QString a = "null";
     if (lbl->pixmap() != Q_NULLPTR)
@@ -2664,8 +2664,8 @@ void dlg_impressions::LineSelect(UpTableWidget *table, int row)
     }
     if (table == ui->DocupTableWidget)
     {
-        wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
-        wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == currentuser()->id());
+        wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == currentuser()->id());
         wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(false);
         wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(false);
         if (m_mode == Selection)
@@ -2684,9 +2684,9 @@ void dlg_impressions::LineSelect(UpTableWidget *table, int row)
     {
         ui->textFrame                       ->setVisible(false);
         wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == currentuser()->id());
         wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
+        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == currentuser()->id());
     }
     line->selectAll();
 }
@@ -2699,7 +2699,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     m_listedestinataires.clear();
     m_listtexts.clear();
 
-    User *userEntete = (m_currentuser->superviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : m_currentuser->superviseur());
+    User *userEntete = (Datas::I()->users->getById(currentuser()->idsuperviseur()) == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(currentuser()->idsuperviseur()));
     if (userEntete == Q_NULLPTR)
         return;
 
@@ -3133,7 +3133,7 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
     upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
     upLine0->setFocusPolicy(Qt::NoFocus);
-    if (doc->iduser() != m_currentuser->id())
+    if (doc->iduser() != currentuser()->id())
     {
         upLine0->setFont(disabledFont);
         upLine0->setPalette(palette);
@@ -3208,7 +3208,7 @@ void dlg_impressions::SetMetaDocumentToRow(DossierImpression*dossier, int row)
     upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
     upLine0->setFocusPolicy(Qt::NoFocus);
-    if (dossier->iduser() != m_currentuser->id())
+    if (dossier->iduser() != currentuser()->id())
     {
         upLine0->setFont(disabledFont);
         upLine0->setPalette(palette);

@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_COMPTES_H
 
 #include "cls_compte.h"
-#include "database.h"
 #include "cls_itemslist.h"
 
 class Comptes : public ItemsList

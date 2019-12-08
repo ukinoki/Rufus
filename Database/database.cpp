@@ -86,17 +86,6 @@ void DataBase::getInformations()
            "\n" + tr("password    ") + "\n ->\t" + m_db.password() +
            "\n" + tr("port        ") + "\n ->\t" + QString::number(m_db.port()));
 }
-
-User* DataBase::userConnected() const
-{
-    return m_userConnected;
-}
-
-void DataBase::setUserConnected(User *usr)
-{
-    m_userConnected = usr;
-}
-
 bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
     if (erreur.type() != QSqlError::NoError)
@@ -593,15 +582,13 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 /*
  * Users
 */
-DataBase::QueryResult DataBase::login(QString login, QString password)
+DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
-    m_userConnected = Q_NULLPTR;
-
     //TODO : SQL USER : récupérer tout le reste
-    QString req = "SELECT idUser "
-                  " FROM " TBL_UTILISATEURS " u "
-                  " WHERE UserLogin = '" + login + "' "
-                  " AND UserMDP = '" + password + "' ";
+    QString req = "SELECT " CP_ID_USR
+                  " FROM " TBL_UTILISATEURS
+                  " WHERE " CP_LOGIN_USR " = '" + login + "' "
+                  " AND " CP_MDP_USR " = '" + password + "' ";
     //qDebug() << req;
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok)
@@ -609,9 +596,7 @@ DataBase::QueryResult DataBase::login(QString login, QString password)
     if(usrdata.size()==0)
         return Empty;
 
-    m_userConnected = new User(login, password);
-    int id = usrdata.at(0).toInt();
-    m_userConnected->setData(loadUserData(id));
+    m_iduserConnected = usrdata.at(0).toInt();
     return OK;
 }
 
@@ -619,16 +604,15 @@ QJsonObject DataBase::loadUserData(int idUser)
 {
     QJsonObject userData{};
 
-    QString req = "select UserDroits, UserAGA, UserLogin, UserFonction, UserTitre, "                    // 0,1,2,3,4
-            " UserNom, UserPrenom, UserMail, UserNumPS, UserSpecialite,"                                // 5,6,7,8,9
-            " UserNoSpecialite, UserNumCO, idCompteParDefaut, UserEnregHonoraires, UserMDP,"            // 10,11,12,13,14
-            " UserPortable, UserPoste, UserWeb, UserMemo, UserDesactive,"                               // 15,16,17,18,19
-            " UserPoliceEcran, UserPoliceAttribut, UserSecteur, Soignant, ResponsableActes,"            // 20,21,22,23,24
-            " UserCCAM, UserEmployeur, DateDerniereConnexion, idCompteEncaissHonoraires, Medecin,"      // 25,26,27,28,29
-            " OPTAM, cpt.nomcompteabrege"                                                               // 30,31
-            " from " TBL_UTILISATEURS " usr "
-            " left outer join " TBL_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte"
-            " where usr.idUser = " + QString::number(idUser);
+    QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
+            CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
+            CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
+            CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
+            CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
+            CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
+            CP_ISOPTAM_USR                                                                                                                              // 30
+            " from " TBL_UTILISATEURS
+            " where " CP_ID_USR " = " + QString::number(idUser);
 
             //+ "  and userdesactive is null";
             // SL cette ligne est retirée parce qu'elle bloque l'affichage des utilisateurs désactivés dans dlg_gestionsusers
@@ -641,48 +625,45 @@ QJsonObject DataBase::loadUserData(int idUser)
     if(usrdata.size()==0)
         return userData;
 
-    userData["isAllLoaded"]                 = true;
-    userData["id"]                          = idUser;
-    userData["droits"]                      = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
-    userData["AGA"]                         = (usrdata.at(1).toInt() == 1);
-    userData["login"]                       = usrdata.at(2).isNull() ? "" : usrdata.at(2).toString();
-    userData["fonction"]                    = usrdata.at(3).isNull() ? "" : usrdata.at(3).toString();
-    userData["titre"]                       = usrdata.at(4).isNull() ? "" : usrdata.at(4).toString();
-    userData["nom"]                         = usrdata.at(5).isNull() ? "" : usrdata.at(5).toString();
-    userData["prenom"]                      = usrdata.at(6).isNull() ? "" : usrdata.at(6).toString();
-    userData["mail"]                        = usrdata.at(7).isNull() ? "" : usrdata.at(7).toString();
-    userData["numPS"]                       = usrdata.at(8).toLongLong();
-    userData["specialite"]                  = usrdata.at(9).isNull() ? "" : usrdata.at(9).toString();
-    userData["noSpecialite"]                = usrdata.at(10).toInt();
-    userData["numCO"]                       = usrdata.at(11).isNull() ? "" : usrdata.at(11).toString();
-    userData["idCompteParDefaut"]           = (usrdata.at(12).isNull()? -1 : usrdata.at(12).toInt());
-    userData["enregHonoraires"]             = usrdata.at(13).toInt();
-    userData["password"]                    = usrdata.at(14).toString();
-    userData["portable"]                    = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
-    userData["poste"]                       = usrdata.at(16).toInt();
-    userData["web"]                         = usrdata.at(17).isNull() ? "" : usrdata.at(17).toString();
-    userData["memo"]                        = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
-    userData["desactive"]                   = (usrdata.at(19).toInt() == 1);
-    userData["policeEcran"]                 = usrdata.at(20).isNull() ? "" : usrdata.at(20).toString();
-    userData["policeAttribut"]              = usrdata.at(21).isNull() ? "" : usrdata.at(21).toString();
-    userData["secteur"]                     = usrdata.at(22).toInt();
-    userData["OPTAM"]                       = (usrdata.at(30).toInt() == 1);
-    userData["soignant"]                    = usrdata.at(23).toInt();
-    userData["responsableActes"]            = usrdata.at(24).toInt();
-    userData["cotation"]                    = (usrdata.at(25).toInt() == 1);
-    userData["employeur"]                   = usrdata.at(26).toInt();
-    userData["dateDerniereConnexion"]       = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
-    userData["medecin"]                     = usrdata.at(29).toInt();
-    userData["idCompteEncaissHonoraires"]   = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
-    if( userData["idCompteEncaissHonoraires"].toInt() > -1 )
-        userData["nomCompteEncaissHonoraires"] = usrdata.at(31).toString();
+    userData[CP_ID_USR]                             = idUser;
+    userData[CP_DROITS_USR]                         = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
+    userData[CP_ISAGA_USR]                          = (usrdata.at(1).toInt() == 1);
+    userData[CP_LOGIN_USR]                          = usrdata.at(2).isNull() ? "" : usrdata.at(2).toString();
+    userData[CP_FONCTION_USR]                       = usrdata.at(3).isNull() ? "" : usrdata.at(3).toString();
+    userData[CP_TITRE_USR]                          = usrdata.at(4).isNull() ? "" : usrdata.at(4).toString();
+    userData[CP_NOM_USR]                            = usrdata.at(5).isNull() ? "" : usrdata.at(5).toString();
+    userData[CP_PRENOM_USR]                         = usrdata.at(6).isNull() ? "" : usrdata.at(6).toString();
+    userData[CP_MAIL_USR]                           = usrdata.at(7).isNull() ? "" : usrdata.at(7).toString();
+    userData[CP_NUMPS_USR]                          = usrdata.at(8).toLongLong();
+    userData[CP_SPECIALITE_USR]                     = usrdata.at(9).isNull() ? "" : usrdata.at(9).toString();
+    userData[CP_IDSPECIALITE_USR]                   = usrdata.at(10).toInt();
+    userData[CP_NUMCO_USR]                          = usrdata.at(11).isNull() ? "" : usrdata.at(11).toString();
+    userData[CP_IDCOMPTEPARDEFAUT_USR]              = (usrdata.at(12).isNull()? -1 : usrdata.at(12).toInt());
+    userData[CP_ENREGHONORAIRES_USR]                = usrdata.at(13).toInt();
+    userData[CP_MDP_USR]                            = usrdata.at(14).toString();
+    userData[CP_PORTABLE_USR]                       = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
+    userData[CP_POSTE_USR]                          = usrdata.at(16).toInt();
+    userData[CP_WEBSITE_USR]                        = usrdata.at(17).isNull() ? "" : usrdata.at(17).toString();
+    userData[CP_MEMO_USR]                           = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
+    userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(19).toInt() == 1);
+    userData[CP_POLICEECRAN_USR]                    = usrdata.at(20).isNull() ? "" : usrdata.at(20).toString();
+    userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(21).isNull() ? "" : usrdata.at(21).toString();
+    userData[CP_SECTEUR_USR]                        = usrdata.at(22).toInt();
+    userData[CP_ISOPTAM_USR]                        = (usrdata.at(30).toInt() == 1);
+    userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(23).toInt();
+    userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(24).toInt();
+    userData[CP_CCAM_USR]                           = (usrdata.at(25).toInt() == 1);
+    userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(26).toInt();
+    userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
+    userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
+    userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
     return userData;
 }
 
 QJsonObject DataBase::loadAdminData()
 {
     QJsonObject userData{};
-    QString req = "select iduser from " TBL_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "'";
+    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEURDOCS "'";
     QVariantList usrid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'administrateur"));
     if (!ok || usrid.size()==0)
         return userData;
@@ -692,29 +673,56 @@ QJsonObject DataBase::loadAdminData()
 QList<User*> DataBase::loadUsers()
 {
     QList<User*> users;
-    QString req = "select usr.iduser, usr.userlogin, usr.soignant, usr.responsableactes, "          //0,1,2,3
-                    " usr.UserEnregHonoraires, usr.idCompteEncaissHonoraires, usr.UserCCAM, "       //4,5,6
-                    " usr.UserEmployeur, cpt.nomcompteabrege "                                      //7,8
-                  " from " TBL_UTILISATEURS " usr "
-                  " left outer join " TBL_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
-                  " where userdesactive is null";
+    QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
+            CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
+            CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
+            CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
+            CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
+            CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
+            CP_ISOPTAM_USR ", " CP_ID_USR                                                                                 // 30,31
+            " from " TBL_UTILISATEURS
+            " where " CP_ISDESACTIVE_USR " is null";
+
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
     if( !ok || usrlist.size()==0 )
         return users;
     for (int i=0; i<usrlist.size(); ++i)
     {
-        QJsonObject jData{};
-        jData["id"]                         = usrlist.at(i).at(0).toInt();
-        jData["login"]                      = usrlist.at(i).at(1).toString();
-        jData["soignant"]                   = usrlist.at(i).at(2).toInt();
-        jData["responsableActes"]           = usrlist.at(i).at(3).toInt();
-        jData["enregHonoraires"]            = usrlist.at(i).at(4).toInt();
-        jData["idCompteEncaissHonoraires"]  = usrlist.at(i).at(5).toInt();
-        jData["cotation"]                   = (usrlist.at(i).at(6).toInt() == 1);
-        jData["employeur"]                  = usrlist.at(i).at(7).toInt();
-        jData["nomCompteAbrege"]            = usrlist.at(i).at(8).toString();
-        jData["isAllLoaded"]                = false;
-        User *usr = new User(jData);
+        QVariantList usrdata = usrlist.at(i);
+        QJsonObject userData{};
+        userData[CP_ID_USR]                             = usrdata.at(31).toInt();
+        userData[CP_DROITS_USR]                         = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
+        userData[CP_ISAGA_USR]                          = (usrdata.at(1).toInt() == 1);
+        userData[CP_LOGIN_USR]                          = usrdata.at(2).isNull() ? "" : usrdata.at(2).toString();
+        userData[CP_FONCTION_USR]                       = usrdata.at(3).isNull() ? "" : usrdata.at(3).toString();
+        userData[CP_TITRE_USR]                          = usrdata.at(4).isNull() ? "" : usrdata.at(4).toString();
+        userData[CP_NOM_USR]                            = usrdata.at(5).isNull() ? "" : usrdata.at(5).toString();
+        userData[CP_PRENOM_USR]                         = usrdata.at(6).isNull() ? "" : usrdata.at(6).toString();
+        userData[CP_MAIL_USR]                           = usrdata.at(7).isNull() ? "" : usrdata.at(7).toString();
+        userData[CP_NUMPS_USR]                          = usrdata.at(8).toLongLong();
+        userData[CP_SPECIALITE_USR]                     = usrdata.at(9).isNull() ? "" : usrdata.at(9).toString();
+        userData[CP_IDSPECIALITE_USR]                   = usrdata.at(10).toInt();
+        userData[CP_NUMCO_USR]                          = usrdata.at(11).isNull() ? "" : usrdata.at(11).toString();
+        userData[CP_IDCOMPTEPARDEFAUT_USR]              = (usrdata.at(12).isNull()? -1 : usrdata.at(12).toInt());
+        userData[CP_ENREGHONORAIRES_USR]                = usrdata.at(13).toInt();
+        userData[CP_MDP_USR]                            = usrdata.at(14).toString();
+        userData[CP_PORTABLE_USR]                       = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
+        userData[CP_POSTE_USR]                          = usrdata.at(16).toInt();
+        userData[CP_WEBSITE_USR]                        = usrdata.at(17).isNull() ? "" : usrdata.at(17).toString();
+        userData[CP_MEMO_USR]                           = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
+        userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(19).toInt() == 1);
+        userData[CP_POLICEECRAN_USR]                    = usrdata.at(20).isNull() ? "" : usrdata.at(20).toString();
+        userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(21).isNull() ? "" : usrdata.at(21).toString();
+        userData[CP_SECTEUR_USR]                        = usrdata.at(22).toInt();
+        userData[CP_ISOPTAM_USR]                        = (usrdata.at(30).toInt() == 1);
+        userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(23).toInt();
+        userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(24).toInt();
+        userData[CP_CCAM_USR]                           = (usrdata.at(25).toInt() == 1);
+        userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(26).toInt();
+        userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
+        userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
+        userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
+        User *usr = new User(userData);
         users << usr;
     }
     return users;
@@ -912,12 +920,12 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     QList<DocExterne*> docsexternes;
     if (pat == Q_NULLPTR)
         return QList<DocExterne*>();
-    QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
-                  " compression, lienversfichier, formatdoc, Importance from " TBL_DOCSEXTERNES
-                  " where idpat = " + QString::number(pat->id());
-#ifdef Q_OS_LINUX
-    req += " and formatdoc <> '" VIDEO "'";
-#endif
+    QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
+                  CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+                  " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
+//#ifdef Q_OS_LINUX
+//    req += " and " CP_FORMATDOC_DOCSEXTERNES " <> '" VIDEO "'";
+//#endif
 
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
@@ -925,8 +933,8 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_ISALLLOADED]                  = false;
-        jData[CP_ID_DOCSEXTERNES]     = doclist.at(i).at(0).toInt();
+        jData[CP_ISALLLOADED]                   = false;
+        jData[CP_ID_DOCSEXTERNES]               = doclist.at(i).at(0).toInt();
         jData[CP_IDPAT_DOCSEXTERNES]            = pat->id();
         jData[CP_TYPEDOC_DOCSEXTERNES]          = doclist.at(i).at(1).toString();
         jData[CP_SOUSTYPEDOC_DOCSEXTERNES]      = doclist.at(i).at(2).toString();
@@ -947,17 +955,17 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 QJsonObject DataBase::loadDocExterneData(int idDoc)
 {
     QJsonObject jData{};
-    QString req = "Select idImpression, idUser, idPat, TypeDoc, SousTypeDoc,"
-                  " Titre, TextEntete, TextCorps, TextOrigine, TextPied,"
-                  " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
-                  " formatdoc, Importance, idRefraction from " TBL_DOCSEXTERNES
-                  " where idimpression = " + QString::number(idDoc);
+    QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","
+                  CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","
+                  CP_DATE_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_ALD_DOCSEXTERNES ", " CP_IDEMETTEUR_DOCSEXTERNES ","
+                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+                  " where " CP_ID_DOCSEXTERNES " = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
         return jData;
-    jData[CP_ISALLLOADED]                  = true;
+    jData[CP_ISALLLOADED]                   = true;
 
-    jData[CP_ID_DOCSEXTERNES]     = docdata.at(0).toInt();
+    jData[CP_ID_DOCSEXTERNES]               = docdata.at(0).toInt();
     jData[CP_IDUSER_DOCSEXTERNES]           = docdata.at(1).toInt();
     jData[CP_IDPAT_DOCSEXTERNES]            = docdata.at(2).toInt();
     jData[CP_TYPEDOC_DOCSEXTERNES]          = docdata.at(3).toString();
@@ -990,7 +998,7 @@ QList<Impression*> DataBase::loadImpressions()
     QList<Impression*> impressions;
     QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
                   CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
-                  " WHERE (" CP_IDUSER_IMPRESSIONS " = " + QString::number(userConnected()->id()) + " Or (" CP_DOCPUBLIC_IMPRESSIONS " = 1 and " CP_IDUSER_IMPRESSIONS " <> " + QString::number(userConnected()->id()) + "))"
+                  " WHERE (" CP_IDUSER_IMPRESSIONS " = " + QString::number(m_iduserConnected) + " Or (" CP_DOCPUBLIC_IMPRESSIONS " = 1 and " CP_IDUSER_IMPRESSIONS " <> " + QString::number(m_iduserConnected) + "))"
                   " ORDER BY " CP_RESUME_IMPRESSIONS;
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
@@ -1022,7 +1030,7 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
     QList<DossierImpression*> dossiers;
     QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
-                       " WHERE " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(userConnected()->id());
+                       " WHERE " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(m_iduserConnected);
                 req += " UNION \n";
                 req += "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_ID_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
                        " where " CP_IDUSER_DOSSIERIMPRESSIONS " not in\n"

@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 /*!
  * \brief RecetteComptable class
- * l'ensemble des informations concernant une recettecomptable
+ * l'ensemble des informations concernant une recette comptable
  * traite les enregistrements de la table ComptaMedicale.lignesecettes
  */
 

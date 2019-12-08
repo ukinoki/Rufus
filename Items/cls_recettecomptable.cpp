@@ -26,21 +26,21 @@ void RecetteComptable::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, CP_IDRECETTE_LIGNRECETTES, m_id);
-    setDataInt(data, CP_IDUSER_LIGNRECETTES, m_iduser);
-    setDataDate(data, CP_DATE_LIGNRECETTES, m_date);
-    setDataDate(data, CP_DATEENREGISTREMENT_LIGNRECETTES , m_dateenregistrement);
-    setDataDouble(data, CP_MONTANT_LIGNRECETTES, m_montant);
-    setDataString(data, CP_MODEPAIEMENT_LIGNRECETTES, m_modepaiement);
-    setDataString(data, CP_TIREURCHEQUE_LIGNRECETTES, m_nomtireurchq);
-    setDataInt(data, CP_IDCPTEVIREMENT_LIGNRECETTES, m_idcompte);
-    setDataString(data, CP_BANQUECHEQUE_LIGNRECETTES, m_nombanque);
-    setDataBool(data, CP_TIERSPAYANT_LIGNRECETTES, m_tierspayant);
-    setDataString(data, CP_NOMPAYEUR_LIGNRECETTES , m_nompayeur);
-    setDataDouble(data, CP_COMMISSION_LIGNRECETTES, m_commission);
-    setDataInt(data, CP_IDREMISECHQ_LIGNRECETTES, m_idremise);
-    setDataBool(data, CP_CHQENATTENTE_LIGNRECETTES, m_chqenattente);
-    setDataInt(data, CP_IDUSERENREGISTREUR_LIGNRECETTES, m_iduserenregistreur);
-    setDataInt(data, CP_TYPERECETTE_LIGNRECETTES, m_typerecette);
+    Utils::setDataInt(data, CP_IDRECETTE_LIGNRECETTES, m_id);
+    Utils::setDataInt(data, CP_IDUSER_LIGNRECETTES, m_iduser);
+    Utils::setDataDate(data, CP_DATE_LIGNRECETTES, m_date);
+    Utils::setDataDate(data, CP_DATEENREGISTREMENT_LIGNRECETTES , m_dateenregistrement);
+    Utils::setDataDouble(data, CP_MONTANT_LIGNRECETTES, m_montant);
+    Utils::setDataString(data, CP_MODEPAIEMENT_LIGNRECETTES, m_modepaiement);
+    Utils::setDataString(data, CP_TIREURCHEQUE_LIGNRECETTES, m_nomtireurchq);
+    Utils::setDataInt(data, CP_IDCPTEVIREMENT_LIGNRECETTES, m_idcompte);
+    Utils::setDataString(data, CP_BANQUECHEQUE_LIGNRECETTES, m_nombanque);
+    Utils::setDataBool(data, CP_TIERSPAYANT_LIGNRECETTES, m_tierspayant);
+    Utils::setDataString(data, CP_NOMPAYEUR_LIGNRECETTES , m_nompayeur);
+    Utils::setDataDouble(data, CP_COMMISSION_LIGNRECETTES, m_commission);
+    Utils::setDataInt(data, CP_IDREMISECHQ_LIGNRECETTES, m_idremise);
+    Utils::setDataBool(data, CP_CHQENATTENTE_LIGNRECETTES, m_chqenattente);
+    Utils::setDataInt(data, CP_IDUSERENREGISTREUR_LIGNRECETTES, m_iduserenregistreur);
+    Utils::setDataInt(data, CP_TYPERECETTE_LIGNRECETTES, m_typerecette);
     m_data = data;
 }

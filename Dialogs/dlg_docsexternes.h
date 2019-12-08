@@ -42,7 +42,7 @@ private:
     DataBase                *db             = DataBase::I();
     Procedures              *proc           = Procedures::I();
     QFont                   m_font          = QApplication::font();
-    User                    *m_currentuser  = Datas::I()->users->userconnected();
+    User*                   currentuser() { return Datas::I()->users->userconnected(); }
 
     DocsExternes            *m_docsexternes;
     Patient                 *m_currentpatient;

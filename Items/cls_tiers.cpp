@@ -33,13 +33,13 @@ void Tiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "id", m_id);
-    setDataString(data, "nomtiers", m_nomtiers);
-    setDataString(data, "adressetiers", m_adressetiers);
-    setDataString(data, "codepostaltiers", m_codepostaltiers);
-    setDataString(data, "villetiers", m_villetiers);
-    setDataString(data, "telephonetiers", m_telephonetiers);
-    setDataString(data, "faxtiers", m_faxtiers);
+    Utils::setDataInt(data, "id", m_id);
+    Utils::setDataString(data, "nomtiers", m_nomtiers);
+    Utils::setDataString(data, "adressetiers", m_adressetiers);
+    Utils::setDataString(data, "codepostaltiers", m_codepostaltiers);
+    Utils::setDataString(data, "villetiers", m_villetiers);
+    Utils::setDataString(data, "telephonetiers", m_telephonetiers);
+    Utils::setDataString(data, "faxtiers", m_faxtiers);
     m_data = data;
 }
 
@@ -58,6 +58,6 @@ void TypeTiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataString(data, "typetiers", m_typetiers);
+    Utils::setDataString(data, "typetiers", m_typetiers);
 }
 

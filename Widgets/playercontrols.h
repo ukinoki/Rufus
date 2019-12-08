@@ -30,12 +30,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAudio>
 #include "utils.h"
 
-
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-class QAbstractSlider;
-QT_END_NAMESPACE
-
 class PlayerControls : public QWidget
 {
     Q_OBJECT

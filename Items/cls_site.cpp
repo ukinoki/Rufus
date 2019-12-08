@@ -28,15 +28,15 @@ void Site::setData(QJsonObject data)
         return;
 
 
-    setDataInt(data, "idLieu", m_id);
-    setDataString(data, "nomLieu", m_nom);
-    setDataString(data, "adresse1", m_adresse1);
-    setDataString(data, "adresse2", m_adresse2);
-    setDataString(data, "adresse3", m_adresse3);
-    setDataInt(data, "codePostal", m_codePostal);
-    setDataString(data, "ville", m_ville);
-    setDataString(data, "telephone", m_telephone);
-    setDataString(data, "fax", m_fax);
+    Utils::setDataInt(data, "idLieu", m_id);
+    Utils::setDataString(data, "nomLieu", m_nom);
+    Utils::setDataString(data, "adresse1", m_adresse1);
+    Utils::setDataString(data, "adresse2", m_adresse2);
+    Utils::setDataString(data, "adresse3", m_adresse3);
+    Utils::setDataInt(data, "codePostal", m_codePostal);
+    Utils::setDataString(data, "ville", m_ville);
+    Utils::setDataString(data, "telephone", m_telephone);
+    Utils::setDataString(data, "fax", m_fax);
     m_data = data;
 }
 

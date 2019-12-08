@@ -65,7 +65,7 @@ private:
 
     QTimer                  *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
     User                    *m_useracrediter    = Q_NULLPTR;
-    User                    *m_userconnected    = Datas::I()->users->userconnected();
+    User*                   currentuser() { return Datas::I()->users->userconnected(); }
 
     QMap<int, User*>        *map_comptables;
 

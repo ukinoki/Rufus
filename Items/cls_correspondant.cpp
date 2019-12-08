@@ -130,24 +130,24 @@ void Correspondant::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data,    CP_ID_CORRESP, m_id);
-    setDataBool(data,   CP_ISGENERALISTE, m_generaliste);
-    setDataBool(data,   CP_ISMEDECIN, m_medecin);
-    setDataString(data, CP_NOM_CORRESP, m_nom);
-    setDataString(data, CP_PRENOM_CORRESP, m_prenom);
-    setDataString(data, CP_SEXE_CORRESP, m_sexe);
-    setDataString(data, CP_METIER, m_metier);
-    setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
-    setDataString(data, CP_ADRESSE2_CORRESP, m_adresse2);
-    setDataString(data, CP_ADRESSE3_CORRESP, m_adresse3);
-    setDataString(data, CP_CODEPOSTAL_CORRESP, m_codepostal);
-    setDataString(data, CP_VILLE_CORRESP, m_ville);
-    setDataString(data, CP_TELEPHONE_CORRESP, m_telephone);
-    setDataString(data, CP_MAIL_CORRESP, m_mail);
-    setDataString(data, CP_FAX_CORRESP, m_fax);
-    setDataString(data, CP_PORTABLE_CORRESP, m_portable);
-    setDataInt(data,    CP_SPECIALITE_CORRESP, m_idspecialite);
+    Utils::setDataInt(data,    CP_ID_CORRESP, m_id);
+    Utils::setDataBool(data,   CP_ISGENERALISTE, m_generaliste);
+    Utils::setDataBool(data,   CP_ISMEDECIN, m_medecin);
+    Utils::setDataString(data, CP_NOM_CORRESP, m_nom);
+    Utils::setDataString(data, CP_PRENOM_CORRESP, m_prenom);
+    Utils::setDataString(data, CP_SEXE_CORRESP, m_sexe);
+    Utils::setDataString(data, CP_METIER, m_metier);
+    Utils::setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
+    Utils::setDataString(data, CP_ADRESSE2_CORRESP, m_adresse2);
+    Utils::setDataString(data, CP_ADRESSE3_CORRESP, m_adresse3);
+    Utils::setDataString(data, CP_CODEPOSTAL_CORRESP, m_codepostal);
+    Utils::setDataString(data, CP_VILLE_CORRESP, m_ville);
+    Utils::setDataString(data, CP_TELEPHONE_CORRESP, m_telephone);
+    Utils::setDataString(data, CP_MAIL_CORRESP, m_mail);
+    Utils::setDataString(data, CP_FAX_CORRESP, m_fax);
+    Utils::setDataString(data, CP_PORTABLE_CORRESP, m_portable);
+    Utils::setDataInt(data,    CP_SPECIALITE_CORRESP, m_idspecialite);
 
-    setDataBool(data,   CP_ISALLLOADED, m_isAllLoaded);
+    Utils::setDataBool(data,   CP_ISALLLOADED, m_isAllLoaded);
     m_data = data;
 }

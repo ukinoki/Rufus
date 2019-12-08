@@ -139,7 +139,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     ui->RecImageLabel->setPixmap( Icons::pxEnregistrer() );
 
-    ui->ComptablescomboBox->setEnabled(m_userConnected->comptable()==Q_NULLPTR && map_comptables->size()>1);
+    ui->ComptablescomboBox->setEnabled(Datas::I()->users->getById(currentuser()->idcomptable()) == Q_NULLPTR && map_comptables->size()>1);
 
     // On reconstruit le combobox des utilisateurs avec la liste des comptables
     if( map_comptables->size() > 1 )
@@ -157,7 +157,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
     else                                            // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
-        m_useracrediter = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+        m_useracrediter = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
 
     if( m_useracrediter == Q_NULLPTR)
     {
@@ -166,7 +166,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         return;
     }
 
-    proc->SetUserAllData(m_useracrediter);
+    proc->MAJComptesBancaires(m_useracrediter);
     if( m_useracrediter != Q_NULLPTR && m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
@@ -477,7 +477,7 @@ void dlg_paiementdirect::ChangeComptable(User* comptable, bool depuislecombo)
     }
 
     if (m_useracrediter != Q_NULLPTR)
-        proc->SetUserAllData(m_useracrediter);
+        proc->MAJComptesBancaires(m_useracrediter);
     if (ui->DetailupTableWidget->rowCount()>-1)
     if (ui->DetailupTableWidget->rowCount()>-1)
     RegleComptesComboBox();
@@ -692,7 +692,7 @@ void dlg_paiementdirect::ModifiePaiement()
         }
         requete = "SELECT idActe FROM " TBL_LIGNESPAIEMENTS
                 " WHERE idRecette = " + QString::number(m_idrecette) +
-                " AND idActe IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
+                " AND idActe IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(currentuser()->id()) + ")";
         QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (m_ok && actdata.size() > 0)
         {
@@ -872,7 +872,7 @@ void dlg_paiementdirect::RegleAffichageFiche()
     ui->PasdePaiementlabel          ->setVisible(false);
     ui->Comptablelabel              ->setVisible(m_mode!=Accueil);
     ui->ComptablescomboBox          ->setVisible(m_mode!=Accueil);
-    ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
+    ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(currentuser()->idcomptable()) == Q_NULLPTR
                                                  && (m_mode == VoirListeActes || (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
                                                  && map_comptables->size()>1);
     ui->SupprimerupPushButton       ->setVisible(false);
@@ -1385,12 +1385,12 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         if (ui->DetailupTableWidget->rowCount() == 0)
         {
             // si la liste des actes n'était pas vide au départ, il est possible que le comptable du user connecte soit différent du comptable des actes de la liste
-            if (m_userConnected->idcomptable() > 0 && m_userConnected->idcomptable() != m_useracrediter->id())
+            if (currentuser()->idcomptable() > 0 && currentuser()->idcomptable() != m_useracrediter->id())
             {
                 m_useracrediter = Q_NULLPTR;
                 RemplitLesTables();
             }
-            m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
             ui->TireurChequelineEdit->setText("");
         }
         else
@@ -1402,8 +1402,8 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 
         ChangeComptable(m_useracrediter);
 
-        ui->ComptablescomboBox->setEnabled(m_userConnected->isSecretaire() && (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
-        ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
+        ui->ComptablescomboBox->setEnabled(currentuser()->isSecretaire() && (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
+        ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(currentuser()->idcomptable()) == Q_NULLPTR
                                                      && ui->DetailupTableWidget->rowCount()==0
                                                      && map_comptables->size()>1);
         break;
@@ -1862,7 +1862,7 @@ void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
         QString VerrouilleEnreg= "INSERT INTO " TBL_VERROUCOMPTAACTES
                 " (idActe,DateTimeVerrou, PosePar)"
                 " VALUES ("  + QString::number(ActeAVerrouiller) +
-                ", NOW() ,"  + QString::number(m_userConnected->id()) + ")";
+                ", NOW() ,"  + QString::number(currentuser()->id()) + ")";
         db->StandardSQL(VerrouilleEnreg);
     }
 }
@@ -2783,7 +2783,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                 EnregRecetterequete += "," + idCompte;
             }
 
-            EnregRecetterequete += "," + QString::number(m_userConnected->id());                                        // EnregistrePar
+            EnregRecetterequete += "," + QString::number(currentuser()->id());                                        // EnregistrePar
             EnregRecetterequete += ",1";                                                                                // TypeRecette
 
             QString NomTiers = "";
@@ -3078,7 +3078,7 @@ void dlg_paiementdirect::ModifGratuitChoixMenu(QString Choix)
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::NettoieVerrousCompta()
 {
-    db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_userConnected->id()) + " or PosePar is null");
+    db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(currentuser()->id()) + " or PosePar is null");
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3348,9 +3348,9 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
 {
     if (t_timerafficheacteverrouilleclignotant->isActive())
         return false;
-    QString ChercheVerrou = "SELECT UserLogin FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
+    QString ChercheVerrou = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
                      " WHERE idActe = "  + TableAVerifier->item(Rangee,0)->text() +
-                     " AND PosePar = idUser";
+                     " AND PosePar = " CP_ID_USR ;
     //UpMessageBox::Watch(this,ChercheVerrou);
     QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
     if (m_ok && verroudata.size() > 0)

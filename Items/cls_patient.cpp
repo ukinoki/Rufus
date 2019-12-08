@@ -78,46 +78,46 @@ void Patient::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, CP_IDPAT_PATIENTS, m_id);
-    setDataString(data, CP_NOM_PATIENTS, m_nom);
-    setDataString(data, CP_PRENOM_PATIENTS, m_prenom);
-    setDataString(data, CP_SEXE_PATIENTS, m_sexe);
-    setDataDate(data, CP_DATECREATION_PATIENTS, m_datecreation);
-    setDataInt(data, CP_IDCREATEUR_PATIENTS, m_idcreateur);
-    setDataDate(data, CP_DDN_PATIENTS, m_dateDeNaissance);
-    setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
-    setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
+    Utils::setDataInt(data, CP_IDPAT_PATIENTS, m_id);
+    Utils::setDataString(data, CP_NOM_PATIENTS, m_nom);
+    Utils::setDataString(data, CP_PRENOM_PATIENTS, m_prenom);
+    Utils::setDataString(data, CP_SEXE_PATIENTS, m_sexe);
+    Utils::setDataDate(data, CP_DATECREATION_PATIENTS, m_datecreation);
+    Utils::setDataInt(data, CP_IDCREATEUR_PATIENTS, m_idcreateur);
+    Utils::setDataDate(data, CP_DDN_PATIENTS, m_dateDeNaissance);
+    Utils::setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
+    Utils::setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
     if (m_issocialloaded)
     {
-        setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
-        setDataString(data, CP_ADRESSE2_DSP, m_adresse2);
-        setDataString(data, CP_ADRESSE3_DSP, m_adresse3);
-        setDataString(data, CP_CODEPOSTAL_DSP, m_codepostal);
-        setDataString(data, CP_VILLE_DSP, m_ville);
-        setDataString(data, CP_TELEPHONE_DSP, m_telephone);
-        setDataString(data, CP_PORTABLE_DSP, m_portable);
-        setDataString(data, CP_MAIL_DSP, m_mail);
-        setDataLongLongInt(data, CP_NNI_DSP, m_NNI);
-        setDataBool(data, CP_ALD_DSP, m_ALD);
-        setDataBool(data, CP_CMU_DSP, m_CMU);
-        setDataString(data, CP_PROFESSION_DSP, m_profession);
+        Utils::setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
+        Utils::setDataString(data, CP_ADRESSE2_DSP, m_adresse2);
+        Utils::setDataString(data, CP_ADRESSE3_DSP, m_adresse3);
+        Utils::setDataString(data, CP_CODEPOSTAL_DSP, m_codepostal);
+        Utils::setDataString(data, CP_VILLE_DSP, m_ville);
+        Utils::setDataString(data, CP_TELEPHONE_DSP, m_telephone);
+        Utils::setDataString(data, CP_PORTABLE_DSP, m_portable);
+        Utils::setDataString(data, CP_MAIL_DSP, m_mail);
+        Utils::setDataLongLongInt(data, CP_NNI_DSP, m_NNI);
+        Utils::setDataBool(data, CP_ALD_DSP, m_ALD);
+        Utils::setDataBool(data, CP_CMU_DSP, m_CMU);
+        Utils::setDataString(data, CP_PROFESSION_DSP, m_profession);
     }
     if (m_ismedicalloaded)
     {
-        setDataInt(data, CP_IDMG_RMP, m_idmg);
-        setDataInt(data, CP_IDSPE1_RMP, m_idspe1);
-        setDataInt(data, CP_IDSPE2_RMP, m_idspe2);
-        setDataInt(data, CP_IDSPE3_RMP, m_idspe3);
-        setDataInt(data, CP_IDCORNONMED_RMP, m_idcornonmg);
-        setDataString(data, CP_ATCDTSPERSOS_RMP, m_atcdtspersos);
-        setDataString(data, CP_TRAITMTGEN_RMP, m_traitementgen);
-        setDataString(data, CP_ATCDTSFAMLXS_RMP, m_atcdtsfamiliaux);
-        setDataString(data, CP_ATCDTSOPH_RMP, m_atcdtsophtalmos);
-        setDataString(data, CP_TABAC_RMP, m_tabac);
-        setDataString(data, CP_AUTRESTOXIQUES_RMP, m_toxiques);
-        setDataString(data, CP_IMPORTANT_RMP, m_important);
-        setDataString(data, CP_RESUME_RMP, m_resume);
-        setDataString(data, CP_TRAITMTOPH_RMP, m_traitementoph);
+        Utils::setDataInt(data, CP_IDMG_RMP, m_idmg);
+        Utils::setDataInt(data, CP_IDSPE1_RMP, m_idspe1);
+        Utils::setDataInt(data, CP_IDSPE2_RMP, m_idspe2);
+        Utils::setDataInt(data, CP_IDSPE3_RMP, m_idspe3);
+        Utils::setDataInt(data, CP_IDCORNONMED_RMP, m_idcornonmg);
+        Utils::setDataString(data, CP_ATCDTSPERSOS_RMP, m_atcdtspersos);
+        Utils::setDataString(data, CP_TRAITMTGEN_RMP, m_traitementgen);
+        Utils::setDataString(data, CP_ATCDTSFAMLXS_RMP, m_atcdtsfamiliaux);
+        Utils::setDataString(data, CP_ATCDTSOPH_RMP, m_atcdtsophtalmos);
+        Utils::setDataString(data, CP_TABAC_RMP, m_tabac);
+        Utils::setDataString(data, CP_AUTRESTOXIQUES_RMP, m_toxiques);
+        Utils::setDataString(data, CP_IMPORTANT_RMP, m_important);
+        Utils::setDataString(data, CP_RESUME_RMP, m_resume);
+        Utils::setDataString(data, CP_TRAITMTOPH_RMP, m_traitementoph);
     }
     m_data = data;
 }
@@ -126,40 +126,40 @@ void Patient::setSocialData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
-    setDataString(data, CP_ADRESSE2_DSP, m_adresse2);
-    setDataString(data, CP_ADRESSE3_DSP, m_adresse3);
-    setDataString(data, CP_CODEPOSTAL_DSP, m_codepostal);
-    setDataString(data, CP_VILLE_DSP, m_ville);
-    setDataString(data, CP_TELEPHONE_DSP, m_telephone);
-    setDataString(data, CP_PORTABLE_DSP, m_portable);
-    setDataString(data, CP_MAIL_DSP, m_mail);
-    setDataLongLongInt(data, CP_NNI_DSP, m_NNI);
-    setDataBool(data, CP_ALD_DSP, m_ALD);
-    setDataBool(data, CP_CMU_DSP, m_CMU);
-    setDataString(data, CP_PROFESSION_DSP, m_profession);
-    setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
+    Utils::setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
+    Utils::setDataString(data, CP_ADRESSE2_DSP, m_adresse2);
+    Utils::setDataString(data, CP_ADRESSE3_DSP, m_adresse3);
+    Utils::setDataString(data, CP_CODEPOSTAL_DSP, m_codepostal);
+    Utils::setDataString(data, CP_VILLE_DSP, m_ville);
+    Utils::setDataString(data, CP_TELEPHONE_DSP, m_telephone);
+    Utils::setDataString(data, CP_PORTABLE_DSP, m_portable);
+    Utils::setDataString(data, CP_MAIL_DSP, m_mail);
+    Utils::setDataLongLongInt(data, CP_NNI_DSP, m_NNI);
+    Utils::setDataBool(data, CP_ALD_DSP, m_ALD);
+    Utils::setDataBool(data, CP_CMU_DSP, m_CMU);
+    Utils::setDataString(data, CP_PROFESSION_DSP, m_profession);
+    Utils::setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
 }
 
 void Patient::setMedicalData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, CP_IDMG_RMP, m_idmg);
-    setDataInt(data, CP_IDSPE1_RMP, m_idspe1);
-    setDataInt(data, CP_IDSPE2_RMP, m_idspe2);
-    setDataInt(data, CP_IDSPE3_RMP, m_idspe3);
-    setDataInt(data, CP_IDCORNONMED_RMP, m_idcornonmg);
-    setDataString(data, CP_ATCDTSPERSOS_RMP, m_atcdtspersos);
-    setDataString(data, CP_TRAITMTGEN_RMP, m_traitementgen);
-    setDataString(data, CP_ATCDTSFAMLXS_RMP, m_atcdtsfamiliaux);
-    setDataString(data, CP_ATCDTSOPH_RMP, m_atcdtsophtalmos);
-    setDataString(data, CP_TABAC_RMP, m_tabac);
-    setDataString(data, CP_AUTRESTOXIQUES_RMP, m_toxiques);
-    setDataString(data, CP_IMPORTANT_RMP, m_important);
-    setDataString(data, CP_RESUME_RMP, m_resume);
-    setDataString(data, CP_TRAITMTOPH_RMP, m_traitementoph);
-    setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
+    Utils::setDataInt(data, CP_IDMG_RMP, m_idmg);
+    Utils::setDataInt(data, CP_IDSPE1_RMP, m_idspe1);
+    Utils::setDataInt(data, CP_IDSPE2_RMP, m_idspe2);
+    Utils::setDataInt(data, CP_IDSPE3_RMP, m_idspe3);
+    Utils::setDataInt(data, CP_IDCORNONMED_RMP, m_idcornonmg);
+    Utils::setDataString(data, CP_ATCDTSPERSOS_RMP, m_atcdtspersos);
+    Utils::setDataString(data, CP_TRAITMTGEN_RMP, m_traitementgen);
+    Utils::setDataString(data, CP_ATCDTSFAMLXS_RMP, m_atcdtsfamiliaux);
+    Utils::setDataString(data, CP_ATCDTSOPH_RMP, m_atcdtsophtalmos);
+    Utils::setDataString(data, CP_TABAC_RMP, m_tabac);
+    Utils::setDataString(data, CP_AUTRESTOXIQUES_RMP, m_toxiques);
+    Utils::setDataString(data, CP_IMPORTANT_RMP, m_important);
+    Utils::setDataString(data, CP_RESUME_RMP, m_resume);
+    Utils::setDataString(data, CP_TRAITMTOPH_RMP, m_traitementoph);
+    Utils::setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
 }
 
 /*! comme son nom l'indique */
@@ -206,8 +206,8 @@ void Patient::resetdatas()
 
     data[CP_ISMEDICALlOADED]    = false;
     data[CP_ISSOCIALlOADED]     = false;
-    setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
-    setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
+    Utils::setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
+    Utils::setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
 
     m_data = data;
 }
