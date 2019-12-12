@@ -862,7 +862,7 @@ QString Utils::EnumDescription(QMetaEnum metaEnum, int val)
 }
 
 
-//! calcule la taille idéale en points d'une police pour l'adapetr aux fenêtres Rufus
+//! calcule la taille idéale en points d'une police pour l'adapter aux fenêtres Rufus
 //! \param la QFont
 //! \return int -> la taille en points
 void Utils::CalcFontSize(QFont &font)

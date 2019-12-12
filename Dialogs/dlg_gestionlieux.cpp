@@ -210,41 +210,41 @@ void dlg_GestionLieux::ModifLieuxDialog()
     laylbl->addWidget(lblfax);
     laylbl->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
 
-    wdg_nomlineedit   = new UpLineEdit(dlg_lieu);
-    wdg_adress1lineedit  = new UpLineEdit(dlg_lieu);
-    wdg_adress2lineedit  = new UpLineEdit(dlg_lieu);
-    wdg_adress3lineedit  = new UpLineEdit(dlg_lieu);
-    wdg_CPlineedit    = new UpLineEdit(dlg_lieu);
-    wdg_villelineedit = new UpLineEdit(dlg_lieu);
-    wdg_tellineedit   = new UpLineEdit(dlg_lieu);
-    wdg_faxlineedit   = new UpLineEdit(dlg_lieu);
+    wdg_nomlineedit     = new UpLineEdit(dlg_lieu);
+    wdg_adress1lineedit = new UpLineEdit(dlg_lieu);
+    wdg_adress2lineedit = new UpLineEdit(dlg_lieu);
+    wdg_adress3lineedit = new UpLineEdit(dlg_lieu);
+    wdg_CPlineedit      = new UpLineEdit(dlg_lieu);
+    wdg_villelineedit   = new UpLineEdit(dlg_lieu);
+    wdg_tellineedit     = new UpLineEdit(dlg_lieu);
+    wdg_faxlineedit     = new UpLineEdit(dlg_lieu);
 
-    wdg_nomlineedit    ->setFixedWidth(240);       // NomLieu
-    wdg_adress1lineedit   ->setFixedWidth(240);       // Adresse1
-    wdg_adress2lineedit   ->setFixedWidth(240);       // Adresse2
-    wdg_adress3lineedit   ->setFixedWidth(240);       // Adresse3
-    wdg_CPlineedit     ->setFixedWidth(90);        // CP
-    wdg_villelineedit  ->setFixedWidth(240);       // Ville
-    wdg_tellineedit    ->setFixedWidth(120);       // Telephone
-    wdg_faxlineedit    ->setFixedWidth(120);       // Fax
+    wdg_nomlineedit     ->setFixedWidth(240);       // NomLieu
+    wdg_adress1lineedit ->setFixedWidth(240);       // Adresse1
+    wdg_adress2lineedit ->setFixedWidth(240);       // Adresse2
+    wdg_adress3lineedit ->setFixedWidth(240);       // Adresse3
+    wdg_CPlineedit      ->setFixedWidth(90);        // CP
+    wdg_villelineedit   ->setFixedWidth(240);       // Ville
+    wdg_tellineedit     ->setFixedWidth(120);       // Telephone
+    wdg_faxlineedit     ->setFixedWidth(120);       // Fax
 
-    wdg_nomlineedit    ->setMaxLength(80);
-    wdg_adress1lineedit   ->setMaxLength(45);
-    wdg_adress2lineedit   ->setMaxLength(45);
-    wdg_adress3lineedit   ->setMaxLength(45);
-    wdg_CPlineedit     ->setMaxLength(9);
-    wdg_villelineedit  ->setMaxLength(45);
-    wdg_tellineedit    ->setMaxLength(17);
-    wdg_faxlineedit    ->setMaxLength(17);
+    wdg_nomlineedit     ->setMaxLength(80);
+    wdg_adress1lineedit ->setMaxLength(45);
+    wdg_adress2lineedit ->setMaxLength(45);
+    wdg_adress3lineedit ->setMaxLength(45);
+    wdg_CPlineedit      ->setMaxLength(9);
+    wdg_villelineedit   ->setMaxLength(45);
+    wdg_tellineedit     ->setMaxLength(17);
+    wdg_faxlineedit     ->setMaxLength(17);
 
-    wdg_nomlineedit    ->setValidator(new QRegExpValidator(Utils::rgx_ville));
-    wdg_adress1lineedit   ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
-    wdg_adress2lineedit   ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
-    wdg_adress3lineedit   ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
-    wdg_CPlineedit     ->setValidator(new QRegExpValidator(Utils::rgx_CP));
-    wdg_villelineedit  ->setValidator(new QRegExpValidator(Utils::rgx_ville));
-    wdg_tellineedit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
-    wdg_faxlineedit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    wdg_nomlineedit     ->setValidator(new QRegExpValidator(Utils::rgx_ville));
+    wdg_adress1lineedit ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
+    wdg_adress2lineedit ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
+    wdg_adress3lineedit ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
+    wdg_CPlineedit      ->setValidator(new QRegExpValidator(Utils::rgx_CP));
+    wdg_villelineedit   ->setValidator(new QRegExpValidator(Utils::rgx_ville));
+    wdg_tellineedit     ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    wdg_faxlineedit     ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
 
     layledit->addWidget(wdg_nomlineedit);
     layledit->addWidget(wdg_adress1lineedit);
@@ -274,14 +274,14 @@ void dlg_GestionLieux::ModifLieu()
     Site * sit = getSiteFromIndex(m_tabmodel->index(wdg_bigtable->currentIndex().row(),0));
     if (sit == Q_NULLPTR)
         return;
-    wdg_nomlineedit    ->setText(sit->nom());
-    wdg_adress1lineedit   ->setText(sit->adresse1());
-    wdg_adress2lineedit   ->setText(sit->adresse2());
-    wdg_adress3lineedit   ->setText(sit->adresse3());
-    wdg_CPlineedit     ->setText(QString::number(sit->codePostal()));
-    wdg_villelineedit  ->setText(sit->ville());
-    wdg_tellineedit    ->setText(sit->telephone());
-    wdg_faxlineedit    ->setText(sit->fax());
+    wdg_nomlineedit     ->setText(sit->nom());
+    wdg_adress1lineedit ->setText(sit->adresse1());
+    wdg_adress2lineedit ->setText(sit->adresse2());
+    wdg_adress3lineedit ->setText(sit->adresse3());
+    wdg_CPlineedit      ->setText(QString::number(sit->codePostal()));
+    wdg_villelineedit   ->setText(sit->ville());
+    wdg_tellineedit     ->setText(sit->telephone());
+    wdg_faxlineedit     ->setText(sit->fax());
     connect(dlg_lieu->OKButton, &QPushButton::clicked, this, &dlg_GestionLieux::enregModifLieu);
     dlg_lieu->exec();
     delete  dlg_lieu;

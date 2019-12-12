@@ -1494,8 +1494,9 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
     if (ui->EmplacementServeurupComboBox->itemData(idx).toString() != "")
     {
         db->setidlieupardefaut(idlieu);
-        Datas::I()->sites->setcurrentsite(Datas::I()->sites->getById(idlieu));
-        ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + Datas::I()->sites->currentsite()->nom() + "</b></font> ");
+        Site *sit = Datas::I()->sites->getById(idlieu);
+        if (sit != Q_NULLPTR)
+            ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + sit->nom() + "</b></font> ");
     }
 }
 

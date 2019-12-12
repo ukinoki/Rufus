@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("12-12-2019/1");
+    qApp->setApplicationVersion("13-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -114,11 +114,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 qintptr z = 0;
                 Message::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
-                // envoi iduser
-                msg = QString::number(currentuser()->id()) + TCPMSG_idUser;
-                envoieTCPMessage(msg);
-                // envoi adresse IP, adresse MAC, nom d'hôte
-                msg = Utils::IPAdress() + TCPMSG_Separator + Utils::MACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket;
+                // envoi datas user-poste -> iduser, adresse IP, adresse MAC, nom d'hôte
+                msg = QString::number(currentuser()->id()) + TCPMSG_Separator + Utils::IPAdress() + TCPMSG_Separator + Utils::MACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_UserDataSocket;
                 envoieTCPMessage(msg);
             }
             else {
@@ -8160,6 +8157,7 @@ void    Rufus::OuvrirImpressions(bool AffichDocsExternes)
         QDate DateDoc = Dlg_Imprs->ui->dateEdit->date();
         //création de l'entête
         QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(DateDoc, userEntete);
+        if (EnteteMap.value("Norm") == "") return;
 
         bool ALD;
         QString imprimante = "";

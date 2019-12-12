@@ -991,6 +991,8 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
 {
     QMap<QString, QString> EnteteMap;
+    EnteteMap["Norm"]   = "";
+    EnteteMap["ALD"]    = "";
     QString Entete;
     QString nomModeleEntete;
     int idparent = -1;
@@ -1124,7 +1126,15 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         int nlignesadresse = 0;
         Site *sit = Datas::I()->sites->currentsite();
         if (user != currentuser())
-            sit = Datas::I()->sites->initListeByUser(user->id()).at(0); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
+        {
+            QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
+            if (listsites.size()>0)
+                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
+            else {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
+                return EnteteMap;
+            }
+        }
         if( sit->nom().size() )
         {
             nlignesadresse  ++;
@@ -1624,7 +1634,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     QFont font = qApp->font();
     font.setPointSize(12);
     wdg_inflabel->setFont(font);
-    wdg_inflabel    ->setGeometry(10,htable-40,350,25);
+    wdg_inflabel->setGeometry(10,htable-40,350,25);
 
     gAsk->exec();
     delete gAsk;
@@ -3026,7 +3036,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             " set " CP_NOM_USR " = 'Snow',\n"
             CP_PRENOM_USR " = '" + Utils::trimcapitilize(login) +"',\n"
             CP_POLICEECRAN_USR " = '" POLICEPARDEFAUT "',\n"
-            CP_POLICEATTRIBUT_USR " = 'Regular',\n"
+            CP_POLICEATTRIBUT_USR " = '" POLICEATTRIBUTPARDEFAUT "',\n"
             CP_TITRE_USR " = '" + tr("Docteur") + "',\n"
             CP_FONCTION_USR " = '" + tr("Médecin") + "',\n"
             CP_SPECIALITE_USR " = '" + tr("Ophtalmologiste") + "',\n"
