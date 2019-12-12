@@ -42,12 +42,7 @@ public:
     }
     static void trace(QString type, QString msg, QString infoMsg = "")
     {
-        QDir DirRssces;
-        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
-        if (!DirRssces.exists(dirlog))
-            DirRssces.mkdir(dirlog);
-        QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
-        QString fileName(dirlog + "/" + datelog + "_errorlog.txt");
+        QString fileName(dirlog() + "/" + datelog() + "_errorlog.txt");
         QFile testfile(fileName);
         if( testfile.open(QIODevice::Append) )
         {
@@ -59,12 +54,7 @@ public:
     }
     static void LogSktMessage(QString msg, QString infoMsg = "")
     {
-        QDir DirRssces;
-        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
-        if (!DirRssces.exists(dirlog))
-            DirRssces.mkdir(dirlog);
-        QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
-        QString fileName(dirlog + "/" + datelog + "_tcpmsglog.txt");
+        QString fileName(dirlog() + "/" + datelog() + "_tcpmsglog.txt");
         QFile testfile(fileName);
         if( testfile.open(QIODevice::Append) )
         {
@@ -77,12 +67,7 @@ public:
     static void LogToFile(QString NomFichier, QString msg)
     {
         //syntaxe = LogToFile("test.txt", texte);
-        QDir DirRssces;
-        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
-        if (!DirRssces.exists(dirlog))
-            DirRssces.mkdir(dirlog);
-        QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
-        QString fileName(dirlog + "/" + datelog + "_" + NomFichier);
+        QString fileName(dirlog() + "/" + datelog() + "_" + NomFichier);
         QFile testfile(fileName);
         if (testfile.open(QIODevice::Append))
         {
@@ -95,16 +80,25 @@ public:
     //!> supprime les fichiers de logs antérieurs à J - anciennete jours
     static void EpureLogs(int anciennete = 7)
     {
-        QDir dirlogs = QDir(QDir::homePath() + DIR_RUFUS DIR_LOGS);
-        QStringList listfiles = dirlogs.entryList();
+        QStringList listfiles = QDir(dirlog()).entryList();
         for (int i=0; i<listfiles.size(); ++i)
         {
             QFile file(listfiles.at(i));
             QDate datefile = QDate::fromString(file.fileName().left(10), "yyyy-MM-dd");
             if (datefile < QDate::currentDate().addDays(-anciennete))
-                QFile::remove(QDir::homePath() + DIR_RUFUS DIR_LOGS + "/" + file.fileName());
+                QFile::remove(dirlog() + "/" + file.fileName());
         }
     }
+private:
+    static QString dirlog() {
+        QDir DirRssces;
+        QString dirlog = QDir::homePath() + (qAppName() == "RufusAdmin"? DIR_RUFUSADMIN : DIR_RUFUS) + DIR_LOGS;
+        if (!DirRssces.exists(dirlog))
+            DirRssces.mkdir(dirlog);
+        return dirlog;
+    }
+    static QString datelog() { return QDate::currentDate().toString("yyyy-MM-dd"); }
+
 };
 
 #endif // LOG_H

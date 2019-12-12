@@ -776,7 +776,8 @@ void dlg_gestionusers::EnregistreNouvUser()
     }
     dlg_ask->accept();
     m_mode                          = Creer;
-    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ") VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "')");
+    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
+                    " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
     QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + MDP + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,m_ok).at(0).toInt();
     Datas::I()->users->initListe();

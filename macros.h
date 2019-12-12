@@ -563,6 +563,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DIR_LIBS2                                "/Applications";
 #define DIR_RESSOURCES                           "/Ressources"
 #define DIR_RUFUS                                "/Documents/Rufus"
+#define DIR_RUFUSADMIN                           "/Documents/RufusAdmin"
 #define DIR_FACTURES                             "/Factures"
 #define DIR_ORIGINAUX                            "/Originaux"
 #define DIR_FACTURESSANSLIEN                     "/FacturesSansLien"
@@ -608,6 +609,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"
+#define POLICEATTRIBUTPARDEFAUT "Regular"
 #ifdef Q_OS_MACX
 #define CORRECTION_td_width     1
 #endif

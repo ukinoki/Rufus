@@ -1124,7 +1124,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         int nlignesadresse = 0;
         Site *sit = Datas::I()->sites->currentsite();
         if (user != currentuser())
-            sit = Datas::I()->sites->getById(db->loadSitesByUser(user->id()).at(0)->id()); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
+            sit = Datas::I()->sites->initListeByUser(user->id()).at(0); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
         if( sit->nom().size() )
         {
             nlignesadresse  ++;
@@ -3746,12 +3746,11 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
              CalcLieuExercice();
              if (Datas::I()->sites->currentsite() == Q_NULLPTR)
                  UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-             Datas::I()->users->initListe();
              UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
-            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            exit(0);
+             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+             exit(0);
         }
     }
     return false;

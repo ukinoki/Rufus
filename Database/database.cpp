@@ -1777,15 +1777,17 @@ QList<Site*> DataBase::loadSitesAll()
                   "from " TBL_LIEUXEXERCICE;
     return loadSites( req );
 }
-QList<Site*> DataBase::loadSitesByUser(int idUser)
+QList<int> DataBase::loadidSitesByUser(int idUser)
 {
-    QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
-                  "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
-                  "from " TBL_JOINTURESLIEUX " joint "
-                  "left join " TBL_LIEUXEXERCICE " lix on joint.idlieu = lix.idLieu "
-                  "where iduser = " + QString::number(idUser);
-    return loadSites( req );
+    QList<int> listid = QList<int>();
+    QString req = "select idLieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(idUser);
+    QList<QVariantList> listidsites = StandardSelectSQL(req, ok);
+    if (ok && listidsites.size()>0)
+        for (int i=0; i<listidsites.size(); ++i)
+            listid << listidsites.at(i).at(0).toInt();
+    return listid;
 }
+
 QList<Site*> DataBase::loadSites(QString req)
 {
     QList<Site*> etabs;

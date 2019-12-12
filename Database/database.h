@@ -272,7 +272,7 @@ public:
 private:
     QList<Site*>            loadSites(QString req);                 //! charge les sites de travail à partir de la requete req
 public:
-    QList<Site*>            loadSitesByUser(int idUser);            //! élabore la requête qui charge tous les sites de travail utilisés par un user
+    QList<int>              loadidSitesByUser(int idUser);            //! élabore la requête qui charge tous les sites de travail utilisés par un user
     QList<Site*>            loadSitesAll();                         //! élabore la requête qui charge tous les sites de travail sans exception
 
 public:

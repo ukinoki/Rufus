@@ -57,9 +57,13 @@ Site* Sites::getById(int id)
  */
 void Sites::initListe()
 {
+    int id = 0;
+    if (m_currentsite != Q_NULLPTR)
+        id = m_currentsite->id();
     QList<Site*> listsites = DataBase::I()->loadSitesAll();
     epurelist(map_sites, &listsites);
     addList(map_sites, &listsites);
+    m_currentsite = (id>0? getById(id) : Q_NULLPTR);
 }
 
 /*!
@@ -68,5 +72,10 @@ void Sites::initListe()
  */
 QList<Site*> Sites::initListeByUser(int idusr)
 {
-    return DataBase::I()->loadSitesByUser(idusr);
+    QList<Site*> listsites = QList<Site*>();
+    QList<int> listid = DataBase::I()->loadidSitesByUser(idusr);
+    foreach (int id, listid)
+        if (getById(id) != Q_NULLPTR)
+            listsites << getById(id);
+    return listsites;
 }

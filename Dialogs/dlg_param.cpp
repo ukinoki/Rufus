@@ -998,36 +998,34 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     upheader->setModel(mod);
     upheader->reDim(0,0,2);
 
-    QString req ="select j.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone from " TBL_LIEUXEXERCICE
-                       " j inner join " TBL_JOINTURESLIEUX " p on j.idLieu = p.idLieu where iduser = " + QString::number(user->id());
-    bool ok;
-    QList<QVariantList> adrlist = db->StandardSelectSQL(req, ok);
-    ui->AdressupTableWidget->setRowCount(adrlist.size());
-    for (int i=0; i< adrlist.size(); i++)
+    QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
+    ui->AdressupTableWidget->setRowCount(listsites.size());
+    int i = 0;
+    foreach (Site *sit, listsites)
     {
         QString data ("");
-        if (adrlist.at(i).at(1).toString()!="")
-            data += adrlist.at(i).at(1).toString();
-        if (adrlist.at(i).at(2).toString()!="")
-            data += (data != ""? "\n" : "") + adrlist.at(i).at(2).toString();
-        if (adrlist.at(i).at(3).toString()!="")
-            data += (data != ""? "\n" : "") + adrlist.at(i).at(3).toString();
-        if (adrlist.at(i).at(4).toString()!="")
-            data += (data != ""? "\n" : "") + adrlist.at(i).at(4).toString();
-        if (adrlist.at(i).at(5).toString()!="")
-            data += (data != ""? "\n" : "") + adrlist.at(i).at(5).toString();
-        if (adrlist.at(i).at(6).toString()!="")
-            data += (data != ""? " " : "") + adrlist.at(i).at(6).toString();
-        if (adrlist.at(i).at(7).toString()!="")
-            data += (data != ""? "\nTel: " : "Tel: ") + adrlist.at(i).at(7).toString();
+        if (sit->nom() != "")
+            data += sit->nom();
+        if (sit->adresse1() != "")
+            data += (data != ""? "\n" : "") + sit->adresse1();
+        if (sit->adresse2() != "")
+            data += (data != ""? "\n" : "") + sit->adresse2();
+        if (sit->adresse3() != "")
+            data += (data != ""? "\n" : "") + sit->adresse3() ;
+        if (sit->codePostal() > 0)
+            data += (data != ""? "\n" : "") + QString::number(sit->codePostal());
+        if (sit->ville() != "")
+            data += (data != ""? " " : "") + sit->ville();
+        if (sit->telephone() != "")
+            data += (data != ""? "\nTel: " : "Tel: ") + sit->telephone();
 
         QTableWidgetItem *pitem1, *pitem2, *pitem3;
         pitem1 = new QTableWidgetItem();
         pitem2 = new QTableWidgetItem();
         pitem3 = new QTableWidgetItem();
-        pitem1->setText(adrlist.at(i).at(1).toString());
-        pitem2->setText(adrlist.at(i).at(6).toString());
-        pitem3->setText(adrlist.at(i).at(7).toString());
+        pitem1->setText(sit->nom());
+        pitem2->setText(sit->ville());
+        pitem3->setText(sit->telephone());
         ui->AdressupTableWidget->setItem(i,0,pitem1);
         ui->AdressupTableWidget->setItem(i,1,pitem2);
         ui->AdressupTableWidget->setItem(i,2,pitem3);
@@ -1035,6 +1033,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
         pitem2->setToolTip(data);
         pitem3->setToolTip(data);
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+        ++i;
     }
     ReconstruitListeLieuxExerciceAllusers();
     /*-------------------- GESTION DES LIEUX D'EXRCICE-------------------------------------------------------*/
@@ -1043,13 +1042,10 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
 void dlg_param::ReconstruitListeLieuxExerciceAllusers()
 {
     disconnect(ui->EmplacementServeurupComboBox,    QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnregistreEmplacementServeur);
-    QString req ="select idLieu, NomLieu, LieuVille from " TBL_LIEUXEXERCICE;
-    bool ok;
-    QList<QVariantList> servlist = db->StandardSelectSQL(req, ok);
-    if (ok && servlist.size()>0)
+    ui->EmplacementServeurupComboBox->clear();
+    foreach (Site* sit, *Datas::I()->sites->sites())
     {
-        for (int i=0; i<servlist.size(); ++i)
-            ui->EmplacementServeurupComboBox->addItem(servlist.at(i).at(1).toString() + " " + servlist.at(i).at(2).toString(), servlist.at(i).at(0));
+        ui->EmplacementServeurupComboBox->addItem(sit->nom() + " " + sit->ville(), sit->id());
         if (m_parametres->idlieupardefaut()>0)
             ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(m_parametres->idlieupardefaut()));
         else
@@ -1494,8 +1490,13 @@ void dlg_param::EnregistreAppareil()
 
 void dlg_param::EnregistreEmplacementServeur(int idx)
 {
+    int idlieu = ui->EmplacementServeurupComboBox->itemData(idx).toInt();
     if (ui->EmplacementServeurupComboBox->itemData(idx).toString() != "")
-        db->setidlieupardefaut(ui->EmplacementServeurupComboBox->itemData(idx).toInt());
+    {
+        db->setidlieupardefaut(idlieu);
+        Datas::I()->sites->setcurrentsite(Datas::I()->sites->getById(idlieu));
+        ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + Datas::I()->sites->currentsite()->nom() + "</b></font> ");
+    }
 }
 
 void dlg_param::NouvAssocCCAM()
