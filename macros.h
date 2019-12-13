@@ -537,6 +537,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"
+#define TCPMSG_StringidPoste                        "StringidPoste"                                     /*! nom du message fournissant le Stringid du poste qui vient de se  connecter */
 #define TCPMSG_MAJCorrespondants                    "MajCorrespondants"                                 /*! fin du message invitant à mettre à jour la liste des correspondants */
 #define TCPMSG_MAJDocsExternes                      "MajDocsExternes"                                   /*! fin du message invitant à mettre à jour la liste des documents externes pour un patient */
 #define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /*! fin du message invitant à mettre à jour la salle d'attente */
@@ -549,7 +550,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_Disconnect                           "Deconnexion"                                       /*! fin du message demandant la deconnexion et la fermeture d'un socket */
 #define TCPMSG_TestConnexion                        "TestConnexion"                                     /*! fin du message de test de la connexion */
 #define TCPMSG_OKConnexion                          "OKConnexion"                                       /*! fin du message de confirmation de la connexion */
-#define TCPMSG_UserDataSocket                       "UserDatasSocket"                                   /*! fin du message fournissant iduser, IP et MAC et nom d'un client */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
 #define ARRIVE                                      "Arrivé"

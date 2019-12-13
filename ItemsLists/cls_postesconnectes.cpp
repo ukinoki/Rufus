@@ -35,10 +35,23 @@ QMap<QString, PosteConnecte*>* PostesConnectes::postesconnectes() const
 
 PosteConnecte* PostesConnectes::getByStringId(QString stringid)
 {
+    PosteConnecte *post = Q_NULLPTR;
     QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->find(stringid) ;
     if( itcpt == map_postesconnectes->constEnd() )
-        return Q_NULLPTR;
-    return itcpt.value();
+    {
+        QJsonObject posteData{};
+        int iduser = stringid.split(" - ").at(1).toInt();
+        QString macadress = stringid.split(" - ").at(0);
+        posteData = DataBase::I()->loadPosteConnecteData(iduser, macadress);
+        if (posteData.size()!= 0)
+        {
+            post = new PosteConnecte(posteData);
+            add(map_postesconnectes, post);
+        }
+    }
+    else
+        post = itcpt.value();
+    return post;
 }
 
 void PostesConnectes::initListe()

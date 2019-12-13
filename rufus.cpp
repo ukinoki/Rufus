@@ -114,8 +114,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 qintptr z = 0;
                 Message::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
-                // envoi datas user-poste -> iduser, adresse IP, adresse MAC, nom d'hôte
-                msg = QString::number(currentuser()->id()) + TCPMSG_Separator + Utils::IPAdress() + TCPMSG_Separator + Utils::MACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_UserDataSocket;
+                // envoi le stringid du poste qui vient de se connecter
+                msg = currentpost()->stringid() + TCPMSG_StringidPoste;
                 envoieTCPMessage(msg);
             }
             else {
@@ -3674,9 +3674,9 @@ void Rufus::MAJPosteConnecte()
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
     proc->settings()->setValue("PositionsFiches/Rufus", saveGeometry());
-    if (Datas::I()->postesconnectes->currentpost() != Q_NULLPTR)
+    if (currentpost() != Q_NULLPTR)
     {
-        ItemsList::update(Datas::I()->postesconnectes->currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
+        ItemsList::update(currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     }
     else
     {
@@ -5758,10 +5758,9 @@ int Rufus::getRowFromPatient(Patient *pat)
 
 void Rufus::closeEvent(QCloseEvent *)
 {
-    PosteConnecte *post = Datas::I()->postesconnectes->currentpost();
     int iduserposte = 0;
-    if (post != Q_NULLPTR)
-        iduserposte = post->id();
+    if (currentpost() != Q_NULLPTR)
+        iduserposte = currentpost()->id();
     if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::IPAdress())
         proc->setPosteImportDocs(false);
 
@@ -5774,8 +5773,8 @@ void Rufus::closeEvent(QCloseEvent *)
     //! avec TCP, les actions qui suivent sont effectuées par RufusAdmin
     if (!m_utiliseTCP)
     {
-        if (post != Q_NULLPTR)
-            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
+        if (currentpost() != Q_NULLPTR)
+            Datas::I()->postesconnectes->SupprimePosteConnecte(currentpost());
         Flags::I()->MAJFlagSalleDAttente();
         //!> on déverrouille les actes verrouillés en comptabilité par cet utilisateur s'il n'est plus connecté sur aucun poste
         bool usernotconnectedever = true;
@@ -6600,7 +6599,7 @@ void Rufus::SortieAppli()
         bool IlResteDesPostesConnectesAvecCeUser = false;
         foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
         {
-            if (post->nomposte() != Datas::I()->postesconnectes->currentpost()->nomposte() && post->id() == Datas::I()->postesconnectes->currentpost()->id())
+            if (post->nomposte() != currentpost()->nomposte() && post->id() == currentpost()->id())
             {
                 IlResteDesPostesConnectesAvecCeUser = true;
                 break;
