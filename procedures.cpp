@@ -6275,6 +6275,8 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono,
         return;
     if (Datas::I()->patients->currentpatient()->isnull())
         return;
+    if (Datas::I()->Datas::I()->actes->currentacte() == Q_NULLPTR)
+        return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
     if (typemesure == Fronto)

@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-12-2019/1");
+    qApp->setApplicationVersion("14-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -9313,20 +9313,17 @@ void Rufus::ResumeStatut()
     {
         for (auto it = m_listesockets.begin(); it != m_listesockets.end(); ++it)
         {
-            QString statcp = *it;
-            QString sep = "{!!}";
-            statcp.replace(TCPMSG_Separator, sep); // juste pour que ce soit plus compréhensible en cas d'utilisation de qDebug()
-            //qDebug() << statcp;
+            PosteConnecte *post = Datas::I()->postesconnectes->getByStringId(*it);
             if (it == m_listesockets.begin())
             {
                 // le 1er item de gListSockets est le serveur
                 m_resumeStatut += tr("ServeurTCP") + "\n\t";
-                if (statcp.split(sep).size()>3) //!>* chaque item contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
+                if (post != Q_NULLPTR) //!>* chaque item contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
                 {
-                    m_resumeStatut += statcp.split(sep).at(2) + " - "
-                            + statcp.split(sep).at(0) + " - "
-                            + statcp.split(sep).at(1) + " --- "
-                            + Datas::I()->users->getById(statcp.split(sep).at(3).toInt())->login();
+                    m_resumeStatut += post->ipadress() + " - "
+                            + post->macadress() + " - "
+                            + post->nomposte() + " --- "
+                            + Datas::I()->users->getById(post->id())->login();
                 }
                 else
                     m_resumeStatut += tr("inconnu");
@@ -9334,12 +9331,12 @@ void Rufus::ResumeStatut()
             }
             else
             {
-                if (statcp.split(sep).size()>3)
+                if (post != Q_NULLPTR)
                 {
-                    m_resumeStatut += "\t" + statcp.split(sep).at(2) + " - "
-                            + statcp.split(sep).at(0) + " - "
-                            + statcp.split(sep).at(1) + " --- "
-                            + Datas::I()->users->getById(statcp.split(sep).at(3).toInt())->login() + "\n";
+                    m_resumeStatut += "\t" + post->ipadress() + " - "
+                            + post->macadress() + " - "
+                            + post->nomposte() + " --- "
+                            + Datas::I()->users->getById(post->id())->login() + "\n";
                 }
                 else
                     m_resumeStatut += "\t" + tr("inconnu");
@@ -10180,18 +10177,25 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
     else if (msg.contains(TCPMSG_ListeSockets))
     {
-        msg.remove("{}" TCPMSG_ListeSockets);
+        msg.remove(TCPMSG_ListeSockets);
         m_listesockets.clear();
-        m_listesockets = msg.split("{}");
+        m_listesockets = msg.split(TCPMSG_Separator);
         //qDebug() << "liste des clients connectés rufus.cpp - " + QTime::currentTime().toString("hh-mm-ss");
-        for (int i=0; i<m_listesockets.size(); i++)
-        {
-            QString data = m_listesockets.at(i);
-            data.replace(TCPMSG_Separator, " - ");
-            //qDebug() << data;
-        }
         ResumeStatut();
-        Datas::I()->postesconnectes->initListe();
+        Remplir_SalDat();
+    }
+    else if (msg.contains(TCPMSG_DeconnexionPoste))
+    {
+        msg.remove(TCPMSG_DeconnexionPoste);
+        m_listesockets.removeAll(msg);
+        for  (auto itpost = Datas::I()->postesconnectes->postesconnectes()->begin(); itpost != Datas::I()->postesconnectes->postesconnectes()->end();)
+            if (itpost.key() == msg)
+            {
+                if (itpost.value() != Q_NULLPTR)
+                    delete itpost.value();
+                Datas::I()->postesconnectes->postesconnectes()->remove(itpost.key());
+            }
+        ResumeStatut();
         Remplir_SalDat();
     }
 }

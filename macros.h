@@ -537,7 +537,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"
-#define TCPMSG_StringidPoste                        "StringidPoste"                                     /*! nom du message fournissant le Stringid du poste qui vient de se  connecter */
+#define TCPMSG_StringidPoste                        "StringidPoste"                                     /*! nom du message fournissant le Stringid du poste qui vient de se connecter */
+#define TCPMSG_DeconnexionPoste                     "DeconnexionPoste"                                  /*! nom du message fournissant le Stringid du poste qui vient de se déconnecter */
 #define TCPMSG_MAJCorrespondants                    "MajCorrespondants"                                 /*! fin du message invitant à mettre à jour la liste des correspondants */
 #define TCPMSG_MAJDocsExternes                      "MajDocsExternes"                                   /*! fin du message invitant à mettre à jour la liste des documents externes pour un patient */
 #define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /*! fin du message invitant à mettre à jour la salle d'attente */

@@ -55,29 +55,29 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
             * RufusAdmin continue à surveiller et à mettre à jour les flags correspondants pour informer/surveiller les postes distants qui fonctionnent sans TCP
             */
 
-            /*! LES MESSAGES
-             * 1. TCPMSG_IDUSER
-                * envoyé immédiatement après la connexion, composé de iduser puis TCPMSG_IDUSER
-             * 2. TCPMSG_DataSocket
-                * envoyé immédiatement après le précédent, composé de adresseIP, adresseMac, LoaclhostName() puis  TCPMSG_IDUSER
-             * 3. TCPMSG_MAJSalAttente
-                * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ de la salle d'attente
-             * 4. TCPMSG_MAJCorrespondants
-                * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ de la liste des correspondants
-             * 5. TCPMSG_MAJDocsExternes
-                * message reçu du serveurTCP, composé de idpatient puis TCPMSG_MAJDocsExternes -> incite à mettre à jour les documents externes du patient idpatient
-             * 6. TCPMSG_MsgBAL
-                * gère la BAL
-                    * message reçu du serveur      -> composé de nombre de messages puis TCPMSG_MsgBAL -> indique que le nombre de messages vient d'être reçu
-                    * message envoyé au serveur    -> composé de la liste des idUser destinataires séparés par des virgules puis separateur puis nombre de messages puis TCPMSG_MsgBAL
-             * 7. TCPMSG_ListeSockets
-                * message reçu du serveur, composé des dats de chaque poste connecté, séparés par {}
-                * chaque data contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
-             * 8.TCPMSG_MAJPatient
-                * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ d'e la liste des correspondants d'un patient
-             * 9.TCPMSG_Separator
-                * le séparateur des éléments d'un message
-             */
+/*! LES MESSAGES
+ * TCPMSG_StringidPoste
+    * envoyé immédiatement après la connexion, composé du stringid du poste qui vient de se connnecter puis TCPMSG_StringidPoste
+ * TCPMSG_DeconnexionPoste
+    * envoyé immédiatement après la déconnexion d'un poste, composé du stringid du poste qui vient de se déconnnecter puis TCPMSG_DeconnexionPoste
+ * TCPMSG_MAJSalAttente
+    * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ de la salle d'attente
+ * TCPMSG_MAJCorrespondants
+    * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ de la liste des correspondants
+ * TCPMSG_MAJDocsExternes
+    * message reçu du serveurTCP, composé de idpatient puis TCPMSG_MAJDocsExternes -> incite à mettre à jour les documents externes du patient idpatient
+ * TCPMSG_MsgBAL
+    * gère la BAL
+        * message reçu du serveur      -> composé de nombre de messages puis TCPMSG_MsgBAL -> indique que le nombre de messages vient d'être reçu
+        * message envoyé au serveur    -> composé de la liste des idUser destinataires séparés par des virgules puis separateur puis nombre de messages puis TCPMSG_MsgBAL
+ * TCPMSG_ListeSockets
+    * message reçu du serveur, composé des dats de chaque poste connecté, séparés par {}
+    * chaque data contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
+ * TCPMSG_MAJPatient
+    * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ d'e la liste des correspondants d'un patient
+ * TCPMSG_Separator
+    * le séparateur des éléments d'un message
+ */
 
 class TcpSocket : public QTcpSocket
 {
