@@ -113,7 +113,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 QString msg;
                 qintptr z = 0;
                 Message::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
-                connect(TcPConnect, &TcpSocket::tcpmessage, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
+                connect(TcPConnect, &TcpSocket::receiveTCPmsg, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi le stringid du poste qui vient de se connecter
                 msg = currentpost()->stringid() + TCPMSG_StringidPoste;
                 envoieTCPMessage(msg);

@@ -84,7 +84,7 @@ void TcpSocket::TraiteDonneesRecues()
                 m_datasize = 0;
                 QString msg = QString::fromUtf8(data);
                 //qDebug() << msg;
-                emit tcpmessage(msg);
+                emit receiveTCPmsg(msg);
             }
         }
     }

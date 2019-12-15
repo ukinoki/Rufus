@@ -138,22 +138,32 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     ui->Soldelabel              ->setVisible(m_comptencours->idUser() == Datas::I()->users->userconnected()->id());
 
     /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
-    bool autorsupprimer = false;
-    bool ok = true;
-    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS
-                  " where " CP_IDCOMPTEPARDEFAUT_USR " = " + QString::number(idCompte) +
-                  " limit 1";
-    if (db->StandardSelectSQL(req, ok).size()==0)                       // on ne peut pas supprimer un compte si quelqu'un l'utilise
+    bool autorsupprimer = true;
+    for (auto itusr = Datas::I()->users->all()->begin(); itusr != Datas::I()->users->all()->end();)
     {
-        req = "select idcompte from " TBL_ARCHIVESBANQUE
-              " where idcompte = " + QString::number(idCompte) +
-              " union"
-              " select idcompte from " TBL_LIGNESCOMPTES
-              " where idcompte = " + QString::number(idCompte) +
-              " limit 1";
-        autorsupprimer = (db->StandardSelectSQL(req, ok).size()==0);    // on ne peut pas supprimer un compte s'il y a des écritures
+        if (itusr.value()->idcomptepardefaut() == idCompte || itusr.value()->idcompteencaissementhonoraires()  == idCompte)
+        {
+            autorsupprimer = false;
+            break;
+        }
+        ++ itusr;
+    }
+    if (autorsupprimer)
+    {
+        bool ok = true;
+        QString req = "select idcompte from " TBL_ARCHIVESBANQUE
+                " where idcompte = " + QString::number(idCompte) +
+                " union"
+                " select idcompte from " TBL_LIGNESCOMPTES
+                " where idcompte = " + QString::number(idCompte) +
+                " limit 1";
+        autorsupprimer = (db->StandardSelectSQL(req, ok).size() == 0);
     }
     wdg_buttonframe->wdg_moinsBouton->setEnabled(autorsupprimer);
+    QString ttip = "";
+    if (!autorsupprimer)
+        ttip = tr("Impossible de supprimer ce compte") + "\n" + tr("Des écritures  ont été enregistrées") + "\n" + tr("ou il est utilisé par un utilisateur");
+    wdg_buttonframe->wdg_moinsBouton->setToolTip(ttip);
 }
 
 void dlg_gestioncomptes::AnnulModif()

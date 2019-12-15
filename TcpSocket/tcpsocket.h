@@ -99,7 +99,7 @@ private:
     void                TraiteDonneesRecues();                          /* decortiquage des messages reçus */
 
 signals:
-    void                tcpmessage(QString msg);
+    void                receiveTCPmsg(QString msg);
 };
 
 #endif // TCPSOCKET_H
