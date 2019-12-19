@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("14-12-2019/1");
+    qApp->setApplicationVersion("18-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -10175,9 +10175,9 @@ void Rufus::TraiteTCPMessage(QString msg)
         if (Datas::I()->patients->dossierpatientaouvrir()->id() == msg.toInt())
             Datas::I()->patients->setdossierpatientaouvrir(msg.toInt());
     }
-    else if (msg.contains(TCPMSG_ListeSockets))
+    else if (msg.contains(TCPMSG_ListeStringIdPostesConnectes))
     {
-        msg.remove(TCPMSG_ListeSockets);
+        msg.remove(TCPMSG_ListeStringIdPostesConnectes);
         m_listesockets.clear();
         m_listesockets = msg.split(TCPMSG_Separator);
         //qDebug() << "liste des clients connectés rufus.cpp - " + QTime::currentTime().toString("hh-mm-ss");
@@ -10188,13 +10188,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     {
         msg.remove(TCPMSG_DeconnexionPoste);
         m_listesockets.removeAll(msg);
-        for  (auto itpost = Datas::I()->postesconnectes->postesconnectes()->begin(); itpost != Datas::I()->postesconnectes->postesconnectes()->end();)
-            if (itpost.key() == msg)
-            {
-                if (itpost.value() != Q_NULLPTR)
-                    delete itpost.value();
-                Datas::I()->postesconnectes->postesconnectes()->remove(itpost.key());
-            }
+        ItemsList::remove(Datas::I()->postesconnectes->postesconnectes(), Datas::I()->postesconnectes->getByStringId(msg));
         ResumeStatut();
         Remplir_SalDat();
     }

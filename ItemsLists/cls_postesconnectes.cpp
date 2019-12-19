@@ -35,7 +35,13 @@ QMap<QString, PosteConnecte*>* PostesConnectes::postesconnectes() const
 
 PosteConnecte* PostesConnectes::getByStringId(QString stringid)
 {
+    //qDebug() << stringid;
     PosteConnecte *post = Q_NULLPTR;
+    if (stringid.split(" - ").size() < 2)
+    {
+        qDebug() << "stringid invalide";
+        return post;
+    }
     QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->find(stringid) ;
     if( itcpt == map_postesconnectes->constEnd() )
     {
