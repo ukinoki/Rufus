@@ -9697,7 +9697,7 @@ void Rufus::Pachymetrie()
             if (pachyOD.toInt() > 0 && pachyOG.toInt() > 0)
             {
                 if (pachyOD.toInt() == pachyOG.toInt())
-                    pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy ODG:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
+                    pachy = "<td width=\"80\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy ODG:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
                 else
                     pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy:") +"</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD +  "/" + pachyOG + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
             }
