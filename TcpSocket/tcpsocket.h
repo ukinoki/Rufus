@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QTcpSocket>
+#include "gbl_datas.h"
 #include "database.h"
 #include "dlg_message.h"
 #include "utils.h"

@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("18-12-2019/1");
+    qApp->setApplicationVersion("19-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -110,13 +110,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             m_utiliseTCP = TcPConnect->TcpConnectToServer(post->ipadress());
             if (m_utiliseTCP)
             {
-                QString msg;
                 qintptr z = 0;
                 Message::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
                 connect(TcPConnect, &TcpSocket::receiveTCPmsg, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoi le stringid du poste qui vient de se connecter
-                msg = currentpost()->stringid() + TCPMSG_StringidPoste;
-                envoieTCPMessage(msg);
+                envoieTCPMessage(currentpost()->stringid() + TCPMSG_StringidPoste);
             }
             else {
                 log = tr("RufusAdmin présent mais échec connexion");
@@ -7135,11 +7133,7 @@ void Rufus::CreerMenu()
     connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(Datas::I()->patients->currentpatient());});
 
     connect (actionParametres,                  &QAction::triggered,        this,                   &Rufus::OuvrirParametres);
-    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
-                                                                                                            if (m_resumeStatut =="")
-                                                                                                                ResumeStatut();
-                                                                                                            proc->Edit(m_resumeStatut, tr("Information statut"), false, true );
-                                                                                                        });
+    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {   envoieTCPMessage(TCPMSG_AskListeStringId); });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(m_currentact);});
     // Documents
     connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirImpressions);
@@ -10177,11 +10171,16 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
     else if (msg.contains(TCPMSG_ListeStringIdPostesConnectes))
     {
+        bool afficheresume = msg.contains(TCPMSG_AskListeStringId);
+        if (afficheresume)
+            msg.remove(TCPMSG_AskListeStringId);
         msg.remove(TCPMSG_ListeStringIdPostesConnectes);
         m_listesockets.clear();
         m_listesockets = msg.split(TCPMSG_Separator);
         //qDebug() << "liste des clients connectés rufus.cpp - " + QTime::currentTime().toString("hh-mm-ss");
         ResumeStatut();
+        if (afficheresume)
+            proc->Edit(m_resumeStatut, tr("Information statut"), false, true );
         Remplir_SalDat();
     }
     else if (msg.contains(TCPMSG_DeconnexionPoste))
