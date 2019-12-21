@@ -169,7 +169,7 @@ void Users::initListe()
     addList(listusers);
     foreach (User *usr, all()->values())
     {
-        if (usr->login() == NOM_ADMINISTRATEURDOCS)
+        if (usr->login() == NOM_ADMINISTRATEUR)
         {
             m_useradmin = usr;
             break;

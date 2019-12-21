@@ -741,7 +741,7 @@ void dlg_gestionusers::EnregistreNouvUser()
         msg = tr("Vous avez oublié d'indiquer le login");
         Loginline->setFocus();
     }
-    if (Loginline->text() == NOM_ADMINISTRATEURDOCS)
+    if (Loginline->text() == NOM_ADMINISTRATEUR)
     {
         msg = tr("Ce login est réservé");
         Loginline->setFocus();
@@ -1471,7 +1471,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     QList<User*> usrlist;
     foreach (User* usr, Datas::I()->users->all()->values())
     {
-        if (usr->login() != NOM_ADMINISTRATEURDOCS)
+        if (usr->login() != NOM_ADMINISTRATEUR)
             usrlist << usr;
     }
     ui->ListUserstableWidget->setRowCount(usrlist.size());

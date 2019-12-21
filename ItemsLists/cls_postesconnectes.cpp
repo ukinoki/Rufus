@@ -123,7 +123,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
     if (Utils::IPAdress() == "" || Utils::MACAdress() == "")
         return Q_NULLPTR;
     QString macadressid =  Utils::MACAdress() + " - " + QString::number(usr->id());
-    QString macadress = Utils::MACAdress() +  (usr->login() == NOM_ADMINISTRATEURDOCS? " - " + usr->login() : "");
+    QString macadress = Utils::MACAdress() +  (usr->login() == NOM_ADMINISTRATEUR? " - " + usr->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                                                                         CP_IDUSER_USRCONNECT ", "
                                                                         CP_IDUSERSUPERVISEUR_USRCONNECT ", "

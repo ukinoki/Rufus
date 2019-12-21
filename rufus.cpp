@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("19-12-2019/1");
+    qApp->setApplicationVersion("21-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5607,7 +5607,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
                 sinon, on retire le poste*/
                 proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->getMode() != Utils::Distant);
             }
-            else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEURDOCS))
+            else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEUR))
                 // le poste défini comme importateur est valide mais pas administrateur, on prend sa place si
                 //  on est prioritaire et pas lui
                 //  à condition de ne pas être en accès distant
@@ -9365,12 +9365,12 @@ void Rufus::ResumeStatut()
     {
         A.remove(".local");
         QString B;
-        if (A.contains(" - " NOM_ADMINISTRATEURDOCS))
+        if (A.contains(" - " NOM_ADMINISTRATEUR))
             B = tr("Administrateur");
         else
             B = (A.contains(" - prioritaire")? tr("prioritaire") : tr("non prioritaire"));
         A.remove(" - prioritaire");
-        A.remove(" - " NOM_ADMINISTRATEURDOCS);
+        A.remove(" - " NOM_ADMINISTRATEUR);
         m_resumeStatut += A + " - " + B;
     }
 

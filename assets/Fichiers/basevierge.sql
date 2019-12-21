@@ -592,6 +592,7 @@ CREATE TABLE `Manufacturers` (
   `ManTelephone` varchar(17) DEFAULT NULL,
   `ManPortable` varchar(17) CHARACTER SET latin1 DEFAULT NULL,
   `ManMail` varchar(45) CHARACTER SET latin1 DEFAULT NULL,
+  `Manwebsite` varchar(120) CHARACTER SET latin1 DEFAULT NULL,
   `CorNom` varchar(45) DEFAULT NULL,
   `CorPrenom` varchar(45) DEFAULT NULL,
   `CorTelephone` varchar(17) DEFAULT NULL,

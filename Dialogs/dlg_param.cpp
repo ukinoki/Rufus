@@ -1892,13 +1892,13 @@ void dlg_param::VerifPosteImportDocs()
     {
         A = "<font color=\"green\"><b>" + A.remove(".local") + "</b></font>";
         QString B;
-        if (A.contains(" - " NOM_ADMINISTRATEURDOCS))
+        if (A.contains(" - " NOM_ADMINISTRATEUR))
             B = tr("Administrateur");
         else
             B = (A.contains(" - prioritaire")? tr("prioritaire") : tr("non prioritaire"));
         B = "<b>" + B + "</b>";
         A.remove(" - prioritaire");
-        A.remove(" - " NOM_ADMINISTRATEURDOCS);
+        A.remove(" - " NOM_ADMINISTRATEUR);
 
         ui->PosteImportDocslabel->setText(A);
         if (B == tr("non prioritaire"))
@@ -2199,11 +2199,11 @@ void dlg_param::EnregistreNouvMDPAdmin()
         //recherche de l'iUser du compte AdminDocs
         int idAdminDocs = 0;
         bool ok;
-        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEURDOCS "'", ok);
+        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEUR "'", ok);
         if (!ok || mdpdata.size()==0)
         {
-            db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEURDOCS "', '" NOM_ADMINISTRATEURDOCS "')");
-            mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEURDOCS "'", ok);
+            db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "')");
+            mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEUR "'", ok);
         }
         idAdminDocs = mdpdata.at(0).toInt();
         db->setmdpadmin(nouv);
@@ -2211,7 +2211,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
         QString req = "update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + nouv + "' where " CP_ID_USR " = " + QString::number(idAdminDocs);
         db->StandardSQL(req);
         // Enregitrer le nouveau MDP de connexion à MySQL
-        req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'localhost' = '" + nouv + "'";
+        req = "set password for '" NOM_ADMINISTRATEUR "'@'localhost' = '" + nouv + "'";
         db->StandardSQL(req);
         QString AdressIP;
         foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
@@ -2222,9 +2222,9 @@ void dlg_param::EnregistreNouvMDPAdmin()
         QStringList listIP = AdressIP.split(".");
         for (int i=0;i<listIP.size()-1;i++)
             Domaine += listIP.at(i) + ".";
-        req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'" + Domaine + "%' = '" + nouv + "'";
+        req = "set password for '" NOM_ADMINISTRATEUR "'@'" + Domaine + "%' = '" + nouv + "'";
         db->StandardSQL(req);
-        req = "set password for '" NOM_ADMINISTRATEURDOCS "SSL'@'%' = '" + nouv + "'";
+        req = "set password for '" NOM_ADMINISTRATEUR "SSL'@'%' = '" + nouv + "'";
         db->StandardSQL(req);
         dlg_askMDP->done(0);
         msgbox.exec();

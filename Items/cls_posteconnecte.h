@@ -66,7 +66,7 @@ public:
     int idpatencours() const                        { return m_idpatencours; }
     QDateTime dateheurederniereconnexion() const    { return m_dateheurederniereconnexion; }
     QString ipadress() const                        { return m_ipadress; }
-    bool isadmin() const                            { return m_macadress.contains(NOM_ADMINISTRATEURDOCS);}
+    bool isadmin() const                            { return m_macadress.contains(NOM_ADMINISTRATEUR);}
 
     void setnomposte(QString txt)                           { m_nomposte = txt; }
     void setmacadress(QString txt)                          { m_macadress = txt; }

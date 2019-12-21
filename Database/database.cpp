@@ -663,7 +663,7 @@ QJsonObject DataBase::loadUserData(int idUser)
 QJsonObject DataBase::loadAdminData()
 {
     QJsonObject userData{};
-    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEURDOCS "'";
+    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'";
     QVariantList usrid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'administrateur"));
     if (!ok || usrid.size()==0)
         return userData;
@@ -2150,10 +2150,10 @@ QString DataBase::getMDPAdmin()
     QString mdp ("");
     QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " TBL_PARAMSYSTEME,ok);
     if( !ok || mdpdata.size()==0 )
-        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
+        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" MDP_ADMINISTRATEUR "'");
     else if (mdpdata.at(0) == "")
-        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
-    return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : NOM_MDPADMINISTRATEUR);
+        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" MDP_ADMINISTRATEUR "'");
+    return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : MDP_ADMINISTRATEUR);
 }
 
 

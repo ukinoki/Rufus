@@ -63,7 +63,7 @@ void dlg_identificationuser::Validation()
     ui->OKpushButton->setEnabled(false);
 
 
-    QString AdminDocs = NOM_ADMINISTRATEURDOCS; //FIXME : !!! Test en dur
+    QString AdminDocs = NOM_ADMINISTRATEUR; //FIXME : !!! Test en dur
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
     {
         UpMessageBox::Watch(this, tr("Vous ne pouvez pas utiliser ce Login pour vous connecter"));
