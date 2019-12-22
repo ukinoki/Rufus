@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                58  // version de la base de données
+#define VERSION_BASE                                59  // version de la base de données
 #define VERSION_RESSOURCES                          34  // version des fichiers de ressources
 
 // Les bases
@@ -531,11 +531,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define NOM_APPLI                                   "Rufus"
 
+#define LOGIN_SQL                                   "adminrufus"
+#define MDP_SQL                                     "gaxt78iy"
+#define NOM_DUMPUSER                                "dumprufus"
+#define MDP_DUMPUSER                                "bob"
+
 #define NOM_POSTEIMPORTDOCS                         "posteimportdocs"
+
 #define NOM_ADMINISTRATEUR                          "Admin"
 #define MDP_ADMINISTRATEUR                          "bob"
-#define NOM_DUMPUSER                                "dumprufus"
-#define MDP_MPDUSER                                 "bob"
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"

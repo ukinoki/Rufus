@@ -12,7 +12,10 @@ BEGIN
     IF tot=0
         THEN
             ALTER TABLE `Manufacturers`
-            ADD COLUMN `Manwebsite` varchar(120) AFTER `ManPortable`;
+            ADD COLUMN `ManWebsite` varchar(120) AFTER `ManPortable`,
+            CHANGE COLUMN `idManufacturer` `idManufacturer` INT(11) NOT NULL AUTO_INCREMENT ,
+            CHANGE COLUMN `ManPortable` `ManPortable` VARCHAR(17) NULL DEFAULT NULL ,
+            CHANGE COLUMN `ManMail` `ManMail` VARCHAR(45) NULL DEFAULT NULL ;
     END IF;
     END|
 

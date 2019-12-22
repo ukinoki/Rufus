@@ -2199,32 +2199,16 @@ void dlg_param::EnregistreNouvMDPAdmin()
         //recherche de l'iUser du compte AdminDocs
         int idAdminDocs = 0;
         bool ok;
-        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEUR "'", ok);
+        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
         if (!ok || mdpdata.size()==0)
         {
             db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "')");
-            mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_NOM_USR " = '" NOM_ADMINISTRATEUR "'", ok);
+            mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
         }
         idAdminDocs = mdpdata.at(0).toInt();
         db->setmdpadmin(nouv);
         // Enregitrer le nouveau MDP de la base
         QString req = "update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + nouv + "' where " CP_ID_USR " = " + QString::number(idAdminDocs);
-        db->StandardSQL(req);
-        // Enregitrer le nouveau MDP de connexion à MySQL
-        req = "set password for '" NOM_ADMINISTRATEUR "'@'localhost' = '" + nouv + "'";
-        db->StandardSQL(req);
-        QString AdressIP;
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-                 AdressIP = address.toString();
-        }
-        QString Domaine;
-        QStringList listIP = AdressIP.split(".");
-        for (int i=0;i<listIP.size()-1;i++)
-            Domaine += listIP.at(i) + ".";
-        req = "set password for '" NOM_ADMINISTRATEUR "'@'" + Domaine + "%' = '" + nouv + "'";
-        db->StandardSQL(req);
-        req = "set password for '" NOM_ADMINISTRATEUR "SSL'@'%' = '" + nouv + "'";
         db->StandardSQL(req);
         dlg_askMDP->done(0);
         msgbox.exec();

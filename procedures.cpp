@@ -620,9 +620,9 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "RUFUSINI=\"" + QDir::homePath() + FILE_INI + "\"";
     //# Identifiants MySQL
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_USER=\"dumprufus\"";
+    scriptbackup += "MYSQL_USER=\"" NOM_DUMPUSER "\"";
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_PASSWORD=\"" + MDPAdmin() + "\"";
+    scriptbackup += "MYSQL_PASSWORD=\"" MDP_DUMPUSER "\"";
     //# Commandes MySQL
     QDir Dir(QCoreApplication::applicationDirPath());
     Dir.cdUp();
@@ -739,7 +739,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
         if (QFile(ListNomFiles.at(i)).exists())
         {
             if (currentuser() == Q_NULLPTR)
-                scriptrestore += "$MYSQL -u " + m_loginSQL +  " -p" +  m_passwordSQL + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
+                scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
             else
                 scriptrestore += "$MYSQL -u " + currentuser()->login() +  " -p" +  currentuser()->password() + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
             scriptrestore += "\n";
@@ -2002,7 +2002,6 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::
         box->addItem(model->item(i)->text(), model->item(i,1)->text());
 }
 
-//Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::MDPAdmin()
 {
     if (m_parametres == Q_NULLPTR)
@@ -2644,6 +2643,11 @@ bool Procedures::VerifBaseEtRessources()
                     if (!ImmediateBackup("", true, false))
                         return false;
                 BupDone = true;
+                PosteConnecte* post = Datas::I()->postesconnectes->admin();
+                if (post != Q_NULLPTR)
+                    UpMessageBox::Watch(Q_NULLPTR,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
+                                                                            tr("RufusAdmin s'arrêtera et il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
+                                                                            tr("Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin"));
             }
             Message::I()->SplashMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
@@ -2712,18 +2716,21 @@ bool Procedures::VerifBaseEtRessources()
                 for (int i=0;i<listIP.size()-1;i++)
                     MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
                 MasqueReseauLocal += "%";
-                db->StandardSQL ("create user if not exists '" NOM_ADMINISTRATEUR "'@'localhost' identified by '" MDP_ADMINISTRATEUR "'");
-                db->StandardSQL ("create user if not exists '" NOM_ADMINISTRATEUR "'@'" + MasqueReseauLocal + "' identified by '" MDP_ADMINISTRATEUR "'");
-                db->StandardSQL ("create user if not exists '" NOM_ADMINISTRATEUR "SSL'@'%' identified by '" MDP_ADMINISTRATEUR "' REQUIRE SSL");
-                db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEUR "'@'localhost' identified by '" MDP_ADMINISTRATEUR "' with grant option");
-                db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEUR "'@'" + MasqueReseauLocal + "' identified by '" MDP_ADMINISTRATEUR "' with grant option");
-                db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEUR "SSL'@'%' identified by '" MDP_ADMINISTRATEUR "' with grant option");
-                QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " = 100, " CP_NOM_USR " = '" NOM_ADMINISTRATEUR "'";
+                db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "'");
+                db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "'");
+                db->StandardSQL ("create user if not exists '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' REQUIRE SSL");
+                db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "' with grant option");
+                db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "' with grant option");
+                db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' with grant option");
+                //! au cas où le user LOGIN_SQL existerait déjà avec un autre password
+                db->StandardSQL("set password for '" LOGIN_SQL "'@'localhost' = '" MDP_SQL "'");
+                db->StandardSQL("set password for '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' = '" MDP_SQL "'");
+                db->StandardSQL("set password for '" LOGIN_SQL "SSL'@'%' = '" MDP_SQL "'");
+
+                QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'";
                 bool ok;
-                if (db->StandardSelectSQL(req,ok).size() > 0)
-                    db->StandardSQL ("update " TBL_UTILISATEURS " set " CP_ID_USR " = 100, " CP_NOM_USR " = '" NOM_ADMINISTRATEUR "', " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'");
-                else
-                    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_NOM_USR ", " CP_LOGIN_USR ") values (100, '" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "')");
+                if (db->StandardSelectSQL(req,ok).size() == 0)
+                    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "')");
             }
         }
     }
@@ -2832,13 +2839,8 @@ bool Procedures::Connexion_A_La_Base()
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
 
-    //Etrange le parametrage ici
-    db->StandardSQL("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';");
-    db->StandardSQL("SET GLOBAL event_scheduler = 1 ;");
     db->StandardSQL("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;");
 
-    // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
-    QString req = "select iduser from " TBL_USERSCONNECTES " where iduser = (select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "')";
     return m_connexionbaseOK;
 }
 
@@ -2951,13 +2953,17 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL ("grant all on *.* to '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option");
 
     // Création de l'administrateur des documents ------------------------------------------------------------------
-    db->StandardSQL ("create user if not exists '" NOM_ADMINISTRATEUR "'@'localhost' identified by '" MDP_ADMINISTRATEUR "'");
-    db->StandardSQL ("create user if not exists '" NOM_ADMINISTRATEUR "'@'" + MasqueReseauLocal + "' identified by '" MDP_ADMINISTRATEUR "'");
-    db->StandardSQL ("create user if not exists '" NOM_ADMINISTRATEUR "SSL'@'%' identified by '" MDP_ADMINISTRATEUR "' REQUIRE SSL");
-    db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEUR "'@'localhost' identified by '" MDP_ADMINISTRATEUR "' with grant option");
-    db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEUR "'@'" + MasqueReseauLocal + "' identified by '" MDP_ADMINISTRATEUR "' with grant option");
-    db->StandardSQL ("grant all on *.* to '" NOM_ADMINISTRATEUR "SSL'@'%' identified by '" MDP_ADMINISTRATEUR "' with grant option");
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_NOM_USR ", " CP_LOGIN_USR ") values (100, '" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "')");
+    db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "'");
+    db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "'");
+    db->StandardSQL ("create user if not exists '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' REQUIRE SSL");
+    db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "' with grant option");
+    db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "' with grant option");
+    db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' with grant option");
+    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "')");
+    //! au cas où le user LOGIN_SQL existerait déjà avec un autre password
+    db->StandardSQL("set password for '" LOGIN_SQL "'@'localhost' = '" MDP_SQL "'");
+    db->StandardSQL("set password for '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' = '" MDP_SQL "'");
+    db->StandardSQL("set password for '" LOGIN_SQL "SSL'@'%' = '" MDP_SQL "'");
 
     // On crée l'utilisateur dans la table utilisateurs
     m_idcentre               = 1;

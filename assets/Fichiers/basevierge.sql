@@ -582,7 +582,7 @@ CREATE TABLE `LieuxExercice` (
 
 DROP TABLE IF EXISTS `Manufacturers`;
 CREATE TABLE `Manufacturers` (
-  `idManufacturer` int(11) NOT NULL,
+  `idManufacturer` int(11) NOT NULL AUTO_INCREMENT,
   `ManName` varchar(45) NOT NULL,
   `ManAdresse1` varchar(80) DEFAULT NULL,
   `ManAdresse2` varchar(80) DEFAULT NULL,
@@ -590,9 +590,9 @@ CREATE TABLE `Manufacturers` (
   `ManCodepostal` varchar(5) DEFAULT NULL,
   `ManVille` varchar(40) DEFAULT NULL,
   `ManTelephone` varchar(17) DEFAULT NULL,
-  `ManPortable` varchar(17) CHARACTER SET latin1 DEFAULT NULL,
-  `ManMail` varchar(45) CHARACTER SET latin1 DEFAULT NULL,
-  `Manwebsite` varchar(120) CHARACTER SET latin1 DEFAULT NULL,
+  `ManPortable` varchar(17) DEFAULT NULL,
+  `ManWebsite` varchar(120) DEFAULT NULL,
+  `ManMail` varchar(45) DEFAULT NULL,
   `CorNom` varchar(45) DEFAULT NULL,
   `CorPrenom` varchar(45) DEFAULT NULL,
   `CorTelephone` varchar(17) DEFAULT NULL,
@@ -669,7 +669,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,58,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,59,
                                         NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
