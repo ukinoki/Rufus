@@ -110,7 +110,7 @@ public:
     int                     idUserConnected() const             { return m_iduserConnected; }
 
 
-    QString                 connectToDataBase(QString basename, QString login, QString password);   //!> idem
+    QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
     QDateTime               ServerDateTime();                   /*! renvoie le QDateTime du serveur
                                                                  * - utilisé pour le remplissage de certains champs pour éviter une erreur de date
                                                                  * au cas où le poste client ne serait pas correctement mis à l'heure */

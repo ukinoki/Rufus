@@ -170,9 +170,9 @@ private:
     bool                    m_initok;
     bool                    m_usecotation;
     int                     m_idcentre;
-    bool                    IdentificationUser(bool ChgtUtilisateur = false);   /*! la fiche d'identification de l'utilisateur au lancement du programme
-                                                                                 * suivie de l'initialisation de tout
-                                                                                 * et de la définition du rôle de l'utilisateur */
+    bool                    IdentificationUser();                       /*! la fiche d'identification de l'utilisateur au lancement du programme
+                                                                         * suivie de l'initialisation de tout
+                                                                         * et de la définition du rôle de l'utilisateur */
     void                    CalcLieuExercice();
     void                    CalcUserParent();
     void                    CalcUserSuperviseur();

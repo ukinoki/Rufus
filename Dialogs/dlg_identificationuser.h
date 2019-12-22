@@ -31,14 +31,13 @@ class dlg_identificationuser : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_identificationuser(bool ChgUser = false, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationuser(QWidget *parent = Q_NULLPTR);
     ~dlg_identificationuser();
     Ui::dlg_identificationuser *ui;
     enum LoginResult { NoConnexion, NoUser, UnDefinedRights, UnCorrectRights, CorruptedBase, CorruptedUser, OK}; Q_ENUM(LoginResult)
 
 private:
     DataBase                *db = DataBase::I();
-    bool                    m_chgmtuser;
     bool                    eventFilter(QObject *, QEvent *);
     LoginResult             ControleDonnees();
     void                    Validation();

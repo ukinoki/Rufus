@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
 
-dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
+dlg_identificationuser::dlg_identificationuser(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_identificationuser)
 {
@@ -48,7 +48,6 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui->LoginlineEdit   ->installEventFilter(this);
     ui->MDPlineEdit     ->installEventFilter(this);
 
-    m_chgmtuser         = ChgUser;
     ui->LoginlineEdit   ->setFocus();
 }
 
@@ -61,7 +60,6 @@ void dlg_identificationuser::Validation()
 {
     //On desactive le button OK pour neutraliser le double clic.
     ui->OKpushButton->setEnabled(false);
-
 
     QString AdminDocs = NOM_ADMINISTRATEUR; //FIXME : !!! Test en dur
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
@@ -121,82 +119,73 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus();    return NoUser;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
-    if (!m_chgmtuser)
-    {
-//TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
-        QString error = "";
-        error = db->connectToDataBase(DB_CONSULTS, Login, Password);
+    //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
+    QString error = "";
+    error = db->connectToDataBase(DB_CONSULTS, Login, Password);
 
-        if( error.size() )
-        {
-            ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(100);
-            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+    if( error.size() )
+    {
+        ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+        Utils::Pause(100);
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de se connecter au serveur avec le login ") + Login
                             + tr(" et ce mot de passe") + "\n"
                             + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
                             + error);
-            return NoConnexion;
-        }
+        return NoConnexion;
+    }
 
-        QString Client;
-        if (db->getMode() == Utils::Distant)
-                Client = "%";
-        else if (db->getMode() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(db->getServer()))
+    QString Client;
+    if (db->getMode() == Utils::Distant)
+        Client = "%";
+    else if (db->getMode() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(db->getServer()))
+    {
+        QStringList listIP = db->getServer().split(".");
+        for (int i=0;i<listIP.size()-1;i++)
         {
-            QStringList listIP = db->getServer().split(".");
-            for (int i=0;i<listIP.size()-1;i++)
-            {
-                Client += QString::number(listIP.at(i).toInt()) + ".";
-                if (i==listIP.size()-2)
-                    Client += "%";
-            }
+            Client += QString::number(listIP.at(i).toInt()) + ".";
+            if (i==listIP.size()-2)
+                Client += "%";
         }
-        else
-            Client = db->getServer();
-        req = "show grants for '" + Login + (db->getMode() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
-        //qDebug() << req;
+    }
+    else
+        Client = db->getServer();
+    req = "show grants for '" + Login + (db->getMode() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
+    //qDebug() << req;
 
-        QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (!ok || grantsdata.size()==0)
-        {
-            ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(150);
-            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+    QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok || grantsdata.size()==0)
+    {
+        ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+        Utils::Pause(150);
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de retrouver les droits de l'utilisateur ") + Login + "\n" +
                             tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
-            return UnDefinedRights;
-        }
-        QString reponse = grantsdata.at(0).toString();
-        if (reponse.left(9) != "GRANT ALL")
-        {
-            ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(150);
-            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+        return UnDefinedRights;
+    }
+    QString reponse = grantsdata.at(0).toString();
+    if (reponse.left(9) != "GRANT ALL")
+    {
+        ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+        Utils::Pause(150);
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("L'utilisateur ") + Login
                             + tr(" existe mais ne dispose pas de toutes les autorisations pour modifier/créer des données sur le serveur.")
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
-            return UnCorrectRights;
-        }
-
-
-        ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
-        Utils::Pause(150);
-        req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";
-        QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
-        if (tablist.size()<2)
-        {
-            ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
-            Utils::Pause(600);
-            //TODO : Erreur non géré
-            return CorruptedBase;
-        }
-//END
+        return UnCorrectRights;
     }
-    else
+
+
+    ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
+    Utils::Pause(150);
+    req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";
+    QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
+    if (tablist.size()<2)
     {
-        ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
-        Utils::Pause(150);
+        ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
+        Utils::Pause(600);
+        //TODO : Erreur non géré
+        return CorruptedBase;
     }
 
     DataBase::QueryResult rep = db->calcidUserConnected(Login, Password);

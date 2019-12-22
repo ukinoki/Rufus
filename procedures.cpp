@@ -2730,7 +2730,7 @@ bool Procedures::VerifBaseEtRessources()
                 QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'";
                 bool ok;
                 if (db->StandardSelectSQL(req,ok).size() == 0)
-                    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "')");
+                    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
             }
         }
     }
@@ -2959,24 +2959,27 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "' with grant option");
     db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "' with grant option");
     db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' with grant option");
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "')");
     //! au cas où le user LOGIN_SQL existerait déjà avec un autre password
     db->StandardSQL("set password for '" LOGIN_SQL "'@'localhost' = '" MDP_SQL "'");
     db->StandardSQL("set password for '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' = '" MDP_SQL "'");
     db->StandardSQL("set password for '" LOGIN_SQL "SSL'@'%' = '" MDP_SQL "'");
 
+    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
     // On crée l'utilisateur dans la table utilisateurs
     m_idcentre               = 1;
     m_usecotation            = true;
     Datas::I()->banques->initListe();
-    CreerUserFactice(1, Login, MDP);
-    db->setidUserConnected(1);
+    bool ok;
+    int idusr = db->selectMaxFromTable(CP_ID_USR, TBL_UTILISATEURS, ok);
+    ++idusr;
+    CreerUserFactice(idusr, Login, MDP);
+    db->setidUserConnected(idusr);
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
     MAJComptesBancaires(currentuser());
-    currentuser()->setidsuperviseur(1);
-    currentuser()->setidusercomptable(1);
-    currentuser()->setidparent(1);
+    currentuser()->setidsuperviseur(idusr);
+    currentuser()->setidusercomptable(idusr);
+    currentuser()->setidparent(idusr);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
@@ -3108,9 +3111,9 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Identification de l'utilisateur -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::IdentificationUser(bool ChgUsr)
+bool Procedures::IdentificationUser()
 {
-    dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser(ChgUsr);
+    dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
     int result = dlg_IdentUser->exec();
     if( result > 0 )

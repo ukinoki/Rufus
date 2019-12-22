@@ -2202,7 +2202,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
         QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
         if (!ok || mdpdata.size()==0)
         {
-            db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "')");
+            db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "', '" MDP_ADMINISTRATEUR "')");
             mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
         }
         idAdminDocs = mdpdata.at(0).toInt();

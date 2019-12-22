@@ -741,7 +741,8 @@ void dlg_gestionusers::EnregistreNouvUser()
         msg = tr("Vous avez oublié d'indiquer le login");
         Loginline->setFocus();
     }
-    if (Loginline->text() == NOM_ADMINISTRATEUR)
+    QString nomadmin = NOM_ADMINISTRATEUR;
+    if (Loginline->text().toUpper() == nomadmin.toUpper())
     {
         msg = tr("Ce login est réservé");
         Loginline->setFocus();
