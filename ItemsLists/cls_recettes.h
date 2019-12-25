@@ -32,7 +32,7 @@ public:
     QMap<int, Recette *> *recettes() const;
 
     Recette* getById(int id);
-    void    initListe(QMap<QString, QDate> DateMap);
+    void    initListe(QMap<Utils::Period, QDate> DateMap);
 };
 
 #endif // CLS_RECETTES_H

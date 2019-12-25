@@ -1,4 +1,4 @@
--- 21/12/2019
+-- 23/12/2019
 USE `rufus`;
 DROP PROCEDURE IF EXISTS MAJ59;
 DELIMITER |
@@ -17,9 +17,21 @@ BEGIN
             CHANGE COLUMN `ManPortable` `ManPortable` VARCHAR(17) NULL DEFAULT NULL ,
             CHANGE COLUMN `ManMail` `ManMail` VARCHAR(45) NULL DEFAULT NULL ;
     END IF;
-    END|
+        SELECT COUNT(*) INTO tot FROM
+        (SELECT idUser FROM rufus.utilisateurs where UserLogin = 'Admin') as chp;
+    IF tot=0
+        THEN
+            INSERT INTO rufus.utilisateurs (idUser, UserNom, UserLogin) values ('Admin','Admin','bob');
+    END IF;
+END|
 
 CALL MAJ59();
 DROP PROCEDURE IF EXISTS MAJ59;
+
+CREATE USER IF NOT EXISTS 'adminrufus'@'%' IDENTIFIED BY 'gaxt78iy';
+GRANT ALL ON *.* TO 'adminrufus'@'%' IDENTIFIED BY 'gaxt78iy' WITH GRANT OPTION;
+
+CREATE USER IF NOT EXISTS 'adminrufusSSL'@'%' IDENTIFIED BY 'gaxt78iy' REQUIRE SSL;
+GRANT ALL ON *.* TO 'adminrufusSSL'@'%' IDENTIFIED BY 'gaxt78iy' WITH GRANT OPTION;
 
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 59;

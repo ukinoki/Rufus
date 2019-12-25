@@ -29,7 +29,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     QString Base;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    Utils::ModeAcces mod = db->getMode();
+    Utils::ModeAcces mod = db->ModeAccesDataBase();
     if (mod == Utils::Poste)
         NomOnglet = tr("Monoposte");
     else if (mod == Utils::Distant)
@@ -40,7 +40,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);*/
-    m_accesdistant = (db->getMode()==Utils::Distant);
+    m_accesdistant = (db->ModeAccesDataBase()==Utils::Distant);
     m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
 
     if (!QDir(m_pathdirstockageimagerie).exists() || m_pathdirstockageimagerie == "")
@@ -52,7 +52,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         return;
     }
 
-    m_docpath = proc->settings()->value(db->getBase() + "/DossiersDocsScannes").toString();
+    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocsScannes").toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_uptable         = new UpTableWidget(this);
@@ -245,7 +245,7 @@ void dlg_docsscanner::ChangeFile()
         font.setPointSize(12);
         wdg_inflabel->setFont(font);
         wdg_inflabel    ->setGeometry(10,wdg_uptable->viewport()->height()-40,350,25);
-        proc->settings()->setValue(db->getBase() + "/DossiersDocsScannes", m_docpath);
+        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocsScannes", m_docpath);
     }
 }
 

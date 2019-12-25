@@ -92,21 +92,16 @@ public:
      * SQL
     */
     //     ACTION SUR LES PARAMETRES DE CONNEXION A LA BASE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    void                    init(QSettings const &setting, Utils::ModeAcces mode);
-                                                                /*! initialise les paramètres de connexion au serveur (adresse, port, SSL)
-                                                                 *  à partir des valeurs enregistrées dans dans rufus.ini
-                                                                 *  en fonction du mode de connexion*/
-    void                    initFromFirstConnexion(QString mode, QString Server, int Port, bool SSL);
-                                                                /*! initialise les paramètres de connexion au serveur (adresse, port, SSL)
-                                                                 *  à partir des valeurs sasies dans la fiche paramconnexion utilisée au premier lancement du programme*/
+    void                    initParametres(Utils::ModeAcces mode,
+                                 QString Server,
+                                 int Port,
+                                 bool SSL);                     /*! initialise les paramètres de connexion au serveur (adresse, port, SSL) */
 
-    Utils::ModeAcces        getMode() const;                    /*! renvoie le mode d'accès au serveur
-                                                                    \result monoposte = Poste, reseau local = ReseauLocal, distant = Distant */
-    QString                 getBase() const;                    /*! renvoie le mode d'accès au serveur tel qu'il est inscrit dans le fichier rufus.ini
-                                                                    \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT */
-    QString                 getServer() const;                  //!> l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS
+    Utils::ModeAcces        ModeAccesDataBase() const;          /*! renvoie le mode d'accès au serveur
+                                                                    \result monoposte = Utils::Poste, reseau local = Utils::ReseauLocal, distant = Utils::Distant */
+    QString                 AdresseServer() const;                  //!> l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS
     QSqlDatabase            getDataBase() const;
-    void                    getInformations();                  //! renvoie les infos de connexions SQL : host, database, login, mdp
+    void                    InfosConnexionSQL();                  //! renvoie les infos de connexions SQL : host, database, login, mdp
     int                     idUserConnected() const             { return m_iduserConnected; }
 
 
@@ -247,7 +242,7 @@ public:
     QList<Tiers*>           loadTiersPayants();                         //! charge tous les organismes de tiers payants de la table tiers
     QList<TypeTiers*>       loadTypesTiers();                           //! charge tous les types de tiers payants (AME, CMU, AT...) à partir de la table rufus.listetiers
 
-    QList<Recette*>         loadRecettesByDate(QDate datedebut, QDate datefin);
+    QList<Recette*>         loadRecettesByPeriod(QDate datedebut, QDate datefin);
                                                                         //! charge toutes les recettes pour la période spécifiée
     RecetteComptable*       loadRecetteComptablebyId(int id);           //! charge une recette comptable par son id
 

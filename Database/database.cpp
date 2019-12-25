@@ -32,42 +32,20 @@ DataBase* DataBase::I()
 
 DataBase::DataBase() {}
 
-void DataBase::init(QSettings const &setting, Utils::ModeAcces mode)
+void DataBase::initParametres(Utils::ModeAcces mode, QString Server, int Port, bool SSL)
 {
     m_mode = mode;
-    if( m_mode == Utils::Poste )
-        m_server = "localhost";
-    else
-        m_server = setting.value(getBase() + "/Serveur").toString();
-
-    m_port = setting.value(getBase() + "/Port").toInt();
-
-    m_useSSL = (m_mode == Utils::Distant);
-}
-
-void DataBase::initFromFirstConnexion(QString mode, QString Server, int Port, bool SSL)
-{
-    if (mode == Utils::getBaseFromMode(Utils::Poste))
-        m_mode = Utils::Poste;
-    else if (mode == Utils::getBaseFromMode(Utils::ReseauLocal))
-        m_mode = Utils::ReseauLocal;
-    else if (mode == Utils::getBaseFromMode(Utils::Distant))
-        m_mode = Utils::Distant;
-
     m_server = Server;
     m_port = Port;
     m_useSSL = SSL;
 }
 
-Utils::ModeAcces DataBase::getMode() const
+Utils::ModeAcces DataBase::ModeAccesDataBase() const
 {
     return m_mode;
 }
-QString DataBase::getBase() const
-{
-    return Utils::getBaseFromMode( m_mode );
-}
-QString DataBase::getServer() const
+
+QString DataBase::AdresseServer() const
 {
     return m_server;
 }
@@ -75,7 +53,7 @@ QSqlDatabase DataBase::getDataBase() const
 {
     return m_db;
 }
-void DataBase::getInformations()
+void DataBase::InfosConnexionSQL()
 {
     UpMessageBox::Watch(Q_NULLPTR,
         tr("Connexion à la base de données!"),
@@ -1425,7 +1403,7 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 /*
  * Recettes
 */
-QList<Recette*> DataBase::loadRecettesByDate(QDate datedebut, QDate datefin)
+QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
 {
     QList<Recette*> listerecettes;
         //---------------------------------------------- Tous les actes effectués par tout le monde durant la période, sauf les impayés et les gratuits

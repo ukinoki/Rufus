@@ -54,10 +54,11 @@ public:
     Q_DECLARE_FLAGS(Days, Day)
     enum Logic {True, False, Null};
         /*! pour certaines données bool, on a 3 valeurs possibles, true, false et null
-         * en fait, on pourrait même faire une 4ème valeur correspondaant à "ne sait pas" -> ne sait pas si la valeeur est true, false ou null
+         * en fait, on pourrait même faire une 4ème valeur correspondant à "ne sait pas" -> ne sait pas si la valeur est true, false ou null
          */
     enum ModeAcces { Poste, ReseauLocal, Distant };
     enum Cote {Droit, Gauche, Les2, NoLoSo};
+    enum Period {Debut, Fin};
 
     static QRegExp const rgx_rx;
     static QRegExp const rgx_AlphaNumeric;

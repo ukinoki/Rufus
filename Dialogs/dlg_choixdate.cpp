@@ -25,7 +25,7 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    map_date = QMap<QString, QDate>();
+    map_date = QMap<Utils::Period, QDate>();
     ui->JourradioButton             ->setChecked(true);
     ui->DepuisdateEdit              ->setDate(QDate::currentDate());
     ui->Depuislabel                 ->setVisible(false);
@@ -37,10 +37,7 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
     ui->PlusDebutPeriodepushButton  ->setVisible(false);
     ui->MoinsFinPeriodepushButton   ->setVisible(false);
 
-    connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=] {
-        map_date["DateDebut"] = ui->DepuisdateEdit->date();
-        map_date["DateFin"] = (ui->JourradioButton->isChecked()? map_date["DateDebut"] : ui->JusquAdateEdit->date());
-        accept();});
+    connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=] {Fermefiche();});
     connect(ui->AnnulupPushButton,              &QPushButton::clicked,  this,    [=] {reject();});
     connect(ui->JourradioButton,                &QPushButton::clicked,  this,    [=] {AfficheDates(ui->JourradioButton);});
     connect(ui->SemaineradioButton,             &QPushButton::clicked,  this,    [=] {AfficheDates(ui->SemaineradioButton);});
@@ -62,11 +59,6 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
 dlg_choixdate::~dlg_choixdate()
 {
     delete ui;
-}
-
-QMap<QString, QDate> dlg_choixdate::map() const
-{
-    return map_date;
 }
 
 void    dlg_choixdate::AfficheDates(QWidget *widg)
@@ -187,9 +179,16 @@ bool dlg_choixdate::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
             if (keyEvent->modifiers() == Qt::MetaModifier)
-                accept();
+                Fermefiche();
         if (keyEvent->key() == Qt::Key_F12)
                 reject();
     }
     return QWidget::eventFilter(obj, event);
+}
+
+void dlg_choixdate::Fermefiche()
+{
+        map_date[Utils::Debut] = ui->DepuisdateEdit->date();
+        map_date[Utils::Fin] = (ui->JourradioButton->isChecked()? map_date[Utils::Debut] : ui->JusquAdateEdit->date());
+        accept();
 }

@@ -135,12 +135,12 @@ void Procedures::ab(int i)
 /*--------------------------------------------------------------------------------------------------------------
 -- Choix d'une date ou d'une période ---------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------*/
-QMap<QString, QDate> Procedures::ChoixDate(QWidget *parent)
+QMap<Utils::Period, QDate> Procedures::ChoixDate(QWidget *parent)
 {
     Dlg_ChxDate = new dlg_choixdate(parent);
     Dlg_ChxDate ->setWindowTitle(tr("Choisir une période"));
     Dlg_ChxDate ->exec();
-    QMap<QString, QDate> DateMap = Dlg_ChxDate->map();
+    QMap<Utils::Period, QDate> DateMap = Dlg_ChxDate->mapdate();
     delete Dlg_ChxDate;
     return DateMap;
 }
@@ -1928,10 +1928,10 @@ void Procedures::setAbsolutePathDirImagerie()
 {
     m_absolutepathDirStockageImage = "";
     m_pathDirStockageImagesServeur = m_parametres->dirimagerie();
-    if (db->getMode() == Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Poste)
         m_absolutepathDirStockageImage = m_pathDirStockageImagesServeur;
     else
-        m_absolutepathDirStockageImage = m_settings->value(db->getBase() + "/DossierImagerie").toString();
+        m_absolutepathDirStockageImage = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossierImagerie").toString();
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
@@ -2236,10 +2236,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     if (BaseVierge)
     {
         QString Hote;
-        if (db->getMode() == Utils::Poste)
+        if (db->ModeAccesDataBase() == Utils::Poste)
             Hote = tr("ce poste");
         else
-            Hote = tr("le serveur ") + m_settings->value(db->getBase() + "/Serveur").toString();
+            Hote = tr("le serveur ") + m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
         msgbox.setInformativeText(tr("Vous avez choisi de créer une base vierge sur ") + Hote + "\n" +
                                   tr("Si une base de données Rufus existe sur ce serveur, "
                                      "elle sera définitivement effacée pour être remplacée par cette base vierge.\n"
@@ -2708,30 +2708,6 @@ bool Procedures::VerifBaseEtRessources()
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
                 db->setversionbase(53);
             }
-            if (Version == 59)
-            {
-                // Création de l'administrateur des documents ------------------------------------------------------------------
-                QString AdressIP (Utils::IPAdress()), MasqueReseauLocal;
-                QStringList listIP = AdressIP.split(".");
-                for (int i=0;i<listIP.size()-1;i++)
-                    MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
-                MasqueReseauLocal += "%";
-                db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "'");
-                db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "'");
-                db->StandardSQL ("create user if not exists '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' REQUIRE SSL");
-                db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "' with grant option");
-                db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "' with grant option");
-                db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' with grant option");
-                //! au cas où le user LOGIN_SQL existerait déjà avec un autre password
-                db->StandardSQL("set password for '" LOGIN_SQL "'@'localhost' = '" MDP_SQL "'");
-                db->StandardSQL("set password for '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' = '" MDP_SQL "'");
-                db->StandardSQL("set password for '" LOGIN_SQL "SSL'@'%' = '" MDP_SQL "'");
-
-                QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'";
-                bool ok;
-                if (db->StandardSelectSQL(req,ok).size() == 0)
-                    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
-            }
         }
     }
     //verification des fichiers ressources
@@ -2829,7 +2805,16 @@ bool Procedures::FicheChoixConnexion()
 --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Connexion_A_La_Base()
 {
-    db->init(*m_settings, m_modeacces);
+    QString server = "localhost";
+    if( m_modeacces == Utils::Poste )
+        server = "localhost";
+    else
+        server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
+
+    int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Port").toInt();
+
+    bool useSSL = (m_modeacces == Utils::Distant);
+    db->initParametres(m_modeacces, server, port, useSSL);
     if (!IdentificationUser())
         return false;
 
@@ -2942,7 +2927,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     // Serge Oui c'est une grosse erreur de conception mais tant que le logiciel ne sera pas modifié, il est impossible d'installler le programme sans en passer par là
     QString AdressIP (Utils::IPAdress()), MasqueReseauLocal;
     QStringList listIP = AdressIP.split(".");
-    for (int i=0;i<listIP.size()-1;i++)
+    for (int i=0;i<listIP.size()-2;i++)
         MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
     MasqueReseauLocal += "%";
     db->StandardSQL ("create user '" + Login + "'@'localhost' identified by '" + MDP + "'");
@@ -2951,18 +2936,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL ("grant all on *.* to '" + Login + "'@'localhost' identified by '" + MDP + "' with grant option");
     db->StandardSQL ("grant all on *.* to '" + Login + "SSL'@'%' identified by '" + MDP + "' with grant option");
     db->StandardSQL ("grant all on *.* to '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option");
-
-    // Création de l'administrateur des documents ------------------------------------------------------------------
-    db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "'");
-    db->StandardSQL ("create user if not exists '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "'");
-    db->StandardSQL ("create user if not exists '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' REQUIRE SSL");
-    db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'localhost' identified by '" MDP_SQL "' with grant option");
-    db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' identified by '" MDP_SQL "' with grant option");
-    db->StandardSQL ("grant all on *.* to '" LOGIN_SQL "SSL'@'%' identified by '" MDP_SQL "' with grant option");
-    //! au cas où le user LOGIN_SQL existerait déjà avec un autre password
-    db->StandardSQL("set password for '" LOGIN_SQL "'@'localhost' = '" MDP_SQL "'");
-    db->StandardSQL("set password for '" LOGIN_SQL "'@'" + MasqueReseauLocal + "' = '" MDP_SQL "'");
-    db->StandardSQL("set password for '" LOGIN_SQL "SSL'@'%' = '" MDP_SQL "'");
 
     db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
     // On crée l'utilisateur dans la table utilisateurs
@@ -3101,7 +3074,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     int gidLieuExercice = 0;
     QList<QVariantList> lieuxlist = db->StandardSelectSQL(req, m_ok);
     if (m_ok && lieuxlist.size()>0)
-        gidLieuExercice = lieuxlist.at(0).at(0).toInt(); //TODO : ICI
+        gidLieuExercice = lieuxlist.at(0).at(0).toInt();
     req = "insert into " TBL_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
     db->StandardSQL(req);
     db->setidlieupardefaut(gidLieuExercice);
@@ -3739,7 +3712,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     else if (protoc == BaseRestauree)
     {
         bool SansAccesDistant = false;
-        if (VerifParamConnexion(login, MDP, SansAccesDistant))
+        if (VerifParamConnexion(login, MDP, false, SansAccesDistant))
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Connexion réussie"),
                                   tr("Bien, la connexion au serveur MySQL fonctionne,\n"));
@@ -3768,7 +3741,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     else if (protoc == BaseVierge)
     {
         bool SansAccesDistant = false;
-        if (VerifParamConnexion(login, MDP, SansAccesDistant))
+        if (VerifParamConnexion(login, MDP, false, SansAccesDistant))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne "
@@ -4005,9 +3978,9 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant, QString)
+bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant, QString)
 {
-    Dlg_ParamConnex = new dlg_paramconnexion(OKAccesDistant);
+    Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
 

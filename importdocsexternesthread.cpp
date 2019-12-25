@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 ImportDocsExternesThread::ImportDocsExternesThread()
 {
     moveToThread(&m_thread);
-    m_acces           = (db->getMode()!=Utils::Distant? Local : Distant);
+    m_acces           = (db->ModeAccesDataBase()!=Utils::Distant? Local : Distant);
     m_thread          .start();
 }
 
@@ -42,7 +42,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
     }
     for (int itr=0; itr<listdocs.size(); itr++)
     {
-        QString NomDirDoc = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -608,17 +608,17 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
 bool ImportDocsExternesThread::DefinitDossiers()
 {
     QString NomOnglet;
-    if (db->getMode() == Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Poste)
     {
         NomOnglet = tr("Monoposte");
         m_pathdirstockageimagerie = db->parametres()->dirimagerie();
     }
-    if (db->getMode() == Utils::ReseauLocal)
+    if (db->ModeAccesDataBase() == Utils::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
         m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     }
-    if (db->getMode() == Utils::Distant)
+    if (db->ModeAccesDataBase() == Utils::Distant)
     {
         NomOnglet = tr("Accès distant");
         m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();

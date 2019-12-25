@@ -42,7 +42,7 @@ public:
 private:
     DataBase                    *db             = DataBase::I();
     Procedures                  *proc           = Procedures::I();
-    bool                        m_accesdistant  = (db->getMode()==Utils::Distant);
+    bool                        m_accesdistant  = (db->ModeAccesDataBase()==Utils::Distant);
     User                        *m_userencours  = Q_NULLPTR;
     QMap<int, User*>            *map_usersliberaux = Datas::I()->users->liberaux();
     bool                        m_initok         = true;

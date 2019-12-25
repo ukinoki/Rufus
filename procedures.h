@@ -115,7 +115,11 @@ private:
                                      bool ReconstruitBase = true,
                                      bool PremDemarrage = false,
                                      bool BaseVierge = false);
-    bool                    VerifParamConnexion(QString &login, QString &MDP, bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
+    bool                    VerifParamConnexion(QString &login,                         //! le login du user dnas la table utilisateurs
+                                                QString &MDP,                           //! le login du user dnas la table utilisateurs
+                                                bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
+                                                bool OKAccesDistant = true,             //! true =  le choix accès distant est validé ou non
+                                                QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
 public:
@@ -268,7 +272,7 @@ private:
 public:
     void                    ab(int i = 1);
     void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
-    QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
+    QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);

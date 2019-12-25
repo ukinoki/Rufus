@@ -346,7 +346,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
-    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->getMode() != Utils::Distant);
+    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton                ->disconnect();
     QPixmap pix;
     m_listpixmp    .clear();
@@ -359,15 +359,15 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
     if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
-        if (DataBase::I()->getMode() == Utils::Distant)
+        if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         {
             UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
             return;
         }
         QString NomOnglet, NomDirStockageImagerie;
-        if (DataBase::I()->getMode() == Utils::Poste)
+        if (DataBase::I()->ModeAccesDataBase() == Utils::Poste)
             NomOnglet = tr("Monoposte");
-        if (DataBase::I()->getMode() == Utils::ReseauLocal)
+        if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
             NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->AbsolutePathDirImagerie();
         if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")

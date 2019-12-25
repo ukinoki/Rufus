@@ -18,12 +18,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paramconnexion.h"
 #include "ui_dlg_paramconnexion.h"
 
-dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
+dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDistant, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_paramconnexion)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    m_connectavecloginSQL = connectavecLoginSQL;
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");
     ui->IPlabel             ->setVisible(false);
@@ -32,8 +33,8 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
-    t_timer                  = new QTimer(this);
-    t_timer                  ->start(500);
+    QTimer t_timer;
+    t_timer                  .start(500);
     ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
@@ -47,7 +48,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     connect(ui->IPlineEdit,             &QLineEdit::textEdited,         this,   &dlg_paramconnexion::CalcIP);
     connect(ui->IPlineEdit,             &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
 
-    connect(t_timer,                    &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
+    connect(&t_timer,                   &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()
@@ -58,24 +59,19 @@ dlg_paramconnexion::~dlg_paramconnexion()
 void dlg_paramconnexion::CalcIP(QString IP)
 {
     if (ui->PosteradioButton->isChecked())
+        m_adresseserveur    = "localhost";
+    else if (ui->DistantradioButton->isChecked())
     {
-        m_client     = "localhost";
-        m_serveur    = "localhost";
-    }
-    if (ui->DistantradioButton->isChecked())
-    {
-        m_client   = "%";
         if (!Utils::rgx_IPV4.exactMatch(IP))
-            m_serveur  = ui->IPlineEdit->text();
+            m_adresseserveur  = ui->IPlineEdit->text();
     }
-    if (ui->LocalradioButton->isChecked()
-        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
+    else if (ui->LocalradioButton->isChecked()
+         || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
     {
         QStringList listIP = IP.split(".");
         m_IPaveczero        = "";
-        m_IPsanszero        = "";
-        m_client            = "";
-        m_serveur           = "";
+        QString m_IPsanszero        = "";
+        m_adresseserveur           = "";
         for (int i=0;i<listIP.size();i++)
         {
             m_IPsanszero += QString::number(listIP.at(i).toInt());
@@ -91,9 +87,7 @@ void dlg_paramconnexion::CalcIP(QString IP)
                 m_IPaveczero += ".";
                 m_IPsanszero += ".";
             }
-            if (i==listIP.size()-2 && ui->LocalradioButton->isChecked())
-                m_client = m_IPsanszero + "%";
-            m_serveur = m_IPsanszero;
+            m_adresseserveur = m_IPsanszero;
         }
     }
 }
@@ -195,7 +189,6 @@ void dlg_paramconnexion::Test()
         {
             UpMessageBox::Watch(this,tr("Paramètres OK!"));
             //QSqlDatabase::removeDatabase("Rufus");
-            db.close();
         }
 }
 
@@ -211,22 +204,27 @@ bool dlg_paramconnexion::TestConnexion()
         return false;
 
     MAJIP();
-    QString mode, server;
-    if (ui->PosteradioButton->isChecked())      mode = Utils::getBaseFromMode(Utils::Poste);
-    if (ui->LocalradioButton->isChecked())      mode = Utils::getBaseFromMode(Utils::ReseauLocal);
-    if (ui->DistantradioButton->isChecked())    mode = Utils::getBaseFromMode(Utils::Distant);
-    QString Login = ui->LoginlineEdit->text();
-    if (ui->DistantradioButton->isChecked())
-        Login += "SSL";
-    QString Password = ui->MDPlineEdit->text();
-    QString req;
+    Utils::ModeAcces mode = Utils::Poste;
+    QString server;
+    if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
+    else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
+    else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
+    DataBase::I()->initParametres(mode, m_adresseserveur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());
 
+
+    QString Login = ui->LoginlineEdit->text();
+    QString Password = ui->MDPlineEdit->text();
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
-
-    //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
+    if (m_connectavecloginSQL)
+    {
+        Login = LOGIN_SQL;
+        Password = MDP_SQL;
+    }
+    if (ui->DistantradioButton->isChecked())
+        Login += "SSL";
+    QString req;
     QString error = "";
-    DataBase::I()->initFromFirstConnexion(mode, m_serveur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp plante parce qu'elle n'a pas les renseignements
     error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
 
     if( error.size() )
@@ -240,11 +238,11 @@ bool dlg_paramconnexion::TestConnexion()
     }
 
     QString Client;
-    if (DataBase::I()->getMode() == Utils::Distant)
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         Client = "%";
-    else if (DataBase::I()->getMode() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(DataBase::I()->getServer()))
+    else if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(DataBase::I()->AdresseServer()))
     {
-        QStringList listIP = DataBase::I()->getServer().split(".");
+        QStringList listIP = DataBase::I()->AdresseServer().split(".");
         for (int i=0;i<listIP.size()-1;i++)
         {
             Client += QString::number(listIP.at(i).toInt()) + ".";
@@ -253,8 +251,8 @@ bool dlg_paramconnexion::TestConnexion()
         }
     }
     else
-        Client = DataBase::I()->getServer();
-    req = "show grants for '" + Login + (DataBase::I()->getMode() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
+        Client = DataBase::I()->AdresseServer();
+    req = "show grants for '" + Login + (DataBase::I()->ModeAccesDataBase() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
 
     bool ok;
     QVariantList grantsdata = DataBase::I()->getFirstRecordFromStandardSelectSQL(req,ok);

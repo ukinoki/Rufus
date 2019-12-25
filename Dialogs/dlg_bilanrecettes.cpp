@@ -130,11 +130,11 @@ bool dlg_bilanrecettes::initOK() const
 
 void dlg_bilanrecettes::CalcBilan()
 {
-    QMap<QString, QDate> DateMap = proc->ChoixDate();
+    QMap<Utils::Period, QDate> DateMap = proc->ChoixDate();
     if (!DateMap.isEmpty())
     {
-        m_debut = DateMap["DateDebut"];
-        m_fin   = DateMap["DateFin"];
+        m_debut = DateMap[Utils::Debut];
+        m_fin   = DateMap[Utils::Fin];
         Datas::I()->recettes->initListe(DateMap);
         if (Datas::I()->recettes->recettes()->size() == 0)
         {

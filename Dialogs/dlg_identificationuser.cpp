@@ -136,11 +136,11 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     }
 
     QString Client;
-    if (db->getMode() == Utils::Distant)
-        Client = "%";
-    else if (db->getMode() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(db->getServer()))
+    if (db->ModeAccesDataBase() == Utils::Distant)
+            Client = "%";
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(db->AdresseServer()))
     {
-        QStringList listIP = db->getServer().split(".");
+        QStringList listIP = db->AdresseServer().split(".");
         for (int i=0;i<listIP.size()-1;i++)
         {
             Client += QString::number(listIP.at(i).toInt()) + ".";
@@ -149,8 +149,8 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
         }
     }
     else
-        Client = db->getServer();
-    req = "show grants for '" + Login + (db->getMode() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
+        Client = db->AdresseServer();
+    req = "show grants for '" + Login + (db->ModeAccesDataBase() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
     //qDebug() << req;
 
     QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);

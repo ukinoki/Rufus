@@ -32,9 +32,9 @@ QMap<int, Recette *> *Recettes::recettes() const
  * Charge l'ensemble des Recettes
  * et les ajoute à la classe Recettes
  */
-void Recettes::initListe(QMap<QString, QDate> DateMap)
+void Recettes::initListe(QMap<Utils::Period, QDate> DateMap)
 {
-    QList<Recette*> listrecettes = DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]);
+    QList<Recette*> listrecettes = DataBase::I()->loadRecettesByPeriod(DateMap[Utils::Debut], DateMap[Utils::Fin]);
     epurelist(map_recettes, &listrecettes);
     addList(map_recettes, &listrecettes, Item::Update);
 }

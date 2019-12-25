@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include <QMap>
+#include "utils.h"
 
 namespace Ui {
 class dlg_choixdate;
@@ -29,16 +30,17 @@ class dlg_choixdate : public QDialog
 {
     Q_OBJECT
 public:
-    explicit                dlg_choixdate(QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_choixdate(QWidget *parent = Q_NULLPTR);
     ~dlg_choixdate();
-    Ui::dlg_choixdate       *ui;
-    QMap<QString, QDate>    map() const;
+    Ui::dlg_choixdate           *ui;
+    QMap<Utils::Period, QDate>  mapdate() const { return map_date; }
 
 private:
-    QMap<QString, QDate>    map_date;
-    bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    void                    AfficheDates(QWidget *widg);
-    void                    ModifDate(QWidget *widg);
+    QMap<Utils::Period, QDate>  map_date;
+    bool                        eventFilter(QObject *obj, QEvent *event)  ;
+    void                        AfficheDates(QWidget *widg);
+    void                        ModifDate(QWidget *widg);
+    void                        Fermefiche();
 };
 
 #endif // DLG_CHOIXDATE_H

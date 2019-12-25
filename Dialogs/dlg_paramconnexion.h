@@ -41,18 +41,15 @@ class dlg_paramconnexion : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_paramconnexion(bool OKAccesDistant, QWidget *parent = Q_NULLPTR);
+    explicit dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDistant, QWidget *parent = Q_NULLPTR);
     ~dlg_paramconnexion();
     Ui::dlg_paramconnexion *ui;
 
 private:
     bool            m_visible =  true;
+    bool            m_connectavecloginSQL;
     QString         m_IPaveczero = "";
-    QString         m_IPsanszero = "";
-    QString         m_client = "";
-    QString         m_serveur = "";
-    QTimer          *t_timer;
-    QSqlDatabase    db;
+    QString         m_adresseserveur = "";
     void            CalcIP(QString IP);
     void            Clign();
     void            HelpMsg();

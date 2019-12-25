@@ -340,11 +340,11 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
     }
 
-    if (db->getMode() == (Utils::Poste))
+    if (db->ModeAccesDataBase() == (Utils::Poste))
         ui->ParamConnexiontabWidget->setCurrentIndex(0);
-    else if (db->getMode() == Utils::ReseauLocal)
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
         ui->ParamConnexiontabWidget->setCurrentIndex(1);
-    if (db->getMode() == Utils::Distant)
+    if (db->ModeAccesDataBase() == Utils::Distant)
         ui->ParamConnexiontabWidget->setCurrentIndex(2);
 
     ui->ParamtabWidget->setCurrentIndex(0);
@@ -463,7 +463,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->Appareilsconnectesframe->setFixedWidth(wdg_appareilswdgbuttonframe->widgButtonParent()->width() + marge + marge);
     ui->Appareilsconnectesframe->setLayout(applay);
 
-    ui->Sauvegardeframe         ->setEnabled(db->getMode() == (Utils::Poste));
+    ui->Sauvegardeframe         ->setEnabled(db->ModeAccesDataBase() == (Utils::Poste));
     ui->DirBackupuplineEdit->setText(m_parametres->dirbkup());
     if (m_parametres->heurebkup().isValid())
         ui->HeureBackuptimeEdit->setTime(m_parametres->heurebkup());
@@ -824,7 +824,7 @@ void dlg_param::EnableModif(QWidget *obj)
         else
             ui->LockParamGeneralupLabel->setPixmap(Icons::pxVerrouiller());
         bool a = (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
-        if (db->getMode() == Utils::Distant)
+        if (db->ModeAccesDataBase() == Utils::Distant)
             EnableWidgContent(ui->Appareilsconnectesframe,false);
         else
             EnableWidgContent(ui->Appareilsconnectesframe,a);
@@ -835,7 +835,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->InitMDPAdminpushButton          ->setEnabled(a);
         ui->GestionBanquespushButton        ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
-        EnableWidgContent(ui->Sauvegardeframe, db->getMode() == Utils::Poste && a);
+        EnableWidgContent(ui->Sauvegardeframe, db->ModeAccesDataBase() == Utils::Poste && a);
     }
 }
 
@@ -1357,7 +1357,7 @@ void dlg_param::SupprAppareil()
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
               + " and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
         db->StandardSQL(req);
-        proc->settings()->remove(db->getBase() + "/DossiersDocuments/" + appdata.at(1).toString());
+        proc->settings()->remove(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocuments/" + appdata.at(1).toString());
         Remplir_Tables();
     }
 }
@@ -1657,7 +1657,7 @@ void dlg_param::ParamMotifs()
 
 void dlg_param::ModifDirBackup()
 {
-    if (db->getMode() != Utils::Poste)
+    if (db->ModeAccesDataBase() != Utils::Poste)
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     QString dirSauv         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
@@ -1740,7 +1740,7 @@ void dlg_param::DirDistantStockage()
 
 void dlg_param::DirPosteStockage()
 {
-    if (db->getMode() != Utils::Poste)
+    if (db->ModeAccesDataBase() != Utils::Poste)
     {
         UpMessageBox::Watch(this, tr("Impossible de modifier ce paramètre"), tr("Vous devez être connecté sur le serveur de ce poste pour\npouvoir modifier le répertoire de stockage des documents"));
         return;
@@ -1781,7 +1781,7 @@ bool dlg_param::VerifDirStockageImagerie()
 {
     if (ui->NonImportDocscheckBox->isChecked())
         return true;
-    if (ui->PosteServcheckBox->isChecked() && db->getMode() == Utils::Poste)
+    if (ui->PosteServcheckBox->isChecked() && db->ModeAccesDataBase() == Utils::Poste)
     {
         bool DirStockageAVerifier = false;
         if (ui->MonoDocupTableWidget->rowCount()>0)
@@ -1809,7 +1809,7 @@ bool dlg_param::VerifDirStockageImagerie()
             }
         }
     }
-    if (ui->LocalServcheckBox->isChecked() && db->getMode() == Utils::ReseauLocal)
+    if (ui->LocalServcheckBox->isChecked() && db->ModeAccesDataBase() == Utils::ReseauLocal)
     {
         bool DirStockageAVerifier = false;
         if (ui->LocalDocupTableWidget->rowCount()>0)
@@ -1837,7 +1837,7 @@ bool dlg_param::VerifDirStockageImagerie()
             }
         }
     }
-    if (ui->DistantServcheckBox->isChecked() && db->getMode() == Utils::Distant)
+    if (ui->DistantServcheckBox->isChecked() && db->ModeAccesDataBase() == Utils::Distant)
     {
         bool DirStockageAVerifier = false;
         if (ui->DistantDocupTableWidget->rowCount()>0)
@@ -2136,8 +2136,8 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
         listwidg.at(i)->setEnabled(a);
     if (widg == ui->Sauvegardeframe)
     {
-        ui->ModifBaselabel->setVisible(db->getMode() != Utils::Poste);
-        if (db->getMode() == Utils::Poste)
+        ui->ModifBaselabel->setVisible(db->ModeAccesDataBase() != Utils::Poste);
+        if (db->ModeAccesDataBase() == Utils::Poste)
             ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
                                                    && QDir(m_parametres->dirbkup()).exists()
                                                    && m_parametres->dirbkup() != ""

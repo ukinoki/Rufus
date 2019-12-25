@@ -23,7 +23,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     m_currentpatient = pat;
 
-    m_docpath = proc->settings()->value(db->getBase() + "/DossiersVideos").toString();
+    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersVideos").toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_visuvideowdg          = new QVideoWidget(this);
@@ -158,7 +158,7 @@ void dlg_docsvideo::ChangeFile()
         wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
-        proc->settings()->setValue(db->getBase() + "/DossiersVideos", m_docpath);
+        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersVideos", m_docpath);
     }
 }
 
@@ -219,9 +219,9 @@ void dlg_docsvideo::ValideFiche()
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
     QString NomOnglet;
-    if (db->getMode() == Utils::Poste)          NomOnglet = tr("Monoposte");
-    if (db->getMode() == Utils::ReseauLocal)    NomOnglet = tr("Réseau local");
-    QString NomDirStockageImagerie  = proc->settings()->value(db->getBase() + "/DossierImagerie").toString();
+    if (db->ModeAccesDataBase() == Utils::Poste)          NomOnglet = tr("Monoposte");
+    if (db->ModeAccesDataBase() == Utils::ReseauLocal)    NomOnglet = tr("Réseau local");
+    QString NomDirStockageImagerie  = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossierImagerie").toString();
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");

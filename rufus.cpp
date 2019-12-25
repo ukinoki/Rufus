@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-12-2019/1");
+    qApp->setApplicationVersion("25-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -122,7 +122,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
         }
     }
-    else if (DataBase::I()->getMode() != Utils::Distant)
+    else if (DataBase::I()->ModeAccesDataBase() != Utils::Distant)
     {
         log = tr("RufusAdmin absent");
         Logs::LogSktMessage(log);
@@ -155,7 +155,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     t_timerVerifVerrou               ->start(60000);// "toutes les 60 secondes"
 
 
-    if (db->getMode() == Utils::Distant)
+    if (db->ModeAccesDataBase() == Utils::Distant)
     {
         t_timerSalDat                ->start(10000);
         t_timerCorrespondants        ->start(60000);
@@ -187,10 +187,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         connect (t_timerSalDat,              &QTimer::timeout,  this,   &Rufus::VerifSalleDAttente);
         connect (t_timerCorrespondants,      &QTimer::timeout,  this,   &Rufus::VerifCorrespondants);
         connect (t_timerVerifImportateurDocs,&QTimer::timeout,  this,   &Rufus::VerifImportateur);
-        connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   [=] { if (isPosteImport() || DataBase::I()->getMode() == Utils::Distant) VerifVerrouDossier();} );
+        connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   [=] { if (isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant) VerifVerrouDossier();} );
         connect (t_timerVerifMessages,       &QTimer::timeout,  this,   &Rufus::VerifMessages);
         connect (t_timerImportDocsExternes,  &QTimer::timeout,  this,   &Rufus::ImportDocsExternes);
-        if (db->getMode() != Utils::Distant)
+        if (db->ModeAccesDataBase() != Utils::Distant)
             connect(t_timerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
     }
@@ -240,7 +240,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ui->CreerBOpushButton_2 ->setVisible(currentuser()->isOrthoptist());
 
     //! 13 - mise à jour du programmateur de sauvegarde
-    if (db->getMode() == Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Poste)
         proc->ParamAutoBackup();
     /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
 #ifdef Q_OS_MACX
@@ -256,7 +256,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 #endif
 
     //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires
-    if (db->getMode() == Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Poste)
         proc->ProgrammeSQLVideImagesTemp(m_parametres->heurebkup());
 
     //! 15 - choix mode (création dossier ou sélection de patient)
@@ -1079,7 +1079,7 @@ void Rufus::AfficheMenu(QMenu *menu)
             menuDocuments       ->addMenu(menuEmettre);
             menuDocuments       ->addAction(actionEnregistrerDocScanner);
 #ifdef Q_OS_MACX
-            if (db->getMode() != Utils::Distant)
+            if (db->ModeAccesDataBase() != Utils::Distant)
                 menuDocuments   ->addAction(actionEnregistrerVideo);
 #endif
             menuDocuments       ->addSeparator();
@@ -1371,7 +1371,7 @@ void Rufus::ConnectTimers(bool a)
 {
     if (a)
     {
-        if (db->getMode() == Utils::Distant)
+        if (db->ModeAccesDataBase() == Utils::Distant)
         {
             t_timerSalDat                ->start(10000);
             t_timerCorrespondants        ->start(60000);
@@ -1402,11 +1402,11 @@ void Rufus::ConnectTimers(bool a)
         {
             connect (t_timerSalDat,                 &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
             connect (t_timerCorrespondants,         &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
-            connect (t_timerVerifVerrou,            &QTimer::timeout,   this,   [=] { if (isPosteImport() || DataBase::I()->getMode() == Utils::Distant) VerifVerrouDossier();} );
+            connect (t_timerVerifVerrou,            &QTimer::timeout,   this,   [=] { if (isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant) VerifVerrouDossier();} );
             connect (t_timerVerifMessages,          &QTimer::timeout,   this,   &Rufus::VerifMessages);
             connect (t_timerVerifImportateurDocs,   &QTimer::timeout,   this,   &Rufus::VerifImportateur);
             connect (t_timerImportDocsExternes,     &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
-            if (db->getMode() != Utils::Distant)
+            if (db->ModeAccesDataBase() != Utils::Distant)
                 connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         }
 
@@ -4508,11 +4508,11 @@ void Rufus::AfficheMessageLimitDate(bool a)
 void Rufus::setTitre()
 {
     QString modeconnexion = "";
-    if (db->getMode() == Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Poste)
         modeconnexion = tr("monoposte");
-    else if (db->getMode() == Utils::ReseauLocal)
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
         modeconnexion = tr("réseau local");
-    if (db->getMode() == Utils::Distant)
+    if (db->ModeAccesDataBase() == Utils::Distant)
     {
         modeconnexion = tr("accès distant - connexion ");
         if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/SSL").toString() != "NO")
@@ -4521,7 +4521,7 @@ void Rufus::setTitre()
             modeconnexion += tr("non cryptée");
     }
     QString windowtitle = "Rufus - " + currentuser()->login() + " - " + currentuser()->fonction() + " - " + modeconnexion + " - " + qApp->applicationVersion();
-    if (db->getMode() != Utils::Distant)
+    if (db->ModeAccesDataBase() != Utils::Distant)
         windowtitle +=  (m_utiliseTCP? " - TCP" : "");
     setWindowTitle(windowtitle);
 }
@@ -5558,7 +5558,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         * si on est prioritaire et pas lui
         * s'il n'est pas administrateur
         */
-    if (db->getMode() == Utils::Distant)
+    if (db->ModeAccesDataBase() == Utils::Distant)
     {
         if (m_importdocsexternesthread == Q_NULLPTR)
         {
@@ -5574,7 +5574,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     if (ImportateurDocs.toUpper() == "NULL")
     {
         if ((proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
-                && db->getMode() != Utils::Distant)
+                && db->ModeAccesDataBase() != Utils::Distant)
              proc->setPosteImportDocs();
     }
     else
@@ -5605,17 +5605,17 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
                     on n'est pas en accès distant
                     et si on est importateur
                 sinon, on retire le poste*/
-                proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->getMode() != Utils::Distant);
+                proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
             }
             else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEUR))
                 // le poste défini comme importateur est valide mais pas administrateur, on prend sa place si
                 //  on est prioritaire et pas lui
                 //  à condition de ne pas être en accès distant
             {
-                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire") && db->getMode() != Utils::Distant)
+                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire") && db->ModeAccesDataBase() != Utils::Distant)
                     proc->setPosteImportDocs();
                 else if (ImportateurDocs.remove(" - prioritaire") == QHostInfo::localHostName()) // cas rare du poste qui a modifié son propre statut
-                    proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->getMode() != Utils::Distant);
+                    proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
             }
         }
     }
@@ -5765,7 +5765,7 @@ void Rufus::closeEvent(QCloseEvent *)
     QString req = "update " TBL_UTILISATEURS " set " CP_DATEDERNIERECONNEXION_USR " = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
             + "' where " CP_ID_USR " = " + QString::number(currentuser()->id());
     db->StandardSQL(req);
-    if (DataBase::I()->getMode() == Utils::Distant)
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         Flags::I()->MAJflagUserDistant();
     //! on retire cet utilisateur de la table des utilisateurs connectés
     //! avec TCP, les actions qui suivent sont effectuées par RufusAdmin
@@ -7285,7 +7285,7 @@ void Rufus::ExporteActe(Acte *act)
             DocExterne *docmt = Datas::I()->docsexternes->getById(listimages.at(i).at(0).toInt());
             QString filedest = pat->nom() + " " + pat->prenom() + " - " + docmt->typedoc() + " " + docmt->soustypedoc() + " " + QString::number(i);
             {
-                if (db->getMode() != Utils::Distant)
+                if (db->ModeAccesDataBase() != Utils::Distant)
                 {
                     QString fileorigin = proc->AbsolutePathDirImagerie() + DIR_IMAGES + docmt->lienversfichier();
                     QFile origin(fileorigin);
@@ -7887,7 +7887,7 @@ void Rufus::InitMenus()
     actionGestionComptesBancaires   ->setVisible(currentuser()->isComptable());
     actionRemiseCheques             ->setVisible(a);
     menuComptabilite                ->setVisible(a || (currentuser()->isSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
-    actionEnregistrerVideo          ->setVisible(db->getMode() != Utils::Distant);
+    actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

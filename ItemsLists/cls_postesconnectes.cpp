@@ -79,7 +79,7 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         return m_admin;
     initListe();
     m_admin = Q_NULLPTR;
-    if (DataBase::I()->getMode() != Utils::Distant)
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant)
         foreach (PosteConnecte *post, *map_postesconnectes)
             if(post->isadmin() && post->dateheurederniereconnexion().secsTo(DataBase::I()->ServerDateTime()) < 120)
             {
@@ -143,7 +143,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
                                macadress + "', '" +
                                Utils::IPAdress() + "', " +
                                QString::number(idsite) + ", " +
-                               (DataBase::I()->getMode() == Utils::Distant? "1" : "null") + ")";
+                               (DataBase::I()->ModeAccesDataBase() == Utils::Distant? "1" : "null") + ")";
     //qDebug() << MAJConnexionRequete;
     DataBase::I()->StandardSQL(MAJConnexionRequete, "Rufus::MetAJourUserConnectes()");
     PosteConnecte *post = new PosteConnecte();
@@ -156,7 +156,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);
     post->setipadress(Utils::IPAdress());
-    post->setisdistant(DataBase::I()->getMode() == Utils::Distant);
+    post->setisdistant(DataBase::I()->ModeAccesDataBase() == Utils::Distant);
     post->setidlieu(idsite);
     add( map_postesconnectes, post, Item::Update );
     return post;
