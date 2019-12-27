@@ -98,7 +98,6 @@ private:
     DataBase                *db;
     QString                 m_loginSQL = "";
     QString                 m_passwordSQL = "";
-    Utils::ModeAcces        m_modeacces;
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
@@ -130,6 +129,7 @@ public:
     void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imagerie
                                                                              * vide la table EchangeImages
                                                                              * purge les champs jpg et pdf de la table Factures  */
+
 private:
     User*                   currentuser() { return Datas::I()->users->userconnected(); } //user connected //TODO : DEPLACER DANS DATAS
     QString                 m_absolutepathDirStockageImage, m_pathDirStockageImagesServeur;
@@ -138,7 +138,7 @@ public:
     static QString          CodePostalParDefaut();
     static QString          VilleParDefaut();
 
-    void                    setAbsolutePathDirImagerie();
+    void                    readAbsolutePathDirImagerie();
     QString                 AbsolutePathDirImagerie();
     QString                 DirImagerieServeur();
 
@@ -171,7 +171,6 @@ private:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     bool                    m_aveccomptaprovisoire;
-    bool                    m_initok;
     bool                    m_usecotation;
     int                     m_idcentre;
     bool                    IdentificationUser();                       /*! la fiche d'identification de l'utilisateur au lancement du programme
@@ -195,7 +194,6 @@ public:
     QString                 SessionStatus();                            /*! statut de l'utilisateur pour cette session */
 
     int                     idCentre();
-    bool                    Init();
     void                    MAJComptesBancaires(User *usr);              //! actualise la liste des comptes bancaires utilisés par un user
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
 

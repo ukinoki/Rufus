@@ -1506,7 +1506,7 @@ void dlg_depenses::RechercheValeur()
     UpComboBox *box             = new UpComboBox();
     upDoubleValidator *m_val    = new upDoubleValidator(0, 10000000 , 2, this);
     QList<double> listmontants;
-    // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
+    // toute la manip qui suit sert à remettre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
 
     QStandardItemModel *listmontant = new QStandardItemModel();
     foreach( Depense *dep, *Datas::I()->depenses->depenses())

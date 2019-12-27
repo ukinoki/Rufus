@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleValidator>
 #include <QEvent>
 #include <QSound>
+#include <QTimer>
 #include <QToolTip>
 
 class UpLineEdit : public QLineEdit
@@ -47,6 +48,7 @@ public:
     void        settable(QString tablecorrespondant);
     QString     table() const;
     void        setImmediateToolTip(QString Msg);
+    void        selectAll();
 
 private:
     QString     m_tooltipmsg;

@@ -24,7 +24,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("25-12-2019/1");
+    qApp->setApplicationVersion("27-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -35,31 +35,39 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setStyleSheet(Styles::StyleAppli());
 
     proc = Procedures::I();
-    if (!proc->Init())                                                  //! vérifie que le fichier rufus.ini est cohérent
-        exit(0);
+    db = DataBase::I();
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
-    if (!proc->ConnexionBaseOK())
-    {
-        int     b = 0;
-        bool    a;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES")       b += 1;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES") b += 1;
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES")     b += 1;
-        a = (b>1);
-        if (b==1)
-            if (!proc->Connexion_A_La_Base())
-                exit(0);
-        while (a)
+    int     nbmodes = 0;
+    /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
+    Utils::ModeAcces modeacces = Utils::Poste;
+    if (proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES")       { nbmodes += 1; modeacces = Utils::Poste; }
+    if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES") { nbmodes += 1; modeacces = Utils::ReseauLocal; }
+    if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES")     { nbmodes += 1; modeacces = Utils::Distant; }
+    switch (nbmodes) {
+    case 0:
+        /*! si aucun mode d'accès n'est paramétré, sortie du programme */
+        UpMessageBox::Watch(this, tr("Erreur fichier Rufus.ini"), tr("Aucun paramétrage valide de connexion retrouvé") + "\n" + tr("Le fichier rufus.ini est endommagé et doit être réparé"));
+        exit(0);
+    case 1:
+        /*! si un seul mode d'accès est paramétré, on passe directement à la fiche de connexion */
+        db->setModeacces(modeacces);
+        if (!proc->Connexion_A_La_Base())
+            exit(0);
+        break;
+    default:
+        /*! si plusieurs modes d'accès sont paramétrés, on propose le choix du mode de connexion */
+        bool a = false;
+        while (!a)
         {
-            if (proc->Connexion_A_La_Base()) break;
             if (!proc->FicheChoixConnexion())
                 exit(0);
+            a = proc->Connexion_A_La_Base();
         }
     }
-    db = DataBase::I();
+
     m_parametres = db->parametres();
-    proc->setAbsolutePathDirImagerie();                                //! lit l'emplacement du dossier d'imagerie sur le serveur
+    proc->readAbsolutePathDirImagerie();                                //! lit l'emplacement du dossier d'imagerie sur le serveur
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->settings()->value("PositionsFiches/Rufus").toByteArray());

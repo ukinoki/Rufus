@@ -32,27 +32,31 @@ DataBase* DataBase::I()
 
 DataBase::DataBase() {}
 
-void DataBase::initParametres(Utils::ModeAcces mode, QString Server, int Port, bool SSL)
+void DataBase::initParametresConnexionSQL(QString Server, int Port)
 {
-    m_mode = mode;
     m_server = Server;
     m_port = Port;
-    m_useSSL = SSL;
+}
+
+void DataBase::setModeacces(const Utils::ModeAcces &modeacces)
+{
+    m_modeacces = modeacces;
 }
 
 Utils::ModeAcces DataBase::ModeAccesDataBase() const
 {
-    return m_mode;
+    return m_modeacces;
 }
 
 QString DataBase::AdresseServer() const
 {
     return m_server;
 }
-QSqlDatabase DataBase::getDataBase() const
+int DataBase::port() const
 {
-    return m_db;
+    return m_port;
 }
+
 void DataBase::InfosConnexionSQL()
 {
     UpMessageBox::Watch(Q_NULLPTR,
@@ -80,8 +84,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
-
-    QString connectOptions = (m_useSSL?
+    bool useSSL = (m_modeacces == Utils::Distant);
+    QString connectOptions = (useSSL?
                               "SSL_KEY=/etc/mysql/client-key.pem;"
                               "SSL_CERT=/etc/mysql/client-cert.pem;"
                               "SSL_CA=/etc/mysql/ca-cert.pem;"
@@ -90,7 +94,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
                               "MYSQL_OPT_RECONNECT=1");
     m_db.setConnectOptions(connectOptions);
 
-    m_db.setUserName(login + (m_useSSL ? "SSL" : ""));
+    m_db.setUserName(login + (useSSL ? "SSL" : ""));
     m_db.setPassword(password);
 
     if( m_db.open() )
@@ -193,6 +197,7 @@ QList<QVariantList> DataBase::SelectRecordsFromTable(QStringList listselectChamp
         req += " " + where;
     if (orderby != "")
         req += " " + orderby;
+    //qDebug() << "DataBase::SelectRecordsFromTable" << req;
     return StandardSelectSQL(req, OK, errormsg);
 }
 
@@ -271,7 +276,7 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
 
 bool DataBase::StandardSQL(QString req , QString errormsg)
 {
-    QSqlQuery query(req, getDataBase());
+    QSqlQuery query(req, m_db);
     bool a = !erreurRequete(query.lastError(), req, errormsg);
     query.finish();
     return a;
@@ -287,7 +292,7 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
         if (recordslist.size()==0)                     // réponse vide
      */
     QList<QVariantList> listreponses = QList<QVariantList>();
-    QSqlQuery query(req, getDataBase());
+    QSqlQuery query(req, m_db);
     QSqlRecord rec = query.record();
     if( erreurRequete(query.lastError(), req, errormsg))
     {
@@ -341,8 +346,10 @@ void DataBase::VideDatabases()
 /*
  * Parametres système
 */
-void DataBase::initParametres()
+void DataBase::initParametresSysteme()
 {
+    if (!m_db.isOpen())
+        return;
     if (m_parametres == Q_NULLPTR)
         m_parametres = new ParametresSysteme();
     QJsonObject paramData{};
@@ -380,62 +387,82 @@ void DataBase::initParametres()
 ParametresSysteme* DataBase::parametres()
 {
     if (m_parametres == Q_NULLPTR)
-        initParametres();
+        initParametresSysteme();
     return m_parametres;
 }
 void DataBase::setmdpadmin(QString mdp)
 {
+    if (!m_db.isOpen())
+        return;
     QString value = (mdp != ""? "'" + Utils::correctquoteSQL(mdp) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = " + value);
     parametres()->setmdpadmin(mdp);
 }
 void DataBase::setnumcentre(int id)
 {
+    if (!m_db.isOpen())
+        return;
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_NUMCENTRE_PARAMSYSTEME " = " + QString::number(id));
     parametres()->setnumcentre(id);
 }
 void DataBase::setidlieupardefaut(int id)
 {
+    if (!m_db.isOpen())
+        return;
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_IDLIEUPARDEFAUT_PARAMSYSTEME " = " + QString::number(id));
     parametres()->setidlieupardefaut(id);
 }
 void DataBase::setdocscomprimes(bool one)
 {
+    if (!m_db.isOpen())
+        return;
     QString a = (one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DOCSCOMPRIMES_PARAMSYSTEME " = " + a);
     parametres()->setdocscomprimes(one);
 }
 void DataBase::setversionbase(int version)
 {
+    if (!m_db.isOpen())
+        return;
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONBASE_PARAMSYSTEME " = " + QString::number(version));
     parametres()->setversionbase(version);
 }
 void DataBase::setsanscompta(bool one)
 {
+    if (!m_db.isOpen())
+        return;
     QString a = (!one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_SANSCOMPTA_PARAMSYSTEME " = " + a);
     parametres()->setsanscompta(one);
 }
 void DataBase::setadresseserveurlocal(QString  adress)
 {
+    if (!m_db.isOpen())
+        return;
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME " = " + value);
     parametres()->setadresseserveurlocal(adress);
 }
 void DataBase::setadresseserveurdistant(QString adress)
 {
+    if (!m_db.isOpen())
+        return;
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME " = " + value);
     parametres()->setadresseserveurdistant(adress);
 }
 void DataBase::setdirimagerie(QString adress)
 {
+    if (!m_db.isOpen())
+        return;
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRIMAGERIE_PARAMSYSTEME " = " + value);
     parametres()->setdirimagerie(adress);
 }
 void DataBase::setdaysbkup(Utils::Days days)
 {
+    if (!m_db.isOpen())
+        return;
     QString val;
     QString req = "update " TBL_PARAMSYSTEME " set ";
     val = (days.testFlag(Utils::Lundi)?     "'1'" : "null");
@@ -457,12 +484,16 @@ void DataBase::setdaysbkup(Utils::Days days)
 }
 void DataBase::setheurebkup(QTime time)
 {
+    if (!m_db.isOpen())
+        return;
     QString value = (time != QTime()? "'" + time.toString("HH:mm:ss") + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_HEUREBKUP_PARAMSYSTEME " = " + value);
     parametres()->setheurebkup(time);
 }
 void DataBase::setdirbkup(QString adress)
 {
+    if (!m_db.isOpen())
+        return;
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRBKUP_PARAMSYSTEME " = " + value);
     parametres()->setdirbkup(adress);

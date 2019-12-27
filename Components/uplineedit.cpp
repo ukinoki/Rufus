@@ -86,6 +86,11 @@ void UpLineEdit::setImmediateToolTip(QString Msg)
     m_tooltipmsg = Msg;
 }
 
+void UpLineEdit::selectAll()
+{
+    QTimer::singleShot(0, this, &QLineEdit::selectAll);         // de la bidouille mais pas trouvé autre chose ) le selectAll de Qt ne marche pas
+}
+
 void UpLineEdit::setdatas(QVariant data)
 {
     m_datas = data;

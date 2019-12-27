@@ -77,11 +77,10 @@ private:
     ParametresSysteme *m_parametres = Q_NULLPTR;
     DonneesOphtaPatient *m_donneesophtapatient = new DonneesOphtaPatient();
 
-    Utils::ModeAcces m_mode;
+    Utils::ModeAcces m_modeacces;
     QString m_base;
     QString m_server;
-    int m_port;
-    bool m_useSSL;
+    int m_port = 3306;
     bool ok;
     QSqlDatabase m_db = QSqlDatabase();
 
@@ -92,16 +91,16 @@ public:
      * SQL
     */
     //     ACTION SUR LES PARAMETRES DE CONNEXION A LA BASE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    void                    initParametres(Utils::ModeAcces mode,
-                                 QString Server,
-                                 int Port,
-                                 bool SSL);                     /*! initialise les paramètres de connexion au serveur (adresse, port, SSL) */
+    void                    initParametresConnexionSQL(
+                                QString Server,
+                                int Port);                      /*! initialise les paramètres de connexion au serveur (adresse, port, SSL) */
 
-    Utils::ModeAcces        ModeAccesDataBase() const;          /*! renvoie le mode d'accès au serveur
+    Utils::ModeAcces        ModeAccesDataBase() const;          /*! le mode d'accès au serveur
                                                                     \result monoposte = Utils::Poste, reseau local = Utils::ReseauLocal, distant = Utils::Distant */
-    QString                 AdresseServer() const;                  //!> l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS
-    QSqlDatabase            getDataBase() const;
-    void                    InfosConnexionSQL();                  //! renvoie les infos de connexions SQL : host, database, login, mdp
+    void                    setModeacces(const Utils::ModeAcces &modeacces);
+    QString                 AdresseServer() const;              /*! l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS */
+    int                     port() const;                       /*! le port SQL */
+    void                    InfosConnexionSQL();                /*! les infos de connexions SQL : host, database, login, mdp */
     int                     idUserConnected() const             { return m_iduserConnected; }
 
 
@@ -160,7 +159,7 @@ public:
     /*
      * Parametres système
     */
-    void initParametres();                                      //! charge les parametres susteme
+    void initParametresSysteme();                               //! charge les parametres susteme
     ParametresSysteme*      parametres();                       //! renvoie les parametres système
     void setmdpadmin(QString mdp = "");
     void setnumcentre(int id);

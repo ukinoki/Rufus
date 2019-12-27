@@ -735,52 +735,70 @@ void dlg_gestionusers::EnregistreNouvUser()
     UpLineEdit *ConfirmMDPline  = dlg_ask->findChild<UpLineEdit*>(gConfirmMDPupLineEdit);
     QString login               = Loginline->text();
     QString MDP                 = MDPline->text();
-
-    if (Loginline->text() == "")
-    {
-        msg = tr("Vous avez oublié d'indiquer le login");
-        Loginline->setFocus();
-    }
-    QString nomadmin = NOM_ADMINISTRATEUR;
-    if (Loginline->text().toUpper() == nomadmin.toUpper())
-    {
-        msg = tr("Ce login est réservé");
-        Loginline->setFocus();
-        QTimer::singleShot(0, Loginline, &QLineEdit::selectAll);
-    }
-    if (MDPline->text() == "")
-    {
-        msg = tr("Vous avez oublié d'indiquer le mot de passe");
-        MDPline->setFocus();
-    }
-    if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(MDPline->text()))
-    {
-        msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
-              tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 5 caractères.");
-        MDPline->setFocus();
-    }
-    if (MDPline->text() != ConfirmMDPline->text())
-    {
-        msg = tr("Les mots de passe ne correspondent pas");
-        MDPline->setFocus();
-    }
-    if (ui->ListUserstableWidget->findItems(login,Qt::MatchFixedString).size()>0)
-    {
-        msg = tr("Ce login est déjà utilisé!");
-        Loginline->setFocus();
+    bool a = true;
+    while (a) {
+        a = false;
+        if (login == "")
+        {
+            msg = tr("Vous avez oublié d'indiquer le login");
+            Loginline->setFocus();
+            continue;
+        }
+        if (MDP == "")
+        {
+            msg = tr("Vous avez oublié d'indiquer le mot de passe");
+            MDPline->setFocus();
+            continue;
+        }
+        QString nomadmin = NOM_ADMINISTRATEUR;
+        QString loginsql = LOGIN_SQL;
+        if (login.toUpper() == nomadmin.toUpper() || login.toUpper() == loginsql.toUpper())
+        {
+            msg = tr("Ce login est réservé");
+            Loginline->setFocus();
+            Loginline->selectAll();
+            a = false;
+        }
+        foreach (User* usr, Datas::I()->users->all()->values())
+        {
+            if (usr->login().toUpper() == login.toUpper())
+            {
+                msg = tr("Ce login est déjà utilisé");
+                Loginline->setFocus();
+                Loginline->selectAll();
+                break;
+            }
+            if (msg != "")
+                continue;
+        }
+        if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(MDP))
+        {
+            msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
+                  tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 12 caractères.");
+            MDPline->setFocus();
+            continue;
+        }
+        if (MDP != ConfirmMDPline->text())
+        {
+            msg = tr("Les mots de passe ne correspondent pas");
+            MDPline->setFocus();
+            continue;
+        }
     }
     if (msg != "")
     {
         QSound::play(NOM_ALARME);
-        UpMessageBox::Watch(this,msg);
+        UpMessageBox::Watch(this,tr("Erreur"), msg);
         return;
     }
     dlg_ask->accept();
     m_mode                          = Creer;
+    db->locktable(TBL_UTILISATEURS);
     db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
                     " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
     QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + MDP + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,m_ok).at(0).toInt();
+    db->unlocktables();
     Datas::I()->users->initListe();
     RemplirTableWidget(idUser);
     wdg_buttonframe                 ->setEnabled(false);
@@ -1331,7 +1349,8 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
             }
         }
     }
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(ui->ListUserstableWidget->findItems(QString::number(idUser),Qt::MatchExactly).at(0)->foreground() != m_color);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(ui->ListUserstableWidget->findItems(QString::number(idUser),Qt::MatchExactly).at(0)->foreground() != m_color
+                                               && ui->ListUserstableWidget->rowCount()>1);
     return true;
 }
 

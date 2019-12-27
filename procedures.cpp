@@ -83,36 +83,30 @@ Procedures::Procedures(QObject *parent) :
                   && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
                   && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt()) != ports.end() )
                 );
-   if (!k)
+    if (!k)
     {
         while (!k)
         {
             QString msg =       tr("Le fichier d'initialisation de l'application est corrompu\n");
             QString msgInfo =   tr("Le fichier d'initialisation\n\"") + m_nomFichierIni + "\"\n" +
-                                tr("ne contient pas de renseignement valide\n"
-                                "permettant la connexion à la base de données.\n\n"
-                                "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
-                                "1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"\n"
-                                "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction."
-                                " Il vous faudra alors compléter de nouveau"
-                                " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
-                                " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
+                    tr("ne contient pas de renseignement valide\n"
+                       "permettant la connexion à la base de données.\n\n"
+                       "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
+                       "1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"\n"
+                       "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction."
+                       " Il vous faudra alors compléter de nouveau"
+                       " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
+                       " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
             m_connexionbaseOK = k;
             k = VerifIni(msg, msgInfo, false, true, true, false, false, false);
         }
     }
-   else if (!FicheChoixConnexion())
-   {
-       m_initok = false;
-       return;
-   }
 
-   m_nomImprimante  = "";
+    m_nomImprimante  = "";
 
    Ouverture_Ports_Series();
    m_typemesureRefraction               = None;
    m_dlgrefractionouverte    = false;
-   m_initok                  = true;
    int margemm         = TailleTopMarge(); // exprimé en mm
    p_printer             = new QPrinter(QPrinter::HighResolution);
    p_printer             ->setFullPage(true);
@@ -739,9 +733,9 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
         if (QFile(ListNomFiles.at(i)).exists())
         {
             if (currentuser() == Q_NULLPTR)
-                scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
+                scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
             else
-                scriptrestore += "$MYSQL -u " + currentuser()->login() +  " -p" +  currentuser()->password() + " -h localhost -P " + QString::number(db->getDataBase().port()) + " < " + ListNomFiles.at(i);
+                scriptrestore += "$MYSQL -u " + currentuser()->login() +  " -p" +  currentuser()->password() + " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
             scriptrestore += "\n";
         }
     if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))
@@ -1780,11 +1774,6 @@ void Procedures::PrintPdf(QPrinter *Imprimante, Poppler::Document* document, boo
 /*-----------------------------------------------------------------------------------------------------------------
 -- Accesseurs  ----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::Init()
-{
-    return m_initok;
-}
-
 bool Procedures::ApercuAvantImpression()
 {
     return (m_settings->value("Param_Imprimante/ApercuAvantImpression").toString() == "YES");
@@ -1924,7 +1913,7 @@ QString Procedures::SessionStatus()
     DirStockageImagesServeur    = l'emplacement du dossier de l'imagerie sur le serveur - correspond au champ dirimagerie de la table parametressysteme
                                 -> utilisé par les requêtes SQL pour réintégrer le contenu de fichiers images dans la base
     ------------------------------------------------------------------------------------------------------------------------------------*/
-void Procedures::setAbsolutePathDirImagerie()
+void Procedures::readAbsolutePathDirImagerie()
 {
     m_absolutepathDirStockageImage = "";
     m_pathDirStockageImagesServeur = m_parametres->dirimagerie();
@@ -2671,7 +2660,7 @@ bool Procedures::VerifBaseEtRessources()
                 {
                     result = 1;
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
-                    db->initParametres();
+                    db->initParametresSysteme();
                 }
                 else
                 {
@@ -2727,6 +2716,7 @@ bool Procedures::VerifBaseEtRessources()
     --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::FicheChoixConnexion()
 {
+    bool initok;
     bool lPoste, lDistant, lReseauLocal;
     lPoste                          = (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
                                        && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306
@@ -2753,10 +2743,10 @@ bool Procedures::FicheChoixConnexion()
         exit(0);
     }
     case 1: {
-        if (lPoste)         m_modeacces = Utils::Poste;
-        if (lReseauLocal)   m_modeacces = Utils::ReseauLocal;
-        if (lDistant)       m_modeacces = Utils::Distant;
-        m_initok  = true;
+        if (lPoste)         db->setModeacces(Utils::Poste);
+        if (lReseauLocal)   db->setModeacces(Utils::ReseauLocal);
+        if (lDistant)       db->setModeacces(Utils::Distant);
+        initok  = true;
         break;
     }
     default: {
@@ -2784,20 +2774,20 @@ bool Procedures::FicheChoixConnexion()
             msgbox.addButton(&OKBouton);
             OKBouton.setIcon(Icons::icComputer());
         }
-        m_initok = false;
+        initok = false;
         if (msgbox.exec()>0)
         {
-            m_initok = (msgbox.clickedpushbutton() != &RejectButton);
-            if (m_initok)
+            initok = (msgbox.clickedpushbutton() != &RejectButton);
+            if (initok)
             {
-                if (msgbox.clickedpushbutton()      == &OKBouton)    m_modeacces = Utils::Poste;
-                else if (msgbox.clickedpushbutton() == &NoBouton)    m_modeacces = Utils::ReseauLocal;
-                else if (msgbox.clickedpushbutton() == &AnnulBouton) m_modeacces = Utils::Distant;
+                if (msgbox.clickedpushbutton()      == &OKBouton)    db->setModeacces(Utils::Poste);
+                else if (msgbox.clickedpushbutton() == &NoBouton)    db->setModeacces(Utils::ReseauLocal);
+                else if (msgbox.clickedpushbutton() == &AnnulBouton) db->setModeacces(Utils::Distant);
             }
         }
     }
     }
-    return m_initok;
+    return initok;
 }
 
 /*--------------------------------------------------------------------------------------------------------------
@@ -2806,15 +2796,14 @@ bool Procedures::FicheChoixConnexion()
 bool Procedures::Connexion_A_La_Base()
 {
     QString server = "localhost";
-    if( m_modeacces == Utils::Poste )
+    if( db->ModeAccesDataBase() == Utils::Poste )
         server = "localhost";
     else
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Port").toInt();
 
-    bool useSSL = (m_modeacces == Utils::Distant);
-    db->initParametres(m_modeacces, server, port, useSSL);
+    db->initParametresConnexionSQL(server, port);
     if (!IdentificationUser())
         return false;
 
@@ -3750,8 +3739,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
-             if (m_modeacces == Utils::ReseauLocal)
-                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(m_modeacces) + "/Serveur").toString());
+             if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString());
              m_parametres = db->parametres();
 
              // Création de l'utilisateur
@@ -3872,11 +3861,10 @@ void Procedures::PremierParametrageRessources()
                        | QFileDevice::ReadOwner | QFileDevice::WriteOwner
                        | QFileDevice::ReadUser  | QFileDevice::WriteUser);
     m_settings->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
-    if (m_modeacces == Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Poste)
     {
         QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
-        if (db->getDataBase().isOpen())
-            db->setdirimagerie(NomDirImg);
+        db->setdirimagerie(NomDirImg);
     }
  }
 
@@ -3990,19 +3978,19 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         if (Dlg_ParamConnex->ui->PosteradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::Poste);
-            m_modeacces = Utils::Poste;
+            db->setModeacces(Utils::Poste);
         }
         else if (Dlg_ParamConnex->ui->LocalradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::ReseauLocal);
             m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
-            m_modeacces = Utils::ReseauLocal;
+            db->setModeacces(Utils::ReseauLocal);
         }
         else if (Dlg_ParamConnex->ui->DistantradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::Distant);
             m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
-            m_modeacces = Utils::Distant;
+            db->setModeacces(Utils::Distant);
         }
         m_settings->setValue(Base + "/Active",    "YES");
         m_settings->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());

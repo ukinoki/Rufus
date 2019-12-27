@@ -981,7 +981,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     dlg->setWindowTitle(tr("Modifier le titre"));
     Line->setText(docmt->soustypedoc());
-    QTimer::singleShot(0, Line, &QLineEdit::selectAll);     // de la bidouille mais pas trouvé autre chose
+    Line->selectAll();
 
     connect(dlg->OKButton,   &QPushButton::clicked,   [=]
     {

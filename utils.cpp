@@ -554,6 +554,7 @@ QString Utils::getBaseFromMode(ModeAcces mode )
     case Poste:
         return "BDD_POSTE";
     }
+    return "BDD_LOCAL";
 }
 
 /*---------------------------------------------------------------------------------------------------------------------

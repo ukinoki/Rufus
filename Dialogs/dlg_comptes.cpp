@@ -788,13 +788,28 @@ void dlg_comptes::RemplitLaTable(int idcompte)
     wdg_bigtable->clearContents();
 
     wdg_bigtable->setRowCount(Datas::I()->lignescomptes->lignescomptes()->size());
+    // toute la manip qui suit sert à remettre les lignes par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
 
-    int i = 0;
-    foreach (LigneCompte *lign, Datas::I()->lignescomptes->lignescomptes()->values())
+    QStandardItemModel *listlign = new QStandardItemModel();
+    foreach(LigneCompte *lign, Datas::I()->lignescomptes->lignescomptes()->values())
     {
-        SetLigneCompteToRow(lign, i);
-        ++ i;
+        UpStandardItem *item = new UpStandardItem(lign->date().toString("yyyyMMdd"), lign);
+        listlign->appendRow(item);
     }
+    listlign->sort(0);
+
+    for(int i=0; i<listlign->rowCount(); i++)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listlign->item(i));
+        if (itm != Q_NULLPTR)
+        {
+            LigneCompte *lign = dynamic_cast<LigneCompte*>(itm->item());
+            if (lign != Q_NULLPTR)
+                SetLigneCompteToRow(lign, i);
+            delete itm;
+        }
+    }
+    delete listlign;
     CalculeTotal();
  }
 

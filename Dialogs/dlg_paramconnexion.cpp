@@ -209,7 +209,8 @@ bool dlg_paramconnexion::TestConnexion()
     if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
-    DataBase::I()->initParametres(mode, m_adresseserveur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());
+    DataBase::I()->setModeacces(mode);
+    DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
 
 
     QString Login = ui->LoginlineEdit->text();
@@ -221,8 +222,6 @@ bool dlg_paramconnexion::TestConnexion()
         Login = LOGIN_SQL;
         Password = MDP_SQL;
     }
-    if (ui->DistantradioButton->isChecked())
-        Login += "SSL";
     QString req;
     QString error = "";
     error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);

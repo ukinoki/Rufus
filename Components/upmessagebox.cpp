@@ -187,7 +187,8 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
 //    msgbox->infolayout  ->insertWidget(0,msgbox->lblIcon);
 //    movie.start ();
     msgbox  ->setText(Text);
-    msgbox  ->setInformativeText(InfoText.toHtmlEscaped());
+    UpTextEdit text(InfoText);
+    msgbox  ->setInformativeText(text.toHtml());
     msgbox  ->setIcon(UpMessageBox::Quest);
     msgbox  ->AjouteLayButtons(Butts);
 
@@ -205,7 +206,7 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
     }
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    msgbox  ->wdg_texteditlbl           ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
     msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
     if (msgbox  ->exec()>0)
         return msgbox->clickedButton()->ButtonStyle();
