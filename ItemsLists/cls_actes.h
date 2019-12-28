@@ -40,8 +40,8 @@ public:
 
     QMap<int, Acte *> *actes() const;
 
-    void setcurrentacte(Acte*act)   { m_currentacte = act; }
-    Acte* currentacte()             { return m_currentacte; }
+    void setcurrentacte(Acte *act);
+    Acte* currentacte() const       { return m_currentacte; }
 
     Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
     QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste

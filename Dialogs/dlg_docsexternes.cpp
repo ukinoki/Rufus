@@ -19,10 +19,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "icons.h"
 
-dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
+dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
-    m_currentpatient    = (iscurrentpatient? Datas::I()->patients->currentpatient() : Datas::I()->patients->dossierpatientaouvrir());
+    m_iscurrentpatient = Docs->patient() ==  Datas::I()->patients->currentpatient();
+    m_currentpatient    = (m_iscurrentpatient? Datas::I()->patients->currentpatient() : Datas::I()->patients->dossierpatientaouvrir());
 
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -30,7 +31,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
     installEventFilter(this);
     setMaximumHeight(QGuiApplication::screens().first()->geometry().height());
     setWindowTitle(tr("Documents de ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
-    setModal(!iscurrentpatient); //quand la fiche ne concerne pas le patient en cours
+    setModal(!m_iscurrentpatient); //quand la fiche ne concerne pas le patient en cours
 
     QFont font  = qApp->font();
     font        .setPointSize(font.pointSize()+2);
@@ -156,7 +157,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
 dlg_docsexternes::~dlg_docsexternes()
 {
     delete m_printer;
-    if (m_currentpatient != Datas::I()->patients->currentpatient())
+    if (!m_iscurrentpatient)
     {
         m_docsexternes->clearAll(m_docsexternes->docsexternes());
         delete m_docsexternes;

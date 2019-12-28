@@ -36,10 +36,17 @@ bool Patients::isfull()
     return m_full;
 }
 
-void Patients::setcurrentpatient(int id)
+void Patients::setcurrentpatient(Patient *pat)
 {
-    m_currentpatient->resetdatas();
-    DataBase::I()->loadPatientById(id, m_currentpatient, Item::LoadDetails);
+    if (m_currentpatient != Q_NULLPTR)
+        delete m_currentpatient;
+    if (pat == Q_NULLPTR)
+        m_currentpatient = Q_NULLPTR;
+    else
+    {
+        m_currentpatient = new Patient();
+        DataBase::I()->loadPatientById(pat->id(), m_currentpatient, Item::LoadDetails);
+    }
 }
 
 void Patients::setdossierpatientaouvrir(int id)

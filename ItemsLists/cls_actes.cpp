@@ -28,6 +28,11 @@ QMap<int, Acte *> *Actes::actes() const
     return map_actes;
 }
 
+void Actes::setcurrentacte(Acte *act)
+{
+    m_currentacte = act;
+}
+
 /*!
  * \brief Actes::initListe
  * Charge l'ensemble des actes
@@ -47,7 +52,7 @@ void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
     addList(map_actes, &listActes, upd);
 }
 
-void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.
+void Actes::sortActesByDate()  /*! cette fonction n'est pour l'instant pas utilisées.
                                  * elles sont prévues pour réorganiser le tri des actes en fonction de leur date et pas en fonction de leur id
                                  * parce qu'il arrive (rarement) qu'on saisisse un acte a posteriori dont la date sera antérieure à celle du dernier acte
                                  * si on continue à défiler par id, cet acte n'apparaîtra pas en ordre chronologique mais en dernier. */

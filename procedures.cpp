@@ -5273,9 +5273,9 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
+        setHtmlFronto();
+        InsertMesure(Fronto);
     }
-    setHtmlFronto();
-    InsertMesure(Fronto);
     emit NouvMesure(Fronto);
 }
 
@@ -5621,6 +5621,40 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
+        }
+    }
+    else if (FicheRefractionOuverte())
+    {
+        if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+         || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+        {
+            if (!Datas::I()->mesurekerato->isdataclean())
+                emit NouvMesure(Kerato);
+            if (!Datas::I()->mesureautoref->isdataclean())
+                emit NouvMesure(Autoref);
+        }
+        if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+        {
+            if (!Datas::I()->tono->isdataclean())
+            {
+                setHtmlTono();
+                InsertMesure(Tono);
+                emit NouvMesure(Tono);
+            }
+            if (!Datas::I()->pachy->isdataclean())
+            {
+                setHtmlPachy();
+                InsertMesure(Pachy);
+                emit NouvMesure(Pachy);
+            }
         }
     }
 }

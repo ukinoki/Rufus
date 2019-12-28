@@ -41,7 +41,7 @@ public:
     QMap<int, Patient*> *patientssaldat()     { return map_patientssaldat; }
     Patient* currentpatient()                 { return m_currentpatient; }
     Patient* dossierpatientaouvrir()          { return m_dossierpatientaouvrir; }
-    void setcurrentpatient(int id);
+    void setcurrentpatient(Patient *pat);
     void setdossierpatientaouvrir(int id);
 
     DonneesOphtaPatient* donneesophtacurrentpatient();

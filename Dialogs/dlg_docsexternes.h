@@ -30,7 +30,7 @@ class dlg_docsexternes : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_docsexternes(DocsExternes* Docs, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(DocsExternes* Docs, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
     Patient*                currentpatient() const { return m_currentpatient; } //!> renseigne le patient en cours d'affichage
     enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
@@ -46,6 +46,7 @@ private:
 
     DocsExternes            *m_docsexternes;
     Patient                 *m_currentpatient;
+    bool                    m_iscurrentpatient;
 
     QGraphicsScene          *obj_graphicscene;
     QGraphicsVideoItem      *medobj_videoitem;

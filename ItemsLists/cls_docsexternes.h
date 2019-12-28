@@ -39,6 +39,7 @@ public:
 
     bool                        NouveauDocumentExterne();
     void                        setNouveauDocumentExterneFalse();
+    Patient*                    patient() const { return m_patient; }
 
     //!> actions sur les enregistrements
     void                        SupprimeDocumentExterne(DocExterne *doc);

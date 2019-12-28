@@ -253,7 +253,10 @@ private:
     QTimer                  *t_timerSalDat, *t_timerCorrespondants, *t_timerPosteConnecte, *t_timerVerifVerrou, *t_timerSupprDocs, *t_timerVerifImportateurDocs;
     QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerImportDocsExternes, *t_timerVerifMessages;
 
-    Acte                    *m_currentact                   = Q_NULLPTR;
+    Patient*                currentpatient() const          { return Datas::I()->patients->currentpatient(); }
+    void                    setcurrentpatient(Patient *pat) { Datas::I()->patients->setcurrentpatient(pat); }
+    Acte*                   currentacte()                   { return Datas::I()->actes->currentacte(); }
+    void                    setcurrentacte(Acte *act)       { Datas::I()->actes->setcurrentacte(act); }
     User*                   currentuser()                   { return Datas::I()->users->userconnected(); }
     PosteConnecte*          currentpost()                   { return Datas::I()->postesconnectes->currentpost(); }
     Patients                *m_patients                     = Q_NULLPTR;
@@ -324,7 +327,7 @@ private:
     QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
-    void                OuvrirDocsExternes(Patient *pat);
+    void                OuvrirDocsExternes(DocsExternes *docs);
     void                OuvrirImpressions(bool AffichDocsExternes = true);
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
