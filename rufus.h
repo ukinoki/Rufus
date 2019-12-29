@@ -253,12 +253,14 @@ private:
     QTimer                  *t_timerSalDat, *t_timerCorrespondants, *t_timerPosteConnecte, *t_timerVerifVerrou, *t_timerSupprDocs, *t_timerVerifImportateurDocs;
     QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerImportDocsExternes, *t_timerVerifMessages;
 
-    Patient*                currentpatient() const          { return Datas::I()->patients->currentpatient(); }
-    void                    setcurrentpatient(Patient *pat) { Datas::I()->patients->setcurrentpatient(pat); }
-    Acte*                   currentacte()                   { return Datas::I()->actes->currentacte(); }
-    void                    setcurrentacte(Acte *act)       { Datas::I()->actes->setcurrentacte(act); }
-    User*                   currentuser()                   { return Datas::I()->users->userconnected(); }
-    PosteConnecte*          currentpost()                   { return Datas::I()->postesconnectes->currentpost(); }
+    Patient*                dossierpatientaouvrir() const           { return Datas::I()->patients->dossierpatientaouvrir(); }
+    void                    setdossierpatientaouvrir(Patient *pat)  { Datas::I()->patients->setdossierpatientaouvrir(pat); }
+    Patient*                currentpatient() const                  { return Datas::I()->patients->currentpatient(); }
+    void                    setcurrentpatient(Patient *pat)         { Datas::I()->patients->setcurrentpatient(pat); }
+    Acte*                   currentacte()                           { return Datas::I()->actes->currentacte(); }
+    void                    setcurrentacte(Acte *act)               { Datas::I()->actes->setcurrentacte(act); }
+    User*                   currentuser()                           { return Datas::I()->users->userconnected(); }
+    PosteConnecte*          currentpost()                           { return Datas::I()->postesconnectes->currentpost(); }
     Patients                *m_patients                     = Q_NULLPTR;
     QMap<int, Patient*>     *map_patientstable              = Q_NULLPTR;
     QMap<int, Patient*>     *map_patientssaldat             = Q_NULLPTR;

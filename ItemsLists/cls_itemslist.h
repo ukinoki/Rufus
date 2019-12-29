@@ -27,7 +27,7 @@ public:
 * \param m_map le QMap que l'on veut vider
 */
 template <typename K, typename T>
-void clearAll(QMap<K, T*> *m_map)
+static void clearAll(QMap<K, T*> *m_map)
 {
     for (auto it = m_map->begin(); it != m_map->end();)
     {

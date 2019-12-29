@@ -403,11 +403,11 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         Message::I()->ClosePriorityMessage(handle);
         proc->emit ConnectTimers(true);
     };
-    if (QDir(m_parametres->dirimagerie()).exists())
+    if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
-        Utils::cleanfolder(m_parametres->dirimagerie() + DIR_IMAGES);
-        Utils::cleanfolder(m_parametres->dirimagerie() + DIR_FACTURES);
-        Utils::cleanfolder(m_parametres->dirimagerie() + DIR_VIDEOS);
+        Utils::cleanfolder(m_parametres->dirimagerieserveur() + DIR_IMAGES);
+        Utils::cleanfolder(m_parametres->dirimagerieserveur() + DIR_FACTURES);
+        Utils::cleanfolder(m_parametres->dirimagerieserveur() + DIR_VIDEOS);
     }
     else
     {
@@ -471,7 +471,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des factures\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerie() + DIR_FACTURES + " " + dirdestination;
+        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + DIR_FACTURES + " " + dirdestination;
         const QString msgOK = tr("Fichiers factures sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -497,7 +497,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerie() + DIR_IMAGES + " " + dirdestination;
+        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + DIR_IMAGES + " " + dirdestination;
         const QString msgOK = tr("Fichiers d'imagerie sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -523,7 +523,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des videos\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerie() + DIR_VIDEOS + " " + dirdestination;
+        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + DIR_VIDEOS + " " + dirdestination;
         const QString msgOK = tr("Fichiers videos sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -592,21 +592,21 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "\n";
     scriptbackup += "DIR_RESSOURCES=\"" + QDir::homePath() + DIR_RUFUS DIR_RESSOURCES + "\"";
     scriptbackup += "\n";
-    if (QDir(m_parametres->dirimagerie()).exists())
+    if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
         if (AvecImages)
         {
-            scriptbackup += "DIR_IMAGES=\"" + m_parametres->dirimagerie() + DIR_IMAGES + "\"";
+            scriptbackup += "DIR_IMAGES=\"" + m_parametres->dirimagerieserveur() + DIR_IMAGES + "\"";
             scriptbackup += "\n";
         }
         if (AvecFactures)
         {
-            scriptbackup += "DIR_FACTURES=\"" + m_parametres->dirimagerie() + DIR_FACTURES + "\"";
+            scriptbackup += "DIR_FACTURES=\"" + m_parametres->dirimagerieserveur() + DIR_FACTURES + "\"";
             scriptbackup += "\n";
         }
         if (AvecVideos)
         {
-            scriptbackup += "DIR_VIDEOS=\"" + m_parametres->dirimagerie() + DIR_VIDEOS + "\"";
+            scriptbackup += "DIR_VIDEOS=\"" + m_parametres->dirimagerieserveur() + DIR_VIDEOS + "\"";
             scriptbackup += "\n";
         }
     }
@@ -664,7 +664,7 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "\n";
     scriptbackup += "cp -R $DIR_RESSOURCES $BACKUP_DIR/$DATE/Ressources";
     scriptbackup += "\n";
-    if (QDir(m_parametres->dirimagerie()).exists())
+    if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
         //! copie les fichiers image
         if (AvecImages)
@@ -781,13 +781,13 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     if (full)
     {
         OKbase = true;
-        OKImages = QDir(m_parametres->dirimagerie()).exists();
-        OKVideos = QDir(m_parametres->dirimagerie()).exists();
-        OKFactures = QDir(m_parametres->dirimagerie()).exists();
+        OKImages = QDir(m_parametres->dirimagerieserveur()).exists();
+        OKVideos = QDir(m_parametres->dirimagerieserveur()).exists();
+        OKFactures = QDir(m_parametres->dirimagerieserveur()).exists();
     }
     else
     {
-        AskBupRestore(BackupOp, m_parametres->dirimagerie(), dirdestination );
+        AskBupRestore(BackupOp, m_parametres->dirimagerieserveur(), dirdestination );
         if (dlg_buprestore->exec()==0)
             return false;
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
@@ -1368,7 +1368,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                         QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
                                                                                                   " VALUES (" +
                                 iditem + ", " +
-                                " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
+                                " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
                                 QString::number(docmt->compression()) + ")";
                         db->StandardSQL(req);
                     }
@@ -1380,7 +1380,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                         QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + DIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + DIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
                                       "1)";
                         db->StandardSQL(req);
                     }
@@ -1913,27 +1913,18 @@ QString Procedures::SessionStatus()
     DirStockageImagesServeur    = l'emplacement du dossier de l'imagerie sur le serveur - correspond au champ dirimagerie de la table parametressysteme
                                 -> utilisé par les requêtes SQL pour réintégrer le contenu de fichiers images dans la base
     ------------------------------------------------------------------------------------------------------------------------------------*/
-void Procedures::readAbsolutePathDirImagerie()
-{
-    m_absolutepathDirStockageImage = "";
-    m_pathDirStockageImagesServeur = m_parametres->dirimagerie();
-    if (db->ModeAccesDataBase() == Utils::Poste)
-        m_absolutepathDirStockageImage = m_pathDirStockageImagesServeur;
-    else
-        m_absolutepathDirStockageImage = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossierImagerie").toString();
-}
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- renvoie la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::AbsolutePathDirImagerie()
 {
-    return m_absolutepathDirStockageImage;
-}
-
-QString Procedures::DirImagerieServeur()
-{
-    return m_pathDirStockageImagesServeur;
+    QString path = "";
+    if (db->ModeAccesDataBase() == Utils::Poste)
+        path = m_parametres->dirimagerieserveur();
+    else
+        path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossierImagerie").toString();
+    return path;
 }
 
 void Procedures::setFicheRefractionOuverte(bool a)
@@ -2360,7 +2351,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString NomDirStockageImagerie = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
         if (OKImages || OKVideos || OKFactures)
         {
-            NomDirStockageImagerie = (PremierDemarrage? QDir::homePath() + DIR_RUFUS DIR_IMAGERIE : m_parametres->dirimagerie());
+            NomDirStockageImagerie = (PremierDemarrage? QDir::homePath() + DIR_RUFUS DIR_IMAGERIE : m_parametres->dirimagerieserveur());
             if (!QDir(NomDirStockageImagerie).exists())
             {
                 bool exist = QDir().exists(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE);

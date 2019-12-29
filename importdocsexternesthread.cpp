@@ -611,7 +611,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
     if (db->ModeAccesDataBase() == Utils::Poste)
     {
         NomOnglet = tr("Monoposte");
-        m_pathdirstockageimagerie = db->parametres()->dirimagerie();
+        m_pathdirstockageimagerie = db->parametres()->dirimagerieserveur();
     }
     if (db->ModeAccesDataBase() == Utils::ReseauLocal)
     {

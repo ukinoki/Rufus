@@ -106,7 +106,7 @@ private:
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
     dlg_paramconnexion      *Dlg_ParamConnex;
     bool                    VerifBaseEtRessources();
-    bool                    VerifIni(QString msg = "",                          //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
+    bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
                                      bool RecupIni = true,
@@ -115,7 +115,7 @@ private:
                                      bool PremDemarrage = false,
                                      bool BaseVierge = false);
     bool                    VerifParamConnexion(QString &login,                         //! le login du user dnas la table utilisateurs
-                                                QString &MDP,                           //! le login du user dnas la table utilisateurs
+                                                QString &MDP,                           //! le mdp du user dnas la table utilisateurs
                                                 bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
                                                 bool OKAccesDistant = true,             //! true =  le choix accès distant est validé ou non
                                                 QString nomtblutilisateurs = TBL_UTILISATEURS);
@@ -131,16 +131,13 @@ public:
                                                                              * purge les champs jpg et pdf de la table Factures  */
 
 private:
-    User*                   currentuser() { return Datas::I()->users->userconnected(); } //user connected //TODO : DEPLACER DANS DATAS
-    QString                 m_absolutepathDirStockageImage, m_pathDirStockageImagesServeur;
+    User*                   currentuser() { return Datas::I()->users->userconnected(); }
     QString                 m_CPpardefaut, m_Villepardefaut;
 public:
     static QString          CodePostalParDefaut();
     static QString          VilleParDefaut();
 
-    void                    readAbsolutePathDirImagerie();
-    QString                 AbsolutePathDirImagerie();
-    QString                 DirImagerieServeur();
+    QString                 AbsolutePathDirImagerie();                      /*! le dossier sur lequel est stocké l'imagerie, vu depuis le poste client */
 
 /*! fin opérations sur la base de données, le système et les datas -------------------------------------------------------------------------------------------------------- */
 
@@ -194,7 +191,7 @@ public:
     QString                 SessionStatus();                            /*! statut de l'utilisateur pour cette session */
 
     int                     idCentre();
-    void                    MAJComptesBancaires(User *usr);              //! actualise la liste des comptes bancaires utilisés par un user
+    void                    MAJComptesBancaires(User *usr);             //! actualise la liste des comptes bancaires utilisés par un user
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
 
 /*! fin definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta) -------------------------------------------------------------------------------------------------------- */
@@ -217,7 +214,7 @@ public:
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 
-  /*! 1 - Impression avec textprinter.h */
+  /*! 1 - Impression avec textprinter.h ---------------------------------------------------------------*/
     int                     TailleEnTete();
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
@@ -234,7 +231,7 @@ public:
             /*! b - Création d'un pdf */
     bool                    Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
 
-  /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h */
+  /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h --------------------------*/
     bool                    PrintDocument(QMap<QString, QVariant> doc);
 
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */

@@ -34,7 +34,7 @@ void ParametresSysteme::setData(QJsonObject data)
     Utils::setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
     Utils::setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
     Utils::setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
-    Utils::setDataString(data, CP_DIRIMAGERIE_PARAMSYSTEME, m_dirimagerie);
+    Utils::setDataString(data, CP_DIRIMAGERIE_PARAMSYSTEME, m_dirimagerieserveur);
     Utils::setDataTime(data, CP_HEUREBKUP_PARAMSYSTEME, m_heurebkup);
     Utils::setDataString(data, CP_DIRBKUP_PARAMSYSTEME, m_dirbkup);
     m_daysbkup.setFlag(Utils::Lundi,    data[CP_LUNDIBKUP_PARAMSYSTEME].toBool());
@@ -55,7 +55,7 @@ int ParametresSysteme::versionbase() const                      { return m_versi
 bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
-QString ParametresSysteme::dirimagerie() const                  { return m_dirimagerie; }
+QString ParametresSysteme::dirimagerieserveur() const                  { return m_dirimagerieserveur; }
 Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
@@ -68,7 +68,7 @@ void ParametresSysteme::setversionbase(int version)             { m_versionbase 
 void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one; }
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress; }
 void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress; }
-void ParametresSysteme::setdirimagerie(QString adress)          { m_dirimagerie = adress; }
+void ParametresSysteme::setdirimagerieserveur(QString adress)          { m_dirimagerieserveur = adress; }
 void ParametresSysteme::setheurebkup(QTime time)                { m_heurebkup = time; }
 void ParametresSysteme::setdirbkup(QString adress)              { m_dirbkup = adress; }
 void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = days; }

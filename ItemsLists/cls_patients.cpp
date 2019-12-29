@@ -49,10 +49,17 @@ void Patients::setcurrentpatient(Patient *pat)
     }
 }
 
-void Patients::setdossierpatientaouvrir(int id)
+void Patients::setdossierpatientaouvrir(Patient *pat)
 {
-    m_dossierpatientaouvrir->resetdatas();
-    DataBase::I()->loadPatientById(id, m_dossierpatientaouvrir, Item::LoadDetails);
+    if (m_dossierpatientaouvrir != Q_NULLPTR)
+        delete m_dossierpatientaouvrir;
+    if (pat == Q_NULLPTR)
+        m_dossierpatientaouvrir = Q_NULLPTR;
+    else
+    {
+        m_dossierpatientaouvrir = new Patient();
+        DataBase::I()->loadPatientById(pat->id(), m_dossierpatientaouvrir, Item::LoadDetails);
+    }
 }
 
 DonneesOphtaPatient* Patients::donneesophtacurrentpatient()

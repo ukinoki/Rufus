@@ -305,7 +305,7 @@ dlg_param::dlg_param(QWidget *parent) :
     if (a)
     {
         ui->SQLPortPostecomboBox    ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        ui->PosteStockageupLineEdit->setText(m_parametres->dirimagerie());
+        ui->PosteStockageupLineEdit->setText(m_parametres->dirimagerieserveur());
     }
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);
     b = (proc->settings()->value(Base + "/Active").toString() == "YES");
@@ -1717,7 +1717,6 @@ void dlg_param::DirLocalStockage()
         QDir dockdir = dialog.directory();
         ui->LocalStockageupLineEdit->setText(dockdir.path());
         proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", dockdir.path());
-        proc->readAbsolutePathDirImagerie();
     }
 }
 
@@ -1734,7 +1733,6 @@ void dlg_param::DirDistantStockage()
         QDir dockdir = dialog.directory();
         ui->DistantStockageupLineEdit->setText(dockdir.path());
         proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", dockdir.path());
-        proc->readAbsolutePathDirImagerie();
     }
 }
 
@@ -1762,7 +1760,6 @@ void dlg_param::DirPosteStockage()
         ui->PosteStockageupLineEdit->setText(dockdir.path());
         db->setdirimagerie(dockdir.path());
         proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", dockdir.path());
-        proc->readAbsolutePathDirImagerie();
     }
 }
 

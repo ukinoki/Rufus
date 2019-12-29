@@ -42,7 +42,7 @@ public:
     Patient* currentpatient()                 { return m_currentpatient; }
     Patient* dossierpatientaouvrir()          { return m_dossierpatientaouvrir; }
     void setcurrentpatient(Patient *pat);
-    void setdossierpatientaouvrir(int id);
+    void setdossierpatientaouvrir(Patient *pat);
 
     DonneesOphtaPatient* donneesophtacurrentpatient();
     void setDonneesOphtaCurrentPatient ();

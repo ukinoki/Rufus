@@ -457,7 +457,7 @@ void DataBase::setdirimagerie(QString adress)
         return;
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRIMAGERIE_PARAMSYSTEME " = " + value);
-    parametres()->setdirimagerie(adress);
+    parametres()->setdirimagerieserveur(adress);
 }
 void DataBase::setdaysbkup(Utils::Days days)
 {

@@ -22,16 +22,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
-    m_iscurrentpatient = Docs->patient() ==  Datas::I()->patients->currentpatient();
-    m_currentpatient    = (m_iscurrentpatient? Datas::I()->patients->currentpatient() : Datas::I()->patients->dossierpatientaouvrir());
+    m_docsexternes  = Docs;
 
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     installEventFilter(this);
     setMaximumHeight(QGuiApplication::screens().first()->geometry().height());
-    setWindowTitle(tr("Documents de ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
-    setModal(!m_iscurrentpatient); //quand la fiche ne concerne pas le patient en cours
+    setWindowTitle(tr("Documents de ") + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom());
 
     QFont font  = qApp->font();
     font        .setPointSize(font.pointSize()+2);
@@ -46,9 +44,9 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_rect              = m_printer->paperRect();
 
     m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
-                Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
-                -Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
-                -Utils::mmToInches(margemm) * m_printer->logicalDpiY());
+                  Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
+                  - Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
+                  - Utils::mmToInches(margemm) * m_printer->logicalDpiY());
 
     obj_graphicscene        = new QGraphicsScene(this);
     wdg_listdocstreewiew    = new QTreeView(this);
@@ -149,7 +147,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
     m_mode          = Normal;
     m_modetri       = parDate;
-    m_docsexternes  = Docs;
     m_docsexternes  ->setNouveauDocumentExterneFalse();
     RemplirTreeView();
 }
@@ -157,11 +154,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 dlg_docsexternes::~dlg_docsexternes()
 {
     delete m_printer;
-    if (!m_iscurrentpatient)
-    {
-        m_docsexternes->clearAll(m_docsexternes->docsexternes());
-        delete m_docsexternes;
-    }
 }
 
 void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
@@ -634,7 +626,7 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
     if (dialog.exec()>0)
     {
         QDir dockdir = dialog.directory();
-        img.copy(dockdir.path() + "/" + m_currentpatient->prenom() + " " + m_currentpatient->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
+        img.copy(dockdir.path() + "/" + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
     }
 }
 
@@ -775,8 +767,8 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     Entete.replace("{{TITRE1}}"        , "");
     Entete.replace("{{TITRE}}"         , "");
     Entete.replace("{{DDN}}"           , "");
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? m_currentpatient->prenom()        : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? m_currentpatient->nom().toUpper() : ""));
+    Entete.replace("{{PRENOM PATIENT}}", (Prescription? m_docsexternes->patient()->prenom()        : ""));
+    Entete.replace("{{NOM PATIENT}}"   , (Prescription? m_docsexternes->patient()->nom().toUpper() : ""));
 
     //création du pied
     Pied = proc->CalcPiedImpression(userEntete, docmt->format() == PRESCRIPTIONLUNETTES, ALD);
