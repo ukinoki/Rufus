@@ -4984,8 +4984,9 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             mTOOD                   = SectionTono.mid(SectionTono.indexOf("TR")+2,4)   .replace(" ","0");
             // OEIL GAUCHE ---------------------------------------------------------------------------
             mTOOG                   = SectionTono.mid(SectionTono.indexOf("TL")+2,4)   .replace(" ","0");
-            Datas::I()->tono->setTOD(mTOOD.toInt());
-            Datas::I()->tono->setTOG(mTOOG.toInt());
+            logmesure("LectureDonneesRefracteur() - Section Tono - mTOOD = " + mTOOD + " - mTOOG = " + mTOOG);
+            Datas::I()->tono->setTOD(int(mTOOD.toDouble()));
+            Datas::I()->tono->setTOG(int(mTOOG.toDouble()));
             Datas::I()->tono->setmodemesure(Tonometrie::Air);
             logmesure("LectureDonneesRefracteur() - nouvelle mesure tono -> TOD = " + QString::number(Datas::I()->tono->TOD()) + " - TOG = " + QString::number(Datas::I()->tono->TOG()));
             QString portautoref = (PortAutoref() == Q_NULLPTR? "Q_NULLPTR" : "OK");

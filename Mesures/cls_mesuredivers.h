@@ -38,7 +38,7 @@ public:
     Mode modemesure() const     { return m_modemesure; }
 
     void setpachyOD(int pa)         { m_pachyOD = pa; m_cleandatas = false; m_isnullOD = false; }
-    void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOD = false; }
+    void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOG = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
     void cleandatas(Utils::Cote cote = Utils::Les2)
@@ -128,8 +128,18 @@ public:
     QDateTime timemesure() const    { return m_timemesure; }
     Mode modemesure() const         { return m_modemesure; }
 
-    void setTOD(int to)                 { m_TOD = to; m_cleandatas = false; m_isnullOD = false; }
-    void setTOG(int to)                 { m_TOG = to; m_cleandatas = false; m_isnullOD = false; }
+    void setTOD(int to)
+    {
+        m_TOD = to;
+        m_cleandatas = false;
+        m_isnullOD = false;
+    }
+    void setTOG(int to)
+    {
+        m_TOG = to;
+        m_cleandatas = false;
+        m_isnullOG = false;
+    }
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
@@ -237,17 +247,17 @@ private:
     Mode m_modemesure   = NoMesure;
 
 public:
-    int ALOD() const                { return m_ALOD; }
-    int ACDOD() const               { return m_ACDOD; }
-    int ALOG() const                { return m_ALOG; }
-    int ACDOG() const               { return m_ACDOG; }
+    double ALOD() const             { return m_ALOD; }
+    double ACDOD() const            { return m_ACDOD; }
+    double ALOG() const             { return m_ALOG; }
+    double ACDOG() const            { return m_ACDOG; }
     QDateTime timemesure() const    { return m_timemesure; }
     Mode modemesure() const         { return m_modemesure; }
 
-    void setALOD(int AL)                { m_ALOD = AL; m_cleandatas = false; m_isnullOD = false; }
-    void setACDOD(int AL)               { m_ACDOD = AL; m_cleandatas = false; m_isnullOD = false; }
-    void setALOG(int AL)                { m_ALOG = AL; m_cleandatas = false; m_isnullOD = false; }
-    void setACDOG(int AL)               { m_ACDOG = AL; m_cleandatas = false; m_isnullOD = false; }
+    void setALOD(double AL)                { m_ALOD = AL; m_cleandatas = false; m_isnullOD = false; }
+    void setACDOD(double AL)               { m_ACDOD = AL; m_cleandatas = false; m_isnullOD = false; }
+    void setALOG(double AL)                { m_ALOG = AL; m_cleandatas = false; m_isnullOG = false; }
+    void setACDOG(double AL)               { m_ACDOG = AL; m_cleandatas = false; m_isnullOG = false; }
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 

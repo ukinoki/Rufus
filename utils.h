@@ -71,7 +71,6 @@ public:
     static QRegExp const rgx_IPV4_mask;
 
     static QRegExp const rgx_mail;
-    static QRegExp const rgx_mailexactmatch;
     static QRegExp const rgx_NNI;
 
     static QRegExp const rgx_adresse;

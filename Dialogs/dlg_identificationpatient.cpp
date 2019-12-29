@@ -457,7 +457,7 @@ bool dlg_identificationpatient::eventFilter(QObject *obj, QEvent *event)
         {
             ui->MaillineEdit->setText(Utils::trim(ui->MaillineEdit->text()));
             if (ui->MaillineEdit->text()!="")
-                if (!Utils::rgx_mailexactmatch.exactMatch(ui->MaillineEdit->text()))
+                if (!Utils::rgx_mail.exactMatch(ui->MaillineEdit->text()))
                 {
                     UpMessageBox::Watch(this, tr("Adresse mail invalide"));
                     ui->MaillineEdit->setFocus();
