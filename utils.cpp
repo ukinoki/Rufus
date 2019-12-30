@@ -203,12 +203,12 @@ QString Utils::retirecaracteresaccentues(QString nom)
  *  on écrit le QString dans un QtextEdit et on récupère le html avec QTextEdit::toHtml()
  *  on retire les lignes vides de la fin
  */
-void Utils::convertHTML(QString &text)
+bool Utils::convertHTML(QString &text)
 {
     UpTextEdit textprov;
     textprov.setText( text );
     text = textprov.toHtml();
-    retirelignevidehtml(text);
+    return retirelignevidefinhtml(text);
 }
 
 /*!
@@ -241,13 +241,15 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
     QRegExp reg2 = QRegExp("<p style=\" margin-top:0px; margin-bottom:0px; "
                            "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                            "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
-    convertHTML(text);
+    bool remetunelignealafin = convertHTML(text);
     if (supprimeLesLignesVidesDuMilieu)
         text.remove(reg1);
     text.replace(reg2,"<p style=\" margin-top:0px; margin-bottom:0px;\">");
     text.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
     text.remove(HTMLCOMMENT_LINUX);
     text.remove(HTMLCOMMENT_MAC);
+    if (remetunelignealafin)
+        text.append("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>");
 #ifdef Q_OS_LINUX
     text.append(HTMLCOMMENT_LINUX);
 #endif
@@ -261,34 +263,22 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
  * retirer les paragraphes vierges à la fin d'un texte en html
  * \param &txthtml
  */
-void Utils::retirelignevidehtml(QString &txthtml)
+bool Utils::retirelignevidefinhtml(QString &txthtml)
 {
+    bool ligneretiree = false;
     bool a = true;
     while (a) {
         int debut = txthtml.lastIndexOf("<p");
         int fin   = txthtml.lastIndexOf("</p>");
         int longARetirer = fin - debut + 4;
         if (txthtml.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
+        {
             txthtml.remove(debut,longARetirer);
+            ligneretiree = true;
+        }
         else a = false;
     }
-}
-
-void Utils::supprimeAncre(QString &text, QString ancredebut, QString ancrefin)
-{
-    while (text.contains(ancredebut))
-    {
-        int idx = text.lastIndexOf(ancredebut);
-        QString ftext= text.left(idx);
-        idx = ftext.lastIndexOf("<table");
-        ftext= text.left(idx);
-        if (ancrefin != "")
-            idx = text.lastIndexOf(ancrefin);
-        QString rtext= text.mid(idx);
-        idx = rtext.indexOf("</table>");
-        rtext = rtext.mid(idx+8);
-        text = ftext + rtext;
-    }
+    return ligneretiree;
 }
 
 /*!

@@ -355,6 +355,7 @@ private:
     void                SupprimerActe(Acte *act);
     void                SupprimerDocsEtFactures();
     void                SupprimerDossier(Patient *pat);
+    void                AffichePachymetrie();
     void                Pachymetrie();
     void                Tonometrie();
     void                FiltreTableparDDN();

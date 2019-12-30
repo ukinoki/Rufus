@@ -473,6 +473,7 @@ public:
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
     TypesMesures            FlagReglageRefracteur()                         { return m_flagreglagerefracteur; }
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
+    QString                 CalcHtmlPachy(Pachymetrie *pachy);
 
 private:
     QString                 m_mesureSerie;

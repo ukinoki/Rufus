@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-12-2019/1");
+    qApp->setApplicationVersion("30-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8609,7 +8609,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
             }
             QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->ResultatPrescription()  + "</p>"
                                          + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\">";
-            ItemsList::update(currentacte(), CP_CONCLUSION_ACTES, ui->ActeConclusiontextEdit->appendHtml(ARajouterEnConcl,"","",true));
+            ItemsList::update(currentacte(), CP_CONCLUSION_ACTES, ui->ActeConclusiontextEdit->appendHtml(ARajouterEnConcl));
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
         }
@@ -9680,52 +9680,42 @@ void Rufus::Pachymetrie()
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
     Dlg_AutresMes           = new dlg_autresmesures(dlg_autresmesures::PACHY);
-    QString pachyOD, pachyOG, Methode, pachyColor;
     Dlg_AutresMes->setWindowTitle(tr("Pachymétrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec()> 0)
     {
         proc->InsertMesure(Procedures::Pachy, Tonometrie::NoMesure, Datas::I()->pachy->modemesure());
-        pachyOD = QString::number(Datas::I()->pachy->pachyOD());
-        pachyOG = QString::number(Datas::I()->pachy->pachyOG());
-        Methode = Pachymetrie::ConvertMesure(Datas::I()->pachy->modemesure());
-        switch (Datas::I()->pachy->modemesure()) {
-        case Pachymetrie::Optique:
-            Methode = "Optique";
-            break;
-        case Pachymetrie::OCT:
-            Methode = "OCT";
-            break;
-        case Pachymetrie::Echo:
-            Methode = "Echo";
-            break;
-        default:
-            break;
-        }
-        if (pachyOD.toInt() > 0 || pachyOG.toInt() > 0)
-        {
-            QString pachy;
-            if (pachyOD.toInt() == 0 && pachyOG.toInt() > 0)
-                pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy OG:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOG + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
-            if (pachyOG.toInt() == 0 && pachyOD.toInt() > 0)
-                pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy OD:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
-            if (pachyOD.toInt() > 0 && pachyOG.toInt() > 0)
-            {
-                if (pachyOD.toInt() == pachyOG.toInt())
-                    pachy = "<td width=\"80\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy ODG:") + "</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
-                else
-                    pachy = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy:") +"</b></font></td><td width=\"80\"><font color = \"green\"><b>" + pachyOD +  "/" + pachyOG + "</b></font></td><td width=\"80\">(" + Methode + ")</td>";
-            }
-            QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + pachy  + "</p>"
-                    + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-            ItemsList::update(currentpatient(), CP_RESUME_RMP, ui->ResumetextEdit->appendHtml(ARajouterEnText));
-        }
-        ui->ActeTextetextEdit->setFocus();
-        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+        AffichePachymetrie();
     }
     Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_AutresMes;
+}
+
+void Rufus::AffichePachymetrie()
+{
+    QString pachy = proc->CalcHtmlPachy(Datas::I()->pachy);
+    QString ARajouterEnText = pachy;
+    ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+    QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
+    QString resumetxt = ui->ResumetextEdit->toHtml();
+    QString const dd    = "<a name=\"pachyDEBUT\"></a>";
+    QString const fd    = "<a name=\"pachyFIN\"></a>";
+    if (resumetxt.contains(QRegExp(dd + ".*" +fd)))
+    {
+        int n = pachy.indexOf(dd);
+        pachy = pachy.mid(n);
+        n = pachy.indexOf(fd) + fd.size();
+        pachy = pachy.left(n);
+        pachy.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"));
+        resumetxt.replace(QRegExp(dd + ".*" +fd), pachy);
+        ItemsList::update(currentpatient(), CP_RESUME_RMP, resumetxt);
+        ui->ResumetextEdit->setText(resumetxt);
+    }
+    else
+        ItemsList::update(currentpatient(), CP_RESUME_RMP, ui->ResumetextEdit->appendHtml(ARajouterEnText.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"))));
+    ui->ActeTextetextEdit->setFocus();
+    ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
+
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9916,7 +9906,7 @@ NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fich
     case Procedures::Pachy:
     {
         if (proc->HtmlPachy() != "")
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlPachy()));
+            AffichePachymetrie();
         break;
     }
     case Procedures::Tono:

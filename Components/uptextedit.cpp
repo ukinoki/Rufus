@@ -318,13 +318,13 @@ void UpTextEdit::setText(const QString &text)
         QTextEdit::setText(text);
 }
 
-QString UpTextEdit::appendHtml(QString appendtext, QString ancredebut, QString ancrefin, bool supprimeLesLignesVidesDuMilieu)
+QString UpTextEdit::appendHtml(QString appendtext, bool supprimeLesLignesVidesDuMilieu, bool rajouteunelignealafin)
 {
     QString texte = toHtml();
-    if (ancredebut != "")
-        Utils::supprimeAncre(texte,ancredebut,ancrefin);
-    Utils::retirelignevidehtml(texte);
+    Utils::retirelignevidefinhtml(texte);
     texte += appendtext;
+    if (rajouteunelignealafin)
+        texte += "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
     Utils::nettoieHTML(texte, supprimeLesLignesVidesDuMilieu);
     setHtml(texte);
     return texte;

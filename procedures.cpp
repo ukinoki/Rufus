@@ -6178,27 +6178,37 @@ void Procedures::setHtmlTono()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlPachy()
 {
-    int D = Datas::I()->pachy->pachyOD();
-    int G = Datas::I()->pachy->pachyOG();
-    QString mPachyOD        = QLocale().toString(D);
-    QString mPachyOG        = QLocale().toString(G);
-    QString Pachy        ="";
-    mPachyOD = "<font color = \"blue\"><b>" + mPachyOD + "</b></font>";
-    mPachyOG = "<font color = \"blue\"><b>" + mPachyOG + "</b></font>";
+    m_htmlMesurePachy = CalcHtmlPachy(Datas::I()->pachy);
+}
 
-    if (D > 0 || G > 0)
+QString Procedures::CalcHtmlPachy(Pachymetrie *pachy)
+{
+    if (!pachy->isnullLOD() || !pachy->isnullLOG())
     {
-        if (D == 0 && G > 0)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + currentuser()->login() + "</td></p>";
-        else if (D == 0 && G > 0)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOD + "</td><td>" + currentuser()->login() + "</td></p>";
-        else if (D == G)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyODG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + currentuser()->login() + "</td></p>";
+        QString const dd    = "<a name=\"pachyDEBUT\"></a>";
+        QString const fd    = "<a name=\"pachyFIN\"></a>";
+        QString larg = ((pachy->pachyOD() > 0 && pachy->pachyOG() > 0) && (pachy->pachyOD() == pachy->pachyOG())? "80" : "60");
+        QString title = "<p style = \"margin-top:0px; margin-bottom:0px;\"><td width=\"" + larg + "\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy");
+        QString pachyOD, pachyOG, Methode;
+        pachyOD = QString::number(pachy->pachyOD());
+        pachyOG = QString::number(pachy->pachyOG());
+        Methode = Pachymetrie::ConvertToReadableMesure(pachy);
+        QString result;
+        if (pachy->isnullLOD())
+            result = tr("OG") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOG + "</b></font></td><td width=\"110\">(" + Methode;
+        else if (pachy->isnullLOG())
+            result = tr("OD") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"110\">(" + Methode;
         else
-            Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + currentuser()->login() + "</td></p>";
-
+        {
+            if (pachy->pachyOD() == pachy->pachyOG())
+                result = tr("ODG") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"110\">(" + Methode;
+            else
+                result = ":</b></font></td><td width=\"60\"><font color = \"green\"><b>" + pachyOD +  "/" + pachyOG + "</b></font></td><td width=\"110\">(" + Methode;
+        }
+        result = dd + result + fd + +")</td></p>";           // on met le dernier caractère en ancre
+        return title + result;
     }
-    m_htmlMesurePachy = Pachy;
+    else return "";
 }
 
 QString Procedures::HtmlAutoref()

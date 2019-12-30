@@ -90,6 +90,15 @@ public:
         return !(isEqual(other));
     }
 
+    static QString ConvertToReadableMesure(Pachymetrie *Mesure)
+    {
+        QString mode = ConvertMesure(Mesure->modemesure());
+        if (mode == OPTIQUE_PACHY) return tr("Optique");
+        if (mode == OCT_PACHY) return tr("OCT");
+        if (mode == ECHO_PACHY) return tr("Echo");
+        return "";
+    }
+
     static Mode ConvertMesure(QString Mesure)
     {
         if (Mesure == OPTIQUE_PACHY)    return Optique;
