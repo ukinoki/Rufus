@@ -467,13 +467,14 @@ public:
     QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure  typemesure = All, Tonometrie::Mode  modetono = Tonometrie::Air, Pachymetrie::Mode modepachy = Pachymetrie::Optique);         // enregistre la mesure de réfraction
+    int                     InsertMesure(TypeMesure typemesure = All);         // enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
     TypesMesures            FlagReglageRefracteur()                         { return m_flagreglagerefracteur; }
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
     QString                 CalcHtmlPachy(Pachymetrie *pachy);
+    QString                 CalcHtmlTono(Tonometrie *tono);
 
 private:
     QString                 m_mesureSerie;

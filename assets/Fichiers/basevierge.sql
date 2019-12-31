@@ -110,11 +110,13 @@ CREATE TABLE `bilanortho` (
 
 DROP TABLE IF EXISTS `biometries`;
 CREATE TABLE `biometries` (
-  `idPat` int(10) unsigned NOT NULL,
+  `idBio` int(11) NOT NULL AUTO_INCREMENT,
+  `idPat` int(11) DEFAULT NULL,
   `LAODmm` decimal(4,2) DEFAULT NULL,
   `LAOGmm` decimal(4,2) DEFAULT NULL,
   `BioDate` date DEFAULT NULL,
-  `TypeBio` varchar(15) DEFAULT NULL
+  `TypeBio` varchar(15) DEFAULT NULL,
+  PRIMARY KEY (`idBio`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `commentaireslunettes`;
@@ -224,32 +226,35 @@ CREATE TABLE `refractions` (
 
 DROP TABLE IF EXISTS `tonometries`;
 CREATE TABLE `tonometries` (
-  `idPat` int(10) unsigned NOT NULL,
+  `idTono` int(11) NOT NULL AUTO_INCREMENT,
+  `idPat` int(11) DEFAULT NULL,
   `TOOD` smallint(6) DEFAULT NULL,
   `TOOG` smallint(6) DEFAULT NULL,
   `TODate` datetime DEFAULT NULL,
-  `TOType` varchar(15) DEFAULT NULL,
-  KEY `idPatTO_idx` (`idPat`)
+  `TOType` varchar(15) CHARACTER SET latin1 DEFAULT NULL,
+  PRIMARY KEY (`idTono`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `pachymetries`;
 CREATE TABLE `pachymetries` (
-  `idPat` int(10) unsigned NOT NULL,
+  `idPachy` int(11) NOT NULL AUTO_INCREMENT,
+  `idPat` int(11) DEFAULT NULL,
   `pachyOD` smallint(3) DEFAULT NULL,
   `pachyOG` smallint(3) DEFAULT NULL,
   `pachyDate` datetime DEFAULT NULL,
-  `pachyType` varchar(15) DEFAULT NULL,
-  KEY `idPatTO_idx` (`idPat`)
+  `pachyType` varchar(15) CHARACTER SET latin1 DEFAULT NULL,
+  PRIMARY KEY (`idPachy`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `speculaires`;
 CREATE TABLE `speculaires` (
-  `idPat` int(10) unsigned NOT NULL,
+  `idSpec` int(11) NOT NULL AUTO_INCREMENT,
+  `idPat` int(11) DEFAULT NULL,
   `specOD` smallint(4) DEFAULT NULL,
   `specOG` smallint(4) DEFAULT NULL,
   `specDate` date DEFAULT NULL,
-  `specType` varchar(15) DEFAULT NULL,
-  KEY `idPatTO_idx` (`idPat`)
+  `specType` varchar(15) CHARACTER SET latin1 DEFAULT NULL,
+  PRIMARY KEY (`idSpec`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `IOLs`;
@@ -669,7 +674,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,59,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,60,
                                         NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);

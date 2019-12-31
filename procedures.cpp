@@ -6142,35 +6142,31 @@ void Procedures::setHtmlKerato()
 void Procedures::setHtmlTono()
 {
     logmesure("setHtmlTono() -> anc m_htmlMesureTono = " + m_htmlMesureTono);
-    m_htmlMesureTono = "";
-    QString mTOD        = QLocale().toString(Datas::I()->tono->TOD());
-    QString mTOG        = QLocale().toString(Datas::I()->tono->TOG());
-    QString Methode     = Tonometrie::ConvertMesure(Datas::I()->tono->modemesure());
-    QString Tono        ="";
-    QString TODcolor, TOGcolor;
+    m_htmlMesureTono = CalcHtmlTono(Datas::I()->tono);
+    logmesure("setHtmlTono() -> new m_htmlMesureTono = " + m_htmlMesureTono);
+}
 
-    if (mTOD.toInt() > 0 || mTOG.toInt() > 0)
+QString Procedures::CalcHtmlTono(Tonometrie *tono)
+{
+    if (!tono->isnullLOD() || !tono->isnullLOG())
     {
-        if (Datas::I()->tono->TOD() > 21)
-            TODcolor = "<font color = \"red\"><b>" + mTOD + "</b></font>";
-        else
-            TODcolor = "<font color = \"blue\"><b>" + mTOD + "</b></font>";
-        if (Datas::I()->tono->TOG() > 21)
-            TOGcolor = "<font color = \"red\"><b>" + mTOG + "</b></font>";
-        else
-            TOGcolor = "<font color = \"blue\"><b>" + mTOG + "</b></font>";
-        if (Datas::I()->tono->TOD() == 0 && Datas::I()->tono->TOG() > 0)
+        QString Methode = Tonometrie::ConvertMesure(tono->modemesure());
+        QString Tono, color;
+        color = (tono->TOD() > 21? "red" : "blue");
+        QString TODcolor = "<font color = \"" + color + "\"><b>" + QString::number(tono->TOD()) + "</b></font>";
+        color = (tono->TOG() > 21? "red" : "blue");
+        QString TOGcolor = "<font color = \"" + color + "\"><b>" + QString::number(tono->TOG()) + "</b></font>";
+        if (tono->TOD() == 0 && tono->TOG() > 0)
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
-        else if (Datas::I()->tono->TOG() == 0 && Datas::I()->tono->TOD() > 0)
+        else if (tono->TOG() == 0 && tono->TOD() > 0)
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
-        else if (Datas::I()->tono->TOD() == Datas::I()->tono->TOG())
+        else if (tono->TOD() == tono->TOG())
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
         else
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
-
+        return Tono;
     }
-    m_htmlMesureTono = Tono;
-    logmesure("setHtmlTono() -> new m_htmlMesureTono = " + m_htmlMesureTono);
+    else return "";
 }
 
 // -------------------------------------------------------------------------------------
@@ -6297,14 +6293,15 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono, Pachymetrie::Mode modepachy)
+int Procedures::InsertMesure(TypeMesure typemesure)
 {
+    int idmesure = -1;
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
-        return;
+        return idmesure;
     if (Datas::I()->patients->currentpatient()->isnull())
-        return;
+        return idmesure;
     if (Datas::I()->Datas::I()->actes->currentacte() == Q_NULLPTR)
-        return;
+        return idmesure;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
     if (typemesure == Fronto)
@@ -6400,7 +6397,7 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono,
         QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(typemesure) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
-            return;
+            return idmesure;
         if (patdata.size()==0)
         {
             requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
@@ -6444,7 +6441,7 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono,
         QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok)
-            return;
+            return idmesure;
         if (patdata.size()==0)
         {
             req = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
@@ -6564,7 +6561,7 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono,
         QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Subjectif) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
-            return;
+            return idmesure;
         if (patdata.size()==0)
         {
             requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
@@ -6620,22 +6617,31 @@ void Procedures::InsertMesure(TypeMesure typemesure, Tonometrie::Mode  modetono,
     }
     else if (typemesure == Tono)
     {
+        db->locktable(TBL_TONOMETRIE);
         QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
                 + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
                 + QString::number(Datas::I()->tono->TOD()) + ","
                 + QString::number(Datas::I()->tono->TOG())
-                + ", now(), '" + Tonometrie::ConvertMesure(modetono) + "')";
-        DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+                + ", now(), '" + Tonometrie::ConvertMesure(Datas::I()->tono->modemesure()) + "')";
+        db->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+        bool ok;
+        idmesure = db->selectMaxFromTable(CP_ID_TONO, TBL_TONOMETRIE,ok);
+        db->unlocktables();
     }
     else if (typemesure == Pachy)
     {
+        db->locktable(TBL_PACHYMETRIE);
         QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
                 + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
                 + QString::number(Datas::I()->pachy->pachyOD()) + ","
                 + QString::number(Datas::I()->pachy->pachyOG())
-                + ", now(), '" + Pachymetrie::ConvertMesure(modepachy) + "')";
+                + ", now(), '" + Pachymetrie::ConvertMesure(Datas::I()->pachy->modemesure()) + "')";
         DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
+        bool ok;
+        idmesure = db->selectMaxFromTable(CP_ID_PACHY, TBL_PACHYMETRIE,ok);
+        db->unlocktables();
     }
     if (typemesure != Fronto && typemesure != Tono && typemesure != Pachy)
         Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
+    return idmesure;
 }

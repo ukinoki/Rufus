@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                59  // version de la base de données
+#define VERSION_BASE                                60  // version de la base de données
 #define VERSION_RESSOURCES                          34  // version des fichiers de ressources
 
 // Les bases
@@ -478,6 +478,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MONTURE_REFRACTIONS                         "Monture"
 #define CP_VERRETEINTE_REFRACTIONS                     "VerreTeinte"
 #define CP_PD_REFRACTIONS                              "PD"
+
+                        //! Table Ophtalmologie.tonometries
+#define CP_ID_TONO                                      "idTono"
+#define CP_IDPAT_TONO                                   "idPat"
+#define CP_TOD_TONO                                     "TOOD"
+#define CP_TOG_TONO                                     "TOOG"
+#define CP_TODATE_TONO                                  "TODate"
+#define CP_TOTYPE_TONO                                  "TOType"
+
+                        //! Table Ophtalmologie.pachymetries
+#define CP_ID_PACHY                                     "idPachy"
+#define CP_IDPAT_PACHY                                  "idPat"
+#define CP_PACHYOD_PACHY                                "pachyOD"
+#define CP_PACHYOG_PACHY                                "pachyOG"
+#define CP_PACHYDATE_PACHY                              "pachyDate"
+#define CP_PACHYTYPE_PACHY                              "pachyType"
 
                             //! Table Ophtalmologie.DonneesOphtaPatients
 #define CP_ID_DATAOPHTA                                "idMesure"

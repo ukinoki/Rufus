@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("30-12-2019/1");
+    qApp->setApplicationVersion("31-12-2019/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -9679,12 +9679,12 @@ void Rufus::Pachymetrie()
 {
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
-    Dlg_AutresMes           = new dlg_autresmesures(dlg_autresmesures::PACHY);
+    Dlg_AutresMes= new dlg_autresmesures(dlg_autresmesures::PACHY);
     Dlg_AutresMes->setWindowTitle(tr("Pachymétrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        proc->InsertMesure(Procedures::Pachy, Tonometrie::NoMesure, Datas::I()->pachy->modemesure());
+        proc->InsertMesure(Procedures::Pachy);
         AffichePachymetrie();
     }
     Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
@@ -9694,28 +9694,30 @@ void Rufus::Pachymetrie()
 void Rufus::AffichePachymetrie()
 {
     QString pachy = proc->CalcHtmlPachy(Datas::I()->pachy);
-    QString ARajouterEnText = pachy;
-    ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-    QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
-    QString resumetxt = ui->ResumetextEdit->toHtml();
-    QString const dd    = "<a name=\"pachyDEBUT\"></a>";
-    QString const fd    = "<a name=\"pachyFIN\"></a>";
-    if (resumetxt.contains(QRegExp(dd + ".*" +fd)))
+    if (pachy != "")
     {
-        int n = pachy.indexOf(dd);
-        pachy = pachy.mid(n);
-        n = pachy.indexOf(fd) + fd.size();
-        pachy = pachy.left(n);
-        pachy.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"));
-        resumetxt.replace(QRegExp(dd + ".*" +fd), pachy);
-        ItemsList::update(currentpatient(), CP_RESUME_RMP, resumetxt);
-        ui->ResumetextEdit->setText(resumetxt);
+        QString ARajouterEnText = pachy;
+        ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+        QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
+        QString resumetxt = ui->ResumetextEdit->toHtml();
+        QString const dd    = "<a name=\"pachyDEBUT\"></a>";
+        QString const fd    = "<a name=\"pachyFIN\"></a>";
+        if (resumetxt.contains(QRegExp(dd + ".*" +fd)))
+        {
+            int n = pachy.indexOf(dd);
+            pachy = pachy.mid(n);
+            n = pachy.indexOf(fd) + fd.size();
+            pachy = pachy.left(n);
+            pachy.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"));
+            resumetxt.replace(QRegExp(dd + ".*" +fd), pachy);
+            ItemsList::update(currentpatient(), CP_RESUME_RMP, resumetxt);
+            ui->ResumetextEdit->setText(resumetxt);
+        }
+        else
+            ItemsList::update(currentpatient(), CP_RESUME_RMP, ui->ResumetextEdit->appendHtml(ARajouterEnText.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"))));
+        ui->ActeTextetextEdit->setFocus();
+        ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
-    else
-        ItemsList::update(currentpatient(), CP_RESUME_RMP, ui->ResumetextEdit->appendHtml(ARajouterEnText.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"))));
-    ui->ActeTextetextEdit->setFocus();
-    ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9725,39 +9727,16 @@ void Rufus::Tonometrie()
 {
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
-    Dlg_AutresMes           = new dlg_autresmesures(dlg_autresmesures::TONO);
-    QString TOD, TOG, Methode, TODcolor, TOGcolor;
+    Dlg_AutresMes = new dlg_autresmesures(dlg_autresmesures::TONO);
     Dlg_AutresMes->setWindowTitle(tr("Tonométrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        proc->InsertMesure(Procedures::Tono, Datas::I()->tono->modemesure(), Pachymetrie::NoMesure);
-        TOD = QString::number(Datas::I()->tono->TOD());
-        TOG = QString::number(Datas::I()->tono->TOG());
-        Methode = Tonometrie::ConvertMesure(Datas::I()->tono->modemesure());
-        if (TOD.toInt() > 21)
-            TODcolor = "<font color = \"red\"><b>" + TOD + "</b></font>";
-        else
-            TODcolor = "<font color = \"blue\"><b>" + TOD + "</b></font>";
-        if (TOG.toInt() > 21)
-            TOGcolor = "<font color = \"red\"><b>" + TOG + "</b></font>";
-        else
-            TOGcolor = "<font color = \"blue\"><b>" + TOG + "</b></font>";
-        if (TOD.toInt() > 0 || TOG.toInt() > 0)
+        proc->InsertMesure(Procedures::Tono);
+        QString tono = proc->CalcHtmlTono(Datas::I()->tono);
+        if (tono != "")
         {
-            QString Tono;
-            if (TOD.toInt() == 0 && TOG.toInt() > 0)
-                Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td>";
-            if (TOG.toInt() == 0 && TOD.toInt() > 0)
-                Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td>";
-            if (TOD.toInt() > 0 && TOG.toInt() > 0)
-            {
-                if (TOD.toInt() == TOG.toInt())
-                    Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td>";
-                else
-                    Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TO:") +"</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td>";
-            }
-            QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Tono  + "</p>"
+            QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + tono  + "</p>"
                     + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
             ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         }

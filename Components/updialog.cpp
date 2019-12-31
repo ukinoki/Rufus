@@ -38,26 +38,26 @@ UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 
 void UpDialog::AjouteLay()
 {
-    m_stageheight = 40;
-    wdg_buttonswidget     = new QWidget();
-    wdg_buttonslayout      = new QHBoxLayout();
-    wdg_buttonslayout      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
-    wdg_buttonslayout      ->setContentsMargins(0,10,0,10);
-    wdg_buttonslayout      ->setSpacing(10);
-    wdg_buttonswidget     ->setLayout(wdg_buttonslayout);
-    dlglayout()     ->addWidget(wdg_buttonswidget);
+    m_stageheight       = 40;
+    wdg_buttonswidget   = new QWidget();
+    wdg_buttonslayout   = new QHBoxLayout();
+    wdg_buttonslayout   ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
+    wdg_buttonslayout   ->setContentsMargins(0,10,0,10);
+    wdg_buttonslayout   ->setSpacing(10);
+    wdg_buttonswidget   ->setLayout(wdg_buttonslayout);
+    dlglayout()         ->addWidget(wdg_buttonswidget);
 }
 void UpDialog::AjouteLayButtons(Buttons Button)
 {
     // le Button Cancel est toujours le plus à gauche
     // Close le plus à droite et OK juste avant Close
-    if (Button.testFlag(UpDialog::ButtonRecord))
+    if (Button.testFlag(ButtonRecord))
     {
         RecordButton    = new UpSmallButton();
         RecordButton    ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
         wdg_buttonslayout      ->addWidget(RecordButton);
     }
-    if (Button.testFlag(UpDialog::ButtonCancel))
+    if (Button.testFlag(ButtonCancel))
     {
         CancelButton    = new UpSmallButton();
         CancelButton    ->setShortcut(QKeySequence("F12"));
@@ -65,40 +65,40 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         wdg_buttonslayout      ->addWidget(CancelButton);
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }
-    if (Button.testFlag(UpDialog::ButtonPrint))
+    if (Button.testFlag(ButtonPrint))
     {
         PrintButton     = new UpSmallButton();
         PrintButton     ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
         PrintButton     ->setShortcut(QKeySequence("Meta+P"));
         wdg_buttonslayout      ->addWidget(PrintButton);
     }
-    if (Button.testFlag(UpDialog::ButtonSuppr))
+    if (Button.testFlag(ButtonSuppr))
     {
         SupprButton     = new UpSmallButton();
         SupprButton     ->setUpButtonStyle(UpSmallButton::SUPPRBUTTON);
         wdg_buttonslayout      ->addWidget(SupprButton);
     }
-    if (Button.testFlag(UpDialog::ButtonEdit))
+    if (Button.testFlag(ButtonEdit))
     {
         EditButton     = new UpSmallButton();
         EditButton     ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
         wdg_buttonslayout     ->addWidget(EditButton);
     }
-    if (Button.testFlag(UpDialog::ButtonOK))
+    if (Button.testFlag(ButtonOK))
     {
         OKButton        = new UpSmallButton();
         OKButton        ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
         OKButton        ->setShortcut(QKeySequence("Meta+Return"));
         wdg_buttonslayout      ->addWidget(OKButton);
     }
-    if (Button.testFlag(UpDialog::ButtonClose))
+    if (Button.testFlag(ButtonClose))
     {
         CloseButton     = new UpSmallButton();
         CloseButton     ->setUpButtonStyle(UpSmallButton::CLOSEBUTTON);
         CloseButton     ->setShortcut(QKeySequence("Meta+P"));
         wdg_buttonslayout      ->addWidget(CloseButton);
     }
-    if (Button.testFlag(UpDialog::ButtonOups))
+    if (Button.testFlag(ButtonOups))
     {
         CloseButton     = new UpSmallButton();
         CloseButton     ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
