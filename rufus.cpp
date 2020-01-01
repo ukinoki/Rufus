@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("31-12-2019/1");
+    qApp->setApplicationVersion("01-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -9850,12 +9850,17 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     return true;
 }
 
-void Rufus::
-
-NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
+void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
-    if (findChildren<dlg_refraction*>().size()>0 && TypeMesure != Procedures::Pachy && TypeMesure != Procedures::Tono)
-        return;
+    if (findChildren<dlg_refraction*>().size()>0)
+    {
+        if (TypeMesure == Procedures::Final || TypeMesure == Procedures::Subjectif)
+            return;
+        if (TypeMesure == Procedures::Fronto && proc->PortFronto() != Q_NULLPTR)
+            return;
+        if (TypeMesure == Procedures::Autoref && proc->PortAutoref() != Q_NULLPTR)
+            return;
+    }
     if (currentpatient() == Q_NULLPTR || currentacte() == Q_NULLPTR)
         return;
 

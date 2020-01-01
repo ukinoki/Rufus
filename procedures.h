@@ -490,7 +490,6 @@ private:
     QString                 m_htmlMesureFronto;
     bool                    LectureDonneesFronto(QString Mesure);           // lit les données envoyées sur le port série du fronto
     void                    setHtmlFronto();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
-    bool                    m_isnewMesureFronto;                            // détermine si la mesure provient du fronto ou du dossier
     //L'AUTOREF ----------------------------------------------------
     QMap<QString,QVariant>  map_dataAEnvoyerAuRefracteur;
     QString                 m_htmlMesureAutoref;
@@ -502,9 +501,6 @@ private:
     void                    setHtmlKerato();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
     void                    setHtmlTono();                                  // détermine le html à inscrire dans la fiche observation à partir du QMap MesureTono
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
-    bool                    m_isnewMesureAutoref;                           // détermine si la mesure d'autoref provient de l'autoref ou du dossier
-    bool                    m_isnewMesureKerato;                            // détermine si la mesure de kerato provient de l'autoref ou du dossier
-    bool                    m_isnewMesureTono;                              // détermine si la mesure de tono provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
     QString                 m_htmlMesureRefracteurSubjectif;
     QMap<QString,QVariant>  map_mesureRefracteurFinal;

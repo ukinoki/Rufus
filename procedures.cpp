@@ -4619,10 +4619,6 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
 
 void Procedures::EnvoiDataPatientAuRefracteur()
 {
-    m_isnewMesureAutoref = false;
-    m_isnewMesureFronto  = false;
-    m_isnewMesureKerato  = false;
-    m_isnewMesureTono    = false;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR)
         // NIDEK RT-5100
@@ -4762,8 +4758,9 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             if (PortFronto() == Q_NULLPTR)                                      //! au cas où le fronto est directement branché sur la box du refracteur
                 if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
                 {
-                    m_isnewMesureFronto = true;
                     InsertMesure(Fronto);
+                    setHtmlFronto();
+                    emit NouvMesure(Fronto);
                 }
             delete oldMesureFronto;
         }
@@ -4804,8 +4801,9 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
                 if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
                 {
-                    m_isnewMesureAutoref = true;
                     InsertMesure(Autoref);
+                    setHtmlAutoref();
+                    emit NouvMesure(Autoref);
                 }
             delete oldMesureAutoref;
         }
@@ -4848,7 +4846,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
                 Datas::I()->mesurekerato->setaxeKOG(AxeKOG);
                 if (SectionKerato.contains("DL"))
                 {
-                    mesureOG            = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
+                    mesureOG        = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
                     Datas::I()->mesurekerato->setdioptriesK1OG(mesureOG.mid(0,5).toDouble());
                     Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.mid(5,5).toDouble());
                 }
@@ -4856,8 +4854,9 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
                 if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
                 {
-                    m_isnewMesureKerato = true;
                     InsertMesure(Kerato);
+                    setHtmlKerato();
+                    emit NouvMesure(Kerato);
                 }
             delete oldMesureKerato;
         }
@@ -4971,9 +4970,6 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
         if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
         {
             dataok = true;
-            Tonometrie  *oldMesureTono = new Tonometrie();
-            oldMesureTono->setdatas(Datas::I()->tono);
-            logmesure("LectureDonneesRefracteur() - ancienne mesure tono -> TOD = " + QString::number(Datas::I()->tono->TOD()) + " - TOG = " + QString::number(Datas::I()->tono->TOG()));
             Datas::I()->tono->cleandatas();
             idx                     = Mesure.indexOf("@NT");
             QString SectionTono     = Mesure.right(Mesure.length()-idx-5);
@@ -4993,18 +4989,11 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             logmesure("LectureDonneesRefracteur() - PortAutoref() = " + portautoref);
             if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
             {
-                QString isdifferentmesure = (Datas::I()->tono->isDifferent(oldMesureTono)? "true" : "false");
-                logmesure("LectureDonneesRefracteur() - Datas::I()->tono->isDifferent(oldMesureTono) = " + isdifferentmesure);
-                QString iscleandatas = (Datas::I()->tono->isdataclean()? "true" : "false");
-                logmesure("LectureDonneesRefracteur() - Datas::I()->tono->isdataclean()) = " + iscleandatas);
-                if (Datas::I()->tono->isDifferent(oldMesureTono) && !Datas::I()->tono->isdataclean())
-                {
-                    logmesure("LectureDonneesRefracteur() - OK nouvelle mesure tono");
-                    m_isnewMesureTono = true;
-                    InsertMesure(Tono);
-                }
+                logmesure("LectureDonneesRefracteur() - OK nouvelle mesure tono");
+                InsertMesure(Tono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
+                setHtmlTono();
+                emit NouvMesure(Tono);
             }
-            delete oldMesureTono;
         }
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
@@ -5017,21 +5006,6 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlRefracteur()
 {
-   // CALCUL DE HtmlMesureFronto ====================================================================================================================================
-    if (Datas::I()->mesurefronto != Q_NULLPTR && m_isnewMesureFronto)
-    {
-        setHtmlFronto();
-        //debugMesureRefraction(Datas::I()->mesurefronto);
-    }
-    // CALCUL DE HtmlMesureAutoref ===================================================================================================================================
-    if (!Datas::I()->mesureautoref->isdataclean() && m_isnewMesureAutoref)
-    {
-        setHtmlAutoref();
-        //debugMesureRefraction(Datas::I()->mesureautoref);
-    }
-    // CALCUL DE HtmlMesureKerato ====================================================================================================================================
-    if (!Datas::I()->mesurekerato->isdataclean() && m_isnewMesureKerato)
-        setHtmlKerato();
     // CALCUL DE HtmlMesureRefracteurSubjectif =======================================================================================================================
     QString Resultat = "";
     if(!Datas::I()->mesureacuite->isdataclean())
@@ -5175,12 +5149,6 @@ void Procedures::setHtmlRefracteur()
         Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + currentuser()->login() + "</td></p>";
     }
     m_htmlMesureRefracteurSubjectif = Resultat;
-    // CALCUL DE HtmlMesureTono ======================================================================================================================================
-    if (!Datas::I()->tono->isdataclean() && m_isnewMesureTono)
-    {
-        setHtmlTono();
-        logmesure("setHtmlRefracteur() -> m_htmlMesureTono = " + m_htmlMesureTono);
-    }
 }
 
 QString Procedures::HtmlRefracteur()
@@ -5599,13 +5567,13 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
                 if (!Datas::I()->tono->isdataclean())
                 {
                     setHtmlTono();
-                    InsertMesure(Tono);
+                    InsertMesure(Tono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
                     emit NouvMesure(Tono);
                 }
                 if (!Datas::I()->pachy->isdataclean())
                 {
                     setHtmlPachy();
-                    InsertMesure(Pachy);
+                    InsertMesure(Pachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
                     emit NouvMesure(Pachy);
                 }
             }
@@ -5638,13 +5606,13 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             if (!Datas::I()->tono->isdataclean())
             {
                 setHtmlTono();
-                InsertMesure(Tono);
+                InsertMesure(Tono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
                 emit NouvMesure(Tono);
             }
             if (!Datas::I()->pachy->isdataclean())
             {
                 setHtmlPachy();
-                InsertMesure(Pachy);
+                InsertMesure(Pachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
                 emit NouvMesure(Pachy);
             }
         }
