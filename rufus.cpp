@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("01-01-2020/1");
+    qApp->setApplicationVersion("02-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1543,14 +1543,13 @@ void Rufus::CreerBilanOrtho()
     if (Dlg_BlOrtho->exec()> 0)
     {
         QString updaterequete;
-        QString const paragraph         = "<p style = \"margin-top:0px; margin-bottom:0px;\">";
         QString const debutdelimiter    = "<a name=\"BODEBUT\"></a>";
         QString const findelimiter      = "<a name=\"BOFIN\"></a>";
 
         // Compléter le champ Motif et mettre à jour l'affichage de ActeMotiftextEdit
         QString Motif                   = Dlg_BlOrtho->ui->MotiftextEdit->toPlainText();
         Motif                           .insert(Motif.length()-2, findelimiter);
-        Motif                           = paragraph + debutdelimiter + Motif + "</a></p>";
+        Motif                           = HTML_RETOURLIGNE + debutdelimiter + Motif + "</a></p>";
         ui->ActeMotiftextEdit           ->setText(Motif);
         ItemsList::update(currentacte(), CP_MOTIF_ACTES, Motif);
 
@@ -1562,7 +1561,7 @@ void Rufus::CreerBilanOrtho()
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit
         QString Concl                   = Dlg_BlOrtho->ui->ConclusiontextEdit->toPlainText();
         Concl                           .insert(Concl.length()-2, findelimiter);
-        Concl                           = paragraph + debutdelimiter + Concl + "</p>";
+        Concl                           = HTML_RETOURLIGNE + debutdelimiter + Concl + "</p>";
         ui->ActeConclusiontextEdit      ->setText(Concl);
         ItemsList::update(currentacte(), CP_CONCLUSION_ACTES, Concl);
 
@@ -8584,10 +8583,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
             for (int i= 0; i<Dlg_Refraction->ResultatObservation().size();i++)
                 if (Dlg_Refraction->ResultatObservation().at(i).unicode() == 10) Dlg_Refraction->ResultatObservation().replace(Dlg_Refraction->ResultatObservation().at(i),"<br>");
             //qDebug() << Dlg_Refraction->ResultatObservation();
-            QString ARajouterEnText =
-                    "<p style = \"margin-top:0px; margin-bottom:0px;\">"
-                    + Dlg_Refraction->ResultatObservation()
-                    + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
+            QString ARajouterEnText = HTML_RETOURLIGNE + Dlg_Refraction->ResultatObservation()  + "</p>" + HTML_FINPARAGRAPH;
             ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
             ui->ActeTextetextEdit->setFocus();
             ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
@@ -8607,8 +8603,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
                 Date = "<td width=\"80\">le " + QDate::currentDate().toString("d.M.yyyy") + "</td>";
                 larg = "470";
             }
-            QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->ResultatPrescription()  + "</p>"
-                                         + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\">";
+            QString ARajouterEnConcl =  HTML_RETOURLIGNE + Date + Dlg_Refraction->ResultatPrescription()  + "</p>" + HTML_FINPARAGRAPH;
             ItemsList::update(currentacte(), CP_CONCLUSION_ACTES, ui->ActeConclusiontextEdit->appendHtml(ARajouterEnConcl));
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
@@ -9700,16 +9695,18 @@ void Rufus::AffichePachymetrie()
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
         QString resumetxt = ui->ResumetextEdit->toHtml();
-        QString const dd    = "<a name=\"pachyDEBUT\"></a>";
+        QString const dd1    = "<a name=\"pachyDEBUT";
+        QString regid  = "[0-9]{0,11}";
+        QString dd2 = "\"></a>";
         QString const fd    = "<a name=\"pachyFIN\"></a>";
-        if (resumetxt.contains(QRegExp(dd + ".*" +fd)))
+        if (resumetxt.contains(QRegExp(dd1 + regid + dd2 + ".*" + fd)))
         {
-            int n = pachy.indexOf(dd);
+            int n = pachy.indexOf(dd1);
             pachy = pachy.mid(n);
             n = pachy.indexOf(fd) + fd.size();
             pachy = pachy.left(n);
             pachy.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"));
-            resumetxt.replace(QRegExp(dd + ".*" +fd), pachy);
+            resumetxt.replace(QRegExp(dd1 + regid + dd2 + ".*" + fd), pachy);
             ItemsList::update(currentpatient(), CP_RESUME_RMP, resumetxt);
             ui->ResumetextEdit->setText(resumetxt);
         }
@@ -9736,8 +9733,7 @@ void Rufus::Tonometrie()
         QString tono = proc->CalcHtmlTono(Datas::I()->tono);
         if (tono != "")
         {
-            QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + tono  + "</p>"
-                    + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
+            QString ARajouterEnText =  HTML_RETOURLIGNE + tono  + "</p>" HTML_FINPARAGRAPH;
             ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         }
         ui->ActeTextetextEdit->setFocus();

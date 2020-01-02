@@ -249,7 +249,7 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
     text.remove(HTMLCOMMENT_LINUX);
     text.remove(HTMLCOMMENT_MAC);
     if (remetunelignealafin)
-        text.append("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>");
+        text.append(HTML_FINPARAGRAPH);
 #ifdef Q_OS_LINUX
     text.append(HTMLCOMMENT_LINUX);
 #endif

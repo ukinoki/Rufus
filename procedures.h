@@ -467,7 +467,7 @@ public:
     QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    int                     InsertMesure(TypeMesure typemesure = All);         // enregistre la mesure de réfraction
+    void                    InsertMesure(TypeMesure typemesure = All);         // enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }

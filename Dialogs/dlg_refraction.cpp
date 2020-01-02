@@ -2635,63 +2635,63 @@ void dlg_refraction::ResumeObservation()
         {
             if (ui->PressonODCheckBox->isChecked() && ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + " / " + ResultatPrismeOG + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + " / " + ResultatPrismeOG + "</td>";
             if (ui->PressonODCheckBox->isChecked() && !ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" OD") + "</td>"
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOG + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" OD") + "</td>"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOG + tr(" OG") + "</td>";
             if (!ui->PressonODCheckBox->isChecked() && ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + tr(" OD") + "</td>"
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOG + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + tr(" OD") + "</td>"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOG + tr(" OG") + "</td>";
             if (!ui->PressonODCheckBox->isChecked() && !ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + " / " + ResultatPrismeOG + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + " / " + ResultatPrismeOG + "</td>";
         }
         if (ResultatPrismeOD != "" &&  ResultatPrismeOG != "" && ResultatPrismeOD == ResultatPrismeOG)
         {
             if (ui->PressonODCheckBox->isChecked() && ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" ODG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" ODG") + "</td>";
             if (ui->PressonODCheckBox->isChecked() && !ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" OD") + "</td>"
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOG + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" OD") + "</td>"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOG + tr(" OG") + "</td>";
             if (!ui->PressonODCheckBox->isChecked() && ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + tr(" OD") + "</td>"
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOG + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + tr(" OD") + "</td>"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOG + tr(" OG") + "</td>";
             if (!ui->PressonODCheckBox->isChecked() && !ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prismes ") + ResultatPrismeOD + tr(" ODG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prismes ") + ResultatPrismeOD + tr(" ODG") + "</td>";
         }
         if (ResultatPrismeOD != "" &&  ResultatPrismeOG == "")
         {
             if (ui->PressonODCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" OD") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOD + tr(" OD") + "</td>";
             else
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + tr(" OD") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOD + tr(" OD") + "</td>";
         }
         if (ResultatPrismeOD == "" &&  ResultatPrismeOG != "")
         {
             if (ui->PressonOGCheckBox->isChecked())
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Press-On " + ResultatPrismeOG + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Press-On " + ResultatPrismeOG + tr(" OG") + "</td>";
             else
                 ResultatPrisme =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOG + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>" + tr("Prisme ") + ResultatPrismeOG + tr(" OG") + "</td>";
         }
 
         //3 - incorporation des valeurs de Ryser
         ResultatRyser = "";
         if (ui->RyserODCheckBox->isChecked())
             ResultatRyser =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Ryser " + ui->RyserSpinBox->text() + tr(" OD") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Ryser " + ui->RyserSpinBox->text() + tr(" OD") + "</td>";
         if (ui->RyserOGCheckBox->isChecked())
             ResultatRyser =
-                        "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Ryser " + ui->RyserSpinBox->text() + tr(" OG") + "</td>";
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td>Ryser " + ui->RyserSpinBox->text() + tr(" OG") + "</td>";
 
         // 4 - détermination du resultat final
         if (m_mode == Refraction::Fronto)
@@ -2748,21 +2748,21 @@ void dlg_refraction::ResumeObservation()
         if (QLocale().toDouble(ui->K1OD->text())>0 && m_modeouverture == Manuel)
         {
             if (DataBase::I()->donneesOphtaPatient()->dioptriesKOD()!=0.0)
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p> " HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OD->text() + "/" + ui->K2OD->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2)
                         + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesKOD(),'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
             else
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
+                kerato += "</p> " HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
         if (QLocale().toDouble(ui->K1OG->text())>0 && m_modeouverture == Manuel)
         {
             if (DataBase::I()->donneesOphtaPatient()->dioptriesKOG()!=0.0)
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p> " HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() + "/" + ui->K2OG->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2)
                         + "</td><td width=\"120\">" + QString::number(DataBase::I()->donneesOphtaPatient()->dioptriesKOG(),'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
             else
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p> " HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
         }
         if (ui->CycloplegieCheckBox->isChecked())
@@ -2864,11 +2864,11 @@ void dlg_refraction::ResumeObservation()
                     {
                         if (ui->AddVPOG->value() == 0.0)
                             m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
-                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
                         else
                             m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
-                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
                     }
                 }
@@ -2880,11 +2880,11 @@ void dlg_refraction::ResumeObservation()
                     {
                         if (ui->AddVPOG->value() == 0.0)
                             m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
-                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
                         else
                             m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
-                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
                     }
                 }
@@ -2904,7 +2904,7 @@ void dlg_refraction::ResumeObservation()
                     m_resultPubliRefraction = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</b></font> " + tr("OD");
                 else
                     m_resultPubliRefraction = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</b></font> " + tr("OD") + "</td></p>"
-                            +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                            HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                             + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</b></font> " + tr("OG") + "</td>";
             }
             else if (ResultatOG != "Rien")

@@ -557,6 +557,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_ADMINISTRATEUR                          "Admin"
 #define MDP_ADMINISTRATEUR                          "bob"
 
+
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"
 #define TCPMSG_StringidPoste                        "StringidPoste"                                     /*! nom du message fournissant le Stringid du poste qui vient de se connecter */
@@ -680,6 +681,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HTMLCOMMENT_MAC             "<!MAC>"
 #define HTMLANCHOR_BODEBUT          "<BOdebut>"
 #define HTMLANCHOR_BOFIN            "<BOfin>"
+#define HTML_FINPARAGRAPH           "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>"
+#define HTML_RETOURLIGNE            "<p style = \"margin-top:0px; margin-bottom:0px;\" >"
+
 
 // valeurs extrêmes de kératométrie
 #define MinK                        5

@@ -27,6 +27,8 @@ public:
     Mesure() {}
 
 protected:
+    int m_idmesure = 0;
+    int m_idpatient = 0;
     bool m_cleandatas   = true;         //!> les données sont vierges
     bool m_isnullOD     = true;         //!> aucune mesure n'a été effectuée à droite
     bool m_isnullOG     = true;         //!> aucune mesure n'a été effectuée à gauche
@@ -36,6 +38,11 @@ public:
     bool isnullLOD() const          { return m_isnullOD; }
     bool isnullLOG() const          { return m_isnullOG; }
 
-};
+    int  id() const                 { return m_idmesure; }
+    void setid(int id)              { m_idmesure = id; }
+
+    int idpatient() const           { return m_idpatient; }
+    void setidpatient(int id)       { m_idpatient = id;}
+ };
 
 #endif // MESURE_H

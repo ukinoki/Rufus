@@ -324,7 +324,7 @@ QString UpTextEdit::appendHtml(QString appendtext, bool supprimeLesLignesVidesDu
     Utils::retirelignevidefinhtml(texte);
     texte += appendtext;
     if (rajouteunelignealafin)
-        texte += "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
+        texte += HTML_FINPARAGRAPH;
     Utils::nettoieHTML(texte, supprimeLesLignesVidesDuMilieu);
     setHtml(texte);
     return texte;

@@ -5106,12 +5106,12 @@ void Procedures::setHtmlRefracteur()
 
             if (Resultat == "" && ResultatOD != "Rien" && (QLocale().toDouble(mAddOD) == 0.0 && QLocale().toDouble(mAddOG) == 0.0) && ResultatOG != "Rien")
                 Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " "+ tr("OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                         + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " " + tr("OG") + "</td>";
 
             if (Resultat == "" && ResultatOD != "Rien" && (QLocale().toDouble(mAddOD) == 0.0 && QLocale().toDouble(mAddOG) > 0) && ResultatOG != "Rien")
                 Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                         + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " add." + mAddOG + "VP "+ tr("OG") + "</td>";
 
             if (Resultat == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0  && ResultatOG == "Rien")
@@ -5119,12 +5119,12 @@ void Procedures::setHtmlRefracteur()
 
             if (Resultat == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0 && QLocale().toDouble(mAddOG) == 0.0 && ResultatOG != "Rien")
                 Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                         + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " " + tr("OG") + "</td>";
 
             if (Resultat == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0 && QLocale().toDouble(mAddOG) > 0 && ResultatOG != "Rien")
                 Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                         + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " add." + mAddOG + "VP " + tr("OG") + "</td>";
 
             if (Resultat == "" && (ResultatOD == "Rien" &&  QLocale().toDouble(mAddOG) == 0.0) && ResultatOG != "Rien")
@@ -5140,13 +5140,13 @@ void Procedures::setHtmlRefracteur()
 
             if (Resultat == "" && ResultatOD != "Rien" && ResultatOG != "Rien")
                 Resultat = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + mAVLOD + "</b></font> " + tr("OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                        HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                         + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG") + "</td>";
 
             if (Resultat == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
                 Resultat = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG");
         }
-        Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + currentuser()->login() + "</td></p>";
+        Resultat = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + currentuser()->login() + "</td></p>";
     }
     m_htmlMesureRefracteurSubjectif = Resultat;
 }
@@ -5447,7 +5447,7 @@ void Procedures::setHtmlFronto()
     else
         Resultat = ResultatOD + " / " + ResultatOG;
 
-    m_htmlMesureFronto =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
+    m_htmlMesureFronto =  HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
 }
 
 QString Procedures::HtmlFronto()
@@ -6053,7 +6053,7 @@ void Procedures::setHtmlAutoref()
     }
     else
         Resultat = ResultatOD + " / " + ResultatOG;
-    m_htmlMesureAutoref =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>"
+    m_htmlMesureAutoref =  HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                            + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td></p>";
 }
 
@@ -6074,11 +6074,11 @@ void Procedures::setHtmlKerato()
         QString mDioptrKOD  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOD());
         QString mDioptrmOD  = QString::number(Datas::I()->mesurekerato->dioptriesKMOD(),'f',2);
         if (QLocale().toDouble(mDioptrK1OD)!=0.0)
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
+            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + "/" + mK2OD + " Km = " + mKOD + "</td>"
                       "<td width=\"180\">" + mDioptrK1OD + "/" + mDioptrK2OD + " " + mDioptrKOD +  tr(" à ") + mAxeKOD + "°</td></p>";
         else
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
+            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + tr(" à ") + mAxeKOD + "°/" + mK2OD
                       + " Km = " + mDioptrmOD + "</td></p>";
     }
@@ -6093,11 +6093,11 @@ void Procedures::setHtmlKerato()
         QString mDioptrKOG  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOG());
         QString mDioptrmOG  = QString::number(Datas::I()->mesurekerato->dioptriesKMOG(),'f',2);
         if (QLocale().toDouble(mDioptrK1OG)!=0.0)
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
+            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OG + "/" + mK2OG + " Km = " + mKOG + "</td>"
                       "<td width=\"180\">" + mDioptrK1OG + "/" + mDioptrK2OG + " " + mDioptrKOG +  tr(" à ") + mAxeKOG + "°</td></p>";
         else
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
+            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">"  + mK1OG +  tr(" à ") + mAxeKOG + "°/" + mK2OG
                       + " Km = " + mDioptrmOG + "</td></p>";
     }
@@ -6125,13 +6125,13 @@ QString Procedures::CalcHtmlTono(Tonometrie *tono)
         color = (tono->TOG() > 21? "red" : "blue");
         QString TOGcolor = "<font color = \"" + color + "\"><b>" + QString::number(tono->TOG()) + "</b></font>";
         if (tono->TOD() == 0 && tono->TOG() > 0)
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
         else if (tono->TOG() == 0 && tono->TOD() > 0)
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
         else if (tono->TOD() == tono->TOG())
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
         else
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
         return Tono;
     }
     else return "";
@@ -6149,10 +6149,10 @@ QString Procedures::CalcHtmlPachy(Pachymetrie *pachy)
 {
     if (!pachy->isnullLOD() || !pachy->isnullLOG())
     {
-        QString const dd    = "<a name=\"pachyDEBUT\"></a>";
+        QString const dd    = "<a name=\"pachyDEBUT" + QString::number(pachy->id()) + "\"></a>";
         QString const fd    = "<a name=\"pachyFIN\"></a>";
-        QString larg = ((pachy->pachyOD() > 0 && pachy->pachyOG() > 0) && (pachy->pachyOD() == pachy->pachyOG())? "80" : "60");
-        QString title = "<p style = \"margin-top:0px; margin-bottom:0px;\"><td width=\"" + larg + "\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy");
+        QString larg = ((pachy->pachyOD() > 0 && pachy->pachyOG() > 0) && (pachy->pachyOD() == pachy->pachyOG())? "80" : "80");
+        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy");
         QString pachyOD, pachyOG, Methode;
         pachyOD = QString::number(pachy->pachyOD());
         pachyOG = QString::number(pachy->pachyOG());
@@ -6165,7 +6165,7 @@ QString Procedures::CalcHtmlPachy(Pachymetrie *pachy)
         else
         {
             if (pachy->pachyOD() == pachy->pachyOG())
-                result = tr("ODG") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"110\">(" + Methode;
+                result = " " + tr("ODG") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"110\">(" + Methode;
             else
                 result = ":</b></font></td><td width=\"60\"><font color = \"green\"><b>" + pachyOD +  "/" + pachyOG + "</b></font></td><td width=\"110\">(" + Methode;
         }
@@ -6261,15 +6261,14 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-int Procedures::InsertMesure(TypeMesure typemesure)
+void Procedures::InsertMesure(TypeMesure typemesure)
 {
-    int idmesure = -1;
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
-        return idmesure;
+        return;
     if (Datas::I()->patients->currentpatient()->isnull())
-        return idmesure;
+        return;
     if (Datas::I()->Datas::I()->actes->currentacte() == Q_NULLPTR)
-        return idmesure;
+        return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
     if (typemesure == Fronto)
@@ -6365,7 +6364,7 @@ int Procedures::InsertMesure(TypeMesure typemesure)
         QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(typemesure) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
-            return idmesure;
+            return;
         if (patdata.size()==0)
         {
             requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
@@ -6409,7 +6408,7 @@ int Procedures::InsertMesure(TypeMesure typemesure)
         QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok)
-            return idmesure;
+            return;
         if (patdata.size()==0)
         {
             req = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
@@ -6529,7 +6528,7 @@ int Procedures::InsertMesure(TypeMesure typemesure)
         QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Subjectif) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
-            return idmesure;
+            return;
         if (patdata.size()==0)
         {
             requete = "INSERT INTO " TBL_DONNEES_OPHTA_PATIENTS
@@ -6585,31 +6584,32 @@ int Procedures::InsertMesure(TypeMesure typemesure)
     }
     else if (typemesure == Tono)
     {
+        Datas::I()->tono->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_TONOMETRIE);
         QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
-                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                + QString::number(Datas::I()->tono->idpatient()) + ","
                 + QString::number(Datas::I()->tono->TOD()) + ","
                 + QString::number(Datas::I()->tono->TOG())
                 + ", now(), '" + Tonometrie::ConvertMesure(Datas::I()->tono->modemesure()) + "')";
         db->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
         bool ok;
-        idmesure = db->selectMaxFromTable(CP_ID_TONO, TBL_TONOMETRIE,ok);
+        Datas::I()->tono->setid(db->selectMaxFromTable(CP_ID_TONO, TBL_TONOMETRIE,ok));
         db->unlocktables();
     }
     else if (typemesure == Pachy)
     {
+        Datas::I()->pachy->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_PACHYMETRIE);
         QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
-                + QString::number(Datas::I()->patients->currentpatient()->id()) + ","
+                + QString::number(Datas::I()->pachy->idpatient()) + ","
                 + QString::number(Datas::I()->pachy->pachyOD()) + ","
                 + QString::number(Datas::I()->pachy->pachyOG())
                 + ", now(), '" + Pachymetrie::ConvertMesure(Datas::I()->pachy->modemesure()) + "')";
         DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
         bool ok;
-        idmesure = db->selectMaxFromTable(CP_ID_PACHY, TBL_PACHYMETRIE,ok);
+        Datas::I()->pachy->setid(db->selectMaxFromTable(CP_ID_PACHY, TBL_PACHYMETRIE,ok));
         db->unlocktables();
     }
     if (typemesure != Fronto && typemesure != Tono && typemesure != Pachy)
         Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
-    return idmesure;
 }

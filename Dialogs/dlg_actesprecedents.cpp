@@ -236,7 +236,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         {
             QString texte = acte->motif();
             Utils::convertHTML(texte);
-            textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\"><td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("MOTIF") + "</font></td></p>";
+            textHTML += HTML_RETOURLIGNE "<td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("MOTIF") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\"><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
 
@@ -244,7 +244,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         {
             QString texte = acte->texte();
             Utils::convertHTML(texte);
-            textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("EXAMEN") + "</font></td></p>";
+            textHTML += HTML_RETOURLIGNE "<td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("EXAMEN") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
         ui->CorpsupTextEdit->setText(textHTML);
@@ -254,7 +254,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         {
             QString texte = acte->conclusion();
             if( acte->motif().size() || acte->texte().size() )
-                textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("CONCLUSION") + "</font></td></p>";
+                textHTML += HTML_RETOURLIGNE "<td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("CONCLUSION") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
         ui->ConclusionupTextEdit->setText(textHTML);
