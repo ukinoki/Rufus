@@ -35,7 +35,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
     m_encours = true;
     m_listemessages.clear();
     m_datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
-    if (!DefinitDossiers())
+    if (!DefinitDossiersImagerie())
     {
         m_encours = false;
         return;
@@ -605,26 +605,18 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
     m_encours = false;
 }
 
-bool ImportDocsExternesThread::DefinitDossiers()
+/*! \brief bool ImportDocsExternesThread::DefinitDossiersImagerie()
+ * Définit l'emplacement des dossiers utilisés
+ * \param m_pathdirstockageimagerie =   l'emplacement baseURL où seront stockés les fichiers d'imagerie (directement sur le serveur en mode monoposte ou réseau local - sur un dossier du client en mode sitant
+ *`\param m_pathdirstockageprovisoire = l'emplacement où les appareils d'imagerie vont écrire les fichiers qu'ils émettent en attendant leur intégration dans la BDD
+ * \param m_pathdirOKtransfer =         le resolved URL de l'emplacement de stockage définitif des fichiers
+ * \param m_pathdirechectransfer =      le resolved URL de l'emplacement où sont transférés les fichiers qui n'ont pas pu être intégrés dans la BDD
+ * \param m_pathdiroriginOKtransfer =   le resolved URL de l'emplacement de stockage des copies des fichiers image d'origine
+ */
+bool ImportDocsExternesThread::DefinitDossiersImagerie()
 {
-    QString NomOnglet;
-    if (db->ModeAccesDataBase() == Utils::Poste)
-    {
-        NomOnglet = tr("Monoposte");
-        m_pathdirstockageimagerie = db->parametres()->dirimagerieserveur();
-    }
-    if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-    {
-        NomOnglet = tr("Réseau local");
-        m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
-    }
-    if (db->ModeAccesDataBase() == Utils::Distant)
-    {
-        NomOnglet = tr("Accès distant");
-        m_pathdirstockageimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
-    }
-
-    m_pathdirstockageprovisoire      = m_pathdirstockageimagerie + DIR_PROV;
+    m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
+    m_pathdirstockageprovisoire = m_pathdirstockageimagerie + DIR_PROV;
     if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirstockageprovisoire + "</b></font>" + tr(" invalide");
@@ -651,18 +643,14 @@ bool ImportDocsExternesThread::DefinitDossiers()
         emit emitmsg(listmsg, 3000);
         return false;
     }
-
-    if (m_acces == Local)
+    m_pathdiroriginOKtransfer    = m_pathdirstockageimagerie + DIR_ORIGINAUX DIR_IMAGES + "/" + m_datetransfer;
+    if (!Utils::mkpath(m_pathdiroriginOKtransfer))
     {
-        m_pathdiroriginOKtransfer    = m_pathdirstockageimagerie + DIR_ORIGINAUX DIR_IMAGES + "/" + m_datetransfer;
-        if (!Utils::mkpath(m_pathdiroriginOKtransfer))
-        {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdiroriginOKtransfer + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            emit emitmsg(listmsg, 3000);
-            return false;
-        }
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdiroriginOKtransfer + "</b></font>" + tr(" invalide");
+        QStringList listmsg;
+        listmsg << msg;
+        emit emitmsg(listmsg, 3000);
+        return false;
     }
     return true;
 }

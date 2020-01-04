@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "uptextedit.h"
+#include <QTextBlock>
 
 UpTextEdit::UpTextEdit(QWidget *parent) : QTextEdit(parent)
 {
@@ -28,6 +29,7 @@ UpTextEdit::UpTextEdit(QWidget *parent) : QTextEdit(parent)
     installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,  &UpTextEdit::customContextMenuRequested, this, &UpTextEdit::MenuContextuel);
+    setMouseTracking(true);
 }
 
 UpTextEdit::UpTextEdit(QString txt, QWidget *parent) : QTextEdit(txt, parent)
@@ -41,6 +43,7 @@ UpTextEdit::UpTextEdit(QString txt, QWidget *parent) : QTextEdit(txt, parent)
     installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,  &UpTextEdit::customContextMenuRequested, this, &UpTextEdit::MenuContextuel);
+    setMouseTracking(true);
 }
 
 void UpTextEdit::MenuContextuel()
@@ -190,8 +193,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn )
     {
-        UpTextEdit* objUpText = static_cast<UpTextEdit*>(obj);
-        objUpText->setvaleuravant(objUpText->toHtml());
+        setvaleuravant(toHtml());
     }
 
     if (event->type() == QEvent::KeyPress )
@@ -202,8 +204,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
             // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante -------------
             if (keyEvent->modifiers() == Qt::MetaModifier)
             {
-                UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
-                UpTextEdit *textnext = dynamic_cast<UpTextEdit*>(textw->nextInFocusChain());
+                UpTextEdit *textnext = dynamic_cast<UpTextEdit*>(nextInFocusChain());
                 if (textnext){
                     textnext->setFocus();
                     textnext->moveCursor(QTextCursor::End);
@@ -216,8 +217,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
             if (keyEvent->modifiers() == Qt::ShiftModifier)
             {
                 {
-                    UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
-                    UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
+                    UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(previousInFocusChain());
                     if (textprev)
                     {
                         textprev->setFocus();
@@ -230,12 +230,62 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
             }
         }
     }
+//    if (event->type() == QEvent::MouseMove)
+//    {
+//        QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
+//        QTextCursor cursor = cursorForPosition(helpEvent->pos());
+//        cursor.select(QTextCursor::BlockUnderCursor);
+//        if (!cursor.selectedText().isEmpty())
+//            qDebug() << cursor.selectedText();
+//    }
     return QWidget::eventFilter(obj, event);
 }
 void UpTextEdit::mouseDoubleClickEvent(QMouseEvent * event )
 {
     emit dblclick(iD());
     event->ignore();
+}
+
+//void UpTextEdit::mouseReleaseEvent(QMouseEvent *event)
+//{
+//    if (event->button() == Qt::LeftButton)
+//    {
+//        QTextCursor csr = cursorForPosition(cursor().pos());
+//        csr.select(QTextCursor::BlockUnderCursor);
+//        if (!csr.selectedText().isEmpty())
+//            qDebug() << csr.selectedText();
+//    }
+//}
+
+bool UpTextEdit::canInsertFromMimeData( const QMimeData *source ) const
+{
+    if (source->hasImage())
+        return m_acceptimagemimedatas;
+    else
+        return QTextEdit::canInsertFromMimeData(source);
+}
+
+bool UpTextEdit::acceptimagemimedatas() const
+{
+    return m_acceptimagemimedatas;
+}
+
+void UpTextEdit::setAcceptImageMimeDatas(bool acceptimagemimedatas)
+{
+    m_acceptimagemimedatas = acceptimagemimedatas;
+}
+
+void UpTextEdit::insertFromMimeData( const QMimeData *source )
+{
+    if (source->hasImage() && m_acceptimagemimedatas)
+    {
+        QImage image = qvariant_cast<QImage>(source->imageData());
+        image = image.scaledToWidth(int(width()*2/3), Qt::SmoothTransformation);
+        QString path = document()->baseUrl().path() + "/" + QString::number(iD())+ "_img_" + QTime::currentTime().toString("HHmmss") + ".jpg";
+        image.save(path);
+        document()->addResource(QTextDocument::ImageResource, QUrl(path), image);
+        textCursor().insertImage(path);
+    }
 }
 
 void UpTextEdit::setiD(int idadef)
@@ -286,6 +336,11 @@ void UpTextEdit::setchamp(QString champcorrespondant)
 QString UpTextEdit::champ() const
 {
     return m_champ;
+}
+
+void UpTextEdit::setImmediateToolTip(QString Msg)
+{
+    m_tooltipmsg = Msg;
 }
 
 void UpTextEdit::settable(QString tablecorrespondant)

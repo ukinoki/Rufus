@@ -593,9 +593,9 @@ void dlg_refraction::NouvMesureRefraction(Procedures::TypeMesure TypeMesure)
 {
     if (TypeMesure == Procedures::Subjectif || TypeMesure == Procedures::Final)
         AfficheMesureRefracteur();
-    else if (TypeMesure == Procedures::Fronto && proc->PortFronto() != Q_NULLPTR)       //! c'est le fronto et pas le refracteur (cas où le fronto est branché sur la box) qui a transmis une mesure d'autoref, on l'affiche
+    else if (TypeMesure == Procedures::Fronto)       //! c'est le fronto et pas le refracteur (cas où le fronto est branché sur la box) qui a transmis une mesure d'autoref, on l'affiche
         AfficheMesureFronto();
-    else if (TypeMesure == Procedures::Autoref && proc->PortAutoref() != Q_NULLPTR)     //! c'est l'autoref et pas le refracteur (cas où l'autoref est branché sur la box) qui a transmis une mesure de fronto, on l'affiche
+    else if (TypeMesure == Procedures::Autoref)     //! c'est l'autoref et pas le refracteur (cas où l'autoref est branché sur la box) qui a transmis une mesure de fronto, on l'affiche
         AfficheMesureAutoref();
 }
 

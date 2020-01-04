@@ -247,7 +247,7 @@ public:
     QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
     void                    setPosteImportDocs(bool a = true);
-
+    QString                 DefinitDossierImagerie();
 /*! fin import des documents -------------------------------------------------------------------------------------------------------- */
 
 

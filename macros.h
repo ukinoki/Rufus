@@ -681,8 +681,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HTMLCOMMENT_MAC             "<!MAC>"
 #define HTMLANCHOR_BODEBUT          "<BOdebut>"
 #define HTMLANCHOR_BOFIN            "<BOfin>"
+#define HTMLANCHOR_PACHYDEBUT       "pachydebut"
+#define HTMLANCHOR_PACHYFIN         "pachyfin"
+#define HTMLANCHOR_TODEBUT          "TOdebut"
+#define HTMLANCHOR_TOFIN            "TOfin"
 #define HTML_FINPARAGRAPH           "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>"
-#define HTML_RETOURLIGNE            "<p style = \"margin-top:0px; margin-bottom:0px;\" >"
+#define HTML_RETOURLIGNE            "<p style = \"margin-top:0px; margin-bottom:0px;\">"
 
 
 // valeurs extrêmes de kératométrie

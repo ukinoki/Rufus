@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("02-01-2020/1");
+    qApp->setApplicationVersion("04-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5824,7 +5824,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 QString Corps = objUpText->toHtml();
                 if (objUpText->table() == TBL_ACTES || objUpText->table() == TBL_MESSAGES)
                 {
-                    Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+                    Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">", HTML_RETOURLIGNE);
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
                     Corps.remove(HTMLCOMMENT_LINUX);
                     Corps.remove(HTMLCOMMENT_MAC);
@@ -6066,6 +6066,9 @@ void Rufus::AfficheActe(Acte* acte)
         ui->ActeDatedateEdit        ->setDate(acte->date());
         ui->ActeDatedateEdit        ->setEnabled(false);
         ui->ActeMotiftextEdit       ->setText(acte->motif());
+        QString path = proc->DefinitDossierImagerie() + DIR_IMAGES + "/" + acte->date().toString("yyyy-MM-dd");
+        if (Utils::mkpath(path))
+            ui->ActeTextetextEdit   ->document()->setBaseUrl("file://" + path);
         ui->ActeTextetextEdit       ->setText(acte->texte());
         ui->ActeConclusiontextEdit  ->setText(acte->conclusion());
         ui->idActelineEdit          ->setText(QString::number(acte->id()));
@@ -6306,6 +6309,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     ui->AtcdtsOphstextEdit          ->setText(currentpatient()->atcdtsophtalmos());
     ui->TabaclineEdit               ->setText(currentpatient()->tabac());
     ui->AutresToxiquestextEdit      ->setText(currentpatient()->toxiques());
+    ui->ActeTextetextEdit           ->setiD(currentpatient()->id());
 
     wdg_MGlineEdit->clear();
     wdg_autresCorresp1LineEdit->clear();
@@ -7663,6 +7667,8 @@ void Rufus::InitWidgets()
     QFont font = qApp->font();
     font.setBold(true);
     ui->ActeDatedateEdit->setFont(font);
+    if (db->ModeAccesDataBase() != Utils::Distant)
+        ui->ActeTextetextEdit       ->setAcceptImageMimeDatas(true);
 
     wdg_autresCorresp1LineEdit->setStyleSheet(
     "UpLineEdit {background-color:white; border-style: none;}"
@@ -7958,7 +7964,6 @@ void Rufus::InitVariables()
     ui->CreerDossierpushButton  ->setEnabled(false);
     ui->CreerDDNdateEdit        ->setVisible(false);
     ui->DDNlabel                ->setVisible(false);
-
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9695,18 +9700,16 @@ void Rufus::AffichePachymetrie()
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
         QString resumetxt = ui->ResumetextEdit->toHtml();
-        QString const dd1    = "<a name=\"pachyDEBUT";
-        QString regid  = "[0-9]{0,11}";
-        QString dd2 = "\"></a>";
-        QString const fd    = "<a name=\"pachyFIN\"></a>";
-        if (resumetxt.contains(QRegExp(dd1 + regid + dd2 + ".*" + fd)))
+        QString const dd    = "<a name=\"" HTMLANCHOR_PACHYDEBUT "[0-9]{0,11}\"></a>";
+        QString const fd    = "<a name=\"" HTMLANCHOR_PACHYFIN "\"></a>";
+        if (resumetxt.contains(QRegExp(dd + ".*" + fd)))
         {
-            int n = pachy.indexOf(dd1);
+            int n = pachy.indexOf(QRegExp(dd));
             pachy = pachy.mid(n);
             n = pachy.indexOf(fd) + fd.size();
             pachy = pachy.left(n);
             pachy.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"));
-            resumetxt.replace(QRegExp(dd1 + regid + dd2 + ".*" + fd), pachy);
+            resumetxt.replace(QRegExp(dd + ".*" + fd), pachy);
             ItemsList::update(currentpatient(), CP_RESUME_RMP, resumetxt);
             ui->ResumetextEdit->setText(resumetxt);
         }
@@ -9849,15 +9852,13 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
 void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
     if (findChildren<dlg_refraction*>().size()>0)
-    {
-        if (TypeMesure == Procedures::Final || TypeMesure == Procedures::Subjectif)
+        if (TypeMesure == Procedures::Final
+                || TypeMesure == Procedures::Subjectif
+                || TypeMesure == Procedures::Fronto
+                || TypeMesure == Procedures::Autoref)
             return;
-        if (TypeMesure == Procedures::Fronto && proc->PortFronto() != Q_NULLPTR)
-            return;
-        if (TypeMesure == Procedures::Autoref && proc->PortAutoref() != Q_NULLPTR)
-            return;
-    }
-    if (currentpatient() == Q_NULLPTR || currentacte() == Q_NULLPTR)
+    if (currentpatient() == Q_NULLPTR
+            || currentacte() == Q_NULLPTR)
         return;
 
     switch (TypeMesure) {

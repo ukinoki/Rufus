@@ -46,15 +46,24 @@ public:
     QString     valeurapres() const;
     void        setchamp(QString champcorrespondant);
     QString     champ() const;
+    void        setImmediateToolTip(QString);
     void        settable(QString tablecorrespondant);
     QString     table() const;
     void        setText(const QString &text);
     QString     appendHtml(QString appendtext,  bool supprimeLesLignesVidesDuMilieu = true, bool rajouteunelignealafin = true);
 
+    bool        acceptimagemimedatas() const;
+    void        setAcceptImageMimeDatas(bool acceptimagemimedatas);
+
 private:
-    void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;
+    void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
+//    void        mouseReleaseEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
+    void        insertFromMimeData( const QMimeData *source ) Q_DECL_OVERRIDE;
+    bool        canInsertFromMimeData( const QMimeData *source ) const Q_DECL_OVERRIDE;
     QString     m_valeuravant, m_valeurapres, m_champ, m_table;
+    QString     m_tooltipmsg;
+    bool        m_acceptimagemimedatas = false;         //! Le textdit accepte des copier-coller de type image
     int         m_id, m_iduser;
     void        ChoixMenuContextuel(QString choix);
 

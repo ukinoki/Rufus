@@ -1201,8 +1201,7 @@ void dlg_bilanortho::ExtraitRefraction(QString textorigin, QString &ReponseaModi
         QString AVOG = ui->AVOGlineEdit->text();
         if (AVOD + AVOG != "")
         {
-            QString paragraph = "<p style=\" margin-top:0px; margin-bottom:0px;\">"; /*! debut de paragraphe*/
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Acuité visuelle") + "</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Acuité visuelle") + "</font></td>";
             if (AVOD != "" && AVOG == "")
                 Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("OD") + "</font></td><td width=\"300\">" + AVOD + "</td></p>";
             else if (AVOD == "" && AVOG !="")
@@ -1218,11 +1217,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 {
     QString Reponse;
     QString a;
-    QString paragraph = "<p style=\" margin-top:0px; margin-bottom:0px;\">"; /*! debut de paragraphe*/
     // l'occlusion alternée ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString OcclAltern = ui->OcclAlterncomboBox->currentText();
     if (OcclAltern != "-")
-        Reponse += paragraph + "<td width=\"400\"><font color = \"" COULEUR_TITRES "\">" + tr("Occlusion alternée ") + "</font>" + OcclAltern + "</td></p>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"400\"><font color = \"" COULEUR_TITRES "\">" + tr("Occlusion alternée ") + "</font>" + OcclAltern + "</td></p>";
 
     // la vision stereoscopique - Wirt, Lang, TNO  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString Wirt = ui->WirtcomboBox->currentText();
@@ -1243,7 +1241,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 
     if (Wirt != "-" || Lang != "-" || TNO != "-")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Vision stereo") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Vision stereo") + "</font></td>";
         if (Wirt != "-")
             Reponse += Wirt;
         if (Lang != "-")
@@ -1267,7 +1265,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         ODirecteur = "Gauche";
     if (ODirecteur != "-" || Orientation != "-")
     {
-        Reponse += paragraph;
+        Reponse += HTML_RETOURLIGNE;
         if (ODirecteur != "-")
             Reponse += "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Oeil directeur ") + "</font></td><td width=\"80\">" + ODirecteur + "</td>";
         if (Orientation != "-")
@@ -1319,7 +1317,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         QString longtabfixresVP = "190";
         QString longtabfixresAVL = "190";
         QString longtabfixresAVP = "190";
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Ecran horiz.") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Ecran horiz.") + "</font></td>";
         if (EcranSC  != "" && EcranASC == "")
         {
             a = ui->EcranVLSCcomboBox->currentText();
@@ -1454,7 +1452,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         QString longtabfixresVP = "190";
         QString longtabfixresAVL = "190";
         QString longtabfixresAVP = "190";
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Ecran vertic.") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Ecran vertic.") + "</font></td>";
         if (HEcranSC  != "" && HEcranASC == "")
         {
             a = ui->HEcranVLSCcomboBox->currentText();
@@ -1579,7 +1577,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 
     if (MaddoxSC + MaddoxASC != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Maddox horiz.</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Maddox horiz.</font></td>";
         if (MaddoxSC  != "" && MaddoxASC == "")
         {
             if (MaddoxSCVLD.length()<4) lengMaddoxSCVL = "55";
@@ -1654,7 +1652,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 
     if (HMaddoxSC + HMaddoxASC != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Maddox vertic.</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Maddox vertic.</font></td>";
         if (HMaddoxSC  != "" && HMaddoxASC == "")
         {
             if (HMaddoxSCVLD.length()<4) lengHMaddoxSCVL = "55";
@@ -1695,7 +1693,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         //for (int i= 0; i<Motilite.size();i++)
         //if (Motilite.at(i).unicode() == 10) Motilite.replace(Motilite.at(i),"<br>");
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Motilité") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Motilité") + "</font></td>";
         Reponse += "<td width=\"300\">" + ui->MotilitetextEdit->toHtml() + "</td></p>";
     }
 
@@ -1703,7 +1701,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     QString PPC = ui->PPCcomboBox->currentText();
     if (PPC != "-")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("PPC") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("PPC") + "</font></td>";
         Reponse += "<td width=\"300\">" + PPC + " " + ui->PPClineEdit->text() + "</td></p>";
     }
 
@@ -1712,12 +1710,12 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     QString Poursuite = ui->PoursuitelineEdit->text();
     if (Saccades != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Saccades") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Saccades") + "</font></td>";
         Reponse += "<td width=\"300\">" + Saccades + "</td></p>";
     }
     if (Poursuite != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Poursuite") + "</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Poursuite") + "</font></td>";
         Reponse += "<td width=\"300\">" + Poursuite + "</td></p>";
     }
 
@@ -1728,21 +1726,21 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         if (Worth1 != "" && Worth2 == "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
             Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"300\">" + Worth1 + "</td>";
             Reponse += "</p>";
         }
         else if (Worth1 == "" && Worth2 != "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
             Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Worth2 + "</td>";
             Reponse += "</p>";
         }
         else
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
             Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Worth1 + "<br>" + Worth2 + "</td>";
             Reponse += "</p>";
@@ -1756,21 +1754,21 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         if (Bagolini1 != "" && Bagolini2 == "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
             Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"300\">" + Bagolini1 + "</td>";
             Reponse += "</p>";
         }
         else if (Bagolini1 == "" && Bagolini2 != "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
             Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Bagolini2 + "</td>";
             Reponse += "</p>";
         }
         else
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
+            Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
             Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Bagolini1 + "<br>" + Bagolini2 + "</td>";
             Reponse += "</p>";
@@ -1794,7 +1792,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         VergenceVP += ui->VergenceRestDPcomboBox->currentText();
     if (VergenceVL + VergenceVP !="")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Vergences</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Vergences</font></td>";
         if (VergenceVL  != "")  VergenceVL = "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td><td width=\"100\">" + VergenceVL + "</td>";
         if (VergenceVP != "")   VergenceVP = "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td><td width=\"100\">" + VergenceVP + "</td>";
         if (VergenceVL  != "")
@@ -1813,7 +1811,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     QString Synopt3 = ui->Degre3lineEdit->text();
     if (Synopt1 + Synopt2 + Synopt3 != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Synoptophore</font></td>";
+        Reponse += HTML_RETOURLIGNE "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Synoptophore</font></td>";
         if (Synopt1 !="" && Synopt2 =="" && Synopt3 == "")
             Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("1er degré") + "</font></td><td width=\"350\">" + Synopt1 + "</td></p>";
         else if (Synopt1 =="" && Synopt2 !="" && Synopt3 == "")

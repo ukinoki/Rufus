@@ -3171,6 +3171,22 @@ bool Procedures::IdentificationUser()
     return (currentuser() != Q_NULLPTR);
 }
 
+QString Procedures::DefinitDossierImagerie()
+{
+    QString path = "";
+    switch (db->ModeAccesDataBase()) {
+    case Utils::Poste:
+        path = db->parametres()->dirimagerieserveur();
+        break;
+    case Utils::ReseauLocal:
+        path = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
+        break;
+    case Utils::Distant:
+        path = settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
+    }
+    return path;
+}
+
 bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 {
     if (currentuser()->isSoignant() )
@@ -4719,7 +4735,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
 TL22.1     */
 
         // Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
-        if (Mesure.contains("@LM"))                 //=> il y a une mesure pour le fronto
+        if (Mesure.contains("@LM") && PortFronto() == Q_NULLPTR)                 //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
         {
             dataok = true;
             MesureRefraction        *oldMesureFronto = new MesureRefraction();
@@ -4755,18 +4771,16 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
                 Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
             }
             //debugMesureRefraction(Datas::I()->mesurefronto);
-            if (PortFronto() == Q_NULLPTR)                                      //! au cas où le fronto est directement branché sur la box du refracteur
-                if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
-                {
-                    InsertMesure(Fronto);
-                    setHtmlFronto();
-                    emit NouvMesure(Fronto);
-                }
+            if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+            {
+                InsertMesure(Fronto);
+                setHtmlFronto();
+            }
             delete oldMesureFronto;
         }
 
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
-        if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
+        if (Mesure.contains("@RM") && PortAutoref() == Q_NULLPTR)                 //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
         {
             dataok = true;
             MesureRefraction        *oldMesureAutoref = new MesureRefraction();
@@ -4798,17 +4812,15 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
                 Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
             }
             //debugMesureRefraction(Datas::I()->mesureautoref);
-            if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
-                {
-                    InsertMesure(Autoref);
-                    setHtmlAutoref();
-                    emit NouvMesure(Autoref);
-                }
+            if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+            {
+                InsertMesure(Autoref);
+                setHtmlAutoref();
+            }
             delete oldMesureAutoref;
         }
 
-        if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie - cette mesure ne peut qu'avoir été effectuée par un autoref connecté directement à la box du refraacteur
+        if (Mesure.contains("@KM") && PortAutoref() == Q_NULLPTR)                 //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
         {
             dataok = true;
             MesureKerato  *oldMesureKerato = new MesureKerato();
@@ -4851,13 +4863,11 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
                     Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.mid(5,5).toDouble());
                 }
             }
-            if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-                if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
-                {
-                    InsertMesure(Kerato);
-                    setHtmlKerato();
-                    emit NouvMesure(Kerato);
-                }
+            if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
+            {
+                InsertMesure(Kerato);
+                setHtmlKerato();
+            }
             delete oldMesureKerato;
         }
 
@@ -4967,7 +4977,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             }
         }
         // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
-        if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
+        if (Mesure.contains("@NT") &&PortAutoref() == Q_NULLPTR )                 //!=> il y a une mesure de tonometrie et l'autoref est directement branché sur la box du refracteur
         {
             dataok = true;
             Datas::I()->tono->cleandatas();
@@ -4986,14 +4996,8 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->tono->setmodemesure(Tonometrie::Air);
             logmesure("LectureDonneesRefracteur() - nouvelle mesure tono -> TOD = " + QString::number(Datas::I()->tono->TOD()) + " - TOG = " + QString::number(Datas::I()->tono->TOG()));
             QString portautoref = (PortAutoref() == Q_NULLPTR? "Q_NULLPTR" : "OK");
-            logmesure("LectureDonneesRefracteur() - PortAutoref() = " + portautoref);
-            if (PortAutoref() == Q_NULLPTR)                                      //! au cas où l'autoref est directement branché sur la box du refracteur
-            {
-                logmesure("LectureDonneesRefracteur() - OK nouvelle mesure tono");
-                InsertMesure(Tono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
-                setHtmlTono();
-                emit NouvMesure(Tono);
-            }
+            InsertMesure(Tono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
+            setHtmlTono();
         }
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
@@ -6118,21 +6122,43 @@ QString Procedures::CalcHtmlTono(Tonometrie *tono)
 {
     if (!tono->isnullLOD() || !tono->isnullLOG())
     {
+        QString const dd    = "<a name=\"" HTMLANCHOR_TODEBUT + QString::number(tono->id()) + "\"></a>";
+        QString const fd    = "<a name=\"" HTMLANCHOR_TOFIN "\"></a>";
+        QString larg =  "190";
+        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">";
         QString Methode = Tonometrie::ConvertMesure(tono->modemesure());
         QString Tono, color;
         color = (tono->TOD() > 21? "red" : "blue");
-        QString TODcolor = "<font color = \"" + color + "\"><b>" + QString::number(tono->TOD()) + "</b></font>";
+        QString TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOD()) + "</font>";
         color = (tono->TOG() > 21? "red" : "blue");
-        QString TOGcolor = "<font color = \"" + color + "\"><b>" + QString::number(tono->TOG()) + "</b></font>";
+        QString TOGcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOG()) + "</font>";
         if (tono->TOD() == 0 && tono->TOG() > 0)
-            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = dd + tr("TOG:") + "</font> "
+                    + TOGcolor + "</b>" + tr(" à ")
+                    + QTime::currentTime().toString("H")
+                    + "H (" + Methode + ")</td><td>"
+                    + currentuser()->login();
         else if (tono->TOG() == 0 && tono->TOD() > 0)
-            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = dd + tr("TOD:") + "</font> "
+                    + TODcolor + "</b>" + tr(" à ")
+                    + QTime::currentTime().toString("H")
+                    + "H (" + Methode + ")</td><td>"
+                    + currentuser()->login();
         else if (tono->TOD() == tono->TOG())
-            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
+            Tono = dd + tr("TODG:") + "</font> "
+                    + TODcolor + "</b>" + tr(" à ")
+                    + QTime::currentTime().toString("H")
+                    + "H (" + Methode + ")</td><td>"
+                    + currentuser()->login();
         else
-            Tono = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + currentuser()->login() + "</td></p>";
-        return Tono;
+            Tono = dd + tr("TO:") + "</font> " + TODcolor + "/"
+                    + TOGcolor + "</b>" + tr(" à ")
+                    + QTime::currentTime().toString("H")
+                    + "H (" + Methode + ")</td><td>"
+                    + currentuser()->login();
+        QString Reponse = title + Tono + "</td></p>";
+        Reponse.insert(Reponse.lastIndexOf("</td>")-1, fd);             //! on met le dernier caractère en ancre
+        return Reponse;
     }
     else return "";
 }
@@ -6149,28 +6175,29 @@ QString Procedures::CalcHtmlPachy(Pachymetrie *pachy)
 {
     if (!pachy->isnullLOD() || !pachy->isnullLOG())
     {
-        QString const dd    = "<a name=\"pachyDEBUT" + QString::number(pachy->id()) + "\"></a>";
-        QString const fd    = "<a name=\"pachyFIN\"></a>";
-        QString larg = ((pachy->pachyOD() > 0 && pachy->pachyOG() > 0) && (pachy->pachyOD() == pachy->pachyOG())? "80" : "80");
-        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("pachy");
+        QString const dd    = "<a name=\"" HTMLANCHOR_PACHYDEBUT + QString::number(pachy->id()) + "\"></a>";
+        QString const fd    = "<a name=\"" HTMLANCHOR_PACHYFIN "\"></a>";
+        QString larg =  "250";
+        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\">";
         QString pachyOD, pachyOG, Methode;
         pachyOD = QString::number(pachy->pachyOD());
         pachyOG = QString::number(pachy->pachyOG());
         Methode = Pachymetrie::ConvertToReadableMesure(pachy);
         QString result;
         if (pachy->isnullLOD())
-            result = tr("OG") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOG + "</b></font></td><td width=\"110\">(" + Methode;
+            result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy OG") + ":</font> <font color = \"green\">" + pachyOG + "</font></b> (" + Methode;
         else if (pachy->isnullLOG())
-            result = tr("OD") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"110\">(" + Methode;
+            result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy OD") + ":</font> <font color = \"green\">" + pachyOD + "</font></b> (" + Methode;
         else
         {
             if (pachy->pachyOD() == pachy->pachyOG())
-                result = " " + tr("ODG") + ":</b></font></td><td width=\"30\"><font color = \"green\"><b>" + pachyOD + "</b></font></td><td width=\"110\">(" + Methode;
+                result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy ODG") + ":</font> <font color = \"green\">" + pachyOD + "</font></b> (" + Methode;
             else
-                result = ":</b></font></td><td width=\"60\"><font color = \"green\"><b>" + pachyOD +  "/" + pachyOG + "</b></font></td><td width=\"110\">(" + Methode;
+                result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy") + ":</font> <font color = \"green\">" + pachyOD +  "/" + pachyOG + "</font></b> (" + Methode;
         }
         result = dd + result + fd + +")</td></p>";           // on met le dernier caractère en ancre
-        return title + result;
+        result = title + result;
+        return result;
     }
     else return "";
 }

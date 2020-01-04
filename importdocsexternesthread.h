@@ -261,7 +261,7 @@ private:
     QThread                     m_thread;
     Acces                       m_acces;
 
-    bool                        DefinitDossiers();
+    bool                        DefinitDossiersImagerie();
     void                        EchecImport(QString txt);
 };
 
