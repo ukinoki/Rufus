@@ -4775,51 +4775,12 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             {
                 InsertMesure(Fronto);
                 setHtmlFronto();
+                emit NouvMesure(Fronto);
             }
             delete oldMesureFronto;
         }
 
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
-        if (Mesure.contains("@RM") && PortAutoref() == Q_NULLPTR)                 //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
-        {
-            dataok = true;
-            MesureRefraction        *oldMesureAutoref = new MesureRefraction();
-            oldMesureAutoref        ->setdatas(Datas::I()->mesureautoref);
-            Datas::I()->mesureautoref->cleandatas();
-            idx                     = Mesure.indexOf("@RM");
-            QString SectionAutoref  = Mesure.right(Mesure.length()-idx);
-            //Edit(SectionAutoref);
-            // OEIL DROIT -----------------------------------------------------------------------------
-            if (SectionAutoref.contains("OR"))
-            {
-                mesureOD     = SectionAutoref.mid(SectionAutoref.indexOf("OR")+2,15)   .replace(" ","0");
-                mSphereOD    = mesureOD.mid(0,6);
-                mCylOD       = mesureOD.mid(6,6);
-                mAxeOD       = mesureOD.mid(12,3);
-                Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
-                Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOD(mAxeOD.toInt());
-            }
-            // OEIL GAUCHE ---------------------------------------------------------------------------
-            if (SectionAutoref.contains("OL"))
-            {
-                mesureOG     = SectionAutoref.mid(SectionAutoref.indexOf("OL")+2,15)   .replace(" ","0");
-                mSphereOG    = mesureOG.mid(0,6);
-                mCylOG       = mesureOG.mid(6,6);
-                mAxeOG       = mesureOG.mid(12,3);
-                Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
-                Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
-            }
-            //debugMesureRefraction(Datas::I()->mesureautoref);
-            if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
-            {
-                InsertMesure(Autoref);
-                setHtmlAutoref();
-            }
-            delete oldMesureAutoref;
-        }
-
         if (Mesure.contains("@KM") && PortAutoref() == Q_NULLPTR)                 //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
         {
             dataok = true;
@@ -4867,9 +4828,51 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             {
                 InsertMesure(Kerato);
                 setHtmlKerato();
+                emit NouvMesure(Kerato);
             }
             delete oldMesureKerato;
         }
+        if (Mesure.contains("@RM") && PortAutoref() == Q_NULLPTR)                 //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        {
+            dataok = true;
+            MesureRefraction        *oldMesureAutoref = new MesureRefraction();
+            oldMesureAutoref        ->setdatas(Datas::I()->mesureautoref);
+            Datas::I()->mesureautoref->cleandatas();
+            idx                     = Mesure.indexOf("@RM");
+            QString SectionAutoref  = Mesure.right(Mesure.length()-idx);
+            //Edit(SectionAutoref);
+            // OEIL DROIT -----------------------------------------------------------------------------
+            if (SectionAutoref.contains("OR"))
+            {
+                mesureOD     = SectionAutoref.mid(SectionAutoref.indexOf("OR")+2,15)   .replace(" ","0");
+                mSphereOD    = mesureOD.mid(0,6);
+                mCylOD       = mesureOD.mid(6,6);
+                mAxeOD       = mesureOD.mid(12,3);
+                Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
+                Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
+                Datas::I()->mesureautoref->setaxecylindreOD(mAxeOD.toInt());
+            }
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            if (SectionAutoref.contains("OL"))
+            {
+                mesureOG     = SectionAutoref.mid(SectionAutoref.indexOf("OL")+2,15)   .replace(" ","0");
+                mSphereOG    = mesureOG.mid(0,6);
+                mCylOG       = mesureOG.mid(6,6);
+                mAxeOG       = mesureOG.mid(12,3);
+                Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
+                Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
+                Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
+            }
+            //debugMesureRefraction(Datas::I()->mesureautoref);
+            if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+            {
+                InsertMesure(Autoref);
+                setHtmlAutoref();
+                emit NouvMesure(Autoref);
+            }
+            delete oldMesureAutoref;
+        }
+
 
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
@@ -4977,7 +4980,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             }
         }
         // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
-        if (Mesure.contains("@NT") &&PortAutoref() == Q_NULLPTR )                 //!=> il y a une mesure de tonometrie et l'autoref est directement branché sur la box du refracteur
+        if (Mesure.contains("@NT") &&PortAutoref() == Q_NULLPTR )                 //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
         {
             dataok = true;
             Datas::I()->tono->cleandatas();
@@ -4998,6 +5001,7 @@ bool Procedures::LectureDonneesRefracteur(QString Mesure)
             QString portautoref = (PortAutoref() == Q_NULLPTR? "Q_NULLPTR" : "OK");
             InsertMesure(Tono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
             setHtmlTono();
+            emit NouvMesure(Tono);
         }
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
@@ -6177,8 +6181,6 @@ QString Procedures::CalcHtmlPachy(Pachymetrie *pachy)
     {
         QString const dd    = "<a name=\"" HTMLANCHOR_PACHYDEBUT + QString::number(pachy->id()) + "\"></a>";
         QString const fd    = "<a name=\"" HTMLANCHOR_PACHYFIN "\"></a>";
-        QString larg =  "250";
-        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\">";
         QString pachyOD, pachyOG, Methode;
         pachyOD = QString::number(pachy->pachyOD());
         pachyOG = QString::number(pachy->pachyOG());
@@ -6195,8 +6197,7 @@ QString Procedures::CalcHtmlPachy(Pachymetrie *pachy)
             else
                 result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy") + ":</font> <font color = \"green\">" + pachyOD +  "/" + pachyOG + "</font></b> (" + Methode;
         }
-        result = dd + result + fd + +")</td></p>";           // on met le dernier caractère en ancre
-        result = title + result;
+        result = dd + result + fd + +")";           // on met le dernier caractère en ancre
         return result;
     }
     else return "";

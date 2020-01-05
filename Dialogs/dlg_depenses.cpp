@@ -1907,7 +1907,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     wdg_bigtable->setCellWidget(row,col,label4);
     col++;
 
-    A = dep->rubriquefiscale();                                                                      // Rubrique2035 - col = 5
+    A = dep->rubriquefiscale();                                                                 // Rubrique2035 - col = 5
     label5->setText(" " + A);
     wdg_bigtable->setCellWidget(row,col,label5);
     col++;

@@ -9696,7 +9696,7 @@ void Rufus::AffichePachymetrie()
     QString pachy = proc->CalcHtmlPachy(Datas::I()->pachy);
     if (pachy != "")
     {
-        QString ARajouterEnText = pachy;
+        QString ARajouterEnText = HTML_RETOURLIGNE + pachy;
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
         QString resumetxt = ui->ResumetextEdit->toHtml();

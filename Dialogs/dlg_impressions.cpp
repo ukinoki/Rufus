@@ -1047,40 +1047,24 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         ui->upTextEdit->textCursor().setCharFormat(format);
     }
     else if (choix  == "Gauche")    {
-        QTextCursor curs = ui->upTextEdit->textCursor();
-        ui->upTextEdit->moveCursor(QTextCursor::StartOfBlock);
-        ui->upTextEdit->moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = ui->upTextEdit->textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignLeft);
         ui->upTextEdit->textCursor().setBlockFormat(blockformat);
-        ui->upTextEdit->setTextCursor(curs);
     }
     else if (choix  == "Justifie")    {
-        QTextCursor curs = ui->upTextEdit->textCursor();
-        ui->upTextEdit->moveCursor(QTextCursor::StartOfBlock);
-        ui->upTextEdit->moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = ui->upTextEdit->textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignJustify);
         ui->upTextEdit->textCursor().setBlockFormat(blockformat);
-        ui->upTextEdit->setTextCursor(curs);
     }
     else if (choix  == "Droite")    {
-        QTextCursor curs = ui->upTextEdit->textCursor();
-        ui->upTextEdit->moveCursor(QTextCursor::StartOfBlock);
-        ui->upTextEdit->moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = ui->upTextEdit->textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignRight);
         ui->upTextEdit->textCursor().setBlockFormat(blockformat);
-        ui->upTextEdit->setTextCursor(curs);
     }
     else if (choix  == "Centre")    {
-        QTextCursor curs = ui->upTextEdit->textCursor();
-        ui->upTextEdit->moveCursor(QTextCursor::StartOfBlock);
-        ui->upTextEdit->moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = ui->upTextEdit->textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignCenter);
         ui->upTextEdit->textCursor().setBlockFormat(blockformat);
-        ui->upTextEdit->setTextCursor(curs);
     }
     else if (choix  == "Inserer")   {
         UpDialog        *ListChamps     = new UpDialog(this);

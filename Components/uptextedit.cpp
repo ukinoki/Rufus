@@ -150,41 +150,25 @@ void UpTextEdit::ChoixMenuContextuel(QString choix)
     }
     else if (choix  == "Gauche")
     {
-        QTextCursor curs = textCursor();
-        moveCursor(QTextCursor::StartOfBlock);
-        moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignLeft);
         textCursor().setBlockFormat(blockformat);
-        setTextCursor(curs);
     }
     else if (choix  == "Justifie")
     {
-        QTextCursor curs = textCursor();
-        moveCursor(QTextCursor::StartOfBlock);
-        moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignJustify);
         textCursor().setBlockFormat(blockformat);
-        setTextCursor(curs);
     }
     else if (choix  == "Droite")    {
-        QTextCursor curs = textCursor();
-        moveCursor(QTextCursor::StartOfBlock);
-        moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignRight);
         textCursor().setBlockFormat(blockformat);
-        setTextCursor(curs);
     }
     else if (choix  == "Centre")    {
-        QTextCursor curs = textCursor();
-        moveCursor(QTextCursor::StartOfBlock);
-        moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
         QTextBlockFormat blockformat  = textCursor().blockFormat();
         blockformat.setAlignment(Qt::AlignCenter);
         textCursor().setBlockFormat(blockformat);
-        setTextCursor(curs);
     }
 }
 
@@ -230,14 +214,6 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
             }
         }
     }
-//    if (event->type() == QEvent::MouseMove)
-//    {
-//        QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
-//        QTextCursor cursor = cursorForPosition(helpEvent->pos());
-//        cursor.select(QTextCursor::BlockUnderCursor);
-//        if (!cursor.selectedText().isEmpty())
-//            qDebug() << cursor.selectedText();
-//    }
     return QWidget::eventFilter(obj, event);
 }
 void UpTextEdit::mouseDoubleClickEvent(QMouseEvent * event )
@@ -245,17 +221,6 @@ void UpTextEdit::mouseDoubleClickEvent(QMouseEvent * event )
     emit dblclick(iD());
     event->ignore();
 }
-
-//void UpTextEdit::mouseReleaseEvent(QMouseEvent *event)
-//{
-//    if (event->button() == Qt::LeftButton)
-//    {
-//        QTextCursor csr = cursorForPosition(cursor().pos());
-//        csr.select(QTextCursor::BlockUnderCursor);
-//        if (!csr.selectedText().isEmpty())
-//            qDebug() << csr.selectedText();
-//    }
-//}
 
 bool UpTextEdit::canInsertFromMimeData( const QMimeData *source ) const
 {
@@ -285,12 +250,16 @@ void UpTextEdit::insertFromMimeData( const QMimeData *source )
         image.save(path);
         document()->addResource(QTextDocument::ImageResource, QUrl(path), image);
         textCursor().insertImage(path);
+        QTextBlockFormat blockformat  = textCursor().blockFormat();
+        blockformat.setAlignment(Qt::AlignCenter);
+        textCursor().setBlockFormat(blockformat);
+        textCursor().insertHtml(HTML_RETOURLIGNE);
     }
 }
 
-void UpTextEdit::setiD(int idadef)
+void UpTextEdit::setiD(int id)
 {
-    m_id = idadef;
+    m_id = id;
 }
 
 int UpTextEdit::iD() const
@@ -298,9 +267,9 @@ int UpTextEdit::iD() const
     return m_id;
 }
 
-void UpTextEdit::setIdUser(int idadef)
+void UpTextEdit::setIdUser(int id)
 {
-    m_iduser = idadef;
+    m_iduser = id;
 }
 
 int UpTextEdit::idUser() const

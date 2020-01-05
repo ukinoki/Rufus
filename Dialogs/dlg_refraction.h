@@ -78,7 +78,7 @@ private:
     void                    DepoliCheckBox_Clicked(QCheckBox* check, int etat);
     void                    ODGCheckBox_Changed(QCheckBox* check, int etat);
     void                    PrescritCheckBox_Changed(QCheckBox* check,int etat);
-    void                    PorteRadioButton_Clicked();
+    void                    RadioButtonFronto_Clicked();
     void                    PressonCheckBox_Changed();
     void                    PlanCheckBox_Changed(QCheckBox* check, int etat);
     void                    RyserCheckBox_Clicked(QCheckBox* check, int etat);
@@ -107,10 +107,10 @@ private:
     void                    closeEvent(QCloseEvent *);
     void                    keyPressEvent ( QKeyEvent * event );
     // les CheckBox, RadioButton,...etc...
-    void                    AutorefRadioButton_Clicked();
+    void                    RadioButtonAutoref_Clicked();
     void                    DeuxMonturesPrescritradioButton_Clicked();
-    void                    PrescriptionRadionButton_clicked();
-    void                    RefractionRadioButton_Clicked();
+    void                    RadionButtonPrescription_clicked();
+    void                    RadioButtonRefraction_Clicked();
     void                    UneMonturePrescritRadioButton_Clicked();
     void                    VPrescritRadioButton_Clicked();
     void                    ReprendreButtonClicked();

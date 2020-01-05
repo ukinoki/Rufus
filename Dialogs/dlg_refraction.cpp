@@ -73,8 +73,8 @@ void dlg_refraction::ConnectSignals()
     foreach (UpDoubleSpinBox* spinbox, findChildren<UpDoubleSpinBox *>())
         connect (spinbox,                           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                                                                                                 this,     &dlg_refraction::Refraction_ValueChanged);
-    connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::PorteRadioButton_Clicked);
-    connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::AutorefRadioButton_Clicked);
+    connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonFronto_Clicked);
+    connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonAutoref_Clicked);
     connect (ui->ConvODPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvODPushButton_Clicked);
     connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
     connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
@@ -89,9 +89,9 @@ void dlg_refraction::ConnectSignals()
     connect (ui->OGPrescritCheckBox,                &QCheckBox::stateChanged,                   this,     [=] (int a) {PrescritCheckBox_Changed(ui->OGPrescritCheckBox, a);});
     connect (ui->PlanODCheckBox,                    &QCheckBox::stateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanODCheckBox, a);});
     connect (ui->PlanOGCheckBox,                    &QCheckBox::stateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanOGCheckBox, a);});
-    connect (ui->PrescriptionRadioButton,           &QRadioButton::clicked,                     this,     &dlg_refraction::PrescriptionRadionButton_clicked);
+    connect (ui->PrescriptionRadioButton,           &QRadioButton::clicked,                     this,     &dlg_refraction::RadionButtonPrescription_clicked);
 
-    connect (ui->RefractionRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::RefractionRadioButton_Clicked);
+    connect (ui->RefractionRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonRefraction_Clicked);
     connect (ui->RyserODCheckBox,                   &QCheckBox::stateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserODCheckBox, a);});
     connect (ui->RyserOGCheckBox,                   &QCheckBox::stateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserOGCheckBox, a);});
     connect (ui->UneMonturePrescritRadioButton,     &QRadioButton::clicked,                     this,     &dlg_refraction::UneMonturePrescritRadioButton_Clicked);
@@ -136,31 +136,48 @@ void dlg_refraction::ConnectSignals()
 }
 
 //1. Les RadioButton, checkBox, combo...etc...--------------------------------------------------------------------------------
-void dlg_refraction::AutorefRadioButton_Clicked()
+void dlg_refraction::RadioButtonAutoref_Clicked()
 {
     m_mode = Refraction::Autoref;
     RegleAffichageFiche();
 }
+void dlg_refraction::RadioButtonFronto_Clicked()
+{
+    m_mode = Refraction::Fronto;
+    RegleAffichageFiche();
+}
+void dlg_refraction::RadioButtonRefraction_Clicked()
+{
+    m_mode = Refraction::Acuite;
+    if(!ui->CycloplegieCheckBox->isChecked())   ui->V2RadioButton->setChecked(true);
+    RegleAffichageFiche();
+}
+void dlg_refraction::RadionButtonPrescription_clicked()
+{
+    m_mode = Refraction::Prescription;
+    ui->ODPrescritCheckBox->setChecked(ui->ODCheckBox->isChecked());
+    ui->OGPrescritCheckBox->setChecked(ui->OGCheckBox->isChecked());
+    ui->VLPrescritRadioButton->setChecked(ui->VLRadioButton->isChecked());
+    ui->VPPrescritRadioButton->setChecked(ui->VPRadioButton->isChecked());
+    if (ui->V2RadioButton->isChecked())
+    {
+        if (!ui->ODCheckBox->isChecked() && ui->AddVPOG->value() == 0.0) ui->VLPrescritRadioButton->setChecked(true);
+        else if (!ui->OGCheckBox->isChecked() && ui->AddVPOD->value() == 0.0) ui->VLPrescritRadioButton->setChecked(true);
+        else if (ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked() && ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() == 0.0)
+            ui->VLPrescritRadioButton->setChecked(true);
+        else ui->V2PrescritRadioButton->setChecked(true);
+    }
+    RegleAffichageFiche();
+}
+
 void dlg_refraction::CycloplegieCheckBox_Clicked()
 {
     if (ui->RefractionRadioButton->isChecked())
         RegleAffichageFiche();
 }
-void dlg_refraction::PorteRadioButton_Clicked()
-{
-    m_mode = Refraction::Fronto;
-    RegleAffichageFiche();
-}
 void dlg_refraction::PressonCheckBox_Changed()
 {
     if (m_mode == Refraction::Prescription) ResumePrescription();
-}
-
-void dlg_refraction::RefractionRadioButton_Clicked()
-{
-    m_mode = Refraction::Acuite;
-    if(!ui->CycloplegieCheckBox->isChecked())   ui->V2RadioButton->setChecked(true);
-    RegleAffichageFiche();
 }
 
 void dlg_refraction::BasePrismeTextODComboBox_Changed(int index)
@@ -569,24 +586,6 @@ void dlg_refraction::OKPushButton_Clicked()
 void dlg_refraction::OupsButtonClicked()
 {
     OuvrirListeMesures(dlg_refractionlistemesures::Supprimer);
-}
-
-void dlg_refraction::PrescriptionRadionButton_clicked()
-{
-    m_mode = Refraction::Prescription;
-    ui->ODPrescritCheckBox->setChecked(ui->ODCheckBox->isChecked());
-    ui->OGPrescritCheckBox->setChecked(ui->OGCheckBox->isChecked());
-    ui->VLPrescritRadioButton->setChecked(ui->VLRadioButton->isChecked());
-    ui->VPPrescritRadioButton->setChecked(ui->VPRadioButton->isChecked());
-    if (ui->V2RadioButton->isChecked())
-    {
-        if (!ui->ODCheckBox->isChecked() && ui->AddVPOG->value() == 0.0) ui->VLPrescritRadioButton->setChecked(true);
-        else if (!ui->OGCheckBox->isChecked() && ui->AddVPOD->value() == 0.0) ui->VLPrescritRadioButton->setChecked(true);
-        else if (ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked() && ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() == 0.0)
-            ui->VLPrescritRadioButton->setChecked(true);
-        else ui->V2PrescritRadioButton->setChecked(true);
-    }
-    RegleAffichageFiche();
 }
 
 void dlg_refraction::NouvMesureRefraction(Procedures::TypeMesure TypeMesure)
@@ -1958,7 +1957,7 @@ void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
             RemplitChamps(ref);
             m_mode = ref->typemesure();
             if (m_mode == Refraction::Prescription)
-                PrescriptionRadionButton_clicked();
+                RadionButtonPrescription_clicked();
             else
                 RegleAffichageFiche();
         }
@@ -2112,7 +2111,7 @@ void dlg_refraction::RechercheMesureEnCours()
             AfficheKerato();
             // on passe au mode de mesure suivant
             if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)
-                PrescriptionRadionButton_clicked();
+                RadionButtonPrescription_clicked();
             else if (Reponse == Refraction::Fronto)
             {
                 m_mode = Refraction::Autoref;
@@ -3813,7 +3812,7 @@ QString dlg_refraction::Valeur(QString StringValeur)
 //-----------------------------------------------------------------------------------------
 void dlg_refraction::AfficheMesureFronto()
 {
-    PorteRadioButton_Clicked();
+    RadioButtonFronto_Clicked();
     if (Datas::I()->mesurefronto == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("pas de données reçues du frontofocomètre"));
@@ -3862,7 +3861,7 @@ void dlg_refraction::AfficheMesureAutoref()
         UpMessageBox::Watch(this, tr("pas de données reçues de l'autorefractomètre"));
         return;
     }
-    AutorefRadioButton_Clicked();
+    RadioButtonAutoref_Clicked();
 
     // OEIL DROIT -----------------------------------------------------------------------------
     Init_Value_DoubleSpin(ui->SphereOD, Datas::I()->mesureautoref->sphereOD());
@@ -3920,13 +3919,13 @@ void dlg_refraction::AfficheMesureRefracteur()
     MesureRefraction*  MesureRefracteur = Q_NULLPTR;
     if ( Datas::I()->mesurefinal->isdataclean() )
     {
-        RefractionRadioButton_Clicked();
+        RadioButtonRefraction_Clicked();
         m_mode = Refraction::Acuite;
         MesureRefracteur = Datas::I()->mesureacuite;
     }
     else
     {
-        PrescriptionRadionButton_clicked();
+        RadionButtonPrescription_clicked();
         m_mode = Refraction::Prescription;
         MesureRefracteur = Datas::I()->mesurefinal;
     }
@@ -3984,11 +3983,5 @@ void dlg_refraction::AfficheMesureRefracteur()
         break;
     }
     MesureRefracteur = Q_NULLPTR;
-    delete MesureRefracteur;
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
 }
-
-
-/***
-          http://www.progtown.com/topic344628-the-delegate-for-editing-and-qtextedit.html
- ***/
