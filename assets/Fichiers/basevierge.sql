@@ -231,7 +231,7 @@ CREATE TABLE `tonometries` (
   `TOOD` smallint(6) DEFAULT NULL,
   `TOOG` smallint(6) DEFAULT NULL,
   `TODate` datetime DEFAULT NULL,
-  `TOType` varchar(15) DEFAULT NULL,
+  `TOType` varchar(15) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`idTono`)
 ) ENGINE=InnoDB;
 
@@ -242,7 +242,7 @@ CREATE TABLE `pachymetries` (
   `pachyOD` smallint(3) DEFAULT NULL,
   `pachyOG` smallint(3) DEFAULT NULL,
   `pachyDate` datetime DEFAULT NULL,
-  `pachyType` varchar(15) DEFAULT NULL,
+  `pachyType` varchar(15) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`idPachy`)
 ) ENGINE=InnoDB;
 
@@ -253,7 +253,7 @@ CREATE TABLE `speculaires` (
   `specOD` smallint(4) DEFAULT NULL,
   `specOG` smallint(4) DEFAULT NULL,
   `specDate` date DEFAULT NULL,
-  `specType` varchar(15) DEFAULT NULL,
+  `specType` varchar(15) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`idSpec`)
 ) ENGINE=InnoDB;
 

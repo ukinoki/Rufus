@@ -242,19 +242,23 @@ void UpTextEdit::setAcceptImageMimeDatas(bool acceptimagemimedatas)
 
 void UpTextEdit::insertFromMimeData( const QMimeData *source )
 {
-    if (source->hasImage() && m_acceptimagemimedatas)
+    if (source->hasImage())
     {
-        QImage image = qvariant_cast<QImage>(source->imageData());
-        image = image.scaledToWidth(int(width()*2/3), Qt::SmoothTransformation);
-        QString path = document()->baseUrl().path() + "/" + QString::number(iD())+ "_img_" + QTime::currentTime().toString("HHmmss") + ".jpg";
-        image.save(path);
-        document()->addResource(QTextDocument::ImageResource, QUrl(path), image);
-        textCursor().insertImage(path);
-        QTextBlockFormat blockformat  = textCursor().blockFormat();
-        blockformat.setAlignment(Qt::AlignCenter);
-        textCursor().setBlockFormat(blockformat);
-        textCursor().insertHtml(HTML_RETOURLIGNE);
+        if(m_acceptimagemimedatas)
+        {
+            QImage image = qvariant_cast<QImage>(source->imageData());
+            image = image.scaledToWidth(int(width()*2/3), Qt::SmoothTransformation);
+            QString path = document()->baseUrl().path() + "/" + QString::number(iD())+ "_img_" + QTime::currentTime().toString("HHmmss") + ".jpg";
+            image.save(path);
+            document()->addResource(QTextDocument::ImageResource, QUrl(path), image);
+            textCursor().insertImage(path);
+            QTextBlockFormat blockformat  = textCursor().blockFormat();
+            blockformat.setAlignment(Qt::AlignCenter);
+            textCursor().setBlockFormat(blockformat);
+            textCursor().insertHtml(HTML_RETOURLIGNE);
+        }
     }
+    else QTextEdit::insertFromMimeData(source);
 }
 
 void UpTextEdit::setiD(int id)
