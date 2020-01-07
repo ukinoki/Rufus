@@ -39,7 +39,7 @@ BEGIN
      SELECT COUNT(*) INTO tot FROM
         (SELECT INDEX_NAME
         FROM INFORMATION_SCHEMA.STATISTICS
-        WHERE TABLE_NAME = 'speculairess' AND INDEX_NAME = 'idPatTO_idx') as chp;
+        WHERE TABLE_NAME = 'speculaires' AND INDEX_NAME = 'idPatTO_idx') as chp;
         IF tot=1
         THEN
             ALTER TABLE `speculaires`
