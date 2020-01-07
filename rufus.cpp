@@ -1233,7 +1233,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
     if (currentpatient() != Q_NULLPTR)
     {
         m_lignespaiements->initListeByPatient(currentpatient());
-        if (currentacte()->id()>0)
+        if (currentacte() != Q_NULLPTR)
         {
             m_listeactes->initListeByPatient(currentpatient(), Item::Update);
             if (ui->tabDossier->isVisible())
