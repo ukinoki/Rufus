@@ -54,9 +54,9 @@ Datas::Datas()
     mesureautoref   = new MesureRefraction();
     mesureacuite    = new MesureRefraction();
     mesurefinal     = new MesureRefraction();
-    mesurekerato    = new MesureKerato();
-    tono            = new Tonometrie();
-    pachy           = new Pachymetrie();
+    mesurekerato    = new Keratometrie();
+    mesuretono            = new Tonometrie();
+    mesurepachy           = new Pachymetrie();
 }
 
 

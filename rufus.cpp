@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("07-01-2020/1");
+    qApp->setApplicationVersion("09-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8637,8 +8637,8 @@ void Rufus::SetDatasRefractionKerato()
     Datas::I()->mesureacuite    ->cleandatas();
     Datas::I()->mesurefinal     ->cleandatas();
     Datas::I()->mesurekerato    ->cleandatas();
-    Datas::I()->tono            ->cleandatas();
-    Datas::I()->pachy           ->cleandatas();
+    Datas::I()->mesuretono            ->cleandatas();
+    Datas::I()->mesurepachy           ->cleandatas();
 
     /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
@@ -9693,12 +9693,12 @@ void Rufus::Pachymetrie()
 
 void Rufus::AffichePachymetrie()
 {
-    QString pachy = proc->CalcHtmlPachy(Datas::I()->pachy);
+    QString pachy = proc->HtmlPachy();
     if (pachy != "")
     {
         QString ARajouterEnText = HTML_RETOURLIGNE + pachy;
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-        QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->pachy);
+        QString Methode = Pachymetrie::ConvertToReadableMesure(Datas::I()->mesurepachy);
         QString resumetxt = ui->ResumetextEdit->toHtml();
         QString const dd    = "<a name=\"" HTMLANCHOR_PACHYDEBUT "[0-9]{0,11}\"></a>";
         QString const fd    = "<a name=\"" HTMLANCHOR_PACHYFIN "\"></a>";
@@ -9733,7 +9733,7 @@ void Rufus::Tonometrie()
     if (Dlg_AutresMes->exec()> 0)
     {
         proc->InsertMesure(Procedures::Tono);
-        QString tono = proc->CalcHtmlTono(Datas::I()->tono);
+        QString tono = proc->HtmlTono();
         if (tono != "")
         {
             QString ARajouterEnText =  HTML_RETOURLIGNE + tono  + "</p>" HTML_FINPARAGRAPH;
@@ -9852,8 +9852,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
 void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
     if (findChildren<dlg_refraction*>().size()>0)
-        if (TypeMesure == Procedures::Final
-                || TypeMesure == Procedures::Subjectif
+        if (TypeMesure == Procedures::Refracteur
                 || TypeMesure == Procedures::Fronto
                 || TypeMesure == Procedures::Autoref)
             return;
@@ -9862,40 +9861,25 @@ void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ou
         return;
 
     switch (TypeMesure) {
-    case  Procedures::Final:
-    case  Procedures::Subjectif:
-    {
-        if (proc->HtmlRefracteur() != "")
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlRefracteur()));
+    case  Procedures::Refracteur:
+        ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlRefracteur()));
         RefractionMesure(dlg_refraction::Auto);
         break;
-    }
     case Procedures::Autoref:
-        if (proc->HtmlAutoref() != "")
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlAutoref()));
+        ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlAutoref()));
         break;
     case Procedures::Fronto:
-        if (proc->HtmlFronto() != "")
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlFronto()));
+        ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlFronto()));
         break;
     case Procedures::Kerato:
-    {
-        if (proc->HtmlKerato() != "")
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlKerato()));
+        ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlKerato()));
         break;
-    }
     case Procedures::Pachy:
-    {
-        if (proc->HtmlPachy() != "")
-            AffichePachymetrie();
+        AffichePachymetrie();
         break;
-    }
     case Procedures::Tono:
-    {
-        if (proc->HtmlTono() != "")
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlTono()));
+        ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlTono()));
         break;
-    }
     default:
         RefractionMesure(dlg_refraction::Manuel);
     }

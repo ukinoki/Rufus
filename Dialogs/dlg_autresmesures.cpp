@@ -94,14 +94,14 @@ bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 //-------------------------------------------------------------------------------------
 void dlg_autresmesures::EnregistreTono()
 {
-    Datas::I()->tono->cleandatas();
-    Datas::I()->tono->setTOD(widgto->ui->TOODSpinBox->text().toInt());
-    Datas::I()->tono->setTOG(widgto->ui->TOOGSpinBox->text().toInt());
+    Datas::I()->mesuretono->cleandatas();
+    Datas::I()->mesuretono->setTOD(widgto->ui->TOODSpinBox->text().toInt());
+    Datas::I()->mesuretono->setTOG(widgto->ui->TOOGSpinBox->text().toInt());
     QString Methode;
     if (widgto->ui->AirRadioButton->isChecked())        Methode = AIR_TO;
     if (widgto->ui->AutreRadioButton->isChecked())      Methode = AUTRE_TO;
     if (widgto->ui->AplanationRadioButton->isChecked()) Methode = APLANATION_TO;
-    Datas::I()->tono->setmodemesure(Tonometrie::ConvertMesure(Methode));
+    Datas::I()->mesuretono->setmodemesure(Tonometrie::ConvertMesure(Methode));
     accept();
 }
 
@@ -110,14 +110,14 @@ void dlg_autresmesures::EnregistreTono()
 //-------------------------------------------------------------------------------------
 void dlg_autresmesures::EnregistrePachy()
 {
-    Datas::I()->pachy->cleandatas();
-    Datas::I()->pachy->setpachyOD(widgpa->ui->PachyODSpinBox->text().replace("µ","").toInt());
-    Datas::I()->pachy->setpachyOG(widgpa->ui->PachyOGSpinBox->text().replace("µ","").toInt());
+    Datas::I()->mesurepachy->cleandatas();
+    Datas::I()->mesurepachy->setpachyOD(widgpa->ui->PachyODSpinBox->text().replace("µ","").toInt());
+    Datas::I()->mesurepachy->setpachyOG(widgpa->ui->PachyOGSpinBox->text().replace("µ","").toInt());
     QString Methode;
     if (widgpa->ui->OptiqueRadioButton->isChecked())    Methode = OPTIQUE_PACHY;
     if (widgpa->ui->EchoRadioButton->isChecked())       Methode = ECHO_PACHY;
     if (widgpa->ui->OCTRadioButton->isChecked())        Methode = OCT_PACHY;
-    Datas::I()->pachy->setmodemesure(Pachymetrie::ConvertMesure(Methode));
+    Datas::I()->mesurepachy->setmodemesure(Pachymetrie::ConvertMesure(Methode));
     accept();
 }
 

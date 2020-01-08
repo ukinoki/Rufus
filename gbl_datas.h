@@ -79,13 +79,13 @@ public:
     Users *users;                       //!< Les users
     PostesConnectes *postesconnectes;   //!< Les postesconnectes
     Villes *villes;                     //!< toutes les villes
-    MesureRefraction* mesurefronto;
-    MesureRefraction* mesureautoref;
-    MesureRefraction* mesureacuite;
-    MesureRefraction* mesurefinal;
-    MesureKerato* mesurekerato;
-    Pachymetrie* pachy;
-    Tonometrie* tono;
+    MesureRefraction*   mesurefronto;
+    MesureRefraction*   mesureautoref;
+    MesureRefraction*   mesureacuite;
+    MesureRefraction*   mesurefinal;
+    Keratometrie*       mesurekerato;
+    Pachymetrie*        mesurepachy;
+    Tonometrie*         mesuretono;
 
 };
 

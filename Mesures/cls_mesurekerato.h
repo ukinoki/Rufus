@@ -21,11 +21,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_mesure.h"
 #include "cls_refraction.h"
 
-class MesureKerato : public Mesure
+class Keratometrie : public Mesure
 {
     Q_OBJECT
 public:
-    explicit MesureKerato() {}
+    explicit Keratometrie() {}
 
 private:
     double m_K1OD           = 0;
@@ -112,7 +112,7 @@ public:
         }
     }
 
-    void setdatas(MesureKerato *ker)
+    void setdatas(Keratometrie *ker)
     {
         if (ker->isdataclean() || (ker->isnullLOD() && ker->isnullLOG()))
         {
@@ -144,7 +144,7 @@ public:
         m_cleandatas     = false;
     }
 
-    bool isEqual(MesureKerato *other) const
+    bool isEqual(Keratometrie *other) const
     {
         bool a = false;
         if (isdataclean() && other->isdataclean())
@@ -173,7 +173,7 @@ public:
         return  a;
     }
 
-    bool isDifferent(MesureKerato *other) const
+    bool isDifferent(Keratometrie *other) const
     {
         return !(isEqual(other));
     }

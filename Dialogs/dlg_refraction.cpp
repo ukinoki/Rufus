@@ -590,7 +590,7 @@ void dlg_refraction::OupsButtonClicked()
 
 void dlg_refraction::NouvMesureRefraction(Procedures::TypeMesure TypeMesure)
 {
-    if (TypeMesure == Procedures::Subjectif || TypeMesure == Procedures::Final)
+    if (TypeMesure == Procedures::Refracteur)
         AfficheMesureRefracteur();
     else if (TypeMesure == Procedures::Fronto)       //! c'est le fronto et pas le refracteur (cas où le fronto est branché sur la box) qui a transmis une mesure d'autoref, on l'affiche
         AfficheMesureFronto();

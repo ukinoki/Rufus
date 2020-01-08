@@ -443,10 +443,9 @@ public:
                 Fronto      = 0x2,
                 Autoref     = 0x4,
                 Kerato      = 0x8,
-                Subjectif   = 0x10,
-                Final       = 0x20,
-                Tono        = 0x40,
-                Pachy       = 0x80
+                Refracteur  = 0x10,
+                Tono        = 0x20,
+                Pachy       = 0x40
                 };  Q_ENUM(TypeMesure)
     Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
 signals:
@@ -464,7 +463,7 @@ public:
     QString                 HtmlAutoref();                          // accesseur pour le html de mesure fronto à afficher;
     QString                 HtmlKerato();                           // accesseur pour le html de mesure kerato à afficher;
     QString                 HtmlTono();                             // accesseur pour le html de mesure tonométrie à afficher;
-    QString                 HtmlPachy();                            // accesseur pour le html de mesure pachy à afficher;
+    QString                 HtmlPachy();
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
     void                    InsertMesure(TypeMesure typemesure = All);         // enregistre la mesure de réfraction
@@ -473,8 +472,6 @@ public:
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
     TypesMesures            FlagReglageRefracteur()                         { return m_flagreglagerefracteur; }
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
-    QString                 CalcHtmlPachy(Pachymetrie *pachy);
-    QString                 CalcHtmlTono(Tonometrie *tono);
 
 private:
     QString                 m_mesureSerie;
@@ -482,35 +479,19 @@ private:
     TypesMesures            m_flagreglagerefracteur = None;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);
                                                                     //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
-    void                    ClearMesures();
-    void                    ClearHtmlMesures();
     bool                    Ouverture_Ports_Series();
 
     //LE FRONTO ----------------------------------------------------
-    QString                 m_htmlMesureFronto;
-    bool                    LectureDonneesFronto(QString Mesure);           // lit les données envoyées sur le port série du fronto
-    void                    setHtmlFronto();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
-    //L'AUTOREF ----------------------------------------------------
-    QMap<QString,QVariant>  map_dataAEnvoyerAuRefracteur;
-    QString                 m_htmlMesureAutoref;
-    QString                 m_htmlMesureKerato;
-    QString                 m_htmlMesureTono;
-    QString                 m_htmlMesurePachy;
-    bool                    LectureDonneesAutoref(QString Mesure);          // lit les données envoyées sur le port série du fronto
-    void                    setHtmlAutoref();                               // détermine le html à inscrire dans la fiche observation à partir du QMap MesureAutoref
-    void                    setHtmlKerato();                                // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
-    void                    setHtmlTono();                                  // détermine le html à inscrire dans la fiche observation à partir du QMap MesureTono
-    void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
-    //LE REFRACTEUR ------------------------------------------------
-    QString                 m_htmlMesureRefracteurSubjectif;
-    QMap<QString,QVariant>  map_mesureRefracteurFinal;
-    QString                 m_htmlMesureRefracteurFinal;
-    bool                    LectureDonneesRefracteur(QString Mesure);       // lit les données envoyées sur le port série du refracteur
-    void                    setHtmlRefracteur();                            // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif
-    void                    RegleRefracteur();
-    void                    ReponsePortSerie_Autoref(const QString &s);
+    void                    LectureDonneesFronto(QString Mesure);           // lit les données envoyées sur le port série du fronto
     void                    ReponsePortSerie_Fronto(const QString &s);
+    //L'AUTOREF ----------------------------------------------------
+    void                    LectureDonneesAutoref(QString Mesure);          // lit les données envoyées sur le port série du fronto
+    void                    ReponsePortSerie_Autoref(const QString &s);
+    //LE REFRACTEUR ------------------------------------------------
+    void                    LectureDonneesRefracteur(QString Mesure);       // lit les données envoyées sur le port série du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
+    void                    RegleRefracteur();
+
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);
 
