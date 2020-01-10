@@ -4384,14 +4384,11 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     Datas::I()->mesureacuite->cleandatas();
     Datas::I()->mesurefinal->cleandatas();
     LectureDonneesRefracteur(m_mesureSerie);
-    if (   Datas::I()->mesureacuite->isdataclean()
-        && Datas::I()->mesurefinal->isdataclean() )
+    if ( Datas::I()->mesureacuite->isdataclean() && Datas::I()->mesurefinal->isdataclean() )
         return;
-    if (!Datas::I()->mesureacuite->isdataclean())
-    {
+    if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
         InsertMesure(Refracteur);
-        emit NouvMesure(Refracteur);
-    }
+    emit NouvMesure(Refracteur);
 }
 
 void Procedures::RegleRefracteur()
@@ -4970,37 +4967,37 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
 }
 
 // -------------------------------------------------------------------------------------
-// Generation du resumé des données issues du refracteur
+// Generation du resumé Html des données de réfraction sublective issues du refracteur
 //--------------------------------------------------------------------------------------
 QString Procedures::HtmlRefracteur()
 {
-    // CALCUL DE HtmlMesureRefracteurSubjectif =======================================================================================================================
-    QString Resultat = "";
+    MesureRefraction *acuite = Datas::I()->mesureacuite;
+    QString Reponse = "";
     // - 1 - détermination des verres
-    QString mSphereOD   = Utils::PrefixePlus(Datas::I()->mesureacuite->sphereOD());
-    QString mCylOD      = Utils::PrefixePlus(Datas::I()->mesureacuite->cylindreOD());
-    QString mAxeOD      = QString::number(Datas::I()->mesureacuite->axecylindreOD());
-    QString mAddOD      = Utils::PrefixePlus(Datas::I()->mesureacuite->addVPOD());
+    QString mSphereOD   = Utils::PrefixePlus(acuite->sphereOD());
+    QString mCylOD      = Utils::PrefixePlus(acuite->cylindreOD());
+    QString mAxeOD      = QString::number(acuite->axecylindreOD());
+    QString mAddOD      = Utils::PrefixePlus(acuite->addVPOD());
     QString mAVLOD ("");
-    if (Datas::I()->mesureacuite->avlOD().toDouble()>0)
-        mAVLOD      = QLocale().toString(Datas::I()->mesureacuite->avlOD().toDouble()*10) + "/10";
-    QString mAVPOD      = Datas::I()->mesureacuite->avpOD();
-    QString mSphereOG   = Utils::PrefixePlus(Datas::I()->mesureacuite->sphereOG());
-    QString mCylOG      = Utils::PrefixePlus(Datas::I()->mesureacuite->cylindreOG());
-    QString mAxeOG      = QString::number(Datas::I()->mesureacuite->axecylindreOG());
-    QString mAddOG      = Utils::PrefixePlus(Datas::I()->mesureacuite->addVPOG());
+    if (acuite->avlOD().toDouble()>0)
+        mAVLOD          = QLocale().toString(acuite->avlOD().toDouble()*10) + "/10";
+    QString mAVPOD      = acuite->avpOD();
+    QString mSphereOG   = Utils::PrefixePlus(acuite->sphereOG());
+    QString mCylOG      = Utils::PrefixePlus(acuite->cylindreOG());
+    QString mAxeOG      = QString::number(acuite->axecylindreOG());
+    QString mAddOG      = Utils::PrefixePlus(acuite->addVPOG());
     QString mAVLOG ("");
-    if (Datas::I()->mesureacuite->avlOG().toDouble()>0)
-        mAVLOG      = QLocale().toString(Datas::I()->mesureacuite->avlOG().toDouble()*10) + "/10";
-    QString mAVPOG      = Datas::I()->mesureacuite->avpOG();
+    if (acuite->avlOG().toDouble()>0)
+        mAVLOG      = QLocale().toString(acuite->avlOG().toDouble()*10) + "/10";
+    QString mAVPOG      = acuite->avpOG();
     QString ResultatVLOD, ResultatVLOG,ResultatVPOD, ResultatVPOG, ResultatOD, ResultatOG;
 
     // détermination OD
-    if (Datas::I()->mesureacuite->cylindreOD() != 0.0 && Datas::I()->mesureacuite->sphereOD() != 0.0)
+    if (acuite->cylindreOD() != 0.0 && acuite->sphereOD() != 0.0)
         ResultatVLOD = mSphereOD + " (" + mCylOD + tr(" à ") + mAxeOD + "°)";
-    else if (Datas::I()->mesureacuite->cylindreOD() == 0.0 && Datas::I()->mesureacuite->sphereOD() != 0.0)
+    else if (acuite->cylindreOD() == 0.0 && acuite->sphereOD() != 0.0)
         ResultatVLOD = mSphereOD;
-    else if (Datas::I()->mesureacuite->cylindreOD() != 0.0 && Datas::I()->mesureacuite->sphereOD() == 0.0)
+    else if (acuite->cylindreOD() != 0.0 && acuite->sphereOD() == 0.0)
         ResultatVLOD = mCylOD + tr(" à ") + mAxeOD + "°";
     else
         ResultatVLOD = tr("plan");
@@ -5015,11 +5012,11 @@ QString Procedures::HtmlRefracteur()
         ResultatOD = "Rien";
 
     // détermination OG
-    if (Datas::I()->mesureacuite->cylindreOG() != 0.0 && Datas::I()->mesureacuite->sphereOG() != 0.0)
+    if (acuite->cylindreOG() != 0.0 && acuite->sphereOG() != 0.0)
         ResultatVLOG = mSphereOG + " (" + mCylOG + tr(" à ") + mAxeOG + ")";
-    else if (Datas::I()->mesureacuite->cylindreOG() == 0.0 && Datas::I()->mesureacuite->sphereOG() != 0.0)
+    else if (acuite->cylindreOG() == 0.0 && acuite->sphereOG() != 0.0)
         ResultatVLOG = mSphereOG;
-    else if (Datas::I()->mesureacuite->cylindreOG() != 0.0 && Datas::I()->mesureacuite->sphereOG() == 0.0)
+    else if (acuite->cylindreOG() != 0.0 && acuite->sphereOG() == 0.0)
         ResultatVLOG = mCylOG + tr(" à ") + mAxeOG ;
     else
         ResultatVLOG = tr("plan");
@@ -5065,55 +5062,56 @@ QString Procedures::HtmlRefracteur()
     mAVPOG = (mAVPOG==""? "" : "> P" + mAVPOG.replace("<","&lt;"));
 
     // Détermination de Resultat
-    if (Datas::I()->mesureacuite->addVPOD() > 0 || Datas::I()->mesureacuite->addVPOG() > 0)  // il y a eu mesure de près et de loin
+    if (acuite->addVPOD() > 0 || acuite->addVPOG() > 0)  // il y a eu mesure de près et de loin
     {
         if (ResultatOD != "Rien" && QLocale().toDouble(mAddOD) == 0.0  && ResultatOG == "Rien")
-            Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD");
+            Reponse = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD");
 
-        if (Resultat == "" && ResultatOD != "Rien" && (QLocale().toDouble(mAddOD) == 0.0 && QLocale().toDouble(mAddOG) == 0.0) && ResultatOG != "Rien")
-            Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " "+ tr("OD") + "</td></p>"
+        if (Reponse == "" && ResultatOD != "Rien" && (QLocale().toDouble(mAddOD) == 0.0 && QLocale().toDouble(mAddOG) == 0.0) && ResultatOG != "Rien")
+            Reponse = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " "+ tr("OD") + "</td></p>"
                     HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " " + tr("OG") + "</td>";
 
-        if (Resultat == "" && ResultatOD != "Rien" && (QLocale().toDouble(mAddOD) == 0.0 && QLocale().toDouble(mAddOG) > 0) && ResultatOG != "Rien")
-            Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD") + "</td></p>"
+        if (Reponse == "" && ResultatOD != "Rien" && (QLocale().toDouble(mAddOD) == 0.0 && QLocale().toDouble(mAddOG) > 0) && ResultatOG != "Rien")
+            Reponse = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD") + "</td></p>"
                     HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " add." + mAddOG + "VP "+ tr("OG") + "</td>";
 
-        if (Resultat == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0  && ResultatOG == "Rien")
-            Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD");
+        if (Reponse == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0  && ResultatOG == "Rien")
+            Reponse = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD");
 
-        if (Resultat == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0 && QLocale().toDouble(mAddOG) == 0.0 && ResultatOG != "Rien")
-            Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD") + "</td></p>"
+        if (Reponse == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0 && QLocale().toDouble(mAddOG) == 0.0 && ResultatOG != "Rien")
+            Reponse = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD") + "</td></p>"
                     HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " " + tr("OG") + "</td>";
 
-        if (Resultat == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0 && QLocale().toDouble(mAddOG) > 0 && ResultatOG != "Rien")
-            Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD") + "</td></p>"
+        if (Reponse == "" && ResultatOD != "Rien" && QLocale().toDouble(mAddOD) > 0 && QLocale().toDouble(mAddOG) > 0 && ResultatOG != "Rien")
+            Reponse = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " add." + mAddOD + "VP " + tr("OD") + "</td></p>"
                     HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                     + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " add." + mAddOG + "VP " + tr("OG") + "</td>";
 
-        if (Resultat == "" && (ResultatOD == "Rien" &&  QLocale().toDouble(mAddOG) == 0.0) && ResultatOG != "Rien")
-            Resultat = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " " + tr("OG");
+        if (Reponse == "" && (ResultatOD == "Rien" &&  QLocale().toDouble(mAddOG) == 0.0) && ResultatOG != "Rien")
+            Reponse = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " " + tr("OG");
 
-        if (Resultat == "" && (ResultatOD == "Rien" &&  QLocale().toDouble(mAddOG) > 0) && ResultatOG != "Rien")
-            Resultat = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " add." + mAddOG + "VP " + tr("OG");
+        if (Reponse == "" && (ResultatOD == "Rien" &&  QLocale().toDouble(mAddOG) > 0) && ResultatOG != "Rien")
+            Reponse = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + mAVLOG + "</font><font color = " + colorVPOG + mAVPOG + "</font></b>" + " add." + mAddOG + "VP " + tr("OG");
     }
     else
     {
-        if (Resultat == "" && ResultatOD != "Rien" && ResultatOG == "Rien")
-            Resultat = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + mAVLOD + "</b></font> " + tr("OD");
+        if (Reponse == "" && ResultatOD != "Rien" && ResultatOG == "Rien")
+            Reponse = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + mAVLOD + "</b></font> " + tr("OD");
 
-        if (Resultat == "" && ResultatOD != "Rien" && ResultatOG != "Rien")
-            Resultat = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + mAVLOD + "</b></font> " + tr("OD") + "</td></p>"
+        if (Reponse == "" && ResultatOD != "Rien" && ResultatOG != "Rien")
+            Reponse = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + mAVLOD + "</b></font> " + tr("OD") + "</td></p>"
                     HTML_RETOURLIGNE "<td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
                     + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG") + "</td>";
 
-        if (Resultat == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
-            Resultat = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG");
+        if (Reponse == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
+            Reponse = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG");
     }
-    Resultat = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + currentuser()->login() + "</td></p>";
-    return Resultat;
+    Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Reponse + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + currentuser()->login() + "</td></p>";
+    acuite = Q_NULLPTR;
+    return Reponse;
 }
 
 bool Procedures::ReglePortFronto()
@@ -5337,20 +5335,19 @@ void Procedures::LectureDonneesFronto(QString Mesure)
 //--------------------------------------------------------------------------------------
 QString Procedures::HtmlFronto()
 {
-    if (Datas::I()->mesurefronto->isdataclean())
-        return "";
-    QString mSphereOD   = Utils::PrefixePlus(Datas::I()->mesurefronto->sphereOD());
-    QString mCylOD      = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOD());
-    QString mAxeOD      = QString::number(Datas::I()->mesurefronto->axecylindreOD());
-    QString mAddOD      = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOD());
-    QString mSphereOG   = Utils::PrefixePlus(Datas::I()->mesurefronto->sphereOG());
-    QString mCylOG      = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
-    QString mAxeOG      = QString::number(Datas::I()->mesurefronto->axecylindreOG());
-    QString mAddOG      = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
+    MesureRefraction *fronto = Datas::I()->mesurefronto;
+    QString mSphereOD   = Utils::PrefixePlus(fronto->sphereOD());
+    QString mCylOD      = Utils::PrefixePlus(fronto->cylindreOD());
+    QString mAxeOD      = QString::number(fronto->axecylindreOD());
+    QString mAddOD      = Utils::PrefixePlus(fronto->addVPOD());
+    QString mSphereOG   = Utils::PrefixePlus(fronto->sphereOG());
+    QString mCylOG      = Utils::PrefixePlus(fronto->cylindreOG());
+    QString mAxeOG      = QString::number(fronto->axecylindreOG());
+    QString mAddOG      = Utils::PrefixePlus(fronto->addVPOG());
 
     QString ResultatOD, ResultatVLOD, ResultatVPOD;
     QString ResultatOG, ResultatVLOG, ResultatVPOG;
-    QString Resultat = "";
+    QString Reponse = "";
 
     // détermination OD
     ResultatVPOD = "";
@@ -5388,14 +5385,14 @@ QString Procedures::HtmlFronto()
     if (ResultatOD == ResultatOG)
     {
         if (QLocale().toDouble(mAddOD)>0)
-            Resultat = ResultatOD + " " + tr("ODG");
+            Reponse = ResultatOD + " " + tr("ODG");
         else
-            Resultat = ResultatVLOD + " VL " + tr("ODG");
+            Reponse = ResultatVLOD + " VL " + tr("ODG");
     }
     else
-        Resultat = ResultatOD + " / " + ResultatOG;
-
-    return HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
+        Reponse = ResultatOD + " / " + ResultatOG;
+    fronto = Q_NULLPTR;
+    return HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Reponse + "</p>";
 }
 
 bool Procedures::ReglePortAutoref()
@@ -5439,6 +5436,15 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 {
     m_mesureSerie        = s;
     //qDebug() << gMesureSerie;
+    bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
+    bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
 
     if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
@@ -5456,15 +5462,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
         if (m_mesureSerie == RequestToSendNIDEK())       //! l'autoref demande la permission d'envoyer des données
         {
             QString cmd;
-            cmd = ((m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")?
-                    "CRK" : "CRM");     //! CRK ou CRM suivant que les appareils peuvent ou non envoyer la keratométrie
+            cmd = (autorefhaskerato? "CRK" : "CRM");     //! CRK ou CRM suivant que les appareils peuvent ou non envoyer la keratométrie
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
             PortAutoref()->clear();
             PortAutoref()->write(SendDataNIDEK(cmd));
@@ -5472,15 +5470,25 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             return;
         }
     }
-    Datas::I()->mesurekerato    ->cleandatas();
+
     Datas::I()->mesureautoref   ->cleandatas();
-    Datas::I()->mesuretono      ->cleandatas();
-    Datas::I()->mesurepachy     ->cleandatas();
+    if (autorefhaskerato)
+        Datas::I()->mesurekerato    ->cleandatas();
+    if (autorefhastonopachy)
+    {
+        Datas::I()->mesurepachy     ->cleandatas();
+        Datas::I()->mesuretono      ->cleandatas();
+    }
+
     LectureDonneesAutoref(m_mesureSerie);
-    if (    Datas::I()->mesurekerato    ->isdataclean()
-        &&  Datas::I()->mesureautoref   ->isdataclean()
+    if ( !autorefhaskerato && !autorefhastonopachy && Datas::I()->mesureautoref->isdataclean())
+        return;
+    else if (autorefhaskerato && Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
+        return;
+    else if (autorefhastonopachy && Datas::I()->mesureautoref->isdataclean()
+        &&  Datas::I()->mesurekerato   ->isdataclean()
         &&  Datas::I()->mesuretono      ->isdataclean()
-        &&  Datas::I()->mesurepachy     ->isdataclean() )
+        &&  Datas::I()->mesurepachy     ->isdataclean())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
@@ -5489,21 +5497,21 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
         // NIDEK RT-5100 - NIDEK RT-2100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-                if (!Datas::I()->mesurekerato->isdataclean())
-                    InsertMesure(Kerato);
-                if (!Datas::I()->mesureautoref->isdataclean())
-                    InsertMesure(Autoref);
+            if (!Datas::I()->mesurekerato->isdataclean())
+                InsertMesure(Kerato);
+            if (!Datas::I()->mesureautoref->isdataclean())
+                InsertMesure(Autoref);
             //Dans un premier temps, le PC envoie la requête d'envoi de données
             PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
     }
-    if (!Datas::I()->mesurekerato->isdataclean())
+    if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
         emit NouvMesure(Kerato);
     if (!Datas::I()->mesureautoref->isdataclean())
         emit NouvMesure(Autoref);
-    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+    if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
         {
@@ -5521,18 +5529,6 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 void Procedures::LectureDonneesAutoref(QString Mesure)
 {
     Logs::LogToFile("MesuresAutoref.txt", Mesure);
-    QString mSphereOD   = "+00.00";
-    QString mCylOD      = "+00.00";
-    QString mAxeOD      = "000";
-    QString mSphereOG   = "+00.00";
-    QString mCylOG      = "+00.00";
-    QString mAxeOG      = "000";
-    QString PD          = "";
-
-    QString Ref(""), mesureOD(""), mesureOG("");
-    QString K(""), KOD(""), KOG("");
-    QString K1OD("null"), K2OD("null"), K1OG("null"), K2OG("null");
-    int     AxeKOD(0), AxeKOG(0);
     int     a(0);
 
     QString test;
@@ -5594,10 +5590,9 @@ void Procedures::LectureDonneesAutoref(QString Mesure)
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
     {
-        /*
-     NIDEK ARK-1a - exemple de fichier de sortie
-     */
-     /*
+
+/*! NIDEK ARK-1a - exemple de fichier de sortie *//*
+
 DrmIDNIDEK/ARK-1a
 NO0225
 DA27/MAR/2017.07:40
@@ -5645,8 +5640,9 @@ SR11.8
 PR05.9N
 A40F
 
-// Exemple de fichier de sortie pour un TONOREFIII
-DRMIDNIDEK/TONOREF3
+*//*! Exemple de fichier de sortie pour un TONOREFIII *//*
+
+DRMIDNIDEK/TONOREF3
 NO0002
 DA31/MAR/2017.01:02
 VD12.00
@@ -5706,8 +5702,8 @@ DPM
  L01 0583  AV0583
  R01 0586  AV0586
 
+*//*! Exemple de fichier de sortie avec seul l'OG mesuré pour un ARK1A *//*
 
-Exemple de fichier de sortie avec seul l'OG mesuré pour un ARK1A
 Drm
 0002IDNIDEK/ARK-1a
 NO0272
@@ -5740,9 +5736,23 @@ DL42.7543.2514543.00-00.50
 SL11.7
 PL04.7N
 000461E4
-       */
+*/
+        bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
+        bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+        bool autorefhasipmesure = (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
+                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK ARK-30"
+                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK AR-20");
+
         a               = Mesure.indexOf("VD");
         a               = Mesure.length() - a -1;
+        QString Ref("");
         Ref             = Mesure.right(a);
         if (Ref != "")
         {
@@ -5750,10 +5760,14 @@ PL04.7N
             // OEIL DROIT -----------------------------------------------------------------------------
             if (a>=0)
             {
-                mesureOD             = Ref.mid(Ref.indexOf("OR")+2,15)   .replace(" ","0");
-                mSphereOD            = mesureOD.mid(0,6);
-                mCylOD               = mesureOD.mid(6,6);
-                mAxeOD               = mesureOD.mid(12,3);
+                QString mesureOD("");
+                QString mSphereOD   = "+00.00";
+                QString mCylOD      = "+00.00";
+                QString mAxeOD      = "000";
+                mesureOD            = Ref.mid(Ref.indexOf("OR")+2,15)   .replace(" ","0");
+                mSphereOD           = mesureOD.mid(0,6);
+                mCylOD              = mesureOD.mid(6,6);
+                mAxeOD              = mesureOD.mid(12,3);
                 Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
                 Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
                 Datas::I()->mesureautoref->setaxecylindreOD(mAxeOD.toInt());
@@ -5762,42 +5776,41 @@ PL04.7N
             a  = Ref.indexOf("OL");
             if (a>=0)
             {
-                mesureOG             = Ref.mid(Ref.indexOf("OL")+2,15)   .replace(" ","0");
-                mSphereOG            = mesureOG.mid(0,6);
-                mCylOG               = mesureOG.mid(6,6);
-                mAxeOG               = mesureOG.mid(12,3);
+                QString mesureOG("");
+                QString mSphereOG   = "+00.00";
+                QString mCylOG      = "+00.00";
+                QString mAxeOG      = "000";
+                mesureOG            = Ref.mid(Ref.indexOf("OL")+2,15)   .replace(" ","0");
+                mSphereOG           = mesureOG.mid(0,6);
+                mCylOG              = mesureOG.mid(6,6);
+                mAxeOG              = mesureOG.mid(12,3);
                 Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
                 Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
                 Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
             }
-            if (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K" || m_settings->value("Param_Poste/Autoref").toString()!= "NIDEK ARK-30")
+            if (autorefhasipmesure)
             {
                 a  = Ref.indexOf("PD");
-                if (a >= 0)
-                {
-                    PD               = Ref.mid(Ref.indexOf("PD")+2,2);
+                if (a >= 0) {
+                    QString PD      = Ref.mid(Ref.indexOf("PD")+2,2);
                     Datas::I()->mesureautoref->setecartIP(PD.toInt());
                 }
             }
-            if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
+            if (autorefhaskerato)
             {
                 // Données de KERATOMETRIE --------------------------------------------------------------------------------------------------------
                 if (Mesure.contains("DKM"))                 //=> il y a une mesure de keratometrie
                 {
                     a                   = Mesure.indexOf("DKM");
                     a                   = Mesure.length() - a;
-                    K                   = Mesure.right(a);
+                    QString K           = Mesure.right(a);
                     // OEIL DROIT -----------------------------------------------------------------------------
                     a  = Ref.indexOf(" R");
                     if (a>=0)
                     {
+                        QString KOD("");
+                        QString K1OD("null"), K2OD("null");
+                        int     AxeKOD(0);
                         KOD                 = K.mid(K.indexOf(" R")+2,13);
                         K1OD                = KOD.mid(0,5);
                         K2OD                = KOD.mid(5,5);
@@ -5813,6 +5826,9 @@ PL04.7N
                     a  = Ref.indexOf(" L");
                     if (a>=0)
                     {
+                        QString KOG("");
+                        QString K1OG("null"), K2OG("null");
+                        int     AxeKOG(0);
                         KOG                 = K.mid(K.indexOf(" L")+2,13);
                         K1OG                = KOG.mid(0,5);
                         K2OG                = KOG.mid(5,5);
@@ -5827,7 +5843,7 @@ PL04.7N
                 }
             }
         }
-        if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+        if (autorefhastonopachy)
         {
             // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
             if (Mesure.contains("DNT"))                 //=> il y a une mesure de tonometrie
@@ -5883,36 +5899,37 @@ PL04.7N
 //--------------------------------------------------------------------------------------
 QString Procedures::HtmlAutoref()
 {
+    MesureRefraction *autoref = Datas::I()->mesureautoref;
     QString ResultatOD("");
     QString ResultatOG("");
-    QString Resultat = "";
+    QString Reponse = "";
 
     // détermination OD
-    if (!Datas::I()->mesureautoref->isnullLOD())
+    if (!autoref->isnullLOD())
     {
-        QString mSphereOD   = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOD());
-        QString mCylOD      = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOD());
-        QString mAxeOD      = QString::number(Datas::I()->mesureautoref->axecylindreOD());
-        if (Datas::I()->mesureautoref->cylindreOD() != 0.0 && Datas::I()->mesureautoref->sphereOD() != 0.0)
+        QString mSphereOD   = Utils::PrefixePlus(autoref->sphereOD());
+        QString mCylOD      = Utils::PrefixePlus(autoref->cylindreOD());
+        QString mAxeOD      = QString::number(autoref->axecylindreOD());
+        if (autoref->cylindreOD() != 0.0 && autoref->sphereOD() != 0.0)
             ResultatOD = mSphereOD + " (" + mCylOD + tr(" à ") + mAxeOD + "°)";
-        else if (Datas::I()->mesureautoref->cylindreOD() == 0.0 && Datas::I()->mesureautoref->sphereOD() != 0.0)
+        else if (autoref->cylindreOD() == 0.0 && autoref->sphereOD() != 0.0)
             ResultatOD = mSphereOD;
-        else if (Datas::I()->mesureautoref->cylindreOD() != 0.0 && Datas::I()->mesureautoref->sphereOD() == 0.0)
+        else if (autoref->cylindreOD() != 0.0 && autoref->sphereOD() == 0.0)
             ResultatOD = mCylOD + tr(" à ") + mAxeOD + "°" ;
         else
             ResultatOD = tr("plan");
     }
     // détermination OG
-    if (!Datas::I()->mesureautoref->isnullLOG())
+    if (!autoref->isnullLOG())
     {
-        QString mSphereOG   = Utils::PrefixePlus(Datas::I()->mesureautoref->sphereOG());
-        QString mCylOG      = Utils::PrefixePlus(Datas::I()->mesureautoref->cylindreOG());
-        QString mAxeOG      = QString::number(Datas::I()->mesureautoref->axecylindreOG());
-        if (Datas::I()->mesureautoref->cylindreOG() != 0.0 && Datas::I()->mesureautoref->sphereOG() != 0.0)
+        QString mSphereOG   = Utils::PrefixePlus(autoref->sphereOG());
+        QString mCylOG      = Utils::PrefixePlus(autoref->cylindreOG());
+        QString mAxeOG      = QString::number(autoref->axecylindreOG());
+        if (autoref->cylindreOG() != 0.0 && autoref->sphereOG() != 0.0)
             ResultatOG = mSphereOG + " (" + mCylOG + tr(" à ") + mAxeOG + "°)";
-        else if (Datas::I()->mesureautoref->cylindreOG() == 0.0 && Datas::I()->mesureautoref->sphereOG() != 0.0)
+        else if (autoref->cylindreOG() == 0.0 && autoref->sphereOG() != 0.0)
             ResultatOG = mSphereOG;
-        else if (Datas::I()->mesureautoref->cylindreOG() != 0.0 && Datas::I()->mesureautoref->sphereOG() == 0.0)
+        else if (autoref->cylindreOG() != 0.0 && autoref->sphereOG() == 0.0)
             ResultatOG = mCylOG + tr(" à ") + mAxeOG + "°" ;
         else
             ResultatOG = tr("plan");
@@ -5922,19 +5939,20 @@ QString Procedures::HtmlAutoref()
     if (ResultatOD == "" && ResultatOG == "")
         return "";
     else if (ResultatOD == ResultatOG)
-            Resultat = ResultatOD + " " + tr("ODG");
+            Reponse = ResultatOD + " " + tr("ODG");
     else if (ResultatOD == "" || ResultatOG == "")
     {
-        Resultat = ResultatOD + ResultatOG;
+        Reponse = ResultatOD + ResultatOG;
         if (ResultatOD == "")
-            Resultat += tr("OG");
+            Reponse += tr("OG");
         else
-            Resultat += tr("OD");
+            Reponse += tr("OD");
     }
     else
-        Resultat = ResultatOD + " / " + ResultatOG;
+        Reponse = ResultatOD + " / " + ResultatOG;
+    autoref = Q_NULLPTR;
     return  HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
-                           + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td></p>";
+                           + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Reponse + "</td></p>";
 }
 
 // -------------------------------------------------------------------------------------
@@ -5942,46 +5960,48 @@ QString Procedures::HtmlAutoref()
 //--------------------------------------------------------------------------------------
 QString Procedures::HtmlKerato()
 {
-    QString kerato = "";
-    if (!Datas::I()->mesurekerato->isnullLOD())
+    Keratometrie *kerato = Datas::I()->mesurekerato;
+    QString Reponse = "";
+    if (!kerato->isnullLOD())
     {
-        QString mK1OD       = QLocale().toString(Datas::I()->mesurekerato->K1OD(),'f',2);
-        QString mK2OD       = QLocale().toString(Datas::I()->mesurekerato->K2OD(),'f',2);
-        QString mKOD        = QLocale().toString(Datas::I()->mesurekerato->KMOD(),'f',2);
-        QString mAxeKOD     = QString::number(Datas::I()->mesurekerato->axeKOD());
-        QString mDioptrK1OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OD(),'f',1);
-        QString mDioptrK2OD = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OD(),'f',1);
-        QString mDioptrKOD  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOD());
-        QString mDioptrmOD  = QString::number(Datas::I()->mesurekerato->dioptriesKMOD(),'f',2);
+        QString mK1OD       = QLocale().toString(kerato->K1OD(),'f',2);
+        QString mK2OD       = QLocale().toString(kerato->K2OD(),'f',2);
+        QString mKOD        = QLocale().toString(kerato->KMOD(),'f',2);
+        QString mAxeKOD     = QString::number(kerato->axeKOD());
+        QString mDioptrK1OD = QLocale().toString(kerato->dioptriesK1OD(),'f',1);
+        QString mDioptrK2OD = QLocale().toString(kerato->dioptriesK2OD(),'f',1);
+        QString mDioptrKOD  = Utils::PrefixePlus(kerato->dioptriesKOD());
+        QString mDioptrmOD  = QString::number(kerato->dioptriesKMOD(),'f',2);
         if (QLocale().toDouble(mDioptrK1OD)!=0.0)
-            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
+            Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + "/" + mK2OD + " Km = " + mKOD + "</td>"
                       "<td width=\"180\">" + mDioptrK1OD + "/" + mDioptrK2OD + " " + mDioptrKOD +  tr(" à ") + mAxeKOD + "°</td></p>";
         else
-            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
+            Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + tr(" à ") + mAxeKOD + "°/" + mK2OD
                       + " Km = " + mDioptrmOD + "</td></p>";
     }
-    if (!Datas::I()->mesurekerato->isnullLOG())
+    if (!kerato->isnullLOG())
     {
-        QString mK1OG       = QLocale().toString(Datas::I()->mesurekerato->K1OG(),'f',2);
-        QString mK2OG       = QLocale().toString(Datas::I()->mesurekerato->K2OG(),'f',2);
-        QString mKOG        = QLocale().toString(Datas::I()->mesurekerato->KMOG(),'f',2);
-        QString mAxeKOG     = QString::number(Datas::I()->mesurekerato->axeKOG());
-        QString mDioptrK1OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK1OG(),'f',1);
-        QString mDioptrK2OG = QLocale().toString(Datas::I()->mesurekerato->dioptriesK2OG(),'f',1);
-        QString mDioptrKOG  = Utils::PrefixePlus(Datas::I()->mesurekerato->dioptriesKOG());
-        QString mDioptrmOG  = QString::number(Datas::I()->mesurekerato->dioptriesKMOG(),'f',2);
+        QString mK1OG       = QLocale().toString(kerato->K1OG(),'f',2);
+        QString mK2OG       = QLocale().toString(kerato->K2OG(),'f',2);
+        QString mKOG        = QLocale().toString(kerato->KMOG(),'f',2);
+        QString mAxeKOG     = QString::number(kerato->axeKOG());
+        QString mDioptrK1OG = QLocale().toString(kerato->dioptriesK1OG(),'f',1);
+        QString mDioptrK2OG = QLocale().toString(kerato->dioptriesK2OG(),'f',1);
+        QString mDioptrKOG  = Utils::PrefixePlus(kerato->dioptriesKOG());
+        QString mDioptrmOG  = QString::number(kerato->dioptriesKMOG(),'f',2);
         if (QLocale().toDouble(mDioptrK1OG)!=0.0)
-            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
+            Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OG + "/" + mK2OG + " Km = " + mKOG + "</td>"
                       "<td width=\"180\">" + mDioptrK1OG + "/" + mDioptrK2OG + " " + mDioptrKOG +  tr(" à ") + mAxeKOG + "°</td></p>";
         else
-            kerato += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
+            Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">"  + mK1OG +  tr(" à ") + mAxeKOG + "°/" + mK2OG
                       + " Km = " + mDioptrmOG + "</td></p>";
     }
-    return kerato;
+    kerato = Q_NULLPTR;
+    return Reponse;
 }
 
 // -------------------------------------------------------------------------------------
@@ -6031,12 +6051,14 @@ QString Procedures::HtmlTono()
         Reponse.insert(Reponse.lastIndexOf("</td>")-1, fd);             //! on met le dernier caractère en ancre
     }
     logmesure("setHtmlTono() -> new m_htmlMesureTono = " + Reponse);
+    tono = Q_NULLPTR;
     return Reponse;
 }
 
 QString Procedures::HtmlPachy()
 {
     Pachymetrie *pachy = Datas::I()->mesurepachy;
+    QString Reponse ("");
     if (!pachy->isnullLOD() || !pachy->isnullLOG())
     {
         QString const dd    = "<a name=\"" HTMLANCHOR_PACHYDEBUT + QString::number(pachy->id()) + "\"></a>";
@@ -6045,22 +6067,21 @@ QString Procedures::HtmlPachy()
         pachyOD = QString::number(pachy->pachyOD());
         pachyOG = QString::number(pachy->pachyOG());
         Methode = Pachymetrie::ConvertToReadableMesure(pachy);
-        QString result;
         if (pachy->isnullLOD())
-            result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy OG") + ":</font> <font color = \"green\">" + pachyOG + "</font></b> (" + Methode;
+            Reponse = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy OG") + ":</font> <font color = \"green\">" + pachyOG + "</font></b> (" + Methode;
         else if (pachy->isnullLOG())
-            result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy OD") + ":</font> <font color = \"green\">" + pachyOD + "</font></b> (" + Methode;
+            Reponse = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy OD") + ":</font> <font color = \"green\">" + pachyOD + "</font></b> (" + Methode;
         else
         {
             if (pachy->pachyOD() == pachy->pachyOG())
-                result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy ODG") + ":</font> <font color = \"green\">" + pachyOD + "</font></b> (" + Methode;
+                Reponse = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy ODG") + ":</font> <font color = \"green\">" + pachyOD + "</font></b> (" + Methode;
             else
-                result = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy") + ":</font> <font color = \"green\">" + pachyOD +  "/" + pachyOG + "</font></b> (" + Methode;
+                Reponse = "<b><font color = \"" COULEUR_TITRES "\">" + tr("pachy") + ":</font> <font color = \"green\">" + pachyOD +  "/" + pachyOG + "</font></b> (" + Methode;
         }
-        result = dd + result + fd + +")";           // on met le dernier caractère en ancre
-        return result;
+        Reponse = dd + Reponse + fd + +")";           // on met le dernier caractère en ancre
     }
-    else return "";
+    pachy = Q_NULLPTR;
+    return Reponse;
 }
 
 QSerialPort* Procedures::PortTono()
