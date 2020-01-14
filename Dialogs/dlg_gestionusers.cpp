@@ -691,24 +691,6 @@ void dlg_gestionusers::EnregistreUser()
     }
     else if (m_mode == Creer)
     {
-        //2. On crée 3 comptes avec ce login et ce MDP: local en localhost, réseau en 192.168.1.% et distant en %-SSL et login avec SSL à la fin
-        QString AdressIP, MasqueReseauLocal;
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-                 AdressIP = address.toString();
-        }
-        QStringList listIP = AdressIP.split(".");
-        for (int i=0;i<listIP.size()-1;i++)
-            MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
-        MasqueReseauLocal += "%";
-        QString login = ui->LoginuplineEdit->text();
-        QString MDP = ui->MDPuplineEdit->text();
-        db->StandardSQL("create user '" + login + "'@'localhost' identified by '" + MDP + "'");
-        db->StandardSQL("create user '" + login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "'");
-        db->StandardSQL("create user '" + login + "SSL'@'%' identified by '" + MDP + "' REQUIRE SSL");
-        db->StandardSQL("grant all on *.* to '" + login + "'@'localhost' identified by '" + MDP + "' with grant option");
-        db->StandardSQL("grant all on *.* to '" + login + "SSL'@'%' identified by '" + MDP + "' with grant option");
-        db->StandardSQL("grant all on *.* to '" + login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option");
         m_mode = Modifier;
         ui->Principalframe->setEnabled(false);
         wdg_buttonframe->setEnabled(true);

@@ -111,14 +111,11 @@ private:
                                      bool DetruitIni = true,
                                      bool RecupIni = true,
                                      bool ReconstruitIni = true,
-                                     bool ReconstruitBase = true,
-                                     bool PremDemarrage = false,
-                                     bool BaseVierge = false);
+                                     bool PremDemarrage = false);
     bool                    VerifParamConnexion(QString &login,                         //! le login du user dnas la table utilisateurs
                                                 QString &MDP,                           //! le mdp du user dnas la table utilisateurs
                                                 bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
-                                                bool OKAccesDistant = true,             //! true =  le choix accès distant est validé ou non
-                                                QString nomtblutilisateurs = TBL_UTILISATEURS);
+                                                bool OKAccesDistant = true);            //! true =  le choix accès distant est validé ou non
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
 public:

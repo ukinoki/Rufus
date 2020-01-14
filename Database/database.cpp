@@ -593,7 +593,6 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 */
 DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
-    //TODO : SQL USER : récupérer tout le reste
     QString req = "SELECT " CP_ID_USR
                   " FROM " TBL_UTILISATEURS
                   " WHERE " CP_LOGIN_USR " = '" + login + "' "
@@ -604,7 +603,6 @@ DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString passw
         return Error;
     if(usrdata.size()==0)
         return Empty;
-
     m_iduserConnected = usrdata.at(0).toInt();
     return OK;
 }

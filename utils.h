@@ -159,6 +159,10 @@ public:
     static void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     static void setDataVariant(QJsonObject data, QString key, QVariant &prop);
     static void setDataLogic(QJsonObject data, QString key, Logic &prop);
+
+    //! arrondit un int au multiple de 5 le plus proche
+    static int roundToNearestFive(int number)   { return static_cast<int>(number / 5. + .5) * 5; }
+
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

@@ -61,7 +61,7 @@ Procedures::Procedures(QObject *parent) :
                                 " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
                                 " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
             m_connexionbaseOK = a;
-            a = VerifIni(msg, msgInfo, true, true, true, false, true, false);
+            a = VerifIni(msg, msgInfo, true, true, true, true);
         }
     }
     m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
@@ -98,7 +98,7 @@ Procedures::Procedures(QObject *parent) :
                        " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
                        " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
             m_connexionbaseOK = k;
-            k = VerifIni(msg, msgInfo, false, true, true, false, false, false);
+            k = VerifIni(msg, msgInfo, false, true, true, false);
         }
     }
 
@@ -2902,21 +2902,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         for (int i=0; i<usrlist.size(); i++)
             db->StandardSQL("drop user '" + usrlist.at(i).at(0).toString() + "'@'" + usrlist.at(i).at(1).toString() + "'");
 
-    //2. On crée 3 comptes SQL avec ce login et ce MDP: local en localshost, réseau local (p.e. 192.168.1.%) et distant en %-SSL et login avec SSL à la fin
-    //TODO : pas de compte SQL, uniquement interne au système Rufus pour des questions de sécurités, sinon, n'importe qui peux attaquer la base directement.
-    // Serge Oui c'est une grosse erreur de conception mais tant que le logiciel ne sera pas modifié, il est impossible d'installler le programme sans en passer par là
-    QString AdressIP (Utils::IPAdress()), MasqueReseauLocal;
-    QStringList listIP = AdressIP.split(".");
-    for (int i=0;i<listIP.size()-2;i++)
-        MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
-    MasqueReseauLocal += "%";
-    db->StandardSQL ("create user '" + Login + "'@'localhost' identified by '" + MDP + "'");
-    db->StandardSQL ("create user '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "'");
-    db->StandardSQL ("create user '" + Login + "SSL'@'%' identified by '" + MDP + "' REQUIRE SSL");
-    db->StandardSQL ("grant all on *.* to '" + Login + "'@'localhost' identified by '" + MDP + "' with grant option");
-    db->StandardSQL ("grant all on *.* to '" + Login + "SSL'@'%' identified by '" + MDP + "' with grant option");
-    db->StandardSQL ("grant all on *.* to '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option");
-
     db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
     // On crée l'utilisateur dans la table utilisateurs
     m_idcentre               = 1;
@@ -3131,40 +3116,46 @@ bool Procedures::IdentificationUser()
     }
     else if ( result < 0 ) // anomalie sur la base - table utilisateurs manquante ou corrompue
     {
+        dlg_identificationuser::LoginResult loginresult = dlg_IdentUser->loginresult();
         m_loginSQL      = dlg_IdentUser->ui->LoginlineEdit->text();
         m_passwordSQL   = dlg_IdentUser->ui->MDPlineEdit->text();
         UpMessageBox    msgbox;
         UpSmallButton   AnnulBouton(tr("Annuler"));
         UpSmallButton   RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
         UpSmallButton   BaseViergeBouton(tr("Nouvelle base patients vierge"));
-        msgbox.setText(tr("Base de données endommagée!"));
-        msgbox.setInformativeText(tr("La base de données semble endommagée.\n"
-                                  "Voulez-vous la reconstruire à partir"
-                                  " d'une sauvegarde ou recréer une base vierge?\n\n"));
-        msgbox.setIcon(UpMessageBox::Info);
-        msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(&BaseViergeBouton, UpSmallButton::STARTBUTTON);
-        msgbox.addButton(&RestaureBaseBouton, UpSmallButton::COPYBUTTON);
-        msgbox.exec();
-        if( (msgbox.clickedButton() == &RestaureBaseBouton))
-        {
-            if (RestaureBase(false,true,false))
+        switch (loginresult) {
+        case dlg_identificationuser::CorruptedBase:
+            msgbox.setText(tr("Base de données endommagée!"));
+            msgbox.setInformativeText(tr("La base de données semble endommagée.\n"
+                                      "Voulez-vous la reconstruire à partir"
+                                      " d'une sauvegarde ou recréer une base vierge?\n\n"));
+            msgbox.setIcon(UpMessageBox::Info);
+            msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+            msgbox.addButton(&BaseViergeBouton, UpSmallButton::STARTBUTTON);
+            msgbox.addButton(&RestaureBaseBouton, UpSmallButton::COPYBUTTON);
+            msgbox.exec();
+            if( (msgbox.clickedButton() == &RestaureBaseBouton))
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+                if (RestaureBase(false,true,false))
+                {
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+                    Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+                    exit(0);
+                }
+            }
+            else if (msgbox.clickedButton() == &BaseViergeBouton)
+            {
+                Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES);
+                if (!RestaureBase(true, true))
+                    exit(0);
+                CreerPremierUser(m_loginSQL, m_passwordSQL);
+                UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-
                 exit(0);
             }
-        }
-        else if (msgbox.clickedButton() == &BaseViergeBouton)
-        {
-            Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES);
-            if (!RestaureBase(true, true))
-                exit(0);
-            CreerPremierUser(m_loginSQL, m_passwordSQL);
-            UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
-            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            exit(0);
+            break;
+        default:
+            break;
         }
     }
     delete dlg_IdentUser;
@@ -3678,9 +3669,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     QString login (""), MDP("");
     if (protoc == BaseExistante)
     {
-        if (VerifParamConnexion(login, MDP))
+        if (VerifParamConnexion(login, MDP, true))
         {
-            db->calcidUserConnected(login, MDP);
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
@@ -3878,14 +3868,12 @@ void Procedures::PremierParametrageRessources()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Vérifie la présence et la cohérence du fchier d'initialisation et le reconstruit au besoin ----------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool ReconstruitBase, bool PremDemarrage, bool BaseVierge)
+bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
     UpSmallButton RecupIniBouton           (tr("Restaurer le fichier d'initialisation\nà partir d'une sauvegarde"));
     UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nd'initialisation"));
-    UpSmallButton ReconstruitBaseBouton    (tr("Reconstruire les données\nà partir d'un fichier de sauvegarde"));
     UpSmallButton PremierDemarrageBouton   (tr("Premier démarrage\nde Rufus"));
-    UpSmallButton BaseViergeBouton         (tr("Reconstruire\nune base vierge"));
 
     QMessageBox *msgbox = new QMessageBox;
     msgbox->setText(msg);
@@ -3893,10 +3881,8 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     msgbox->setIcon(QMessageBox::Warning);
     if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     QMessageBox::AcceptRole);
     if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           QMessageBox::AcceptRole);
-    if (ReconstruitBase)                    msgbox->addButton(&ReconstruitBaseBouton,    QMessageBox::AcceptRole);
     if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   QMessageBox::AcceptRole);
-    if (BaseVierge)                         msgbox->addButton(&BaseViergeBouton,         QMessageBox::AcceptRole);
-    msgbox->addButton(&AnnulBouton, QMessageBox::AcceptRole);
+     msgbox->addButton(&AnnulBouton, QMessageBox::AcceptRole);
     msgbox->exec();
     bool reponse = false;
 
@@ -3933,39 +3919,16 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         QFile(m_nomFichierIni).remove();
         m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
         QString login(""), MDP ("");
-        if (VerifParamConnexion(login, MDP))
+        if (VerifParamConnexion(login, MDP, true))
         {
             PremierParametrageMateriel();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
             exit(0);
         }
     }
-    else if (msgbox->clickedButton()==&ReconstruitBaseBouton)
-    {
-        //reconstruire la base de données à partir d'un dump
-        reponse = RestaureBase(false, false, false);
-        if (reponse)
-            UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
-        else
-            UpMessageBox::Watch(Q_NULLPTR,tr("Restauration impossible de la base"));
-        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-
-        exit(0);
-    }
     else if (msgbox->clickedButton()==&PremierDemarrageBouton)
     {
         reponse =  PremierDemarrage();
-    }
-    else if (msgbox->clickedButton()==&BaseViergeBouton)
-    {
-        reponse = RestaureBase(true, true, false);
-        if (reponse)
-            UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
-        else
-            UpMessageBox::Watch(Q_NULLPTR,tr("Restauration impossible de la base"));
-        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-
-        exit(0);
     }
     return reponse;
 }
@@ -3973,7 +3936,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant, QString)
+bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant)
 {
     Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
@@ -4393,17 +4356,16 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 
 void Procedures::RegleRefracteur()
 {
-    /*! On a créé 4 mesures
-     * une de fronto élaborée à partir de la dernière prescription de verres du patient
-     * une d'autoref qui reprend la dernière mesure d'autoref du patient
-     * une de subjectif qui reprend la dernière mesure d'acuité du patient
-     * et une de final qui reprend la dernière prescription de verres
-     * Chacune de ces 4 mesures est envoyée au réfracteur pour le régler
+    /*! Si on lance cette fonction à l'ouverture d'un dossier, on a créé 3 mesures
+     * Chacune de ces 3 mesures est envoyée au réfracteur pour le régler
+     * Datas::I()->mesurefronto     qui met en fronto et en final la dernière prescription de verres du patient
+     * Datas::I()->mesureautoref    qui met en autoref la dernière mesure d'autoref du patient
+     * Datas::I()->mesureacuité     qui met en subjectif la dernière mesure d'acuité du patient
      */
+    /*! +++ sur les NIDEK, on ne peut que régler l'autoref et le fronto depuis le PC - les refractions subjectives et finales ne peuvent pas être préréglées */
     if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
      || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
     {
-        /*! sur les NIDEK, on ne peut que régler l'autoref et le fronto depuis le PC - les refractions subjectives et finales ne peuvent pas être préréglées */
         QString AxeOD, AxeOG;
         QString AddOD, AddOG;
         QString SphereOD, SphereOG;
@@ -4475,8 +4437,8 @@ void Procedures::RegleRefracteur()
         {
             initvariables();
 
-            convertaxe(AxeOD, Datas::I()->mesurefronto->axecylindreOD());
-            convertaxe(AxeOG, Datas::I()->mesurefronto->axecylindreOG());
+            convertaxe(AxeOD, Utils::roundToNearestFive(Datas::I()->mesurefronto->axecylindreOD()));
+            convertaxe(AxeOG, Utils::roundToNearestFive(Datas::I()->mesurefronto->axecylindreOG()));
             convertdioptries(SphereOD, Datas::I()->mesurefronto->sphereOD());
             convertdioptries(SphereOG, Datas::I()->mesurefronto->sphereOG());
             convertdioptries(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
@@ -4723,7 +4685,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mAddOD       = SectionFronto.mid(SectionFronto.indexOf("AR")+2,6)    .replace(" ","0");
                 Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
                 Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
-                Datas::I()->mesurefronto->setaxecylindreOD(mAxeOD.toInt());
+                Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                 Datas::I()->mesurefronto->setaddVPOD(mAddOD.toDouble());
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -4736,7 +4698,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mAddOG       = SectionFronto.mid(SectionFronto.indexOf("AL")+2,6)    .replace(" ","0");
                 Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
                 Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
-                Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
+                Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                 Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
             }
             //debugMesureRefraction(Datas::I()->mesurefronto);
@@ -5236,7 +5198,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
                 mAddOD           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AR")+2,4).toDouble());
             Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
             Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
-            Datas::I()->mesurefronto->setaxecylindreOD(mAxeOD.toInt());
+            Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
             Datas::I()->mesurefronto->setaddVPOD(mAddOD.toDouble());
         }
         // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -5251,7 +5213,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
                 mAddOG           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AL")+2,4).toDouble());
             Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
             Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
-            Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
+            Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
         }
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
@@ -5274,7 +5236,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
             mAddOD              = mesureOD.mid(mesureOD.indexOf("ADD=")+4,5);
             Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
             Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
-            Datas::I()->mesurefronto->setaxecylindreOD(mAxeOD.toInt());
+            Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
             Datas::I()->mesurefronto->setaddVPOD(mAddOD.toDouble());
         }
         // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -5288,7 +5250,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
             mAddOG              = mesureOG.mid(mesureOG.indexOf("ADD=")+4,5);
             Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
             Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
-            Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
+            Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
         }
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
@@ -5309,7 +5271,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
                 mAddOD           = Mesure.mid(Mesure.indexOf("AR")+2,5);
             Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
             Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
-            Datas::I()->mesurefronto->setaxecylindreOD(mAxeOD.toInt());
+            Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
             Datas::I()->mesurefronto->setaddVPOD(mAddOD.toDouble());
         }
         // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -5324,7 +5286,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
                 mAddOG           = Mesure.mid(Mesure.indexOf("AL")+2,5);
             Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
             Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
-            Datas::I()->mesurefronto->setaxecylindreOG(mAxeOG.toInt());
+            Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
         }
     }

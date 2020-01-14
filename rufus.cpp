@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-01-2020/1");
+    qApp->setApplicationVersion("14-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8637,8 +8637,8 @@ void Rufus::SetDatasRefractionKerato()
     Datas::I()->mesureacuite    ->cleandatas();
     Datas::I()->mesurefinal     ->cleandatas();
     Datas::I()->mesurekerato    ->cleandatas();
-    Datas::I()->mesuretono            ->cleandatas();
-    Datas::I()->mesurepachy           ->cleandatas();
+    Datas::I()->mesuretono      ->cleandatas();
+    Datas::I()->mesurepachy     ->cleandatas();
 
     /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
@@ -8698,7 +8698,7 @@ void Rufus::SetDatasRefractionKerato()
     }
 
     /*! Final      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
-                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+                    * si on n'en a pas, on cherche la dernière mesure de fronto */
     if (!Datas::I()->mesurefronto ->isdataclean())
         Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
     if (DataBase::I()->donneesOphtaPatient()->ismesurekerato())

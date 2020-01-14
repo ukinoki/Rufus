@@ -20,6 +20,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_item.h"
 
+/*!
+ * \brief Refraction class
+ * l'ensemble des informations concernant la réfraction d'un patient
+ */
 class Refraction : public Item
 {
     Q_OBJECT
@@ -121,7 +125,7 @@ public:
     void setidpat(int id)                   { m_idpat = id; }                                   //!> l'id du patient
     void setidacte(int id)                  { m_idacte = id; }                                  //!> l'id de l'acte aucours duquel la mesure a été faite
     void setdaterefraction(QDate date)      { m_daterefraction = date; }                        //!> la date de la refraction
-    void setmesure(Mesure mesure)           { m_typemesure = mesure; }                          //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    void settypemesure(Mesure mesure)       { m_typemesure = mesure; }                          //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
     void setdistance(Distance distance)     { m_distance = distance; }                          //!> la distance de mesure: loin, près, les 2
     void setisdilate(bool logic)            { m_dilate = (logic? Dilatation : NoDilatation); }  //!> examen sous cycloplegie ou non
     void setODmesure(bool logic)            { m_isODmesure = logic; }                           //!> l'OD a été mesuré
