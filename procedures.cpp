@@ -614,9 +614,9 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "RUFUSINI=\"" + QDir::homePath() + FILE_INI + "\"";
     //# Identifiants MySQL
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_USER=\"" NOM_DUMPUSER "\"";
+    scriptbackup += "MYSQL_USER=\"" LOGIN_SQL "\"";
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_PASSWORD=\"" MDP_DUMPUSER "\"";
+    scriptbackup += "MYSQL_PASSWORD=\"" MDP_SQL "\"";
     //# Commandes MySQL
     QDir Dir(QCoreApplication::applicationDirPath());
     Dir.cdUp();
@@ -732,10 +732,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     for (int i=0; i<ListNomFiles.size(); i++)
         if (QFile(ListNomFiles.at(i)).exists())
         {
-            if (currentuser() == Q_NULLPTR)
-                scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
-            else
-                scriptrestore += "$MYSQL -u " + currentuser()->login() +  " -p" +  currentuser()->password() + " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
+            scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
             scriptrestore += "\n";
         }
     if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))
@@ -4728,7 +4725,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 AxeKOD              = mesureOD.mid(10,3).toInt();
                 Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                 Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
-                Datas::I()->mesurekerato->setaxeKOD(AxeKOD);
+                Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
                 if (SectionKerato.contains("DR"))
                 {
                     mesureOD        = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
@@ -4745,7 +4742,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 AxeKOG              = mesureOG.mid(10,3).toInt();
                 Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
                 Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
-                Datas::I()->mesurekerato->setaxeKOG(AxeKOG);
+                Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
                 if (SectionKerato.contains("DL"))
                 {
                     mesureOG        = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
@@ -4777,7 +4774,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mAxeOD       = mesureOD.mid(12,3);
                 Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
                 Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOD(mAxeOD.toInt());
+                Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
             if (SectionAutoref.contains("OL"))
@@ -4788,7 +4785,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mAxeOG       = mesureOG.mid(12,3);
                 Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
                 Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
+                Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             }
             //debugMesureRefraction(Datas::I()->mesureautoref);
             if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
@@ -5732,7 +5729,7 @@ PL04.7N
                 mAxeOD              = mesureOD.mid(12,3);
                 Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
                 Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOD(mAxeOD.toInt());
+                Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
             a  = Ref.indexOf("OL");
@@ -5748,7 +5745,7 @@ PL04.7N
                 mAxeOG              = mesureOG.mid(12,3);
                 Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
                 Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOG(mAxeOG.toInt());
+                Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             }
             if (autorefhasipmesure)
             {
@@ -5779,7 +5776,7 @@ PL04.7N
                         AxeKOD              = KOD.mid(10,3).toInt();
                         Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                         Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
-                        Datas::I()->mesurekerato->setaxeKOD(AxeKOD);
+                        Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
                         QString mOD         = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
                         Datas::I()->mesurekerato->setdioptriesK1OD(mOD.mid(0,5).toDouble());
                         Datas::I()->mesurekerato->setdioptriesK2OD(mOD.mid(5,5).toDouble());
@@ -5797,7 +5794,7 @@ PL04.7N
                         AxeKOG              = KOG.mid(10,3).toInt();
                         Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
                         Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
-                        Datas::I()->mesurekerato->setaxeKOG(AxeKOG);
+                        Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
                         QString mOG         = K.mid(K.indexOf("DL")+2,10).replace(" ","0");
                         Datas::I()->mesurekerato->setdioptriesK1OG(mOG.mid(0,5).toDouble());
                         Datas::I()->mesurekerato->setdioptriesK2OG(mOG.mid(5,5).toDouble());

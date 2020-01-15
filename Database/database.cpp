@@ -2301,7 +2301,7 @@ double DataBase::getActePaye(int idActe)
  * Refractions
 */
 
-QJsonObject             DataBase::loadRefractionData(QVariantList refdata)           //! attribue la liste des datas à une refraction
+QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! attribue la liste des datas à une refraction
 {
     QJsonObject data{};
     data[CP_ID_REFRACTIONS]                 = refdata.at(0).toInt();

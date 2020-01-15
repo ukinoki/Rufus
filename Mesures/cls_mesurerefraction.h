@@ -26,7 +26,7 @@ class MesureRefraction : public Mesure
     Q_OBJECT
 public:
     explicit MesureRefraction();
-    void setdatas(Refraction *ref);
+    void setdatas(Refraction *ref, bool round = true);
     void setdatas(MesureRefraction *mesure);
 
 private:

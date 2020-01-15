@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("14-01-2020/1");
+    qApp->setApplicationVersion("15-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8683,7 +8683,7 @@ void Rufus::SetDatasRefractionKerato()
         itref.previous();
         if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres)
         {
-            Datas::I()->mesureacuite->setdatas(const_cast<Refraction*>(itref.value()));
+            Datas::I()->mesureacuite->setdatas(const_cast<Refraction*>(itref.value()), false);
             itref.toFront();
 
 
@@ -8705,12 +8705,12 @@ void Rufus::SetDatasRefractionKerato()
     {
         Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesOphtaPatient()->K1OD());
         Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesOphtaPatient()->K2OD());
-        Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesOphtaPatient()->axeKOD());
+        Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(DataBase::I()->donneesOphtaPatient()->axeKOD()));
         Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesOphtaPatient()->dioptriesK1OD());
         Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesOphtaPatient()->dioptriesK2OD());
         Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesOphtaPatient()->K1OG());
         Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesOphtaPatient()->K2OG());
-        Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesOphtaPatient()->axeKOG());
+        Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(DataBase::I()->donneesOphtaPatient()->axeKOG()));
         Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesOphtaPatient()->dioptriesK1OG());
         Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesOphtaPatient()->dioptriesK2OG());
     }
