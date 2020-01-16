@@ -2400,3 +2400,63 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
     ref = new Refraction(data);
     return ref;
 }
+
+/*
+ * Interventions
+*/
+
+QJsonObject DataBase::loadInterventionData(QVariantList interventiondata)           //! attribue la liste des datas à une intervention
+{
+    QJsonObject data{};
+    data[CP_ID_LIGNPRGOPERATOIRE]                   = interventiondata.at(0).toInt();
+    data[CP_DATE_LIGNPRGOPERATOIRE]                 = interventiondata.at(1).toDate().toString("yyyy-MM-dd");
+    data[CP_IDUSER_LIGNPRGOPERATOIRE]               = interventiondata.at(2).toInt();
+    data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = interventiondata.at(3).toInt();
+    data[CP_IDLIEU_LIGNPRGOPERATOIRE]               = interventiondata.at(4).toInt();
+    data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = interventiondata.at(5).toString();
+    data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE]     = interventiondata.at(6).toString();
+    data[CP_COTE_LIGNPRGOPERATOIRE]                 = interventiondata.at(7).toString();
+    data[CP_IDIOL_LIGNPRGOPERATOIRE]                = interventiondata.at(8).toInt();
+    data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(9).toDouble();
+    data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(10).toDouble();
+    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = interventiondata.at(11).toString();
+    return data;
+}
+
+QList<Intervention*> DataBase::loadInterventionsByUserId(int id)                  //! charge toutes les Interventions d'un patient
+{
+    QList<Intervention*> list = QList<Intervention*> ();
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_DATE_LIGNPRGOPERATOIRE ", " CP_IDUSER_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDLIEU_LIGNPRGOPERATOIRE ", " // 0-1-2-3-4
+                              CP_TYPEANESTH_LIGNPRGOPERATOIRE ", " CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", "  // 5-6-7-8-9                    "PwIOL"
+                              CP_CYLIOL_LIGNPRGOPERATOIRE ", " CP_OBSERV_LIGNPRGOPERATOIRE  // 10-11
+                    " FROM " TBL_LIGNESPRGOPERATOIRES ;
+                    " WHERE " CP_IDUSER_LIGNPRGOPERATOIRE " = " + QString::number(id) +
+                    " order by " CP_ID_LIGNPRGOPERATOIRE " desc";
+    QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
+    if(!ok || interventionlist.size()==0)
+        return list;
+    for (int i=0; i<interventionlist.size(); ++i)
+    {
+        QJsonObject data = loadInterventionData(interventionlist.at(i));
+        Intervention *intervention = new Intervention(data);
+        if (intervention != Q_NULLPTR)
+            list << intervention;
+    }
+    return list;
+}
+
+Intervention* DataBase::loadInterventionById(int idintervention)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+{
+    Intervention *intervention = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_DATE_LIGNPRGOPERATOIRE ", " CP_IDUSER_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDLIEU_LIGNPRGOPERATOIRE ", " // 0-1-2-3-4
+                              CP_TYPEANESTH_LIGNPRGOPERATOIRE ", " CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", "  // 5-6-7-8-9                    "PwIOL"
+                              CP_CYLIOL_LIGNPRGOPERATOIRE ", " CP_OBSERV_LIGNPRGOPERATOIRE  // 10-11
+                    " FROM " TBL_LIGNESPRGOPERATOIRES ;
+                    " WHERE " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(idintervention) ;
+    QVariantList interventiondata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || interventiondata.size()==0)
+        return intervention;
+    QJsonObject data = loadInterventionData(interventiondata);
+    intervention = new Intervention(data);
+    return intervention;
+}

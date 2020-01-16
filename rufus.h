@@ -53,6 +53,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paiementtiers.h"
 #include "dlg_param.h"
 #include "ui_dlg_param.h"
+#include "dlg_programmationinterventions.h"
 #include "dlg_refraction.h"
 #include "dlg_recettesspeciales.h"
 #include "ui_dlg_recettesspeciales.h"
