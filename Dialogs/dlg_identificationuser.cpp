@@ -119,7 +119,6 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus();    return NoUser;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
-    //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
     QString error = "";
     error = db->connectToDataBase(DB_CONSULTS);
 

@@ -149,17 +149,6 @@ QString Procedures::pathDossierDocuments(QString Appareil, Utils::ModeAcces mode
     return dossier;
 }
 
-void Procedures::EnChantier(bool avecMsg)
-{
-    UpMessageBox msgbox;
-    msgbox.setIconPixmap(Icons::pxWorkInProgress());
-    UpSmallButton OKBouton;
-    if (avecMsg)
-    msgbox.setInformativeText(tr("Le code qui suit n'est pas achevé et entraînera\nassez rapidement un plantage du programme\navec un risque élevé de corruption des données"));
-    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-    msgbox.exec();
-}
-
 // ----------------------------------------------------------------------------------
 // Modidife la taille de la police utilisée pour les widget d'une liste
 // ----------------------------------------------------------------------------------
@@ -3217,7 +3206,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         else if( currentuser()->isResponsableOuAssistant() )
         {
             bool found = false;
-            foreach (User *us, Datas::I()->users->all()->values())
+            foreach (User *us, Datas::I()->users->actifs()->values())
             {
                 if( us->id() == currentuser()->id() )
                     continue;
@@ -3333,7 +3322,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 {
                     // le superviseur est remplaçant, on essaie de savoir s'il a un parent
                     QList<User*> listUserFound;
-                    foreach (User *us, Datas::I()->users->all()->values())
+                    foreach (User *us, Datas::I()->users->actifs()->values())
                     {
                         if( us->id() == currentuser()->id() )
                             continue;
@@ -3545,7 +3534,7 @@ void Procedures::CalcUserParent()
          */
 
         QList<User*> listUserFound;
-        foreach (User *us, Datas::I()->users->all()->values() )
+        foreach (User *us, Datas::I()->users->actifs()->values() )
         {
             if( us->id() == user->id() )
                 continue;

@@ -1357,7 +1357,7 @@ void dlg_impressions::Validation()
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
                     Combo->setAccessibleDescription(listsoignants);
-                    foreach (User* usr, *Datas::I()->users->all())
+                    foreach (User* usr, *Datas::I()->users->actifs())
                         if (usr->isSoignant())
                             Combo->addItem(usr->login(), usr->id());
                     lay->addWidget(Combo);

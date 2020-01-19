@@ -596,8 +596,8 @@ DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString passw
     QString req = "SELECT " CP_ID_USR
                   " FROM " TBL_UTILISATEURS
                   " WHERE " CP_LOGIN_USR " = '" + login + "' "
-                  " AND " CP_MDP_USR " = '" + password + "' ";
-    //qDebug() << req;
+                  " AND " CP_MDP_USR " = '" + password + "' "
+                  " AND " CP_ISDESACTIVE_USR " is null ";
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok)
         return Error;
@@ -687,8 +687,7 @@ QList<User*> DataBase::loadUsers()
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
             CP_ISOPTAM_USR ", " CP_ID_USR                                                                                 // 30,31
-            " from " TBL_UTILISATEURS
-            " where " CP_ISDESACTIVE_USR " is null";
+            " from " TBL_UTILISATEURS;
 
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
     if( !ok || usrlist.size()==0 )

@@ -268,7 +268,6 @@ public:
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
-    void                    EnChantier(bool avecMsg = false);
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 

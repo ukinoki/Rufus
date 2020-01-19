@@ -16,8 +16,9 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Acte *act               = Q_NULLPTR;
     PatientEnCours *patcrs  = Q_NULLPTR;
     Patient *pat            = Q_NULLPTR;
-    PosteConnecte *usr      = Q_NULLPTR;
+    PosteConnecte *post     = Q_NULLPTR;
     Banque *bq              = Q_NULLPTR;
+    User *usr               = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -91,21 +92,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             loop = false;
             break;
         }
-        usr = dynamic_cast<PosteConnecte*>(item);
-        if (usr != Q_NULLPTR)
+        post = dynamic_cast<PosteConnecte*>(item);
+        if (post != Q_NULLPTR)
         {
             table = TBL_USERSCONNECTES;
             loop = true;
             break;
         }
         bq = dynamic_cast<Banque*>(item);
+        if (bq != Q_NULLPTR)
         {
-            if (bq != Q_NULLPTR)
-            {
-                table = TBL_BANQUES;
-                loop = true;
-                break;
-            }
+            table = TBL_BANQUES;
+            loop = true;
+            break;
+        }
+        usr = dynamic_cast<User*>(item);
+        if (usr != Q_NULLPTR)
+        {
+            table = TBL_UTILISATEURS;
+            loop = true;
+            break;
         }
         return false;
     }
@@ -432,60 +438,60 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     else if (table == TBL_USERSCONNECTES)
     {
         ok = true;
-        clause = CP_IDUSER_USRCONNECT " = " + QString::number(item->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + usr->macadress() + "'";
+        clause = CP_IDUSER_USRCONNECT " = " + QString::number(item->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
         if (field == CP_IDUSER_USRCONNECT )
         {
-            usr->setid(newvalue.toInt());
+            post->setid(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_NOMPOSTE_USRCONNECT)
         {
-            usr->setnomposte(newvalue.toString());
+            post->setnomposte(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_MACADRESS_USRCONNECT)
         {
-            usr->setstringid(newvalue.toString());
+            post->setstringid(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IPADRESS_USRCONNECT)
         {
-            usr->setipadress(newvalue.toString());
+            post->setipadress(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_DISTANT_USRCONNECT )
         {
-            usr->setisdistant(newvalue.toBool());
+            post->setisdistant(newvalue.toBool());
             newvalue = (newvalue.toBool()? "1" : "null");
         }
         else if (field == CP_IDUSERSUPERVISEUR_USRCONNECT )
         {
-            usr->setidsuperviseur(newvalue.toInt());
+            post->setidsuperviseur(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDUSERCOMPTABLE_USRCONNECT )
         {
-            usr->setidcomptable(newvalue.toInt());
+            post->setidcomptable(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDUSERPARENT_USRCONNECT )
         {
-            usr->setidparent(newvalue.toInt());
+            post->setidparent(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDLIEU_USRCONNECT )
         {
-            usr->setidlieu(newvalue.toInt());
+            post->setidlieu(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_HEUREDERNIERECONNECTION_USRCONNECT )
         {
-            usr->setdateheurederniereconnexion(newvalue.toDateTime());
+            post->setdateheurederniereconnexion(newvalue.toDateTime());
             Utils::CalcDateTimeValueSQL(newvalue);
         }
         else if (field == CP_IDPATENCOURS_USRCONNECT )
         {
-            usr->setidpatencours(newvalue.toInt());
+            post->setidpatencours(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
     }
@@ -572,6 +578,16 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else
             ok = false;
+    }
+    else if (table == TBL_UTILISATEURS)
+    {
+        ok = true;
+        clause = CP_ID_USR " = " + QString::number(item->id());
+        if (field == CP_ISDESACTIVE_USR )
+        {
+            usr->setdesactive(newvalue.toBool());
+            newvalue = (newvalue.toBool()? "1" : "null");
+        }
     }
 
     if (ok)

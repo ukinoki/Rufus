@@ -22,7 +22,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, User *> *Users::all() const
 {
-    return map_users;
+    return map_all;
+}
+QMap<int, User *> *Users::actifs() const
+{
+    return map_actifs;
+}
+QMap<int, User *> *Users::inactifs() const
+{
+    return map_inactifs;
 }
 QMap<int, User *> *Users::superviseurs() const
 {
@@ -47,11 +55,13 @@ QMap<int, User *> *Users::comptables() const
  */
 Users::Users(QObject *parent) : ItemsList(parent)
 {
-    map_users = new QMap<int, User*>();
-    map_superviseurs = new QMap<int, User*>();
-    map_liberaux = new QMap<int, User*>();
-    map_parents = new QMap<int, User*>();
-    map_comptables = new QMap<int, User*>();
+    map_all             = new QMap<int, User*>();
+    map_actifs          = new QMap<int, User*>();
+    map_inactifs        = new QMap<int, User*>();
+    map_superviseurs    = new QMap<int, User*>();
+    map_liberaux        = new QMap<int, User*>();
+    map_parents         = new QMap<int, User*>();
+    map_comptables      = new QMap<int, User*>();
 }
 
 /*!
@@ -69,24 +79,32 @@ bool Users::add(User *usr)
     if( usr == Q_NULLPTR)
         return false;
 
-    auto itusr = map_users->find(usr->id());
-    if( itusr != map_users->constEnd() )
+    auto itusr = map_all->find(usr->id());
+    if( itusr != map_all->constEnd() )
         itusr.value()->setData(usr->datas());
     else
-        map_users->insert(usr->id(), usr);
+        map_all->insert(usr->id(), usr);
 
+    map_actifs        ->remove(usr->id());
+    map_inactifs      ->remove(usr->id());
     map_superviseurs  ->remove(usr->id());
     map_liberaux      ->remove(usr->id());
     map_parents       ->remove(usr->id());
     map_comptables    ->remove(usr->id());
-    if( usr->isResponsable() || usr->isResponsableOuAssistant())
-        map_superviseurs->insert(usr->id(), usr);
-    if( usr->isLiberal() )
-        map_liberaux->insert(usr->id(), usr);
-    if( usr->isSoignant() && !usr->isRemplacant() )
-        map_parents->insert(usr->id(), usr);
-    if( usr->isComptable() )
-        map_comptables->insert(usr->id(), usr);
+    if (!usr->isDesactive())
+    {
+        map_actifs->insert(usr->id(), usr);
+        if( usr->isResponsable() || usr->isResponsableOuAssistant())
+            map_superviseurs->insert(usr->id(), usr);
+        if( usr->isLiberal() )
+            map_liberaux->insert(usr->id(), usr);
+        if( usr->isSoignant() && !usr->isRemplacant() )
+            map_parents->insert(usr->id(), usr);
+        if( usr->isComptable() )
+            map_comptables->insert(usr->id(), usr);
+    }
+    else
+        map_inactifs->insert(usr->id(), usr);
     return true;
 }
 
@@ -105,9 +123,9 @@ void Users::addList(QList<User*> listusr)
  */
 User* Users::getById(int id, Item::UPDATE upd)
 {
-    QMap<int, User*>::const_iterator ituser = map_users->find(id);
+    QMap<int, User*>::const_iterator ituser = map_all->find(id);
     User *result;
-    if( ituser == map_users->constEnd() )
+    if( ituser == map_all->constEnd() )
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
         if( jsonUser.isEmpty() )
@@ -122,7 +140,10 @@ User* Users::getById(int id, Item::UPDATE upd)
         {
             QJsonObject jsonUser = DataBase::I()->loadUserData(id);
             if( !jsonUser.isEmpty() )
+            {
                 result->setData(jsonUser);
+                recalcStatut(result);
+            }
         }
     }
     return result;
@@ -140,7 +161,7 @@ void Users::reload(User *usr)
     if( jsonUser.isEmpty() )
         return;
     usr->setData(jsonUser);
-    if( map_users->find(usr->id()) == map_users->constEnd() )
+    if( map_all->find(usr->id()) == map_all->constEnd() )
         add(usr);
 }
 
@@ -161,13 +182,15 @@ void Users::initListe()
         idsuperviseur   = userconnected()->idsuperviseur();
     }
     QList<User*> listusers = DataBase::I()->loadUsers();
-    epurelist(map_users, &listusers);
+    epurelist(map_all, &listusers);
+    map_actifs          ->clear();
+    map_inactifs        ->clear();
     map_superviseurs    ->clear();
     map_liberaux        ->clear();
     map_parents         ->clear();
     map_comptables      ->clear();
     addList(listusers);
-    foreach (User *usr, all()->values())
+    foreach (User *usr, actifs()->values())
     {
         if (usr->login() == NOM_ADMINISTRATEUR)
         {
@@ -190,11 +213,17 @@ void Users::initListe()
  */
 void Users::remplaceUserListes(User *usr)
 {
-    auto it = map_users->find(usr->id());
-    if (it != map_users->end())
+    auto it = map_all->find(usr->id());
+    if (it != map_all->end())
     {
         delete it.value();
-        map_users->insert(it.key(), usr);
+        map_all->insert(it.key(), usr);
+        auto ita = map_actifs->find(usr->id());
+        if (ita != map_actifs->end())
+            map_actifs->insert(ita.key(), usr);
+        auto iti = map_inactifs->find(usr->id());
+        if (iti != map_inactifs->end())
+            map_inactifs->insert(iti.key(), usr);
         auto its = map_superviseurs->find(usr->id());
         if (its != map_superviseurs->end())
             map_superviseurs->insert(its.key(), usr);
@@ -217,7 +246,9 @@ void Users::SupprimeUser(User *usr)
 {
     if( usr == Q_NULLPTR)
         return;
-    map_users         ->remove(usr->id());
+    map_all           ->remove(usr->id());
+    map_actifs        ->remove(usr->id());
+    map_inactifs      ->remove(usr->id());
     map_superviseurs  ->remove(usr->id());
     map_liberaux      ->remove(usr->id());
     map_parents       ->remove(usr->id());

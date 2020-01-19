@@ -398,7 +398,7 @@ void dlg_recettesspeciales::ChoixMenu(int id)
         OKBouton.setUpButtonStyle(UpSmallButton::STARTBUTTON);
         msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
         msgbox.exec();
-        proc->EnChantier();
+        Utils::EnChantier();
     }
     else
     {

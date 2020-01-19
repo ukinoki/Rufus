@@ -204,6 +204,7 @@ public:
     bool isAssistant();
 
     bool isDesactive();
+    void setdesactive(bool logic);
 
     /*!
      * les données susceptibles de varier d'une session à l'autre - ne concerne que le user current ======================================================================================================================

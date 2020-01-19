@@ -60,7 +60,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(QWidget *parent) 
     dlglayout()->setStretch(1,15);
 
     QStandardItemModel *md_medecins = new QStandardItemModel();
-    foreach (User* usr, *Datas::I()->users->all())
+    foreach (User* usr, *Datas::I()->users->actifs())
         if (usr->isMedecin())
         {
             QList<QStandardItem *> items;

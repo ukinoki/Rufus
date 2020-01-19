@@ -187,5 +187,7 @@
         <file>button_blue_refresh.png</file>
         <file>home.png</file>
         <file>clinic.png</file>
+        <file>3DcursorOFF.png</file>
+        <file>3DcursorOn.png</file>
     </qresource>
 </RCC>
