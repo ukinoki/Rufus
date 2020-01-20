@@ -58,17 +58,30 @@ public:
     int iduserencoursexam() const       { return m_iduserencoursexam; }
     int idsaldat() const                { return m_idsaldat; }
 
-    void setiduser(int id)              { m_iduser = id; }
-    void setstatut(QString txt)         { m_statut = txt; }
-    void setheurestatut(QTime time)     { m_heurestatut = time; }
-    void setheurerdv(QTime time)        { m_heurerdv = time; }
-    void setheurearrivee(QTime time)    { m_heurearrivee = time; }
-    void setmotif(QString txt)          { m_motif = txt; }
-    void setmessage(QString txt)        { m_message = txt; }
-    void setidacteapayer(int id)        { m_idacteapayer = id; }
-    void setposteexamen(QString txt)    { m_posteexamen = txt; }
-    void setiduserencoursexam(int id)   { m_iduserencoursexam = id; }
-    void setidsaldat(int id)            { m_idsaldat = id; }
+    void setid(int id)                  { m_id = id;
+                                          m_data[CP_IDPAT_SALDAT] = id; }
+    void setiduser(int id)              { m_iduser = id;
+                                          m_data[CP_IDUSER_SALDAT] = id; }
+    void setstatut(QString txt)         { m_statut = txt;
+                                          m_data[CP_STATUT_SALDAT] = txt; }
+    void setheurestatut(QTime time)     { m_heurestatut = time;
+                                          m_data[CP_HEURESTATUT_SALDAT] = time.toString("HH:mm:ss"); }
+    void setheurerdv(QTime time)        { m_heurerdv = time;
+                                          m_data[CP_HEURERDV_SALDAT] = time.toString("HH:mm:ss"); }
+    void setheurearrivee(QTime time)    { m_heurearrivee = time;
+                                          m_data[CP_HEUREARRIVEE_SALDAT] = time.toString("HH:mm:ss"); }
+    void setmotif(QString txt)          { m_motif = txt;
+                                          m_data[CP_MOTIF_SALDAT] = txt; }
+    void setmessage(QString txt)        { m_message = txt;
+                                          m_data[CP_MESSAGE_SALDAT] = txt; }
+    void setidacteapayer(int id)        { m_idacteapayer = id;
+                                          m_data[CP_IDACTEAPAYER_SALDAT] = id; }
+    void setposteexamen(QString txt)    { m_posteexamen = txt;
+                                          m_data[CP_POSTEEXAMEN_SALDAT] = txt; }
+    void setiduserencoursexam(int id)   { m_iduserencoursexam = id;
+                                          m_data[CP_IDUSERENCOURSEXAM_SALDAT] = id; }
+    void setidsaldat(int id)            { m_idsaldat = id;
+                                          m_data[CP_IDSALDAT_SALDAT] = id; }
 };
 
 #endif // CLS_PATIENTENCOURS_H

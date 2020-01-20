@@ -120,41 +120,75 @@ public:
     void setMedicalData(QJsonObject data = QJsonObject{});
 
     // basic data
-    void  setnom(QString str = "")                  { m_nom = str; }
-    void  setprenom(QString str = "")               { m_prenom = str; }
-    void  setdatedenaissance(QDate date = QDate())  { m_dateDeNaissance = date; }
-    void  setsexe(QString str = "")                 { m_sexe = str; }
-    void  setdatecreation(QDate date = QDate())     { m_datecreation = date; }
-    void  setidcreateur(int id = 0)                 { m_idcreateur = id;}
+    void setid(int id)                              { m_id = id;
+                                                      m_data[CP_IDPAT_PATIENTS] = id; }
+    void  setnom(QString str = "")                  { m_nom = str;
+                                                      m_data[CP_NOM_PATIENTS] = str; }
+    void  setprenom(QString str = "")               { m_prenom = str;
+                                                      m_data[CP_PRENOM_PATIENTS] = str; }
+    void  setdatedenaissance(QDate date = QDate())  { m_dateDeNaissance = date;
+                                                      m_data[CP_DDN_PATIENTS] = date.toString("yyyy-MM-dd"); }
+    void  setsexe(QString str = "")                 { m_sexe = str;
+                                                      m_data[CP_SEXE_PATIENTS] = str; }
+    void  setdatecreation(QDate date = QDate())     { m_datecreation = date;
+                                                      m_data[CP_DATECREATION_PATIENTS] = date.toString("yyyy-MM-dd"); }
+    void  setidcreateur(int id = 0)                 { m_idcreateur = id;
+                                                      m_data[CP_IDCREATEUR_PATIENTS] = id; }
 
     // Social data
-    void setadresse1(QString str = "")              { m_adresse1 = str; }
-    void setadresse2(QString str = "")              { m_adresse2 = str; }
-    void setadresse3(QString str = "")              { m_adresse3 = str; }
-    void setcodepostal(QString str = "")            { m_codepostal = str; }
-    void setville(QString str = "")                 { m_ville = str; }
-    void settelephone(QString str = "")             { m_telephone = str; }
-    void setportable(QString str = "")              { m_portable = str; }
-    void setmail(QString str = "")                  { m_mail = str; }
-    void setNNI(qlonglong str = 0)                  { m_NNI = str; }
-    void setald(bool logic = false)                 { m_ALD = logic; }
-    void setcmu(bool logic = false)                 { m_CMU = logic; }
-    void setprofession(QString str = "")            { m_profession = str; }
+    void setadresse1(QString str = "")              { m_adresse1 = str;
+                                                      m_data[CP_ADRESSE1_DSP] = str; }
+    void setadresse2(QString str = "")              { m_adresse2 = str;
+                                                      m_data[CP_ADRESSE2_DSP] = str; }
+    void setadresse3(QString str = "")              { m_adresse3 = str;
+                                                      m_data[CP_ADRESSE3_DSP] = str; }
+    void setcodepostal(QString str = "")            { m_codepostal = str;
+                                                      m_data[CP_CODEPOSTAL_DSP] = str; }
+    void setville(QString str = "")                 { m_ville = str;
+                                                      m_data[CP_VILLE_DSP] = str; }
+    void settelephone(QString str = "")             { m_telephone = str;
+                                                      m_data[CP_TELEPHONE_DSP] = str; }
+    void setportable(QString str = "")              { m_portable = str;
+                                                      m_data[CP_PORTABLE_DSP] = str; }
+    void setmail(QString str = "")                  { m_mail = str;
+                                                      m_data[CP_MAIL_DSP] = str; }
+    void setNNI(qlonglong str = 0)                  { m_NNI = str;
+                                                      m_data[CP_NNI_DSP] = str; }
+    void setald(bool logic = false)                 { m_ALD = logic;
+                                                      m_data[CP_ALD_DSP] = logic; }
+    void setcmu(bool logic = false)                 { m_CMU = logic;
+                                                      m_data[CP_CMU_DSP] = logic; }
+    void setprofession(QString str = "")            { m_profession = str;
+                                                      m_data[CP_PROFESSION_DSP] = str; }
 
     // Medical data
-    void  setmg(int id = 0)                         { m_idmg = id; }
-    void  setspe1(int id = 0)                       { m_idspe1 = id; }
-    void  setspe2(int id = 0)                       { m_idspe2 = id; }
-    void  setatcdtsoph(QString atcdts = "")         { m_atcdtsophtalmos = atcdts; }
-    void  setatcdtsgen(QString atcdts = "")         { m_atcdtspersos = atcdts; }
-    void  setatcdtsfam(QString atcdts = "")         { m_atcdtsfamiliaux = atcdts; }
-    void  settraitemntsoph(QString tts = "")        { m_traitementoph = tts; }
-    void  settraitemntsgen(QString tts = "")        { m_traitementgen = tts; }
-    void  setimportant(QString imp = "")            { m_important = imp; }
-    void  setresume(QString rsm = "")               { m_resume = rsm; }
-    void  settabac(QString tbc = "")                { m_tabac = tbc; }
-    void  setautrestoxiques(QString tox = "")       { m_toxiques = tox; }
-
+    void  setmg(int id = 0)                         { m_idmg = id;
+                                                      m_data[CP_IDMG_RMP] = id; }
+    void  setspe1(int id = 0)                       { m_idspe1 = id;
+                                                      m_data[CP_IDSPE1_RMP] = id; }
+    void  setspe2(int id = 0)                       { m_idspe2 = id;
+                                                      m_data[CP_IDSPE2_RMP] = id; }
+    void  setatcdtsoph(QString atcdts = "")         { m_atcdtsophtalmos = atcdts;
+                                                      m_data[CP_ATCDTSOPH_RMP] = atcdts; }
+    void  setatcdtsgen(QString atcdts = "")         { m_atcdtspersos = atcdts;
+                                                      m_data[CP_ATCDTSPERSOS_RMP] = atcdts; }
+    void  setatcdtsfam(QString atcdts = "")         { m_atcdtsfamiliaux = atcdts;
+                                                      m_data[CP_ATCDTSFAMLXS_RMP] = atcdts; }
+    void  settraitemntsoph(QString tts = "")        { m_traitementoph = tts;
+                                                      m_data[CP_TRAITMTOPH_RMP] = tts; }
+    void  settraitemntsgen(QString tts = "")        { m_traitementgen = tts;
+                                                      m_data[CP_TRAITMTGEN_RMP] = tts; }
+    void  setimportant(QString imp = "")            { m_important = imp;
+                                                      m_data[CP_IMPORTANT_RMP] = imp; }
+    void  setresume(QString rsm = "")               { m_resume = rsm;
+                                                      m_data[CP_RESUME_RMP] = rsm; }
+    void  settabac(QString tbc = "")                { m_tabac = tbc;
+                                                      m_data[CP_TABAC_RMP] = tbc; }
+    void  setautrestoxiques(QString tox = "")       { m_toxiques = tox;
+                                                      m_data[CP_AUTRESTOXIQUES_RMP] = tox; }
+    /*!
+     * \brief resetdatas
+     */
     void resetdatas();
     bool isnull() const                             { return m_id == 0; }
 };

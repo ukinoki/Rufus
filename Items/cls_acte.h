@@ -90,22 +90,40 @@ public:
     int idParent() const;
     int idComptable() const;
 
-    void setdate(QDate date)                { m_date = date; }
-    void setheure(QTime heure)              { m_heure = heure; }
-    void setcotation(QString cot)           { m_cotation = cot; }
-    void setcourrierafaire(bool caf)        { m_courrierStatus = (caf? "T" : ""); }
-    void setmontant(double montant)         { m_montant = montant; }
-    void setiduser(int id)                  { m_idUser = id; }
-    void setidpatient(int id)               { m_idPatient = id; }
-    void setidusercomptable(int id)         { m_idUserComptable = id; }
-    void setidusercreateur(int id)          { m_idCreatedBy = id; }
-    void setidlieu(int id)                  { m_idsite = id; }
-    void setiduserparent(int id)            { m_idUserParent = id; }
-    void setnumcentre(int id)               { m_numCentre = id; }
-    void setmotif(QString motif)            { m_motif = motif; }
-    void settexte(QString texte)            { m_texte = texte; }
-    void setconclusion(QString conclusion)  { m_conclusion = conclusion; }
-    void seteffectueparremplacant(bool logic) { m_remplacant = logic; }
+    void setid(int id)                      { m_id = id;
+                                              m_data[CP_IDACTE_ACTES] = id; }
+    void setdate(QDate date)                { m_date = date;
+                                              m_data[CP_DATE_ACTES] = date.toString("yyyy-MM-dd"); }
+    void setheure(QTime heure)              { m_heure = heure;
+                                              m_data[CP_HEURE_ACTES] = heure.toString("HH:mm:ss"); }
+    void setcotation(QString cot)           { m_cotation = cot;
+                                              m_data[CP_COTATION_ACTES] = cot; }
+    void setcourrierafaire(bool caf)        { m_courrierStatus = (caf? "T" : "");
+                                              m_data[CP_COURRIERAFAIRE_ACTES] = m_courrierStatus; }
+    void setmontant(double montant)         { m_montant = montant;
+                                              m_data[CP_MONTANT_ACTES] = montant; }
+    void setiduser(int id)                  { m_idUser = id;
+                                              m_data[CP_IDUSER_ACTES] = id; }
+    void setidpatient(int id)               { m_idPatient = id;
+                                              m_data[CP_IDPAT_ACTES] = id; }
+    void setidusercomptable(int id)         { m_idUserComptable = id;
+                                              m_data[CP_IDUSERCOMPTABLE_ACTES] = id; }
+    void setidusercreateur(int id)          { m_idCreatedBy = id;
+                                              m_data[CP_IDUSERCREATEUR_ACTES] = id; }
+    void setidlieu(int id)                  { m_idsite = id;
+                                              m_data[CP_IDLIEU_ACTES] = id; }
+    void setiduserparent(int id)            { m_idUserParent = id;
+                                              m_data[CP_IDUSERPARENT_ACTES] = id; }
+    void setnumcentre(int id)               { m_numCentre = id;
+                                              m_data[CP_NUMCENTRE_ACTES] = id; }
+    void setmotif(QString motif)            { m_motif = motif;
+                                              m_data[CP_MOTIF_ACTES] = motif; }
+    void settexte(QString texte)            { m_texte = texte;
+                                              m_data[CP_TEXTE_ACTES] = texte; }
+    void setconclusion(QString conclusion)  { m_conclusion = conclusion;
+                                              m_data[CP_CONCLUSION_ACTES] = conclusion; }
+    void seteffectueparremplacant(bool logic) { m_remplacant = logic;
+                                                m_data[CP_SUPERVISEURREMPLACANT_ACTES] = logic; }
 };
 
 #endif // CLS_ACTE_H

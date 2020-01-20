@@ -128,10 +128,12 @@ public:
      * les données figées, ne variant pas d'une session à l'autre =======================================================================================================================
      */
 
+    void setid(int id)                      { m_id = id;
+                                              m_data[CP_ID_USR] = id; }
     QString login() const;
     QString password() const;
-    void setpassword(QString psswd);
-
+    void setpassword(QString psswd)         { m_password = psswd;
+                                              m_data[CP_MDP_USR] = psswd;}
     QString nom() const;
     QString prenom() const;
     METIER metier() const;                                          //!< Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
@@ -144,7 +146,9 @@ public:
     bool isAGA() const;
     int idemployeur() const;
     int idcompteencaissementhonoraires() const;
-    void setidcompteencaissementhonoraires(int id);
+    void setidcompteencaissementhonoraires(int id)
+                                            { m_idCompteEncaissHonoraires = id;
+                                              m_data[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = id;}
     QString fonction() const;
 
     QFont police() const {
@@ -180,7 +184,7 @@ public:
     void            setlistecomptesbancaires(QMap<int, bool> mapidcomptes);
 
     int typecompta() const;
-    void setTypeCompta(int typeCompta);
+    void setTypeCompta(int typeCompta)           { m_typeCompta = typeCompta; }
 
     bool isOPTAM();
     bool useCCAM();
@@ -204,7 +208,8 @@ public:
     bool isAssistant();
 
     bool isDesactive();
-    void setdesactive(bool logic);
+    void setdesactive(bool logic)                 { m_desactive = logic;
+                                                    m_data[CP_ISDESACTIVE_USR] = logic; }
 
     /*!
      * les données susceptibles de varier d'une session à l'autre - ne concerne que le user current ======================================================================================================================
@@ -219,7 +224,6 @@ public:
 
     int idcomptable() const                       { return m_idUserComptable; }
     void setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
-
 };
 
 #endif // CLS_USER_H

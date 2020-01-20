@@ -60,15 +60,33 @@ Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysb
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
 
-void ParametresSysteme::setmdpadmin(QString mdp)                { m_mdpdmin = mdp; }
-void ParametresSysteme::setnumcentre(int id)                    { m_numcentre = id; }
-void ParametresSysteme::setidlieupardefaut(int id)              { m_idlieupardefaut = id; }
-void ParametresSysteme::setdocscomprimes(bool one)              { m_docscomprimes = one; }
-void ParametresSysteme::setversionbase(int version)             { m_versionbase = version; }
-void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one; }
-void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress; }
-void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress; }
-void ParametresSysteme::setdirimagerieserveur(QString adress)          { m_dirimagerieserveur = adress; }
-void ParametresSysteme::setheurebkup(QTime time)                { m_heurebkup = time; }
-void ParametresSysteme::setdirbkup(QString adress)              { m_dirbkup = adress; }
-void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = days; }
+void ParametresSysteme::setmdpadmin(QString mdp)                { m_mdpdmin = mdp;
+                                                                  m_data[CP_MDPADMIN_PARAMSYSTEME] = mdp; }
+void ParametresSysteme::setnumcentre(int id)                    { m_numcentre = id;
+                                                                  m_data[CP_NUMCENTRE_PARAMSYSTEME] = id; }
+void ParametresSysteme::setidlieupardefaut(int id)              { m_idlieupardefaut = id;
+                                                                  m_data[CP_IDLIEUPARDEFAUT_PARAMSYSTEME] = id; }
+void ParametresSysteme::setdocscomprimes(bool one)              { m_docscomprimes = one;
+                                                                  m_data[CP_DOCSCOMPRIMES_PARAMSYSTEME] = one; }
+void ParametresSysteme::setversionbase(int version)             { m_versionbase = version;
+                                                                  m_data[CP_VERSIONBASE_PARAMSYSTEME] = version; }
+void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one;
+                                                                  m_data[CP_SANSCOMPTA_PARAMSYSTEME] = one; }
+void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress;
+                                                                  m_data[CP_ADRESSELOCALSERVEUR_PARAMSYSTEME] = adress; }
+void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress;
+                                                                  m_data[CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME] = adress; }
+void ParametresSysteme::setdirimagerieserveur(QString adress)   { m_dirimagerieserveur = adress;
+                                                                  m_data[CP_DIRIMAGERIE_PARAMSYSTEME] = adress; }
+void ParametresSysteme::setheurebkup(QTime time)                { m_heurebkup = time;
+                                                                  m_data[CP_HEUREBKUP_PARAMSYSTEME] = time.toString("HH:mm:ss"); }
+void ParametresSysteme::setdirbkup(QString adress)              { m_dirbkup = adress;
+                                                                  m_data[CP_DIRBKUP_PARAMSYSTEME] = adress; }
+void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = days;
+                                                                  m_data[CP_LUNDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Lundi);
+                                                                  m_data[CP_MARDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Mardi);
+                                                                  m_data[CP_MERCREDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Mercredi);
+                                                                  m_data[CP_JEUDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Jeudi);
+                                                                  m_data[CP_VENDREDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Vendredi);
+                                                                  m_data[CP_SAMEDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Samedi);
+                                                                  m_data[CP_DIMANCHEBKUP_PARAMSYSTEME] = days.testFlag(Utils::Dimanche); }

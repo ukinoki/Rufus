@@ -31,13 +31,20 @@ bool Impression::isprescription() const               { return m_prescription; }
 bool Impression::iseditable() const                   { return m_editable; }
 bool Impression::ismedical() const                    { return m_medical; }
 
-void Impression::settext(QString txt)                 { m_texte = txt; }
-void Impression::setresume(QString resume)            { m_resume = resume; }
-void Impression::setconclusion(QString conclusion)    { m_conclusion = conclusion; }
-void Impression::setpublic(bool pblic)                { m_public = pblic; }
-void Impression::setprescription(bool prescription)   { m_prescription = prescription; }
-void Impression::seteditable(bool editable)           { m_editable = editable; }
-void Impression::setmedical(bool medical)             { m_medical = medical; }
+void Impression::settext(QString txt)                 { m_texte = txt;
+                                                        m_data[CP_TEXTE_IMPRESSIONS] = txt; }
+void Impression::setresume(QString resume)            { m_resume = resume;
+                                                        m_data[CP_RESUME_IMPRESSIONS] = resume; }
+void Impression::setconclusion(QString conclusion)    { m_conclusion = conclusion;
+                                                        m_data[CP_CONCLUSION_IMPRESSIONS] = conclusion; }
+void Impression::setpublic(bool pblic)                { m_public = pblic;
+                                                        m_data[CP_DOCPUBLIC_IMPRESSIONS] = pblic; }
+void Impression::setprescription(bool prescription)   { m_prescription = prescription;
+                                                        m_data[CP_PRESCRIPTION_IMPRESSIONS] = prescription; }
+void Impression::seteditable(bool editable)           { m_editable = editable;
+                                                        m_data[CP_EDITABLE_IMPRESSIONS] = editable; }
+void Impression::setmedical(bool medical)             { m_medical = medical;
+                                                        m_data[CP_MEDICAL_IMPRESSIONS] = medical; }
 
 void Impression::setData(QJsonObject data)
 {

@@ -75,6 +75,8 @@ public:
     explicit Correspondant(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
+    void setid(int id)                      { m_id = id;
+                                              m_data[CP_ID_CORRESP] = id; }
 };
 
 #endif // CLS_CORRESPONDANT_H

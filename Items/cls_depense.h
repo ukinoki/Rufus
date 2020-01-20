@@ -76,26 +76,44 @@ public:
     QString factureformat() const;
     QByteArray  factureblob() const;
 
-    void    setiduser(int id)               { m_iduser = id; }
-    void    setdate(QDate date)             { m_datedepepense = date; }
-    void    setrubriquefiscale(QString txt) { m_rubriquefiscale = txt; }
-    void    setidrubriquefiscale(int id)    { m_idrubriquefiscale = id; }
-    void    setobjet(QString txt)           { m_objetdepense = txt; }
-    void    setmontant(double montant)      { m_montant = montant; }
-    void    setfamillefiscale(QString txt)  { m_famillefiscale = txt; }
-    void    setmonnaie(QString txt)         { m_monnaie = txt; }
-    void    setidrecette(int id)            { m_idRec = id; }
-    void    setmodepaiement(QString txt)    { m_modepaiement = txt; }
-    void    setidcomptebancaire(int id)     { m_compte = id; }
-    void    setnocheque(int id)             { m_nocheque = id; }
+    void    setid(int id)                   { m_id = id;
+                                              m_data[CP_IDDEPENSE_DEPENSES] = id; }
+    void    setiduser(int id)               { m_iduser = id;
+                                              m_data[CP_IDUSER_DEPENSES] = id; }
+    void    setdate(QDate date)             { m_datedepepense = date;
+                                              m_data[CP_DATE_DEPENSES] = date.toString("yyyy-MM-dd"); }
+    void    setrubriquefiscale(QString txt) { m_rubriquefiscale = txt;
+                                              m_data[CP_REFFISCALE_DEPENSES] = txt; }
+    void    setidrubriquefiscale(int id)    { m_idrubriquefiscale = id;
+                                              m_data["idrubrique"] = id; }
+    void    setobjet(QString txt)           { m_objetdepense = txt;
+                                              m_data[CP_OBJET_DEPENSES] = txt; }
+    void    setmontant(double montant)      { m_montant = montant;
+                                              m_data[CP_MONTANT_DEPENSES] = montant; }
+    void    setfamillefiscale(QString txt)  { m_famillefiscale = txt;
+                                              m_data[CP_FAMILLEFISCALE_DEPENSES] = txt; }
+    void    setmonnaie(QString txt)         { m_monnaie = txt;
+                                              m_data[CP_MONNAIE_DEPENSES] = txt; }
+    void    setidrecette(int id)            { m_idRec = id;
+                                              m_data[CP_IDRECETTE_DEPENSES] = id; }
+    void    setmodepaiement(QString txt)    { m_modepaiement = txt;
+                                              m_data[CP_MODEPAIEMENT_DEPENSES] = txt; }
+    void    setidcomptebancaire(int id)     { m_compte = id;
+                                              m_data[CP_COMPTE_DEPENSES] = id; }
+    void    setnocheque(int id)             { m_nocheque = id;
+                                              m_data[CP_NUMCHEQUE_DEPENSES] = id; }
+    void    setidfacture(int id)            { m_idfacture = id;
+                                              m_data[CP_IDFACTURE_DEPENSES] = id; }
+    void    setlienfacture(QString txt)     { m_lienfacture = txt;
+                                              m_data[CP_LIENFICHIER_FACTURES] = txt; }
+    void    setecheancier(bool logic)       { m_echeancier = logic;
+                                              m_data[CP_ECHEANCIER_FACTURES] = logic; }
+    void    setobjetecheancier(QString txt) { m_objetecheancier = txt;
+                                              m_data[CP_INTITULE_FACTURES] = txt; }
 
-    void    setarchivee(bool arch);
-    void    setidfacture(int idfacture);
-    void    setlienfacture(QString lien);
-    void    setecheancier(bool ech);
-    void    setobjetecheancier(QString obj);
-    void    setfactureformat(QString typeimg);
-    void    setfactureblob(QByteArray ba);
+    void    setarchivee(bool logic)         { m_auxarchives = (logic? Depense::Oui : Depense::Non);}
+    void    setfactureformat(QString fmtimg){ m_formatfacture = fmtimg;}
+    void    setfactureblob(QByteArray ba)   { m_blob = ba;}
 
     explicit Depense(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 

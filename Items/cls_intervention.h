@@ -64,26 +64,36 @@ public:
     double cylindreIOL() const              { return m_cylIOL; }
     QString observation() const             { return m_observation; }
 
-    void setdate(QDate date)                { m_date = date; }
-    void setiduser(int id)                  { m_iduser = id; }
-    void setidpatient(int id)               { m_idpatient = id; }
-    void setidlieu(int id)                  { m_idlieu = id; }
-    void anesthesie(ModeAnesthesie mode)    { m_anesth = mode; }
-    void setidtypeintervention(int id)      { m_typeintervention = id; }
-    void cote(Utils::Cote cote)             { m_cote = cote; }
-    void setidIOL(int id)                   { m_idIOL = id; }
-    void puissanceIOL(double pwr)           { m_pwrIOL = pwr; }
-    void cylindreIOL(double cyl)            { m_cylIOL = cyl; }
-    void observation(QString txt)           { m_observation = txt; }
+    void setdate(QDate date)                { m_date = date;
+                                              m_data[CP_DATE_LIGNPRGOPERATOIRE] = date.toString("yyyy-MM-dd"); }
+    void setiduser(int id)                  { m_iduser = id;
+                                              m_data[CP_IDUSER_LIGNPRGOPERATOIRE] = id; }
+    void setidpatient(int id)               { m_idpatient = id;
+                                              m_data[CP_IDPATIENT_LIGNPRGOPERATOIRE] = id; }
+    void setidlieu(int id)                  { m_idlieu = id;
+                                              m_data[CP_IDLIEU_LIGNPRGOPERATOIRE] = id; }
+    void anesthesie(ModeAnesthesie mode)    { m_anesth = mode;
+                                              m_data[CP_TYPEANESTH_LIGNPRGOPERATOIRE] = ConvertModeAnesthesie(mode); }
+    void setidtypeintervention(int id)      { m_typeintervention = id;
+                                              m_data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE] = id; }
+    void cote(Utils::Cote cote)             { m_cote = cote;
+                                              m_data[CP_COTE_LIGNPRGOPERATOIRE] = Utils::ConvertCote(cote); }
+    void setidIOL(int id)                   { m_idIOL = id;
+                                              m_data[CP_IDIOL_LIGNPRGOPERATOIRE] = id; }
+    void puissanceIOL(double pwr)           { m_pwrIOL = pwr;
+                                              m_data[CP_PWRIOL_LIGNPRGOPERATOIRE] = pwr; }
+    void cylindreIOL(double cyl)            { m_cylIOL = cyl;
+                                              m_data[CP_CYLIOL_LIGNPRGOPERATOIRE] = cyl; }
+    void observation(QString txt)           { m_observation = txt;
+                                              m_data[CP_OBSERV_LIGNPRGOPERATOIRE] = txt; }
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }
-
  };
 
 /*!
  * \brief classe IOL
- * l'ensemble des informations concernant une intervention
+ * l'ensemble des informations concernant un IOL
  */
 
 class IOL : public Item
@@ -103,8 +113,10 @@ public:
     int idmanufacturer() const              { return m_idmanufacturer; }
     QString modele() const                  { return m_modele; }
 
-    void setidmanufacturer(int id)          { m_idmanufacturer = id; }
-    void setmodele(QString txt)             { m_modele = txt; }
+    void setidmanufacturer(int id)          { m_idmanufacturer = id;
+                                              m_data[CP_IDMANUFACTURER_IOLS] = id; }
+    void setmodele(QString txt)             { m_modele = txt;
+                                              m_data[CP_MODELNAME_IOLS] = txt; }
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }

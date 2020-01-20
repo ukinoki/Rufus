@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("19-01-2020/1");
+    qApp->setApplicationVersion("20-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7150,7 +7150,15 @@ void Rufus::CreerMenu()
     connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(currentpatient());});
 
     connect (actionParametres,                  &QAction::triggered,        this,                   &Rufus::OuvrirParametres);
-    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {   envoieTCPMessage(TCPMSG_AskListeStringId); });
+    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
+                                                                                                            if (m_utiliseTCP)
+                                                                                                                envoieTCPMessage(TCPMSG_AskListeStringId);
+                                                                                                            else
+                                                                                                            {
+                                                                                                                ResumeStatut();
+                                                                                                                proc->Edit(m_resumeStatut, tr("Information statut"), false, true );
+                                                                                                            }
+                                                                                                        });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(currentacte());});
     // Documents
     connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirImpressions);

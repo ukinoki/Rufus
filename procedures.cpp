@@ -1340,7 +1340,6 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                     imgs = "select idimpression from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and (pdf is not null or jpg is not null)";
                 else
                     imgs = "select " CP_IDFACTURE_FACTURES " from " TBL_FACTURES " where " CP_IDFACTURE_FACTURES " = " + iditem + " and (" CP_PDF_FACTURES " is not null or " CP_JPG_FACTURES " is not null)";
-                //qDebug() << imgs;
                 QList<QVariantList> listid = db->StandardSelectSQL(imgs, m_ok);
                 if (!m_ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (docmt != Q_NULLPTR? TBL_ECHANGEIMAGES : TBL_FACTURES));
@@ -1357,6 +1356,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                                 " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
                                 QString::number(docmt->compression()) + ")";
                         db->StandardSQL(req);
+                        qDebug() << req;
                     }
                     else
                     {

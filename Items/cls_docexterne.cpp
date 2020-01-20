@@ -51,9 +51,12 @@ int DocExterne::importance() const                  { return m_importance;}
 
 int DocExterne::idrefraction() const                { return m_idrefraction; }
 
-void DocExterne::setdate(QDateTime date)            { m_dateimpression = date;}
-void DocExterne::setimportance(int imptce)          { m_importance = imptce;}
-void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;}
+void DocExterne::setdate(QDateTime date)            { m_dateimpression = date;
+                                                      m_data[CP_DATE_DEPENSES] = date.toString("yyyy-MM-dd"); }
+void DocExterne::setimportance(int imptce)          { m_importance = imptce;
+                                                      m_data[CP_IMPORTANCE_DOCSEXTERNES] = imptce; }
+void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;
+                                                      m_data[CP_ISALLLOADED] = AllLoaded; }
 void DocExterne::setimageblob(QByteArray blob)      { m_blob = blob; }
 void DocExterne::setimageformat(QString format)     { m_formatimage = format; }
 
@@ -86,5 +89,6 @@ void DocExterne::setData(QJsonObject data)
     Utils::setDataInt(data, CP_EMISORRECU_DOCSEXTERNES, m_emisrecu);
     Utils::setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idsite);
     Utils::setDataInt(data, CP_IDREFRACTION_DOCSEXTERNES, m_idrefraction);
+    m_data = data;
 }
 
