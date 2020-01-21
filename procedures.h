@@ -151,7 +151,7 @@ private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    PremierDemarrage();
-    void                    PremierParametrageMateriel();
+    void                    PremierParametrageMateriel(bool modifdirimagerie = true);
     void                    PremierParametrageRessources();
 
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */

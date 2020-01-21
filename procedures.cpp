@@ -3602,13 +3602,12 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage() //TODO : CONFIG
+bool Procedures::PremierDemarrage()
 {
     QMessageBox     msgbox;
     int         protoc;
-    enum protoc {BaseExistante, BaseRestauree, BaseVierge};
+    enum protoc {BaseExistante, BaseVierge};
     UpSmallButton    AnnulBouton        (tr("Retour\nau menu d'accueil"));
-    UpSmallButton    BaseRestaureeBouton(tr("Base patients restaurée\ndepuis une sauvegarde"));
     UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
     UpSmallButton    BaseExistanteBouton(tr("Base patients existante\nsur le serveur"));
 
@@ -3618,15 +3617,12 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                               "Dans ce cas, il vous faut annuler et installer un serveur MySQL sur cet ordinateur ou sur un autre poste du réseau.\n\n"
                               "Commencez par choisir la situation qui décrit le mieux votre installation de Rufus.\n\n"
                               "1. J'installe Rufus sur ce poste et ce poste se connecte à une base patients qui existe dèjà sur le serveur\n"
-                              "2. J'installe Rufus sur ce poste et ce poste se connectera à une base patients que je vais restaurer sur le serveur"
-                              " à partir d'une sauvegarde\n"
-                              "3. J'installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer sur le serveur\n"));
+                              "2. J'installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer sur le serveur\n"));
     msgbox.setIcon(QMessageBox::Information);
 
-    msgbox.addButton(&AnnulBouton,          QMessageBox::RejectRole);
+    msgbox.addButton(&AnnulBouton,          QMessageBox::AcceptRole);
     msgbox.addButton(&BaseExistanteBouton,  QMessageBox::AcceptRole);
-    msgbox.addButton(&BaseRestaureeBouton,  QMessageBox::YesRole);
-    msgbox.addButton(&BaseViergeBouton,     QMessageBox::ActionRole);
+    msgbox.addButton(&BaseViergeBouton,     QMessageBox::AcceptRole);
     msgbox.exec();
 
     protoc = BaseExistante;
@@ -3634,8 +3630,6 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
         return false;
     else if (msgbox.clickedButton() == &BaseExistanteBouton)
         protoc = BaseExistante;
-    else if (msgbox.clickedButton() == &BaseRestaureeBouton)
-        protoc = BaseRestauree;
     else if (msgbox.clickedButton() == &BaseViergeBouton)
         protoc = BaseVierge;
 
@@ -3657,56 +3651,13 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     {
         if (VerifParamConnexion(login, MDP, true))
         {
-            m_parametres = db->parametres();
-            PremierParametrageMateriel();
+            PremierParametrageMateriel(false);
             PremierParametrageRessources();
-            Datas::I()->banques->initListe();
-            Datas::I()->users->initListe();
-            Datas::I()->comptes->initListe();
-            Datas::I()->sites->initListe();
-            MAJComptesBancaires(currentuser());
-            CalcLieuExercice();
-            if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-                UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-            m_connexionbaseOK = (currentuser() != Q_NULLPTR);
-            if (!m_connexionbaseOK)
-                return false;
-            //gidUser     = idusr; //TODO : ICI
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
                                        "le login ") + currentuser()->login() + tr(" est reconnu") + ".\n" +
                                        tr("Le programme va se fermer pour que les modifications") + "\n" +
                                        tr("puissent être prises en compte\n"));
-            exit(0);
-        }
-    }
-
-    else if (protoc == BaseRestauree)
-    {
-        bool SansAccesDistant = false;
-        if (VerifParamConnexion(login, MDP, false, SansAccesDistant))
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Connexion réussie"),
-                                  tr("Bien, la connexion au serveur MySQL fonctionne,\n"));
-            // Restauration de la base
-            m_loginSQL = login;
-            m_passwordSQL = MDP;
-            if (!RestaureBase(false, true, false))
-                return false;
-            if (QMessageBox::question(Q_NULLPTR,"", tr("Reinitialiser les fichiers de paramétrage du matériel et d'impression?")) == QMessageBox::Yes)
-            {
-                PremierParametrageMateriel();
-                PremierParametrageRessources();
-            }
-            db->calcidUserConnected(login, MDP);
-            m_connexionbaseOK = (DataBase::I()->idUserConnected() > 0);
-            if (!m_connexionbaseOK)
-                return false;
-            //gidUser     = idusr; //TODO : ICI
-            UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
-                                   tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
-                                      "puissent être prises en compte\n"));
-            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             exit(0);
         }
     }
@@ -3745,7 +3696,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
 /*-----------------------------------------------------------------------------------------------------------------
 -- Paramètrage de l'imprimante ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Procedures::PremierParametrageMateriel()
+void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
 {
     m_settings->setValue("Param_Imprimante/TailleEnTete","45");
     m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
@@ -3765,9 +3716,10 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
     m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE);
-    QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
-    db->setdirimagerie(NomDirImg);
+    QString NomDirImg = (modifdirimagerie? QDir::homePath() + DIR_RUFUS DIR_IMAGERIE : db->parametres()->dirimagerieserveur());
     m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", NomDirImg);
+    if (modifdirimagerie)
+        db->setdirimagerie(NomDirImg);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3844,11 +3796,6 @@ void Procedures::PremierParametrageRessources()
                        | QFileDevice::ReadOwner | QFileDevice::WriteOwner
                        | QFileDevice::ReadUser  | QFileDevice::WriteUser);
     m_settings->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
-    if (db->ModeAccesDataBase() == Utils::Poste)
-    {
-        QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
-        db->setdirimagerie(NomDirImg);
-    }
  }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -3907,15 +3854,13 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         QString login(""), MDP ("");
         if (VerifParamConnexion(login, MDP, true))
         {
-            PremierParametrageMateriel();
+            PremierParametrageMateriel(false);
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
             exit(0);
         }
     }
     else if (msgbox->clickedButton()==&PremierDemarrageBouton)
-    {
-        reponse =  PremierDemarrage();
-    }
+        reponse = PremierDemarrage();
     return reponse;
 }
 

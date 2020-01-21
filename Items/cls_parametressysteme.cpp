@@ -55,7 +55,7 @@ int ParametresSysteme::versionbase() const                      { return m_versi
 bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
-QString ParametresSysteme::dirimagerieserveur() const                  { return m_dirimagerieserveur; }
+QString ParametresSysteme::dirimagerieserveur() const           { return m_dirimagerieserveur; }
 Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
