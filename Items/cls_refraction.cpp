@@ -101,14 +101,6 @@ Refraction::Distance Refraction::ConvertDistance(QString distance)
     return  Inconnu;
 }
 
-QString Refraction::ConvertDistance(Refraction::Distance distance)
-{
-    if (distance == Pres) return "P";
-    else if (distance == Loin) return "L";
-    else if (distance == AllDistance) return "2";
-    return "";
-}
-
 Refraction::Mesure Refraction::ConvertMesure(QString Mesure)
 {
     if (Mesure == "P") return Fronto;

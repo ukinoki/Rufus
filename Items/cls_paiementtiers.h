@@ -70,6 +70,7 @@ public:
     int iduserenregistreur() const;       //!> l'id du user qui a enregistré le paiement
     QDate dateremisecheques() const;      //!> la date à laquelle le chèquz est déposé
     double encaissement() const;          //!> ???
+
 };
 
 #endif // CLS_PAIEMENTTIERS_H

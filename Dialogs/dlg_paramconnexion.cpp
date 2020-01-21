@@ -212,6 +212,7 @@ bool dlg_paramconnexion::TestConnexion()
     DataBase::I()->setModeacces(mode);
     DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
 
+
     QString Login = ui->LoginlineEdit->text();
     QString Password = ui->MDPlineEdit->text();
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
@@ -235,21 +236,40 @@ bool dlg_paramconnexion::TestConnexion()
         return false;
     }
 
-    if (m_connectavecloginSQL)
+    QString Client;
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+        Client = "%";
+    else if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(DataBase::I()->AdresseServer()))
     {
-        DataBase::QueryResult rep = DataBase::I()->calcidUserConnected(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
-        if (rep == DataBase::Error)
+        QStringList listIP = DataBase::I()->AdresseServer().split(".");
+        for (int i=0;i<listIP.size()-1;i++)
         {
-            UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
-                                tr("Impossible d'ouvrir la table Utilisateurs"));
-            return false;
+            Client += QString::number(listIP.at(i).toInt()) + ".";
+            if (i==listIP.size()-2)
+                Client += "%";
         }
-        if( rep == DataBase::Empty )
-        {
-            UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
-                                tr("Identifiant ou mot de passe incorrect") );
-            return false;
-        }
+    }
+    else
+        Client = DataBase::I()->AdresseServer();
+    req = "show grants for '" + Login + (DataBase::I()->ModeAccesDataBase() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
+
+    bool ok;
+    QVariantList grantsdata = DataBase::I()->getFirstRecordFromStandardSelectSQL(req,ok);
+    if (!ok || grantsdata.size()==0)
+    {
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+                            tr("Impossible de retrouver les droits de l'utilisateur ") + Login + "\n" +
+                            tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
+        return false;
+    }
+    QString reponse = grantsdata.at(0).toString();
+    if (reponse.left(9) != "GRANT ALL")
+    {
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+                            tr("L'utilisateur ") + Login
+                            + tr(" existe mais ne dispose pas de toutes les autorisations pour modifier/créer des données sur le serveur.")
+                            + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
+        return false;
     }
     return true;
 }

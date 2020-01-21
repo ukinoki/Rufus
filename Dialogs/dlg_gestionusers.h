@@ -22,7 +22,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestioncomptes.h"
 #include "dlg_gestionlieux.h"
 #include "icons.h"
-#include "utils.h"
 #include "upheaderview.h"
 
 /* sert à gérer les comptes utilisateurs
@@ -95,7 +94,6 @@ private:
     void                    ChoixButtonFrame();
     void                    DefinitLesVariables();
     bool                    ExisteEmployeur(int iduser);
-    void                    Inactifs();
     void                    RemplirTableWidget(int iduser);
     void                    ReconstruitListeLieuxExercice();
     bool                    VerifFiche();

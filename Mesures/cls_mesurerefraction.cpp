@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 MesureRefraction::MesureRefraction() {}
 
 
-void MesureRefraction::setdatas(Refraction *ref, bool round)
+void MesureRefraction::setdatas(Refraction *ref)
 {
     if (!ref->isODmesure() && !ref->isOGmesure())
     {
@@ -34,12 +34,12 @@ void MesureRefraction::setdatas(Refraction *ref, bool round)
     {
         m_sphereOD          = ref->sphereOD();
         m_cylindreOD        = ref->cylindreOD();
-        m_axecylindreOD     = (round? Utils::roundToNearestFive(ref->axecylindreOD()) : ref->axecylindreOD());
+        m_axecylindreOD     = ref->axecylindreOD();
         m_avlOD             = ref->avlOD();
         m_addVPOD           = ref->addVPOD();
         m_avpPOD            = ref->avpOD();
         m_prismeOD          = ref->prismeOD();
-        m_baseprismeOD      = (round? Utils::roundToNearestFive(ref->baseprismeOD()) : ref->baseprismeOD());
+        m_baseprismeOD      = ref->baseprismeOD();
         m_formuleOD         = ref->formuleOD();
     }
     m_isnullOG = !ref->isOGmesure();
@@ -49,12 +49,12 @@ void MesureRefraction::setdatas(Refraction *ref, bool round)
     {
         m_sphereOG          = ref->sphereOG();
         m_cylindreOG        = ref->cylindreOG();
-        m_axecylindreOG     = (round? Utils::roundToNearestFive(ref->axecylindreOG()) : ref->axecylindreOG());
+        m_axecylindreOG     = ref->axecylindreOG();
         m_avlOG             = ref->avlOG();
         m_addVPOG           = ref->addVPOG();
         m_avpPOG            = ref->avpOG();
         m_prismeOG          = ref->prismeOG();
-        m_baseprismeOG      = (round? Utils::roundToNearestFive(ref->baseprismeOG()) : ref->baseprismeOG());
+        m_baseprismeOG      = ref->baseprismeOG();
         m_formuleOG         = ref->formuleOG();
     }
     m_ecartIP           = ref->ecartIP();

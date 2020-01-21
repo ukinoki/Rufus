@@ -128,7 +128,6 @@ private:
     QString                 CalculCommentaire();
     void                    ConnectSignals();
 
-    MesureRefraction*       CalcMesureRefraction();
     QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");

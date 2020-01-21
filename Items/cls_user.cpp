@@ -99,7 +99,7 @@ void User::setData(QJsonObject data)
 
 QString User::login() const                      { return m_login; }
 QString User::password() const                   { return m_password; }
-
+void User::setpassword(QString psswd)            { m_password = psswd; }
 QString User::nom() const                        { return m_nom; }
 QString User::prenom() const                     { return m_prenom; }
 User::METIER User::metier() const
@@ -145,14 +145,14 @@ QString User::numOrdre() const                      { return m_numCO; }
 bool User::isAGA() const                            { return m_AGA; }
 int User::idemployeur() const                       { return m_employeur; }
 int User::idcompteencaissementhonoraires() const    { return m_idCompteEncaissHonoraires; }
-
+void User::setidcompteencaissementhonoraires(int id){ m_idCompteEncaissHonoraires = id; }
 QString User::fonction() const                      { return m_fonction; }
 int User::secteurconventionnel() const              { return m_secteur; }
 int User::idcomptepardefaut() const                 { return m_idCompteParDefaut; }
 QString User::mail() const                          { return m_mail; }
 QString User::portable() const                      { return m_portable; }
 int User::typecompta() const                        { return m_typeCompta; }
-
+void User::setTypeCompta(int typeCompta )           { m_typeCompta = typeCompta; }
 
 bool User::isOPTAM()                                { return m_OPTAM; }
 bool User::useCCAM()                                { return m_ccam; }
@@ -175,9 +175,6 @@ bool User::isResponsable()                          { return isSoignant() && res
 bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
 bool User::isDesactive()                            { return m_desactive; }
-
-
-
 QList<int>* User::listecomptesbancaires(bool avecdesactive) const
 {
     return (avecdesactive? m_listidcomptesall : m_listidcomptes);

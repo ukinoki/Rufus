@@ -139,7 +139,7 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
 
     /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
     bool autorsupprimer = true;
-    for (auto itusr = Datas::I()->users->actifs()->begin(); itusr != Datas::I()->users->actifs()->end();)
+    for (auto itusr = Datas::I()->users->all()->begin(); itusr != Datas::I()->users->all()->end();)
     {
         if (itusr.value()->idcomptepardefaut() == idCompte || itusr.value()->idcompteencaissementhonoraires()  == idCompte)
         {

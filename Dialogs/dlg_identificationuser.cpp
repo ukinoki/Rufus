@@ -69,10 +69,10 @@ void dlg_identificationuser::Validation()
         return;
     }
 
-    m_loginresult = ControleDonnees();
-    if (m_loginresult == OK)
+    LoginResult a = ControleDonnees();
+    if (a == OK)
         accept();
-    else if (m_loginresult != NoUser && m_loginresult != NoConnexion)
+    else if (a != NoUser && a != NoConnexion)
         done(-1);
     ui->OKpushButton->setEnabled(true);
 }
@@ -119,8 +119,9 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus();    return NoUser;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
+    //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
     QString error = "";
-    error = db->connectToDataBase(DB_CONSULTS);
+    error = db->connectToDataBase(DB_CONSULTS, Login, Password);
 
     if( error.size() )
     {
@@ -134,7 +135,47 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
         return NoConnexion;
     }
 
-    QString Client = "%";
+    QString Client;
+    if (db->ModeAccesDataBase() == Utils::Distant)
+            Client = "%";
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal && Utils::rgx_IPV4.exactMatch(db->AdresseServer()))
+    {
+        QStringList listIP = db->AdresseServer().split(".");
+        for (int i=0;i<listIP.size()-1;i++)
+        {
+            Client += QString::number(listIP.at(i).toInt()) + ".";
+            if (i==listIP.size()-2)
+                Client += "%";
+        }
+    }
+    else
+        Client = db->AdresseServer();
+    req = "show grants for '" + Login + (db->ModeAccesDataBase() == Utils::Distant? "SSL" : "")  + "'@'" + Client + "'";
+    //qDebug() << req;
+
+    QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok || grantsdata.size()==0)
+    {
+        ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+        Utils::Pause(150);
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+                            tr("Impossible de retrouver les droits de l'utilisateur ") + Login + "\n" +
+                            tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
+        return UnDefinedRights;
+    }
+    QString reponse = grantsdata.at(0).toString();
+    if (reponse.left(9) != "GRANT ALL")
+    {
+        ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+        Utils::Pause(150);
+        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+                            tr("L'utilisateur ") + Login
+                            + tr(" existe mais ne dispose pas de toutes les autorisations pour modifier/créer des données sur le serveur.")
+                            + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
+        return UnCorrectRights;
+    }
+
+
     ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
     req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";
@@ -175,10 +216,5 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
     return OK;
-}
-
-dlg_identificationuser::LoginResult dlg_identificationuser::loginresult() const
-{
-    return m_loginresult;
 }
 

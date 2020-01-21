@@ -35,7 +35,6 @@ Datas::Datas()
     depenses        = new Depenses();
     docsexternes    = new DocsExternes();
     impressions     = new Impressions();
-    interventions   = new Interventions();
     lignescomptes   = new LignesComptes();
     lignespaiements = new LignesPaiements();
     metadocuments   = new DossiersImpressions();
@@ -56,8 +55,8 @@ Datas::Datas()
     mesureacuite    = new MesureRefraction();
     mesurefinal     = new MesureRefraction();
     mesurekerato    = new Keratometrie();
-    mesuretono      = new Tonometrie();
-    mesurepachy     = new Pachymetrie();
+    mesuretono            = new Tonometrie();
+    mesurepachy           = new Pachymetrie();
 }
 
 

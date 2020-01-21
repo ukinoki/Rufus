@@ -41,14 +41,10 @@ public:
     QString nomabrege() const;
     QString nom() const;
 
-    void setid(int id)              { m_id = id;
-                                      m_data[CP_IDBANQUE_BANQUES] = id; }
-    void setnom(QString txt)        { m_nombanque = txt;
-                                      m_data[CP_NOMBANQUE_BANQUES] = txt; }
-    void setnomabrege(QString txt)  { m_idbanqueabrege = txt;
-                                      m_data[CP_NOMABREGE_BANQUES] = txt; }
-    void setcode(int cod)           { m_codebanque = cod;
-                                      m_data[CP_CODE_BANQUES] = cod; }
+    void setnom(QString txt)        { m_nombanque = txt; }
+    void setnomabrege(QString txt)  { m_idbanqueabrege = txt; }
+    void setcode(int cod)           { m_codebanque = cod; }
+
 };
 
 
