@@ -42,8 +42,11 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     wdg_buttonframe = new WidgetButtonFrame(ui->ListUserstableWidget);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
+    QVBoxLayout *usrLayout = new QVBoxLayout;
+    usrLayout        ->addWidget(wdg_buttonframe->widgButtonParent());
+    usrLayout        ->addWidget(ui->InactifspushButton);
     QHBoxLayout *play = new QHBoxLayout;
-    play        ->addWidget(wdg_buttonframe->widgButtonParent());
+    play        ->addItem(usrLayout);
     play        ->addWidget(ui->Principalframe);
     int marge   = 10;
     play        ->setContentsMargins(marge,marge,marge,marge);
@@ -74,6 +77,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->AnnulupSmallButton          ->setText(tr("Annuler"));
     ui->OKupSmallButton             ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
     ui->OKupSmallButton             ->setText(tr("Enregistrer"));
+    ui->InactifspushButton          ->setEnabled(Datas::I()->users->inactifs()->size()>0);
 
     ui->ModifMDPUserupLabel->setToolTip(tr("Modifier le mot de passe"));
 
@@ -95,6 +99,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->SocieteComptableupRadioButton,  &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->GererCompteuppushButton,        &QPushButton::clicked,                  this,   &dlg_gestionusers::GestionComptes);
     connect(ui->InactivUsercheckBox,            &QCheckBox::clicked,                    this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+    connect(ui->InactifspushButton,             &QPushButton::clicked,                  this,   &dlg_gestionusers::Inactifs);
     connect(ui->CotationupRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->AGAupRadioButton,               &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->MedecincheckBox,                &QCheckBox::clicked,                    this,   &dlg_gestionusers::RegleAffichage);
@@ -691,24 +696,6 @@ void dlg_gestionusers::EnregistreUser()
     }
     else if (m_mode == Creer)
     {
-        //2. On crée 3 comptes avec ce login et ce MDP: local en localhost, réseau en 192.168.1.% et distant en %-SSL et login avec SSL à la fin
-        QString AdressIP, MasqueReseauLocal;
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-                 AdressIP = address.toString();
-        }
-        QStringList listIP = AdressIP.split(".");
-        for (int i=0;i<listIP.size()-1;i++)
-            MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
-        MasqueReseauLocal += "%";
-        QString login = ui->LoginuplineEdit->text();
-        QString MDP = ui->MDPuplineEdit->text();
-        db->StandardSQL("create user '" + login + "'@'localhost' identified by '" + MDP + "'");
-        db->StandardSQL("create user '" + login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "'");
-        db->StandardSQL("create user '" + login + "SSL'@'%' identified by '" + MDP + "' REQUIRE SSL");
-        db->StandardSQL("grant all on *.* to '" + login + "'@'localhost' identified by '" + MDP + "' with grant option");
-        db->StandardSQL("grant all on *.* to '" + login + "SSL'@'%' identified by '" + MDP + "' with grant option");
-        db->StandardSQL("grant all on *.* to '" + login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option");
         m_mode = Modifier;
         ui->Principalframe->setEnabled(false);
         wdg_buttonframe->setEnabled(true);
@@ -759,7 +746,7 @@ void dlg_gestionusers::EnregistreNouvUser()
             Loginline->selectAll();
             a = false;
         }
-        foreach (User* usr, Datas::I()->users->all()->values())
+        foreach (User* usr, Datas::I()->users->actifs()->values())
         {
             if (usr->login().toUpper() == login.toUpper())
             {
@@ -1381,8 +1368,91 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 {
     return (db->StandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS
                       " where (((" CP_SOIGNANTSTATUS_USR " = 1 or " CP_SOIGNANTSTATUS_USR " = 2 or " CP_SOIGNANTSTATUS_USR " = 3) and " CP_ENREGHONORAIRES_USR " = 1) or " CP_SOIGNANTSTATUS_USR " = 5)"
-                      " and " CP_ID_USR " <> " + QString::number(iduser), m_ok).size()>0);
+                                                                                                                                                                                                 " and " CP_ID_USR " <> " + QString::number(iduser), m_ok).size()>0);
 }
+
+void dlg_gestionusers::Inactifs()
+{
+    auto calclistusers = [&] (QStandardItemModel *model)
+    {
+        QList<User*> listuser;
+        for (int i = 0; i<model->rowCount(); ++i)
+        {
+            UpStandardItem * item = dynamic_cast<UpStandardItem*>(model->item(i));
+            if (item->checkState() == Qt::Checked)
+                listuser << dynamic_cast<User*>(item->item());
+        }
+        if (listuser.size() > 0)
+        {
+            for (auto it = listuser.constBegin(); it != listuser.constEnd();)
+            {
+                User *usr = const_cast<User*>(*it);
+                ItemsList::update(usr, CP_ISDESACTIVE_USR, false);
+                Datas::I()->users->recalcStatut(usr);
+                ++it;
+            }
+        }
+    };
+    UpDialog *dlg_listinactifs = new UpDialog(this);
+    dlg_listinactifs->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    QTableView *wdg_bigtable = new QTableView(dlg_listinactifs);
+
+    //! Remplissage de la table
+    QStandardItemModel  *m_model = new QStandardItemModel;
+    UpStandardItem      *pitem;
+    QItemSelectionModel *m_selectionmodel = new QItemSelectionModel(m_model);
+
+    pitem   = new UpStandardItem(tr("Utilisateurs"));
+    pitem->setEditable(false);
+    m_model->setHorizontalHeaderItem(0,pitem);
+    for (auto itusr = Datas::I()->users->inactifs()->begin(); itusr != Datas::I()->users->inactifs()->end();)
+    {
+        pitem   = new UpStandardItem(itusr.value()->login(), itusr.value());
+        pitem->setCheckState(Qt::Unchecked);
+        pitem->setCheckable(true);
+        m_model->appendRow(pitem);
+        ++ itusr;
+    }
+    wdg_bigtable->setModel(m_model);
+    wdg_bigtable->setSelectionModel(m_selectionmodel);
+
+    QFontMetrics fm(qApp->font());
+    int hauteurligne = int(fm.height()*1.1);
+    for (int i=0; i<m_model->rowCount(); i++)
+        wdg_bigtable->setRowHeight(i,hauteurligne);
+    wdg_bigtable->horizontalHeader()->setFixedHeight(hauteurligne);
+    wdg_bigtable->setColumnWidth(0,180);
+
+    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+    wdg_bigtable->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_bigtable->setGridStyle(Qt::NoPen);
+    wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_bigtable->setColumnWidth(0,300);
+    wdg_bigtable->setFixedWidth(wdg_bigtable->columnWidth(0)+2);
+
+    wdg_bigtable->setMinimumHeight(hauteurligne*20);
+    wdg_bigtable->setSizeIncrement(0,hauteurligne);
+    wdg_bigtable->setMouseTracking(true);
+    dlg_listinactifs->dlglayout()->insertWidget(0,wdg_bigtable);
+
+    dlg_listinactifs->AjouteLayButtons();
+    UpLabel *label = new UpLabel();
+    label->setText(tr("Cochez les utilisateurs\nque vous souhaitez réactiver"));
+    dlg_listinactifs->AjouteWidgetLayButtons(label, false);
+    dlg_listinactifs->setFixedWidth(wdg_bigtable->width() + dlglayout()->contentsMargins().left()*2);
+    dlg_listinactifs->setModal(true);
+    dlg_listinactifs->setSizeGripEnabled(false);
+    dlg_listinactifs->setWindowTitle(tr("Utilisateurs inactifs"));
+
+    connect(dlg_listinactifs->OKButton, &QPushButton::clicked, dlg_listinactifs, [&] {  calclistusers(m_model);
+                                                                                        dlg_listinactifs->close();
+                                                                                        RemplirTableWidget(m_userencours->id()); });
+
+    dlg_listinactifs->exec();
+    delete dlg_listinactifs;
+}
+
 void dlg_gestionusers::setDataCurrentUser(int id)
 {
     m_userencours = Datas::I()->users->getById(id, Item::Update);
@@ -1489,12 +1559,15 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     ui->ListUserstableWidget->setHorizontalHeaderLabels(QStringList()<<""<<"Login");
     ui->ListUserstableWidget->setGridStyle(Qt::NoPen);
     QList<User*> usrlist;
-    foreach (User* usr, Datas::I()->users->all()->values())
+    foreach (User* usr, Datas::I()->users->actifs()->values())
     {
         if (usr->login() != NOM_ADMINISTRATEUR)
             usrlist << usr;
     }
+    if (usrlist.size() == 0)
+        return;
     ui->ListUserstableWidget->setRowCount(usrlist.size());
+    ui->InactivUsercheckBox ->setVisible(usrlist.size() > 1);
     int i = 0;
     foreach (User *usr, usrlist)
     {
@@ -1520,7 +1593,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
         ++i;
     }
     connect(ui->ListUserstableWidget, &QTableWidget::currentItemChanged , this, [=](QTableWidgetItem *pitem) {AfficheParamUser(ui->ListUserstableWidget->item(pitem->row(),0)->text().toInt());});
-    if (iduser<0)
+    if (iduser < 0 || ui->ListUserstableWidget->findItems(QString::number(iduser), Qt::MatchExactly).size() == 0)
         ui->ListUserstableWidget->setCurrentItem(ui->ListUserstableWidget->item(0,1));
     else
         ui->ListUserstableWidget->setCurrentItem(ui->ListUserstableWidget->findItems(QString::number(iduser), Qt::MatchExactly).at(0));

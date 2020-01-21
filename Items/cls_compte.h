@@ -42,14 +42,24 @@ public:
     bool isPartage() const;
     bool isDesactive() const;
 
-    void setidbanque(int id)            { m_idbanque = id; }
-    void setiduser(int id)              { m_iduser = id; }
-    void setiban(QString txt)           { m_iban = txt; }
-    void setintitulecompte(QString txt) { m_intitulecompte = txt; }
-    void setnomabrege(QString txt)      { m_nomabrege = txt; }
-    void setsolde(double solde)         { m_solde = solde; }
-    void setpartage(bool logic)         { m_partage = logic; }
-    void setdesactive(bool logic)       { m_desactive = logic; }
+    void setid(int id)                  { m_id = id;
+                                          m_data[CP_IDCOMPTE_COMPTES] = id; }
+    void setidbanque(int id)            { m_idbanque = id;
+                                          m_data[CP_IDBANQUE_COMPTES] = id; }
+    void setiduser(int id)              { m_iduser = id;
+                                          m_data[CP_IDUSER_COMPTES] = id; }
+    void setiban(QString txt)           { m_iban = txt;
+                                          m_data[CP_IBAN_COMPTES] = txt; }
+    void setintitulecompte(QString txt) { m_intitulecompte = txt;
+                                          m_data[CP_INTITULE_COMPTES] = txt; }
+    void setnomabrege(QString txt)      { m_nomabrege = txt;
+                                          m_data[CP_NOMABREGE_COMPTES] = txt; }
+    void setsolde(double solde)         { m_solde = solde;
+                                          m_data[CP_SOLDE_COMPTES] = solde; }
+    void setpartage(bool logic)         { m_partage = logic;
+                                          m_data[CP_PARTAGE_COMPTES] = logic; }
+    void setdesactive(bool logic)       { m_desactive = logic;
+                                          m_data[CP_DESACTIVE_COMPTES] = logic; }
 };
 
 #endif // CLS_COMPTE_H

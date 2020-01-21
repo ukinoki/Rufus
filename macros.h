@@ -549,8 +549,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define LOGIN_SQL                                   "adminrufus"
 #define MDP_SQL                                     "gaxt78iy"
-#define NOM_DUMPUSER                                "dumprufus"
-#define MDP_DUMPUSER                                "bob"
 
 #define NOM_POSTEIMPORTDOCS                         "posteimportdocs"
 

@@ -58,18 +58,28 @@ public:
     bool isconsolide() const            { return m_isconsolide; }           //! opération consolidée ou pas
     double montant() const              { return m_montant; }               //! montant
 
-    void setidcompte(int id)            { m_idcompte = id; }                //! le compte bancaire de la ligne
-    void setiddepense(int id)           { m_iddep = id; }                   //! la dépense concernée si c'est une dépense
-    void setidrecette(int id)           { m_idrecette = id; }               //! la recette concernée si c'est une recette
-    void setidrecettespeciale(int id)   { m_idrecettespeciale = id; }       //! la recette spéciale concernée si c'est une recette spéciale
-    void setidremisecheque(int id)      { m_idremisecheque = id; }          //! l'id de la remise de chèque si c'est une remise de chèque
-    void setdate(QDate date)            { m_date = date; }                  //! la date
-    void setlibelle(QString text)       { m_libelle = text; }               //! le libellé de l'opération
-    void settypeoperation(QString text) { m_typeoperation = text; }         //! le type d'opération
-    void setcredit(bool logic)          { m_iscredit = logic; }             //! true = opération créditrice false = opération débitrice
-    void setconsolide(bool logic)       { m_isconsolide = logic; }          //! opération consolidée ou pas
-    void setmontant(double montant)     { m_montant = montant; }            //! montant
-
+    void setidcompte(int id)            { m_idcompte = id;
+                                          m_data[CP_IDCOMPTE_LIGNCOMPTES] = id; }
+    void setiddepense(int id)           { m_iddep = id;
+                                          m_data[CP_IDDEP_LIGNCOMPTES] = id; }
+    void setidrecette(int id)           { m_idrecette = id;
+                                          m_data[CP_IDREC_LIGNCOMPTES] = id; }
+    void setidrecettespeciale(int id)   { m_idrecettespeciale = id;
+                                          m_data[CP_IDRECSPEC_LIGNCOMPTES] = id; }
+    void setidremisecheque(int id)      { m_idremisecheque = id;
+                                          m_data[CP_IDREMCHEQ_LIGNCOMPTES] = id; }
+    void setdate(QDate date)            { m_date = date;
+                                          m_data[CP_DATE_LIGNCOMPTES] = date.toString("yyyy-MM-dd"); }
+    void setlibelle(QString txt)        { m_libelle = txt;
+                                          m_data[CP_LIBELLE_LIGNCOMPTES] = txt; }
+    void settypeoperation(QString txt)  { m_typeoperation = txt;
+                                          m_data[CP_TYPEOPERATION_LIGNCOMPTES] = txt; }
+    void setcredit(bool logic)          { m_iscredit = logic;
+                                          m_data[CP_DEBITCREDIT_LIGNCOMPTES] = logic; }
+    void setconsolide(bool logic)       { m_isconsolide = logic;
+                                          m_data[CP_CONSOLIDE_LIGNCOMPTES] = logic; }
+    void setmontant(double montant)     { m_montant = montant;
+                                          m_data[CP_MONTANT_LIGNCOMPTES] = montant; }
 };
 
 #endif // LIGNECOMPTE_H

@@ -41,6 +41,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_depense.h"
 #include "cls_docexterne.h"
 #include "cls_impression.h"
+#include "cls_intervention.h"
 #include "cls_lignepaiement.h"
 #include "cls_motif.h"
 #include "cls_paiementtiers.h"
@@ -333,6 +334,15 @@ private:
 public:
     QList<Refraction*>      loadRefractionsByPatId(int id);                     //! charge toutes les refractions d'un patient
     Refraction*             loadRefractionById(int idref);                      //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
+     * Interventions
+    */
+private:
+    QJsonObject             loadInterventionData(QVariantList refdata);           //! attribue le liste des datas à une Intervention
+public:
+    QList<Intervention*>    loadInterventionsByUserId(int id);                     //! charge toutes les Interventions d'un patient
+    Intervention*           loadInterventionById(int idintervention);             //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 };
 
 #endif // DataBase_H

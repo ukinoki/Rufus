@@ -39,9 +39,7 @@ public:
         m_stringid = "";
     }
     int id() const                      { return m_id; }
-    void setid(int id)                  { m_id = id; }
     QString stringid() const            { return m_stringid; }
-    void setstringid(QString stringid)  { m_stringid = stringid; }
     QJsonObject datas() const           { return m_data; }
 
 protected:

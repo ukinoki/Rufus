@@ -68,16 +68,30 @@ public:
     QString ipadress() const                        { return m_ipadress; }
     bool isadmin() const                            { return m_macadress.contains(NOM_ADMINISTRATEUR);}
 
-    void setnomposte(QString txt)                           { m_nomposte = txt; }
-    void setmacadress(QString txt)                          { m_macadress = txt; }
-    void setipadress(QString txt)                           { m_ipadress = txt; }
-    void setisdistant(bool logic)                           { m_accesdistant = logic; }
-    void setidsuperviseur(int id)                           { m_idsuperviseur = id; }
-    void setidparent(int id)                                { m_idparent = id; }
-    void setidcomptable(int id)                             { m_idcomptable = id; }
-    void setidlieu(int id)                                  { m_idlieu = id; }
-    void setidpatencours(int id)                            { m_idpatencours = id; }
-    void setdateheurederniereconnexion(QDateTime datetime)  { m_dateheurederniereconnexion = datetime; }
+    void setstringid(QString stringid)                      { m_stringid = stringid;
+                                                              m_data["stringid"] = stringid; }
+    void setid(int id)                                      { m_id = id;
+                                                              m_data[CP_IDUSER_USRCONNECT] = id; }
+    void setnomposte(QString txt)                           { m_nomposte = txt;
+                                                              m_data[CP_NOMPOSTE_USRCONNECT] = txt; }
+    void setmacadress(QString txt)                          { m_macadress = txt;
+                                                              m_data[CP_MACADRESS_USRCONNECT] = txt; }
+    void setipadress(QString txt)                           { m_ipadress = txt;
+                                                              m_data[CP_IPADRESS_USRCONNECT] = txt; }
+    void setisdistant(bool logic)                           { m_accesdistant = logic;
+                                                              m_data[CP_DISTANT_USRCONNECT] = logic; }
+    void setidsuperviseur(int id)                           { m_idsuperviseur = id;
+                                                              m_data[CP_IDUSERSUPERVISEUR_USRCONNECT] = id; }
+    void setidparent(int id)                                { m_idparent = id;
+                                                              m_data[CP_IDUSERPARENT_USRCONNECT] = id; }
+    void setidcomptable(int id)                             { m_idcomptable = id;
+                                                              m_data[CP_IDUSERCOMPTABLE_USRCONNECT] = id; }
+    void setidlieu(int id)                                  { m_idlieu = id;
+                                                              m_data[CP_IDLIEU_USRCONNECT] = id; }
+    void setidpatencours(int id)                            { m_idpatencours = id;
+                                                              m_data[CP_IDPATENCOURS_USRCONNECT] = id; }
+    void setdateheurederniereconnexion(QDateTime datetime)  { m_dateheurederniereconnexion = datetime;
+                                                              m_data[CP_HEUREDERNIERECONNECTION_USRCONNECT] = datetime.toMSecsSinceEpoch(); }
 };
 
 #endif // CLS_POSTECONNECTE_H

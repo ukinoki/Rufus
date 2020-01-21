@@ -34,12 +34,14 @@ public:
     explicit dlg_identificationuser(QWidget *parent = Q_NULLPTR);
     ~dlg_identificationuser();
     Ui::dlg_identificationuser *ui;
-    enum LoginResult { NoConnexion, NoUser, UnDefinedRights, UnCorrectRights, CorruptedBase, CorruptedUser, OK}; Q_ENUM(LoginResult)
+    enum LoginResult { NoConnexion, NoUser, CorruptedBase, CorruptedUser, OK}; Q_ENUM(LoginResult)
+    LoginResult             loginresult() const;
 
 private:
     DataBase                *db = DataBase::I();
     bool                    eventFilter(QObject *, QEvent *);
     LoginResult             ControleDonnees();
+    LoginResult             m_loginresult = NoConnexion;
     void                    Validation();
 };
 

@@ -593,18 +593,16 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 */
 DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
-    //TODO : SQL USER : récupérer tout le reste
     QString req = "SELECT " CP_ID_USR
                   " FROM " TBL_UTILISATEURS
                   " WHERE " CP_LOGIN_USR " = '" + login + "' "
-                  " AND " CP_MDP_USR " = '" + password + "' ";
-    //qDebug() << req;
+                  " AND " CP_MDP_USR " = '" + password + "' "
+                  " AND " CP_ISDESACTIVE_USR " is null ";
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok)
         return Error;
     if(usrdata.size()==0)
         return Empty;
-
     m_iduserConnected = usrdata.at(0).toInt();
     return OK;
 }
@@ -689,8 +687,7 @@ QList<User*> DataBase::loadUsers()
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
             CP_ISOPTAM_USR ", " CP_ID_USR                                                                                 // 30,31
-            " from " TBL_UTILISATEURS
-            " where " CP_ISDESACTIVE_USR " is null";
+            " from " TBL_UTILISATEURS;
 
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
     if( !ok || usrlist.size()==0 )
@@ -2303,7 +2300,7 @@ double DataBase::getActePaye(int idActe)
  * Refractions
 */
 
-QJsonObject             DataBase::loadRefractionData(QVariantList refdata)           //! attribue la liste des datas à une refraction
+QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! attribue la liste des datas à une refraction
 {
     QJsonObject data{};
     data[CP_ID_REFRACTIONS]                 = refdata.at(0).toInt();
@@ -2401,4 +2398,64 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
     QJsonObject data = loadRefractionData(refdata);
     ref = new Refraction(data);
     return ref;
+}
+
+/*
+ * Interventions
+*/
+
+QJsonObject DataBase::loadInterventionData(QVariantList interventiondata)           //! attribue la liste des datas à une intervention
+{
+    QJsonObject data{};
+    data[CP_ID_LIGNPRGOPERATOIRE]                   = interventiondata.at(0).toInt();
+    data[CP_DATE_LIGNPRGOPERATOIRE]                 = interventiondata.at(1).toDate().toString("yyyy-MM-dd");
+    data[CP_IDUSER_LIGNPRGOPERATOIRE]               = interventiondata.at(2).toInt();
+    data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = interventiondata.at(3).toInt();
+    data[CP_IDLIEU_LIGNPRGOPERATOIRE]               = interventiondata.at(4).toInt();
+    data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = interventiondata.at(5).toString();
+    data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE]     = interventiondata.at(6).toString();
+    data[CP_COTE_LIGNPRGOPERATOIRE]                 = interventiondata.at(7).toString();
+    data[CP_IDIOL_LIGNPRGOPERATOIRE]                = interventiondata.at(8).toInt();
+    data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(9).toDouble();
+    data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(10).toDouble();
+    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = interventiondata.at(11).toString();
+    return data;
+}
+
+QList<Intervention*> DataBase::loadInterventionsByUserId(int id)                  //! charge toutes les Interventions d'un patient
+{
+    QList<Intervention*> list = QList<Intervention*> ();
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_DATE_LIGNPRGOPERATOIRE ", " CP_IDUSER_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDLIEU_LIGNPRGOPERATOIRE ", " // 0-1-2-3-4
+                              CP_TYPEANESTH_LIGNPRGOPERATOIRE ", " CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", "  // 5-6-7-8-9                    "PwIOL"
+                              CP_CYLIOL_LIGNPRGOPERATOIRE ", " CP_OBSERV_LIGNPRGOPERATOIRE  // 10-11
+                    " FROM " TBL_LIGNESPRGOPERATOIRES ;
+                    " WHERE " CP_IDUSER_LIGNPRGOPERATOIRE " = " + QString::number(id) +
+                    " order by " CP_ID_LIGNPRGOPERATOIRE " desc";
+    QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
+    if(!ok || interventionlist.size()==0)
+        return list;
+    for (int i=0; i<interventionlist.size(); ++i)
+    {
+        QJsonObject data = loadInterventionData(interventionlist.at(i));
+        Intervention *intervention = new Intervention(data);
+        if (intervention != Q_NULLPTR)
+            list << intervention;
+    }
+    return list;
+}
+
+Intervention* DataBase::loadInterventionById(int idintervention)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+{
+    Intervention *intervention = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_DATE_LIGNPRGOPERATOIRE ", " CP_IDUSER_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDLIEU_LIGNPRGOPERATOIRE ", " // 0-1-2-3-4
+                              CP_TYPEANESTH_LIGNPRGOPERATOIRE ", " CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", "  // 5-6-7-8-9                    "PwIOL"
+                              CP_CYLIOL_LIGNPRGOPERATOIRE ", " CP_OBSERV_LIGNPRGOPERATOIRE  // 10-11
+                    " FROM " TBL_LIGNESPRGOPERATOIRES ;
+                    " WHERE " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(idintervention) ;
+    QVariantList interventiondata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || interventiondata.size()==0)
+        return intervention;
+    QJsonObject data = loadInterventionData(interventiondata);
+    intervention = new Intervention(data);
+    return intervention;
 }

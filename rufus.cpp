@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-01-2020/1");
+    qApp->setApplicationVersion("21-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7150,7 +7150,15 @@ void Rufus::CreerMenu()
     connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(currentpatient());});
 
     connect (actionParametres,                  &QAction::triggered,        this,                   &Rufus::OuvrirParametres);
-    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {   envoieTCPMessage(TCPMSG_AskListeStringId); });
+    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
+                                                                                                            if (m_utiliseTCP)
+                                                                                                                envoieTCPMessage(TCPMSG_AskListeStringId);
+                                                                                                            else
+                                                                                                            {
+                                                                                                                ResumeStatut();
+                                                                                                                proc->Edit(m_resumeStatut, tr("Information statut"), false, true );
+                                                                                                            }
+                                                                                                        });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(currentacte());});
     // Documents
     connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirImpressions);
@@ -8275,102 +8283,10 @@ void Rufus::ModeCreationDossier()
 
 void Rufus::ProgrammationIntervention(Patient *pat)
 {
-    UpDialog *dlg_programintervention       = new UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionProgramIntervention", this);
-    UpTableView *wdg_tableprogramme         = new UpTableView();
-    QTreeView *wdg_dates                    = new QTreeView();
-    QComboBox *wdg_listmedecinscombo        = new QComboBox();
-    QHBoxLayout *choixmedecinLay            = new QHBoxLayout();
-    QHBoxLayout *programmLay                = new QHBoxLayout();
-
-    wdg_tableprogramme      ->setFocusPolicy(Qt::NoFocus);
-    wdg_tableprogramme      ->setPalette(QPalette(Qt::white));
-    wdg_tableprogramme      ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_tableprogramme      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    wdg_tableprogramme      ->verticalHeader()->setVisible(false);
-    wdg_tableprogramme      ->setSelectionMode(QAbstractItemView::SingleSelection);
-    wdg_tableprogramme      ->setGridStyle(Qt::SolidLine);
-    wdg_tableprogramme      ->verticalHeader()->setVisible(false);
-    wdg_tableprogramme      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
-    wdg_tableprogramme      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-    choixmedecinLay    ->addWidget(wdg_listmedecinscombo);
-    choixmedecinLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixmedecinLay    ->setSpacing(5);
-    choixmedecinLay    ->setContentsMargins(0,0,0,0);
-
-    programmLay    ->addWidget(wdg_dates);
-    programmLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    programmLay    ->addWidget(wdg_tableprogramme);
-    programmLay    ->setSpacing(5);
-    programmLay    ->setContentsMargins(0,0,0,0);
-    programmLay    ->setStretch(0,2);
-    programmLay    ->setStretch(1,0);
-    programmLay    ->setStretch(2,6);
-
-    dlg_programintervention->dlglayout()   ->insertLayout(0, programmLay);
-    dlg_programintervention->dlglayout()   ->insertLayout(0, choixmedecinLay);
-
-    dlg_programintervention->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(dlg_programintervention->OKButton,     &QPushButton::clicked,              dlg_programintervention, [=] {dlg_programintervention->close();});
-    dlg_programintervention->setModal(true);
-    dlg_programintervention->dlglayout()->setStretch(0,1);
-    dlg_programintervention->dlglayout()->setStretch(1,15);
-
-    QStandardItemModel *md_medecins = new QStandardItemModel();
-    foreach (User* usr, *Datas::I()->users->all())
-        if (usr->isMedecin())
-        {
-            QList<QStandardItem *> items;
-            items << new QStandardItem(usr->login())
-                  << new QStandardItem(QString::number(usr->id()));
-            if (md_medecins->findItems(usr->login()).size()==0)
-                md_medecins->appendRow(items);
-        }
-    md_medecins->sort(0, Qt::DescendingOrder);
-    for (int i=0; i< md_medecins->rowCount(); ++i)
-    {
-        wdg_listmedecinscombo->addItem(md_medecins->item(i,0)->text());
-        wdg_listmedecinscombo->setItemData(i, md_medecins->item(i,1)->text());
-    }
-
-//    QList<Archive*> listarchives = db->loadArchiveByDate(m_dateencours, m_compteencours, m_intervalledate);
-//    m_dateencours = m_dateencours.addDays(-m_intervalledate);
-//    m_archivescptencours = new Archives();
-//    m_archivescptencours->addArchive(listarchives);
-//    if (listarchives.size()==0)
-//        UpMessageBox::Watch(this, tr("Aucune écriture archivée depuis ") + QString::number(m_intervalledate) + tr("jours"));
-//    // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
-//    model->sort(1);
-//    wdg_listarchivescombo->clear();
-//    for(int i=0; i<model->rowCount(); i++)
-//        wdg_listarchivescombo->addItem(model->item(i,0)->text(), model->item(i,1)->text().toInt());
-
-//    connect(wdg_loupbouton,             &QPushButton::clicked,       this,  [=]
-//                {
-//                    if (m_modearchives == PARARCHIVE)    m_modearchives = TOUT;
-//                    else                                m_modearchives = PARARCHIVE;
-//                    RedessineFicheArchives();
-//                    RemplirTableArchives();
-//                });
-//    connect(wdg_listarchivescombo,          QOverload<int>::of(&QComboBox::currentIndexChanged) ,this,  &dlg_comptes::RemplirTableArchives);
-//    connect(wdg_flechehtbouton,         &QPushButton::clicked ,this,   [=]
-//                {
-//                    QList<Archive*> listarchives = db->loadArchiveByDate(m_dateencours, m_compteencours, m_intervalledate);
-//                    m_dateencours = m_dateencours.addDays(-m_intervalledate);
-//                    m_archivescptencours->addArchive(listarchives);
-//                    RemplirTableArchives();
-//                });
-//    wdg_listarchivescombo->setMaxVisibleItems(20);
-//    wdg_listarchivescombo->setFocusPolicy(Qt::StrongFocus);
-//    wdg_listarchivescombo->setCurrentIndex(wdg_listarchivescombo->count()-1);
-    dlg_programintervention->exec();
-//    m_dateencours = QDate::currentDate();
-//    delete dlg_programintervention;
-
-//    m_archivescptencours->clearAll();
-//    delete m_archivescptencours;
-//    m_archivescptencours = Q_NULLPTR;
-    proc->EnChantier();
+    dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(this);
+    dlg_progr->exec();
+    Utils::EnChantier();
+    delete dlg_progr;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8637,8 +8553,8 @@ void Rufus::SetDatasRefractionKerato()
     Datas::I()->mesureacuite    ->cleandatas();
     Datas::I()->mesurefinal     ->cleandatas();
     Datas::I()->mesurekerato    ->cleandatas();
-    Datas::I()->mesuretono            ->cleandatas();
-    Datas::I()->mesurepachy           ->cleandatas();
+    Datas::I()->mesuretono      ->cleandatas();
+    Datas::I()->mesurepachy     ->cleandatas();
 
     /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
                     * si on en n'a pas, on cherche la dernière mesure de fronto */
@@ -8683,7 +8599,7 @@ void Rufus::SetDatasRefractionKerato()
         itref.previous();
         if (itref.value()->typemesure() == Refraction::Acuite && itref.value()->distance() != Refraction::Pres)
         {
-            Datas::I()->mesureacuite->setdatas(const_cast<Refraction*>(itref.value()));
+            Datas::I()->mesureacuite->setdatas(const_cast<Refraction*>(itref.value()), false);
             itref.toFront();
 
 
@@ -8698,19 +8614,19 @@ void Rufus::SetDatasRefractionKerato()
     }
 
     /*! Final      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
-                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+                    * si on n'en a pas, on cherche la dernière mesure de fronto */
     if (!Datas::I()->mesurefronto ->isdataclean())
         Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
     if (DataBase::I()->donneesOphtaPatient()->ismesurekerato())
     {
         Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesOphtaPatient()->K1OD());
         Datas::I()->mesurekerato->setK2OD(DataBase::I()->donneesOphtaPatient()->K2OD());
-        Datas::I()->mesurekerato->setaxeKOD(DataBase::I()->donneesOphtaPatient()->axeKOD());
+        Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(DataBase::I()->donneesOphtaPatient()->axeKOD()));
         Datas::I()->mesurekerato->setdioptriesK1OD(DataBase::I()->donneesOphtaPatient()->dioptriesK1OD());
         Datas::I()->mesurekerato->setdioptriesK2OD(DataBase::I()->donneesOphtaPatient()->dioptriesK2OD());
         Datas::I()->mesurekerato->setK1OG(DataBase::I()->donneesOphtaPatient()->K1OG());
         Datas::I()->mesurekerato->setK2OG(DataBase::I()->donneesOphtaPatient()->K2OG());
-        Datas::I()->mesurekerato->setaxeKOG(DataBase::I()->donneesOphtaPatient()->axeKOG());
+        Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(DataBase::I()->donneesOphtaPatient()->axeKOG()));
         Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesOphtaPatient()->dioptriesK1OG());
         Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesOphtaPatient()->dioptriesK2OG());
     }

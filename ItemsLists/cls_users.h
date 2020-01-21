@@ -28,7 +28,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Users : public ItemsList
 {
 private:
-    QMap<int, User*> *map_users = Q_NULLPTR;           //!< map de tous les users
+    QMap<int, User*> *map_all = Q_NULLPTR;             //!< map de tous les users
+    QMap<int, User*> *map_actifs = Q_NULLPTR;          //!< map de tous les users actifs
+    QMap<int, User*> *map_inactifs = Q_NULLPTR;        //!< map de tous les users inactifs
     QMap<int, User*> *map_superviseurs = Q_NULLPTR;    //!< map des superviseurs : User->isResponsable()
     QMap<int, User*> *map_parents = Q_NULLPTR;         //!< map des parents : User->isSoignant() && !User->isRemplacant()
     QMap<int, User*> *map_liberaux = Q_NULLPTR;        //!< map des liberaux : User->isLiberal()
@@ -40,6 +42,8 @@ private:
 public:
     //GETTER
     QMap<int, User *> *all() const;
+    QMap<int, User *> *actifs() const;
+    QMap<int, User *> *inactifs() const;
     QMap<int, User *> *superviseurs() const;
     QMap<int, User *> *parents() const;
     QMap<int, User *> *liberaux() const;
@@ -49,6 +53,7 @@ public:
     User*       Admin()  const  { return m_useradmin; }
     User*       getById(int id, Item::UPDATE upd = Item::NoUpdate);
     void        reload(User* usr);
+    bool        recalcStatut(User* usr)         { return add(usr); }
     void        initListe();
     void        remplaceUserListes(User *usr);
     void        SupprimeUser(User *usr);

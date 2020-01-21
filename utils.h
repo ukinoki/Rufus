@@ -39,8 +39,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QEventLoop>
 #include <QTime>
 
-class Utils
+class Utils : public QObject
 {
+    Q_OBJECT
 public:
     enum Day {
                 Lundi       = 0x1,
@@ -159,6 +160,14 @@ public:
     static void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     static void setDataVariant(QJsonObject data, QString key, QVariant &prop);
     static void setDataLogic(QJsonObject data, QString key, Logic &prop);
+
+    //! arrondit un int au multiple de 5 le plus proche
+    static int roundToNearestFive(int number)   { return static_cast<int>(number / 5. + .5) * 5; }
+
+    //! affiche la fiche enchantier
+    static void EnChantier(bool avecMsg = false);
+
+
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

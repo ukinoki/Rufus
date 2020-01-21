@@ -39,14 +39,6 @@ int         Depense::isArchivee() const         { return  m_auxarchives;}
 QString     Depense::factureformat() const      { return  m_formatfacture;}
 QByteArray  Depense::factureblob() const        { return  m_blob;}
 
-void    Depense::setarchivee(bool arch)             { m_auxarchives = (arch? Depense::Oui : Depense::Non);}
-void    Depense::setidfacture(int idfact)           { m_idfacture = idfact;}
-void    Depense::setlienfacture(QString lien)       { m_lienfacture = lien;}
-void    Depense::setecheancier(bool ech)            { m_echeancier = ech;}
-void    Depense::setobjetecheancier(QString obj)    { m_objetecheancier = obj;}
-void    Depense::setfactureformat(QString typeimg)  { m_formatfacture = typeimg;}
-void    Depense::setfactureblob(QByteArray ba)      { m_blob = ba;}
-
 Depense::Depense(QJsonObject data, QObject *parent) : Item(parent)
 {
     m_auxarchives = Depense::NoLoSo;

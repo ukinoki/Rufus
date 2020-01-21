@@ -26,7 +26,7 @@ class MesureRefraction : public Mesure
     Q_OBJECT
 public:
     explicit MesureRefraction();
-    void setdatas(Refraction *ref);
+    void setdatas(Refraction *ref, bool round = true);
     void setdatas(MesureRefraction *mesure);
 
 private:
@@ -50,6 +50,14 @@ private:
     int m_baseprismeOG = 0;         //!> base prisme OG en degré
     QString m_formuleOG = "";       //!> formule de réfraction OG
     int m_ecartIP = 0;              //!> ecart interpuppilaire
+    bool m_haspressonOD = false;    //!> un presson est utilisé sur l'OD
+    bool m_hasdepoliOD = false;     //!> un dépoli est utilisé sur l'OD
+    bool m_hasplanOD = false;       //!> un verre plan est utilisé sur l'OD
+    int m_ryserOD = 0;              //!> puissance Ryser OD
+    bool m_haspressonOG = false;    //!> un presson est utilisé sur l'OG
+    bool m_hasdepoliOG = false;     //!> un dépoli est utilisé sur l'OG
+    bool m_hasplanOG = false;       //!> un verre plan est utilisé sur l'OG
+    int m_ryserOG = 0;              //!> puissance Ryser OG
 
 public:
     Refraction::Mesure typemesure() const { return m_typemesure; }    //!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription

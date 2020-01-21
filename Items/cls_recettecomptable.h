@@ -71,22 +71,38 @@ public:
     int iduserenregistreur()            { return m_iduserenregistreur; }
     int typerecette()                   { return m_typerecette; }
 
-    void setiduser(int id)                  { m_iduser = id; }
-    void setdate(QDate date)                { m_date = date; }
-    void setdateenregistrement(QDate date)  { m_dateenregistrement = date; }
-    void setmontant(double mont)            { m_montant = mont; }
-    void setmodepaiement(QString txt)       { m_modepaiement = txt; }
-    void settireurcheque(QString txt)       { m_nomtireurchq = txt; }
-    void setcompteid(int id)                { m_idcompte = id; }
-    void setbanquecheaque(QString txt)      { m_nombanque = txt; }
-    void setistierspayant(bool logic)       { m_tierspayant = logic; }
-    void setpayeur(QString txt)             { m_nompayeur = txt; }
-    void setcommission(double com)          { m_commission = com; }
-    void setmonnaie(QString mon)            { m_monnaie = mon; }
-    void setidremisecheque(int id)          { m_idremise = id; }
-    void setischeqenattente(bool logic)     { m_chqenattente = logic; }
-    void setiduserenregistreur(int id)      { m_iduserenregistreur = id; }
-    void settyperecette(int id)             { m_typerecette = id; }
+    void setiduser(int id)                  { m_iduser = id;
+                                              m_data[CP_IDUSER_LIGNRECETTES] = id; }
+    void setdate(QDate date)                { m_date = date;
+                                              m_data[CP_DATE_LIGNRECETTES] = date.toString("yyyy-MM-dd"); }
+    void setdateenregistrement(QDate date)  { m_dateenregistrement = date;
+                                              m_data[CP_DATEENREGISTREMENT_LIGNRECETTES] = date.toString("yyyy-MM-dd"); }
+    void setmontant(double mont)            { m_montant = mont;
+                                              m_data[CP_MONTANT_LIGNRECETTES] = mont; }
+    void setmodepaiement(QString txt)       { m_modepaiement = txt;
+                                              m_data[CP_MODEPAIEMENT_LIGNRECETTES] = txt; }
+    void settireurcheque(QString txt)       { m_nomtireurchq = txt;
+                                              m_data[CP_TIREURCHEQUE_LIGNRECETTES] = txt; }
+    void setcompteid(int id)                { m_idcompte = id;
+                                              m_data[CP_IDCPTEVIREMENT_LIGNRECETTES] = id; }
+    void setbanquecheaque(QString txt)      { m_nombanque = txt;
+                                              m_data[CP_BANQUECHEQUE_LIGNRECETTES] = txt; }
+    void setistierspayant(bool logic)       { m_tierspayant = logic;
+                                              m_data[CP_TIERSPAYANT_LIGNRECETTES] = logic; }
+    void setpayeur(QString txt)             { m_nompayeur = txt;
+                                              m_data[CP_NOMPAYEUR_LIGNRECETTES] = txt; }
+    void setcommission(double com)          { m_commission = com;
+                                              m_data[CP_COMMISSION_LIGNRECETTES] = com; }
+    void setmonnaie(QString mon)            { m_monnaie = mon;
+                                              m_data[CP_MONNAIE_LIGNRECETTES] = mon; }
+    void setidremisecheque(int id)          { m_idremise = id;
+                                              m_data[CP_IDREMISECHQ_LIGNRECETTES] = id; }
+    void setischeqenattente(bool logic)     { m_chqenattente = logic;
+                                              m_data[CP_CHQENATTENTE_LIGNRECETTES] = logic; }
+    void setiduserenregistreur(int id)      { m_iduserenregistreur = id;
+                                              m_data[CP_IDUSERENREGISTREUR_LIGNRECETTES] = id; }
+    void settyperecette(int id)             { m_typerecette = id;
+                                              m_data[CP_TYPERECETTE_LIGNRECETTES] = id; }
 };
 
 #endif // CLS_RECETTECOMPTABLE_H

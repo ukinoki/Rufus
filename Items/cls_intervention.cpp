@@ -104,8 +104,5 @@ void IOL::resetdatas()
     data[CP_ID_IOLS]                = 0;
     data[CP_IDMANUFACTURER_IOLS]    = 0;
     data[CP_MODELNAME_IOLS]         = "";
-
     setData(data);
-
-    m_data = data;
 }

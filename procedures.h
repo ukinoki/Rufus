@@ -111,14 +111,11 @@ private:
                                      bool DetruitIni = true,
                                      bool RecupIni = true,
                                      bool ReconstruitIni = true,
-                                     bool ReconstruitBase = true,
-                                     bool PremDemarrage = false,
-                                     bool BaseVierge = false);
+                                     bool PremDemarrage = false);
     bool                    VerifParamConnexion(QString &login,                         //! le login du user dnas la table utilisateurs
                                                 QString &MDP,                           //! le mdp du user dnas la table utilisateurs
                                                 bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
-                                                bool OKAccesDistant = true,             //! true =  le choix accès distant est validé ou non
-                                                QString nomtblutilisateurs = TBL_UTILISATEURS);
+                                                bool OKAccesDistant = true);            //! true =  le choix accès distant est validé ou non
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
 public:
@@ -154,7 +151,7 @@ private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    PremierDemarrage();
-    void                    PremierParametrageMateriel();
+    void                    PremierParametrageMateriel(bool modifdirimagerie = true);
     void                    PremierParametrageRessources();
 
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
@@ -271,7 +268,6 @@ public:
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
-    void                    EnChantier(bool avecMsg = false);
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 

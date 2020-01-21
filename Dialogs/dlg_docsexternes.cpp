@@ -335,7 +335,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         SupprButton->setEnabled(false);
         return;
     }
-    wdg_playctrl                    ->setVisible(false);
+    wdg_playctrl                ->setVisible(false);
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
