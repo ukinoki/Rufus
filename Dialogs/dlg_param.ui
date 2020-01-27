@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1098,12 +1098,12 @@
              <rect>
               <x>360</x>
               <y>70</y>
-              <width>251</width>
+              <width>540</width>
               <height>16</height>
              </rect>
             </property>
             <property name="text">
-             <string>Emplacement des documents externes</string>
+             <string>Emplacement des dossiers des documents émis par chaque appareil d'imagerie</string>
             </property>
            </widget>
            <widget class="UpLabel" name="PosteStockageupLabel">
@@ -1252,12 +1252,12 @@ un serveur hébergé sur le réseau local</string>
              <rect>
               <x>360</x>
               <y>70</y>
-              <width>251</width>
+              <width>540</width>
               <height>16</height>
              </rect>
             </property>
             <property name="text">
-             <string>Emplacement des documents externes</string>
+             <string>Emplacement des dossiers des documents émis par chaque appareil d'imagerie</string>
             </property>
            </widget>
            <widget class="UpTableWidget" name="LocalDocupTableWidget">
@@ -1449,7 +1449,7 @@ un serveur hébergé sur le réseau local</string>
              <rect>
               <x>360</x>
               <y>70</y>
-              <width>251</width>
+              <width>540</width>
               <height>16</height>
              </rect>
             </property>
@@ -1457,7 +1457,7 @@ un serveur hébergé sur le réseau local</string>
              <enum>Qt::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>Emplacement des documents externes</string>
+             <string>Emplacement des dossiers des documents émis par chaque appareil d'imagerie</string>
             </property>
            </widget>
            <widget class="UpTableWidget" name="DistantDocupTableWidget">

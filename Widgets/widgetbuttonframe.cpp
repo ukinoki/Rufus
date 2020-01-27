@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "widgetbuttonframe.h"
 #include "icons.h"
 
-WidgetButtonFrame::WidgetButtonFrame(QWidget *proprio)
+WidgetButtonFrame::WidgetButtonFrame(QAbstractItemView *proprio)
 {
     wdg_proprio = proprio;
     widg_parent = new QWidget(dynamic_cast<QWidget*>(wdg_proprio->parent()));

@@ -25,13 +25,13 @@ class Interventions : public ItemsList
 {
 private:
     QMap<int, Intervention*> *map_interventions = Q_NULLPTR;    //!< la liste des interventions
-    int m_idpat = 0;                                            //!< l'id du patient concerné par la map
+    int m_iduser = 0;                                            //!< l'id du patient concerné par la map
 
 public:
     explicit Interventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, Intervention*> *interventions() const;
-    int idpatient() const { return m_idpat ; }
+    int iduser() const { return m_iduser ; }
 
     Intervention* getById(int id);
     void initListebyUserId(int id);

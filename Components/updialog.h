@@ -31,7 +31,7 @@ class UpDialog : public QDialog
 
 public:
     explicit UpDialog(QString NomSettings, QString NomPosition, QWidget *parent = Q_NULLPTR);
-    explicit UpDialog(QWidget *parent=Q_NULLPTR);
+    explicit UpDialog(QWidget *parent = Q_NULLPTR);
     enum Button {
                 NoButton                = 0x0,
                 ButtonPrint             = 0x1,

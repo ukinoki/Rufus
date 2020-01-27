@@ -126,6 +126,7 @@ private:
 
 
 private:
+    void        ActeGratuit();
     void        ActeMontantModifie();
     void        ActiveActeAccueil(int);                        // dans l'accueil secrétaire, quand on sélectionne un acte effectué pour un parent, ceux effectués pour d'autres parents sont déselectionnés
     void        AfficheDossiersRechercheParMotCle();

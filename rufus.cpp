@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-01-2020/1");
+    qApp->setApplicationVersion("27-01-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -306,6 +306,7 @@ void Rufus::ConnectSignals()
     connect (ui->DernierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Fin);});
     connect (ui->EnregistrePaiementpushButton,                      &QPushButton::clicked,                              this,   [=] {AppelPaiementDirect(BoutonPaiement);});
     connect (ui->FermepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
+    connect (ui->GratuitpushButton,                                 &QPushButton::clicked,                              this,   &Rufus::ActeGratuit);
     connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   &Rufus::SaisieFSE);
     connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelIdentPatient);
     connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
@@ -866,6 +867,11 @@ void Rufus::Moulinette()
     }
     UpMessageBox::Watch(this,"OK pour Correspondants");
     */
+}
+
+void Rufus::ActeGratuit()
+{
+    ui->ActeCotationcomboBox->setCurrentIndex(0);
 }
 
 void Rufus::ActeMontantModifie()
@@ -7852,6 +7858,8 @@ void Rufus::InitWidgets()
     ui->SalleDAttenteupTableWidget  ->FixLargeurTotale();
     ui->AccueilupTableWidget        ->FixLargeurTotale();
     ui->PatientsVusupTableWidget    ->FixLargeurTotale();
+
+    ui->GratuitpushButton->setImmediateToolTip(tr("Acte gratuit"));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8283,7 +8291,7 @@ void Rufus::ModeCreationDossier()
 
 void Rufus::ProgrammationIntervention(Patient *pat)
 {
-    dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(this);
+    dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, this);
     dlg_progr->exec();
     Utils::EnChantier();
     delete dlg_progr;
@@ -8399,6 +8407,7 @@ void Rufus::ConnectCotationComboBox()
     [=] {
         RetrouveMontantActe();
         ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), m_montantActe);
+        ui->GratuitpushButton->setVisible(ui->ActeCotationcomboBox->currentIndex() != 0);
     });
     connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),    this,
     [=] (int a) {

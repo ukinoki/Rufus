@@ -20,13 +20,45 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFrame>
 #include "upsmallbutton.h"
+#include <QAbstractItemView>
 #include <QLayout>
+
+
+/*!
+ * \brief The WidgetButtonFrame class
+ * Cette classe gère un QFrame qui va être ajouté au bas d'un QabstractItemView
+ * Le QFrame incorpore un layout avec groupe de 3 boutons positionnés à droite : ajouter, mofidifer ou supprimer un composant de la liste d'item
+ * on peut choisr le nombre de boutons avec le flag Buttons
+ * on peut rajouter des QWidget dans ce layout qui est accessible par la fonction laybuttons()
+ * Elle s'utilise comme ça
+        wdg_buttonframe     = new WidgetButtonFrame(ui->ComupTableWidget);
+        wdg_buttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+        wdg_buttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
+        wdg_buttonframe     ->layButtons()->insertWidget(0, ui->label);
+        this->dlglayout()   ->insertWidget(0,wdg_buttonframe->widgButtonParent());
+        connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
+        void dlg_commentaires::ChoixButtonFrame()
+        {
+            switch (wdg_buttonframe->Choix()) {
+                case WidgetButtonFrame::Plus:
+                    ...;
+                    break;
+                case WidgetButtonFrame::Modifier:
+                    ...;
+                    break;
+                case WidgetButtonFrame::Moins:
+                    ...;
+                    break;
+            }
+        }
+    }
+ */
 
 class WidgetButtonFrame : public QFrame
 {
     Q_OBJECT
 public:
-    WidgetButtonFrame(QWidget *proprio=Q_NULLPTR);
+    WidgetButtonFrame(QAbstractItemView *proprio=Q_NULLPTR);
     enum Button {
                 NoButton                = 0x0,
                 PlusButton              = 0x1,
@@ -43,7 +75,7 @@ public:
     UpSmallButton   *wdg_modifBouton;
     QWidget*        widgButtonParent() const;
     QHBoxLayout*    layButtons() const;
-    Bouton           Choix() const;
+    Bouton          Choix() const;
 
 private:
     Bouton           m_reponse;

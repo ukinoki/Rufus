@@ -934,7 +934,6 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup)
 // fin sauvegardes
 //--------------------------------------------------------------------------------------------------------
 
-//TODO : à déplacer
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -1153,7 +1152,6 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     return EnteteMap;
 }
 
-//TODO : à déplacer
 /*---------------------------------------------------------------------------------
     Retourne le pied du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -1185,7 +1183,6 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
     return Pied;
 }
 
-//TODO : à déplacer
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
@@ -1892,7 +1889,7 @@ QString Procedures::SessionStatus()
 
 /*! --------------------------------------------------------------------------------------------------------------------------------------
     -- détermine le dossier où est stockée l'imagerie -----------------------------------------------------------
-    DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste                   quand on est en mode posetr
+    DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste                   quand on est en mode poste
                                 = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste quand on est en mode réseau local
                                 = l'emplacement de dossier des copies des images d'origine sur le poste quand on est en mode distant
                                 -> utilisé par les postes pour enregistrer une copie de sauvegarde de l'original des fichiers images intégrés dans la base
@@ -1901,7 +1898,7 @@ QString Procedures::SessionStatus()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
-    -- renvoie la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
+    -- renvoie le chemin du dossier où est stockée l'imagerie -----------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::AbsolutePathDirImagerie()
 {
@@ -2888,8 +2885,9 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         for (int i=0; i<usrlist.size(); i++)
             db->StandardSQL("drop user '" + usrlist.at(i).at(0).toString() + "'@'" + usrlist.at(i).at(1).toString() + "'");
 
+    // Création du compte administrateur dans la table utilisateurs
     db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
-    // On crée l'utilisateur dans la table utilisateurs
+    // Création du permier utilisateur dans la table utilisateurs
     m_idcentre               = 1;
     m_usecotation            = true;
     Datas::I()->banques->initListe();

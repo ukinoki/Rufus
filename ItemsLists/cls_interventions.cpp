@@ -47,8 +47,8 @@ Intervention* Interventions::getById(int id)
  */
 void Interventions::initListebyUserId(int id)
 {
-    m_idpat = id;
-    QList<Intervention*> listInterventions = DataBase::I()->loadInterventionsByUserId(m_idpat);
+    m_iduser = id;
+    QList<Intervention*> listInterventions = DataBase::I()->loadInterventionsByUserId(m_iduser);
     epurelist(map_interventions, &listInterventions);
     addList(map_interventions, &listInterventions, Item::Update);
 }

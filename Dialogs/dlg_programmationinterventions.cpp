@@ -17,41 +17,48 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_programmationinterventions.h"
 
-dlg_programmationinterventions::dlg_programmationinterventions(QWidget *parent) : UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
+dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWidget *parent) : UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
 {
+    setWindowTitle(tr("programmer une intervention pour ") + pat->prenom() + " " + pat->nom());
     UpTableView *wdg_tableprogramme         = new UpTableView();
     QTreeView *wdg_dates                    = new QTreeView();
     QComboBox *wdg_listmedecinscombo        = new QComboBox();
     QHBoxLayout *choixmedecinLay            = new QHBoxLayout();
     QHBoxLayout *programmLay                = new QHBoxLayout();
 
-    wdg_tableprogramme      ->setFocusPolicy(Qt::NoFocus);
-    wdg_tableprogramme      ->setPalette(QPalette(Qt::white));
-    wdg_tableprogramme      ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_tableprogramme      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    wdg_tableprogramme      ->verticalHeader()->setVisible(false);
-    wdg_tableprogramme      ->setSelectionMode(QAbstractItemView::SingleSelection);
-    wdg_tableprogramme      ->setGridStyle(Qt::SolidLine);
-    wdg_tableprogramme      ->verticalHeader()->setVisible(false);
-    wdg_tableprogramme      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
-    wdg_tableprogramme      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    wdg_tableprogramme  ->setFocusPolicy(Qt::NoFocus);
+    wdg_tableprogramme  ->setPalette(QPalette(Qt::white));
+    wdg_tableprogramme  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_tableprogramme  ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_tableprogramme  ->verticalHeader()->setVisible(false);
+    wdg_tableprogramme  ->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_tableprogramme  ->setGridStyle(Qt::SolidLine);
+    wdg_tableprogramme  ->verticalHeader()->setVisible(false);
+    wdg_tableprogramme  ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
+    wdg_tableprogramme  ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    choixmedecinLay    ->addWidget(wdg_listmedecinscombo);
-    choixmedecinLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixmedecinLay    ->setSpacing(5);
-    choixmedecinLay    ->setContentsMargins(0,0,0,0);
+    wdg_dates           ->setMaximumWidth(100);
 
-    programmLay    ->addWidget(wdg_dates);
-    programmLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    programmLay    ->addWidget(wdg_tableprogramme);
-    programmLay    ->setSpacing(5);
-    programmLay    ->setContentsMargins(0,0,0,0);
-    programmLay    ->setStretch(0,2);
-    programmLay    ->setStretch(1,0);
-    programmLay    ->setStretch(2,6);
+    choixmedecinLay     ->addWidget(wdg_listmedecinscombo);
+    choixmedecinLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixmedecinLay     ->setSpacing(5);
+    choixmedecinLay     ->setContentsMargins(0,0,0,0);
 
-    dlglayout()   ->insertLayout(0, programmLay);
-    dlglayout()   ->insertLayout(0, choixmedecinLay);
+    wdg_buttonframe     = new WidgetButtonFrame(wdg_dates);
+    wdg_buttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixButtonFrame);
+    programmLay     ->addWidget(wdg_buttonframe->widgButtonParent());
+
+    programmLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    programmLay     ->addWidget(wdg_tableprogramme);
+    programmLay     ->setSpacing(5);
+    programmLay     ->setContentsMargins(0,0,0,0);
+    programmLay     ->setStretch(0,2);
+    programmLay     ->setStretch(1,0);
+    programmLay     ->setStretch(2,6);
+
+    dlglayout()     ->insertLayout(0, programmLay);
+    dlglayout()     ->insertLayout(0, choixmedecinLay);
 
     AjouteLayButtons(UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, [=] {close();});
@@ -81,3 +88,18 @@ dlg_programmationinterventions::dlg_programmationinterventions(QWidget *parent) 
 dlg_programmationinterventions::~dlg_programmationinterventions()
 {
 }
+
+void dlg_programmationinterventions::ChoixButtonFrame()
+{
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
+        proc->ab();
+        break;
+    case WidgetButtonFrame::Moins:
+        proc->ab();
+        break;
+    default:
+        break;
+    }
+}
+

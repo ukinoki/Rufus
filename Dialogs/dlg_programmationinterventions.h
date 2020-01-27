@@ -21,16 +21,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <updialog.h>
 #include <procedures.h>
 #include <uptableview.h>
+#include "widgetbuttonframe.h"
 
 class dlg_programmationinterventions : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_programmationinterventions(QWidget *parent = Q_NULLPTR);
+    explicit dlg_programmationinterventions(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_programmationinterventions();
 
 private:
     Procedures *proc = Procedures::I();
+    WidgetButtonFrame *wdg_buttonframe;
+    void    ChoixButtonFrame();
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H
