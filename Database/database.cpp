@@ -394,8 +394,13 @@ void DataBase::setmdpadmin(QString mdp)
 {
     if (!m_db.isOpen())
         return;
-    QString value = (mdp != ""? "'" + Utils::correctquoteSQL(mdp) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = " + value);
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" +  mdp + "'");
+    bool ok;
+    QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
+    if (!ok || mdpdata.size()==0)
+        StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "', '" + mdp + "')");
+    else
+        StandardSQL("update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + mdp + "' where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'");
     parametres()->setmdpadmin(mdp);
 }
 void DataBase::setnumcentre(int id)
@@ -596,15 +601,40 @@ DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString passw
     QString req = "SELECT " CP_ID_USR
                   " FROM " TBL_UTILISATEURS
                   " WHERE " CP_LOGIN_USR " = '" + login + "' "
-                  " AND " CP_MDP_USR " = '" + password + "' "
+                  " AND " CP_MDP_USR " = '" + Utils::calcSHA1(password) + "'"
                   " AND " CP_ISDESACTIVE_USR " is null ";
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok)
         return Error;
-    if(usrdata.size()==0)
-        return Empty;
-    m_iduserConnected = usrdata.at(0).toInt();
-    return OK;
+    if(usrdata.size() == 1)
+    {
+        m_iduserConnected = usrdata.at(0).toInt();
+        return OK;
+    }
+    else    /*! si le mot de passe n'est pas crypté, on le crypte */
+    {
+        req = "SELECT " CP_ID_USR
+              " FROM " TBL_UTILISATEURS
+              " WHERE " CP_LOGIN_USR " = '" + login + "' "
+              " AND " CP_MDP_USR " = '" + password + "'"
+              " AND " CP_ISDESACTIVE_USR " is null ";
+        usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
+        if(!ok)
+            return Error;
+        else if(usrdata.size()==0)
+            return Empty;
+        else
+        {
+            req = "Update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + Utils::calcSHA1(password) + "' where " CP_ID_USR " = " + usrdata.at(0).toString();
+            if (StandardSQL(req))
+            {
+                m_iduserConnected = usrdata.at(0).toInt();
+                return OK;
+            }
+            else
+                return Empty;
+        }
+    }
 }
 
 QJsonObject DataBase::loadUserData(int idUser)
@@ -2150,16 +2180,15 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 /*
  * MDP
 */
-//Pas normal, les mots de passes doivent etre chiffrés
 QString DataBase::getMDPAdmin()
 {
     QString mdp ("");
     QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " TBL_PARAMSYSTEME,ok);
     if( !ok || mdpdata.size()==0 )
-        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" MDP_ADMINISTRATEUR "'");
+        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
     else if (mdpdata.at(0) == "")
-        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" MDP_ADMINISTRATEUR "'");
-    return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : MDP_ADMINISTRATEUR);
+        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
+    return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : Utils::calcSHA1(MDP_ADMINISTRATEUR));
 }
 
 

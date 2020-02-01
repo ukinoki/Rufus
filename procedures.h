@@ -96,8 +96,6 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     DataBase                *db;
-    QString                 m_loginSQL = "";
-    QString                 m_passwordSQL = "";
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
@@ -383,9 +381,9 @@ signals:
         TimerController         t_timerbackup;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true);
+        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false);
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
-                                * et par le timer t_timerbackup sous Linux pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
+                                * et par le timer t_timerbackup pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();
                                 /*! déclenche le backup au moment programmé */
         qint64                  CalcBaseSize();

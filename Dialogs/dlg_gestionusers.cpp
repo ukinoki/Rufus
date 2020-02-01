@@ -350,7 +350,7 @@ void dlg_gestionusers::EnregistreNouvMDP()
             msgbox.exec();
             return;
         }
-        if (anc != m_userencours->password())
+        if (Utils::calcSHA1(anc) != m_userencours->password())
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas bon\n"));
@@ -377,22 +377,10 @@ void dlg_gestionusers::EnregistreNouvMDP()
         msgbox.setText(tr("Modifications enregistrées"));
         msgbox.setInformativeText(tr("Le nouveau mot de passe a été enregistré avec succès"));
         // Enregitrer le nouveau MDP de la base
-        db->StandardSQL("update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + nouv + "' where " CP_ID_USR " = " + ui->idUseruplineEdit->text());
-        // Enregitrer le nouveau MDP de connexion à MySQL
-        db->StandardSQL("set password = '" + nouv + "'");
-        QString AdressIP;
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-                 AdressIP = address.toString();
-        }
-        QString Domaine;
-        QStringList listIP = AdressIP.split(".");
-        for (int i=0;i<listIP.size()-1;i++)
-            Domaine += listIP.at(i) + ".";
-        db->StandardSQL("set password for '" + m_userencours->login() + "'@'" + Domaine + "%' = '" + nouv + "'");
-        db->StandardSQL("set password for '" + m_userencours->login() + "SSL'@'%' = '" + nouv + "'");
+        QString shanouv = Utils::calcSHA1(nouv);
+        db->StandardSQL("update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + shanouv + "' where " CP_ID_USR " = " + ui->idUseruplineEdit->text());
         ui->MDPuplineEdit->setText(nouv);
-        m_userencours->setpassword(nouv);
+        m_userencours->setpassword(shanouv);
         gAskMDP->done(0);
         msgbox.exec();
     }
@@ -721,7 +709,7 @@ void dlg_gestionusers::EnregistreNouvUser()
     UpLineEdit *MDPline         = dlg_ask->findChild<UpLineEdit*>(gMDPupLineEdit);
     UpLineEdit *ConfirmMDPline  = dlg_ask->findChild<UpLineEdit*>(gConfirmMDPupLineEdit);
     QString login               = Loginline->text();
-    QString MDP                 = MDPline->text();
+    QString mdp                 = MDPline->text();
     bool a = true;
     while (a) {
         a = false;
@@ -731,7 +719,7 @@ void dlg_gestionusers::EnregistreNouvUser()
             Loginline->setFocus();
             continue;
         }
-        if (MDP == "")
+        if (mdp == "")
         {
             msg = tr("Vous avez oublié d'indiquer le mot de passe");
             MDPline->setFocus();
@@ -758,14 +746,14 @@ void dlg_gestionusers::EnregistreNouvUser()
             if (msg != "")
                 continue;
         }
-        if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(MDP))
+        if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(mdp))
         {
             msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
                   tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 12 caractères.");
             MDPline->setFocus();
             continue;
         }
-        if (MDP != ConfirmMDPline->text())
+        if (mdp != ConfirmMDPline->text())
         {
             msg = tr("Les mots de passe ne correspondent pas");
             MDPline->setFocus();
@@ -782,8 +770,8 @@ void dlg_gestionusers::EnregistreNouvUser()
     m_mode                          = Creer;
     db->locktable(TBL_UTILISATEURS);
     db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
-                    " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
-    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + MDP + "'";
+                    " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::calcSHA1(mdp) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
+    QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + Utils::calcSHA1(mdp) + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,m_ok).at(0).toInt();
     db->unlocktables();
     Datas::I()->users->initListe();

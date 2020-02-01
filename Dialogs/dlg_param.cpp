@@ -2167,7 +2167,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
             msgbox.exec();
             return;
         }
-        if (anc != proc->MDPAdmin())
+        if (Utils::calcSHA1(anc) != proc->MDPAdmin())
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas le bon\n"));
@@ -2193,20 +2193,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
         }
         msgbox.setText(tr("Modifications enregistrées"));
         msgbox.setInformativeText(tr("Le nouveau mot de passe a été enregistré avec succès"));
-        //recherche de l'iUser du compte AdminDocs
-        int idAdminDocs = 0;
-        bool ok;
-        QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
-        if (!ok || mdpdata.size()==0)
-        {
-            db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "', '" MDP_ADMINISTRATEUR "')");
-            mdpdata = db->getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
-        }
-        idAdminDocs = mdpdata.at(0).toInt();
-        db->setmdpadmin(nouv);
-        // Enregitrer le nouveau MDP de la base
-        QString req = "update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + nouv + "' where " CP_ID_USR " = " + QString::number(idAdminDocs);
-        db->StandardSQL(req);
+        db->setmdpadmin(Utils::calcSHA1(nouv));
         dlg_askMDP->done(0);
         msgbox.exec();
     }

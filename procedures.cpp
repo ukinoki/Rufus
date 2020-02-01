@@ -385,7 +385,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     CalcTimeBupRestore();
 }
 
-bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures)
+bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp)
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
@@ -407,6 +407,9 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 
     QString msgEchec = tr("Incident pendant la sauvegarde");
     qintptr handledlg = 0;
+    if (verifmdp)
+        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+            return false;
     Message::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
     emit ConnectTimers(false);
 
@@ -791,7 +794,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     }
     if (!OKbase && !OKImages && !OKVideos && !OKFactures)
         return false;
-    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures);
+    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures, true);
 }
 
 void Procedures::EffaceBDDDataBackup()
@@ -1970,9 +1973,9 @@ QString Procedures::MDPAdmin()
     if (m_parametres == Q_NULLPTR)
         m_parametres = db->parametres();
     if (m_parametres == Q_NULLPTR)
-        return MDP_ADMINISTRATEUR;
+        return Utils::calcSHA1(MDP_ADMINISTRATEUR);
     if (m_parametres->mdpadmin() == "")
-        db->setmdpadmin(MDP_ADMINISTRATEUR);
+        db->setmdpadmin(Utils::calcSHA1(MDP_ADMINISTRATEUR));
     return m_parametres->mdpadmin();
 }
 
@@ -2215,7 +2218,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (msgbox.clickedButton() != &OKBouton)
             return false;
 
-        if (!Utils::VerifMDP((PremierDemarrage? MDP_ADMINISTRATEUR : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
         QFile BaseViergeFile(QStringLiteral("://basevierge.sql"));
@@ -2289,7 +2292,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
             return false;
         }
-        if (!Utils::VerifMDP((PremierDemarrage? MDP_ADMINISTRATEUR : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
 
@@ -2576,9 +2579,16 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
 bool Procedures::VerifBaseEtRessources()
 {
+    auto erreur = []
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
+        exit(0);
+    };
+
     int Versionencours  = 9; //correspond aux premières versions de MAJ de la base
     int Version         = VERSION_BASE;
     bool b;
+    m_parametres = db->parametres();
     Versionencours = m_parametres->versionbase();
     b = (Versionencours < Version);
 
@@ -2597,15 +2607,25 @@ bool Procedures::VerifBaseEtRessources()
                                           " <b>" + QString::number(Version) + "</b><br />" +
                                           tr("et une sauvegarde de la base actuelle est fortement conseillée"));
                 msgbox.setIcon(UpMessageBox::Warning);
-                UpSmallButton OKBouton(tr("OK, je vais sauvegarder la base d'abord"));
-                UpSmallButton AnnulBouton(tr("Pousuivre, la sauvegarde a été faite"));
-                msgbox.addButton(&OKBouton, UpSmallButton::CANCELBUTTON);
-                msgbox.addButton(&AnnulBouton, UpSmallButton::STARTBUTTON);
+                UpSmallButton *OKBouton = new UpSmallButton();
+                UpSmallButton *BackupBouton = new UpSmallButton();
+                UpSmallButton *ExitBouton = new UpSmallButton();
+                OKBouton->setText(tr("Pousuivre, la sauvegarde a été faite"));
+                BackupBouton->setText(tr("OK, je vais sauvegarder la base d'abord"));
+                ExitBouton->setText(tr("Annuler et fermer"));
+                msgbox.addButton(ExitBouton, UpSmallButton::CLOSEBUTTON);
+                msgbox.addButton(BackupBouton, UpSmallButton::CANCELBUTTON);
+                msgbox.addButton(OKBouton, UpSmallButton::STARTBUTTON);
                 msgbox.exec();
-                if (msgbox.clickedButton() != &AnnulBouton)
-                    if (!ImmediateBackup("", true, false))
-                        return false;
+                if (msgbox.clickedButton() == BackupBouton)
+                {
+                    if (!ImmediateBackup())
+                        erreur();
+                }
+                else if (msgbox.clickedButton() == ExitBouton)
+                    erreur();
                 BupDone = true;
+                Datas::I()->postesconnectes->initListe();
                 PosteConnecte* post = Datas::I()->postesconnectes->admin();
                 if (post != Q_NULLPTR)
                     UpMessageBox::Watch(Q_NULLPTR,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
@@ -2617,7 +2637,7 @@ bool Procedures::VerifBaseEtRessources()
             QFile DumpFile(Nomfic);
             if (DumpFile.exists())
             {
-                QString NomDumpFile = QDir::homePath() + "/Documents/Rufus/Ressources/majbase" + QString::number(Version) + ".sql";
+                QString NomDumpFile = QDir::homePath() + DIR_RUFUS DIR_RESSOURCES "/majbase" + QString::number(Version) + ".sql";
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 QFile base(NomDumpFile);
@@ -2642,7 +2662,7 @@ bool Procedures::VerifBaseEtRessources()
                     UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
                 }
                 if (result!=1)
-                    return false;
+                    erreur();
             }
             if (Version == 53)
             {
@@ -2877,16 +2897,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         return false;
     }
 
-    //1. On vérifie si ce login existe dans le serveur et si c'est le cas, on détruit toutes les instances de ce login
-    //TODO : !!! un peu brutal
-    QString req = "select user, host from mysql.user where user like '" + Login + "%'";
-    QList<QVariantList> usrlist = db->StandardSelectSQL(req, m_ok);
-    if (m_ok && usrlist.size()>0)
-        for (int i=0; i<usrlist.size(); i++)
-            db->StandardSQL("drop user '" + usrlist.at(i).at(0).toString() + "'@'" + usrlist.at(i).at(1).toString() + "'");
-
     // Création du compte administrateur dans la table utilisateurs
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "','" MDP_ADMINISTRATEUR "')");
+    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "', '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "')");
     // Création du permier utilisateur dans la table utilisateurs
     m_idcentre               = 1;
     m_usecotation            = true;
@@ -2943,7 +2955,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
 void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 {
     //TODO : Revoir
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") VALUES (" + QString::number(idusr) + ",'" + login + "', '" + mdp + "')");
+    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") VALUES (" + QString::number(idusr) + ", '" + login + "', '" + Utils::calcSHA1(mdp) + "')");
 
     int idbanq = 0;
     foreach (Banque* bq, Datas::I()->banques->banques()->values())
@@ -3037,6 +3049,7 @@ bool Procedures::IdentificationUser()
 {
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
+    connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
     int result = dlg_IdentUser->exec();
     if( result > 0 )
     {
@@ -3054,11 +3067,6 @@ bool Procedures::IdentificationUser()
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);
 
-        if (!VerifBaseEtRessources())
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
-            exit(0);
-        }
         Verif_secure_file_priv();
         if (DefinitRoleUser()) //NOTE : User Role
         {
@@ -3101,8 +3109,8 @@ bool Procedures::IdentificationUser()
     else if ( result < 0 ) // anomalie sur la base - table utilisateurs manquante ou corrompue
     {
         dlg_identificationuser::LoginResult loginresult = dlg_IdentUser->loginresult();
-        m_loginSQL      = dlg_IdentUser->ui->LoginlineEdit->text();
-        m_passwordSQL   = dlg_IdentUser->ui->MDPlineEdit->text();
+        QString m_loginSQL      = dlg_IdentUser->ui->LoginlineEdit->text();
+        QString m_passwordSQL   = dlg_IdentUser->ui->MDPlineEdit->text();
         UpMessageBox    msgbox;
         UpSmallButton   AnnulBouton(tr("Annuler"));
         UpSmallButton   RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
@@ -3142,6 +3150,7 @@ bool Procedures::IdentificationUser()
             break;
         }
     }
+    disconnect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
     delete dlg_IdentUser;
     return (currentuser() != Q_NULLPTR);
 }
@@ -3870,6 +3879,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
+    connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
 
     if (Dlg_ParamConnex->exec()>0)
     {
@@ -3900,6 +3910,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         delete Dlg_ParamConnex;
         return true;
     }
+    disconnect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
     delete Dlg_ParamConnex;
     return false;
 }

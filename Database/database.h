@@ -162,7 +162,7 @@ public:
     */
     void initParametresSysteme();                               //! charge les parametres susteme
     ParametresSysteme*      parametres();                       //! renvoie les parametres système
-    void setmdpadmin(QString mdp = "");
+    void setmdpadmin(QString mdp);
     void setnumcentre(int id);
     void setidlieupardefaut(int id);
     void setdocscomprimes(bool one);

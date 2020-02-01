@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef UTILS_H
 #define UTILS_H
-
+#include <QCryptographicHash>
 #include <QDir>
 #include <QRegExp>
 #include <QHostAddress>
@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QProcess>
 #include <QJsonObject>
+#include <QTextCodec>
 #include <cmath>
 
 #include "uplineedit.h"
@@ -106,7 +107,6 @@ public:
     static QString                  IPAdress();
     static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
-    static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 
     //! Fichiers
     static bool                     CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert = QDate::currentDate());
@@ -132,6 +132,8 @@ public:
     static QString                  getBaseFromMode(ModeAcces mode);  /*! renvoie le mode d'accès au serveur tel qu'il est inscrit dans le fichier rufus.ini
                                                                     \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT
                                                                     \param le mode d'accès */
+    static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
+    static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified = false);
 
     //! Calcule âge
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance);

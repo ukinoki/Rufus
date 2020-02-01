@@ -234,6 +234,8 @@ bool dlg_paramconnexion::TestConnexion()
                             + error);
         return false;
     }
+    /*! la connection à la base fonctionne -> on vérifie la version de la base */
+    emit verifbase();
 
     if (m_connectavecloginSQL)
     {
@@ -251,6 +253,7 @@ bool dlg_paramconnexion::TestConnexion()
             return false;
         }
     }
+
     return true;
 }
 

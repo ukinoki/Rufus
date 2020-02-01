@@ -546,6 +546,12 @@ QString Utils::getBaseFromMode(ModeAcces mode )
     return "BDD_LOCAL";
 }
 
+QString Utils::calcSHA1(QString mdp)
+{
+    QByteArray ba = QCryptographicHash::hash(mdp.toUtf8(), QCryptographicHash::Sha1);
+    return QString(ba.toHex());
+}
+
 /*---------------------------------------------------------------------------------------------------------------------
     -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
@@ -567,7 +573,9 @@ bool Utils::VerifMDP(QString MDP, QString Msg, bool mdpverified)
     quest.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     if (quest.exec() > 0)
     {
-        if (quest.textValue() == MDP)
+        if (calcSHA1(quest.textValue()) == MDP)
+            return true;
+        else if (quest.textValue() == MDP)
             return true;
         else
             UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));

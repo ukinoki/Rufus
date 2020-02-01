@@ -61,7 +61,7 @@ void dlg_identificationuser::Validation()
     //On desactive le button OK pour neutraliser le double clic.
     ui->OKpushButton->setEnabled(false);
 
-    QString AdminDocs = NOM_ADMINISTRATEUR; //FIXME : !!! Test en dur
+    QString AdminDocs = NOM_ADMINISTRATEUR;
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
     {
         UpMessageBox::Watch(this, tr("Vous ne pouvez pas utiliser ce Login pour vous connecter"));
@@ -146,6 +146,9 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
         //TODO : Erreur non géré
         return CorruptedBase;
     }
+
+    /*! la connection à la base fonctionne -> on vérifie la version de la base */
+    emit verifbase();
 
     DataBase::QueryResult rep = db->calcidUserConnected(Login, Password);
     if (rep == DataBase::Error)

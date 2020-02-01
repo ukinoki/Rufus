@@ -650,7 +650,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `ParametresSysteme`;
 CREATE TABLE `ParametresSysteme` (
-  `MDPAdmin` varchar(8) DEFAULT NULL,
+  `MDPAdmin` varchar(45) DEFAULT NULL,
   `NumCentre` int(11) DEFAULT NULL,
   `idLieuParDefaut` int(11) DEFAULT NULL,
   `DocsComprimes` int(1) DEFAULT NULL,
@@ -674,7 +674,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,60,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,61,
                                         NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -1041,8 +1041,8 @@ CREATE TABLE `utilisateurs` (
   `UserNoSpecialite` int(11) DEFAULT NULL,
   `UserTitre` varchar(25) DEFAULT NULL,
   `UserDroits` varchar(45) DEFAULT NULL COMMENT 'Définit les droits d''accès aux fichiers de l''utilisateur',
-  `UserLogin` char(15) DEFAULT NULL,
-  `UserMDP` char(15) DEFAULT NULL,
+  `UserLogin` varchar(15) DEFAULT NULL,
+  `UserMDP` varchar(45) DEFAULT NULL,
   `UserAdresse1` varchar(45) DEFAULT NULL,
   `UserAdresse2` varchar(45) DEFAULT NULL,
   `UserAdresse3` varchar(45) DEFAULT NULL,
