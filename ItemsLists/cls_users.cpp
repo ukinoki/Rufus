@@ -165,6 +165,11 @@ void Users::reload(User *usr)
         add(usr);
 }
 
+bool Users::recalcStatut(User *usr)
+{
+    return add(usr);
+}
+
 /*!
  * \brief Users::initListe
  * Charge l'ensemble des utilisateurs
@@ -203,6 +208,32 @@ void Users::initListe()
         userconnected() ->setidparent(idparent);
         userconnected() ->setidusercomptable(idcomptable);
         userconnected() ->setidsuperviseur(idsuperviseur);
+    }
+}
+
+/*!
+ * \brief Users::initListe
+ * Charge l'ensemble des utilisateurs avec des renseignements succincts
+ * et les ajoute à la classe Users
+ */
+void Users::initShortListe()
+{
+    QList<User*> listusers = DataBase::I()->loadUsersShortListe();
+    epurelist(map_all, &listusers);
+    map_actifs          ->clear();
+    map_inactifs        ->clear();
+    map_superviseurs    ->clear();
+    map_liberaux        ->clear();
+    map_parents         ->clear();
+    map_comptables      ->clear();
+    addList(listusers);
+    foreach (User *usr, actifs()->values())
+    {
+        if (usr->login() == NOM_ADMINISTRATEUR)
+        {
+            m_useradmin = usr;
+            break;
+        }
     }
 }
 

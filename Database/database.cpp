@@ -596,6 +596,41 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 /*
  * Users
 */
+DataBase::QueryResult DataBase::verifExistUser(QString login, QString password)
+{
+    QString req = "SELECT " CP_ID_USR
+                  " FROM " TBL_UTILISATEURS
+                  " WHERE " CP_LOGIN_USR " = '" + login + "' "
+                  " AND " CP_MDP_USR " = '" + Utils::calcSHA1(password) + "'"
+                  " AND " CP_ISDESACTIVE_USR " is null ";
+    QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    if(!ok)
+        return Error;
+    if(usrdata.size() == 1)
+    {
+        m_iduserConnected = usrdata.at(0).toInt();
+        return OK;
+    }
+    else    /*! on essaie avec un mot de passe en clair */
+    {
+        req = "SELECT " CP_ID_USR
+              " FROM " TBL_UTILISATEURS
+              " WHERE " CP_LOGIN_USR " = '" + login + "' "
+              " AND " CP_MDP_USR " = '" + password + "'"
+              " AND " CP_ISDESACTIVE_USR " is null ";
+        usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
+        if(!ok)
+            return Error;
+        else if(usrdata.size()==0)
+            return Empty;
+        else
+        {
+            m_iduserConnected = usrdata.at(0).toInt();
+            return OK;
+        }
+    }
+}
+
 DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
     QString req = "SELECT " CP_ID_USR
@@ -647,7 +682,7 @@ QJsonObject DataBase::loadUserData(int idUser)
             CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
-            CP_ISOPTAM_USR                                                                                                                              // 30
+            CP_ISOPTAM_USR ", " CP_DATECREATIONMDP_USR                                                                                                  // 30, 31
             " from " TBL_UTILISATEURS
             " where " CP_ID_USR " = " + QString::number(idUser);
 
@@ -694,6 +729,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
     userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
     userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
+    userData[CP_DATECREATIONMDP_USR]                = usrdata.at(31).toDate().toString("yyyy-MM-dd");
     return userData;
 }
 
@@ -707,6 +743,26 @@ QJsonObject DataBase::loadAdminData()
     return loadUserData(usrid.at(0).toInt());
 }
 
+QList<User*> DataBase::loadUsersShortListe()
+{
+    QList<User*> users;
+    QString req = "select " CP_ID_USR ", " CP_LOGIN_USR  " from " TBL_UTILISATEURS;
+
+    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
+    if( !ok || usrlist.size()==0 )
+        return users;
+    for (int i=0; i<usrlist.size(); ++i)
+    {
+        QVariantList usrdata = usrlist.at(i);
+        QJsonObject userData{};
+        userData[CP_ID_USR]                             = usrdata.at(0).toInt();
+        userData[CP_LOGIN_USR]                          = usrdata.at(1).toString();
+        User *usr = new User(userData);
+        users << usr;
+    }
+    return users;
+}
+
 QList<User*> DataBase::loadUsers()
 {
     QList<User*> users;
@@ -716,7 +772,7 @@ QList<User*> DataBase::loadUsers()
             CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
-            CP_ISOPTAM_USR ", " CP_ID_USR                                                                                 // 30,31
+            CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR                                                                                   // 30,31,32
             " from " TBL_UTILISATEURS;
 
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
@@ -758,6 +814,7 @@ QList<User*> DataBase::loadUsers()
         userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
         userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
         userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
+        userData[CP_DATECREATIONMDP_USR]                = usrdata.at(32).toDate().toString("yyyy-MM-dd");
         User *usr = new User(userData);
         users << usr;
     }

@@ -97,7 +97,8 @@ private:
                             //!< 2 : responsable et assistant
                             //!< 3 : assistant
 
-    QDateTime m_dateDerniereConnexion;
+    QDateTime   m_dateDerniereConnexion;
+    QDate       m_datecreationMDP;                  //! la date de creation du mot de passe actuel
 
     QList<int> *m_listidcomptesall = Q_NULLPTR;     //! tous les id des comptes de l'utilisateur  y compris ceux qui sont devenus inactifs
     QList<int> *m_listidcomptes = Q_NULLPTR;        //! tous les id des comptes actifs de l'utilisateur
@@ -134,6 +135,9 @@ public:
     QString password() const;
     void setpassword(QString psswd)         { m_password = psswd;
                                               m_data[CP_MDP_USR] = psswd;}
+    QDate datecreationMDP() const           { return m_datecreationMDP; }
+    void setdatecreationMDP(QDate date)     { m_datecreationMDP = date;
+                                              m_data[CP_DATECREATIONMDP_USR] = date.toString("yyyy-MM-dd"); }
     QString nom() const;
     QString prenom() const;
     METIER metier() const;                                          //!< Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier

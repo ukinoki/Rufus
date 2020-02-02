@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("O1-02-2020/1");
+    qApp->setApplicationVersion("02-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -178,8 +178,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         t_timerVerifMessages         ->start(10000);// "toutes les 10 secondes"
         if (!m_utiliseTCP)
         {
-                t_timerSalDat        ->start(1000);
-                t_timerCorrespondants->start(30000);
+            t_timerSalDat        ->start(1000);
+            t_timerCorrespondants->start(30000);
         }
     }
 

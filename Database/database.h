@@ -185,10 +185,10 @@ public:
      * Users
     */
     void                    setidUserConnected(int id)                  { m_iduserConnected = id; }
-    QueryResult             calcidUserConnected(QString login, QString password);     /*! connecte à la base mYSQL SQL avec le login login et le password password
-                                                                        * crée l'utilisateur en cours m_userconnected  et complète tous les renseignements concernant cet utilisateur
-                                                                        * renvoie un QJsonObject contenant les id d la réussite ou l'échec de la connection */
-    QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
+    QueryResult             verifExistUser(QString login, QString password);        /*! verifie que le login-mdp existe dans la base */
+    QueryResult             calcidUserConnected(QString login, QString password);   /*! retrouve l'id correspondant au mdp_login, modifie au besoin le mdp en sha1(mdp) */
+    QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements complets
+    QList<User*>            loadUsersShortListe();                      //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
     QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
     QJsonObject             loadAdminData();                            //! complète tous les renseignements concernant l'utilisateur admin
 

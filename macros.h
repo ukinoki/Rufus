@@ -316,6 +316,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_SIGNATURE_USR                                "Signature"   //!> pas utilisé
 #define CP_ISORDOSIGNE_USR                              "OrdoSigne"   //!> pas utilisé
 #define CP_DATEDERNIERECONNEXION_USR                    "DateDerniereConnexion"
+#define CP_DATECREATIONMDP_USR                          "DateCreationMDP"
 
                             //! Table Rufus.correspondants
 #define CP_ID_CORRESP                                   "idCor"

@@ -165,19 +165,17 @@ void Procedures::ModifTailleFont(QWidget *widg, int siz, QFont font)
 
 bool Procedures::AutresPostesConnectes(bool msg)
 {
+    /*! avant la mise à jour 61, on ne peut pas utiliser Datas::I()->users->initListe() parce que le champ DateCreationMDP de la table utilisateurs n'existe pas */
+    if (Datas::I()->users->all()->isEmpty())
+        Datas::I()->users       ->initShortListe();
+    Datas::I()->postesconnectes->initListe();
     int id = 0;
     if (Datas::I()->users->userconnected() != Q_NULLPTR)
         id = Datas::I()->users->userconnected()->id();
-    PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getByStringId(Utils::MACAdress() + " - " + QString::number(id));
-    if (m_currentposteconnecte == Q_NULLPTR)
-    {
-        UpMessageBox::Information(Q_NULLPTR, tr("Problème avec ce poste!"),
-                                  tr("Le poste n'est pas connecté"));
-        return true;
-    }
+    QString stringid = Utils::MACAdress() + " - " + QString::number(id);
     foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
     {
-        if (post->stringid() != m_currentposteconnecte->stringid())
+        if (post->stringid() != stringid)
         {
             if (msg)
                 UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),

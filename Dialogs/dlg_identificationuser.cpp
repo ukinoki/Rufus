@@ -72,9 +72,10 @@ void dlg_identificationuser::Validation()
     m_loginresult = ControleDonnees();
     if (m_loginresult == OK)
         accept();
-    else if (m_loginresult != NoUser && m_loginresult != NoConnexion)
-        done(-1);
     ui->OKpushButton->setEnabled(true);
+    ui->IconServerOKupLabel->setPixmap(Icons::pxunCheck());
+    ui->IconBaseOKupLabel->setPixmap(Icons::pxunCheck());
+    ui->IconUserOKupLabel->setPixmap(Icons::pxunCheck());
 }
 
 //-------------------------------------------------------------------------------------
@@ -147,10 +148,13 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
         return CorruptedBase;
     }
 
-    /*! la connection à la base fonctionne -> on vérifie la version de la base */
-    emit verifbase();
 
-    DataBase::QueryResult rep = db->calcidUserConnected(Login, Password);
+    DataBase::QueryResult rep = db->verifExistUser(Login, Password);
+    /*! avant la mise à jour 61, on ne peut pas utiliser calcidUserConnected(Login, Password) parce que le champ UserMDP de la table utilisateurs ne peut pas contenir un SHA de 40 caractères
+     *! la connection à la base fonctionne et l'utilisateur existe -> on vérifie la version de la base */
+    if (rep == DataBase::OK )
+        emit verifbase();
+    rep = db->calcidUserConnected(Login, Password);
     if (rep == DataBase::Error)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());

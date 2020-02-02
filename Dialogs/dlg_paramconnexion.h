@@ -58,7 +58,7 @@ private:
     void            Test();
     void            Verif();
     bool            VerifFiche();
-    bool            TestConnexion();
+    bool            TestConnexion(bool avecverifbase);
 
 signals:
     void                    verifbase();

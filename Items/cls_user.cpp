@@ -79,6 +79,7 @@ void User::setData(QJsonObject data)
     Utils::setDataBool(data, CP_CCAM_USR, m_ccam);
 
     Utils::setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
+    Utils::setDataDate(data, CP_DATECREATIONMDP_USR, m_datecreationMDP);
     m_data = data;
     /*qDebug() << login();
 

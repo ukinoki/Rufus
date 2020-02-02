@@ -32,6 +32,17 @@ BEGIN
             ALTER TABLE `rufus`.`utilisateurs`
             CHANGE COLUMN `UserLogin` `UserLogin` VARCHAR(15) NULL DEFAULT NULL ;
         END IF;
+     SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'DateCreationMDP') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`utilisateurs`
+            ADD COLUMN `DateCreationMDP` DATE NULL DEFAULT NULL AFTER `DateDerniereConnexion`;
+            UPDATE `rufus`.`utilisateurs` SET DateCreationMDP = NOW();
+        END IF;
+
 END|
 
 CALL MAJ61();

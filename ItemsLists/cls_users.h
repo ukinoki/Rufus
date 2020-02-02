@@ -53,8 +53,9 @@ public:
     User*       Admin()  const  { return m_useradmin; }
     User*       getById(int id, Item::UPDATE upd = Item::NoUpdate);
     void        reload(User* usr);
-    bool        recalcStatut(User* usr)         { return add(usr); }
+    bool        recalcStatut(User* usr);
     void        initListe();
+    void        initShortListe();
     void        remplaceUserListes(User *usr);
     void        SupprimeUser(User *usr);
     User*       userconnected()     { return getById(DataBase::I()->idUserConnected()); }

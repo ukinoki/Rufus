@@ -126,6 +126,7 @@ public:
     static QPixmap pxSwitchRight() { return foundPX("pxSwitchRight", "://switch-right.png"); }
 
     static QPixmap pxTonometre() { return foundPX("pxTonometre", "://airtonometer.png"); }
+    static QPixmap pxunCheck() { return foundPX("pxunCheck", "://unchecked.png"); }
     static QPixmap pxVerrouiller() { return foundPX("pxVerrou", "://Lock.png"); }
 
     static QPixmap pxWorkInProgress() { return foundPX("pxWorkInPorgress", "://work-in-progress.png").scaledToWidth(150); } //TODO : ??? pourquoi scaledToWidth (Alexandre) // je ne me rappelle plus (Serge)

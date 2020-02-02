@@ -185,7 +185,7 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 
 void dlg_paramconnexion::Test()
 {
-    if (TestConnexion())
+    if (TestConnexion(false))
         {
             UpMessageBox::Watch(this,tr("Paramètres OK!"));
             //QSqlDatabase::removeDatabase("Rufus");
@@ -194,11 +194,11 @@ void dlg_paramconnexion::Test()
 
 void dlg_paramconnexion::Verif()
 {
-    if (TestConnexion())
+    if (TestConnexion(true))
         accept();
 }
 
-bool dlg_paramconnexion::TestConnexion()
+bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
 {
     if (!VerifFiche())
         return false;
@@ -235,11 +235,12 @@ bool dlg_paramconnexion::TestConnexion()
         return false;
     }
     /*! la connection à la base fonctionne -> on vérifie la version de la base */
-    emit verifbase();
+    if (avecverifbase)
+        emit verifbase();
 
     if (m_connectavecloginSQL)
     {
-        DataBase::QueryResult rep = DataBase::I()->calcidUserConnected(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
+        DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
         if (rep == DataBase::Error)
         {
             UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
