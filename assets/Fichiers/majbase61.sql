@@ -42,6 +42,15 @@ BEGIN
             ADD COLUMN `DateCreationMDP` DATE NULL DEFAULT NULL AFTER `DateDerniereConnexion`;
             UPDATE `rufus`.`utilisateurs` SET DateCreationMDP = NOW();
         END IF;
+     SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserBarCode') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`utilisateurs`
+            ADD COLUMN `UserBarCode` BLOB NULL DEFAULT NULL AFTER `DateCreationMDP`;
+        END IF;
 
 END|
 

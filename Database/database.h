@@ -187,10 +187,10 @@ public:
     void                    setidUserConnected(int id)                  { m_iduserConnected = id; }
     QueryResult             verifExistUser(QString login, QString password);        /*! verifie que le login-mdp existe dans la base */
     QueryResult             calcidUserConnected(QString login, QString password);   /*! retrouve l'id correspondant au mdp_login, modifie au besoin le mdp en sha1(mdp) */
-    QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements complets
-    QList<User*>            loadUsersShortListe();                      //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
-    QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
-    QJsonObject             loadAdminData();                            //! complète tous les renseignements concernant l'utilisateur admin
+    QList<User*>            loadUsers();                                            //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements complets
+    QList<User*>            loadUsersShortListe();                                  //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
+    QJsonObject             loadUserData(int idUser);                               //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
+    QJsonObject             loadAdminData();                                        //! complète tous les renseignements concernant l'utilisateur admin
 
     /*
      * Postes connectés
@@ -224,31 +224,30 @@ public:
     /*
      * Compta
     */
-    QList<Compte*>          loadComptesAll();                           //! charge tous les comptes bancaires sans exception
-    QJsonObject             loadCompteDataById(int id);                 //! charge les datas d'un compte bancaire défini par son id
+    QList<Compte*>          loadComptesAll();                                       //! charge tous les comptes bancaires sans exception
+    QJsonObject             loadCompteDataById(int id);                             //! charge les datas d'un compte bancaire défini par son id
 
-    QList<LigneCompte*>     loadLignesComptesByCompte(int idcompte);    //! charge tous les lignes de comptes bancaires pas encore archivées
-    QJsonObject             loadLigneCompteDataById(int id);            //! charge les datas d'une ligne de compte bancaire défini par son id
+    QList<LigneCompte*>     loadLignesComptesByCompte(int idcompte);                //! charge tous les lignes de comptes bancaires pas encore archivées
+    QJsonObject             loadLigneCompteDataById(int id);                        //! charge les datas d'une ligne de compte bancaire défini par son id
 
-    QList<Depense*>         loadDepensesByUser(int idUser);             //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
-    void                    loadDepenseArchivee(Depense *dep);          //! charge tous renseignements sur une dépense archivée
-    QStringList             ListeRubriquesFiscales();                   //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035
+    QList<Depense*>         loadDepensesByUser(int idUser);                         //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
+    void                    loadDepenseArchivee(Depense *dep);                      //! charge tous renseignements sur une dépense archivée
+    QStringList             ListeRubriquesFiscales();                               //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035
     QList<Depense*>         VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
-                                                                        //! comme son nom l'indique
-    int                     getIdMaxTableComptesTableArchives();        //! comme son nom l'indique
+                                                                                    //! comme son nom l'indique
+    int                     getIdMaxTableComptesTableArchives();                    //! comme son nom l'indique
     QList<Archive*>         loadArchiveByDate(QDate date, Compte *compte, int intervalle);
-                                                                        //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
-    QList<Banque*>          loadBanques();                              //! charge toutes les banques ç partir de la  table banques
-    QList<Tiers*>           loadTiersPayants();                         //! charge tous les organismes de tiers payants de la table tiers
-    QList<TypeTiers*>       loadTypesTiers();                           //! charge tous les types de tiers payants (AME, CMU, AT...) à partir de la table rufus.listetiers
+                                                                                    //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
+    QList<Banque*>          loadBanques();                                          //! charge toutes les banques ç partir de la  table banques
+    QList<Tiers*>           loadTiersPayants();                                     //! charge tous les organismes de tiers payants de la table tiers
+    QList<TypeTiers*>       loadTypesTiers();                                       //! charge tous les types de tiers payants (AME, CMU, AT...) à partir de la table rufus.listetiers
 
-    QList<Recette*>         loadRecettesByPeriod(QDate datedebut, QDate datefin);
-                                                                        //! charge toutes les recettes pour la période spécifiée
-    RecetteComptable*       loadRecetteComptablebyId(int id);           //! charge une recette comptable par son id
+    QList<Recette*>         loadRecettesByPeriod(QDate datedebut, QDate datefin);   //! charge toutes les recettes pour la période spécifiée
+    RecetteComptable*       loadRecetteComptablebyId(int id);                       //! charge une recette comptable par son id
 
-    QList<PaiementTiers *>  loadPaiementTiersByUser(User *usr);    //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
+    QList<PaiementTiers *>  loadPaiementTiersByUser(User *usr);                     //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
 
-    QList<LignePaiement*>   loadlignespaiementsByPatient(Patient *pat); //!> charge toutes les lignes de paiements des actes d'un patient
+    QList<LignePaiement*>   loadlignespaiementsByPatient(Patient *pat);             //!> charge toutes les lignes de paiements des actes d'un patient
 
     /*
      * Cotations
@@ -265,10 +264,10 @@ public:
      * Sites
     */
 private:
-    QList<Site*>            loadSites(QString req);                 //! charge les sites de travail à partir de la requete req
+    QList<Site*>            loadSites(QString req);                     //! charge les sites de travail à partir de la requete req
 public:
-    QList<int>              loadidSitesByUser(int idUser);            //! élabore la requête qui charge tous les sites de travail utilisés par un user
-    QList<Site*>            loadSitesAll();                         //! élabore la requête qui charge tous les sites de travail sans exception
+    QList<int>              loadidSitesByUser(int idUser);              //! élabore la requête qui charge tous les sites de travail utilisés par un user
+    QList<Site*>            loadSitesAll();                             //! élabore la requête qui charge tous les sites de travail sans exception
 
 public:
     /*
@@ -281,7 +280,7 @@ public:
  */
     PatientEnCours*             loadPatientEnCoursById(int idPat);                                          //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     QJsonObject                 loadPatientEnCoursData(QVariantList patdata);                               //! crée le QJsonObject des data d'un patient à partir des résultats de la requête en BDD
-    QJsonObject                 loadPatientEnCoursDataById(int idPat);                                   //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
+    QJsonObject                 loadPatientEnCoursDataById(int idPat);                                      //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     QList<PatientEnCours *>     loadPatientsenCoursAll();                                                   /*! charge la liste de tous les patients à partir de la table salledattente*/
 
 /*
@@ -341,7 +340,7 @@ public:
 private:
     QJsonObject             loadInterventionData(QVariantList refdata);           //! attribue le liste des datas à une Intervention
 public:
-    QList<Intervention*>    loadInterventionsByUserId(int id);                     //! charge toutes les Interventions d'un patient
+    QList<Intervention*>    loadInterventionsByUserId(int id);                    //! charge toutes les Interventions d'un patient
     Intervention*           loadInterventionById(int idintervention);             //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 };
 

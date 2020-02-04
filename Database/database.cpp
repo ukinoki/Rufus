@@ -646,7 +646,7 @@ DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString passw
         m_iduserConnected = usrdata.at(0).toInt();
         return OK;
     }
-    else    /*! si le mot de passe n'est pas crypté, on le crypte */
+    else  /*! on essaie avec un mot de passe en clair et si le mot de passe n'est pas crypté, on le crypte */
     {
         req = "SELECT " CP_ID_USR
               " FROM " TBL_UTILISATEURS

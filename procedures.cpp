@@ -335,8 +335,8 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             layFctures->addWidget(labelmges);
             UpCheckBox *Fctureschk  = new UpCheckBox();
             Fctureschk->setText("Factures");
-            Fctureschk->setEnabled(OKimages || op == BackupOp);
-            Fctureschk->setChecked(OKimages || op == BackupOp);
+            Fctureschk->setEnabled(OKfactures || op == BackupOp);
+            Fctureschk->setChecked(OKfactures || op == BackupOp);
             Fctureschk->setAccessibleDescription("factures");
             layFctures->addWidget(Fctureschk);
             layFctures->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -2627,7 +2627,7 @@ bool Procedures::VerifBaseEtRessources()
                 PosteConnecte* post = Datas::I()->postesconnectes->admin();
                 if (post != Q_NULLPTR)
                     UpMessageBox::Watch(Q_NULLPTR,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
-                                                                            tr("RufusAdmin s'arrêtera et il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
+                                                                            tr("Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
                                                                             tr("Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin"));
             }
             Message::I()->SplashMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);

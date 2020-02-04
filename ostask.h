@@ -50,7 +50,7 @@ public:
         OsTaskThread.start();
         emit operate(script);
     }
-public slots:
+private slots:
     void handleResults(const int &a) { emit result(a);}
 signals:
     void operate(const QString &);

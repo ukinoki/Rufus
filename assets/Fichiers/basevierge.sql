@@ -1075,6 +1075,7 @@ CREATE TABLE `utilisateurs` (
   `OrdoSigne` tinyint(1) DEFAULT NULL,
   `DateDerniereConnexion` datetime DEFAULT NULL,
   `DateCreationMDP` date DEFAULT NULL,
+  `UserBarCode` blob DEFAULT NULL,
   PRIMARY KEY (`idUser`)
 ) ENGINE=InnoDB;
 
