@@ -169,7 +169,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_IDUSER_ACTES)
         {
-            act->setiduser(newvalue.toInt());
+            act->setidusersuperviseur(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
 
         }

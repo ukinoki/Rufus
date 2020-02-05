@@ -169,7 +169,7 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
     act = new Acte();
     act->setid(idacte);
     act->setidpatient(pat->id());
-    act->setiduser(usr->idsuperviseur());
+    act->setidusersuperviseur(usr->idsuperviseur());
     act->setdate(QDate::currentDate());
     act->setheure(QTime::currentTime());
     act->setidusercreateur(usr->id());

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-02-2020/1");
+    qApp->setApplicationVersion("05-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2593,7 +2593,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
             reponsevide = false;
             Reponse += "<p><td width=\"140\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
-                    + Datas::I()->users->getById(act->idUser())->titre() + " " + Datas::I()->users->getById(act->idUser())->prenom() + " " + Datas::I()->users->getById(act->idUser())->nom() + "</td></p>";
+                    + Datas::I()->users->getById(act->idUserSuperviseur())->titre() + " " + Datas::I()->users->getById(act->idUserSuperviseur())->prenom() + " " + Datas::I()->users->getById(act->idUserSuperviseur())->nom() + "</td></p>";
             if (act->motif() != "")
             {
                 QString texte = act->motif();
@@ -6122,7 +6122,7 @@ void Rufus::AfficheActe(Acte* acte)
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
         ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login()
-                                     + tr(" pour ") + Datas::I()->users->getById(acte->idUser())->login());
+                                     + tr(" pour ") + Datas::I()->users->getById(acte->idUserSuperviseur())->login());
         ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite())->nom());
 
         //3. Mettre à jour le numéro d'acte
@@ -6199,13 +6199,13 @@ void Rufus::AfficheActeCompta(Acte *acte)
     bool a = (acte->paiementType() == "");
 
     ui->Comptaframe->setVisible(!a);
-    ui->Cotationframe->setEnabled(a);
-    ui->CCAMlinklabel->setVisible(a);
-    ui->EnregistrePaiementpushButton->setVisible(a && (currentuser()->isSoignant() && !currentuser()->isAssistant()));
-    ui->ModifierCotationActepushButton->setVisible(!a);
+    ui->Cotationframe->setEnabled(a && currentuser()->ishisownsupervisor());
+    ui->CCAMlinklabel->setVisible(a && currentuser()->ishisownsupervisor());
+    ui->EnregistrePaiementpushButton->setVisible(a && currentuser()->ishisownsupervisor());
+    ui->ModifierCotationActepushButton->setVisible(!a && currentuser()->ishisownsupervisor());
     if (a) // seul le superviseur de l'acte ou son parent peuvent modifier sa cotation
     {
-        int iduser = currentacte()->idUser();
+        int iduser = currentacte()->idUserSuperviseur();
         int idparent = currentacte()->idParent();
         ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!=""
                                                     && ( iduser == currentuser()->id() || idparent == currentuser()->id()));

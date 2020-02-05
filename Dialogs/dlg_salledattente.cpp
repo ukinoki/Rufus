@@ -107,7 +107,7 @@ void dlg_salledattente::OKButtonClicked()
     if (ui->RetourAccueilradioButton->isChecked())
     {
         ActeSal = QString::number(m_currentact->id());
-        if (m_currentact->idUser() < 1)
+        if (m_currentact->idUserSuperviseur() < 1)
         {
             ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->idsuperviseur());
             ItemsList::update(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->idparent());

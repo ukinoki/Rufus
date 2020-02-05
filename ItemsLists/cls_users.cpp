@@ -206,7 +206,7 @@ void Users::initListe()
     if (userconnected() != Q_NULLPTR)
     {
         userconnected() ->setidparent(idparent);
-        userconnected() ->setidusercomptable(idcomptable);
+        userconnected() ->setidcomptable(idcomptable);
         userconnected() ->setidsuperviseur(idsuperviseur);
     }
 }

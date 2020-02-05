@@ -242,7 +242,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
 
-    User *userEntete = Datas::I()->users->getById(m_currentact->idUser());
+    User *userEntete = Datas::I()->users->getById(m_currentact->idUserSuperviseur());
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));

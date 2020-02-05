@@ -38,7 +38,7 @@ class Acte : public Item
 private:
 
     int m_idPatient;            //!< id du Patient correspondant à l'acte
-    int m_idUser;               //!< id du User
+    int m_idUserSuperviseur;    //!< id du User superviseur de l'acte
     int m_idCreatedBy;          //!< id du User qui a créé l'acte
     int m_idUserParent;         //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
     int m_idUserComptable;      //!< id du User qui comptabilise l'acte
@@ -81,7 +81,7 @@ public:
     double montant() const;
     QString paiementType() const;
     QString paiementTiers() const;
-    int idUser() const;
+    int idUserSuperviseur() const;
     bool effectueparremplacant() const;
 
     int numcentre() const;
@@ -102,7 +102,7 @@ public:
                                               m_data[CP_COURRIERAFAIRE_ACTES] = m_courrierStatus; }
     void setmontant(double montant)         { m_montant = montant;
                                               m_data[CP_MONTANT_ACTES] = montant; }
-    void setiduser(int id)                  { m_idUser = id;
+    void setidusersuperviseur(int id)       { m_idUserSuperviseur = id;
                                               m_data[CP_IDUSER_ACTES] = id; }
     void setidpatient(int id)               { m_idPatient = id;
                                               m_data[CP_IDPAT_ACTES] = id; }

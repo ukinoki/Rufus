@@ -28,7 +28,7 @@ QString Acte::cotation() const          { return m_cotation; }
 double Acte::montant() const            { return (isFactureEnFranc()? m_montant / 6.55957 : m_montant); }
 QString Acte::paiementType() const      { return m_paiementType; }
 QString Acte::paiementTiers() const     { return m_paiementTiers; }
-int Acte::idUser() const                { return m_idUser; }
+int Acte::idUserSuperviseur() const     { return m_idUserSuperviseur; }
 int Acte::idParent() const              { return m_idUserParent; }
 int Acte::idComptable() const           { return m_idUserComptable; }
 int Acte::numcentre() const             { return m_numCentre; }
@@ -49,7 +49,7 @@ void Acte::setData(QJsonObject data)
     Utils::setDataInt(data, CP_IDACTE_ACTES, m_id);
     Utils::setDataInt(data, CP_IDUSERCREATEUR_ACTES, m_idCreatedBy);
     Utils::setDataInt(data, CP_IDPAT_ACTES, m_idPatient);
-    Utils::setDataInt(data, CP_IDUSER_ACTES, m_idUser);
+    Utils::setDataInt(data, CP_IDUSER_ACTES, m_idUserSuperviseur);
     Utils::setDataInt(data, CP_IDUSERPARENT_ACTES, m_idUserParent);
     Utils::setDataInt(data, CP_IDUSERCOMPTABLE_ACTES, m_idUserComptable);
     Utils::setDataInt(data, CP_NUMCENTRE_ACTES, m_numCentre);

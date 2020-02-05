@@ -2910,7 +2910,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     Datas::I()->comptes->initListe();
     MAJComptesBancaires(currentuser());
     currentuser()->setidsuperviseur(idusr);
-    currentuser()->setidusercomptable(idusr);
+    currentuser()->setidcomptable(idusr);
     currentuser()->setidparent(idusr);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
@@ -3268,8 +3268,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
         connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
 
-        if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE
-                || currentuser()->idparent() == User::ROLE_INDETERMINE )
+        if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE || currentuser()->idparent() == User::ROLE_INDETERMINE )
         {
             if( dlg_askUser->exec() == 0 )
             {
@@ -3308,104 +3307,121 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             UpMessageBox::Watch(Q_NULLPTR,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
             return false;
         }
-
+        // le user est assistant et travaille pour tout le monde
         if( currentuser()->idsuperviseur() == User::ROLE_NON_RENSEIGNE )
         {
-            // le user est assistant et travaille pour tout le monde
             currentuser()->setidparent(User::ROLE_NON_RENSEIGNE);
-            currentuser()->setidusercomptable(User::ROLE_NON_RENSEIGNE);
+            currentuser()->setidcomptable(User::ROLE_NON_RENSEIGNE);
             m_aveccomptaprovisoire = true;
             m_usecotation     = true;
         }
         else
         {
-            // determination de comptabilité - cotation
+            // determination du parent
             if( currentuser()->idparent() == User::ROLE_INDETERMINE )
             {
-                if( Datas::I()->users->getById( currentuser()->idsuperviseur()) != Q_NULLPTR
-                 && Datas::I()->users->getById( currentuser()->idsuperviseur())->isRemplacant() )
+                if ( currentuser()->idsuperviseur() > 0 )
                 {
-                    // le superviseur est remplaçant, on essaie de savoir s'il a un parent
-                    QList<User*> listUserFound;
-                    foreach (User *us, Datas::I()->users->actifs()->values())
+                    if( Datas::I()->users->getById( currentuser()->idsuperviseur()) != Q_NULLPTR)
                     {
-                        if( us->id() == currentuser()->id() )
-                            continue;
-                        if( us->id() == currentuser()->idsuperviseur() )
-                            continue;
-                        if( !us->isLiberal() && !us->isSalarie() )
-                            continue;
-
-                        listUserFound << us;
-                    }
-                    if (listUserFound.size() == 1)
-                        currentuser()->setidparent( listUserFound.first()->id() );
-                    else if( !listUserFound.isEmpty() )
-                    {
-                        // on va demander qui est le soignant parent de ce remplaçant....
-                        dlg_askUser                = new UpDialog();
-                        dlg_askUser                ->AjouteLayButtons();
-                        dlg_askUser                ->setAccessibleName(QString::number(currentuser()->idsuperviseur()));
-                        dlg_askUser->setdata(Datas::I()->users->getById( currentuser()->idsuperviseur()));
-                        QVBoxLayout *boxlay     = new QVBoxLayout;
-                        dlg_askUser->dlglayout()   ->insertLayout(0,boxlay);
-                        QGroupBox*boxparent     = new QGroupBox(dlg_askUser);
-                        boxparent               ->setAccessibleName("Parent");
-                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getById(currentuser()->idsuperviseur())->login() + "?";
-                        boxparent               ->setTitle(lblUsrParent);
-                        boxparent               ->setVisible(false);
-                        boxlay                  ->addWidget(boxparent);
-
-                        CalcUserParent();
-                        dlg_askUser                ->setModal(true);
-                        dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
-                        connect(dlg_askUser->OKButton,   SIGNAL(clicked(bool)),  dlg_askUser, SLOT(accept()));
-                        if (dlg_askUser->exec()==0)
+                        if (Datas::I()->users->getById( currentuser()->idsuperviseur())->isRemplacant() )
                         {
-                            delete dlg_askUser;
-                            return false;
+                            // le superviseur est remplaçant, on essaie de savoir s'il a un parent
+                            QList<User*> listUserFound;
+                            foreach (User *us, Datas::I()->users->actifs()->values())
+                            {
+                                if( us->id() == currentuser()->id() )
+                                    continue;
+                                if( us->id() == currentuser()->idsuperviseur() )
+                                    continue;
+                                if( !us->isLiberal() && !us->isSalarie() )
+                                    continue;
+                                listUserFound << us;
+                            }
+                            if (listUserFound.size() == 1)
+                                currentuser()->setidparent( listUserFound.first()->id() );
+                            else if( !listUserFound.isEmpty() )
+                            {
+                                // on va demander qui est le soignant parent de ce remplaçant....
+                                dlg_askUser                = new UpDialog();
+                                dlg_askUser                ->AjouteLayButtons();
+                                dlg_askUser                ->setAccessibleName(QString::number(currentuser()->idsuperviseur()));
+                                dlg_askUser->setdata(Datas::I()->users->getById( currentuser()->idsuperviseur()));
+                                QVBoxLayout *boxlay     = new QVBoxLayout;
+                                dlg_askUser->dlglayout()   ->insertLayout(0,boxlay);
+                                QGroupBox*boxparent     = new QGroupBox(dlg_askUser);
+                                boxparent               ->setAccessibleName("Parent");
+                                QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getById(currentuser()->idsuperviseur())->login() + "?";
+                                boxparent               ->setTitle(lblUsrParent);
+                                boxparent               ->setVisible(false);
+                                boxlay                  ->addWidget(boxparent);
+
+                                CalcUserParent();
+                                dlg_askUser                ->setModal(true);
+                                dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+                                connect(dlg_askUser->OKButton,   SIGNAL(clicked(bool)),  dlg_askUser, SLOT(accept()));
+                                if (dlg_askUser->exec()==0)
+                                {
+                                    delete dlg_askUser;
+                                    return false;
+                                }
+                                else
+                                {
+                                    foreach (QGroupBox *box, dlg_askUser->findChildren<QGroupBox*>())
+                                        if (box->accessibleName() == "Parent")
+                                            foreach (QRadioButton *butt, box->findChildren<QRadioButton*>())
+                                                if (butt->isChecked())
+                                                {
+                                                    //gidUserParentProv = butt->accessibleName().toInt();
+                                                    currentuser()->setidparent( butt->accessibleName().toInt() );
+                                                    break;
+                                                }
+                                    delete dlg_askUser;
+                                }
+                            }
                         }
                         else
-                        {
-                            foreach (QGroupBox *box, dlg_askUser->findChildren<QGroupBox*>())
-                                if (box->accessibleName() == "Parent")
-                                    foreach (QRadioButton *butt, box->findChildren<QRadioButton*>())
-                                        if (butt->isChecked())
-                                        {
-                                            //gidUserParentProv = butt->accessibleName().toInt();
-                                            currentuser()->setidparent( butt->accessibleName().toInt() );
-                                            break;
-                                        }
-                            delete dlg_askUser;
-                        }
+                            currentuser()->setidparent( currentuser()->idsuperviseur() );
                     }
+                    else
+                    {
+                        UpMessageBox::Watch(Q_NULLPTR,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
+                        return false;
+                    }
+                }
+            }
+            // determination du comptable et de l'usage de la cotation
+            if ( currentuser()->idparent() > 0 && currentuser()->ishisownsupervisor() )
+            {
+                if ( Datas::I()->users->getById(currentuser()->idparent()) != Q_NULLPTR )
+                {
+                    // determination de l'utilisation de la cotation
+                    m_usecotation = Datas::I()->users->getById(currentuser()->idparent())->useCCAM();
+                    // determination de l'utilisation de la comptabilité
+                    int idparent = currentuser()->idparent();
+                    m_aveccomptaprovisoire = !Datas::I()->users->getById(idparent)->isSansCompta();
+                    if( Datas::I()->users->getById(currentuser()->idparent())->isLiberal() )
+                        currentuser()->setidcomptable(Datas::I()->users->getById(currentuser()->idparent())->id());
+                    else if( Datas::I()->users->getById(currentuser()->idparent())->isSalarie() )
+                        currentuser()->setidcomptable(Datas::I()->users->getById(currentuser()->idparent())->idemployeur());
+                    else
+                        currentuser()->setidcomptable(User::ROLE_NON_RENSEIGNE);
                 }
                 else
                 {
-                    currentuser()->setidparent( currentuser()->idsuperviseur() );
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Aucun parent valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
+                    return false;
                 }
             }
-            if( Datas::I()->users->getById(currentuser()->idparent()) != Q_NULLPTR )
-            {
-                // determination de l'utilisation de la cotation
-                m_usecotation = Datas::I()->users->getById(currentuser()->idparent())->useCCAM();
-                // determination de l'utilisation de la comptabilité
-                int idparent = currentuser()->idparent();
-                m_aveccomptaprovisoire = !Datas::I()->users->getById(idparent)->isSansCompta();
-                if( Datas::I()->users->getById(currentuser()->idparent())->isLiberal() )
-                    currentuser()->setidusercomptable(Datas::I()->users->getById(currentuser()->idparent())->id());
-                else if( Datas::I()->users->getById(currentuser()->idparent())->isSalarie() )
-                    currentuser()->setidusercomptable(Datas::I()->users->getById(currentuser()->idparent())->idemployeur());
-                else
-                    currentuser()->setidusercomptable(User::ROLE_NON_RENSEIGNE);
-            }
+            else
+                currentuser()->setidcomptable(User::ROLE_VIDE);
         }
         return true;
     }
 
     // il s'agit d'un administratif ou d'une société comptable
     currentuser()->setidsuperviseur(User::ROLE_VIDE);
-    currentuser()->setidusercomptable(User::ROLE_VIDE);
+    currentuser()->setidcomptable(User::ROLE_VIDE);
     currentuser()->setidparent(User::ROLE_VIDE);
     m_usecotation     = true;
     m_aveccomptaprovisoire = true; //FIXME : avecLaComptaProv
@@ -3424,6 +3440,8 @@ void Procedures::MAJComptesBancaires(User *usr)
     usr->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
     if (usr->isSalarie())
         usr->setidcompteencaissementhonoraires(Datas::I()->users->getById(usr->idemployeur())->idcompteencaissementhonoraires());
+    else if (usr->idcomptable() > 0)
+        usr->setidcompteencaissementhonoraires(Datas::I()->users->getById(usr->idcomptable())->idcompteencaissementhonoraires());
 }
 
 /*!
@@ -4465,7 +4483,7 @@ QString Procedures::currentuserstatus() const
         strComptable = Datas::I()->users->getById(usr->idcomptable())->login();
     str += tr("comptable") + "\t\t= " + strComptable + "\n";
     if(  Datas::I()->users->getById(usr->idcomptable()) != Q_NULLPTR )
-        str += tr("cpte banque") + "\t= " + Datas::I()->comptes->getById(usr->idcompteencaissementhonoraires())->nomabrege() + "\n";
+        str += tr("cpte banque") + "\t= " + Datas::I()->comptes->getById(Datas::I()->users->getById(usr->idcomptable())->idcompteencaissementhonoraires())->nomabrege() + "\n";
 
     QString strCompta = "";
     if( usr->typecompta() == User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE )

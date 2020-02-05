@@ -175,8 +175,12 @@ private:
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
                                                                             . un autre user s'il est assistant
-                                                                        . iduser qui enregistrera la comptabilité des actes (int gidUserComptable)
-                                                                        . idUser soignant remplacé si le superviseur est remplaçant (int gidUserParent)
+                                                                        . iduser comptable = qui enregistrera la comptabilité des actes (int gidUserComptable)
+                                                                            . lui-même s'il est libéral et responsable de ses actes
+                                                                            . un autre user qui encaisse les actes effectués
+                                                                        . idUser parent =  (int gidUserParent)
+                                                                            . le superviseur si le superviseur n'est pas remplaçant
+                                                                            . soignant remplacé si le superviseur est remplaçant
                                                                         . s'il cote les actes                            (bool gUseCotation)
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
                                                                         */
