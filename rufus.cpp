@@ -30,7 +30,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
-
     qApp->setStyleSheet(Styles::StyleAppli());
 
     proc = Procedures::I();
