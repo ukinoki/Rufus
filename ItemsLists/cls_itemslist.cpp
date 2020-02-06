@@ -169,19 +169,19 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_IDUSER_ACTES)
         {
-            act->setidusersuperviseur(newvalue.toInt());
+            act->setidsuperviseur(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_IDUSERPARENT_ACTES)
         {
-            act->setiduserparent(newvalue.toInt());
+            act->setidparent(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_IDUSERCOMPTABLE_ACTES)
         {
-            act->setidusercomptable(newvalue.toInt());
+            act->setidcomptable(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_MONTANT_ACTES)

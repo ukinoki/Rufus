@@ -3391,7 +3391,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 }
             }
             // determination du comptable et de l'usage de la cotation
-            if ( currentuser()->idparent() > 0)// && currentuser()->ishisownsupervisor() )
+            if ( currentuser()->idparent() > 0 && currentuser()->ishisownsupervisor() )
             {
                 if ( Datas::I()->users->getById(currentuser()->idparent()) != Q_NULLPTR )
                 {

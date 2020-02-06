@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-02-2020/1");
+    qApp->setApplicationVersion("06-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8406,6 +8406,8 @@ void Rufus::ConnectCotationComboBox()
     [=] {
         RetrouveMontantActe();
         ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), m_montantActe);
+        if (currentacte()->idComptable() != currentuser()->idcomptable() && currentuser()->idcomptable() > 0)
+            ItemsList::update(currentacte(), CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
         ui->GratuitpushButton->setVisible(ui->ActeCotationcomboBox->currentIndex() != 0);
     });
     connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),    this,

@@ -38,10 +38,10 @@ class Acte : public Item
 private:
 
     int m_idPatient;            //!< id du Patient correspondant à l'acte
-    int m_idUserSuperviseur;    //!< id du User superviseur de l'acte
+    int m_idSuperviseur;        //!< id du User superviseur de l'acte
     int m_idCreatedBy;          //!< id du User qui a créé l'acte
-    int m_idUserParent;         //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
-    int m_idUserComptable;      //!< id du User qui comptabilise l'acte
+    int m_idParent;             //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
+    int m_idComptable;          //!< id du User qui comptabilise l'acte
     int m_numCentre;            //!< id du lieu où se trouve le serveur
     int m_idsite;               //!< id du lieu où l'acte est effectué
     bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
@@ -102,17 +102,17 @@ public:
                                               m_data[CP_COURRIERAFAIRE_ACTES] = m_courrierStatus; }
     void setmontant(double montant)         { m_montant = montant;
                                               m_data[CP_MONTANT_ACTES] = montant; }
-    void setidusersuperviseur(int id)       { m_idUserSuperviseur = id;
+    void setidsuperviseur(int id)           { m_idSuperviseur = id;
                                               m_data[CP_IDUSER_ACTES] = id; }
     void setidpatient(int id)               { m_idPatient = id;
                                               m_data[CP_IDPAT_ACTES] = id; }
-    void setidusercomptable(int id)         { m_idUserComptable = id;
+    void setidcomptable(int id)             { m_idComptable = id;
                                               m_data[CP_IDUSERCOMPTABLE_ACTES] = id; }
-    void setidusercreateur(int id)          { m_idCreatedBy = id;
+    void setidcreateur(int id)              { m_idCreatedBy = id;
                                               m_data[CP_IDUSERCREATEUR_ACTES] = id; }
     void setidlieu(int id)                  { m_idsite = id;
                                               m_data[CP_IDLIEU_ACTES] = id; }
-    void setiduserparent(int id)            { m_idUserParent = id;
+    void setidparent(int id)                { m_idParent = id;
                                               m_data[CP_IDUSERPARENT_ACTES] = id; }
     void setnumcentre(int id)               { m_numCentre = id;
                                               m_data[CP_NUMCENTRE_ACTES] = id; }
