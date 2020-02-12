@@ -27,13 +27,18 @@ class dlg_programmationinterventions : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_programmationinterventions(Patient *pat, QWidget *parent = Q_NULLPTR);
+    explicit            dlg_programmationinterventions(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_programmationinterventions();
 
 private:
-    Procedures *proc = Procedures::I();
-    WidgetButtonFrame *wdg_buttonframe;
-    void    ChoixButtonFrame();
+    Procedures          *proc = Procedures::I();
+    WidgetButtonFrame   *wdg_buttondateframe;
+    WidgetButtonFrame   *wdg_buttoninterventionframe;
+    QComboBox           *wdg_listmedecinscombo;
+    User*               currentuser() { return Datas::I()->users->userconnected(); }
+    void                ChoixDateFrame();
+    void                ChoixInterventionFrame();
+    void                ChoixMedecin(int idx);
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

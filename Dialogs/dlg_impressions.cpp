@@ -47,6 +47,13 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe();});
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::Validation);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);
+    connect (ui->dateImpressiondateEdit,        &QDateEdit::dateChanged,                this,   [=] {
+        if (currentdocument() != Q_NULLPTR)
+        {
+            MetAJour(currentdocument()->texte(),false);
+            ui->upTextEdit                  ->setText(m_listtexts.at(0));
+        }
+    });
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
@@ -132,8 +139,8 @@ dlg_impressions::dlg_impressions(Patient *pat, QWidget *parent) :
     ui->OKupPushButton->setIcon(Icons::icImprimer());
     ui->OKupPushButton->setIconSize(QSize(30,30));
 
-    ui->dateEdit->setDate(QDate::currentDate());
-    ui->dateEdit->setMaximumDate(QDate::currentDate());
+    ui->dateImpressiondateEdit->setDate(QDate::currentDate());
+    ui->dateImpressiondateEdit->setMaximumDate(QDate::currentDate());
 
     ui->DupliOrdocheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
     ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
@@ -1990,7 +1997,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
 {
     m_mode = mode;
     ui->ChercheupLineEdit->setEnabled       (m_mode == Selection);
-    ui->dateEdit->setEnabled                (m_mode == Selection);
+    ui->dateImpressiondateEdit->setEnabled                (m_mode == Selection);
     ui->ALDcheckBox->setVisible             (m_mode == Selection);
     wdg_dossiersbuttonframe->setEnabled         (m_mode == Selection);
     ui->DossiersupTableWidget->setEnabled   (m_mode == Selection);
@@ -2440,7 +2447,7 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     {
         QRect rect = QRect(widg->pos(),widg->size());
         QPoint pos = mapFromParent(cursor().pos());
-        int Pause = (AvecOuSansPause? 4000: 0);
+        int Pause = (AvecOuSansPause? 8000: 0);
         if (DebutTimer.msecsTo(QTime::currentTime()) > Pause  && !rect.contains(pos))
         {
             m_opacity = m_opacity*0.9;
@@ -2655,6 +2662,7 @@ void dlg_impressions::LineSelect(UpTableWidget *table, int row)
         if (m_mode == Selection)
         {
             ui->textFrame                   ->setVisible(true);
+            m_currentdocument               = getDocumentFromRow(row);
             MetAJour(getDocumentFromRow(row)->texte(), false);
             ui->upTextEdit                  ->setText(m_listtexts.at(0));
             EffaceWidget(ui->textFrame);
@@ -2686,11 +2694,10 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     User *userEntete = (Datas::I()->users->getById(currentuser()->idsuperviseur()) == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(currentuser()->idsuperviseur()));
     if (userEntete == Q_NULLPTR)
         return;
-
-    QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe());
+    QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe(), ui->dateImpressiondateEdit->date());
     QString age                         = AgeTotal["toString"].toString();
     QString formule                     = AgeTotal["formule"].toString();
- 
+
     texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
     texte.replace("{{" + NOMPAT + "}},"         , m_currentpatient->nom() + ",");
     texte.replace("{{" + NOMPAT + "}} "         , m_currentpatient->nom() + " ");

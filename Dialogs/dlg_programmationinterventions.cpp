@@ -20,11 +20,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWidget *parent) : UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
 {
     setWindowTitle(tr("programmer une intervention pour ") + pat->prenom() + " " + pat->nom());
-    UpTableView *wdg_tableprogramme         = new UpTableView();
-    QTreeView *wdg_dates                    = new QTreeView();
-    QComboBox *wdg_listmedecinscombo        = new QComboBox();
-    QHBoxLayout *choixmedecinLay            = new QHBoxLayout();
-    QHBoxLayout *programmLay                = new QHBoxLayout();
+    UpTableView *wdg_tableprogramme = new UpTableView();
+    QTreeView *wdg_dates            = new QTreeView();
+    wdg_listmedecinscombo           = new QComboBox();
+    QHBoxLayout *choixmedecinLay    = new QHBoxLayout();
+    QHBoxLayout *programmLay        = new QHBoxLayout();
 
     wdg_tableprogramme  ->setFocusPolicy(Qt::NoFocus);
     wdg_tableprogramme  ->setPalette(QPalette(Qt::white));
@@ -44,13 +44,17 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     choixmedecinLay     ->setSpacing(5);
     choixmedecinLay     ->setContentsMargins(0,0,0,0);
 
-    wdg_buttonframe     = new WidgetButtonFrame(wdg_dates);
-    wdg_buttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
-    connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixButtonFrame);
-    programmLay     ->addWidget(wdg_buttonframe->widgButtonParent());
+    wdg_buttondateframe     = new WidgetButtonFrame(wdg_dates);
+    wdg_buttondateframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    connect (wdg_buttondateframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixDateFrame);
+    programmLay     ->addWidget(wdg_buttondateframe->widgButtonParent());
+
+    wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_tableprogramme);
+    wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    connect (wdg_buttoninterventionframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixInterventionFrame);
 
     programmLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    programmLay     ->addWidget(wdg_tableprogramme);
+    programmLay     ->addWidget(wdg_buttoninterventionframe->widgButtonParent());
     programmLay     ->setSpacing(5);
     programmLay     ->setContentsMargins(0,0,0,0);
     programmLay     ->setStretch(0,2);
@@ -73,15 +77,21 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
             QList<QStandardItem *> items;
             items << new QStandardItem(usr->login())
                   << new QStandardItem(QString::number(usr->id()));
-            if (md_medecins->findItems(usr->login()).size()==0)
-                md_medecins->appendRow(items);
+            md_medecins->appendRow(items);
         }
     md_medecins->sort(0, Qt::DescendingOrder);
     for (int i=0; i< md_medecins->rowCount(); ++i)
     {
-        wdg_listmedecinscombo->addItem(md_medecins->item(i,0)->text());
-        wdg_listmedecinscombo->setItemData(i, md_medecins->item(i,1)->text());
+        wdg_listmedecinscombo->addItem(md_medecins->item(i,0)->text());             //! le login
+        wdg_listmedecinscombo->setItemData(i, md_medecins->item(i,1)->text());      //! l'id en data
     }
+    if (currentuser()->isMedecin())
+    {
+        wdg_listmedecinscombo->findData(currentuser()->id());
+        wdg_listmedecinscombo->setEnabled(false);
+    }
+    else
+        connect(wdg_listmedecinscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_programmationinterventions::ChoixMedecin);
     Datas::I()->interventions->initListebyUserId(wdg_listmedecinscombo->currentData().toInt());
 }
 
@@ -89,9 +99,9 @@ dlg_programmationinterventions::~dlg_programmationinterventions()
 {
 }
 
-void dlg_programmationinterventions::ChoixButtonFrame()
+void dlg_programmationinterventions::ChoixDateFrame()
 {
-    switch (wdg_buttonframe->Choix()) {
+    switch (wdg_buttondateframe->Choix()) {
     case WidgetButtonFrame::Plus:
         proc->ab();
         break;
@@ -101,5 +111,25 @@ void dlg_programmationinterventions::ChoixButtonFrame()
     default:
         break;
     }
+}
+
+void dlg_programmationinterventions::ChoixInterventionFrame()
+{
+    switch (wdg_buttondateframe->Choix()) {
+    case WidgetButtonFrame::Plus:
+        proc->ab();
+        break;
+    case WidgetButtonFrame::Moins:
+        proc->ab();
+        break;
+    default:
+        break;
+    }
+}
+
+void dlg_programmationinterventions::ChoixMedecin(int idx)
+{
+    User* usr = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
+    UpMessageBox::Watch(this, "Docteur " + usr->prenom() + " " + usr->nom());
 }
 

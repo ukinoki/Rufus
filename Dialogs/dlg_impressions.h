@@ -44,6 +44,7 @@ private:
     DataBase                                    *db             = DataBase::I();
     User*                                       currentuser() { return Datas::I()->users->userconnected(); }
     Procedures                                  *proc           = Procedures::I();
+    Impression                                  *m_currentdocument = Q_NULLPTR;
     Patient                                     *m_currentpatient;
     User                                        *m_userentete;
     QList<Correspondant*>                       m_listedestinataires;
@@ -73,6 +74,7 @@ private:
     void                        Annulation();
     void                        ChoixButtonFrame(WidgetButtonFrame *);
     void                        ChoixMenuContextuel(QString);
+    Impression*                 currentdocument()   { return m_currentdocument; }
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
