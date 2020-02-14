@@ -19,7 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWidget *parent) : UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
 {
-    setWindowTitle(tr("programmer une intervention pour ") + pat->prenom() + " " + pat->nom());
+    m_currentpatient = pat;
+    setWindowTitle(tr("Programmer une intervention pour ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
     UpTableView *wdg_tableprogramme = new UpTableView();
     QTreeView *wdg_dates            = new QTreeView();
     wdg_listmedecinscombo           = new QComboBox();
@@ -39,6 +40,9 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
 
     wdg_dates           ->setMaximumWidth(100);
 
+    UpLabel* lblmedecins = new UpLabel;
+    lblmedecins->setText(tr("Programme opératoire de "));
+    choixmedecinLay     ->addWidget(lblmedecins);
     choixmedecinLay     ->addWidget(wdg_listmedecinscombo);
     choixmedecinLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixmedecinLay     ->setSpacing(5);
@@ -50,7 +54,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     programmLay     ->addWidget(wdg_buttondateframe->widgButtonParent());
 
     wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_tableprogramme);
-    wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     connect (wdg_buttoninterventionframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixInterventionFrame);
 
     programmLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -85,13 +89,12 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
         wdg_listmedecinscombo->addItem(md_medecins->item(i,0)->text());             //! le login
         wdg_listmedecinscombo->setItemData(i, md_medecins->item(i,1)->text());      //! l'id en data
     }
-    if (currentuser()->isMedecin())
+    connect(wdg_listmedecinscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_programmationinterventions::ChoixMedecin);
+    if (Datas::I()->users->userconnected()->isMedecin())
     {
-        wdg_listmedecinscombo->findData(currentuser()->id());
+        wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id());
         wdg_listmedecinscombo->setEnabled(false);
     }
-    else
-        connect(wdg_listmedecinscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_programmationinterventions::ChoixMedecin);
     Datas::I()->interventions->initListebyUserId(wdg_listmedecinscombo->currentData().toInt());
 }
 
@@ -117,19 +120,75 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
 {
     switch (wdg_buttondateframe->Choix()) {
     case WidgetButtonFrame::Plus:
+        CreerIntervention();
+        break;
+    case WidgetButtonFrame::Modifier:
         proc->ab();
         break;
     case WidgetButtonFrame::Moins:
         proc->ab();
-        break;
-    default:
         break;
     }
 }
 
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
-    User* usr = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
-    UpMessageBox::Watch(this, "Docteur " + usr->prenom() + " " + usr->nom());
+    m_currentuser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
+    Datas::I()->interventions->initListebyUserId(m_currentuser->id());
+    UpMessageBox::Watch(this, "Docteur " + m_currentuser->prenom() + " " + m_currentuser->nom());
+}
+
+void dlg_programmationinterventions::CreerIntervention()
+{
+    UpDialog *dlg_intervention = new UpDialog(this);
+    dlg_intervention->setWindowTitle(tr("programmer une intervention pour ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
+
+    QHBoxLayout *choixdateLay    = new QHBoxLayout();
+    UpLabel* lbldate = new UpLabel;
+    lbldate->setText(tr("Date "));
+    QDateEdit *dateedit = new QDateEdit(m_currentdate);
+    choixdateLay     ->addWidget(lbldate);
+    choixdateLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixdateLay     ->addWidget(dateedit);
+    choixdateLay     ->setSpacing(5);
+    choixdateLay     ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixheureLay    = new QHBoxLayout();
+    UpLabel* lblheure = new UpLabel;
+    lblheure->setText(tr("Heure "));
+    QTimeEdit *timeedit = new QTimeEdit();
+    choixheureLay     ->addWidget(lblheure);
+    choixheureLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixheureLay     ->addWidget(timeedit);
+    choixheureLay     ->setSpacing(5);
+    choixheureLay     ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixinterventionLay    = new QHBoxLayout();
+    UpLabel* lblinterv = new UpLabel;
+    lblinterv->setText(tr("Type d'intervention "));
+    QComboBox *intercombo = new QComboBox();
+    choixinterventionLay     ->addWidget(lblinterv);
+    choixinterventionLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixinterventionLay     ->addWidget(intercombo);
+    choixinterventionLay     ->setSpacing(5);
+    choixinterventionLay     ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixIOLLay    = new QHBoxLayout();
+    UpLabel* lblIOL = new UpLabel;
+    lblIOL->setText(tr("Implant "));
+    QLineEdit *IOLedit = new QLineEdit();
+    choixIOLLay     ->addWidget(lblIOL);
+    choixIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixIOLLay     ->addWidget(IOLedit);
+    choixIOLLay     ->setSpacing(5);
+    choixIOLLay     ->setContentsMargins(0,0,0,0);
+
+    dlg_intervention->dlglayout()     ->insertLayout(0, choixIOLLay);
+    dlg_intervention->dlglayout()     ->insertLayout(0, choixinterventionLay);
+    dlg_intervention->dlglayout()     ->insertLayout(0, choixheureLay);
+    dlg_intervention->dlglayout()     ->insertLayout(0, choixdateLay);
+    dlg_intervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+
+    dlg_intervention->exec();
 }
 

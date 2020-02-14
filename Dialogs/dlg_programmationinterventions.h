@@ -35,10 +35,14 @@ private:
     WidgetButtonFrame   *wdg_buttondateframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
     QComboBox           *wdg_listmedecinscombo;
-    User*               currentuser() { return Datas::I()->users->userconnected(); }
+    User                *m_currentuser;
+    Patient             *m_currentpatient;
+    QDate               m_currentdate = QDate::currentDate();
+    User*               currentuser() const { return m_currentuser; }
     void                ChoixDateFrame();
     void                ChoixInterventionFrame();
     void                ChoixMedecin(int idx);
+    void                CreerIntervention();
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

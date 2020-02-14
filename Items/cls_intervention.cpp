@@ -106,3 +106,29 @@ void IOL::resetdatas()
     data[CP_MODELNAME_IOLS]         = "";
     setData(data);
 }
+
+TypeIntervention::TypeIntervention(QJsonObject data, QObject *parent) : Item(parent)
+{
+    resetdatas();
+    setData(data);
+}
+
+void TypeIntervention::setData(QJsonObject data)
+{
+    if( data.isEmpty() )
+        return;
+
+    Utils::setDataInt(data, CP_ID_TYPINTERVENTION, m_id);
+    Utils::setDataString(data, CP_TYPEINTERVENTION_TYPINTERVENTION, m_typeintervention);
+    Utils::setDataString(data, CP_CODECCAM_TYPINTERVENTION, m_codeCCAM);
+    m_data = data;
+}
+
+void TypeIntervention::resetdatas()
+{
+    QJsonObject data;
+    data[CP_ID_TYPINTERVENTION]                 = 0;
+    data[CP_TYPEINTERVENTION_TYPINTERVENTION]   = "";
+    data[CP_CODECCAM_TYPINTERVENTION]           = "";
+    setData(data);
+}

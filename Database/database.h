@@ -342,6 +342,24 @@ private:
 public:
     QList<Intervention*>    loadInterventionsByUserId(int id);                    //! charge toutes les Interventions d'un patient
     Intervention*           loadInterventionById(int idintervention);             //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
+     * IOLs
+    */
+private:
+    QJsonObject             loadIOLData(QVariantList refdata);                    //! attribue la liste des datas à un IOL
+public:
+    QList<IOL*>             loadIOLs();                                           //! charge tous les IOLS
+    IOL*                    loadIOLById(int idintervention);                      //! charge les datas d'un IOL défini par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
+     * TypeInterventions
+    */
+private:
+    QJsonObject                 loadTypeInterventionData(QVariantList typeinterventiondata);    //! attribue la liste des datas à un TypeIntervention
+public:
+    QList<TypeIntervention*>    loadTypeInterventions();                                        //! charge tous les TypeInterventionS
+    TypeIntervention*           loadTypeInterventionById(int idtypeintervention);               //! charge les datas d'un TypeIntervention défini par son id - utilisé pour renouveler les données en cas de modification
 };
 
 #endif // DataBase_H

@@ -2545,3 +2545,93 @@ Intervention* DataBase::loadInterventionById(int idintervention)                
     intervention = new Intervention(data);
     return intervention;
 }
+
+/*
+ * IOLs
+*/
+
+QJsonObject DataBase::loadIOLData(QVariantList ioldata)         //! attribue la liste des datas à un IOL
+{
+    QJsonObject data{};
+    data[CP_ID_IOLS]                   = ioldata.at(0).toInt();
+    data[CP_IDMANUFACTURER_IOLS]       = ioldata.at(1).toInt();
+    data[CP_MODELNAME_IOLS]            = ioldata.at(2).toString();
+    return data;
+}
+
+QList<IOL*> DataBase::loadIOLs()                       //! charge tous les IOLS
+{
+    QList<IOL*> list = QList<IOL*> ();
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS // 0-1-2
+                    " FROM " TBL_IOLS " order by " CP_IDMANUFACTURER_IOLS;
+    QList<QVariantList> iollist = StandardSelectSQL(req,ok);
+    if(!ok || iollist.size()==0)
+        return list;
+    for (int i=0; i<iollist.size(); ++i)
+    {
+        QJsonObject data = loadIOLData(iollist.at(i));
+        IOL *iol = new IOL(data);
+        if (iol != Q_NULLPTR)
+            list << iol;
+    }
+    return list;
+}
+
+IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
+{
+    IOL *iol = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS // 0-1-2
+                    " FROM " TBL_IOLS
+                    " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
+    QVariantList ioldata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || ioldata.size()==0)
+        return iol;
+    QJsonObject data = loadIOLData(ioldata);
+    iol = new IOL(data);
+    return iol;
+}
+
+/*
+ * TypeInterventions
+*/
+
+QJsonObject DataBase::loadTypeInterventionData(QVariantList typeinterventiondata)         //! attribue la liste des datas à un TypeIntervention
+{
+    QJsonObject data{};
+    data[CP_ID_TYPINTERVENTION]                     = typeinterventiondata.at(0).toInt();
+    data[CP_TYPEINTERVENTION_TYPINTERVENTION]       = typeinterventiondata.at(1).toInt();
+    data[CP_CODECCAM_TYPINTERVENTION]            = typeinterventiondata.at(2).toString();
+    return data;
+}
+
+QList<TypeIntervention*> DataBase::loadTypeInterventions()                       //! charge tous les TypeInterventionS
+{
+    QList<TypeIntervention*> list = QList<TypeIntervention*> ();
+    QString req =   "SELECT " CP_ID_TYPINTERVENTION ", " CP_TYPEINTERVENTION_TYPINTERVENTION ", " CP_CODECCAM_TYPINTERVENTION // 0-1-2
+                    " FROM " TBL_TYPESINTERVENTIONS " order by " CP_ID_TYPINTERVENTION;
+    QList<QVariantList> typeinterventionlist = StandardSelectSQL(req,ok);
+    if(!ok || typeinterventionlist.size()==0)
+        return list;
+    for (int i=0; i<typeinterventionlist.size(); ++i)
+    {
+        QJsonObject data = loadTypeInterventionData(typeinterventionlist.at(i));
+        TypeIntervention *typeintervention = new TypeIntervention(data);
+        if (typeintervention != Q_NULLPTR)
+            list << typeintervention;
+    }
+    return list;
+}
+
+TypeIntervention* DataBase::loadTypeInterventionById(int idtypeintervention)                   //! charge un TypeIntervention défini par son id - utilisé pour renouveler les données en cas de modification
+{
+    TypeIntervention *typeintervention = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_TYPINTERVENTION ", " CP_TYPEINTERVENTION_TYPINTERVENTION ", " CP_CODECCAM_TYPINTERVENTION // 0-1-2
+                    " FROM " TBL_TYPESINTERVENTIONS
+                    " WHERE " CP_ID_TYPINTERVENTION " = " + QString::number(idtypeintervention) ;
+    QVariantList typeinterventiondata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || typeinterventiondata.size()==0)
+        return typeintervention;
+    QJsonObject data = loadTypeInterventionData(typeinterventiondata);
+    typeintervention = new TypeIntervention(data);
+    return typeintervention;
+}

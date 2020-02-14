@@ -51,7 +51,6 @@ private: //Données de l'intervention
     QString                 ConvertModeAnesthesie(ModeAnesthesie mode);
 
 public:
-
     QDate date() const                      { return m_date; }
     int iduser() const                      { return m_iduser; }
     int idpatient() const                   { return m_idpatient; }
@@ -106,7 +105,7 @@ public:
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
     int m_idmanufacturer    = 0;                //! id du frabricant
-    QString m_modele        = "";               //! modèle de 'implant
+    QString m_modele        = "";               //! modèle de l'implant
 
 public:
 
@@ -117,6 +116,38 @@ public:
                                               m_data[CP_IDMANUFACTURER_IOLS] = id; }
     void setmodele(QString txt)             { m_modele = txt;
                                               m_data[CP_MODELNAME_IOLS] = txt; }
+
+    void resetdatas();
+    bool isnull() const                     { return m_id == 0; }
+
+ };
+
+/*!
+ * \brief classe TypeIntervention
+ * l'ensemble des informations concernant un IOL
+ */
+
+class TypeIntervention : public Item
+{
+
+public:
+    explicit TypeIntervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    void setData(QJsonObject data = QJsonObject{});
+
+private: //Données de l'intervention
+    //!<m_id = Id de l'ntervention en base
+    QString m_typeintervention  = "";                //! le type
+    QString m_codeCCAM          = "";               //! code CCAM
+
+public:
+
+    QString typeintervention() const        { return m_typeintervention; }
+    QString codeCCAM() const                { return m_codeCCAM; }
+
+    void settypeintervention(QString txt)   { m_typeintervention = txt;
+                                              m_data[CP_TYPEINTERVENTION_TYPINTERVENTION] = txt; }
+    void setcodeCCAM(QString txt)           { m_codeCCAM = txt;
+                                              m_data[CP_CODECCAM_TYPINTERVENTION] = txt; }
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }

@@ -41,4 +41,40 @@ public:
     Intervention*       CreationIntervention(QHash<QString, QVariant> sets);
 };
 
+class IOLS : public ItemsList
+{
+private:
+    QMap<int, IOL*> *map_IOLs = Q_NULLPTR;    //!< la liste des IOLS
+
+public:
+    explicit IOLS(QObject *parent = Q_NULLPTR);
+
+    QMap<int, IOL*> *IOLs() const;
+
+    IOL*    getById(int id);
+    void    initListe();
+
+    //!> actions sur les enregistrements
+    void    SupprimeIOL(IOL *iol);
+    IOL*    CreationIOL(QHash<QString, QVariant> sets);
+};
+
+class TypeInterventions : public ItemsList
+{
+private:
+    QMap<int, TypeIntervention*> *map_typeinterventions = Q_NULLPTR;    //!< la liste des TypeInterventions
+
+public:
+    explicit TypeInterventions(QObject *parent = Q_NULLPTR);
+
+    QMap<int, TypeIntervention*> *typeinterventions() const;
+
+    TypeIntervention*   getById(int id);
+    void                initListe();
+
+    //!> actions sur les enregistrements
+    void                SupprimeTypeIntervention(TypeIntervention *typeintervention);
+    TypeIntervention*   CreationTypeIntervention(QHash<QString, QVariant> sets);
+};
+
 #endif // INTERVENTIONS_H

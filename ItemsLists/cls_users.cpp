@@ -48,6 +48,10 @@ QMap<int, User *> *Users::comptables() const
 {
     return map_comptables;
 }
+QMap<int, User *> *Users::medecins() const
+{
+    return map_medecins;
+}
 
 /*!
  * \brief Users::Users
@@ -62,6 +66,7 @@ Users::Users(QObject *parent) : ItemsList(parent)
     map_liberaux        = new QMap<int, User*>();
     map_parents         = new QMap<int, User*>();
     map_comptables      = new QMap<int, User*>();
+    map_medecins        = new QMap<int, User*>();
 }
 
 /*!
@@ -91,6 +96,7 @@ bool Users::add(User *usr)
     map_liberaux      ->remove(usr->id());
     map_parents       ->remove(usr->id());
     map_comptables    ->remove(usr->id());
+    map_medecins      ->remove(usr->id());
     if (!usr->isDesactive())
     {
         map_actifs->insert(usr->id(), usr);
@@ -102,6 +108,8 @@ bool Users::add(User *usr)
             map_parents->insert(usr->id(), usr);
         if( usr->isComptable() )
             map_comptables->insert(usr->id(), usr);
+        if( usr->isMedecin() )
+            map_medecins->insert(usr->id(), usr);
     }
     else
         map_inactifs->insert(usr->id(), usr);
@@ -194,6 +202,7 @@ void Users::initListe()
     map_liberaux        ->clear();
     map_parents         ->clear();
     map_comptables      ->clear();
+    map_medecins        ->clear();
     addList(listusers);
     foreach (User *usr, actifs()->values())
     {
@@ -226,15 +235,18 @@ void Users::initShortListe()
     map_liberaux        ->clear();
     map_parents         ->clear();
     map_comptables      ->clear();
-    addList(listusers);
-    foreach (User *usr, actifs()->values())
-    {
-        if (usr->login() == NOM_ADMINISTRATEUR)
+    map_medecins        ->clear();
+    foreach (User *usr, listusers)
+        if( usr != Q_NULLPTR)
         {
-            m_useradmin = usr;
-            break;
+            auto itusr = map_all->find(usr->id());
+            if( itusr != map_all->constEnd() )
+                itusr.value()->setData(usr->datas());
+            else
+                map_all->insert(usr->id(), usr);
+            if (usr->login() == NOM_ADMINISTRATEUR)
+                m_useradmin = usr;
         }
-    }
 }
 
 /*!
@@ -267,10 +279,12 @@ void Users::remplaceUserListes(User *usr)
         auto itc = map_comptables->find(usr->id());
         if (itc != map_comptables->end())
             map_comptables->insert(itc.key(), usr);
+        auto itm = map_medecins->find(usr->id());
+        if (itm != map_medecins->end())
+            map_medecins->insert(itm.key(), usr);
     }
     else
         add(usr);
-
 }
 
 void Users::SupprimeUser(User *usr)
@@ -284,6 +298,7 @@ void Users::SupprimeUser(User *usr)
     map_liberaux      ->remove(usr->id());
     map_parents       ->remove(usr->id());
     map_comptables    ->remove(usr->id());
+    map_medecins      ->remove(usr->id());
     DataBase::I()->SupprRecordFromTable(usr->id(), CP_ID_USR, TBL_UTILISATEURS);
     delete usr;
 }

@@ -41,7 +41,7 @@ Intervention* Interventions::getById(int id)
 }
 
 /*!
- * \brief Interventions::initListeByPatId
+ * \brief Interventions::initListeByUserId
  * Charge l'ensemble des documments accessibles à l'utilisateur en cours
  * et les ajoute à la classe Interventions
  */
@@ -101,4 +101,156 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     if (intervention != Q_NULLPTR)
         map_interventions->insert(intervention->id(), intervention);
     return intervention;
+}
+
+IOLS::IOLS(QObject *parent) : ItemsList(parent)
+{
+    map_IOLs = new QMap<int, IOL*>();
+}
+
+QMap<int, IOL*>* IOLS::IOLs() const
+{
+    return map_IOLs;
+}
+
+IOL* IOLS::getById(int id)
+{
+    QMap<int, IOL*>::const_iterator itref = map_IOLs->find(id);
+    if( itref == map_IOLs->constEnd() )
+    {
+        IOL* ref = DataBase::I()->loadIOLById(id);
+        if (ref != Q_NULLPTR)
+            add( map_IOLs, ref );
+        return ref;
+    }
+    return itref.value();
+}
+
+/*!
+ * \brief IOLS::initListe
+ * Charge l'ensemble des IOLs
+ * et les ajoute à la classe IOLS
+ */
+void IOLS::initListe()
+{
+    QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
+    epurelist(map_IOLs, &listIOLs);
+    addList(map_IOLs, &listIOLs, Item::Update);
+}
+
+
+void IOLS::SupprimeIOL(IOL *iol)
+{
+    Supprime(map_IOLs, iol);
+}
+
+IOL* IOLS::CreationIOL(QHash<QString, QVariant> sets)
+{
+    IOL *iol = Q_NULLPTR;
+    int idiol = 0;
+    DataBase::I()->locktables(QStringList() << TBL_IOLS);
+    idiol = DataBase::I()->selectMaxFromTable(CP_ID_IOLS, TBL_IOLS, m_ok);
+    bool result = (m_ok && idiol  > 0);
+    if (result)
+    {
+        ++ idiol;
+        sets[CP_ID_IOLS] = idiol;
+        result = DataBase::I()->InsertSQLByBinds(TBL_IOLS, sets);
+    }
+    DataBase::I()->unlocktables();
+    if (!result)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cet implant dans la base!"));
+        return iol;
+    }
+    QJsonObject  data = QJsonObject{};
+    data[CP_ID_IOLS] = idiol;
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        if (champ == CP_IDMANUFACTURER_IOLS)              data[champ] = itset.value().toInt();
+        else if (champ == CP_MODELNAME_IOLS)              data[champ] = itset.value().toString();
+    }
+    iol = new IOL(data);
+    if (iol != Q_NULLPTR)
+        map_IOLs->insert(iol->id(), iol);
+    return iol;
+}
+
+TypeInterventions::TypeInterventions(QObject *parent) : ItemsList(parent)
+{
+    map_typeinterventions = new QMap<int, TypeIntervention*>();
+}
+
+QMap<int, TypeIntervention*>* TypeInterventions::typeinterventions() const
+{
+    return map_typeinterventions;
+}
+
+TypeIntervention* TypeInterventions::getById(int id)
+{
+    QMap<int, TypeIntervention*>::const_iterator itref = map_typeinterventions->find(id);
+    if( itref == map_typeinterventions->constEnd() )
+    {
+        TypeIntervention* ref = DataBase::I()->loadTypeInterventionById(id);
+        if (ref != Q_NULLPTR)
+            add( map_typeinterventions, ref );
+        return ref;
+    }
+    return itref.value();
+}
+
+/*!
+ * \brief TypeInterventions::initListe
+ * Charge l'ensemble des TypeInterventions
+ * et les ajoute à la classe TypeInterventions
+ */
+void TypeInterventions::initListe()
+{
+    QList<TypeIntervention*> listtypesinterventions = DataBase::I()->loadTypeInterventions();
+    epurelist(map_typeinterventions, &listtypesinterventions);
+    addList(map_typeinterventions, &listtypesinterventions, Item::Update);
+}
+
+
+void TypeInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
+{
+    Supprime(map_typeinterventions, typeintervention);
+}
+
+TypeIntervention* TypeInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
+{
+    TypeIntervention *typeintervention = Q_NULLPTR;
+    int idtypeintervention = 0;
+    DataBase::I()->locktables(QStringList() << TBL_TYPESINTERVENTIONS);
+    idtypeintervention = DataBase::I()->selectMaxFromTable(CP_ID_TYPINTERVENTION, TBL_TYPESINTERVENTIONS, m_ok);
+    bool result = (m_ok && idtypeintervention  > 0);
+    if (result)
+    {
+        ++ idtypeintervention;
+        sets[CP_ID_TYPINTERVENTION] = idtypeintervention;
+        result = DataBase::I()->InsertSQLByBinds(TBL_TYPESINTERVENTIONS, sets);
+    }
+    DataBase::I()->unlocktables();
+    if (!result)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cet implant dans la base!"));
+        return typeintervention;
+    }
+    QJsonObject  data = QJsonObject{};
+    data[CP_ID_TYPINTERVENTION] = idtypeintervention;
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        if (champ == CP_TYPEINTERVENTION_TYPINTERVENTION)   data[champ] = itset.value().toString();
+        else if (champ == CP_CODECCAM_TYPINTERVENTION)      data[champ] = itset.value().toString();
+    }
+    typeintervention = new TypeIntervention(data);
+    if (typeintervention != Q_NULLPTR)
+        map_typeinterventions->insert(typeintervention->id(), typeintervention);
+    return typeintervention;
 }
