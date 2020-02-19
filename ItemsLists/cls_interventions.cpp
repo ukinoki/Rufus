@@ -103,17 +103,17 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     return intervention;
 }
 
-IOLS::IOLS(QObject *parent) : ItemsList(parent)
+IOLs::IOLs(QObject *parent) : ItemsList(parent)
 {
     map_IOLs = new QMap<int, IOL*>();
 }
 
-QMap<int, IOL*>* IOLS::IOLs() const
+QMap<int, IOL*>* IOLs::iols() const
 {
     return map_IOLs;
 }
 
-IOL* IOLS::getById(int id)
+IOL* IOLs::getById(int id)
 {
     QMap<int, IOL*>::const_iterator itref = map_IOLs->find(id);
     if( itref == map_IOLs->constEnd() )
@@ -127,11 +127,11 @@ IOL* IOLS::getById(int id)
 }
 
 /*!
- * \brief IOLS::initListe
+ * \brief IOLs::initListe
  * Charge l'ensemble des IOLs
  * et les ajoute à la classe IOLS
  */
-void IOLS::initListe()
+void IOLs::initListe()
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
     epurelist(map_IOLs, &listIOLs);
@@ -139,12 +139,12 @@ void IOLS::initListe()
 }
 
 
-void IOLS::SupprimeIOL(IOL *iol)
+void IOLs::SupprimeIOL(IOL *iol)
 {
     Supprime(map_IOLs, iol);
 }
 
-IOL* IOLS::CreationIOL(QHash<QString, QVariant> sets)
+IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
 {
     IOL *iol = Q_NULLPTR;
     int idiol = 0;
@@ -179,17 +179,17 @@ IOL* IOLS::CreationIOL(QHash<QString, QVariant> sets)
     return iol;
 }
 
-TypeInterventions::TypeInterventions(QObject *parent) : ItemsList(parent)
+TypesInterventions::TypesInterventions(QObject *parent) : ItemsList(parent)
 {
     map_typeinterventions = new QMap<int, TypeIntervention*>();
 }
 
-QMap<int, TypeIntervention*>* TypeInterventions::typeinterventions() const
+QMap<int, TypeIntervention*>* TypesInterventions::typeinterventions() const
 {
     return map_typeinterventions;
 }
 
-TypeIntervention* TypeInterventions::getById(int id)
+TypeIntervention* TypesInterventions::getById(int id)
 {
     QMap<int, TypeIntervention*>::const_iterator itref = map_typeinterventions->find(id);
     if( itref == map_typeinterventions->constEnd() )
@@ -207,7 +207,7 @@ TypeIntervention* TypeInterventions::getById(int id)
  * Charge l'ensemble des TypeInterventions
  * et les ajoute à la classe TypeInterventions
  */
-void TypeInterventions::initListe()
+void TypesInterventions::initListe()
 {
     QList<TypeIntervention*> listtypesinterventions = DataBase::I()->loadTypeInterventions();
     epurelist(map_typeinterventions, &listtypesinterventions);
@@ -215,12 +215,12 @@ void TypeInterventions::initListe()
 }
 
 
-void TypeInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
+void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
 {
     Supprime(map_typeinterventions, typeintervention);
 }
 
-TypeIntervention* TypeInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
+TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
 {
     TypeIntervention *typeintervention = Q_NULLPTR;
     int idtypeintervention = 0;

@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 /*!
  * \brief The Users class
- * Cette classe gére les différents  maps de "User"
+ * Cette classe gére les différents maps de "User"
  */
 class Users : public ItemsList
 {
@@ -38,6 +38,7 @@ private:
     QMap<int, User*> *map_medecins = Q_NULLPTR;        //!< map des medecins : User->isMedecin()
     bool add(User *usr);
     void addList(QList<User*> listusr);
+    void mapsclean(User *usr = Q_NULLPTR);
     User* m_useradmin = Q_NULLPTR;
 
 public:

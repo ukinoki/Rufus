@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <updialog.h>
 #include <procedures.h>
+#include "updoublespinbox.h"
 #include <uptableview.h>
 #include "widgetbuttonframe.h"
 
@@ -35,6 +36,7 @@ private:
     WidgetButtonFrame   *wdg_buttondateframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
     QComboBox           *wdg_listmedecinscombo;
+    QWidget             *wdg_IOL;
     User                *m_currentuser;
     Patient             *m_currentpatient;
     QDate               m_currentdate = QDate::currentDate();
@@ -43,6 +45,7 @@ private:
     void                ChoixInterventionFrame();
     void                ChoixMedecin(int idx);
     void                CreerIntervention();
+    void                AfficheChoixIOL(int state);
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

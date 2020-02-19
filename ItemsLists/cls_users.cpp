@@ -89,14 +89,7 @@ bool Users::add(User *usr)
         itusr.value()->setData(usr->datas());
     else
         map_all->insert(usr->id(), usr);
-
-    map_actifs        ->remove(usr->id());
-    map_inactifs      ->remove(usr->id());
-    map_superviseurs  ->remove(usr->id());
-    map_liberaux      ->remove(usr->id());
-    map_parents       ->remove(usr->id());
-    map_comptables    ->remove(usr->id());
-    map_medecins      ->remove(usr->id());
+    mapsclean(usr);
     if (!usr->isDesactive())
     {
         map_actifs->insert(usr->id(), usr);
@@ -196,13 +189,7 @@ void Users::initListe()
     }
     QList<User*> listusers = DataBase::I()->loadUsers();
     epurelist(map_all, &listusers);
-    map_actifs          ->clear();
-    map_inactifs        ->clear();
-    map_superviseurs    ->clear();
-    map_liberaux        ->clear();
-    map_parents         ->clear();
-    map_comptables      ->clear();
-    map_medecins        ->clear();
+    mapsclean();
     addList(listusers);
     foreach (User *usr, actifs()->values())
     {
@@ -229,13 +216,7 @@ void Users::initShortListe()
 {
     QList<User*> listusers = DataBase::I()->loadUsersShortListe();
     epurelist(map_all, &listusers);
-    map_actifs          ->clear();
-    map_inactifs        ->clear();
-    map_superviseurs    ->clear();
-    map_liberaux        ->clear();
-    map_parents         ->clear();
-    map_comptables      ->clear();
-    map_medecins        ->clear();
+    mapsclean();
     foreach (User *usr, listusers)
         if( usr != Q_NULLPTR)
         {
@@ -291,16 +272,34 @@ void Users::SupprimeUser(User *usr)
 {
     if( usr == Q_NULLPTR)
         return;
-    map_all           ->remove(usr->id());
-    map_actifs        ->remove(usr->id());
-    map_inactifs      ->remove(usr->id());
-    map_superviseurs  ->remove(usr->id());
-    map_liberaux      ->remove(usr->id());
-    map_parents       ->remove(usr->id());
-    map_comptables    ->remove(usr->id());
-    map_medecins      ->remove(usr->id());
+    map_all ->remove(usr->id());
+    mapsclean(usr);
     DataBase::I()->SupprRecordFromTable(usr->id(), CP_ID_USR, TBL_UTILISATEURS);
     delete usr;
+}
+
+void Users::mapsclean(User *usr)
+{
+    if (usr == Q_NULLPTR)
+    {
+        map_actifs          ->clear();
+        map_inactifs        ->clear();
+        map_superviseurs    ->clear();
+        map_liberaux        ->clear();
+        map_parents         ->clear();
+        map_comptables      ->clear();
+        map_medecins        ->clear();
+    }
+    else
+    {
+        map_actifs        ->remove(usr->id());
+        map_inactifs      ->remove(usr->id());
+        map_superviseurs  ->remove(usr->id());
+        map_liberaux      ->remove(usr->id());
+        map_parents       ->remove(usr->id());
+        map_comptables    ->remove(usr->id());
+        map_medecins      ->remove(usr->id());
+    }
 }
 
 

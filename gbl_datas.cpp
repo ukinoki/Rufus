@@ -27,37 +27,39 @@ Datas* Datas::I()
 }
 Datas::Datas()
 {
-    actes           = new Actes();
-    banques         = new Banques();
-    comptes         = new Comptes();
-    correspondants  = new Correspondants();
-    cotations       = new Cotations();
-    depenses        = new Depenses();
-    docsexternes    = new DocsExternes();
-    impressions     = new Impressions();
-    interventions   = new Interventions();
-    lignescomptes   = new LignesComptes();
-    lignespaiements = new LignesPaiements();
-    metadocuments   = new DossiersImpressions();
-    motifs          = new Motifs();
-    paiementstiers  = new PaiementsTiers();
-    patients        = new Patients();
-    patientsencours = new PatientsEnCours();
-    recettes        = new Recettes();
-    refractions     = new Refractions();
-    sites           = new Sites();
-    tierspayants    = new TiersPayants();
-    typestiers      = new TypesTiers();
-    users           = new Users();
-    postesconnectes = new PostesConnectes();
-    villes          = new Villes();
-    mesurefronto    = new MesureRefraction();
-    mesureautoref   = new MesureRefraction();
-    mesureacuite    = new MesureRefraction();
-    mesurefinal     = new MesureRefraction();
-    mesurekerato    = new Keratometrie();
-    mesuretono      = new Tonometrie();
-    mesurepachy     = new Pachymetrie();
+    actes               = new Actes();
+    banques             = new Banques();
+    comptes             = new Comptes();
+    correspondants      = new Correspondants();
+    cotations           = new Cotations();
+    depenses            = new Depenses();
+    docsexternes        = new DocsExternes();
+    impressions         = new Impressions();
+    interventions       = new Interventions();
+    iols                = new IOLs();
+    lignescomptes       = new LignesComptes();
+    lignespaiements     = new LignesPaiements();
+    metadocuments       = new DossiersImpressions();
+    motifs              = new Motifs();
+    paiementstiers      = new PaiementsTiers();
+    patients            = new Patients();
+    patientsencours     = new PatientsEnCours();
+    recettes            = new Recettes();
+    refractions         = new Refractions();
+    sites               = new Sites();
+    tierspayants        = new TiersPayants();
+    typesinterventions  = new TypesInterventions();
+    typestiers          = new TypesTiers();
+    users               = new Users();
+    postesconnectes     = new PostesConnectes();
+    villes              = new Villes();
+    mesurefronto        = new MesureRefraction();
+    mesureautoref       = new MesureRefraction();
+    mesureacuite        = new MesureRefraction();
+    mesurefinal         = new MesureRefraction();
+    mesurekerato        = new Keratometrie();
+    mesuretono          = new Tonometrie();
+    mesurepachy         = new Pachymetrie();
 }
 
 

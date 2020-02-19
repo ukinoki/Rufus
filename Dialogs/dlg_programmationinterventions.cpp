@@ -102,6 +102,11 @@ dlg_programmationinterventions::~dlg_programmationinterventions()
 {
 }
 
+void dlg_programmationinterventions::AfficheChoixIOL(int state)
+{
+    wdg_IOL->setVisible(state == Qt::Checked);
+}
+
 void dlg_programmationinterventions::ChoixDateFrame()
 {
     switch (wdg_buttondateframe->Choix()) {
@@ -118,7 +123,7 @@ void dlg_programmationinterventions::ChoixDateFrame()
 
 void dlg_programmationinterventions::ChoixInterventionFrame()
 {
-    switch (wdg_buttondateframe->Choix()) {
+    switch (wdg_buttoninterventionframe->Choix()) {
     case WidgetButtonFrame::Plus:
         CreerIntervention();
         break;
@@ -145,48 +150,96 @@ void dlg_programmationinterventions::CreerIntervention()
 
     QHBoxLayout *choixdateLay    = new QHBoxLayout();
     UpLabel* lbldate = new UpLabel;
-    lbldate->setText(tr("Date "));
+    lbldate         ->setText(tr("Date"));
     QDateEdit *dateedit = new QDateEdit(m_currentdate);
-    choixdateLay     ->addWidget(lbldate);
-    choixdateLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixdateLay     ->addWidget(dateedit);
-    choixdateLay     ->setSpacing(5);
-    choixdateLay     ->setContentsMargins(0,0,0,0);
+    choixdateLay    ->addWidget(lbldate);
+    choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixdateLay    ->addWidget(dateedit);
+    choixdateLay    ->setSpacing(5);
+    choixdateLay    ->setContentsMargins(0,0,0,0);
 
     QHBoxLayout *choixheureLay    = new QHBoxLayout();
     UpLabel* lblheure = new UpLabel;
-    lblheure->setText(tr("Heure "));
+    lblheure        ->setText(tr("Heure"));
     QTimeEdit *timeedit = new QTimeEdit();
-    choixheureLay     ->addWidget(lblheure);
-    choixheureLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixheureLay     ->addWidget(timeedit);
-    choixheureLay     ->setSpacing(5);
-    choixheureLay     ->setContentsMargins(0,0,0,0);
+    choixheureLay   ->addWidget(lblheure);
+    choixheureLay   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixheureLay   ->addWidget(timeedit);
+    choixheureLay   ->setSpacing(5);
+    choixheureLay   ->setContentsMargins(0,0,0,0);
 
     QHBoxLayout *choixinterventionLay    = new QHBoxLayout();
     UpLabel* lblinterv = new UpLabel;
-    lblinterv->setText(tr("Type d'intervention "));
+    lblinterv               ->setText(tr("Type d'intervention"));
     QComboBox *intercombo = new QComboBox();
-    choixinterventionLay     ->addWidget(lblinterv);
-    choixinterventionLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixinterventionLay     ->addWidget(intercombo);
-    choixinterventionLay     ->setSpacing(5);
-    choixinterventionLay     ->setContentsMargins(0,0,0,0);
+    choixinterventionLay    ->addWidget(lblinterv);
+    choixinterventionLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixinterventionLay    ->addWidget(intercombo);
+    choixinterventionLay    ->setSpacing(5);
+    choixinterventionLay    ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *checkIOLLay    = new QHBoxLayout();
+    QCheckBox *IOLchk = new QCheckBox(tr("Utiliser un implamt"));
+    IOLchk          ->setCheckState(Qt::Unchecked);
+    checkIOLLay     ->addWidget(IOLchk);
+    checkIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    checkIOLLay     ->setSpacing(5);
+    checkIOLLay     ->setContentsMargins(0,0,0,0);
+
+    wdg_IOL         = new QWidget();
+    QVBoxLayout *box_IOLlay  = new QVBoxLayout();
+    box_IOLlay->setSpacing(0);
 
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
     UpLabel* lblIOL = new UpLabel;
-    lblIOL->setText(tr("Implant "));
-    QLineEdit *IOLedit = new QLineEdit();
+    lblIOL          ->setText(tr("Implant"));
+    QComboBox *IOLcombo = new QComboBox();
     choixIOLLay     ->addWidget(lblIOL);
     choixIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixIOLLay     ->addWidget(IOLedit);
+    choixIOLLay     ->addWidget(IOLcombo);
     choixIOLLay     ->setSpacing(5);
     choixIOLLay     ->setContentsMargins(0,0,0,0);
 
-    dlg_intervention->dlglayout()     ->insertLayout(0, choixIOLLay);
-    dlg_intervention->dlglayout()     ->insertLayout(0, choixinterventionLay);
-    dlg_intervention->dlglayout()     ->insertLayout(0, choixheureLay);
-    dlg_intervention->dlglayout()     ->insertLayout(0, choixdateLay);
+    QHBoxLayout *choixPwrIOLLay    = new QHBoxLayout();
+    UpLabel* lblPwrIOL = new UpLabel;
+    lblPwrIOL       ->setText(tr("Puissance"));
+    UpDoubleSpinBox *PwrIOLspinbox = new UpDoubleSpinBox();
+    PwrIOLspinbox   ->setRange(-10.00, 35.00);
+    PwrIOLspinbox   ->setSingleStep(0.50);
+    PwrIOLspinbox   ->setValue(21.00);
+    choixPwrIOLLay  ->addWidget(lblPwrIOL);
+    choixPwrIOLLay  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixPwrIOLLay  ->addWidget(PwrIOLspinbox);
+    choixPwrIOLLay  ->setSpacing(5);
+    choixPwrIOLLay  ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixCylIOLLay    = new QHBoxLayout();
+    UpLabel* lblCylIOL = new UpLabel;
+    lblCylIOL       ->setText(tr("Cylindre"));
+    UpDoubleSpinBox *CylIOLspinbox = new UpDoubleSpinBox();
+    CylIOLspinbox   ->setRange(0.00, 10.00);
+    CylIOLspinbox   ->setSingleStep(0.50);
+    CylIOLspinbox   ->setValue(0.00);
+    choixCylIOLLay  ->addWidget(lblCylIOL);
+    choixCylIOLLay  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixCylIOLLay  ->addWidget(CylIOLspinbox);
+    choixCylIOLLay  ->setSpacing(5);
+    choixCylIOLLay  ->setContentsMargins(0,0,0,0);
+
+    connect(IOLchk, &QCheckBox::stateChanged, this, &dlg_programmationinterventions::AfficheChoixIOL);
+
+    box_IOLlay      ->insertLayout(0, choixCylIOLLay);
+    box_IOLlay      ->insertLayout(0, choixPwrIOLLay);
+    box_IOLlay      ->insertLayout(0, choixIOLLay);
+    wdg_IOL         ->setLayout(box_IOLlay);
+    wdg_IOL         ->setVisible(false);
+
+    dlg_intervention->dlglayout()   ->insertWidget(0, wdg_IOL);
+    dlg_intervention->dlglayout()   ->insertLayout(0, checkIOLLay);
+    dlg_intervention->dlglayout()   ->insertLayout(0, choixinterventionLay);
+    dlg_intervention->dlglayout()   ->insertLayout(0, choixheureLay);
+    dlg_intervention->dlglayout()   ->insertLayout(0, choixdateLay);
+    dlg_intervention->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_intervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
     dlg_intervention->exec();

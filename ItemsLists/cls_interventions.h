@@ -41,15 +41,15 @@ public:
     Intervention*       CreationIntervention(QHash<QString, QVariant> sets);
 };
 
-class IOLS : public ItemsList
+class IOLs : public ItemsList
 {
 private:
     QMap<int, IOL*> *map_IOLs = Q_NULLPTR;    //!< la liste des IOLS
 
 public:
-    explicit IOLS(QObject *parent = Q_NULLPTR);
+    explicit IOLs(QObject *parent = Q_NULLPTR);
 
-    QMap<int, IOL*> *IOLs() const;
+    QMap<int, IOL*> *iols() const;
 
     IOL*    getById(int id);
     void    initListe();
@@ -59,13 +59,13 @@ public:
     IOL*    CreationIOL(QHash<QString, QVariant> sets);
 };
 
-class TypeInterventions : public ItemsList
+class TypesInterventions : public ItemsList
 {
 private:
     QMap<int, TypeIntervention*> *map_typeinterventions = Q_NULLPTR;    //!< la liste des TypeInterventions
 
 public:
-    explicit TypeInterventions(QObject *parent = Q_NULLPTR);
+    explicit TypesInterventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, TypeIntervention*> *typeinterventions() const;
 

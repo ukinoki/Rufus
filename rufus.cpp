@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("14-02-2020/1");
+    qApp->setApplicationVersion("19-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -4227,7 +4227,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 
     if (id>-1)
     {
-        QString req = "select patnom, patprenom from " TBL_PATIENTS " where idpat = " + QString::number(id);
+        QString req = "select " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS " from " TBL_PATIENTS " where " CP_IDPAT_PATIENTS " = " + QString::number(id);
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (m_ok && patdata.size()>0)
         {
@@ -4281,7 +4281,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     MsgText        = new UpTextEdit(dlg_ask);
     MsgText         ->setFixedHeight(140);
     if (idMsg>-1)
-        MsgText->setText(map[CP_TEXTMSG_MESSAGERIE].toString());
+        MsgText->setText(map[CP_TEXT_MSG].toString());
     msglayout       ->setContentsMargins(5,0,5,0);
 
     tasklayout     = new QHBoxLayout();
@@ -4295,13 +4295,13 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     limitdate       ->setDate(QDate::currentDate());
     if (idMsg>-1)
     {
-        if (map["Tache"].toInt()==1)
+        if (map[CP_TACHE_MSG].toInt()==1)
         {
             checktask->setChecked(true);
-            limitdate->setDate(map["DateLimite"].toDate());
+            limitdate->setDate(map[CP_DATELIMITE_MSG].toDate());
             limitdate->setEnabled(true);
         }
-        checkurg->setChecked(map["Urge"].toInt()==1);
+        checkurg->setChecked(map[CP_URGENT_MSG].toInt()==1);
     }
     checktask       ->setText(tr("Tâche à accomplir avant le "));
     checkurg        ->setText(tr("Urgent"));
@@ -4363,7 +4363,7 @@ void Rufus::VerifSendMessage(int idMsg)
     db->createtransaction(locklist);
     if (idMsg<0)  // Enregistrement d'un nouveau message
     {
-        QString req = "insert into " TBL_MESSAGES " (idEmetteur, " CP_TEXTMSG_MESSAGERIE ", idPatient, Tache, DateLimite, Urge, CreeLe)\n values(";
+        QString req = "insert into " TBL_MESSAGES " (" CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_URGENT_MSG ", " CP_DATECREATION_MSG ")\n values(";
         req += QString::number(currentuser()->id()) + ", ";
         req += "'" + Utils::correctquoteSQL(dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
         int ncheck = dlg_ask->findChildren<UpCheckBox*>().size();
@@ -4405,7 +4405,7 @@ void Rufus::VerifSendMessage(int idMsg)
         if (!db->StandardSQL(req,tr("Impossible d'enregistrer ce message")))
             db->rollback();
 
-        req = "SELECT Max(idMessage) FROM " TBL_MESSAGES;
+        req = "SELECT Max(" CP_ID_MSG ") FROM " TBL_MESSAGES;
         QVariantList msgdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok || msgdata.size()==0)
         {
@@ -4423,7 +4423,7 @@ void Rufus::VerifSendMessage(int idMsg)
             db->rollback();
             return;
         }
-        req = "insert into " TBL_MESSAGESJOINTURES " (idMessage, idDestinataire) Values ";
+        req = "insert into " TBL_MESSAGESJOINTURES " (" CP_IDMSG_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ") Values ";
         for (int i=0; i<listidusr.size(); i++)
         {
             req += "(" + QString::number(idmsg) + "," + QString::number(listidusr.at(i)) + ")";
@@ -4441,46 +4441,46 @@ void Rufus::VerifSendMessage(int idMsg)
     else  //    modification d'un message existant
     {
         QString req = "update " TBL_MESSAGES " set ";
-        req += CP_TEXTMSG_MESSAGERIE " = '" + Utils::correctquoteSQL(dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
+        req += CP_TEXT_MSG " = '" + Utils::correctquoteSQL(dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
         int ncheck = dlg_ask->findChildren<UpCheckBox*>().size();
-        QString idpat = "idpatient = null, ";
+        QString idpat = CP_IDPATIENT_MSG " = null, ";
         for (int i=0; i<ncheck; i++)
             if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="AboutPatupCheckBox")
             {
                 if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
                 {
-                    idpat= "idpatient = " + QString::number(dlg_ask->findChildren<UpCheckBox*>().at(i)->iD()) + ", ";
+                    idpat= CP_IDPATIENT_MSG " = " + QString::number(dlg_ask->findChildren<UpCheckBox*>().at(i)->iD()) + ", ";
                     break;
                 }
             }
         req += idpat;
-        QString task = " Tache = null,  Datelimite = null, ";
+        QString task = CP_TACHE_MSG " = null, " CP_DATELIMITE_MSG " = null, ";
         for (int i=0; i<ncheck; i++)
             if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="TaskupCheckBox")
             {
                 if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
                 {
-                    task = "Tache = 1, DateLimite = '" + dlg_ask->findChildren<QDateTimeEdit*>().at(0)->date().toString("yyyy-MM-dd")  + "', ";
+                    task = CP_TACHE_MSG " = 1, " CP_DATELIMITE_MSG " = '" + dlg_ask->findChildren<QDateTimeEdit*>().at(0)->date().toString("yyyy-MM-dd")  + "', ";
                     break;
                 }
             }
         req += task;
-        QString urge = "Urge = null ";
+        QString urge = CP_URGENT_MSG " = null ";
         for (int i=0; i<ncheck; i++)
             if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="UrgeupCheckBox")
             {
                 if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
                 {
-                    urge = "Urge = 1 ";
+                    urge = CP_URGENT_MSG " = 1 ";
                     break;
                 }
             }
         req += urge;
-        req += "where idmessage = " + QString::number(idMsg);
+        req += "where " CP_ID_MSG " = " + QString::number(idMsg);
         //qDebug() << req;
         if (!db->StandardSQL(req,tr("Impossible d'enregistrer ce message")))
             db->rollback();
-        db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where idmessage = " + QString::number(idMsg));
+        db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG " = " + QString::number(idMsg));
         QList<int> listidusr;
         for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
             if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
@@ -4491,7 +4491,7 @@ void Rufus::VerifSendMessage(int idMsg)
             db->rollback();
             return;
         }
-        req = "insert into " TBL_MESSAGESJOINTURES " (idMessage, idDestinataire) Values ";
+        req = "insert into " TBL_MESSAGESJOINTURES " (" CP_IDMSG_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ") Values ";
         for (int i=0; i<listidusr.size(); i++)
         {
             req += "(" + QString::number(idMsg) + "," + QString::number(listidusr.at(i)) + ")";
@@ -4792,11 +4792,11 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
     tabw->setIconSize(QSize(25,25));
     // I - Les messages reçus
     QString req =
-        "select Distinct mess.idMessage, idEmetteur, " CP_TEXTMSG_MESSAGERIE ", idPatient, Tache, DateLimite, CreeLe, Urge, lu, Fait, idJointure from "
-        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess.idmessage = joint.idmessage \n"
+        "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG " from "
+        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
         " where \n"
-        " iddestinataire = " + QString::number(currentuser()->id()) + "\n"
-        " order by urge desc, CreeLe desc";
+        CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(currentuser()->id()) + "\n"
+        " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
     //proc->Edit(req);
     QList<QVariantList> destlist = db->StandardSelectSQL(req, m_ok);
     if (m_ok && destlist.size()>0)
@@ -4954,14 +4954,14 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
     // I - Les messages emis
     req =
-        "select Distinct mess.idMessage, iddestinataire, " CP_TEXTMSG_MESSAGERIE ", idPatient, Tache, DateLimite, CreeLe, Urge, lu, Fait, idJointure from \n"
-        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint \non mess.idmessage = joint.idmessage \n"
-        " where \n"
-        " idemetteur = " + QString::number(currentuser()->id()) + "\n"
-        " and asupprimer is null\n"
-        " order by urge desc, CreeLe desc";
+        "select Distinct mess." CP_ID_MSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG " from "
+        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint \n"
+        " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
+        " where " CP_IDEMETTEUR_MSG " = " + QString::number(currentuser()->id()) + "\n"
+        " and " CP_ASUPPRIMER_MSG " is null\n"
+        " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
     /*
-    select Distinct mess.idMessage, iddestinataire, " CP_TEXTMSG_MESSAGERIE ", idPatient, Tache, DateLimite, CreeLe, Urge, lu, Fait, idJointure from
+    select Distinct mess.idMessage, iddestinataire, " CP_TEXT_MSG ", idPatient, Tache, DateLimite, CreeLe, Urge, lu, Fait, idJointure from
     Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint
     on mess.idmessage = joint.idmessage
     where
@@ -5086,7 +5086,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Msgtxt->document()->setTextWidth(370);
             Msgtxt->setFixedSize(380,int(Msgtxt->document()->size().height())+2);
             Msgtxt->settable(TBL_MESSAGES);
-            Msgtxt->setchamp(CP_TEXTMSG_MESSAGERIE);
+            Msgtxt->setchamp(CP_TEXT_MSG);
             Msgtxt->setiD(emetlist.at(i).at(0).toInt());
             Msgtxt->installEventFilter(this);
             Msgtxt->setReadOnly(true);
@@ -5129,7 +5129,7 @@ void Rufus::MsgResp(int idmsg)
     QVBoxLayout *globallay = new QVBoxLayout();
     dlg_msgRepons = new QDialog();
 
-    QString req = "select " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " in (select idemetteur from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg) +  ")";
+    QString req = "select " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " in (select " CP_IDEMETTEUR_MSG " from " TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmsg) +  ")";
     QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     if (!m_ok || usrdata.size()==0)
     {
@@ -5139,7 +5139,7 @@ void Rufus::MsgResp(int idmsg)
     QLabel *lbl = new QLabel(dlg_msgRepons);
     lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usrdata.at(0).toString() + "</b></font>");
     globallay->addWidget(lbl);
-    req = "select " CP_TEXTMSG_MESSAGERIE ", idpatient from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg);
+    req = "select " CP_TEXT_MSG ", " CP_IDPATIENT_MSG " from " TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmsg);
     QVariantList txtdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     if (m_ok && txtdata.size()>0)
     {
@@ -5197,7 +5197,7 @@ void Rufus::EnregMsgResp(int idmsg)
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"),Icons::icSunglasses(), 2000);
         return;
     }
-    QString req = "select idemetteur, tache, datelimite, urge from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg);
+    QString req = "select " CP_IDEMETTEUR_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_URGENT_MSG " from " TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmsg);
     QVariantList emtdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     if (!m_ok || emtdata.size() == 0)
         return;
@@ -5210,7 +5210,7 @@ void Rufus::EnregMsgResp(int idmsg)
     locklist << TBL_MESSAGES << TBL_MESSAGESJOINTURES;
     db->createtransaction(locklist);
 
-    req  = "insert into " TBL_MESSAGES " (idEmetteur, " CP_TEXTMSG_MESSAGERIE ", CreeLe, ReponseA, Tache, Datelimite, Urge)\n values(";
+    req  = "insert into " TBL_MESSAGES " (" CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_DATECREATION_MSG ", " CP_ENREPONSEA_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_URGENT_MSG ")\n values(";
     req += QString::number(currentuser()->id()) + ", ";
     QString Reponse = "<font color = " COULEUR_TITRES ">" + dlg_msgRepons->findChildren<UpLabel*>().at(0)->text() + "</font>"
             + "------<br><b>" + currentuser()->login() + ":</b> " + dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
@@ -5226,13 +5226,13 @@ void Rufus::EnregMsgResp(int idmsg)
     if (!db->StandardSQL(req, tr("Impossible d'enregistrer ce message")))
         db->rollback();
 
-    int idrep = db->selectMaxFromTable("idMessage", TBL_MESSAGES, m_ok);
+    int idrep = db->selectMaxFromTable(CP_ID_MSG, TBL_MESSAGES, m_ok);
     if (!m_ok)
     {
         db->rollback();
         return;
     }
-    req = "insert into " TBL_MESSAGESJOINTURES " (idMessage, idDestinataire) Values ";
+    req = "insert into " TBL_MESSAGESJOINTURES " (" CP_IDMSG_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ") Values ";
     req += "(" + QString::number(idrep) + "," + QString::number(iddest) + ")";
     if (!db->StandardSQL(req, tr("Impossible d'enregistrer le message")))
     {
@@ -5256,26 +5256,26 @@ void Rufus::MsgModif(int idmsg)
         {
             if (listtxt.at(i)->iD()==idmsg)
             {
-                QString req = "select " CP_TEXTMSG_MESSAGERIE ", idPatient, Tache, DateLimite, CreeLe, Urge from " TBL_MESSAGES
-                              " where idMessage = " + QString::number(idmsg);
+                QString req = "select " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG " from " TBL_MESSAGES
+                              " where " CP_ID_MSG " = " + QString::number(idmsg);
                 QVariantList msgdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
                 QMap<QString, QVariant> map;
-                map[CP_TEXTMSG_MESSAGERIE]   = msgdata.at(0).toString();
-                map["idPatient"]            = msgdata.at(1).toInt();
-                map["Tache"]                = msgdata.at(2).toInt();
-                map["DateLimite"]           = msgdata.at(3).toDate();
-                map["CreeLe"]               = msgdata.at(4).toDateTime();
-                map["Urge"]                 = msgdata.at(5).toInt();
+                map[CP_TEXT_MSG]            = msgdata.at(0).toString();
+                map[CP_IDPATIENT_MSG]       = msgdata.at(1).toInt();
+                map[CP_TACHE_MSG]           = msgdata.at(2).toInt();
+                map[CP_DATELIMITE_MSG]      = msgdata.at(3).toDate();
+                map[CP_DATECREATION_MSG]    = msgdata.at(4).toDateTime();
+                map[CP_URGENT_MSG]          = msgdata.at(5).toInt();
                 map["null"]                 = false;
 
                 QStringList listdestinataires;
-                req = "select iddestinataire from " TBL_MESSAGESJOINTURES " where idmessage = " + QString::number(idmsg);
+                req = "select " CP_IDDESTINATAIRE_JOINTURESMSG " from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG " = " + QString::number(idmsg);
                 QList<QVariantList> destlist = db->StandardSelectSQL(req,m_ok);
                 for (int i=0; i<destlist.size();i++)
                     listdestinataires << destlist.at(i).at(0).toString();
                 map["listdestinataires"] = listdestinataires;
 
-                SendMessage(map, map["idPatient"].toInt(), idmsg);                           //depuis gMsgDialog
+                SendMessage(map, map[CP_IDPATIENT_MSG].toInt(), idmsg);                           //depuis gMsgDialog
                 dlg_ask->exec();
                 delete dlg_ask;
                 i =listtxt.size();
@@ -5287,23 +5287,23 @@ void Rufus::MsgDone(UpCheckBox *chk)
 {
     int idjoin = chk->iD();
     QString res = (chk->isChecked()? "1" : "NULL");
-    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set Fait = " + res + " where idjointure = " + QString::number(idjoin));
+    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set " CP_FAIT_JOINTURESMSG " = " + res + " where " CP_ID_JOINTURESMSG " = " + QString::number(idjoin));
 }
 
 void Rufus::MsgRead(UpCheckBox *chk)
 {
     int idjoin = chk->iD();
     QString res = (chk->isChecked()? "1" : "NULL");
-    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set Lu = " + res + " where idjointure = " + QString::number(idjoin));
+    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set " CP_LU_JOINTURESMSG " = " + res + " where " CP_ID_JOINTURESMSG " = " + QString::number(idjoin));
 }
 
 void Rufus::SupprimerMessageEmis(int idMsg)
 {
-    QString req = "update " TBL_MESSAGES " set ASupprimer = 1 where idmessage = " + QString::number(idMsg);
+    QString req = "update " TBL_MESSAGES " set " CP_ASUPPRIMER_MSG " = 1 where " CP_ID_MSG " = " + QString::number(idMsg);
     db->StandardSQL(req);
     req = "delete from " TBL_MESSAGESJOINTURES " where "
-          "idmessage = " + QString::number(idMsg) +
-          " and iddestinataire = " + QString::number(currentuser()->id());
+          CP_IDMSG_JOINTURESMSG " = " + QString::number(idMsg) +
+          " and " CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(currentuser()->id());
     db->StandardSQL(req);
     if (dlg_msgDialog->findChildren<QScrollArea*>().size()>0)
         AfficheMessages(1);
@@ -5311,18 +5311,18 @@ void Rufus::SupprimerMessageEmis(int idMsg)
 
 void Rufus::SupprimerMessageRecu(int idJoint)
 {
-    QString req = "select idmessage from " TBL_MESSAGESJOINTURES  " where idjointure = " + QString::number(idJoint);
+    QString req = "select " CP_IDMSG_JOINTURESMSG " from " TBL_MESSAGESJOINTURES  " where " CP_ID_JOINTURESMSG " = " + QString::number(idJoint);
     QVariantList msgdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     int idmsg = msgdata.at(0).toInt();
-    req = "select idemetteur from " TBL_MESSAGES  " where idmessage = " + QString::number(idmsg);
+    req = "select " CP_IDEMETTEUR_MSG " from " TBL_MESSAGES  " where " CP_ID_MSG " = " + QString::number(idmsg);
     QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     int idusr = usrdata.at(0).toInt();
     if (idusr == currentuser()->id())
-        db->StandardSQL("update " TBL_MESSAGES " set ASupprimer = 1 where idmessage = " + QString::number(idmsg));
-    db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where idjointure = " + QString::number(idJoint));
+        db->StandardSQL("update " TBL_MESSAGES " set " CP_ASUPPRIMER_MSG " = 1 where " CP_ID_MSG " = " + QString::number(idmsg));
+    db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where " CP_ID_JOINTURESMSG " = " + QString::number(idJoint));
     req = "delete from " TBL_MESSAGES " where "
-          "idmessage not in (select idmessage from " TBL_MESSAGESJOINTURES ") "
-          " and ASupprimer = 1";
+          CP_ID_MSG " not in (select " CP_IDMSG_JOINTURESMSG " from " TBL_MESSAGESJOINTURES ") "
+          " and " CP_ASUPPRIMER_MSG " = 1";
     db->StandardSQL(req);
     if (dlg_msgDialog->findChildren<QScrollArea*>().size()>0)
         AfficheMessages();
@@ -5333,12 +5333,12 @@ void Rufus::ReconstruitListeMessages()
     QDateTime DateMsg;
     m_totalNvxMessages = 0;
     QString req =
-            "select Distinct mess.idMessage, Creele, ReponseA from "
-            TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess.idmessage = joint.idmessage \n"
+            "select Distinct mess." CP_ID_MSG ", " CP_DATECREATION_MSG ", " CP_ENREPONSEA_MSG " from "
+            TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
                                                                                     " where \n"
-                                                                                    " iddestinataire = " + QString::number(currentuser()->id()) + "\n"
-                                                                                    " or (idemetteur = " + QString::number(currentuser()->id()) + " and asupprimer is null)"
-                                                                                    " order by CreeLe";
+                                                                                    CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(currentuser()->id()) + "\n"
+                                                                                    " or (" CP_IDEMETTEUR_MSG " = " + QString::number(currentuser()->id()) + " and " CP_ASUPPRIMER_MSG " is null)"
+                                                                                    " order by " CP_DATECREATION_MSG;
     /*
 select Distinct mess.idMessage, Creele, ReponseA from Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint on mess.idmessage = joint.idmessage
 where iddestinataire = 1
@@ -8291,7 +8291,6 @@ void Rufus::ProgrammationIntervention(Patient *pat)
 {
     dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, this);
     dlg_progr->exec();
-    Utils::EnChantier();
     delete dlg_progr;
 }
 

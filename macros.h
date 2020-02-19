@@ -244,9 +244,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_HEUREBKUP_PARAMSYSTEME                       "HeureBkup"
 #define CP_DIRBKUP_PARAMSYSTEME                         "DirBkup"
 
-                            //! Table Rufus.Messagerie
-#define CP_TEXTMSG_MESSAGERIE                           "TexteMessage"
-
                             //! Table Rufus.salledattente
 #define CP_IDPAT_SALDAT                                 "idPat"
 #define CP_IDUSER_SALDAT                                "idUser"
@@ -336,6 +333,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ISMEDECIN_CORRESP                            "CorMedecin"
 #define CP_SPECIALITE_CORRESP                           "CorSpecialite"
 #define CP_AUTREPROFESSION_CORRESP                      "CorAutreProfession"
+
+                            //! Table  Rufus.Messagerie
+#define CP_ID_MSG                                       "idMessage"
+#define CP_IDEMETTEUR_MSG                               "idEmetteur"
+#define CP_TEXT_MSG                                     "TexteMessage"
+#define CP_IDPATIENT_MSG                                "idPatient"
+#define CP_TACHE_MSG                                    "Tache"
+#define CP_DATELIMITE_MSG                               "DateLimite"
+#define CP_DATECREATION_MSG                             "CreeLe"
+#define CP_URGENT_MSG                                   "Urge"
+#define CP_ENREPONSEA_MSG                               "ReponseA"
+#define CP_ASUPPRIMER_MSG                               "ASupprimer"
+
+                            //! Table  Rufus.MessagerieJointures
+#define CP_ID_JOINTURESMSG                              "idJointure"
+#define CP_IDMSG_JOINTURESMSG                           "idMessage"
+#define CP_IDDESTINATAIRE_JOINTURESMSG                  "idDestinataire"
+#define CP_LU_JOINTURESMSG                              "Lu"
+#define CP_FAIT_JOINTURESMSG                            "Fait"
 
                             //! Table ComptaMedicale.banques
 #define CP_IDBANQUE_BANQUES                             "idBanque"
