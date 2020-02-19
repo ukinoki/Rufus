@@ -55,7 +55,7 @@ private:
  * les données figées, ne variant pas d'une session à l'autre
  */
 
-    //!< m_id = Id de l'utilsateur en base
+    //!< m_id = Id de l'utilisateur en base
 
     QString m_login = "";               //!< Identifiant de l'utilisateur
     QString m_password = "";            //!> mot de passe de l'utilisateur
@@ -106,7 +106,7 @@ private:
     int m_idCompteEncaissHonoraires = 0;            //! le compte bancaire utilisé pour l'enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
 
 /*!
- * les données susceptibles de varier d'une session à l'autre
+ * les données susceptibles de varier d'une session à l'autre - ne concernent que l'utilisateur courant
  */
 
     int m_idUserSuperviseur = ROLE_INDETERMINE;     //!< son id s'il est responsable de ses actes
