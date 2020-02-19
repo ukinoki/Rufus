@@ -185,7 +185,7 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 
 void dlg_paramconnexion::Test()
 {
-    if (TestConnexion(false))
+    if (TestConnexion(m_connectavecloginSQL))
         {
             UpMessageBox::Watch(this,tr("Paramètres OK!"));
             //QSqlDatabase::removeDatabase("Rufus");
@@ -194,7 +194,7 @@ void dlg_paramconnexion::Test()
 
 void dlg_paramconnexion::Verif()
 {
-    if (TestConnexion(true))
+    if (TestConnexion(m_connectavecloginSQL))
         accept();
 }
 
