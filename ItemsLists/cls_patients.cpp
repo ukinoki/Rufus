@@ -253,7 +253,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
         return pat;
     }
     // Récupération de l'idpatient créé ------------------------------------
-    int id = 0;
+    int id = -1;
     QHash<QString, QVariant>::const_iterator itx = sets.find(CP_IDPAT_PATIENTS);
     if (itx != sets.constEnd())
         id = itx.value().toInt();
@@ -267,7 +267,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
             return Q_NULLPTR;
         }
     }
-    if (id == 0)
+    if (id == -1)
     {
         DataBase::I()->unlocktables();
         return Q_NULLPTR;

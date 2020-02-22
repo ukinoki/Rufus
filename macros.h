@@ -184,7 +184,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MAJFLAGMESSAGES_FLAGS                        "MAJflagMessages"
 #define CP_MAJFLAGUSERDISTANT_FLAGS                     "flagUserDistant"
 
-//! Table Rufus.Metadocuments
+                            //! Table Rufus.Metadocuments
 #define CP_ID_DOSSIERIMPRESSIONS                        "idMetaDocument"
 #define CP_TEXTE_DOSSIERIMPRESSIONS                     "TextMetaDocument"
 #define CP_RESUME_DOSSIERIMPRESSIONS                    "ResumeMetaDocument"

@@ -540,7 +540,8 @@ void dlg_paiementdirect::EnableOKButton()
 void dlg_paiementdirect::EnregistreNouveauPaiement()
 {
     m_mode = EnregistrePaiement;
-    RemplitLesTables();
+    bool ok = true;
+    RemplitLesTables(ok);
     if (ui->ListeupTableWidget->rowCount() == 0
             && ui->DetailupTableWidget->rowCount() == 0
             && ui->SalleDAttenteupTableWidget->rowCount() == 0)
@@ -649,7 +650,8 @@ void dlg_paiementdirect::ModifiePaiement()
         db->StandardSQL(requete);
         m_listidactes.clear();
         m_listidactes << idActe;
-        RemplitLesTables();
+        bool ok = true;
+        RemplitLesTables(ok);
         RegleAffichageFiche();
         if (ModePaiement == tr("Gratuit"))
             ui->GratuitradioButton->setChecked(true);
@@ -686,7 +688,8 @@ void dlg_paiementdirect::ModifiePaiement()
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
                                 tr("Il est en cours de modification par un autre utilisateur."));
-            RemplitLesTables();
+            bool ok = true;
+            RemplitLesTables(ok);
             FiltreLesTables();
             return;
         }
@@ -824,7 +827,8 @@ void dlg_paiementdirect::ModifiePaiement()
         db->SupprRecordFromTable(m_idrecette, "idRecette", TBL_LIGNESPAIEMENTS);
 
         m_listidactes = m_listidactesamodifier;
-        RemplitLesTables();
+        bool ok = true;
+        RemplitLesTables(ok);
         RegleAffichageFiche();
         ui->SupprimerupPushButton->setVisible(true);
         RegleAffichageTypePaiementframe(true,true);
@@ -1051,11 +1055,17 @@ void dlg_paiementdirect::ValidePaiement()
 }
 void dlg_paiementdirect::ListeActes()
 {
+    bool ok = true;
     m_mode = VoirListeActes;
-    RemplitLesTables();
-    RegleAffichageFiche();
-    ui->ListeupTableWidget->setCurrentCell(0,1);
-    ui->ListeupTableWidget->setFocus();
+    RemplitLesTables(ok);
+    if (ok)
+    {
+        RegleAffichageFiche();
+        ui->ListeupTableWidget->setCurrentCell(0,1);
+        ui->ListeupTableWidget->setFocus();
+    }
+    else
+        m_mode = Accueil;
 }
 
 void dlg_paiementdirect::closeEvent(QCloseEvent *event)
@@ -1388,7 +1398,8 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             if (currentuser()->idcomptable() > 0 && currentuser()->idcomptable() != m_useracrediter->id())
             {
                 m_useracrediter = Q_NULLPTR;
-                RemplitLesTables();
+                bool ok = true;
+                RemplitLesTables(ok);
             }
             m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
             ui->TireurChequelineEdit->setText("");
@@ -2159,7 +2170,7 @@ void dlg_paiementdirect::RegleComptesComboBox(bool avecLesComptesInactifs)
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Remplir les TableListe et SalDat en fonction du mode appelé ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::RemplitLesTables()
+void dlg_paiementdirect::RemplitLesTables(bool &ok)
 {
     QString             requete;
     disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
@@ -2290,7 +2301,6 @@ void dlg_paiementdirect::RemplitLesTables()
     case VoirListeActes:
     {
         // On sélectionne tous les actes sans exception, sauf les gratuits et les impayés
-        DefinitArchitectureTable(ui->ListeupTableWidget, ActesTiers);
         requete =   "select * from (\n"
                     "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
                     CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", SUM(Paye) as tot, TypePaiement, Tiers,"                             // 5, 6, 7, 8, 9
@@ -2316,8 +2326,14 @@ void dlg_paiementdirect::RemplitLesTables()
         requete +=  " order by " CP_DATE_ACTES " desc, PatNom, PatPrenom";
 
         //UpMessageBox::Watch(this,requete);
-        bool ok;
-        QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok);
+        QList<QVariantList> actlist = db->StandardSelectSQL(requete, m_ok);
+        if (actlist.size() == 0)
+        {
+            UpMessageBox::Watch(this, tr("Pas d'acte enregistré"));
+            ok = false;
+            return;
+        }
+        DefinitArchitectureTable(ui->ListeupTableWidget, ActesTiers);
         RemplirTableWidget(ui->ListeupTableWidget,"Actes", actlist, false, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
         {
@@ -2717,7 +2733,11 @@ void dlg_paiementdirect::VideDetailsTable(int Rangee)
             RetireVerrouCompta(ActeAVirer.toInt());
         }
     }
-    if (!idActeTrouve) RemplitLesTables();
+    if (!idActeTrouve)
+    {
+        bool ok = true;
+        RemplitLesTables(ok);
+    }
     FiltreLesTables();
 
     // on supprime la rangée de ui->DetailupTableWidget et on reindexe les upcheckbox et les uplinetext
@@ -3108,7 +3128,8 @@ void dlg_paiementdirect::RemetToutAZero()
     ui->TireurChequelineEdit        ->clear();
     ui->EnAttentecheckBox           ->setCheckState(Qt::Unchecked);
     m_listidactes.clear();
-    RemplitLesTables();
+    bool ok = true;
+    RemplitLesTables(ok);
     FiltreLesTables();
     ui->OKupPushButton              ->setEnabled(false);
 }

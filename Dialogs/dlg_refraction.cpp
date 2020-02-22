@@ -1616,8 +1616,11 @@ void dlg_refraction::InscriptRefraction()
         MajDonneesOphtaPatient();
     else if (m_mode == Refraction::Prescription)
     {
+        if (!db->createtransaction(QStringList() << TBL_DOCSEXTERNES))
+            return;
         int idimp = db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, m_ok);
         db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_IDREFRACTION_DOCSEXTERNES " = " + QString::number(m_idrefraction) + " where " CP_ID_DOCSEXTERNES " = " + QString::number(idimp));
+        db->commit();
     }
 }
 

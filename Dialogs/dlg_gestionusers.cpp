@@ -182,6 +182,7 @@ void dlg_gestionusers::setConfig(enum UserMode mode)
         ui->ResponsableupRadioButton        ->setChecked(true);
         CloseButton                         ->setVisible(false);
         wdg_buttonframe->widgButtonParent() ->setVisible(false);
+        ui->InactifspushButton              ->setVisible(false);
         ui->ModifMDPUserupLabel             ->setVisible(false);
         ui->Principalframe                  ->setEnabled(true);
         RegleAffichage();
@@ -198,6 +199,7 @@ void dlg_gestionusers::setConfig(enum UserMode mode)
         ui->InactivUsercheckBox             ->setVisible(false);
         ui->ModifMDPUserupLabel             ->setVisible(true);
         wdg_buttonframe->widgButtonParent() ->setVisible(false);
+        ui->InactifspushButton              ->setVisible(false);
         break;
     case ADMIN:
         ui->ModifMDPUserupLabel             ->setVisible(false);

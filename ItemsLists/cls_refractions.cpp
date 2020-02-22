@@ -65,15 +65,14 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
     int idrefraction = 0;
     DataBase::I()->locktables(QStringList() << TBL_REFRACTIONS);
     idrefraction = DataBase::I()->selectMaxFromTable(CP_ID_REFRACTIONS, TBL_REFRACTIONS, m_ok);
-    bool result = (m_ok && idrefraction  > 0);
-    if (result)
+    if (m_ok)
     {
         ++ idrefraction;
         sets[CP_ID_REFRACTIONS] = idrefraction;
-        result = DataBase::I()->InsertSQLByBinds(TBL_REFRACTIONS, sets);
+        m_ok = DataBase::I()->InsertSQLByBinds(TBL_REFRACTIONS, sets);
     }
     DataBase::I()->unlocktables();
-    if (!result)
+    if (!m_ok)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cette refraction dans la base!"));
         return ref;

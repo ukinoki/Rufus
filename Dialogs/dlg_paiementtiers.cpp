@@ -461,7 +461,8 @@ void dlg_paiementtiers::EnableOKButton()
 void dlg_paiementtiers::EnregistreNouveauPaiement()
 {
     m_mode = EnregistrePaiementTiers;
-    RemplitLesTables();
+    bool ok = true;
+    RemplitLesTables(ok);
     if (ui->ListeupTableWidget->rowCount() == 0
             && ui->DetailupTableWidget->rowCount() == 0)
     {
@@ -522,11 +523,17 @@ void dlg_paiementtiers::MajusculeCreerNom()
 void dlg_paiementtiers::VoirListePaiements()
 {
     m_mode = VoirListePaiementsTiers;
-    RemplitLesTables();
-    RegleAffichageFiche();
-    ui->ListeupTableWidget->selectRow(0);
-    CompleteDetailsTable(ui->ListeupTableWidget, 0);
-    ui->ListeupTableWidget->setFocus();
+    bool ok = true;
+    RemplitLesTables(ok);
+    if (ok)
+    {
+        RegleAffichageFiche();
+        ui->ListeupTableWidget->selectRow(0);
+        CompleteDetailsTable(ui->ListeupTableWidget, 0);
+        ui->ListeupTableWidget->setFocus();
+    }
+    else
+        m_mode = Accueil;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -767,7 +774,8 @@ void dlg_paiementtiers::ValidePaiement()
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
                                 tr("Il est en cours de modification par un autre utilisateur."));
-            RemplitLesTables();
+            bool ok = true;
+            RemplitLesTables(ok);
             return;
         }
         requete = "SELECT idActe FROM " TBL_LIGNESPAIEMENTS
@@ -1832,7 +1840,8 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     db->StandardSQL(requete);
 
     m_listidactes = m_listactesamodifier;
-    RemplitLesTables();
+    bool ok = true;
+    RemplitLesTables(ok);
     RegleAffichageFiche();
     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
     ui->dateEdit->setDate(rec->date());
@@ -2124,7 +2133,8 @@ void dlg_paiementtiers::RemetToutAZero()
     ui->BanqueChequecomboBox        ->clearEditText();
     ui->TireurChequelineEdit        ->clear();
     m_listidactes.clear();
-    RemplitLesTables();
+    bool ok = true;
+    RemplitLesTables(ok);
     ui->OKupPushButton              ->setEnabled(false);
 }
 
@@ -2406,7 +2416,7 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Remplir les tables en fonction du mode appelé ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::RemplitLesTables()
+void dlg_paiementtiers::RemplitLesTables(bool &ok)
 {
     QString             requete;
     disconnect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
@@ -2505,7 +2515,6 @@ void dlg_paiementtiers::RemplitLesTables()
     case VoirListePaiementsTiers:      // on reconstruit la liste des tiers
     {
         // On sélectionne tous les paiements sans exception
-        DefinitArchitectureTableView(ui->ListeupTableWidget,Paiements);
         requete =   "SELECT idRecette, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette, RCDate, Montant as Paye FROM " TBL_RECETTES
                 "\n LEFT OUTER JOIN (SELECT RCDate, idRemCheq FROM " TBL_REMISECHEQUES ") AS rc\n"
                 " ON rc.idRemCheq = idRemise\n"
@@ -2515,6 +2524,13 @@ void dlg_paiementtiers::RemplitLesTables()
 
         //UpMessageBox::Watch(this,requete);
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,m_ok);
+        if (detpmtlist.size() == 0)
+        {
+            UpMessageBox::Watch(this, tr("Pas de paiement par tiers enregistré"));
+            ok = false;
+            return;
+        }
+        DefinitArchitectureTableView(ui->ListeupTableWidget,Paiements);
         RemplirTableWidget(ui->ListeupTableWidget, Paiements, detpmtlist, false, Qt::Unchecked);
 
         ui->DetailupTableWidget->setRowCount(0);
@@ -2802,23 +2818,24 @@ void dlg_paiementtiers::VideDetailsTable(int Rangee)
     QString ActeAVirer = ui->DetailupTableWidget->item(Rangee,0)->text();
     //UpMessageBox::Watch(this,ui->DetailupTableWidget->item(Rangee,3)->text()+"\n"+ActeAVirer);
     //on décoche les items correspondants dans ui->ListeupTableWidget et TableSalDat
-        QList<QTableWidgetItem*> items;
-        items = ui->ListeupTableWidget->findItems(ActeAVirer,Qt::MatchExactly);
-        for (int j = 0; j < items.size(); j++)
-        {
-            int i = items.at(j)->row();
-            idActeTrouve = true;
-            UpCheckBox *CheckItem = new UpCheckBox;
-            CheckItem->setCheckState(Qt::Unchecked);
-            CheckItem->setRowTable(i);
-            CheckItem->setFocusPolicy(Qt::NoFocus);
-            connect(CheckItem, &UpCheckBox::uptoggled, this, &dlg_paiementtiers::RenvoieRangee);
-            CheckItem->installEventFilter(this);
-            ui->ListeupTableWidget->removeCellWidget(i,1);
-            ui->ListeupTableWidget->setCellWidget(i,1,CheckItem);
-            RetireVerrouCompta(ActeAVirer.toInt());
-        }
-    if (!idActeTrouve) RemplitLesTables();
+    QList<QTableWidgetItem*> items;
+    items = ui->ListeupTableWidget->findItems(ActeAVirer,Qt::MatchExactly);
+    for (int j = 0; j < items.size(); j++)
+    {
+        int i = items.at(j)->row();
+        idActeTrouve = true;
+        UpCheckBox *CheckItem = new UpCheckBox;
+        CheckItem->setCheckState(Qt::Unchecked);
+        CheckItem->setRowTable(i);
+        CheckItem->setFocusPolicy(Qt::NoFocus);
+        connect(CheckItem, &UpCheckBox::uptoggled, this, &dlg_paiementtiers::RenvoieRangee);
+        CheckItem->installEventFilter(this);
+        ui->ListeupTableWidget->removeCellWidget(i,1);
+        ui->ListeupTableWidget->setCellWidget(i,1,CheckItem);
+        RetireVerrouCompta(ActeAVirer.toInt());
+    }
+    bool ok = true;
+    if (!idActeTrouve) RemplitLesTables(ok);
     // on supprime la rangée de la ui->DetailupTableWidget et on reindexe les upcheckbox et les uplinetext
     ui->DetailupTableWidget->removeRow(Rangee);
     TrieListe(ui->DetailupTableWidget);

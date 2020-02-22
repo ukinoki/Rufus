@@ -2919,7 +2919,10 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
                                + "\n\n" +
                                tr("avec le login ") + Login + " " + tr("et le mot de passe que vous avez fourni") + "\n" +
                                tr("Voulez-vous conserver ces données pour le moment ou les modifier?") + "\n" +
-                               tr("Vous pourrez les modifier par la suite\n"),
+                               tr("Vous pourrez les modifier par la suite")
+                               + "\n\n" +
+                               tr("Une liste arbitraires de cotations a été créée") + "\n" +
+                               tr("Vous pourrez la modifier par la suite dans le menu Edition/Paramètres\n"),
                                UpDialog::ButtonOK | UpDialog::ButtonEdit, QStringList() << tr("Modifier les données") << tr("Conserver les données"))
         == UpSmallButton::EDITBUTTON)
     {

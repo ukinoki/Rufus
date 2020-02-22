@@ -101,7 +101,7 @@ private:
     void                        RegleComptesComboBox(bool avecLesComptesInactifs = false);
     void                        RemetToutAZero();
     void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
-    void                        RemplitLesTables();
+    void                        RemplitLesTables(bool &ok);
     void                        ResizePaiementGroupBox();
     void                        RetireVerrouCompta(int ActeADeverrouiller);
     void                        TrieListe(UpTableWidget *TableATrier);

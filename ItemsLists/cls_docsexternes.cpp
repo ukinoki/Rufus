@@ -119,7 +119,7 @@ DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
     int iddoc = 0;
     DataBase::I()->locktable(TBL_DOCSEXTERNES);
     iddoc = DataBase::I()->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, ok);
-    bool result = (ok && iddoc  > 0);
+    bool result = (ok);
     if (result)
     {
         ++ iddoc;

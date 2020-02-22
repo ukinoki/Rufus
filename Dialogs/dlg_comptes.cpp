@@ -100,7 +100,7 @@ void dlg_comptes::AnnulArchive()
         return;
 
     int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
-    if (!ok || max==0)
+    if (!ok || max == -1)
     {
         db->rollback();
         return;
@@ -193,7 +193,7 @@ void dlg_comptes::Archiver()
     if (!db->createtransaction(listlock))
         return;
     int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
-    if (!ok)
+    if ( !ok )
     {
         db->rollback();
         return;
@@ -518,15 +518,14 @@ void dlg_comptes::VoirArchives()
     for(int i=0; i<model->rowCount(); i++)
         wdg_listarchivescombo->addItem(model->item(i,0)->text(), model->item(i,1)->text().toInt());
 
-    connect(wdg_loupbouton,             &QPushButton::clicked,       this,  [=]
+    connect(wdg_loupbouton,         &QPushButton::clicked,       this,  [=]
                 {
-                    if (m_modearchives == PARARCHIVE)    m_modearchives = TOUT;
-                    else                                m_modearchives = PARARCHIVE;
+                    m_modearchives = (m_modearchives == PARARCHIVE? TOUT : PARARCHIVE);
                     RedessineFicheArchives();
                     RemplirTableArchives();
                 });
-    connect(wdg_listarchivescombo,          QOverload<int>::of(&QComboBox::currentIndexChanged) ,this,  &dlg_comptes::RemplirTableArchives);
-    connect(wdg_flechehtbouton,         &QPushButton::clicked ,this,   [=]
+    connect(wdg_listarchivescombo,  QOverload<int>::of(&QComboBox::currentIndexChanged) ,this,  &dlg_comptes::RemplirTableArchives);
+    connect(wdg_flechehtbouton,     &QPushButton::clicked ,this,   [=]
                 {
                     QList<Archive*> listarchives = db->loadArchiveByDate(m_dateencours, m_compteencours, m_intervalledate);
                     m_dateencours = m_dateencours.addDays(-m_intervalledate);
@@ -536,6 +535,11 @@ void dlg_comptes::VoirArchives()
     wdg_listarchivescombo->setMaxVisibleItems(20);
     wdg_listarchivescombo->setFocusPolicy(Qt::StrongFocus);
     wdg_listarchivescombo->setCurrentIndex(wdg_listarchivescombo->count()-1);
+    /*! si la liste n'a qu'un élément, le fait de déclencehr setCurrentIndex() ne change pas le current index
+     * et RemplirTableArchives() n'est pas lancé
+     * d'où la suite */
+    if (wdg_listarchivescombo->count() == 1)
+        RemplirTableArchives();
     dlg_archives->exec();
     m_dateencours = QDate::currentDate();
     delete dlg_archives;
@@ -781,9 +785,8 @@ void dlg_comptes::RemplitLaTable(int idcompte)
     {
         UpMessageBox::Watch(this,tr("Pas d'écriture sur le compte"));
         wdg_bigtable->clearContents();
-        ui->MontantSoldeBrutlabel->setText("0,00 ");
-        ui->MontantSoldeConsolidelabel->setText("0,00 ");
-        ui->MontantSoldeSurRelevelabel->setText("0,00 ");
+        ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(m_soldesurreleve, 'f', 2) + " ");
+        CalculeTotal();
     }
     wdg_bigtable->clearContents();
 
