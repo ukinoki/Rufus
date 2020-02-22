@@ -109,6 +109,11 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     }
     // Récupération de l'idMotif créé ------------------------------------
     int idcpt = DataBase::I()->selectMaxFromTable(CP_IDCOMPTE_COMPTES, TBL_COMPTES, m_ok, tr("Impossible de sélectionner les enregistrements"));
+    if (!m_ok)
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
     DataBase::I()->unlocktables();
     cpt = new Compte();
     cpt->setid(idcpt);

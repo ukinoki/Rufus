@@ -91,6 +91,11 @@ Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, 
     }
     // Récupération de l'idMotif créé ------------------------------------
     int idmotif = DataBase::I()->selectMaxFromTable("idMotifsRDV", TBL_MOTIFSRDV, m_ok, tr("Impossible de sélectionner les enregistrements"));
+    if (!m_ok)
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
     DataBase::I()->unlocktables();
     QJsonObject jmotif{};
     jmotif["id"] = idmotif;

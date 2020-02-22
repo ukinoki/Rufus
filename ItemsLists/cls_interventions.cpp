@@ -65,7 +65,7 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     int idintervention = 0;
     DataBase::I()->locktables(QStringList() << TBL_LIGNESPRGOPERATOIRES);
     idintervention = DataBase::I()->selectMaxFromTable(CP_ID_LIGNPRGOPERATOIRE, TBL_LIGNESPRGOPERATOIRES, m_ok);
-    bool result = (m_ok);
+    bool result = ( m_ok );
     if (result)
     {
         ++ idintervention;
@@ -150,7 +150,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
     int idiol = 0;
     DataBase::I()->locktables(QStringList() << TBL_IOLS);
     idiol = DataBase::I()->selectMaxFromTable(CP_ID_IOLS, TBL_IOLS, m_ok);
-    bool result = (m_ok);
+    bool result = ( m_ok );
     if (result)
     {
         ++ idiol;
@@ -226,7 +226,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     int idtypeintervention = 0;
     DataBase::I()->locktables(QStringList() << TBL_TYPESINTERVENTIONS);
     idtypeintervention = DataBase::I()->selectMaxFromTable(CP_ID_TYPINTERVENTION, TBL_TYPESINTERVENTIONS, m_ok);
-    bool result = (m_ok);
+    bool result = ( m_ok );
     if (result)
     {
         ++ idtypeintervention;

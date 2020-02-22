@@ -162,6 +162,7 @@ void DataBase::unlocktables()
 {
     StandardSQL("UNLOCK TABLES;");
 }
+
 int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg)
 {
     QString req = "select max(" + nomchamp + ") from " + nomtable;

@@ -65,7 +65,7 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
     int idrefraction = 0;
     DataBase::I()->locktables(QStringList() << TBL_REFRACTIONS);
     idrefraction = DataBase::I()->selectMaxFromTable(CP_ID_REFRACTIONS, TBL_REFRACTIONS, m_ok);
-    if (m_ok)
+    if ( m_ok )
     {
         ++ idrefraction;
         sets[CP_ID_REFRACTIONS] = idrefraction;
