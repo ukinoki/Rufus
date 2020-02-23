@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_salledattente.h"
 
 dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionSalDat", parent),
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionSalDat", parent),
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);

@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationcorresp.h"
 
 dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedecins, Correspondant *cor, QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
     ui(new Ui::dlg_identificationcorresp)
 {
     ui->setupUi(this);

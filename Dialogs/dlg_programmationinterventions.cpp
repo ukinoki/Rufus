@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_programmationinterventions.h"
 
-dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWidget *parent) : UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
+dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWidget *parent) : UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
 {
     m_currentpatient = pat;
     setWindowTitle(tr("Programmer une intervention pour ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());

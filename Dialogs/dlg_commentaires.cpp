@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_commentaires::dlg_commentaires(QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionCommentaires", parent),
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionCommentaires", parent),
     ui(new Ui::dlg_commentaires)
 {
     ui->setupUi(this);

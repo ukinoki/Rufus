@@ -19,8 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                61  // version de la base de données
-#define VERSION_RESSOURCES                          34  // version des fichiers de ressources
+#define VERSION_BASE                          61  // version de la base de données
+#define VERSION_RESSOURCES                    34  // version des fichiers de ressources
 
 // Les bases
 #define DB_CCAM                               "CCAM"
@@ -592,59 +592,62 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_OKConnexion                          "OKConnexion"                                       /*! fin du message de confirmation de la connexion */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
-#define ARRIVE                                      "Arrivé"
-#define ENCOURS                                     "En cours"
-#define ENATTENTENOUVELEXAMEN                       "En attente de nouvel examen par "
-#define RETOURACCUEIL                               "Retour accueil"
-#define ENCOURSEXAMEN                               "En cours de consultation avec "
+#define ARRIVE                                  tr("Arrivé")
+#define ENCOURS                                 tr("En cours")
+#define ENATTENTENOUVELEXAMEN                   tr("En attente de nouvel examen par ")
+#define RETOURACCUEIL                           tr("Retour accueil")
+#define ENCOURSEXAMEN                           tr("En cours de consultation avec ")
 
 // Les fichiers et répertoires divers
-#define DIR_LIBS2                                "/Applications";
-#define DIR_RESSOURCES                           "/Ressources"
-#define DIR_RUFUS                                "/Documents/Rufus"
-#define DIR_RUFUSADMIN                           "/Documents/RufusAdmin"
-#define DIR_FACTURES                             "/Factures"
-#define DIR_ORIGINAUX                            "/Originaux"
-#define DIR_FACTURESSANSLIEN                     "/FacturesSansLien"
-#define DIR_DOSSIERECHANGE                       "/DossierEchange"
-#define DIR_CRDOSSIERS                           "/CRDossiers"
-#define DIR_IMAGERIE                             "/Imagerie"
-#define DIR_IMAGES                               "/Images"
-#define DIR_VIDEOS                               "/Videos"
-#define DIR_PROV                                 "/Prov"
-#define DIR_LOGS                                 "/Logs"
-#define DIR_ECHECSTRANSFERTS                     "/EchecsTransferts"
+#define DIR_LIBS2                               "/Applications";
+#define PATHTODIR_RUFUS                         QDir::homePath() + DIR_RUFUS
+#define PATHTODIR_RUFUSADMIN                    QDir::homePath() + DIR_RUFUSADMIN
+#define DIR_RUFUS                               "/Documents/Rufus"
+#define DIR_RUFUSADMIN                          "/Documents/RufusAdmin"
+#define DIR_IMAGERIE                            "/Imagerie"
+#define DIR_RESSOURCES                          "/Ressources"
+#define DIR_FACTURES                            "/Factures"
+#define DIR_ORIGINAUX                           "/Originaux"
+#define DIR_FACTURESSANSLIEN                    "/FacturesSansLien"
+#define DIR_DOSSIERECHANGE                      "/DossierEchange"
+#define DIR_CRDOSSIERS                          "/CRDossiers"
+#define DIR_IMAGES                              "/Images"
+#define DIR_VIDEOS                              "/Videos"
+#define DIR_PROV                                "/Prov"
+#define DIR_LOGS                                "/Logs"
+#define DIR_ECHECSTRANSFERTS                    "/EchecsTransferts"
 
-#define FILE_ENTETEORDO                           "/Documents/Rufus/Ressources/Entete_Ordonnance.txt"
-#define FILE_CORPSORDO                            "/Documents/Rufus/Ressources/Corps_Ordonnance.txt"
-#define FILE_ENTETEORDOALD                        "/Documents/Rufus/Ressources/Entete_OrdoALD.txt"
-#define FILE_CORPSORDOALD                         "/Documents/Rufus/Ressources/Corps_OrdoALD.txt"
-#define FILE_PIEDPAGE                             "/Documents/Rufus/Ressources/Pied_Ordonnance.txt"
-#define FILE_PIEDORDOLUNETTES                     "/Documents/Rufus/Ressources/Pied_Ordonnance_Lunettes.txt"
-#define FILE_PDF                                  "/Documents/Rufus/Ressources/pdf.pdf"
-#define FILE_TEST                                 "/Documents/Rufus/Ressources/test.txt"
-#define FILE_INI                                  "/Documents/Rufus/Rufus.ini"
-#define SCRIPTBACKUPFILE                          "/Documents/Rufus/RufusScriptBackup.sh"
-#define SCRIPTRESTOREFILE                         "/Documents/Rufus/RufusScriptRestore.sh"
-#define SCRIPT_MACOS_PLIST_FILE                   "/Library/LaunchAgents/rufus.bup.plist"
+#define FILE_INI                                "/Rufus.ini"
+
+#define PATHTOFILE_ENTETEORDO                   PATHTODIR_RUFUS DIR_RESSOURCES "/Entete_Ordonnance.txt"
+#define PATHTOFILE_CORPSORDO                    PATHTODIR_RUFUS DIR_RESSOURCES "/Corps_Ordonnance.txt"
+#define PATHTOFILE_ENTETEORDOALD                PATHTODIR_RUFUS DIR_RESSOURCES "/Entete_OrdoALD.txt"
+#define PATHTOFILE_CORPSORDOALD                 PATHTODIR_RUFUS DIR_RESSOURCES "/Corps_OrdoALD.txt"
+#define PATHTOFILE_PIEDPAGE                     PATHTODIR_RUFUS DIR_RESSOURCES "/Pied_Ordonnance.txt"
+#define PATHTOFILE_PIEDPAGEORDOLUNETTES         PATHTODIR_RUFUS DIR_RESSOURCES "/Pied_Ordonnance_Lunettes.txt"
+#define PATHTOFILE_PDF                          PATHTODIR_RUFUS DIR_RESSOURCES "/pdf.pdf"
+#define PATHTOFILE_INI                          PATHTODIR_RUFUS FILE_INI
+#define PATHTOFILE_SCRIPTBACKUP                 PATHTODIR_RUFUS "/RufusScriptBackup.sh"
+#define PATHTOFILE_SCRIPTRESTORE                PATHTODIR_RUFUS "/RufusScriptRestore.sh"
+#define PATHTOFILE_SCRIPT_MACOS_PLIST           QDir::homePath() + "/Library/LaunchAgents/rufus.bup.plist"
 
 // Variables mysql
-#define MAX_ALLOWED_PACKET                          "16"
+#define MAX_ALLOWED_PACKET                      "16"
 
 // le son d'alarme
-#define NOM_ALARME                                  "://goutte.wav"
+#define NOM_ALARME                              "://goutte.wav"
 
 // la largeur de la formule de réfraction dans le champ ActeTexte
-#define LARGEUR_FORMULE                             "310"
+#define LARGEUR_FORMULE                         "310"
 
 // la couleur des titres
-#define COULEUR_TITRES                              "blue"
+#define COULEUR_TITRES                          "blue"
 
 // le lien vers la CCAM
-#define LIEN_CCAM                                   "https://www.ameli.fr/accueil-de-la-ccam/trouver-un-acte/consultation-par-chapitre.php?chap=a%3A0%3A%7B%7D&add=2#chapitre_2"
+#define LIEN_CCAM                               "https://www.ameli.fr/accueil-de-la-ccam/trouver-un-acte/consultation-par-chapitre.php?chap=a%3A0%3A%7B%7D&add=2#chapitre_2"
 
 // la taille maximale des images
-#define TAILLEMAXIIMAGES                            262144
+#define TAILLEMAXIIMAGES                        262144
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"

@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionRecettes", parent)
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionRecettes", parent)
 {
     CalcBilan();
     if (!m_initok)
@@ -27,72 +27,72 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    wdg_totalmontantlbl         = new UpLabel();
-    wdg_totalrecetteslbl             = new UpLabel();
-    wdg_totalapportslbl          = new UpLabel();
-    wdg_grandtotallbl           = new UpLabel();
-    wdg_label                  = new UpLabel(Q_NULLPTR ,tr("Actes effectués par "));
-    wdg_hboxsup                 = new QHBoxLayout();
+    wdg_totalmontantlbl     = new UpLabel();
+    wdg_totalrecetteslbl    = new UpLabel();
+    wdg_totalapportslbl     = new UpLabel();
+    wdg_grandtotallbl       = new UpLabel();
+    wdg_label               = new UpLabel(Q_NULLPTR ,tr("Actes effectués par "));
+    wdg_hboxsup             = new QHBoxLayout();
     QHBoxLayout *hboxinf    = new QHBoxLayout();
     QVBoxLayout *box        = new QVBoxLayout();
-    wdg_supervcombobox              = new UpComboBox();
-    wdg_supervcombobox              ->setFixedWidth(130);
+    wdg_supervcombobox      = new UpComboBox();
+    wdg_supervcombobox      ->setFixedWidth(130);
 
-    wdg_totalrecetteslbl->setAlignment(Qt::AlignRight);
-    wdg_grandtotallbl->setAlignment(Qt::AlignRight);
-    wdg_totalmontantlbl ->setAlignment(Qt::AlignRight);
+    wdg_totalrecetteslbl    ->setAlignment(Qt::AlignRight);
+    wdg_grandtotallbl       ->setAlignment(Qt::AlignRight);
+    wdg_totalmontantlbl     ->setAlignment(Qt::AlignRight);
 
-    wdg_classmtupgrpbox         = new QGroupBox(tr("Classer par"));
+    wdg_classmtupgrpbox     = new QGroupBox(tr("Classer par"));
     QFontMetrics fm         = QFontMetrics(qApp->font());
     int hauteurligne        = int(fm.height()*1.6);
-    wdg_classmtupgrpbox         ->setFixedHeight((3*hauteurligne)+5);
-    wdg_comptableradiobouton          = new UpRadioButton(tr("comptabilité"));
-    wdg_superviseurradiobouton             = new UpRadioButton(tr("par soignant"));
-    wdg_superviseurradiobouton->setChecked(true);
-    QVBoxLayout *vbox = new QVBoxLayout;
-    vbox->addWidget(wdg_superviseurradiobouton);
-    vbox->addWidget(wdg_comptableradiobouton);
-    vbox->setContentsMargins(8,0,8,0);
-    wdg_classmtupgrpbox->setLayout(vbox);
+    wdg_classmtupgrpbox     ->setFixedHeight((3*hauteurligne)+5);
+    wdg_comptableradiobouton    = new UpRadioButton(tr("comptabilité"));
+    wdg_superviseurradiobouton  = new UpRadioButton(tr("par soignant"));
+    wdg_superviseurradiobouton  ->setChecked(true);
+    QVBoxLayout *vbox       = new QVBoxLayout;
+    vbox                    ->addWidget(wdg_superviseurradiobouton);
+    vbox                    ->addWidget(wdg_comptableradiobouton);
+    vbox                    ->setContentsMargins(8,0,8,0);
+    wdg_classmtupgrpbox     ->setLayout(vbox);
 
-    wdg_hboxsup->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed)));
-    wdg_hboxsup->addWidget(wdg_supervcombobox);
-    wdg_hboxsup->addSpacerItem((new QSpacerItem(30,5,QSizePolicy::Expanding)));
-    wdg_hboxsup->addWidget(wdg_totalmontantlbl);
-    wdg_hboxsup->addSpacerItem((new QSpacerItem(50,5,QSizePolicy::Minimum)));
-    wdg_hboxsup->addWidget(wdg_totalrecetteslbl);
-    wdg_hboxsup->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
-    wdg_hboxsup->setContentsMargins(0,0,0,0);
-    wdg_hboxsup->setSpacing(0);
-    hboxinf->addSpacerItem((new QSpacerItem(0,10,QSizePolicy::Expanding)));
-    hboxinf->addWidget(wdg_totalapportslbl);
-    hboxinf->addSpacerItem((new QSpacerItem(0,10,QSizePolicy::Expanding)));
-    hboxinf->addWidget(wdg_grandtotallbl);
-    hboxinf->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
-    hboxinf->setContentsMargins(0,0,0,0);
-    hboxinf->setSpacing(0);
-    box->addLayout(wdg_hboxsup);
-    box->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Expanding, QSizePolicy::Expanding)));
-    box->addLayout(hboxinf);
-    box->setContentsMargins(0,0,0,0);
-    box->setSpacing(0);
+    wdg_hboxsup ->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed)));
+    wdg_hboxsup ->addWidget(wdg_supervcombobox);
+    wdg_hboxsup ->addSpacerItem((new QSpacerItem(30,5,QSizePolicy::Expanding)));
+    wdg_hboxsup ->addWidget(wdg_totalmontantlbl);
+    wdg_hboxsup ->addSpacerItem((new QSpacerItem(50,5,QSizePolicy::Minimum)));
+    wdg_hboxsup ->addWidget(wdg_totalrecetteslbl);
+    wdg_hboxsup ->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
+    wdg_hboxsup ->setContentsMargins(0,0,0,0);
+    wdg_hboxsup ->setSpacing(0);
+    hboxinf     ->addSpacerItem((new QSpacerItem(0,10,QSizePolicy::Expanding)));
+    hboxinf     ->addWidget(wdg_totalapportslbl);
+    hboxinf     ->addSpacerItem((new QSpacerItem(0,10,QSizePolicy::Expanding)));
+    hboxinf     ->addWidget(wdg_grandtotallbl);
+    hboxinf     ->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
+    hboxinf     ->setContentsMargins(0,0,0,0);
+    hboxinf     ->setSpacing(0);
+    box         ->addLayout(wdg_hboxsup);
+    box         ->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Expanding, QSizePolicy::Expanding)));
+    box         ->addLayout(hboxinf);
+    box         ->setContentsMargins(0,0,0,0);
+    box         ->setSpacing(0);
 
-    wdg_choixperiodebouton   = new UpPushButton(tr("Changer la période"));
-    wdg_exportbouton      = new UpPushButton(tr("Exporter la table"));
+    wdg_choixperiodebouton  = new UpPushButton(tr("Changer la période"));
+    wdg_exportbouton        = new UpPushButton(tr("Exporter la table"));
     int h = 40;
-    wdg_choixperiodebouton->setMinimumHeight(h);
-    wdg_exportbouton->setMinimumHeight(h);
-    wdg_choixperiodebouton->setIcon(Icons::icDate());
-    wdg_exportbouton->setIcon(Icons::icSauvegarder());
+    wdg_choixperiodebouton  ->setMinimumHeight(h);
+    wdg_exportbouton        ->setMinimumHeight(h);
+    wdg_choixperiodebouton  ->setIcon(Icons::icDate());
+    wdg_exportbouton        ->setIcon(Icons::icSauvegarder());
     int l = 20;
-    wdg_choixperiodebouton->setIconSize(QSize(l,l));
-    wdg_exportbouton->setIconSize(QSize(l,l));
+    wdg_choixperiodebouton  ->setIconSize(QSize(l,l));
+    wdg_exportbouton        ->setIconSize(QSize(l,l));
     AjouteWidgetLayButtons(wdg_exportbouton,false);
     AjouteWidgetLayButtons(wdg_choixperiodebouton, false);
     setStageCount(1);
 
-    wdg_lblbox = new QHBoxLayout();
-    wdg_lblbox->addLayout(box);
+    wdg_lblbox      = new QHBoxLayout();
+    wdg_lblbox      ->addLayout(box);
 
     QString Titre;
     if (m_debut == m_fin)
@@ -101,15 +101,15 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
         Titre = tr("Bilan des recettes pour la période du ") + m_debut.toString(tr("d MMMM yyyy")) + tr(" au ") + m_fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
-    m_mode = SUPERVISEUR;
-    wdg_bigtable = new UpTableView();
+    m_mode          = SUPERVISEUR;
+    wdg_bigtable    = new UpTableView();
 
     RemplitLaTable();
     CalcSuperviseursEtComptables();
     FiltreTable(-1);
-    dlglayout()->insertLayout(0,wdg_lblbox);
-    dlglayout()->insertWidget(0,wdg_bigtable);
-    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()     ->insertLayout(0,wdg_lblbox);
+    dlglayout()     ->insertWidget(0,wdg_bigtable);
+    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {accept();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
@@ -561,7 +561,7 @@ void dlg_bilanrecettes::ExportTable()
             ExportEtat.append("\n");
         }
     }
-    QString ExportFileName = QDir::homePath() + DIR_RUFUS + "/"
+    QString ExportFileName = PATHTODIR_RUFUS + "/"
                             + (m_mode == COMPTABLE? tr("Recettes") + " " + Datas::I()->users->userconnected()->login() : tr("Actes") + " " + wdg_supervcombobox->currentText())
                             + " " + tr("du") + " " + m_debut.toString("d MMM yyyy") + " " + tr("au") + " " + m_fin.toString(tr("d MMM yyyy"))
                             + ".csv";

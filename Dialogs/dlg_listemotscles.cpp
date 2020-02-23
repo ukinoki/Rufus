@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listemotscles.h"
 
 dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionMotsCles", parent)
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionMotsCles", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 

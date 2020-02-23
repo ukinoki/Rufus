@@ -224,7 +224,7 @@ void dlg_depenses::ExportTable()
             }
         }
     }
-    QString ExportFileName = QDir::homePath() + DIR_RUFUS + "/"
+    QString ExportFileName = PATHTODIR_RUFUS + "/"
                             + tr("Depenses") + " " + ui->UserscomboBox->currentText() + " "
                             + tr("Année") + " " + ui->AnneecomboBox->currentText()
                             + ".csv";

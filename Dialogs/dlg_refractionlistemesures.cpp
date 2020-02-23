@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_refractionlistemesures.h"
 
 dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *parent) :
-    UpDialog (QDir::homePath() + FILE_INI, "PositionsFiches/PositionListeMes", parent)
+    UpDialog (PATHTOFILE_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     m_mode       = mode;

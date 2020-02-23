@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     m_docsexternes  = Docs;
 
@@ -111,7 +111,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_avecprevisu = proc  ->ApercuAvantImpression();
 
     /*Gestion des XML - exemple
-    QString adressexml = QDir::homePath() + DIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
+    QString adressexml = PATHTODIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
     QFile xmldoc(adressexml);
     if (xmldoc.open(QIODevice::ReadOnly))
     {

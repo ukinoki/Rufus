@@ -85,7 +85,7 @@ bool pyxinterf::InitConnexionPyxvital()
     QString     PyxvitalPath;
 
     // Recherche paramètres Pyxvital.ini.
-    nomFicIni   = QDir::homePath() + FILE_INI;
+    nomFicIni   = PATHTOFILE_INI;
 
     proc->settings()->setIniCodec("ISO 8859-1");
 

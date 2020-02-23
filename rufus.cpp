@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-02-2020/1");
+    qApp->setApplicationVersion("23-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -249,11 +249,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         proc->ParamAutoBackup();
     /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
 #ifdef Q_OS_MACX
-    if (QFile::exists(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE))
+    if (QFile::exists(PATHTOFILE_SCRIPT_MACOS_PLIST))
     {
-        QFile::remove(QDir::homePath() + SCRIPT_MACOS_PLIST_FILE);
+        QFile::remove(PATHTOFILE_SCRIPT_MACOS_PLIST);
         // décharge du launchd
-        QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath() + SCRIPT_MACOS_PLIST_FILE "\"\"";
+        QString unload  = "bash -c \"/bin/launchctl unload \"" + PATHTOFILE_SCRIPT_MACOS_PLIST "\"\"";
         QProcess dumpProcess(this);
         dumpProcess.start(unload);
         dumpProcess.waitForFinished();

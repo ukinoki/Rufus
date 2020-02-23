@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_autresmesures.h"
 
 dlg_autresmesures::dlg_autresmesures(Mode mod,  QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionTono", parent)
+    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionTono", parent)
 {
     m_mode            = mod;
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
