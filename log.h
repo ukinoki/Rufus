@@ -92,7 +92,7 @@ public:
 private:
     static QString dirlog() {
         QDir DirRssces;
-        QString dirlog = (qAppName() == "RufusAdmin"? PATHTODIR_RUFUSADMIN : PATHTODIR_RUFUS) + DIR_LOGS;
+        QString dirlog = (qAppName() == "RufusAdmin"? PATH_DIR_RUFUSADMIN : PATH_DIR_RUFUS) + NOM_DIR_LOGS;
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         return dirlog;

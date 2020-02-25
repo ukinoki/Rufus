@@ -319,7 +319,7 @@ QSize Utils::CalcSize(QString txt, QFont fm)
 bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert)
 {
     /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
-    QString CheminEchecTransfrDir   = Dirprov + DIR_ECHECSTRANSFERTS;
+    QString CheminEchecTransfrDir   = Dirprov + NOM_DIR_ECHECSTRANSFERTS;
     if (!mkpath(CheminEchecTransfrDir))
     {
         QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + QObject::tr(" invalide");
@@ -327,7 +327,7 @@ bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfer
         return false;
     }
     /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
-    QString DirStockProvPath = Dirprov + DIR_PROV;
+    QString DirStockProvPath = Dirprov + NOM_DIR_PROV;
     if (!mkpath(DirStockProvPath))
     {
         QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + QObject::tr(" invalide");

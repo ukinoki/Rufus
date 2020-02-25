@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationpatient.h"
 
 dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionIdentificationPatient", parent),
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentificationPatient", parent),
     ui(new Ui::dlg_identificationpatient)
 {
     ui->setupUi(this);

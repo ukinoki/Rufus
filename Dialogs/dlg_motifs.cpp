@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_motifs.h"
 
 dlg_motifs::dlg_motifs(QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionMotifs", parent),
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionMotifs", parent),
     ui(new Ui::dlg_motifs)
 {
     ui->setupUi(this);

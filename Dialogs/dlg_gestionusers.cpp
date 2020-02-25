@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_gestionusers.h"
 
 dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionGestionUsers", parent),
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionGestionUsers", parent),
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);

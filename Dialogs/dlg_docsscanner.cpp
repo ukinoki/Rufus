@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsscanner.h"
 
 dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionDocsScanner", parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     m_mode           = mode;
     if ( m_mode == Document)
@@ -307,11 +307,11 @@ void dlg_docsscanner::ValideFiche()
     QString user("");
     if ( m_mode != Document)
         user = Datas::I()->users->getById(Datas::I()->depenses->getById(m_iditem)->iduser())->login();
-    QString CheminBackup = m_pathdirstockageimagerie + DIR_ORIGINAUX + ( m_mode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
+    QString CheminBackup = m_pathdirstockageimagerie + NOM_DIR_ORIGINAUX + ( m_mode==Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + m_nomfichierimageencours);
 
-    QString CheminOKTransfrDir  = m_pathdirstockageimagerie + ( m_mode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
+    QString CheminOKTransfrDir  = m_pathdirstockageimagerie + ( m_mode == Document? NOM_DIR_IMAGES "/" + datetransfer : NOM_DIR_FACTURES "/" + user) ;
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
@@ -434,7 +434,7 @@ void dlg_docsscanner::ValideFiche()
     }
     else if (!m_accesdistant)
     {
-        QString CheminOKTransfrDoc = m_pathdirstockageimagerie + ( m_mode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
+        QString CheminOKTransfrDoc = m_pathdirstockageimagerie + ( m_mode == Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);

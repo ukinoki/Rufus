@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsvideo.h"
 
 dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionDocsVideo", parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     m_currentpatient = pat;
@@ -230,7 +230,7 @@ void dlg_docsvideo::ValideFiche()
         return;
     }
     // on vérifie que le dossier de stockage des videos existe sinon on le crée
-    QString CheminVideoDir      = NomDirStockageImagerie + DIR_VIDEOS;
+    QString CheminVideoDir      = NomDirStockageImagerie + NOM_DIR_VIDEOS;
     QDir VideoDir;
     if (!QDir(CheminVideoDir).exists())
         if (!VideoDir.mkdir(CheminVideoDir))

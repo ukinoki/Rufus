@@ -616,7 +616,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
 bool ImportDocsExternesThread::DefinitDossiersImagerie()
 {
     m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
-    m_pathdirstockageprovisoire = m_pathdirstockageimagerie + DIR_PROV;
+    m_pathdirstockageprovisoire = m_pathdirstockageimagerie + NOM_DIR_PROV;
     if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirstockageprovisoire + "</b></font>" + tr(" invalide");
@@ -625,7 +625,7 @@ bool ImportDocsExternesThread::DefinitDossiersImagerie()
         emit emitmsg(listmsg, 3000);
         return false;
     }
-    m_pathdirOKtransfer      = m_pathdirstockageimagerie + DIR_IMAGES + "/" + m_datetransfer;
+    m_pathdirOKtransfer      = m_pathdirstockageimagerie + NOM_DIR_IMAGES + "/" + m_datetransfer;
     if (!Utils::mkpath(m_pathdirOKtransfer))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirOKtransfer + "</b></font>" + tr(" invalide");
@@ -634,7 +634,7 @@ bool ImportDocsExternesThread::DefinitDossiersImagerie()
         emit emitmsg(listmsg, 3000);
         return false;
     }
-    m_pathdirechectransfer   = m_pathdirstockageimagerie + DIR_ECHECSTRANSFERTS;
+    m_pathdirechectransfer   = m_pathdirstockageimagerie + NOM_DIR_ECHECSTRANSFERTS;
     if (!Utils::mkpath(m_pathdirechectransfer))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirechectransfer + "</b></font>" + tr(" invalide");
@@ -643,7 +643,7 @@ bool ImportDocsExternesThread::DefinitDossiersImagerie()
         emit emitmsg(listmsg, 3000);
         return false;
     }
-    m_pathdiroriginOKtransfer    = m_pathdirstockageimagerie + DIR_ORIGINAUX DIR_IMAGES + "/" + m_datetransfer;
+    m_pathdiroriginOKtransfer    = m_pathdirstockageimagerie + NOM_DIR_ORIGINAUX NOM_DIR_IMAGES + "/" + m_datetransfer;
     if (!Utils::mkpath(m_pathdiroriginOKtransfer))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdiroriginOKtransfer + "</b></font>" + tr(" invalide");

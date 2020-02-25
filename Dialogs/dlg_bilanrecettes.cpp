@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionRecettes", parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionRecettes", parent)
 {
     CalcBilan();
     if (!m_initok)
@@ -561,7 +561,7 @@ void dlg_bilanrecettes::ExportTable()
             ExportEtat.append("\n");
         }
     }
-    QString ExportFileName = PATHTODIR_RUFUS + "/"
+    QString ExportFileName = PATH_DIR_RUFUS + "/"
                             + (m_mode == COMPTABLE? tr("Recettes") + " " + Datas::I()->users->userconnected()->login() : tr("Actes") + " " + wdg_supervcombobox->currentText())
                             + " " + tr("du") + " " + m_debut.toString("d MMM yyyy") + " " + tr("au") + " " + m_fin.toString(tr("d MMM yyyy"))
                             + ".csv";

@@ -99,7 +99,6 @@ private:
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
-    QString                 m_nomFichierIni;
     UpDialog                *dlg_buprestore;
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
     dlg_paramconnexion      *Dlg_ParamConnex;

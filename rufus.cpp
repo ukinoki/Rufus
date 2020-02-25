@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-02-2020/1");
+    qApp->setApplicationVersion("25-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -249,11 +249,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         proc->ParamAutoBackup();
     /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
 #ifdef Q_OS_MACX
-    if (QFile::exists(PATHTOFILE_SCRIPT_MACOS_PLIST))
+    if (QFile::exists(PATH_FILE_SCRIPT_MACOS_PLIST))
     {
-        QFile::remove(PATHTOFILE_SCRIPT_MACOS_PLIST);
+        QFile::remove(PATH_FILE_SCRIPT_MACOS_PLIST);
         // décharge du launchd
-        QString unload  = "bash -c \"/bin/launchctl unload \"" + PATHTOFILE_SCRIPT_MACOS_PLIST "\"\"";
+        QString unload  = "bash -c \"/bin/launchctl unload \"" PATH_FILE_SCRIPT_MACOS_PLIST "\"\"";
         QProcess dumpProcess(this);
         dumpProcess.start(unload);
         dumpProcess.waitForFinished();
@@ -923,12 +923,12 @@ void Rufus::MAJPatientsVus()
     QString             NomPrenom, zw, A;
     QFontMetrics        fm(qApp->font());
     // PATIENTS VUS AUJOURD'HUI ---------------------------------------------------------------------------------------------------
-    QString req =   "SELECT pat.IdPat, act." CP_IDACTE_ACTES " , PatNom, PatPrenom, " CP_LOGIN_USR ", " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", TypePaiement, Tiers, usr." CP_ID_USR " FROM "
+    QString req =   "SELECT pat." CP_IDPAT_PATIENTS ", act." CP_IDACTE_ACTES " , " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_LOGIN_USR ", " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", TypePaiement, Tiers, usr." CP_ID_USR " FROM "
                            TBL_PATIENTS " as pat, " TBL_ACTES " as act, " TBL_UTILISATEURS " as usr, " TBL_TYPEPAIEMENTACTES " as typ"
-                           " WHERE usr." CP_ID_USR " = act." CP_IDUSER_ACTES " and act." CP_IDPAT_ACTES " = pat.idPat and " CP_DATE_ACTES " = curdate()"
-                           " and act." CP_IDPAT_ACTES " not in (select idpat from " TBL_SALLEDATTENTE ")"
+                           " WHERE usr." CP_ID_USR " = act." CP_IDUSER_ACTES " and act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS " and " CP_DATE_ACTES " = curdate()"
+                           " and act." CP_IDPAT_ACTES " not in (select " CP_IDPAT_SALDAT " from " TBL_SALLEDATTENTE ")"
                            " and act." CP_IDACTE_ACTES " = typ.idActe"
-                           " ORDER BY ActeHeure DESC";
+                           " ORDER BY " CP_HEURE_ACTES " DESC";
     QList<QVariantList> patlist = db->StandardSelectSQL(req, m_ok, tr("Impossible de remplir la salle d'attente!"));
     if (!m_ok)
         return;
@@ -1870,7 +1870,7 @@ void Rufus::ExporteDocs()
         Message::I()->SplashMessage(msg, 6000);
         return;
     }
-    QString CheminEchecTransfrDir   = pathDirImagerie + DIR_ECHECSTRANSFERTS;
+    QString CheminEchecTransfrDir   = pathDirImagerie + NOM_DIR_ECHECSTRANSFERTS;
     if (!Utils::mkpath(CheminEchecTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
@@ -1905,7 +1905,7 @@ void Rufus::ExporteDocs()
     QTime debut = QTime::currentTime();
     QStringList listmsg;
     QString duree;
-    QString CheminOKTransfrDir      = pathDirImagerie + DIR_IMAGES;
+    QString CheminOKTransfrDir      = pathDirImagerie + NOM_DIR_IMAGES;
     QDir DirTrsferOK;
     if (!QDir(CheminOKTransfrDir).exists())
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
@@ -1927,7 +1927,7 @@ void Rufus::ExporteDocs()
                 /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
                 if (listexportjpg.at(i).at(5).toString() != "")
                 {
-                    QString CheminFichier = pathDirImagerie + DIR_IMAGES + listexportjpg.at(i).at(5).toString();
+                    QString CheminFichier = pathDirImagerie + NOM_DIR_IMAGES + listexportjpg.at(i).at(5).toString();
                     if (QFile(CheminFichier).exists())
                     {
                         db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_JPG_DOCSEXTERNES " = null where " CP_ID_DOCSEXTERNES " = " + listexportjpg.at(i).at(0).toString());
@@ -2008,7 +2008,7 @@ void Rufus::ExporteDocs()
         {
             if (listexportpdf.at(i).at(5).toString() != "")
             {
-                QString CheminFichier = pathDirImagerie + DIR_IMAGES + listexportpdf.at(i).at(5).toString();
+                QString CheminFichier = pathDirImagerie + NOM_DIR_IMAGES + listexportpdf.at(i).at(5).toString();
                 if (QFile(CheminFichier).exists())
                 {
                     db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_PDF_DOCSEXTERNES " = null where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString());
@@ -2102,7 +2102,7 @@ void Rufus::ExporteDocs()
     debut = QTime::currentTime();
     listmsg.clear();
     duree = "";
-    CheminOKTransfrDir  = pathDirImagerie + DIR_FACTURES;
+    CheminOKTransfrDir  = pathDirImagerie + NOM_DIR_FACTURES;
     if (!QDir(CheminOKTransfrDir).exists())
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
         {
@@ -2124,7 +2124,7 @@ void Rufus::ExporteDocs()
             /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
             if (listexportjpgfact.at(i).at(2).toString() != "")
             {
-                QString CheminFichier = pathDirImagerie + DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
+                QString CheminFichier = pathDirImagerie + NOM_DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
                     db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null where " CP_IDFACTURE_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
@@ -2231,7 +2231,7 @@ void Rufus::ExporteDocs()
         {
             if (listexportpdffact.at(i).at(2).toString() != "")
             {
-                QString CheminFichier = pathDirImagerie + DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
+                QString CheminFichier = pathDirImagerie + NOM_DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
                     db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
@@ -3020,10 +3020,10 @@ void Rufus::AfficheDossiersRechercheParMotCle()
 
 void Rufus::AfficheCourriersAFaire()
 {
-    QString req = "select " CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", PatNom, PatPrenom, " CP_DATE_ACTES
+    QString req = "select " CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DATE_ACTES
                   " from " TBL_ACTES " as act"
                   " left outer join " TBL_PATIENTS " pat"
-                  " on act." CP_IDPAT_ACTES " = pat.IDPAT"
+                  " on act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS
                   " where " CP_COURRIERAFAIRE_ACTES " = 'T' or " CP_COURRIERAFAIRE_ACTES " = '1' and act." CP_IDUSER_ACTES " = " + QString::number(currentuser()->id()) + " order by patnom, patprenom";
     QList<QVariantList> listcourriers = db->StandardSelectSQL(req, m_ok);
     if (!m_ok || listcourriers.size()==0)
@@ -4731,7 +4731,7 @@ void Rufus::SupprimerDocsEtFactures()
     }
 
     /* Supprimer les factures en attente de suppression - même démarche mais on fait une copie de la facture dans le dossier FACTURESSANSLIEN avant de la supprimer*/
-    QString CheminOKTransfrDir = NomDirStockageImagerie + DIR_FACTURESSANSLIEN;
+    QString CheminOKTransfrDir = NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN;
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
@@ -4752,9 +4752,9 @@ void Rufus::SupprimerDocsEtFactures()
             Message::I()->SplashMessage(msg, 3000);
             continue;
         }
-        QFile(NomDirStockageImagerie + DIR_FACTURES + lienfichier).copy(NomDirStockageImagerie + DIR_FACTURESSANSLIEN + lienfichier);
+        QFile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier).copy(NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
         /*  on l'efface du dossier de factures*/
-        QFile(NomDirStockageImagerie + DIR_FACTURES + lienfichier).remove();
+        QFile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier).remove();
         /* on détruit l'enregistrement dans la table FacturesASupprimer*/
         db->StandardSQL("delete from " TBL_FACTURESASUPPRIMER " where LienFichier = '" + Utils::correctquoteSQL(lienfichier) + "'");
     }
@@ -6070,7 +6070,7 @@ void Rufus::AfficheActe(Acte* acte)
         ui->ActeDatedateEdit        ->setDate(acte->date());
         ui->ActeDatedateEdit        ->setEnabled(false);
         ui->ActeMotiftextEdit       ->setText(acte->motif());
-        QString path = proc->DefinitDossierImagerie() + DIR_IMAGES + "/" + acte->date().toString("yyyy-MM-dd");
+        QString path = proc->DefinitDossierImagerie() + NOM_DIR_IMAGES + "/" + acte->date().toString("yyyy-MM-dd");
         if (Utils::mkpath(path))
             ui->ActeTextetextEdit   ->document()->setBaseUrl("file://" + path);
         ui->ActeTextetextEdit       ->setText(acte->texte());
@@ -6121,7 +6121,7 @@ void Rufus::AfficheActe(Acte* acte)
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
         ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login()
                                      + tr(" pour ") + Datas::I()->users->getById(acte->idUserSuperviseur())->login());
-        ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite())->nom());
+        ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite()) != Q_NULLPTR? Datas::I()->sites->getById(acte->idsite())->nom() : "");
 
         //3. Mettre à jour le numéro d'acte
         if (m_listeactes->actes()->size() > 0)           // Il y a des consultations
@@ -6522,7 +6522,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             //! on recherche si le dernier acte du dossier est enregistré dans typepaiements - si le montant de l'acte est 0, on propose de l'enregistrer comme gratuit
 
             QString requete =   "SELECT max(act." CP_IDACTE_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
-                    " act WHERE idPat = " + QString::number(currentpatient()->id()) +
+                    " act WHERE " CP_IDPAT_ACTES " = " + QString::number(currentpatient()->id()) +
                     " AND act." CP_IDACTE_ACTES " NOT IN (SELECT typ.idActe FROM " TBL_TYPEPAIEMENTACTES " typ)";
 
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver  le dernier acte du patient pour le contrôler!"));
@@ -7316,7 +7316,7 @@ void Rufus::ExporteActe(Acte *act)
             {
                 if (db->ModeAccesDataBase() != Utils::Distant)
                 {
-                    QString fileorigin = proc->AbsolutePathDirImagerie() + DIR_IMAGES + docmt->lienversfichier();
+                    QString fileorigin = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
                     QFile origin(fileorigin);
                     origin.copy(nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
                 }
@@ -7336,7 +7336,7 @@ void Rufus::ExporteActe(Acte *act)
                     QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
                                   " VALUES (" +
                                     QString::number(docmt->id()) + ", " +
-                                    " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + DIR_IMAGES + Utils::correctquoteSQL(docmt->lienversfichier())) + "'), " +
+                                    " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(docmt->lienversfichier())) + "'), " +
                                     QString::number(docmt->compression()) + ")";
                     db->StandardSQL(req);
 

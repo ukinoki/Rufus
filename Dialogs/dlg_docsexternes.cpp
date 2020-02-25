@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) :
-    UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionDocsExternes", parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     m_docsexternes  = Docs;
 
@@ -370,7 +370,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg, msg2);
             return;
         }
-        QString filename = NomDirStockageImagerie + DIR_VIDEOS "/" + docmt->lienversfichier();
+        QString filename = NomDirStockageImagerie + NOM_DIR_VIDEOS "/" + docmt->lienversfichier();
         QFile   qFile(filename);
         if (!qFile.open(QIODevice::ReadOnly))
         {
@@ -613,7 +613,7 @@ void dlg_docsexternes::ActualiseDocsExternes()
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 {
-    QString filename = proc->AbsolutePathDirImagerie() + DIR_IMAGES + docmt->lienversfichier();
+    QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
     QFile img(filename);
     if (!img.open(QIODevice::ReadOnly))
     {
@@ -1042,7 +1042,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         if (docmt->lienversfichier() != "")
         {
             QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
-            QString cheminFichier = (docmt->format()== VIDEO? DIR_VIDEOS : DIR_IMAGES);
+            QString cheminFichier = (docmt->format()== VIDEO? NOM_DIR_VIDEOS : NOM_DIR_IMAGES);
             filename = cheminFichier + filename;
             db->StandardSQL("insert into " TBL_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
         }

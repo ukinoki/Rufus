@@ -37,8 +37,7 @@ Procedures::Procedures(QObject *parent) :
     m_Villepardefaut = "";
     db               = DataBase::I();
 
-    m_nomFichierIni     = PATHTOFILE_INI;
-    QFile FichierIni(m_nomFichierIni);
+    QFile FichierIni(PATH_FILE_INI);
     m_applicationfont = QFont(POLICEPARDEFAUT);
     Utils::CalcFontSize(m_applicationfont);
     qApp->setFont(m_applicationfont);
@@ -50,7 +49,7 @@ Procedures::Procedures(QObject *parent) :
         while (!a)
         {
             QString msg =       tr("Le fichier d'initialisation de l'application est absent");
-            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + m_nomFichierIni + "\"\n" + tr("n'existe pas.\n"
+            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + PATH_FILE_INI "\"\n" + tr("n'existe pas.\n"
                                 "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
                                 "Cette absence est normale si vous démarrez l'application pour la première fois.\n"
                                 "Si c'est le cas, choisissez l'option \"Premier démarrage de Rufus\"\n\n"
@@ -64,7 +63,7 @@ Procedures::Procedures(QObject *parent) :
             a = VerifIni(msg, msgInfo, true, true, true, true);
         }
     }
-    m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
+    m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QSet<int> ports = QSet<int>::fromList(QList<int>() << 3306 << 3307);
     bool k =    (
                   m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
@@ -88,7 +87,7 @@ Procedures::Procedures(QObject *parent) :
         while (!k)
         {
             QString msg =       tr("Le fichier d'initialisation de l'application est corrompu\n");
-            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + m_nomFichierIni + "\"\n" +
+            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + PATH_FILE_INI "\"\n" +
                     tr("ne contient pas de renseignement valide\n"
                        "permettant la connexion à la base de données.\n\n"
                        "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
@@ -272,7 +271,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = Utils::dir_size(pathorigin + DIR_VIDEOS);
+        DataDir = Utils::dir_size(pathorigin + NOM_DIR_VIDEOS);
         m_videossize = DataDir["Size"]/1024/1024;
         if (m_videossize> 0)
         {
@@ -298,7 +297,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     if (OKimages)
     {
         // taille du dossier Images ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = Utils::dir_size(pathorigin + DIR_IMAGES);
+        DataDir = Utils::dir_size(pathorigin + NOM_DIR_IMAGES);
         m_imagessize = DataDir["Size"]/1024/1024;
         if (m_imagessize > 0)
         {
@@ -324,7 +323,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     if (OKfactures)
     {
         // taille du dossier Factures ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = Utils::dir_size(pathorigin + DIR_FACTURES);
+        DataDir = Utils::dir_size(pathorigin + NOM_DIR_FACTURES);
         m_facturessize = DataDir["Size"]/1024/1024;
         if (m_facturessize > 0)
         {
@@ -392,9 +391,9 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     };
     if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + DIR_IMAGES);
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + DIR_FACTURES);
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + DIR_VIDEOS);
+        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES);
+        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES);
+        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS);
     }
     else
     {
@@ -413,24 +412,24 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 
     if (OKBase)
     {
-        QFile::remove(PATHTOFILE_SCRIPTBACKUP);
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
         DefinitScriptBackup(pathdirdestination, OKImages, OKVideos, OKFactures);
         QString Msg = (tr("Sauvegarde de la base de données\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "sh " + PATHTOFILE_SCRIPTBACKUP;
+        const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
         const QString msgOK = tr("Base de données sauvegardée!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller, &Controller::result, this, [=](int a) {
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
             if (OKImages)
-                Utils::cleanfolder(pathdirdestination + DIR_IMAGES);
+                Utils::cleanfolder(pathdirdestination + NOM_DIR_IMAGES);
             if (OKFactures)
-                Utils::cleanfolder(pathdirdestination + DIR_FACTURES);
+                Utils::cleanfolder(pathdirdestination + NOM_DIR_FACTURES);
             if (OKVideos)
-                Utils::cleanfolder(pathdirdestination + DIR_VIDEOS);
+                Utils::cleanfolder(pathdirdestination + NOM_DIR_VIDEOS);
             result(handledlg, this);
-            QFile::remove(PATHTOFILE_SCRIPTBACKUP);
+            QFile::remove(PATH_FILE_SCRIPTBACKUP);
             return true;
         });
         m_controller.execute(task);
@@ -462,7 +461,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des factures\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + DIR_FACTURES + " " + dirdestination;
+        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + " " + dirdestination;
         const QString msgOK = tr("Fichiers factures sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -470,7 +469,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
                 this,
                 [=, &factures](int a) {
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            Utils::cleanfolder(dirdestination + DIR_FACTURES);
+            Utils::cleanfolder(dirdestination + NOM_DIR_FACTURES);
             factures = false;
             //qDebug() << "factures" << factures << images << videos;
             if (!images && !videos)
@@ -488,7 +487,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + DIR_IMAGES + " " + dirdestination;
+        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + " " + dirdestination;
         const QString msgOK = tr("Fichiers d'imagerie sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -496,7 +495,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
                 this,
                 [=, &images](int a) {
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            Utils::cleanfolder(dirdestination + DIR_IMAGES);
+            Utils::cleanfolder(dirdestination + NOM_DIR_IMAGES);
             images = false;
             //qDebug() << "images" << factures << images << videos;
             if (!factures && !videos)
@@ -514,7 +513,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des videos\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + DIR_VIDEOS + " " + dirdestination;
+        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + " " + dirdestination;
         const QString msgOK = tr("Fichiers videos sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -522,7 +521,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
                 this,
                 [=, &videos](int a) {
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            Utils::cleanfolder(dirdestination + DIR_VIDEOS);
+            Utils::cleanfolder(dirdestination + NOM_DIR_VIDEOS);
             //qDebug() << "videos" << factures << images << videos;
             videos = false;
             if (!images && !factures)
@@ -581,28 +580,28 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "BACKUP_DIR=\"" + pathdirdestination + "\"";
     //# Dossier de  ressources
     scriptbackup += "\n";
-    scriptbackup += "DIR_RESSOURCES=\"" + PATHTODIR_RUFUS DIR_RESSOURCES + "\"";
+    scriptbackup += "DIR_RESSOURCES=\"" + PATH_DIR_RESSOURCES + "\"";
     scriptbackup += "\n";
     if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
         if (AvecImages)
         {
-            scriptbackup += "DIR_IMAGES=\"" + m_parametres->dirimagerieserveur() + DIR_IMAGES + "\"";
+            scriptbackup += "DIR_IMAGES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + "\"";
             scriptbackup += "\n";
         }
         if (AvecFactures)
         {
-            scriptbackup += "DIR_FACTURES=\"" + m_parametres->dirimagerieserveur() + DIR_FACTURES + "\"";
+            scriptbackup += "DIR_FACTURES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + "\"";
             scriptbackup += "\n";
         }
         if (AvecVideos)
         {
-            scriptbackup += "DIR_VIDEOS=\"" + m_parametres->dirimagerieserveur() + DIR_VIDEOS + "\"";
+            scriptbackup += "DIR_VIDEOS=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + "\"";
             scriptbackup += "\n";
         }
     }
     //# Rufus.ini
-    scriptbackup += "RUFUSINI=\"" + PATHTOFILE_INI + "\"";
+    scriptbackup += "RUFUSINI=\"" + PATH_FILE_INI "\"";
     //# Identifiants MySQL
     scriptbackup += "\n";
     scriptbackup += "MYSQL_USER=\"" LOGIN_SQL "\"";
@@ -660,14 +659,14 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
         //! copie les fichiers image
         if (AvecImages)
         {
-            scriptbackup += "mkdir -p $BACKUP_DIR" DIR_IMAGES;
+            scriptbackup += "mkdir -p $BACKUP_DIR" NOM_DIR_IMAGES;
             scriptbackup += "\n";
             scriptbackup += "cp -R -f $DIR_IMAGES $BACKUP_DIR";
             scriptbackup += "\n";
         }
         if (AvecFactures)
         {
-            scriptbackup += "mkdir -p $BACKUP_DIR" DIR_FACTURES;
+            scriptbackup += "mkdir -p $BACKUP_DIR" NOM_DIR_FACTURES;
             scriptbackup += "\n";
             scriptbackup += "cp -R -f $DIR_FACTURES $BACKUP_DIR";
             scriptbackup += "\n";
@@ -675,17 +674,17 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
         //! copie les fichiers video
         if (AvecVideos)
         {
-            scriptbackup += "mkdir -p $BACKUP_DIR" DIR_VIDEOS;
+            scriptbackup += "mkdir -p $BACKUP_DIR" NOM_DIR_VIDEOS;
             scriptbackup += "\n";
             scriptbackup += "cp -R -f $DIR_VIDEOS $BACKUP_DIR";
             scriptbackup += "\n";
         }
     }
     // copie Rufus.ini
-    scriptbackup +=  "cp $RUFUSINI $BACKUP_DIR/$DATE/Rufus.ini";
-    if (QFile::exists(PATHTOFILE_SCRIPTBACKUP))
-        QFile::remove(PATHTOFILE_SCRIPTBACKUP);
-    QFile fbackup(PATHTOFILE_SCRIPTBACKUP);
+    scriptbackup +=  "cp $RUFUSINI $BACKUP_DIR/$DATE" NOM_FILE_INI;
+    if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
+    QFile fbackup(PATH_FILE_SCRIPTBACKUP);
     if (fbackup.open(QIODevice::ReadWrite))
     {
         QTextStream out(&fbackup);
@@ -730,9 +729,9 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
             scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
             scriptrestore += "\n";
         }
-    if (QFile::exists(PATHTOFILE_SCRIPTRESTORE))
-        QFile::remove(PATHTOFILE_SCRIPTRESTORE);
-    QFile fbackup(PATHTOFILE_SCRIPTRESTORE);
+    if (QFile::exists(PATH_FILE_SCRIPTRESTORE))
+        QFile::remove(PATH_FILE_SCRIPTRESTORE);
+    QFile fbackup(PATH_FILE_SCRIPTRESTORE);
     if (fbackup.open(QIODevice::ReadWrite))
     {
         QTextStream out(&fbackup);
@@ -810,13 +809,13 @@ void Procedures::EffaceBDDDataBackup()
 
 void Procedures::EffaceProgrammationBackup()
 {
-    if (QFile::exists(PATHTOFILE_SCRIPTBACKUP))
-        QFile::remove(PATHTOFILE_SCRIPTBACKUP);
+    if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
     t_timerbackup.disconnect(SIGNAL(timeout()));
     t_timerbackup.stop();
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACX
-    QString file = PATHTOFILE_SCRIPT_MACOS_PLIST;                          //! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"
+    QString file = PATH_FILE_SCRIPT_MACOS_PLIST;                          //! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"
     if (!QFile::exists(file))
         return;
     QString unload  = "bash -c \"/bin/launchctl unload \"" + file + "\"\"";             //! unload = "bash -c "/bin/launchctl unload "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist""
@@ -888,15 +887,15 @@ void Procedures::ParamAutoBackup()
                             "\t\t<key>ProgramArguments</key>\n"
                             "\t\t<array>\n"
                                 "\t\t\t<string>bash</string>\n"
-                                "\t\t\t<string>" + PATHTOFILE_SCRIPTBACUP + "</string>\n"
+                                "\t\t\t<string>" + PATH_FILE_SCRIPTBACUP + "</string>\n"
                             "\t\t</array>\n"
                             "\t\t<key>StartCalendarInterval</key>\n"
                             + jourprg +
                         "\t</dict>\n"
                     "</plist>\n";
-    if (QFile::exists(PATHTOFILE_SCRIPT_MACOS_PLIST))
-        QFile::remove(PATHTOFILE_SCRIPT_MACOS_PLIST);
-    QFile fplist(PATHTOFILE_SCRIPT_MACOS_PLIST);
+    if (QFile::exists(PATH_FILE_SCRIPT_MACOS_PLIST))
+        QFile::remove(PATH_FILE_SCRIPT_MACOS_PLIST);
+    QFile fplist(PATH_FILE_SCRIPT_MACOS_PLIST);
     if (fplist.open(QIODevice::ReadWrite))
     {
         QTextStream out(&fplist);
@@ -949,9 +948,9 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     QString nomModeleCorpsImpression;
     Utils::convertHTML(text);
     if (ALD)
-        nomModeleCorpsImpression = PATHTOFILE_CORPSORDOALD;
+        nomModeleCorpsImpression = PATH_FILE_CORPSORDOALD;
     else
-        nomModeleCorpsImpression = PATHTOFILE_CORPSORDO;
+        nomModeleCorpsImpression = PATH_FILE_CORPSORDO;
 
     QFile qFile(nomModeleCorpsImpression);
     while (!qFile.open( QIODevice::ReadOnly ))
@@ -1066,9 +1065,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     for (int i = 1; i<3; i++)//TODO : ??? pourquoi 3 - reponse: comme ça, pour pas mettre i==2....
     {
         if (i==1)
-            nomModeleEntete = PATHTOFILE_ENTETEORDO;
+            nomModeleEntete = PATH_FILE_ENTETEORDO;
         else
-            nomModeleEntete = PATHTOFILE_ENTETEORDOALD;
+            nomModeleEntete = PATH_FILE_ENTETEORDOALD;
         QFile qFileEnTete(nomModeleEntete);
         while (!qFileEnTete.open( QIODevice::ReadOnly ))
             if (!VerifRessources(nomModeleEntete))
@@ -1168,9 +1167,9 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         Pied = "<html><div align =\"center\"><table>{{DUPLI}}</table></div></html>";
     else
     {
-        QString nomModelePied = PATHTOFILE_PIEDPAGE;
+        QString nomModelePied = PATH_FILE_PIEDPAGE;
         if (lunettes)
-            nomModelePied = PATHTOFILE_PIEDPAGEORDOLUNETTES;
+            nomModelePied = PATH_FILE_PIEDPAGEORDOLUNETTES;
         QFile   qFilePied(nomModelePied );
         while (!qFilePied.open( QIODevice::ReadOnly ))
             if (!VerifRessources(nomModelePied))
@@ -1211,12 +1210,12 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
     bool a = false;
     if (AvecPrevisu)
-        a = TexteAImprimer->preview(Etat->document(), PATHTOFILE_PDF, "");
+        a = TexteAImprimer->preview(Etat->document(), PATH_FILE_PDF, "");
     else
     {
         if (!AvecChoixImprimante)
             TexteAImprimer->setPrinterName(m_nomImprimante);
-        a = TexteAImprimer->print(Etat->document(), PATHTOFILE_PDF, "", AvecChoixImprimante);
+        a = TexteAImprimer->print(Etat->document(), PATH_FILE_PDF, "", AvecChoixImprimante);
     }
     if (a)
         if (AvecDupli)
@@ -1356,7 +1355,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                         QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
                                                                                                   " VALUES (" +
                                 iditem + ", " +
-                                " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
+                                " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
                                 QString::number(docmt->compression()) + ")";
                         db->StandardSQL(req);
                         qDebug() << req;
@@ -1369,7 +1368,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                         QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + DIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
                                       "1)";
                         db->StandardSQL(req);
                     }
@@ -1453,7 +1452,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
         TexteAImprimer->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(TailleTopMarge());
-        QString ficpdf = PATHTOFILE_PDF;
+        QString ficpdf = PATH_FILE_PDF;
         TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
         // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
         QFile filepdf(ficpdf);
@@ -1770,7 +1769,7 @@ bool Procedures::ApercuAvantImpression()
 
 QString Procedures::CodePostalParDefaut()
 {
-    QSettings set(PATHTOFILE_INI, QSettings::IniFormat);
+    QSettings set(PATH_FILE_INI, QSettings::IniFormat);
     return set.value("Param_Poste/CodePostalParDefaut").toString();
 }
 
@@ -2019,7 +2018,7 @@ int Procedures::TailleTopMarge()
 
 QString Procedures::VilleParDefaut()
 {
-    QSettings set(PATHTOFILE_INI, QSettings::IniFormat);
+    QSettings set(PATH_FILE_INI, QSettings::IniFormat);
     return set.value("Param_Poste/VilleParDefaut").toString();
 }
 
@@ -2116,13 +2115,13 @@ bool Procedures::ReinitBase()
     {
         if (!ImmediateBackup("", true, true))
             return false;
-        QFile FichierIni(m_nomFichierIni);
+        QFile FichierIni(PATH_FILE_INI);
         if (FichierIni.exists())
         {
-            QFile FichierBup(PATHTODIR_RUFUS + "/RufusBackup.ini");
+            QFile FichierBup(PATH_DIR_RUFUS + "/RufusBackup.ini");
             if (FichierBup.exists())
                 FichierBup.remove();
-            FichierIni.copy(PATHTODIR_RUFUS + "/RufusBackup.ini");
+            FichierIni.copy(PATH_DIR_RUFUS + "/RufusBackup.ini");
             FichierIni.remove();
         }
         UpMessageBox::Information(Q_NULLPTR, tr("Arrêt du programme!"));
@@ -2225,8 +2224,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return false;
 
         QFile BaseViergeFile(QStringLiteral("://basevierge.sql"));
-        BaseViergeFile.copy(PATHTODIR_RUFUS DIR_RESSOURCES "/basevierge.sql");
-        QFile DumpFile(PATHTODIR_RUFUS DIR_RESSOURCES "/basevierge.sql");
+        BaseViergeFile.copy(PATH_DIR_RESSOURCES "/basevierge.sql");
+        QFile DumpFile(PATH_DIR_RESSOURCES "/basevierge.sql");
         if (!DumpFile.open(QIODevice::ReadOnly))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le fichier ") + "basevierge.sql" + tr(" n'a pas été trouvé!"));
@@ -2245,7 +2244,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             // +++ la fonction DefinitScriptRestore() qu'on pourrait vouloir utiliser dans ce cas là avec le fichier basevierge.sql ne fonctionne pas avec ce fichier
             // et je ne sais pas pourquoi
             // et j'en ai marre de chercher pourquoi
-            QStringList listinstruct = Utils::DecomposeScriptSQL(PATHTODIR_RUFUS DIR_RESSOURCES "/basevierge.sql");
+            QStringList listinstruct = Utils::DecomposeScriptSQL(PATH_DIR_RESSOURCES "/basevierge.sql");
             bool e = true;
             foreach(const QString &s, listinstruct)
                 if (!db->StandardSQL(s))
@@ -2280,7 +2279,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                   "la sauvegarde commencera automatiquement.\n"
                                   "Ce processus est long et peut durer plusieurs minutes.\n"
                                   "(environ 1' pour 2 Go)\n"));
-        QString dir = PATHTODIR_RUFUS;
+        QString dir = PATH_DIR_RUFUS;
         QFileDialog dialog(Q_NULLPTR,tr("Restaurer à partir du dossier") , dir);
         dialog.setViewMode(QFileDialog::List);
         dialog.setFileMode(QFileDialog::DirectoryOnly);
@@ -2316,40 +2315,40 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString msg;
 
         /*! 2 - détermination des éléments pouvant être restaurés */
-        if (QDir(dirtorestore.absolutePath() + DIR_RESSOURCES).exists())
-            if (QDir(dirtorestore.absolutePath() + DIR_RESSOURCES).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
+        if (QDir(dirtorestore.absolutePath() + NOM_DIR_RESSOURCES).exists())
+            if (QDir(dirtorestore.absolutePath() + NOM_DIR_RESSOURCES).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
                 OKRessces = true;
-        if (QFile(dirtorestore.absolutePath() + FILE_INI).exists())
+        if (QFile(dirtorestore.absolutePath() + NOM_FILE_INI).exists())
             OKini = true;
         QDir rootimgvid = dirtorestore;
         if (rootimgvid.cdUp())
         {
             //qDebug() << rootimgvid.absolutePath() + DIR_IMAGES;
-            if (QDir(rootimgvid.absolutePath() + DIR_IMAGES).exists())
-                if (QDir(rootimgvid.absolutePath() + DIR_IMAGES).entryList(QDir::Dirs).size()>0)
+            if (QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES).exists())
+                if (QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES).entryList(QDir::Dirs).size()>0)
                     OKImages = true;
-            if (QDir(rootimgvid.absolutePath() + DIR_VIDEOS).exists())
-                if (QDir(rootimgvid.absolutePath() + DIR_VIDEOS).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
+            if (QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS).exists())
+                if (QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
                     OKVideos = true;
-            if (QDir(rootimgvid.absolutePath() + DIR_FACTURES).exists())
-                if (QDir(rootimgvid.absolutePath() + DIR_FACTURES).entryList(QDir::Dirs | QDir::NoDotAndDotDot).size()>0)
+            if (QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES).exists())
+                if (QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES).entryList(QDir::Dirs | QDir::NoDotAndDotDot).size()>0)
                     OKFactures = true;
         }
 
         /*! 3 - détermination de l'emplacement de destination des fichiers d'imagerie */
-        QString NomDirStockageImagerie = PATHTODIR_RUFUS DIR_IMAGERIE;
+        QString NomDirStockageImagerie = PATH_DIR_IMAGERIE;
         if (OKImages || OKVideos || OKFactures)
         {
-            NomDirStockageImagerie = (PremierDemarrage? PATHTODIR_RUFUS DIR_IMAGERIE : m_parametres->dirimagerieserveur());
+            NomDirStockageImagerie = (PremierDemarrage? PATH_DIR_IMAGERIE : m_parametres->dirimagerieserveur());
             if (!QDir(NomDirStockageImagerie).exists())
             {
-                bool exist = QDir().exists(PATHTODIR_RUFUS DIR_IMAGERIE);
+                bool exist = QDir().exists(PATH_DIR_IMAGERIE);
                 QString existdir = (exist? "" : "\n" + tr("Créez-le au besoin"));
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage d'imagerie"),
                                     tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
-                                    tr("Utilisez de préférence le dossier ") + PATHTODIR_RUFUS DIR_IMAGERIE +
+                                    tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE +
                                     existdir);
-                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATHTODIR_RUFUS + (exist? PATHTODIR_RUFUS DIR_IMAGERIE : ""));
+                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_RUFUS + (exist? PATH_DIR_IMAGERIE : ""));
                 dialogimg.setViewMode(QFileDialog::List);
                 dialogimg.setFileMode(QFileDialog::DirectoryOnly);
                 bool b = (dialogimg.exec()>0);
@@ -2436,7 +2435,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
                             //! Restauration à partir du dossier sélectionné
                             DefinitScriptRestore(listnomsfilestorestore);
-                            QString task = "sh " + PATHTOFILE_SCRIPTRESTORE;
+                            QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
                             QProcess dumpProcess(parent());
                             dumpProcess.start(task);
                             dumpProcess.waitForFinished(1000000000);
@@ -2444,7 +2443,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                 a = dumpProcess.exitCode();
                             if (a != 0)
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
-                            QFile::remove(PATHTOFILE_SCRIPTRESTORE);
+                            QFile::remove(PATH_FILE_SCRIPTRESTORE);
                        }
                     }
                 }
@@ -2456,12 +2455,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString fileini = dirtorestore.absolutePath() + FILE_INI;
-                        QFile FichierIni(m_nomFichierIni);
+                        QString fileini = dirtorestore.absolutePath() + NOM_FILE_INI;
+                        QFile FichierIni(PATH_FILE_INI);
                         if (FichierIni.exists())
                             FichierIni.remove();
                         QFile rufusini(fileini);
-                        rufusini.copy(m_nomFichierIni);
+                        rufusini.copy(PATH_FILE_INI);
                         msg += tr("Fichier de paramétrage Rufus.ini restauré\n");
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichier de paramétrage Rufus.ini restauré"), Icons::icSunglasses(), 3000);
                     }
@@ -2471,16 +2470,16 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QDir DirRssces(QDir(dirtorestore.absolutePath() + PATHTODIR_RUFUS DIR_RESSOURCES));
+                        QDir DirRssces(QDir(dirtorestore.absolutePath() + PATH_DIR_RESSOURCES));
                         QDir sauvRssces;
-                        if (!sauvRssces.exists(PATHTODIR_RUFUS DIR_RESSOURCES))
-                            sauvRssces.mkdir(PATHTODIR_RUFUS DIR_RESSOURCES);
+                        if (!sauvRssces.exists(PATH_DIR_RESSOURCES))
+                            sauvRssces.mkdir(PATH_DIR_RESSOURCES);
                         QStringList listnomfic = DirRssces.entryList();
                         for (int i=0; i<listnomfic.size(); i++)
                         {
                             QFile ficACopier(DirRssces.absolutePath() + "/" + listnomfic.at(i));
                             QString nomficACopier = QFileInfo(listnomfic.at(i)).fileName();
-                            ficACopier.copy(PATHTODIR_RUFUS DIR_RESSOURCES + "/" + nomficACopier);
+                            ficACopier.copy(PATH_DIR_RESSOURCES + "/" + nomficACopier);
                         }
                         msg += tr("Fichiers de ressources d'impression restaurés\n");
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers de ressources d'impression restaurés"), Icons::icSunglasses(), 3000);
@@ -2491,7 +2490,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationimg   = NomDirStockageImagerie + DIR_IMAGES;
+                        QString dirdestinationimg   = NomDirStockageImagerie + NOM_DIR_IMAGES;
                         QDir DirDestImg(dirdestinationimg);
                         if (DirDestImg.exists())
                             DirDestImg.removeRecursively();
@@ -2506,7 +2505,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString Msg = (tr("Restauration des fichiers d'imagerie\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-                            QDir dirrestaureimagerie    = QDir(rootimgvid.absolutePath() + DIR_IMAGES);
+                            QDir dirrestaureimagerie    = QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES);
                             QString task  = "cp -R " + dirrestaureimagerie.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(task);
                             msg += tr("Fichiers d'imagerie restaurés\n");
@@ -2519,7 +2518,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationfact  = NomDirStockageImagerie + DIR_FACTURES;
+                        QString dirdestinationfact  = NomDirStockageImagerie + NOM_DIR_FACTURES;
                         QDir DirDestFact(dirdestinationfact);
                         if (DirDestFact.exists())
                             DirDestFact.removeRecursively();
@@ -2534,7 +2533,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString Msg = (tr("Restauration des factures\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-                            QDir dirrestaurefactures    = QDir(rootimgvid.absolutePath() + DIR_FACTURES);
+                            QDir dirrestaurefactures    = QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES);
                             QString task = "cp -R " + dirrestaurefactures.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(task);
                             msg += tr("Fichiers factures restaurés\n");
@@ -2547,7 +2546,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationvid   =  NomDirStockageImagerie + DIR_VIDEOS;
+                        QString dirdestinationvid   =  NomDirStockageImagerie + NOM_DIR_VIDEOS;
                         QDir DirDestVid(dirdestinationvid);
                         if (DirDestVid.exists())
                             DirDestVid.removeRecursively();
@@ -2562,7 +2561,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString Msg = (tr("Restauration des fichiers videos\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-                            QDir dirrestaurevideo = QDir(rootimgvid.absolutePath() + DIR_VIDEOS);
+                            QDir dirrestaurevideo = QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS);
                             QString task = "cp -R " + dirrestaurevideo.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(task);
                             msg += tr("Fichiers videos restaurés\n");
@@ -2640,7 +2639,7 @@ bool Procedures::VerifBaseEtRessources()
             QFile DumpFile(Nomfic);
             if (DumpFile.exists())
             {
-                QString NomDumpFile = PATHTODIR_RUFUS DIR_RESSOURCES "/majbase" + QString::number(Version) + ".sql";
+                QString NomDumpFile = PATH_DIR_RESSOURCES "/majbase" + QString::number(Version) + ".sql";
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 QFile base(NomDumpFile);
@@ -3143,7 +3142,7 @@ bool Procedures::IdentificationUser()
             }
             else if (msgbox.clickedButton() == &BaseViergeBouton)
             {
-                Utils::mkpath(PATHTODIR_RUFUS DIR_RESSOURCES);
+                Utils::mkpath(PATH_DIR_RESSOURCES);
                 if (!RestaureBase(true, true))
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
@@ -3666,17 +3665,17 @@ bool Procedures::PremierDemarrage()
 
 
     // Création des dossiers
-    Utils::mkpath(PATHTODIR_RUFUS DIR_RESSOURCES);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_IMAGES);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_ECHECSTRANSFERTS);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_DOSSIERECHANGE);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_VIDEOS);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_PROV);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_FACTURESSANSLIEN);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_FACTURES);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_FACTURES);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_IMAGES);
-    m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
+    Utils::mkpath(PATH_DIR_RESSOURCES);
+    Utils::mkpath(PATH_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
+    Utils::mkpath(PATH_DIR_DOSSIERECHANGE);
+    Utils::mkpath(PATH_DIR_VIDEOS);
+    Utils::mkpath(PATH_DIR_PROV);
+    Utils::mkpath(PATH_DIR_FACTURESSANSLIEN);
+    Utils::mkpath(PATH_DIR_FACTURES);
+    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_FACTURES);
+    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
+    m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QString login (""), MDP("");
     if (protoc == BaseExistante)
     {
@@ -3746,8 +3745,8 @@ void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
     m_settings->setValue("Param_Poste/PortTonometre","-");
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
     m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
-    Utils::mkpath(PATHTODIR_RUFUS DIR_IMAGERIE);
-    QString NomDirImg = (modifdirimagerie? PATHTODIR_RUFUS DIR_IMAGERIE : db->parametres()->dirimagerieserveur());
+    Utils::mkpath(PATH_DIR_IMAGERIE);
+    QString NomDirImg = (modifdirimagerie? PATH_DIR_IMAGERIE : db->parametres()->dirimagerieserveur());
     m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", NomDirImg);
     if (modifdirimagerie)
         db->setdirimagerie(NomDirImg);
@@ -3758,69 +3757,68 @@ void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
 -----------------------------------------------------------------------------------------------------------------*/
 void Procedures::PremierParametrageRessources()
 {
-    Utils::mkpath(PATHTODIR_RUFUS);
-    QString NomDirRessrces = PATHTODIR_RUFUS DIR_RESSOURCES;
-    QDir DirRessrces(NomDirRessrces);
+    Utils::mkpath(PATH_DIR_RUFUS);
+    QDir DirRessrces(PATH_DIR_RESSOURCES);
     if (DirRessrces.exists())
-        DirRessrces.rmdir(NomDirRessrces);
-    DirRessrces.mkpath(NomDirRessrces);
-    QFile COACopier(QStringLiteral("://Corps_Ordonnance.txt"));
-    COACopier.copy(PATHTOFILE_CORPSORDO);
-    QFile CO(PATHTOFILE_CORPSORDO);
+        DirRessrces.rmdir(PATH_DIR_RESSOURCES);
+    DirRessrces.mkpath(PATH_DIR_RESSOURCES);
+    QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
+    COACopier.copy(PATH_FILE_CORPSORDO);
+    QFile CO(PATH_FILE_CORPSORDO);
     CO.open(QIODevice::ReadWrite);
     CO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
                       | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
                       | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                       | QFileDevice::ReadUser   | QFileDevice::WriteUser);
 
-    QFile COALDACopier(QStringLiteral("://Corps_OrdoALD.txt"));
-    COALDACopier.copy(PATHTOFILE_CORPSORDOALD);
-    QFile COALD(PATHTOFILE_CORPSORDOALD);
+    QFile COALDACopier(QStringLiteral(":/" NOM_FILE_CORPSORDOALD));
+    COALDACopier.copy(PATH_FILE_CORPSORDOALD);
+    QFile COALD(PATH_FILE_CORPSORDOALD);
     COALD.open(QIODevice::ReadWrite);
     COALD.setPermissions(QFileDevice::ReadOther     | QFileDevice::WriteOther
                          | QFileDevice::ReadGroup   | QFileDevice::WriteGroup
                          | QFileDevice::ReadOwner   | QFileDevice::WriteOwner
                          | QFileDevice::ReadUser    | QFileDevice::WriteUser);
 
-    QFile EOACopier(QStringLiteral("://Entete_Ordonnance.txt"));
-    EOACopier.copy(PATHTOFILE_ENTETEORDO);
-    QFile EO(PATHTOFILE_ENTETEORDO);
+    QFile EOACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDO));
+    EOACopier.copy(PATH_FILE_ENTETEORDO);
+    QFile EO(PATH_FILE_ENTETEORDO);
     EO.open(QIODevice::ReadWrite);
     EO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
                       | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
                       | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                       | QFileDevice::ReadUser   | QFileDevice::WriteUser);
 
-    QFile EOALDACopier(QStringLiteral("://Entete_OrdoALD.txt"));
-    EOALDACopier.copy(PATHTOFILE_ENTETEORDOALD);
-    QFile EOALD(PATHTOFILE_ENTETEORDOALD);
+    QFile EOALDACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDOALD));
+    EOALDACopier.copy(PATH_FILE_ENTETEORDOALD);
+    QFile EOALD(PATH_FILE_ENTETEORDOALD);
     EOALD.open(QIODevice::ReadWrite);
     EOALD.setPermissions(QFileDevice::ReadOther     | QFileDevice::WriteOther
                          | QFileDevice::ReadGroup   | QFileDevice::WriteGroup
                          | QFileDevice::ReadOwner   | QFileDevice::WriteOwner
                          | QFileDevice::ReadUser    | QFileDevice::WriteUser);
 
-    QFile POLACopier(QStringLiteral("://Pied_Ordonnance_Lunettes.txt"));
-    POLACopier.copy(PATHTOFILE_PIEDPAGEORDOLUNETTES);
-    QFile POL(PATHTOFILE_PIEDPAGEORDOLUNETTES);
+    QFile POLACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGEORDOLUNETTES));
+    POLACopier.copy(PATH_FILE_PIEDPAGEORDOLUNETTES);
+    QFile POL(PATH_FILE_PIEDPAGEORDOLUNETTES);
     POL.open(QIODevice::ReadWrite);
     POL.setPermissions(QFileDevice::ReadOther   | QFileDevice::WriteOther
                        | QFileDevice::ReadGroup | QFileDevice::WriteGroup
                        | QFileDevice::ReadOwner | QFileDevice::WriteOwner
                        | QFileDevice::ReadUser  | QFileDevice::WriteUser);
 
-    QFile POACopier(QStringLiteral("://Pied_Ordonnance.txt"));
-    POACopier.copy(PATHTOFILE_PIEDPAGE);
-    QFile PO(PATHTOFILE_PIEDPAGE);
+    QFile POACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGE));
+    POACopier.copy(PATH_FILE_PIEDPAGE);
+    QFile PO(PATH_FILE_PIEDPAGE);
     PO.open(QIODevice::ReadWrite);
     PO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
                       | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
                       | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                       | QFileDevice::ReadUser   | QFileDevice::WriteUser);
 
-    QFile PDFACopier(QStringLiteral("://pdf.pdf"));
-    PDFACopier.copy(PATHTOFILE_PDF);
-    QFile pdf(PATHTOFILE_PDF);
+    QFile PDFACopier(QStringLiteral(":/" NOM_FILE_PDF));
+    PDFACopier.copy(PATH_FILE_PDF);
+    QFile pdf(PATH_FILE_PDF);
     pdf.open(QIODevice::ReadWrite);
     pdf.setPermissions(QFileDevice::ReadOther   | QFileDevice::WriteOther
                        | QFileDevice::ReadGroup | QFileDevice::WriteGroup
@@ -3853,24 +3851,24 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     if (msgbox->clickedButton()==&AnnulBouton)
     {
         if (DetruitIni)
-            QFile::remove(m_nomFichierIni);
+            QFile::remove(PATH_FILE_INI);
         exit(0);
     }
     else if (msgbox->clickedButton()==&RecupIniBouton)
     {
-        QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation"), PATHTODIR_RUFUS,"Text files (Rufus*.ini)");
+        QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
         dialog.setViewMode(QFileDialog::List);
         dialog.setFileMode(QFileDialog::ExistingFile);
         int a = dialog.exec();
         if (a>0)
         {
-            QFile FichierIni(m_nomFichierIni);
+            QFile FichierIni(PATH_FILE_INI);
             if (FichierIni.exists())
                 FichierIni.remove();
             QString fileini = dialog.selectedFiles().at(0);
             QFile rufusini(fileini);
-            rufusini.copy(m_nomFichierIni);
-            m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
+            rufusini.copy(PATH_FILE_INI);
+            m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
             if (QMessageBox::question(Q_NULLPTR,"", tr("Restaurer aussi les fichiers modèles d'impression?")) == QMessageBox::Yes)
                 PremierParametrageRessources();
             reponse = true;
@@ -3880,8 +3878,8 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     {
         //reconstruire le fichier rufus.ini
         //1. on demande les paramètres de connexion au serveur - mode d'accès / user / mdp / port / SSL
-        QFile(m_nomFichierIni).remove();
-        m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
+        QFile(PATH_FILE_INI).remove();
+        m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         QString login(""), MDP ("");
         if (VerifParamConnexion(login, MDP, true))
         {
@@ -3969,13 +3967,13 @@ bool Procedures::VerifRessources(QString Nomfile)
         {
             QDir dockdir = dialog.directory();
             QDir DirRssces;
-            if (!DirRssces.exists(PATHTODIR_RUFUS DIR_RESSOURCES))
-                DirRssces.mkdir(PATHTODIR_RUFUS DIR_RESSOURCES);
+            if (!DirRssces.exists(PATH_DIR_RESSOURCES))
+                DirRssces.mkdir(PATH_DIR_RESSOURCES);
             foreach (const QString &nomfic, dockdir.entryList())
             {
                 QFile ficACopier(dockdir.absolutePath() + "/" + nomfic);
                 QString nomficACopier = QFileInfo(nomfic).fileName();
-                ficACopier.copy(PATHTODIR_RUFUS DIR_RESSOURCES + nomficACopier);
+                ficACopier.copy(PATH_DIR_RESSOURCES + nomficACopier);
             }
             return true;
         }

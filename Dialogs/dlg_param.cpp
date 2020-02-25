@@ -582,7 +582,7 @@ void dlg_param::ChoixDossierStockageApp(UpPushButton *butt)
         mode = Utils::Distant;
     QString dir = proc->pathDossierDocuments(exam, mode);
     if (dir == "")
-        dir = PATHTODIR_RUFUS;
+        dir = PATH_DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
@@ -702,7 +702,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_param::ChoixFontpushButtonClicked()
 {
-    Dlg_Fonts = new dlg_fontdialog(PATHTOFILE_INI, "PositionsFiches/PositionFontDialog");
+    Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, "PositionsFiches/PositionFontDialog");
     Dlg_Fonts->setFont(qApp->font());
     Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
@@ -1708,7 +1708,7 @@ void dlg_param::DirLocalStockage()
 {
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     if (dir == "")
-        dir = PATHTODIR_RUFUS;
+        dir = PATH_DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
@@ -1724,7 +1724,7 @@ void dlg_param::DirDistantStockage()
 {
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
     if (dir == "")
-        dir = PATHTODIR_RUFUS;
+        dir = PATH_DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
@@ -1745,16 +1745,16 @@ void dlg_param::DirPosteStockage()
     }
     QString dir = ui->PosteStockageupLineEdit->text();
     if (dir == "")
-        dir = PATHTODIR_RUFUS;
+        dir = PATH_DIR_RUFUS;
     QFileDialog dialog(this, "", dir);
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
     if (dialog.exec()>0)
     {
         QDir dockdir = dialog.directory();
-        if (!dockdir.match(PATHTODIR_RUFUS "/*", dockdir.path()))
+        if (!dockdir.match(PATH_DIR_RUFUS "/*", dockdir.path()))
         {
-            UpMessageBox::Watch(this, tr("Vous devez choisir un sous-dossier du dossier Rufus"), PATHTODIR_RUFUS);
+            UpMessageBox::Watch(this, tr("Vous devez choisir un sous-dossier du dossier Rufus"), PATH_DIR_RUFUS);
             return;
         }
         ui->PosteStockageupLineEdit->setText(dockdir.path());

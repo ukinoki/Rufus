@@ -268,6 +268,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     //idUser = ActesPrecsQuery.value(2).toInt();
     ui->CreateurConsultlineEdit->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login() +
                                          tr(" pour ") + usr->login()); //Avant idPatient
+    ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite())->nom());
 
     //3. Mettre à jour le numéro d'acte
     if( map_actes->size() > 1 )

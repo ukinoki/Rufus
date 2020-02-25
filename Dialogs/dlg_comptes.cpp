@@ -443,7 +443,7 @@ void dlg_comptes::RemplirTableArchives()
 }
 void dlg_comptes::VoirArchives()
 {
-    dlg_archives            = new UpDialog(PATHTOFILE_INI, "PositionsFiches/PositionArchives", this);
+    dlg_archives            = new UpDialog(PATH_FILE_INI, "PositionsFiches/PositionArchives", this);
     wdg_tablearchives       = new UpTableWidget();
     wdg_listarchivescombo   = new QComboBox();
     wdg_lbltitre            = new UpLabel();

@@ -187,7 +187,7 @@ void dlg_paiementtiers::AfficheDDN(QTableWidgetItem *titem)
         if (titem->column() == 3)
         {
             int ro = titem->row();
-            QString req = "Select PATDDN from " TBL_PATIENTS " pat, " TBL_ACTES " act  where pat.idpat = act .idpat and act.idacte = "
+            QString req = "Select PATDDN from " TBL_PATIENTS " pat, " TBL_ACTES " act  where pat." CP_IDPAT_PATIENTS " = act." CP_IDPAT_ACTES " and act." CP_IDACTE_ACTES " = "
                     + ui->ListeupTableWidget->item(ro,0)->text();
             QVariantList ddndata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
             if (m_ok && ddndata.size()>0)
@@ -1490,7 +1490,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         }
         QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
 
-        requete =   "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", Paye, TypePaiement, Tiers, TotalPaye\n"
+        requete =   "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", Paye, TypePaiement, Tiers, TotalPaye\n"
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig, " TBL_TYPEPAIEMENTACTES " typ,\n"
                     " (SELECT lig.idActe, SUM(lig.paye) as TotalPaye FROM " TBL_LIGNESPAIEMENTS " lig,\n"
                     " (SELECT idActe FROM " TBL_LIGNESPAIEMENTS
@@ -1500,8 +1500,8 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
                     " AND typ.idActe = act." CP_IDACTE_ACTES "\n"
                     " AND calc.idActe = act." CP_IDACTE_ACTES "\n"
                     " AND lig.idRecette = " + TextidRecette + "\n"
-                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
-                    " ORDER BY " CP_DATE_ACTES " DESC, PatNom, PatPrenom";
+                    " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
+                    " ORDER BY " CP_DATE_ACTES " DESC, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
 
         //UpMessageBox::Watch(this,requete);
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,m_ok);
@@ -2439,26 +2439,26 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
         */
         DefinitArchitectureTableView(ui->ListeupTableWidget, Actes);
         requete =   "select * from (\n"
-                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " -SUM(Paye) as tot, Tiers\n"
+                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " -SUM(Paye) as tot, Tiers\n"
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
                     " AND lig.idActe = act." CP_IDACTE_ACTES "\n"
                     " AND TypePaiement = 'T'\n"
-                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n";
+                    " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n";
         requete +=  user;
         requete +=  " group by act." CP_IDACTE_ACTES ") as mar\n"
                     " where tot > 0\n"
                     " union\n\n"                                    // tous les actes enregistrés en tiers pour lesquels le paiement est incomplet
 
-                    " (SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as tot, Tiers\n"
+                    " (SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as tot, Tiers\n"
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
                     " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
                     " AND act." CP_IDACTE_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
                     " AND TypePaiement = 'T'\n"
-                    " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
+                    " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
                     " AND act." CP_IDUSERCOMPTABLE_ACTES " = "  + QString::number(m_useracrediter->id()) + "\n"
                     ")\n"
-                    " order by " CP_DATE_ACTES " desc, PatNom, PatPrenom";
+                    " order by " CP_DATE_ACTES " desc, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
 
         //UpMessageBox::Watch(this,requete);
 
@@ -2484,23 +2484,23 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
              }
             requete =
                     "select * from (\n"
-                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " -SUM(Paye) as tot, Tiers\n"
+                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " -SUM(Paye) as tot, Tiers\n"
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
                     " AND lig.idActe = act." CP_IDACTE_ACTES "\n"
-                    " AND act.idPat = pat.idPat\n"
+                    " AND act.idPat = pat." CP_IDPAT_PATIENTS "\n"
                     + CriteresRequete +
                     ")\n group by act." CP_IDACTE_ACTES ") as mar\n"
 
                     " union\n\n"
 
-                    " (SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as tot, Tiers\n"
+                    " (SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as tot, Tiers\n"
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
                     " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
                     " AND act." CP_IDACTE_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
                     + CriteresRequete +
-                    ")\n AND act." CP_IDPAT_ACTES " = pat.idPat)\n"
-                    " order by " CP_DATE_ACTES " desc, PatNom, PatPrenom";
+                    ")\n AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS ")\n"
+                    " order by " CP_DATE_ACTES " desc, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
 
             //UpMessageBox::Watch(this,requete);
             QList<QVariantList> detlist = db->StandardSelectSQL(requete,m_ok);

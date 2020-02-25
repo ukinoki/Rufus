@@ -645,8 +645,8 @@ void dlg_remisecheques::ToolTip(int A, int B)
             if (RecSpec == "1")
                 requete = "SELECT Libelle, Daterecette From " TBL_RECETTESSPECIALES " WHERE idRecette = " + tabl->item(A,col)->text();
             else
-                requete = "SELECT PatNom, PatPrenom, " CP_COTATION_ACTES ", " CP_DATE_ACTES " From " TBL_PATIENTS " pat, " TBL_ACTES " act WHERE act." CP_IDACTE_ACTES " in (SELECT " CP_IDACTE_ACTES " FROM "
-                        TBL_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act." CP_IDPAT_ACTES;
+                requete = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_DATE_ACTES " From " TBL_PATIENTS " pat, " TBL_ACTES " act WHERE act." CP_IDACTE_ACTES " in (SELECT " CP_IDACTE_ACTES " FROM "
+                        TBL_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat." CP_IDPAT_PATIENTS " = act." CP_IDPAT_ACTES;
             bool ok = true;
             QList<QVariantList> listtips = db->StandardSelectSQL(requete,ok);
             QString ABC;
