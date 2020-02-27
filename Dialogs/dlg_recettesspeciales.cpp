@@ -162,7 +162,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode, bool majfiche)
     ui->GestionComptesupPushButton  ->setEnabled(m_mode == Lire || m_mode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(m_mode == Lire);
     ui->ModifierupPushButton        ->setVisible(m_mode == Lire);
-    int sz = currentuser()->listecomptesbancaires()->size();
+    int sz = currentuser()->listecomptesbancaires().size();
     ui->NouvelleRecetteupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && sz>0);
     ui->NouvelleRecetteupPushButton ->setToolTip((m_mode == Lire || m_mode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
     wdg_enreguppushbutton           ->setVisible(!(m_mode == Lire || m_mode == TableVide));
@@ -194,7 +194,7 @@ void dlg_recettesspeciales::AnnulEnreg()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_recettesspeciales::initializeUserSelected()
 {
-    if( currentuser()->listecomptesbancaires(true)->size() == 0)
+    if( currentuser()->listecomptesbancaires(true).size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + currentuser()->login());
         return false;
@@ -439,7 +439,7 @@ void dlg_recettesspeciales::ChoixMenu(int id)
 void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    foreach (int idcpt, *currentuser()->listecomptesbancaires() )
+    foreach (int idcpt, currentuser()->listecomptesbancaires() )
     {
         Compte *cpt = Datas::I()->comptes->getById(idcpt);
         if (cpt != Q_NULLPTR)
@@ -620,10 +620,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                int idx = currentuser()->listecomptesbancaires(true)->indexOf(recette.at(6).toInt());
+                int idx = currentuser()->listecomptesbancaires(true).indexOf(recette.at(6).toInt());
                 if( idx > -1 )
                 {
-                    B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true)->at(idx))->nomabrege();
+                    B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx))->nomabrege();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -1021,9 +1021,9 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    int idx = currentuser()->listecomptesbancaires(true)->indexOf(recette.at(10).toInt());
+                    int idx = currentuser()->listecomptesbancaires(true).indexOf(recette.at(10).toInt());
                     if( idx > -1 )
-                        B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true)->at(idx))->nomabrege();
+                        B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx))->nomabrege();
                 }
                 A = VIREMENT + (B==""? "" : " " + B);
             }

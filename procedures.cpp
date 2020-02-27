@@ -2587,11 +2587,10 @@ bool Procedures::VerifBaseEtRessources()
         exit(0);
     };
 
-    int Versionencours  = 9; //correspond aux premières versions de MAJ de la base
     int Version         = VERSION_BASE;
     bool b;
     m_parametres = db->parametres();
-    Versionencours = m_parametres->versionbase();
+    int Versionencours = m_parametres->versionbase();
     b = (Versionencours < Version);
 
     bool BupDone = false;

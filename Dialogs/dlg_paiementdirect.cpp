@@ -167,7 +167,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     }
 
     proc->MAJComptesBancaires(m_useracrediter);
-    if( m_useracrediter != Q_NULLPTR && m_useracrediter->listecomptesbancaires()->size() == 0)
+    if( m_useracrediter != Q_NULLPTR && m_useracrediter->listecomptesbancaires().size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
         m_initok = false;
@@ -2158,7 +2158,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
 void dlg_paiementdirect::RegleComptesComboBox(bool avecLesComptesInactifs)
 {
     ui->ComptesupComboBox->clear();
-    foreach (int idcpt, *m_useracrediter->listecomptesbancaires(avecLesComptesInactifs))
+    foreach (int idcpt, m_useracrediter->listecomptesbancaires(avecLesComptesInactifs))
     {
         Compte *cpt = Datas::I()->comptes->getById(idcpt);
         if (cpt != Q_NULLPTR)

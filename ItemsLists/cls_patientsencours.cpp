@@ -77,7 +77,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
                                                  int idUserEnCours, int idSalDat)
 
 {
-    QString iduser          = (QString::number(usr->id()));
+    QString iduser          = (!usr ?                       "null" : QString::number(usr->id()) );
     QString statut          = (Statut == ""?                "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
     QString heurestatut     = (heureStatut == QTime()?      "null" : "'" + heureStatut.toString("hh:mm:ss") + "'");
     QString heurerdv        = (heureRDV == QTime()?         "null" : "'" + heureRDV.toString("hh:mm:ss") + "'");

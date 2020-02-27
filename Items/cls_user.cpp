@@ -179,26 +179,22 @@ bool User::isDesactive()                            { return m_desactive; }
 
 
 
-QList<int>* User::listecomptesbancaires(bool avecdesactive) const
+QList<int> User::listecomptesbancaires(bool avecdesactive) const
 {
     return (avecdesactive? m_listidcomptesall : m_listidcomptes);
 }
 
 void User::setlistecomptesbancaires(QMap<int, bool> mapidcomptes)
 {
-    if (m_listidcomptes != Q_NULLPTR)
-        m_listidcomptes->clear();
-    else
-        m_listidcomptes = new QList<int>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
-    if (m_listidcomptesall != Q_NULLPTR)
-        m_listidcomptesall->clear();
-    else
-        m_listidcomptesall = new QList<int>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
+    if (!m_listidcomptes.isEmpty())
+        m_listidcomptes.clear();
+    if (!m_listidcomptesall.isEmpty())
+        m_listidcomptesall.clear();
     foreach (int idcpt, mapidcomptes.keys())
     {
-        m_listidcomptesall->append(idcpt);
+        m_listidcomptesall << idcpt;
         if (!mapidcomptes.value(idcpt))
-            m_listidcomptes->append(idcpt);
+            m_listidcomptes.append(idcpt);
     }
 }
 

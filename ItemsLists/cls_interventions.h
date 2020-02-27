@@ -25,20 +25,40 @@ class Interventions : public ItemsList
 {
 private:
     QMap<int, Intervention*> *map_interventions = Q_NULLPTR;    //!< la liste des interventions
-    int m_iduser = 0;                                            //!< l'id du patient concerné par la map
+    int m_idsession = 0;                                        //!< l'id de la session concernée par la map
 
 public:
     explicit Interventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, Intervention*> *interventions() const;
-    int iduser() const { return m_iduser ; }
+    int idsession() const { return m_idsession ; }
 
     Intervention* getById(int id);
-    void initListebyUserId(int id);
+    void initListebySessionId(int id);
 
     //!> actions sur les enregistrements
     void                SupprimeIntervention(Intervention *intervention);
     Intervention*       CreationIntervention(QHash<QString, QVariant> sets);
+};
+
+class SessionsOperatoires : public ItemsList
+{
+private:
+    QMap<int, SessionOperatoire*> *map_sessions = Q_NULLPTR;        //!< la liste des sessions
+    int m_iduser = 0;                                               //!< l'id du user concerné par la map
+
+public:
+    explicit SessionsOperatoires(QObject *parent = Q_NULLPTR);
+
+    QMap<int, SessionOperatoire*> *sessions() const;
+    int iduser() const { return m_iduser ; }
+
+    SessionOperatoire* getById(int id);
+    void initListebyUserId(int id);
+
+    //!> actions sur les enregistrements
+    void                SupprimeSessionOperatoire(SessionOperatoire *session);
+    SessionOperatoire*  CreationSessionOperatoire(QHash<QString, QVariant> sets);
 };
 
 class IOLs : public ItemsList

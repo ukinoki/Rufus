@@ -65,7 +65,7 @@ public:
     Cotations *cotations;                   //!< Les cotations
     Depenses *depenses;                     //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;             //!< Les documents externes
-    Interventions *interventions;           //!< Les interventions d'un patient
+    Interventions *interventions;           //!< les interventions d'une session
     IOLs *iols;                             //!< Les iimplants
     LignesComptes *lignescomptes;           //!< Les lignes non rapprochées d'un compte bancaire
     LignesPaiements *lignespaiements;       //!< Les lignes de paiement des actes d'un patient
@@ -76,6 +76,7 @@ public:
     PatientsEnCours *patientsencours;       //!> les patients en cours : patients dont les dossiers sont ouverts (en cours d'examen), ou présents en salle d'attente ou à l'accueil
     Recettes *recettes;                     //!> toutes les recettes sur une période donnée
     Refractions *refractions;               //!> toutes les refractions d'un patient
+    SessionsOperatoires *sessionsoperatoires; //!> les sessionsoperatoires d'un user
     Sites *sites;                           //!< Les lieux de travail
     TiersPayants *tierspayants;             //!< tous les tiers payants
     TypesInterventions *typesinterventions; //!< tous les types d'interventions

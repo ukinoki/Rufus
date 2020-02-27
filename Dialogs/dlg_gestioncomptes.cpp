@@ -312,7 +312,7 @@ void dlg_gestioncomptes::ModifCompte()
     /*On ne peut pas desactiver un compte s'il est le seul compte activé pour cet utilisateur
     */
     if (!ui->DesactiveComptecheckBox->isChecked())
-        ui->DesactiveComptecheckBox ->setEnabled(m_userencours->listecomptesbancaires()->size()>1);
+        ui->DesactiveComptecheckBox ->setEnabled(m_userencours->listecomptesbancaires().size()>1);
     else
         ui->DesactiveComptecheckBox ->setEnabled(true);
     ui->BanqueupcomboBox            ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
@@ -480,12 +480,12 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     ui->ComptesuptableWidget->horizontalHeader()->setIconSize(QSize(25,25));
     ui->ComptesuptableWidget->setGridStyle(Qt::DotLine);
 
-    if (m_userencours->listecomptesbancaires(true)->size()>0)
+    if (m_userencours->listecomptesbancaires(true).size()>0)
     {
         ui->Compteframe->setVisible(true);
-        ui->ComptesuptableWidget->setRowCount(m_userencours->listecomptesbancaires(true)->size());
+        ui->ComptesuptableWidget->setRowCount(m_userencours->listecomptesbancaires(true).size());
         int i=0;
-        foreach (int idcpt, *m_userencours->listecomptesbancaires(true))
+        foreach (int idcpt, m_userencours->listecomptesbancaires(true))
         {
             pitem0 = new QTableWidgetItem;
             pitem1 = new QTableWidgetItem;
@@ -547,7 +547,7 @@ bool dlg_gestioncomptes::VerifCompte()
     QStringList ibanlist;
     if (m_mode == Nouv)
     {
-        foreach (int idcpt, *m_userencours->listecomptesbancaires(false))
+        foreach (int idcpt, m_userencours->listecomptesbancaires(false))
         {
             Compte *cpt = Datas::I()->comptes->getById(idcpt);
             if (cpt != Q_NULLPTR)
@@ -574,7 +574,7 @@ bool dlg_gestioncomptes::VerifCompte()
     }
     else if (m_mode == Modif)
     {
-        foreach (int idcpt, *m_userencours->listecomptesbancaires(false))
+        foreach (int idcpt, m_userencours->listecomptesbancaires(false))
         {
             Compte *cpt = Datas::I()->comptes->getById(idcpt);
             if (cpt != Q_NULLPTR)

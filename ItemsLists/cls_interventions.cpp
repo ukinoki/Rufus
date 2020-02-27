@@ -45,10 +45,10 @@ Intervention* Interventions::getById(int id)
  * Charge l'ensemble des documments accessibles à l'utilisateur en cours
  * et les ajoute à la classe Interventions
  */
-void Interventions::initListebyUserId(int id)
+void Interventions::initListebySessionId(int id)
 {
-    m_iduser = id;
-    QList<Intervention*> listInterventions = DataBase::I()->loadInterventionsByUserId(m_iduser);
+    m_idsession = id;
+    QList<Intervention*> listInterventions = DataBase::I()->loadInterventionsBySessionId(m_idsession);
     epurelist(map_interventions, &listInterventions);
     addList(map_interventions, &listInterventions, Item::Update);
 }
@@ -86,9 +86,8 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     {
         champ  = itset.key();
         if (champ == CP_IDPATIENT_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toInt();
-        else if (champ == CP_DATE_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toString();
-        else if (champ == CP_IDUSER_LIGNPRGOPERATOIRE)            data[champ] = itset.value().toInt();
-        else if (champ == CP_IDLIEU_LIGNPRGOPERATOIRE)            data[champ] = itset.value().toInt();
+        else if (champ == CP_HEURE_LIGNPRGOPERATOIRE)             data[champ] = itset.value().toString();
+        else if (champ == CP_IDSESSION_LIGNPRGOPERATOIRE)         data[champ] = itset.value().toInt();
         else if (champ == CP_TYPEANESTH_LIGNPRGOPERATOIRE)        data[champ] = itset.value().toString();
         else if (champ == CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE)  data[champ] = itset.value().toString();
         else if (champ == CP_COTE_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toString();
@@ -101,6 +100,85 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     if (intervention != Q_NULLPTR)
         map_interventions->insert(intervention->id(), intervention);
     return intervention;
+}
+
+SessionsOperatoires::SessionsOperatoires(QObject *parent) : ItemsList(parent)
+{
+    map_sessions = new QMap<int, SessionOperatoire*>();
+}
+
+QMap<int, SessionOperatoire*>* SessionsOperatoires::sessions() const
+{
+    return map_sessions;
+}
+
+SessionOperatoire* SessionsOperatoires::getById(int id)
+{
+    QMap<int, SessionOperatoire*>::const_iterator itref = map_sessions->find(id);
+    if( itref == map_sessions->constEnd() )
+    {
+        SessionOperatoire * ref = DataBase::I()->loadSessionOpById(id);
+        if (ref != Q_NULLPTR)
+            add( map_sessions, ref );
+        return ref;
+    }
+    return itref.value();
+}
+
+/*!
+ * \brief SessionsOperatoires::initListeByUserId
+ * Charge l'ensemble des documments accessibles à l'utilisateur en cours
+ * et les ajoute à la classe SessionsOperatoires
+ */
+void SessionsOperatoires::initListebyUserId(int id)
+{
+    m_iduser = id;
+    QList<SessionOperatoire*> listsessions = DataBase::I()->loadSessionsOpByUserId(m_iduser);
+    epurelist(map_sessions, &listsessions);
+    addList(map_sessions, &listsessions, Item::Update);
+}
+
+
+void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session)
+{
+    Supprime(map_sessions, session);
+}
+
+SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString, QVariant> sets)
+{
+    SessionOperatoire *session = Q_NULLPTR;
+    int idsession = 0;
+    DataBase::I()->locktables(QStringList() << TBL_SESSIONSOPERATOIRES);
+    idsession = DataBase::I()->selectMaxFromTable(CP_ID_SESSIONOPERATOIRE, TBL_SESSIONSOPERATOIRES, m_ok);
+    bool result = ( m_ok );
+    if (result)
+    {
+        ++ idsession;
+        sets[CP_ID_SESSIONOPERATOIRE] = idsession;
+        result = DataBase::I()->InsertSQLByBinds(TBL_SESSIONSOPERATOIRES, sets);
+    }
+    DataBase::I()->unlocktables();
+    if (!result)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cette session opératoire dans la base!"));
+        return session;
+    }
+    QJsonObject  data = QJsonObject{};
+    data[CP_ID_SESSIONOPERATOIRE] = idsession;
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        if (champ == CP_IDUSER_SESSIONOPERATOIRE)       data[champ] = itset.value().toInt();
+        else if (champ == CP_DATE_SESSIONOPERATOIRE)    data[champ] = itset.value().toString();
+        else if (champ == CP_IDLIEU_SESSIONOPERATOIRE)  data[champ] = itset.value().toInt();
+        else if (champ == CP_IDAIDE_SESSIONOPERATOIRE)  data[champ] = itset.value().toInt();
+    }
+    session = new SessionOperatoire(data);
+    if (session != Q_NULLPTR)
+        map_sessions->insert(session->id(), session);
+    return session;
 }
 
 IOLs::IOLs(QObject *parent) : ItemsList(parent)

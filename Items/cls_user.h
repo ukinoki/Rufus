@@ -100,8 +100,8 @@ private:
     QDateTime   m_dateDerniereConnexion;
     QDate       m_datecreationMDP;                  //! la date de creation du mot de passe actuel
 
-    QList<int> *m_listidcomptesall = Q_NULLPTR;     //! tous les id des comptes de l'utilisateur  y compris ceux qui sont devenus inactifs
-    QList<int> *m_listidcomptes = Q_NULLPTR;        //! tous les id des comptes actifs de l'utilisateur
+    QList<int> m_listidcomptesall;                  //! tous les id des comptes bancaires de l'utilisateur  y compris ceux qui sont devenus inactifs
+    QList<int> m_listidcomptes;                     //! tous les id des comptes bancaires actifs de l'utilisateur
     int m_idCompteParDefaut = 0;                    //! le compte bancaire personnel utilisé pour la comptabilité personnelle
     int m_idCompteEncaissHonoraires = 0;            //! le compte bancaire utilisé pour l'enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
 
@@ -185,8 +185,8 @@ public:
     QString mail() const;
     QString portable() const;
 
-    QList<int>*     listecomptesbancaires(bool avecdesactive = false) const;
-    void            setlistecomptesbancaires(QMap<int, bool> mapidcomptes);
+    QList<int> listecomptesbancaires(bool avecdesactive = false) const;
+    void       setlistecomptesbancaires(QMap<int, bool> mapidcomptes);
 
     int typecompta() const;
     void setTypeCompta(int typeCompta)           { m_typeCompta = typeCompta; }

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("25-02-2020/1");
+    qApp->setApplicationVersion("27-02-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1181,7 +1181,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         QString Msg;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(currentpatient()->id());
         if (pat == Q_NULLPTR)
-            Datas::I()->patientsencours->CreationPatient(currentpatient()->id(),                   //! idPat
+            Datas::I()->patientsencours->CreationPatient(currentpatient()->id(),                                    //! idPat
                                                     Datas::I()->users->getById(currentuser()->idsuperviseur()),     //! User
                                                     RETOURACCUEIL,                                                  //! Statut
                                                     db->ServerDateTime().time(),                                    //! heureStatut
@@ -1214,8 +1214,8 @@ void Rufus::AppelPaiementDirect(Origin origin)
         QString Msg;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(currentpatient()->id());
         if (pat == Q_NULLPTR)
-            Datas::I()->patientsencours->CreationPatient(currentpatient()->id(),               //! idPat
-                                                    Datas::I()->users->getById(currentuser()->idsuperviseur()), //! User
+            Datas::I()->patientsencours->CreationPatient(currentpatient()->id(),                                //! idPat
+                                                     Datas::I()->users->getById(currentuser()->idsuperviseur()),//! User
                                                      ENCOURSEXAMEN + currentuser()->login(),                    //! Statut
                                                      db->ServerDateTime().time(),                               //! heureStatut
                                                      QTime(),                                                   //! heureRDV

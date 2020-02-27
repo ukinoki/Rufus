@@ -29,10 +29,9 @@ void Intervention::setData(QJsonObject data)
         return;
 
     Utils::setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_id);
-    Utils::setDataDate(data, CP_DATE_LIGNPRGOPERATOIRE, m_date);
-    Utils::setDataInt(data, CP_IDUSER_LIGNPRGOPERATOIRE, m_iduser);
+    Utils::setDataInt(data, CP_IDSESSION_LIGNPRGOPERATOIRE, m_idsession);
     Utils::setDataInt(data, CP_IDPATIENT_LIGNPRGOPERATOIRE, m_idpatient);
-    Utils::setDataInt(data, CP_IDLIEU_LIGNPRGOPERATOIRE, m_idlieu);
+    Utils::setDataTime(data, CP_HEURE_LIGNPRGOPERATOIRE, m_heure);
     m_anesth = ConvertModeAnesthesie(data[CP_TYPEANESTH_LIGNPRGOPERATOIRE].toString());
     m_cote   = Utils::ConvertCote(data[CP_COTE_LIGNPRGOPERATOIRE].toString());
     Utils::setDataInt(data, CP_IDIOL_LIGNPRGOPERATOIRE, m_idIOL);
@@ -65,10 +64,9 @@ void Intervention::resetdatas()
 {
     QJsonObject data;
     data[CP_ID_LIGNPRGOPERATOIRE]           = 0;
-    data[CP_DATE_LIGNPRGOPERATOIRE]         = "";
-    data[CP_IDUSER_LIGNPRGOPERATOIRE]       = 0;
+    data[CP_HEURE_LIGNPRGOPERATOIRE]        = "";
+    data[CP_IDSESSION_LIGNPRGOPERATOIRE]    = 0;
     data[CP_IDPATIENT_LIGNPRGOPERATOIRE]    = 0;
-    data[CP_IDLIEU_LIGNPRGOPERATOIRE]       = 0;
     data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]   = "";
     data[CP_COTE_LIGNPRGOPERATOIRE]         = "";
     data[CP_IDIOL_LIGNPRGOPERATOIRE]        = 0;
@@ -77,8 +75,6 @@ void Intervention::resetdatas()
     data[CP_OBSERV_LIGNPRGOPERATOIRE]       = 0;
 
     setData(data);
-
-    m_data = data;
 }
 
 IOL::IOL(QJsonObject data, QObject *parent) : Item(parent)
@@ -107,6 +103,12 @@ void IOL::resetdatas()
     setData(data);
 }
 
+SessionOperatoire::SessionOperatoire(QJsonObject data, QObject *parent) : Item(parent)
+{
+    resetdatas();
+    setData(data);
+}
+
 TypeIntervention::TypeIntervention(QJsonObject data, QObject *parent) : Item(parent)
 {
     resetdatas();
@@ -132,3 +134,5 @@ void TypeIntervention::resetdatas()
     data[CP_CODECCAM_TYPINTERVENTION]           = "";
     setData(data);
 }
+
+

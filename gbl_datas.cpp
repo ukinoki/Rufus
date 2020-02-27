@@ -46,6 +46,7 @@ Datas::Datas()
     patientsencours     = new PatientsEnCours();
     recettes            = new Recettes();
     refractions         = new Refractions();
+    sessionsoperatoires = new SessionsOperatoires();
     sites               = new Sites();
     tierspayants        = new TiersPayants();
     typesinterventions  = new TypesInterventions();

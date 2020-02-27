@@ -334,7 +334,7 @@ void dlg_depenses::PrintTable()
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QListIterator<int> itcpt(*m_userencours->listecomptesbancaires());
+    QListIterator<int> itcpt(m_userencours->listecomptesbancaires());
     while (itcpt.hasNext()) {
         Compte *cpt = Datas::I()->comptes->getById(itcpt.next());
         if (ActiveSeult)
@@ -382,9 +382,9 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
     wdg_enreguppushbutton           ->setVisible(!(m_mode == Lire || m_mode == TableVide));
     wdg_annuluppushbutton           ->setVisible(!(m_mode == Lire || m_mode == TableVide));
     ui->Facturewidget               ->setVisible(m_mode == Lire);
-    ui->NouvelleDepenseupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && m_userencours->listecomptesbancaires()->size() > 0 );
+    ui->NouvelleDepenseupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && m_userencours->listecomptesbancaires().size() > 0 );
     QString ttip = "";
-    if( m_userencours->listecomptesbancaires()->size() == 0)
+    if( m_userencours->listecomptesbancaires().size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
     wdg_supprimeruppushbutton       ->setVisible(m_mode == Lire);
@@ -475,7 +475,7 @@ bool dlg_depenses::initializeUserSelected()
     m_userencours = map_usersliberaux->find(id).value();
     proc->MAJComptesBancaires(m_userencours);
     Datas::I()->depenses->initListeByUser(m_userencours->id());
-    if( m_userencours->listecomptesbancaires()->size() == 0)
+    if( m_userencours->listecomptesbancaires().size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_userencours->login());
         return false;
@@ -1026,12 +1026,12 @@ void dlg_depenses::MetAJourFiche()
         if (A == "E")           A = tr("Espèces");
         else
         {
-            int idx = m_userencours->listecomptesbancaires(true)->indexOf(m_depenseencours->comptebancaire());
+            int idx = m_userencours->listecomptesbancaires(true).indexOf(m_depenseencours->comptebancaire());
             if( idx == -1 )
             {
                 //ATTENTION ERROR
             }
-            B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true)->at(idx))->nomabrege();
+            B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege();
             A = Utils::ConvertitModePaiement(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
@@ -1282,12 +1282,12 @@ void dlg_depenses::ModifierDepense()
         if (A == "E")  A = tr("Espèces");
         else
         {
-            int idx = m_userencours->listecomptesbancaires(true)->indexOf(dep->comptebancaire());
+            int idx = m_userencours->listecomptesbancaires(true).indexOf(dep->comptebancaire());
             if( idx == -1 )
             {
                 //ATTENTION ERROR
             }
-            B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true)->at(idx))->nomabrege();
+            B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege();
             A = Utils::ConvertitModePaiement(A);
             if (A == tr("Chèque"))
                 if (dep->nocheque() > 0)
@@ -1892,12 +1892,12 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     QString mode = Utils::ConvertitModePaiement(A);
     if (A != "E")
     {
-        int idx = m_userencours->listecomptesbancaires(true)->indexOf(dep->comptebancaire());
+        int idx = m_userencours->listecomptesbancaires(true).indexOf(dep->comptebancaire());
         if( idx == -1 )
         {
             //ATTENTION ERROR
         }
-        B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true)->at(idx))->nomabrege();
+        B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege();
         if (A == tr("Chèque"))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());

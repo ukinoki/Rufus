@@ -335,12 +335,21 @@ public:
     Refraction*             loadRefractionById(int idref);                      //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 
     /*
+     * Sessions
+    */
+private:
+    QJsonObject             loadSessionOpData(QVariantList refdata);            //! attribue le liste des datas à une session
+public:
+    QList<SessionOperatoire *> loadSessionsOpByUserId(int id);                  //! charge toutes les sessions opératoires d'un user
+    SessionOperatoire*      loadSessionOpById(int idintervention);              //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
      * Interventions
     */
 private:
     QJsonObject             loadInterventionData(QVariantList refdata);           //! attribue le liste des datas à une Intervention
 public:
-    QList<Intervention*>    loadInterventionsByUserId(int id);                    //! charge toutes les Interventions d'un patient
+    QList<Intervention*>    loadInterventionsBySessionId(int id);                    //! charge toutes les Interventions d'un patient
     Intervention*           loadInterventionById(int idintervention);             //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 
     /*

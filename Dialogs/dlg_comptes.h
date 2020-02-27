@@ -45,7 +45,7 @@ private:
     int             m_idcompte;
     Archives        *m_archivescptencours;
     Compte          *m_compteencours;
-    QList<int>      *m_comptesusr;
+    QList<int>      m_comptesusr;
     QDate           m_debut, m_fin;
     bool            m_initok;
     ModeArchives    m_modearchives;

@@ -118,6 +118,7 @@ private:
     void                DirLocalStockage();
     void                DirDistantStockage();
     void                DirPosteStockage();
+    void                DossierClesSSL();
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);
     void                EnableOKModifPosteButton();

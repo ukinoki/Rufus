@@ -95,7 +95,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
         wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id());
         wdg_listmedecinscombo->setEnabled(false);
     }
-    Datas::I()->interventions->initListebyUserId(wdg_listmedecinscombo->currentData().toInt());
+    Datas::I()->interventions->initListebySessionId(wdg_listmedecinscombo->currentData().toInt());
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -139,7 +139,7 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
     m_currentuser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
-    Datas::I()->interventions->initListebyUserId(m_currentuser->id());
+    Datas::I()->interventions->initListebySessionId(m_currentuser->id());
     UpMessageBox::Watch(this, "Docteur " + m_currentuser->prenom() + " " + m_currentuser->nom());
 }
 

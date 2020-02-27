@@ -85,10 +85,19 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
     bool useSSL = (m_modeacces == Utils::Distant);
+    QString dirkey = "/etc/mysql";
+    if (useSSL)
+    {
+        QSettings *m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString() != "")
+            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+        else
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL",dirkey);
+    }
     QString connectOptions = (useSSL?
-                              "SSL_KEY=/etc/mysql/client-key.pem;"
-                              "SSL_CERT=/etc/mysql/client-cert.pem;"
-                              "SSL_CA=/etc/mysql/ca-cert.pem;"
+                              "SSL_KEY=" + dirkey + "/client-key.pem;"
+                              "SSL_CERT=" + dirkey + "/client-cert.pem;"
+                              "SSL_CA=" + dirkey + "/ca-cert.pem;"
                               "MYSQL_OPT_RECONNECT=1"
                                  :
                               "MYSQL_OPT_RECONNECT=1");
@@ -2487,6 +2496,55 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
 }
 
 /*
+ * Sessions opératoires
+*/
+
+QJsonObject DataBase::loadSessionOpData(QVariantList sessiondata)           //! attribue la liste des datas d'une session opératoire
+{
+    QJsonObject data{};
+    data[CP_ID_SESSIONOPERATOIRE]                   = sessiondata.at(0).toInt();
+    data[CP_DATE_SESSIONOPERATOIRE]                 = sessiondata.at(1).toDate().toString("yyyy-MM-dd");
+    data[CP_IDUSER_SESSIONOPERATOIRE]               = sessiondata.at(2).toInt();
+    data[CP_IDAIDE_SESSIONOPERATOIRE]               = sessiondata.at(3).toInt();
+    data[CP_IDLIEU_SESSIONOPERATOIRE]               = sessiondata.at(4).toInt();
+    return data;
+}
+
+QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)                  //! charge toutes les sessions opératoires d'un user
+{
+    QList<SessionOperatoire*> list = QList<SessionOperatoire*> ();
+    QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE ", "  // 0-1-2-3-4
+                    " FROM " TBL_SESSIONSOPERATOIRES
+                    " WHERE " CP_IDUSER_SESSIONOPERATOIRE " = " + QString::number(id) +
+                    " order by " CP_DATE_SESSIONOPERATOIRE " asc";
+    QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
+    if(!ok || interventionlist.size()==0)
+        return list;
+    for (int i=0; i<interventionlist.size(); ++i)
+    {
+        QJsonObject data = loadInterventionData(interventionlist.at(i));
+        SessionOperatoire *session = new SessionOperatoire(data);
+        if (session != Q_NULLPTR)
+            list << session;
+    }
+    return list;
+}
+
+SessionOperatoire* DataBase::loadSessionOpById(int idsession)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+{
+    SessionOperatoire *session = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE ", "  // 0-1-2-3-4
+                    " FROM " TBL_SESSIONSOPERATOIRES
+                    " WHERE " CP_ID_SESSIONOPERATOIRE " = " + QString::number(idsession) ;
+    QVariantList sessiondata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || sessiondata.size()==0)
+        return session;
+    QJsonObject data = loadSessionOpData(sessiondata);
+    session= new SessionOperatoire(data);
+    return session;
+}
+
+/*
  * Interventions
 */
 
@@ -2494,29 +2552,28 @@ QJsonObject DataBase::loadInterventionData(QVariantList interventiondata)       
 {
     QJsonObject data{};
     data[CP_ID_LIGNPRGOPERATOIRE]                   = interventiondata.at(0).toInt();
-    data[CP_DATE_LIGNPRGOPERATOIRE]                 = interventiondata.at(1).toDate().toString("yyyy-MM-dd");
-    data[CP_IDUSER_LIGNPRGOPERATOIRE]               = interventiondata.at(2).toInt();
-    data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = interventiondata.at(3).toInt();
-    data[CP_IDLIEU_LIGNPRGOPERATOIRE]               = interventiondata.at(4).toInt();
-    data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = interventiondata.at(5).toString();
-    data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE]     = interventiondata.at(6).toString();
-    data[CP_COTE_LIGNPRGOPERATOIRE]                 = interventiondata.at(7).toString();
-    data[CP_IDIOL_LIGNPRGOPERATOIRE]                = interventiondata.at(8).toInt();
-    data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(9).toDouble();
-    data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(10).toDouble();
-    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = interventiondata.at(11).toString();
+    data[CP_HEURE_LIGNPRGOPERATOIRE]                = interventiondata.at(1).toTime().toString("HH:mm::ss");
+    data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = interventiondata.at(2).toInt();
+    data[CP_IDSESSION_LIGNPRGOPERATOIRE]            = interventiondata.at(3).toInt();
+    data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = interventiondata.at(4).toString();
+    data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE]     = interventiondata.at(5).toString();
+    data[CP_COTE_LIGNPRGOPERATOIRE]                 = interventiondata.at(6).toString();
+    data[CP_IDIOL_LIGNPRGOPERATOIRE]                = interventiondata.at(7).toInt();
+    data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(8).toDouble();
+    data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(9).toDouble();
+    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = interventiondata.at(10).toString();
     return data;
 }
 
-QList<Intervention*> DataBase::loadInterventionsByUserId(int id)                  //! charge toutes les Interventions d'un patient
+QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)                  //! charge toutes les Interventions d'un patient
 {
     QList<Intervention*> list = QList<Intervention*> ();
-    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_DATE_LIGNPRGOPERATOIRE ", " CP_IDUSER_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDLIEU_LIGNPRGOPERATOIRE ", " // 0-1-2-3-4
-                              CP_TYPEANESTH_LIGNPRGOPERATOIRE ", " CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", "  // 5-6-7-8-9                    "PwIOL"
-                              CP_CYLIOL_LIGNPRGOPERATOIRE ", " CP_OBSERV_LIGNPRGOPERATOIRE  // 10-11
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
+                              CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
+                              CP_OBSERV_LIGNPRGOPERATOIRE // 10
                     " FROM " TBL_LIGNESPRGOPERATOIRES ;
-                    " WHERE " CP_IDUSER_LIGNPRGOPERATOIRE " = " + QString::number(id) +
-                    " order by " CP_ID_LIGNPRGOPERATOIRE " desc";
+                    " WHERE " CP_IDSESSION_LIGNPRGOPERATOIRE " = " + QString::number(id) +
+                    " order by " CP_ID_LIGNPRGOPERATOIRE " asc";
     QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
     if(!ok || interventionlist.size()==0)
         return list;
@@ -2533,9 +2590,9 @@ QList<Intervention*> DataBase::loadInterventionsByUserId(int id)                
 Intervention* DataBase::loadInterventionById(int idintervention)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 {
     Intervention *intervention = Q_NULLPTR;
-    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_DATE_LIGNPRGOPERATOIRE ", " CP_IDUSER_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDLIEU_LIGNPRGOPERATOIRE ", " // 0-1-2-3-4
-                              CP_TYPEANESTH_LIGNPRGOPERATOIRE ", " CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", "  // 5-6-7-8-9                    "PwIOL"
-                              CP_CYLIOL_LIGNPRGOPERATOIRE ", " CP_OBSERV_LIGNPRGOPERATOIRE  // 10-11
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
+                              CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
+                              CP_OBSERV_LIGNPRGOPERATOIRE // 10
                     " FROM " TBL_LIGNESPRGOPERATOIRES ;
                     " WHERE " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(idintervention) ;
     QVariantList interventiondata = getFirstRecordFromStandardSelectSQL(req,ok);

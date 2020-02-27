@@ -337,6 +337,13 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + "/Serveur").toString());
         ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
+        QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+        if (dir == "")
+        {
+            dir = "/etc/mysql";
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dir);
+        }
+        ui->DossierClesSSLupLineEdit    ->setText(proc->settings()->value(Base + "/DossierClesSSL").toString());
         ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
     }
 
@@ -1763,6 +1770,25 @@ void dlg_param::DirPosteStockage()
     }
 }
 
+void dlg_param::DossierClesSSL()
+{
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+    if (dir == "")
+    {
+        dir = "/etc/mysql";
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dir);
+    }
+    QFileDialog dialog(this, "", dir);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::List);
+    if (dialog.exec()>0)
+    {
+        QDir dockdir = dialog.directory();
+        ui->DossierClesSSLupLineEdit->setText(dockdir.path());
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dockdir.path());
+    }
+}
+
 void dlg_param::EffaceProgrammationDataBackup()
 {
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
@@ -2015,6 +2041,7 @@ void dlg_param::ConnectSignals()
     connect(ui->OupspushButton,                     &QPushButton::clicked,                  this,   &dlg_param::ResetImprimante);
     connect(ui->LocalStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirLocalStockage);
     connect(ui->DistantStockageupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DirDistantStockage);
+    connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->PosteStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirPosteStockage);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),

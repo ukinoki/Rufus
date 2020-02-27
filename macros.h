@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          61  // version de la base de données
+#define VERSION_BASE                          62  // version de la base de données
 #define VERSION_RESSOURCES                    34  // version des fichiers de ressources
 
 // Les bases
@@ -55,6 +55,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_DONNEES_OPHTA_PATIENTS            "Ophtalmologie.DonneesOphtaPatients"
 #define TBL_IOLS                              "Ophtalmologie.IOLs"
 #define TBL_LIGNESPRGOPERATOIRES              "Ophtalmologie.ProgrammesOperatoires"
+#define TBL_SESSIONSOPERATOIRES               "Ophtalmologie.SessionsOperatoires"
 #define TBL_TYPESINTERVENTIONS                "Ophtalmologie.TypesInterventions"
 #define TBL_REFRACTIONS                       "Ophtalmologie.refractions"
 #define TBL_TONOMETRIE                        "Ophtalmologie.tonometries"
@@ -429,10 +430,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
                             //! Table Ophtalmologie.ProgrammesOperatoires
 #define CP_ID_LIGNPRGOPERATOIRE                         "idLigneProgramme"
-#define CP_DATE_LIGNPRGOPERATOIRE                       "ProgDate"
-#define CP_IDUSER_LIGNPRGOPERATOIRE                     "idUser"
+#define CP_HEURE_LIGNPRGOPERATOIRE                      "ProgHeure"
+#define CP_IDSESSION_LIGNPRGOPERATOIRE                  "idSession"
 #define CP_IDPATIENT_LIGNPRGOPERATOIRE                  "idPat"
-#define CP_IDLIEU_LIGNPRGOPERATOIRE                     "idLieu"
 #define CP_TYPEANESTH_LIGNPRGOPERATOIRE                 "TypeAnesthesie"
 #define CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE           "TypeIntervention"
 #define CP_COTE_LIGNPRGOPERATOIRE                       "Cote"
@@ -440,6 +440,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_PWRIOL_LIGNPRGOPERATOIRE                     "PwIOL"
 #define CP_CYLIOL_LIGNPRGOPERATOIRE                     "CylIOL"
 #define CP_OBSERV_LIGNPRGOPERATOIRE                     "Observation"
+
+                            //! Table Ophtalmologie.SessionsOperatoires
+#define CP_ID_SESSIONOPERATOIRE                         "idLigneProgramme"
+#define CP_DATE_SESSIONOPERATOIRE                       "ProgDate"
+#define CP_IDUSER_SESSIONOPERATOIRE                     "idUser"
+#define CP_IDAIDE_SESSIONOPERATOIRE                     "idAide"
+#define CP_IDLIEU_SESSIONOPERATOIRE                     "idLieu"
 
                             //! Table Ophtalmologie.IOLs
 #define CP_ID_IOLS                                      "idIOL"

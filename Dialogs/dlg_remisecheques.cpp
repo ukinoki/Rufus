@@ -703,10 +703,10 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( auto it = m_userencours->listecomptesbancaires()->constBegin(); it != m_userencours->listecomptesbancaires()->constEnd(); ++it )
+    for( auto it = m_userencours->listecomptesbancaires().constBegin(); it != m_userencours->listecomptesbancaires().constEnd(); ++it )
     {
         idlist += QString::number(*it);
-        if (it != m_userencours->listecomptesbancaires()->constEnd()-1)
+        if (it != m_userencours->listecomptesbancaires().constEnd()-1)
             idlist += ", ";
     }
 
@@ -1155,7 +1155,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
 void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptecomboBox->clear();
-    foreach (int id, *m_userencours->listecomptesbancaires())
+    foreach (int id, m_userencours->listecomptesbancaires())
     {
         Compte *cpt = Datas::I()->comptes->getById(id);
         if (cpt != Q_NULLPTR)

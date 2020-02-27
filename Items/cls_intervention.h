@@ -36,10 +36,9 @@ public:
 
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
-    QDate m_date            = QDate();          //!< Date de l'intervention
-    int m_iduser            = 0;                //! id du chirurgien
+    QTime m_heure           = QTime();          //! l'heure de l'intervention
+    int m_idsession         = 0;                //! id de la session
     int m_idpatient         = 0;                //! id du patient
-    int m_idlieu            = 0;                //! id du lieu de l'intervention
     ModeAnesthesie m_anesth = NoLoSo;           //! le type d'anesthésie
     int m_typeintervention  = 0;                //! id du type d'intervention
     Utils::Cote m_cote      = Utils::NoLoSo;    //! côté de l'intervention
@@ -51,10 +50,9 @@ private: //Données de l'intervention
     QString                 ConvertModeAnesthesie(ModeAnesthesie mode);
 
 public:
-    QDate date() const                      { return m_date; }
-    int iduser() const                      { return m_iduser; }
+    QTime heure() const                     { return m_heure; }
     int idpatient() const                   { return m_idpatient; }
-    int idlieu() const                      { return m_idlieu; }
+    int idsession() const                   { return m_idsession; }
     ModeAnesthesie anesthesie() const       { return m_anesth; }
     int idtypeintervention() const          { return m_typeintervention; }
     Utils::Cote cote() const                { return m_cote; }
@@ -63,14 +61,12 @@ public:
     double cylindreIOL() const              { return m_cylIOL; }
     QString observation() const             { return m_observation; }
 
-    void setdate(QDate date)                { m_date = date;
-                                              m_data[CP_DATE_LIGNPRGOPERATOIRE] = date.toString("yyyy-MM-dd"); }
-    void setiduser(int id)                  { m_iduser = id;
-                                              m_data[CP_IDUSER_LIGNPRGOPERATOIRE] = id; }
+    void setheure(QTime time)               { m_heure = time;
+                                              m_data[CP_HEURE_LIGNPRGOPERATOIRE] = time.toString("HH:mm::ss"); }
     void setidpatient(int id)               { m_idpatient = id;
                                               m_data[CP_IDPATIENT_LIGNPRGOPERATOIRE] = id; }
-    void setidlieu(int id)                  { m_idlieu = id;
-                                              m_data[CP_IDLIEU_LIGNPRGOPERATOIRE] = id; }
+    void setidsession(int id)               { m_idsession = id;
+                                              m_data[CP_IDSESSION_LIGNPRGOPERATOIRE] = id; }
     void anesthesie(ModeAnesthesie mode)    { m_anesth = mode;
                                               m_data[CP_TYPEANESTH_LIGNPRGOPERATOIRE] = ConvertModeAnesthesie(mode); }
     void setidtypeintervention(int id)      { m_typeintervention = id;
@@ -89,6 +85,57 @@ public:
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }
  };
+
+class SessionOperatoire : public Item
+{
+
+public:
+    explicit SessionOperatoire(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    void setData(QJsonObject data = QJsonObject{})
+    {
+        if( data.isEmpty() )
+            return;
+        Utils::setDataInt(data, CP_ID_SESSIONOPERATOIRE, m_id);
+        Utils::setDataInt(data, CP_IDLIEU_SESSIONOPERATOIRE, m_idlieu);
+        Utils::setDataInt(data, CP_IDUSER_SESSIONOPERATOIRE, m_iduser);
+        Utils::setDataInt(data, CP_IDAIDE_SESSIONOPERATOIRE, m_idaide);
+        m_data = data;
+    }
+
+
+private: //Données de la session
+    //!<m_id = Id de l'ntervention en base
+    QDate m_date            = QDate();          //!< Date de l'intervention
+    int m_idlieu            = 0;                //! id du lieu de l'intervention
+    int m_iduser            = 0;                //! id du chirurgien
+    int m_idaide            = 0;                //! id de l'aide opératoire
+
+public:
+    QDate date() const                      { return m_date; }
+    int idlieu() const                      { return m_idlieu; }
+    int iduser() const                      { return m_iduser; }
+    int idaide() const                      { return m_idaide; }
+
+    void setdate(QDate date)                { m_date = date;
+                                              m_data[CP_DATE_SESSIONOPERATOIRE] = date.toString("yyyy-MM-dd"); }
+    void setidlieu(int id)                  { m_idlieu = id;
+                                              m_data[CP_IDLIEU_SESSIONOPERATOIRE] = id; }
+    void setiduser(int id)                  { m_iduser = id;
+                                              m_data[CP_IDUSER_SESSIONOPERATOIRE] = id; }
+    void setidaide(int id)                  { m_iduser = id;
+                                              m_data[CP_IDAIDE_SESSIONOPERATOIRE] = id; }
+    void resetdatas()
+    {
+        QJsonObject data;
+        data[CP_ID_SESSIONOPERATOIRE]           = 0;
+        data[CP_IDLIEU_SESSIONOPERATOIRE]       = 0;
+        data[CP_IDUSER_SESSIONOPERATOIRE]       = 0;
+        data[CP_IDAIDE_SESSIONOPERATOIRE]       = 0;
+        setData(data);
+    }
+    bool isnull() const                     { return m_id == 0; }
+ };
+
 
 /*!
  * \brief classe IOL

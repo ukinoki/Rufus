@@ -29,11 +29,11 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    if (Datas::I()->users->userconnected()->listecomptesbancaires() == Q_NULLPTR)
+    if (Datas::I()->users->userconnected()->listecomptesbancaires().isEmpty())
         proc->MAJComptesBancaires(Datas::I()->users->userconnected());
     m_comptesusr = Datas::I()->users->userconnected()->listecomptesbancaires(true);
 
-    if (m_comptesusr->size() == 0)
+    if (m_comptesusr.isEmpty())
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas de compte bancaire enregistré!"));
         m_initok = false;
@@ -44,7 +44,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         m_compteencours = Q_NULLPTR;
         ui->BanquecomboBox->clear();
         int idcptprefer = -1;
-        QListIterator<int> itcpt(*m_comptesusr);
+        QListIterator<int> itcpt(m_comptesusr);
         while (itcpt.hasNext())
         {
             Compte *cpt = Datas::I()->comptes->getById(itcpt.next());

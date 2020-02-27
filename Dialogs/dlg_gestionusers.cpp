@@ -1056,7 +1056,7 @@ void dlg_gestionusers::SupprUser()
     msgbox.exec();
     if (msgbox.clickedpushbutton()==&AnnulBouton)
     {
-        foreach (int idcpt, *m_userencours->listecomptesbancaires(false))
+        foreach (int idcpt, m_userencours->listecomptesbancaires(false))
         {
             QString icpt = QString::number(idcpt);
             if (db->StandardSelectSQL("select idrecette from " TBL_RECETTES " where comptevirement = " + icpt, m_ok).size()==0)

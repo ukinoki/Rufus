@@ -268,10 +268,9 @@ CREATE TABLE `IOLs` (
 DROP TABLE IF EXISTS `ProgrammesOperatoires`;
 CREATE TABLE `ProgrammesOperatoires` (
   `idLigneProgramme` INT NOT NULL,
-  `ProgDate` DATETIME NULL,
-  `idUser` INT NULL,
+  `ProgHeure` TIME(0) NULL,
   `idPat` INT NULL,
-  `idLieu` INT NULL,
+  `idSession` INT NULL,
   `TypeAnesthesie` VARCHAR(45) NULL,
   `TypeIntervention` INT NULL,
   `Cote` INT NULL,
@@ -280,6 +279,16 @@ CREATE TABLE `ProgrammesOperatoires` (
   `CylIOL` DECIMAL(4,2) NULL,
   `Observation` VARCHAR(100) NULL,
   PRIMARY KEY (`idLigneProgramme`)
+  ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `SessionsOperatoires`;
+CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
+  `idSession` INT NOT NULL,
+  `idUser` INT NOT NULL,
+  `idAide` INT NOT NULL,
+  `DateSession` DATE NULL,
+  `idLieu` INT NULL,
+  PRIMARY KEY (`idSession`)
   ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `TypesInterventions`;
@@ -674,7 +683,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,61,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,62,
                                         NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
