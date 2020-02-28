@@ -21,24 +21,28 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
 {
     m_currentpatient = pat;
     setWindowTitle(tr("Programmer une intervention pour ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
-    UpTableView *wdg_tableprogramme = new UpTableView();
-    QTreeView *wdg_dates            = new QTreeView();
     wdg_listmedecinscombo           = new QComboBox();
     QHBoxLayout *choixmedecinLay    = new QHBoxLayout();
     QHBoxLayout *programmLay        = new QHBoxLayout();
 
-    wdg_tableprogramme  ->setFocusPolicy(Qt::NoFocus);
-    wdg_tableprogramme  ->setPalette(QPalette(Qt::white));
-    wdg_tableprogramme  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_tableprogramme  ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    wdg_tableprogramme  ->verticalHeader()->setVisible(false);
-    wdg_tableprogramme  ->setSelectionMode(QAbstractItemView::SingleSelection);
-    wdg_tableprogramme  ->setGridStyle(Qt::SolidLine);
-    wdg_tableprogramme  ->verticalHeader()->setVisible(false);
-    wdg_tableprogramme  ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
-    wdg_tableprogramme  ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    wdg_interventionstableView  ->setFocusPolicy(Qt::NoFocus);
+    wdg_interventionstableView  ->setPalette(QPalette(Qt::white));
+    wdg_interventionstableView  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_interventionstableView  ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_interventionstableView  ->verticalHeader()->setVisible(false);
+    wdg_interventionstableView  ->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_interventionstableView  ->setGridStyle(Qt::SolidLine);
+    wdg_interventionstableView  ->verticalHeader()->setVisible(false);
+    wdg_interventionstableView  ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
+    wdg_interventionstableView  ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    wdg_dates           ->setMaximumWidth(100);
+    wdg_sessionstreeView->setMaximumWidth(340);
+    wdg_sessionstreeView->setColumnWidth(0,340);
+    wdg_sessionstreeView->setFocusPolicy(Qt::StrongFocus);
+    wdg_sessionstreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_sessionstreeView->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_sessionstreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    wdg_sessionstreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     UpLabel* lblmedecins = new UpLabel;
     lblmedecins->setText(tr("Programme opératoire de "));
@@ -48,22 +52,20 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     choixmedecinLay     ->setSpacing(5);
     choixmedecinLay     ->setContentsMargins(0,0,0,0);
 
-    wdg_buttondateframe     = new WidgetButtonFrame(wdg_dates);
-    wdg_buttondateframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
-    connect (wdg_buttondateframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixDateFrame);
-    programmLay     ->addWidget(wdg_buttondateframe->widgButtonParent());
+    wdg_buttonsessionsframe     = new WidgetButtonFrame(wdg_sessionstreeView);
+    wdg_buttonsessionsframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    connect (wdg_buttonsessionsframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixSessionFrame);
+    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(false);
+    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(false);
 
-    wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_tableprogramme);
+    wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_interventionstableView);
     wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     connect (wdg_buttoninterventionframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixInterventionFrame);
 
-    programmLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    programmLay     ->addWidget(wdg_buttonsessionsframe->widgButtonParent());
     programmLay     ->addWidget(wdg_buttoninterventionframe->widgButtonParent());
     programmLay     ->setSpacing(5);
     programmLay     ->setContentsMargins(0,0,0,0);
-    programmLay     ->setStretch(0,2);
-    programmLay     ->setStretch(1,0);
-    programmLay     ->setStretch(2,6);
 
     dlglayout()     ->insertLayout(0, programmLay);
     dlglayout()     ->insertLayout(0, choixmedecinLay);
@@ -73,29 +75,30 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     setModal(true);
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
+    setFixedWidth(1000);
 
-    QStandardItemModel *md_medecins = new QStandardItemModel();
     foreach (User* usr, *Datas::I()->users->actifs())
         if (usr->isMedecin())
         {
             QList<QStandardItem *> items;
             items << new QStandardItem(usr->login())
                   << new QStandardItem(QString::number(usr->id()));
-            md_medecins->appendRow(items);
+            m_medecins.appendRow(items);
         }
-    md_medecins->sort(0, Qt::DescendingOrder);
-    for (int i=0; i< md_medecins->rowCount(); ++i)
+    m_medecins.sort(0, Qt::DescendingOrder);
+    for (int i=0; i< m_medecins.rowCount(); ++i)
     {
-        wdg_listmedecinscombo->addItem(md_medecins->item(i,0)->text());             //! le login
-        wdg_listmedecinscombo->setItemData(i, md_medecins->item(i,1)->text());      //! l'id en data
+        wdg_listmedecinscombo->addItem(m_medecins.item(i,0)->text());             //! le login
+        wdg_listmedecinscombo->setItemData(i, m_medecins.item(i,1)->text());      //! l'id en data
     }
-    connect(wdg_listmedecinscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &dlg_programmationinterventions::ChoixMedecin);
     if (Datas::I()->users->userconnected()->isMedecin())
     {
         wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id());
         wdg_listmedecinscombo->setEnabled(false);
+        ChoixMedecin(Datas::I()->users->userconnected()->id());
     }
-    Datas::I()->interventions->initListebySessionId(wdg_listmedecinscombo->currentData().toInt());
+    connect(wdg_listmedecinscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this, &dlg_programmationinterventions::ChoixMedecin);
+    connect(wdg_sessionstreeView,   &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelListeSessions);
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -107,16 +110,17 @@ void dlg_programmationinterventions::AfficheChoixIOL(int state)
     wdg_IOL->setVisible(state == Qt::Checked);
 }
 
-void dlg_programmationinterventions::ChoixDateFrame()
+void dlg_programmationinterventions::ChoixSessionFrame()
 {
-    switch (wdg_buttondateframe->Choix()) {
+    switch (wdg_buttonsessionsframe->Choix()) {
     case WidgetButtonFrame::Plus:
-        proc->ab();
+        CreerSession();
+        break;
+    case WidgetButtonFrame::Modifier:
+        EditSession();
         break;
     case WidgetButtonFrame::Moins:
-        proc->ab();
-        break;
-    default:
+        SupprimeSession();
         break;
     }
 }
@@ -139,8 +143,52 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
     m_currentuser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
-    Datas::I()->interventions->initListebySessionId(m_currentuser->id());
-    UpMessageBox::Watch(this, "Docteur " + m_currentuser->prenom() + " " + m_currentuser->nom());
+    Datas::I()->sites->initListeByUser(m_currentuser->id());
+    if (m_currentuser == Q_NULLPTR)
+        return;
+    Datas::I()->sessionsoperatoires->initListebyUserId(m_currentuser->id());
+    RemplirTreeSessions();
+}
+
+void dlg_programmationinterventions::RemplirTreeSessions()
+{
+    wdg_sessionstreeView->selectionModel()->disconnect();
+    disconnect(wdg_sessionstreeView, &QAbstractItemView::activated, this, &dlg_programmationinterventions::ChoixSession);
+    m_sessions.clear();
+    foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
+    {
+        QList<QStandardItem *> items;
+        QString nomsession = session->date().toString("dd-MMM-yy");
+        Site* site = Datas::I()->sites->getById(session->idlieu());
+        if (site != Q_NULLPTR)
+            nomsession += " - " + site->nom();
+        UpStandardItem *item = new UpStandardItem(nomsession);
+        item->setitem(session);
+        items << item << new UpStandardItem(session->date().toString("yyyy-MM-dd"));
+        m_sessions.appendRow(items);
+    }
+    m_sessions.sort(1, Qt::AscendingOrder);
+    m_sessions.takeColumn(1);
+    wdg_sessionstreeView->setModel(&m_sessions);
+    connect(wdg_sessionstreeView, &QAbstractItemView::activated, this, &dlg_programmationinterventions::ChoixSession);
+    m_sessions.setHeaderData(0, Qt::Horizontal, tr("Sessions"));
+    connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=]
+                                {
+                                    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(true);
+                                    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(true);
+                                });
+}
+
+void dlg_programmationinterventions::ChoixSession(QModelIndex idx)
+{
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(idx));
+    if (itm == Q_NULLPTR)
+        return;
+    SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(itm->item());
+    if (session == Q_NULLPTR)
+        return;
+    Datas::I()->interventions->initListebySessionId(session->id());
+    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(Datas::I()->interventions->interventions()->size() == 0);
 }
 
 void dlg_programmationinterventions::CreerIntervention()
@@ -152,6 +200,7 @@ void dlg_programmationinterventions::CreerIntervention()
     UpLabel* lbldate = new UpLabel;
     lbldate         ->setText(tr("Date"));
     QDateEdit *dateedit = new QDateEdit(m_currentdate);
+    dateedit        ->setFixedSize(QSize(105,24));
     choixdateLay    ->addWidget(lbldate);
     choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixdateLay    ->addWidget(dateedit);
@@ -245,3 +294,161 @@ void dlg_programmationinterventions::CreerIntervention()
     dlg_intervention->exec();
 }
 
+void dlg_programmationinterventions::CreerSession()
+{
+    UpDialog            *dlg_session = new UpDialog(this);
+    dlg_session->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_session->setWindowTitle(tr("créer une session opératoire pour ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
+
+    QHBoxLayout *choixdateLay    = new QHBoxLayout();
+    UpLabel* lbldate = new UpLabel;
+    lbldate         ->setText(tr("Date"));
+    QDateEdit *dateedit = new QDateEdit(m_currentdate);
+    dateedit->setFixedSize(QSize(100,24));
+    choixdateLay    ->addWidget(lbldate);
+    choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixdateLay    ->addWidget(dateedit);
+    choixdateLay    ->setSpacing(5);
+    choixdateLay    ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixsiteLay    = new QHBoxLayout();
+    UpLabel* lblsite = new UpLabel;
+    lblsite               ->setText(tr("Site"));
+    QComboBox *sitecombo = new QComboBox();
+    choixsiteLay    ->addWidget(lblsite);
+    choixsiteLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixsiteLay    ->addWidget(sitecombo);
+    choixsiteLay    ->setSpacing(5);
+    choixsiteLay    ->setContentsMargins(0,0,0,0);
+
+    foreach (Site* site, *Datas::I()->sites->sites())
+        sitecombo->addItem(site->nom(), site->id());
+
+    dlg_session->dlglayout()   ->insertLayout(0, choixsiteLay);
+    dlg_session->dlglayout()   ->insertLayout(0, choixdateLay);
+    dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
+    {
+        QDate date = dateedit->date();
+        int idsite = sitecombo->currentData().toInt();
+        for (int i = 0; i < m_sessions.rowCount(); ++i)
+        {
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessions.item(i));
+            SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+            if (session->date() ==  date && session->idlieu() == idsite)
+            {
+                UpMessageBox::Watch(this, tr("Cette session existe déjà!"));
+                return;
+            }
+        }
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_DATE_SESSIONOPERATOIRE]    = date.toString("yyyy-MM-dd");
+        listbinds[CP_IDLIEU_SESSIONOPERATOIRE]  = idsite;
+        listbinds[CP_IDUSER_SESSIONOPERATOIRE]  = m_currentuser->id();
+        Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds);
+        RemplirTreeSessions();
+        dlg_session->close();
+    });
+    dlg_session->exec();
+}
+
+void dlg_programmationinterventions::EnregistreNouvelleSession()
+{
+    proc->ab();
+}
+
+void dlg_programmationinterventions::EditSession()
+{
+    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(wdg_sessionstreeView->selectionModel()->selectedIndexes().at(0)));
+    SessionOperatoire   *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+    UpDialog            *dlg_session = new UpDialog(this);
+    dlg_session->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_session->setWindowTitle(tr("Modifier une session opératoire pour ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
+
+    QHBoxLayout *choixdateLay    = new QHBoxLayout();
+    UpLabel* lbldate = new UpLabel;
+    lbldate         ->setText(tr("Date"));
+    QDateEdit *dateedit = new QDateEdit(m_currentdate);
+    dateedit->setFixedSize(QSize(100,24));
+    dateedit->setDate(session->date());
+    choixdateLay    ->addWidget(lbldate);
+    choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixdateLay    ->addWidget(dateedit);
+    choixdateLay    ->setSpacing(5);
+    choixdateLay    ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixsiteLay    = new QHBoxLayout();
+    UpLabel* lblsite = new UpLabel;
+    lblsite               ->setText(tr("Site"));
+    QComboBox *sitecombo = new QComboBox();
+    choixsiteLay    ->addWidget(lblsite);
+    choixsiteLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixsiteLay    ->addWidget(sitecombo);
+    choixsiteLay    ->setSpacing(5);
+    choixsiteLay    ->setContentsMargins(0,0,0,0);
+
+    foreach (Site* site, *Datas::I()->sites->sites())
+        sitecombo->addItem(site->nom(), site->id());
+    sitecombo->setCurrentIndex(sitecombo->findData(session->idlieu()));
+
+    dlg_session->dlglayout()   ->insertLayout(0, choixsiteLay);
+    dlg_session->dlglayout()   ->insertLayout(0, choixdateLay);
+    dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
+    {
+        QDate date = dateedit->date();
+        int idsite = sitecombo->currentData().toInt();
+        for (int i = 0; i < m_sessions.rowCount(); ++i)
+        {
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessions.item(i));
+            SessionOperatoire *rechsession = dynamic_cast<SessionOperatoire*>(upitem->item());
+            if (rechsession->date() ==  date && rechsession->idlieu() == idsite)
+            {
+                UpMessageBox::Watch(this, tr("Cette session existe déjà!"));
+                return;
+            }
+        }
+        ItemsList::update(session, CP_DATE_SESSIONOPERATOIRE, date);
+        ItemsList::update(session, CP_IDLIEU_SESSIONOPERATOIRE, idsite);
+        RemplirTreeSessions();
+        dlg_session->close();
+    });
+    dlg_session->exec();
+}
+
+void dlg_programmationinterventions::SupprimeSession()
+{
+    UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(wdg_sessionstreeView->selectionModel()->selectedIndexes().at(0)));
+    SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+    QString nomsession = session->date().toString("dd-MMM-yy");
+    Site* site = Datas::I()->sites->getById(session->idlieu());
+    if (site != Q_NULLPTR)
+        nomsession += " - " + site->nom();
+    if (UpMessageBox::Question(this, tr("Voulez-vous supprimer la session") + "\n" + nomsession + " ?") != UpSmallButton::STARTBUTTON)
+        return;
+    Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(session);
+    RemplirTreeSessions();
+}
+
+void dlg_programmationinterventions::MenuContextuelListeSessions()
+{
+    QModelIndex psortindx   = wdg_sessionstreeView->indexAt(wdg_sessionstreeView->viewport()->mapFromGlobal(cursor().pos()));
+    UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(psortindx));
+    if (upitem == Q_NULLPTR)
+        return;
+    SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+    if (session == Q_NULLPTR)
+        return;
+
+    m_menucontextlistsessions = new QMenu(this);
+
+    QAction *pAction_ModifSession = m_menucontextlistsessions->addAction(tr("Modifier la session"));
+    connect (pAction_ModifSession,        &QAction::triggered,    this,    [=] {EditSession();});
+    QAction *pAction_SupprSession = m_menucontextlistsessions->addAction(tr("Supprimer la session"));
+    connect (pAction_SupprSession,        &QAction::triggered,    this,    [=] {SupprimeSession();});
+    // ouvrir le menu
+    m_menucontextlistsessions->exec(cursor().pos());
+    delete m_menucontextlistsessions;
+}

@@ -284,8 +284,8 @@ CREATE TABLE `ProgrammesOperatoires` (
 DROP TABLE IF EXISTS `SessionsOperatoires`;
 CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
   `idSession` INT NOT NULL,
-  `idUser` INT NOT NULL,
-  `idAide` INT NOT NULL,
+  `idUser` INT NULL,
+  `idAide` INT NULL,
   `DateSession` DATE NULL,
   `idLieu` INT NULL,
   PRIMARY KEY (`idSession`)

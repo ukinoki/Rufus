@@ -309,6 +309,13 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<SessionOperatoire*>(item) != Q_NULLPTR)
+        {
+            table = TBL_SESSIONSOPERATOIRES;
+            idname = CP_ID_SESSIONOPERATOIRE;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table != "" && idname != "")

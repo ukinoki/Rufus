@@ -33,19 +33,33 @@ public:
 
 private:
     Procedures          *proc = Procedures::I();
-    WidgetButtonFrame   *wdg_buttondateframe;
+    WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
     QComboBox           *wdg_listmedecinscombo;
     QWidget             *wdg_IOL;
     User                *m_currentuser;
     Patient             *m_currentpatient;
+    QStandardItemModel  m_medecins, m_sessions, m_interventions, m_sites;
     QDate               m_currentdate = QDate::currentDate();
+    QMenu               *m_menucontextlistsessions;
     User*               currentuser() const { return m_currentuser; }
-    void                ChoixDateFrame();
+
+    UpTableView         *wdg_interventionstableView = new UpTableView();
+    QTreeView           *wdg_sessionstreeView       = new QTreeView();
+
+    void                ChoixSessionFrame();
     void                ChoixInterventionFrame();
     void                ChoixMedecin(int idx);
+    void                ChoixSession(QModelIndex idx);
     void                CreerIntervention();
     void                AfficheChoixIOL(int state);
+    void                MenuContextuelListeSessions();
+    void                RemplirTreeSessions();
+
+    void                CreerSession();
+    void                EditSession();
+    void                SupprimeSession();
+    void                EnregistreNouvelleSession();
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

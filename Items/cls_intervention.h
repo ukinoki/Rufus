@@ -97,6 +97,7 @@ public:
             return;
         Utils::setDataInt(data, CP_ID_SESSIONOPERATOIRE, m_id);
         Utils::setDataInt(data, CP_IDLIEU_SESSIONOPERATOIRE, m_idlieu);
+        Utils::setDataDate(data, CP_DATE_SESSIONOPERATOIRE, m_date);
         Utils::setDataInt(data, CP_IDUSER_SESSIONOPERATOIRE, m_iduser);
         Utils::setDataInt(data, CP_IDAIDE_SESSIONOPERATOIRE, m_idaide);
         m_data = data;
@@ -104,9 +105,9 @@ public:
 
 
 private: //Données de la session
-    //!<m_id = Id de l'ntervention en base
-    QDate m_date            = QDate();          //!< Date de l'intervention
-    int m_idlieu            = 0;                //! id du lieu de l'intervention
+    //!<m_id = Id de la session en base
+    QDate m_date            = QDate();          //!< Date de la session
+    int m_idlieu            = 0;                //! id du lieu de la session
     int m_iduser            = 0;                //! id du chirurgien
     int m_idaide            = 0;                //! id de l'aide opératoire
 
@@ -151,7 +152,7 @@ public:
 
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
-    int m_idmanufacturer    = 0;                //! id du frabricant
+    int m_idmanufacturer    = 0;                //! id du fabricant
     QString m_modele        = "";               //! modèle de l'implant
 
 public:
@@ -171,7 +172,7 @@ public:
 
 /*!
  * \brief classe TypeIntervention
- * l'ensemble des informations concernant un IOL
+ * l'ensemble des informations concernant un type d'intervention
  */
 
 class TypeIntervention : public Item
@@ -182,8 +183,8 @@ public:
     void setData(QJsonObject data = QJsonObject{});
 
 private: //Données de l'intervention
-    //!<m_id = Id de l'ntervention en base
-    QString m_typeintervention  = "";                //! le type
+    //!<m_id = Id du type d'intervention en base
+    QString m_typeintervention  = "";                //! le type d'intervention
     QString m_codeCCAM          = "";               //! code CCAM
 
 public:

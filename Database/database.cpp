@@ -264,6 +264,7 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
     champs = champs.left(champs.size()-1);
     champs2 = champs2.left(champs2.size()-1);
     QString prepare = "insert into " + nomtable + " (" + champs + ") values (" + champs2 + ")";
+    //qDebug() << prepare;
     query.prepare(prepare);
     itset.toFront();
     while (itset.hasNext())
@@ -2513,7 +2514,7 @@ QJsonObject DataBase::loadSessionOpData(QVariantList sessiondata)           //! 
 QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)                  //! charge toutes les sessions opératoires d'un user
 {
     QList<SessionOperatoire*> list = QList<SessionOperatoire*> ();
-    QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE ", "  // 0-1-2-3-4
+    QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE // 0-1-2-3-4
                     " FROM " TBL_SESSIONSOPERATOIRES
                     " WHERE " CP_IDUSER_SESSIONOPERATOIRE " = " + QString::number(id) +
                     " order by " CP_DATE_SESSIONOPERATOIRE " asc";
@@ -2522,7 +2523,8 @@ QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)              
         return list;
     for (int i=0; i<interventionlist.size(); ++i)
     {
-        QJsonObject data = loadInterventionData(interventionlist.at(i));
+        QVariantList sessiondata = interventionlist.at(i);
+        QJsonObject data = loadSessionOpData(sessiondata);
         SessionOperatoire *session = new SessionOperatoire(data);
         if (session != Q_NULLPTR)
             list << session;

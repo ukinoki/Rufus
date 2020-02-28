@@ -11,14 +11,15 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         return false;
     QString table;
     QString clause;
-    Depense *dep            = Q_NULLPTR;
-    DocExterne *doc         = Q_NULLPTR;
-    Acte *act               = Q_NULLPTR;
-    PatientEnCours *patcrs  = Q_NULLPTR;
-    Patient *pat            = Q_NULLPTR;
-    PosteConnecte *post     = Q_NULLPTR;
-    Banque *bq              = Q_NULLPTR;
-    User *usr               = Q_NULLPTR;
+    Depense *dep                = Q_NULLPTR;
+    DocExterne *doc             = Q_NULLPTR;
+    Acte *act                   = Q_NULLPTR;
+    PatientEnCours *patcrs      = Q_NULLPTR;
+    Patient *pat                = Q_NULLPTR;
+    PosteConnecte *post         = Q_NULLPTR;
+    Banque *bq                  = Q_NULLPTR;
+    User *usr                   = Q_NULLPTR;
+    SessionOperatoire *session  = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -110,6 +111,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (usr != Q_NULLPTR)
         {
             table = TBL_UTILISATEURS;
+            loop = true;
+            break;
+        }
+        session = dynamic_cast<SessionOperatoire*>(item);
+        if (session != Q_NULLPTR)
+        {
+            table = TBL_SESSIONSOPERATOIRES;
             loop = true;
             break;
         }
@@ -587,6 +595,31 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             usr->setdesactive(newvalue.toBool());
             newvalue = (newvalue.toBool()? "1" : "null");
+        }
+    }
+    else if (table == TBL_SESSIONSOPERATOIRES)
+    {
+        ok = true;
+        clause = CP_ID_SESSIONOPERATOIRE " = " + QString::number(item->id());
+        if (field == CP_DATE_SESSIONOPERATOIRE )
+        {
+            session->setdate(newvalue.toDate());
+            Utils::CalcDateValueSQL(newvalue);
+        }
+        else if (field == CP_IDLIEU_SESSIONOPERATOIRE )
+        {
+            session->setidlieu(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_IDUSER_SESSIONOPERATOIRE )
+        {
+            session->setiduser(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_IDAIDE_SESSIONOPERATOIRE )
+        {
+            session->setidaide(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
         }
     }
 
