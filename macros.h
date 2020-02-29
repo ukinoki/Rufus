@@ -184,6 +184,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MAJFLAGMESSAGES_FLAGS                        "MAJflagMessages"
 #define CP_MAJFLAGUSERDISTANT_FLAGS                     "flagUserDistant"
 
+                            //! Table Rufus.LieuxExercice
+#define CP_ID_SITE                                      "idLieu"
+#define CP_NOM_SITE                                     "NomLieu"
+#define CP_ADRESSE1_SITE                                "LieuAdresse1"
+#define CP_ADRESSE2_SITE                                "LieuAdresse2"
+#define CP_ADRESSE3_SITE                                "LieuAdresse3"
+#define CP_CODEPOSTAL_SITE                              "LieuCodePostal"
+#define CP_VILLE_SITE                                   "LieuVille"
+#define CP_TELEPHONE_SITE                               "LieuTelephone"
+#define CP_FAX_SITE                                     "LieuFax"
+#define CP_COULEUR_SITE                                 "LieuCouleur"
+
+                            //! Table Rufus.jointuresLieux
+#define CP_IDUSER_JOINTSITE                             "idUser"
+#define CP_IDLIEU_JOINTSITE                             "idLieu"
+
                             //! Table Rufus.Metadocuments
 #define CP_ID_DOSSIERIMPRESSIONS                        "idMetaDocument"
 #define CP_TEXTE_DOSSIERIMPRESSIONS                     "TextMetaDocument"

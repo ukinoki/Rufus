@@ -886,6 +886,7 @@ void dlg_gestionusers::GestLieux()
     gestLieux->exec();
     ReconstruitListeLieuxExercice();
     delete gestLieux;
+    Datas::I()->sites->initListe();
     int idUser = ui->ListUserstableWidget->item(ui->ListUserstableWidget->selectedItems().at(0)->row(),0)->text().toInt();
     QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(idUser), m_ok);
     QList<int> idlieuxlist;
@@ -1477,8 +1478,8 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
     upheader->setModel(mod);
     upheader->reDim(0,0,3);
 
-    QList<QVariantList> listadress = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
-                                                              " LieuCodePostal, LieuVille, LieuTelephone from " TBL_LIEUXEXERCICE, m_ok);
+    QList<QVariantList> listadress = db->StandardSelectSQL("select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+                                                           CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE", " CP_COULEUR_SITE " from " TBL_LIEUXEXERCICE, m_ok);
     ui->AdressupTableWidget->setRowCount(listadress.size());
     for (int i=0; i< listadress.size(); i++)
     {
@@ -1532,6 +1533,12 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
         pitem1->setToolTip(data);
         pitem2->setToolTip(data);
         pitem3->setToolTip(data);
+        if (listadress.at(i).at(8).toString() != "")
+        {
+            pitem1->setTextColor(QColor("#" + listadress.at(i).at(8).toString()));
+            pitem2->setTextColor(QColor("#" + listadress.at(i).at(8).toString()));
+            pitem3->setTextColor(QColor("#" + listadress.at(i).at(8).toString()));
+        }
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
     }
 }

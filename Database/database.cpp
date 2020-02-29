@@ -1840,33 +1840,33 @@ QList<Motif*> DataBase::loadMotifs()
 QList<Site*> DataBase::loadSitesAll()
 {
     int iduser = 1;
-    QString req = "select lieux.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
-                  " LieuCodePostal, LieuVille, LieuTelephone, LieuFax, iduser"
+    QString req = "select lieux." CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+                  CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE ", iduser"
                   " from " TBL_LIEUXEXERCICE " lieux left join " TBL_JOINTURESLIEUX " joint"
-                  " on joint.idlieu = lieux.idLieu"
-                  " where iduser = " + QString::number(iduser) +
+                  " on joint." CP_IDLIEU_JOINTSITE " = lieux." CP_ID_SITE
+                  " where " CP_IDUSER_JOINTSITE " = " + QString::number(iduser) +
                   " union"
-                  " (select lieux.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
-                  " LieuCodePostal, LieuVille, LieuTelephone, LieuFax, null as iduser"
+                  " (select lieux." CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+                  CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE ", null as iduser"
                   " from " TBL_LIEUXEXERCICE " lieux left join " TBL_JOINTURESLIEUX " joint"
-                  " on joint.idlieu = lieux.idLieu"
-                  " where iduser <> " + QString::number(iduser) + " and iduser is not null"
-                  " and lieux.idlieu not in"
-                  " (select lieux.idLieu"
+                  " on joint." CP_IDLIEU_JOINTSITE " = lieux." CP_ID_SITE
+                  " where " CP_IDUSER_JOINTSITE " <> " + QString::number(iduser) + " and " CP_IDUSER_JOINTSITE " is not null"
+                  " and lieux." CP_ID_SITE " not in"
+                  " (select lieux." CP_ID_SITE
                   " from " TBL_LIEUXEXERCICE " lieux left join " TBL_JOINTURESLIEUX " joint"
-                  " on joint.idlieu = lieux.idLieu"
-                  " where iduser = " + QString::number(iduser) + ")";
+                  " on joint." CP_IDLIEU_JOINTSITE " = lieux." CP_ID_SITE
+                  " where " CP_IDUSER_JOINTSITE " = " + QString::number(iduser) + ")";
                   " union"
-                  " (select lieux.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
-                  " LieuCodePostal, LieuVille, LieuTelephone, LieuFax, null as iduser"
+                  " (select lieux." CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+                  CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE ", null as iduser"
                   " from " TBL_LIEUXEXERCICE " lieux left join " TBL_JOINTURESLIEUX " joint"
-                  " on joint.idlieu = lieux.idLieu"
-                  " where iduser is not null"
-                  " and lieux.idlieu not in"
-                  " (select lieux.idLieu"
+                  " on joint." CP_IDLIEU_JOINTSITE " = lieux." CP_ID_SITE
+                  " where " CP_IDUSER_JOINTSITE " is not null"
+                  " and lieux." CP_ID_SITE " not in"
+                  " (select lieux." CP_ID_SITE
                   " from " TBL_LIEUXEXERCICE " lieux left join " TBL_JOINTURESLIEUX " joint"
-                  " on joint.idlieu = lieux.idLieu"
-                  " where iduser = " + QString::number(iduser) + ")";
+                  " on joint." CP_IDLIEU_JOINTSITE " = lieux." CP_ID_SITE
+                  " where " CP_IDUSER_JOINTSITE " = " + QString::number(iduser) + ")";
     /*!< cette requête sert à recenser tous les lieux de travail avec le champ iduser positionné
      *  à l'id du user en cours s'il est utilisé par l'user en cours,
      *  à -1 s'il est utilisé par d'autres utilisateurs mais pas le user en cours
@@ -1875,15 +1875,15 @@ QList<Site*> DataBase::loadSitesAll()
      */
     //qDebug() << req;
 
-    req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
-                    "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
-                  "from " TBL_LIEUXEXERCICE;
+    req = "select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+          CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
+          " from " TBL_LIEUXEXERCICE;
     return loadSites( req );
 }
 QList<int> DataBase::loadidSitesByUser(int idUser)
 {
     QList<int> listid = QList<int>();
-    QString req = "select idLieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(idUser);
+    QString req = "select " CP_IDLIEU_JOINTSITE " from " TBL_JOINTURESLIEUX " where " CP_IDUSER_JOINTSITE " = " + QString::number(idUser);
     QList<QVariantList> listidsites = StandardSelectSQL(req, ok);
     if (ok && listidsites.size()>0)
         for (int i=0; i<listidsites.size(); ++i)
@@ -1900,15 +1900,16 @@ QList<Site*> DataBase::loadSites(QString req)
     for (int i=0; i<sitlist.size(); ++i)
     {
         QJsonObject jEtab{};
-        jEtab["idLieu"] = sitlist.at(i).at(0).toInt();
-        jEtab["nomLieu"] = sitlist.at(i).at(1).toString();
-        jEtab["adresse1"] = sitlist.at(i).at(2).toString();
-        jEtab["adresse2"] = sitlist.at(i).at(3).toString();
-        jEtab["adresse3"] = sitlist.at(i).at(4).toString();
-        jEtab["codePostal"] = sitlist.at(i).at(5).toInt();
-        jEtab["ville"] = sitlist.at(i).at(6).toString();
-        jEtab["telephone"] = sitlist.at(i).at(7).toString();
-        jEtab["fax"] = sitlist.at(i).at(8).toString();
+        jEtab[CP_ID_SITE]           = sitlist.at(i).at(0).toInt();
+        jEtab[CP_NOM_SITE]          = sitlist.at(i).at(1).toString();
+        jEtab[CP_ADRESSE1_SITE]     = sitlist.at(i).at(2).toString();
+        jEtab[CP_ADRESSE2_SITE]     = sitlist.at(i).at(3).toString();
+        jEtab[CP_ADRESSE3_SITE]     = sitlist.at(i).at(4).toString();
+        jEtab[CP_CODEPOSTAL_SITE]   = sitlist.at(i).at(5).toInt();
+        jEtab[CP_VILLE_SITE]        = sitlist.at(i).at(6).toString();
+        jEtab[CP_TELEPHONE_SITE]    = sitlist.at(i).at(7).toString();
+        jEtab[CP_FAX_SITE]          = sitlist.at(i).at(8).toString();
+        jEtab[CP_COULEUR_SITE]      = sitlist.at(i).at(9).toString();
         Site *etab = new Site(jEtab);
         if (etab != Q_NULLPTR)
             etabs << etab;

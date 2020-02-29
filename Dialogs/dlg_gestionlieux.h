@@ -18,12 +18,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_GESTIONLIEUX_H
 #define DLG_GESTIONLIEUX_H
 
+#include <QColorDialog>
 #include <QHeaderView>
 #include <QTableView>
 #include "database.h"
-#include "dlg_message.h"
-#include "widgetbuttonframe.h"
 #include "gbl_datas.h"
+#include "upstandarditem.h"
+#include "widgetbuttonframe.h"
 
 /* sert à gérer les lieux d'exercice
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -34,15 +35,15 @@ class dlg_GestionLieux : public UpDialog
 public:
     explicit dlg_GestionLieux(QWidget *parent = Q_NULLPTR);
     ~dlg_GestionLieux();
+    enum Mode               {Modif, Nouv, Suppr}; Q_ENUM(Mode)
 
 private:
-    DataBase                *db = DataBase::I();
-    int                     m_idlieuamodifier;
-    int                     m_idlieuserveur;
-    bool                    m_ok;
-
+    DataBase                *db;
     QTableView              *wdg_bigtable;
+    UpDialog                *dlg_lieu;
     UpLabel                 *wdg_adressuplbl;
+    UpPushButton            *wdg_couleurpushbutt;
+    UpPushButton            *wdg_nouvcouleurpushbutt;
     UpLineEdit              *wdg_nomlineedit;
     UpLineEdit              *wdg_adress1lineedit;
     UpLineEdit              *wdg_adress2lineedit;
@@ -51,21 +52,23 @@ private:
     UpLineEdit              *wdg_villelineedit;
     UpLineEdit              *wdg_tellineedit;
     UpLineEdit              *wdg_faxlineedit;
+    QString                 str_nouvcolor;
+
     QStandardItemModel      *m_tabmodel;
     WidgetButtonFrame       *wdg_buttonframe;
-
-    UpDialog                *dlg_lieu;
-
+    int                     m_idlieuserveur;
+    bool                    m_ok;
     void                    AfficheDetails(QModelIndex, QModelIndex);
     void                    ChoixButtonFrame();
     void                    CreerLieu();
     void                    enregNouvLieu();
     void                    enregModifLieu();
     Site*                   getSiteFromIndex(QModelIndex idx);
+    void                    ModifCouleur();
     void                    ModifLieu();
-    void                    ModifLieuxDialog();
-    void                    ReconstruitModel();
     void                    SupprLieu();
+    void                    ModifLieuxDialog(Mode mode);
+    void                    ReconstruitModel();
     bool                    ValidationFiche();
 };
 

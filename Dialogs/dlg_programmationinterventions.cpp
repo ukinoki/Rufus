@@ -159,13 +159,12 @@ void dlg_programmationinterventions::RemplirTreeSessions()
     {
         QList<QStandardItem *> items;
         QString nomsession = session->date().toString("dd-MMM-yy");
-        Site* site = Datas::I()->sites->getById(session->idlieu());
-        if (site != Q_NULLPTR)
-            nomsession += " - " + site->nom();
-        UpStandardItem *item = new UpStandardItem(nomsession);
-        item->setitem(session);
+        UpStandardItem *item = new UpStandardItem(nomsession, session);
         items << item << new UpStandardItem(session->date().toString("yyyy-MM-dd"));
         m_sessions.appendRow(items);
+        Site* site = Datas::I()->sites->getById(session->idlieu());
+        if (site != Q_NULLPTR)
+            item->appendRow(new UpStandardItem(site->nom(), session));
     }
     m_sessions.sort(1, Qt::AscendingOrder);
     m_sessions.takeColumn(1);
@@ -177,6 +176,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
                                     wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(true);
                                     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(true);
                                 });
+    wdg_sessionstreeView->expandAll();
 }
 
 void dlg_programmationinterventions::ChoixSession(QModelIndex idx)
@@ -201,6 +201,7 @@ void dlg_programmationinterventions::CreerIntervention()
     lbldate         ->setText(tr("Date"));
     QDateEdit *dateedit = new QDateEdit(m_currentdate);
     dateedit        ->setFixedSize(QSize(105,24));
+    dateedit        ->setCalendarPopup(true);
     choixdateLay    ->addWidget(lbldate);
     choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixdateLay    ->addWidget(dateedit);
@@ -304,7 +305,8 @@ void dlg_programmationinterventions::CreerSession()
     UpLabel* lbldate = new UpLabel;
     lbldate         ->setText(tr("Date"));
     QDateEdit *dateedit = new QDateEdit(m_currentdate);
-    dateedit->setFixedSize(QSize(100,24));
+    dateedit        ->setFixedSize(QSize(120,24));
+    dateedit        ->setCalendarPopup(true);
     choixdateLay    ->addWidget(lbldate);
     choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixdateLay    ->addWidget(dateedit);
@@ -370,8 +372,9 @@ void dlg_programmationinterventions::EditSession()
     UpLabel* lbldate = new UpLabel;
     lbldate         ->setText(tr("Date"));
     QDateEdit *dateedit = new QDateEdit(m_currentdate);
-    dateedit->setFixedSize(QSize(100,24));
-    dateedit->setDate(session->date());
+    dateedit        ->setFixedSize(QSize(120,24));
+    dateedit        ->setDate(session->date());
+    dateedit        ->setCalendarPopup(true);
     choixdateLay    ->addWidget(lbldate);
     choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixdateLay    ->addWidget(dateedit);
@@ -434,20 +437,27 @@ void dlg_programmationinterventions::SupprimeSession()
 
 void dlg_programmationinterventions::MenuContextuelListeSessions()
 {
+    m_menucontextlistsessions = new QMenu(this);
     QModelIndex psortindx   = wdg_sessionstreeView->indexAt(wdg_sessionstreeView->viewport()->mapFromGlobal(cursor().pos()));
     UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(psortindx));
     if (upitem == Q_NULLPTR)
-        return;
-    SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
-    if (session == Q_NULLPTR)
-        return;
-
-    m_menucontextlistsessions = new QMenu(this);
-
-    QAction *pAction_ModifSession = m_menucontextlistsessions->addAction(tr("Modifier la session"));
-    connect (pAction_ModifSession,        &QAction::triggered,    this,    [=] {EditSession();});
-    QAction *pAction_SupprSession = m_menucontextlistsessions->addAction(tr("Supprimer la session"));
-    connect (pAction_SupprSession,        &QAction::triggered,    this,    [=] {SupprimeSession();});
+    {
+        QAction *pAction_CreerSession = m_menucontextlistsessions->addAction(tr("Créer une session"));
+        connect (pAction_CreerSession,        &QAction::triggered,    this,    [=] {CreerSession();});
+    }
+    else
+    {
+        SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+        if (session == Q_NULLPTR)
+        {
+            delete m_menucontextlistsessions;
+            return;
+        }
+        QAction *pAction_ModifSession = m_menucontextlistsessions->addAction(tr("Modifier la session"));
+        connect (pAction_ModifSession,        &QAction::triggered,    this,    [=] {EditSession();});
+        QAction *pAction_SupprSession = m_menucontextlistsessions->addAction(tr("Supprimer la session"));
+        connect (pAction_SupprSession,        &QAction::triggered,    this,    [=] {SupprimeSession();});
+    }
     // ouvrir le menu
     m_menucontextlistsessions->exec(cursor().pos());
     delete m_menucontextlistsessions;

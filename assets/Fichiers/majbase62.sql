@@ -40,6 +40,15 @@ BEGIN
         THEN
             ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
             ADD COLUMN `ProgHeure` TIME(0) NULL AFTER `idLigneProgramme`;
+    END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'LieuxExercice' AND COLUMN_NAME = 'LieuCouleur') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`LieuxExercice`
+            ADD COLUMN `LieuCouleur` VARCHAR(6) NULL AFTER `LieuFax`;
         END IF;
     DROP TABLE IF EXISTS `SessionsOperatoires`;
     CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (

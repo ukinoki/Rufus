@@ -28,15 +28,16 @@ void Site::setData(QJsonObject data)
         return;
 
 
-    Utils::setDataInt(data, "idLieu", m_id);
-    Utils::setDataString(data, "nomLieu", m_nom);
-    Utils::setDataString(data, "adresse1", m_adresse1);
-    Utils::setDataString(data, "adresse2", m_adresse2);
-    Utils::setDataString(data, "adresse3", m_adresse3);
-    Utils::setDataInt(data, "codePostal", m_codePostal);
-    Utils::setDataString(data, "ville", m_ville);
-    Utils::setDataString(data, "telephone", m_telephone);
-    Utils::setDataString(data, "fax", m_fax);
+    Utils::setDataInt(data, CP_ID_SITE, m_id);
+    Utils::setDataString(data, CP_NOM_SITE, m_nom);
+    Utils::setDataString(data, CP_ADRESSE1_SITE, m_adresse1);
+    Utils::setDataString(data, CP_ADRESSE2_SITE, m_adresse2);
+    Utils::setDataString(data, CP_ADRESSE3_SITE, m_adresse3);
+    Utils::setDataInt(data, CP_CODEPOSTAL_SITE, m_codePostal);
+    Utils::setDataString(data, CP_VILLE_SITE, m_ville);
+    Utils::setDataString(data, CP_TELEPHONE_SITE, m_telephone);
+    Utils::setDataString(data, CP_FAX_SITE, m_fax);
+    Utils::setDataString(data, CP_COULEUR_SITE, m_couleur);
     m_data = data;
 }
 
@@ -49,3 +50,15 @@ int Site::codePostal() const    { return m_codePostal; }
 QString Site::ville() const     { return m_ville; }
 QString Site::telephone() const { return m_telephone; }
 QString Site::fax() const       { return m_fax; }
+QString Site::couleur() const   { return m_couleur; }
+
+void Site::setnom(const QString &nom)               { m_nom = nom; }
+void Site::setadresse1(const QString &adresse1)     { m_adresse1 = adresse1; }
+void Site::setadresse2(const QString &adresse2)     { m_adresse2 = adresse2; }
+void Site::setadresse3(const QString &adresse3)     { m_adresse3 = adresse3; }
+void Site::setcodepostal(int codePostal)            { m_codePostal = codePostal; }
+void Site::setville(const QString &ville)           { m_ville = ville; }
+void Site::settelephone(const QString &telephone)   { m_telephone = telephone; }
+void Site::setfax(const QString &fax)               { m_fax = fax; }
+void Site::setcouleur(const QString &couleur)       { m_couleur = couleur; }
+

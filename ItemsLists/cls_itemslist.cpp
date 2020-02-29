@@ -20,6 +20,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Banque *bq                  = Q_NULLPTR;
     User *usr                   = Q_NULLPTR;
     SessionOperatoire *session  = Q_NULLPTR;
+    Site *sit                   = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -118,6 +119,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (session != Q_NULLPTR)
         {
             table = TBL_SESSIONSOPERATOIRES;
+            loop = true;
+            break;
+        }
+        sit = dynamic_cast<Site*>(item);
+        if (sit != Q_NULLPTR)
+        {
+            table = TBL_LIEUXEXERCICE;
             loop = true;
             break;
         }
@@ -620,6 +628,56 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             session->setidaide(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
+        }
+    }
+    else if (table == TBL_LIEUXEXERCICE)
+    {
+        ok = true;
+        clause = CP_ID_SITE " = " + QString::number(item->id());
+        if (field == CP_NOM_SITE)
+        {
+            sit->setnom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE1_SITE)
+        {
+            sit->setadresse1(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE2_SITE)
+        {
+            sit->setadresse2(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE3_SITE)
+        {
+            sit->setadresse3(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CODEPOSTAL_SITE )
+        {
+            sit->setcodepostal(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_VILLE_SITE)
+        {
+            sit->setville(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_TELEPHONE_SITE)
+        {
+            sit->settelephone(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_FAX_SITE)
+        {
+            sit->setfax(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_COULEUR_SITE)
+        {
+            sit->setcouleur(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
         }
     }
 

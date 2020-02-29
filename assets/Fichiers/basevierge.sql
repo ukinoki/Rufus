@@ -591,6 +591,7 @@ CREATE TABLE `LieuxExercice` (
   `LieuVille` varchar(45) DEFAULT NULL,
   `LieuTelephone` varchar(17) DEFAULT NULL,
   `LieuFax` varchar(17) DEFAULT NULL,
+  `LieuCouleur` varchar(6) DEFAULT NULL,
   PRIMARY KEY (`idLieu`)
 ) ENGINE=InnoDB;
 

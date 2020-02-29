@@ -3026,21 +3026,23 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             " where " CP_ID_USR " = " + QString::number(idusr);
     //Edit(req);
     db->StandardSQL(req);
-    req = "insert into " TBL_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuCodePostal, LieuVille, LieuTelephone)  values ("
+    req = "insert into " TBL_LIEUXEXERCICE "(" CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+            CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_COULEUR_SITE ")  values ("
             "'Centre ophtalmologique de La Mazière', "
             "'place rouge', "
             "'Bâtiment C', "
             "23260, "
             "'La Mazière', "
-            "'O4 56 78 90 12')";
+            "'O4 56 78 90 12', "
+            "'FFFFEE')";
     //Edit(req);
     db->StandardSQL(req);
-    req = "select idLieu from " TBL_LIEUXEXERCICE;
+    req = "select " CP_ID_SITE " from " TBL_LIEUXEXERCICE;
     int gidLieuExercice = 0;
     QList<QVariantList> lieuxlist = db->StandardSelectSQL(req, m_ok);
     if (m_ok && lieuxlist.size()>0)
         gidLieuExercice = lieuxlist.at(0).at(0).toInt();
-    req = "insert into " TBL_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
+    req = "insert into " TBL_JOINTURESLIEUX " (" CP_IDUSER_JOINTSITE ", " CP_IDLIEU_JOINTSITE ") VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
     db->StandardSQL(req);
     db->setidlieupardefaut(gidLieuExercice);
 }

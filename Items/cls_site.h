@@ -33,6 +33,7 @@ private:
     QString m_ville;
     QString m_telephone;
     QString m_fax;
+    QString m_couleur;
 
 public:
     explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -47,6 +48,16 @@ public:
     QString ville() const;
     QString telephone() const;
     QString fax() const;
+    QString couleur() const;
+    void setnom(const QString &nom);
+    void setadresse1(const QString &adresse1);
+    void setadresse2(const QString &adresse2);
+    void setadresse3(const QString &adresse3);
+    void setcodepostal(int codePostal);
+    void setville(const QString &ville);
+    void settelephone(const QString &telephone);
+    void setfax(const QString &fax);
+    void setcouleur(const QString &couleur);
 };
 
 #endif // CLS_SITE_H
