@@ -40,7 +40,34 @@ BEGIN
         THEN
             ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
             ADD COLUMN `ProgHeure` TIME(0) NULL AFTER `idLigneProgramme`;
-    END IF;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ProgrammesOperatoires' AND COLUMN_NAME = 'Cote') as chp;
+        IF tot=1
+        THEN
+            ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
+            CHANGE COLUMN `Cote` `Cote` VARCHAR(1) NULL DEFAULT NULL ;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ProgrammesOperatoires' AND COLUMN_NAME = 'idLigneProgramme') as chp;
+        IF tot=1
+        THEN
+            ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
+            CHANGE COLUMN `idLigneProgramme` `idLigneProgramme` INT(11) NOT NULL AUTO_INCREMENT;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'TypesInterventions' AND COLUMN_NAME = 'idTypeIntervention') as chp;
+        IF tot=1
+        THEN
+            ALTER TABLE `Ophtalmologie`.`TypesInterventions`
+            CHANGE COLUMN `idTypeIntervention` `idTypeIntervention` INT(11) NOT NULL AUTO_INCREMENT;
+        END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
@@ -52,7 +79,7 @@ BEGIN
         END IF;
     DROP TABLE IF EXISTS `SessionsOperatoires`;
     CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
-        `idSession` INT NOT NULL,
+        `idSession` INT NOT NULL AUTO_INCREMENT,
         `idUser` INT NULL,
         `idAide` INT NULL,
         `DateSession` DATE NULL,

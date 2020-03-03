@@ -2555,11 +2555,11 @@ QJsonObject DataBase::loadInterventionData(QVariantList interventiondata)       
 {
     QJsonObject data{};
     data[CP_ID_LIGNPRGOPERATOIRE]                   = interventiondata.at(0).toInt();
-    data[CP_HEURE_LIGNPRGOPERATOIRE]                = interventiondata.at(1).toTime().toString("HH:mm::ss");
+    data[CP_HEURE_LIGNPRGOPERATOIRE]                = interventiondata.at(1).toTime().toString("HH:mm:ss");
     data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = interventiondata.at(2).toInt();
     data[CP_IDSESSION_LIGNPRGOPERATOIRE]            = interventiondata.at(3).toInt();
     data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = interventiondata.at(4).toString();
-    data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE]     = interventiondata.at(5).toString();
+    data[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE]   = interventiondata.at(5).toInt();
     data[CP_COTE_LIGNPRGOPERATOIRE]                 = interventiondata.at(6).toString();
     data[CP_IDIOL_LIGNPRGOPERATOIRE]                = interventiondata.at(7).toInt();
     data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = interventiondata.at(8).toDouble();
@@ -2572,11 +2572,12 @@ QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)             
 {
     QList<Intervention*> list = QList<Intervention*> ();
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
-                              CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
+                              CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
                               CP_OBSERV_LIGNPRGOPERATOIRE // 10
-                    " FROM " TBL_LIGNESPRGOPERATOIRES ;
+                    " FROM " TBL_LIGNESPRGOPERATOIRES
                     " WHERE " CP_IDSESSION_LIGNPRGOPERATOIRE " = " + QString::number(id) +
                     " order by " CP_ID_LIGNPRGOPERATOIRE " asc";
+    //qDebug() << req;
     QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
     if(!ok || interventionlist.size()==0)
         return list;
@@ -2594,7 +2595,7 @@ Intervention* DataBase::loadInterventionById(int idintervention)                
 {
     Intervention *intervention = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
-                              CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
+                              CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
                               CP_OBSERV_LIGNPRGOPERATOIRE // 10
                     " FROM " TBL_LIGNESPRGOPERATOIRES ;
                     " WHERE " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(idintervention) ;
@@ -2658,9 +2659,9 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
 QJsonObject DataBase::loadTypeInterventionData(QVariantList typeinterventiondata)         //! attribue la liste des datas à un TypeIntervention
 {
     QJsonObject data{};
-    data[CP_ID_TYPINTERVENTION]                     = typeinterventiondata.at(0).toInt();
-    data[CP_TYPEINTERVENTION_TYPINTERVENTION]       = typeinterventiondata.at(1).toInt();
-    data[CP_CODECCAM_TYPINTERVENTION]            = typeinterventiondata.at(2).toString();
+    data[CP_ID_TYPINTERVENTION]                 = typeinterventiondata.at(0).toInt();
+    data[CP_TYPEINTERVENTION_TYPINTERVENTION]   = typeinterventiondata.at(1).toString();
+    data[CP_CODECCAM_TYPINTERVENTION]           = typeinterventiondata.at(2).toString();
     return data;
 }
 

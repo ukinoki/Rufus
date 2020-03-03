@@ -445,8 +445,9 @@ void dlg_GestionLieux::ReconstruitModel()
 
     foreach (Site* sit, *Datas::I()->sites->sites())
     {
-        UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
-        pitem0->setitem(sit);
+        UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom(), sit);
+        if (sit->couleur() != "")
+            pitem0->setForeground(QBrush(QColor("#" + sit->couleur())));
         m_tabmodel->appendRow(QList<QStandardItem*>() << pitem0);
     }
     wdg_bigtable->setModel(m_tabmodel);

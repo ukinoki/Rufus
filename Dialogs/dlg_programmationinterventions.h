@@ -33,33 +33,51 @@ public:
 
 private:
     Procedures          *proc = Procedures::I();
-    WidgetButtonFrame   *wdg_buttonsessionsframe;
-    WidgetButtonFrame   *wdg_buttoninterventionframe;
+    QStandardItemModel  m_medecins, m_sessions, m_interventions, m_typeinterventions;
+
+/*! les items */
+    User                *m_currentchiruser      = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
+    Patient             *m_currentchirpatient   = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
+    SessionOperatoire   *m_currentsession       = Q_NULLPTR;                        //! la session en cours
+    Intervention        *m_currentintervention  = Q_NULLPTR;                        //! l'intervention en cours
+
+/*! les widgets */
+    QMenu               *m_ctxtmenusessions;
+    QMenu               *m_ctextmenuinterventions;
+    QTreeView           *wdg_interventionstreeView  = new QTreeView();
+    QTreeView           *wdg_sessionstreeView       = new QTreeView();
     QComboBox           *wdg_listmedecinscombo;
     QWidget             *wdg_IOL;
-    User                *m_currentuser;
-    Patient             *m_currentpatient;
-    QStandardItemModel  m_medecins, m_sessions, m_interventions, m_sites;
-    QDate               m_currentdate = QDate::currentDate();
-    QMenu               *m_menucontextlistsessions;
-    User*               currentuser() const { return m_currentuser; }
+    WidgetButtonFrame   *wdg_buttonsessionsframe;
+    WidgetButtonFrame   *wdg_buttoninterventionframe;
 
-    UpTableView         *wdg_interventionstableView = new UpTableView();
-    QTreeView           *wdg_sessionstreeView       = new QTreeView();
+/*! les médecins */
+    void                ChoixMedecin(int iduser);
 
+/*! les sessions */
     void                ChoixSessionFrame();
-    void                ChoixInterventionFrame();
-    void                ChoixMedecin(int idx);
-    void                ChoixSession(QModelIndex idx);
-    void                CreerIntervention();
-    void                AfficheChoixIOL(int state);
-    void                MenuContextuelListeSessions();
-    void                RemplirTreeSessions();
-
+    void                ChoixSession(QItemSelection select);
+    void                RemplirTreeSessions(SessionOperatoire* session = Q_NULLPTR);
+    void                MenuContextuelSessions();
     void                CreerSession();
     void                EditSession();
     void                SupprimeSession();
-    void                EnregistreNouvelleSession();
+
+/*! les interventions */
+    void                ChoixIntervention(QItemSelection select);
+    void                ChoixInterventionFrame();
+    void                CreerIntervention();
+    void                EditIntervention();
+    void                SupprimeIntervention();
+    void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
+    void                MenuContextuelInterventionsions();
+
+/*! les types d'interventions */
+    void                ReconstruitListeTypeInterventions();
+    void                CreerTypeIntervention();
+
+/*! les IOLs */
+    void                AfficheChoixIOL(int state);
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

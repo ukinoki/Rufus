@@ -34,6 +34,7 @@ void Intervention::setData(QJsonObject data)
     Utils::setDataTime(data, CP_HEURE_LIGNPRGOPERATOIRE, m_heure);
     m_anesth = ConvertModeAnesthesie(data[CP_TYPEANESTH_LIGNPRGOPERATOIRE].toString());
     m_cote   = Utils::ConvertCote(data[CP_COTE_LIGNPRGOPERATOIRE].toString());
+    Utils::setDataInt(data, CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE, m_idtypeintervention);
     Utils::setDataInt(data, CP_IDIOL_LIGNPRGOPERATOIRE, m_idIOL);
     Utils::setDataDouble(data, CP_PWRIOL_LIGNPRGOPERATOIRE, m_pwrIOL);
     Utils::setDataDouble(data, CP_CYLIOL_LIGNPRGOPERATOIRE, m_cylIOL);
@@ -63,17 +64,17 @@ QString Intervention::ConvertModeAnesthesie(ModeAnesthesie mode)
 void Intervention::resetdatas()
 {
     QJsonObject data;
-    data[CP_ID_LIGNPRGOPERATOIRE]           = 0;
-    data[CP_HEURE_LIGNPRGOPERATOIRE]        = "";
-    data[CP_IDSESSION_LIGNPRGOPERATOIRE]    = 0;
-    data[CP_IDPATIENT_LIGNPRGOPERATOIRE]    = 0;
-    data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]   = "";
-    data[CP_COTE_LIGNPRGOPERATOIRE]         = "";
-    data[CP_IDIOL_LIGNPRGOPERATOIRE]        = 0;
-    data[CP_PWRIOL_LIGNPRGOPERATOIRE]       = 0;
-    data[CP_CYLIOL_LIGNPRGOPERATOIRE]       = 0;
-    data[CP_OBSERV_LIGNPRGOPERATOIRE]       = 0;
-
+    data[CP_ID_LIGNPRGOPERATOIRE]                   = 0;
+    data[CP_HEURE_LIGNPRGOPERATOIRE]                = "";
+    data[CP_IDSESSION_LIGNPRGOPERATOIRE]            = 0;
+    data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = 0;
+    data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = "";
+    data[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE]   = 0;
+    data[CP_COTE_LIGNPRGOPERATOIRE]                 = "";
+    data[CP_IDIOL_LIGNPRGOPERATOIRE]                = 0;
+    data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = 0;
+    data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = 0;
+    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = 0;
     setData(data);
 }
 
@@ -87,7 +88,6 @@ void IOL::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-
     Utils::setDataInt(data, CP_ID_IOLS, m_id);
     Utils::setDataInt(data, CP_IDMANUFACTURER_IOLS, m_idmanufacturer);
     Utils::setDataString(data, CP_MODELNAME_IOLS, m_modele);
@@ -119,7 +119,6 @@ void TypeIntervention::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-
     Utils::setDataInt(data, CP_ID_TYPINTERVENTION, m_id);
     Utils::setDataString(data, CP_TYPEINTERVENTION_TYPINTERVENTION, m_typeintervention);
     Utils::setDataString(data, CP_CODECCAM_TYPINTERVENTION, m_codeCCAM);

@@ -1039,6 +1039,12 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
         pitem1->setToolTip(data);
         pitem2->setToolTip(data);
         pitem3->setToolTip(data);
+        if (sit->couleur() != "")
+        {
+            pitem1->setTextColor(QColor("#" + sit->couleur()));
+            pitem2->setTextColor(QColor("#" + sit->couleur()));
+            pitem3->setTextColor(QColor("#" + sit->couleur()));
+        }
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
         ++i;
     }

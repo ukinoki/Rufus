@@ -316,6 +316,20 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<Intervention*>(item) != Q_NULLPTR)
+        {
+            table = TBL_LIGNESPRGOPERATOIRES;
+            idname = CP_ID_LIGNPRGOPERATOIRE;
+            loop = true;
+            break;
+        }
+        if (dynamic_cast<TypeIntervention*>(item) != Q_NULLPTR)
+        {
+            table = TBL_TYPESINTERVENTIONS;
+            idname = CP_ID_TYPINTERVENTION;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table != "" && idname != "")

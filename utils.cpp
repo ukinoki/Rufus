@@ -977,3 +977,21 @@ QString Utils::ConvertCote(Cote cote)
     default: return "";
     }
 }
+
+QString Utils::TraduitCote(QString cote)
+{
+    if (cote == "D") return tr("Droit");
+    if (cote == "G") return tr("Gauche");
+    if (cote == "2") return tr("Les 2");
+    return  "";
+}
+
+QString Utils::TraduitCote(Cote cote)
+{
+    switch (cote) {
+    case Gauche:        return tr("Gauche");
+    case Droit:         return tr("Droit");
+    case Les2:          return tr("Les 2");
+    default: return "";
+    }
+}

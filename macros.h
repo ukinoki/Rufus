@@ -450,7 +450,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDSESSION_LIGNPRGOPERATOIRE                  "idSession"
 #define CP_IDPATIENT_LIGNPRGOPERATOIRE                  "idPat"
 #define CP_TYPEANESTH_LIGNPRGOPERATOIRE                 "TypeAnesthesie"
-#define CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE           "TypeIntervention"
+#define CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE         "TypeIntervention"
 #define CP_COTE_LIGNPRGOPERATOIRE                       "Cote"
 #define CP_IDIOL_LIGNPRGOPERATOIRE                      "idIOL"
 #define CP_PWRIOL_LIGNPRGOPERATOIRE                     "PwIOL"

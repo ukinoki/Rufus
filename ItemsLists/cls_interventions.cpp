@@ -85,16 +85,16 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
-        if (champ == CP_IDPATIENT_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toInt();
-        else if (champ == CP_HEURE_LIGNPRGOPERATOIRE)             data[champ] = itset.value().toString();
-        else if (champ == CP_IDSESSION_LIGNPRGOPERATOIRE)         data[champ] = itset.value().toInt();
-        else if (champ == CP_TYPEANESTH_LIGNPRGOPERATOIRE)        data[champ] = itset.value().toString();
-        else if (champ == CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE)  data[champ] = itset.value().toString();
-        else if (champ == CP_COTE_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toString();
-        else if (champ == CP_IDIOL_LIGNPRGOPERATOIRE)             data[champ] = itset.value().toInt();
-        else if (champ == CP_PWRIOL_LIGNPRGOPERATOIRE)            data[champ] = itset.value().toDouble();
-        else if (champ == CP_CYLIOL_LIGNPRGOPERATOIRE)            data[champ] = itset.value().toDouble();
-        else if (champ == CP_OBSERV_LIGNPRGOPERATOIRE)            data[champ] = itset.value().toString();
+        if (champ == CP_IDPATIENT_LIGNPRGOPERATOIRE)                data[champ] = itset.value().toInt();
+        else if (champ == CP_HEURE_LIGNPRGOPERATOIRE)               data[champ] = itset.value().toString();
+        else if (champ == CP_IDSESSION_LIGNPRGOPERATOIRE)           data[champ] = itset.value().toInt();
+        else if (champ == CP_TYPEANESTH_LIGNPRGOPERATOIRE)          data[champ] = itset.value().toString();
+        else if (champ == CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE)  data[champ] = itset.value().toInt();
+        else if (champ == CP_COTE_LIGNPRGOPERATOIRE)                data[champ] = itset.value().toString();
+        else if (champ == CP_IDIOL_LIGNPRGOPERATOIRE)               data[champ] = itset.value().toInt();
+        else if (champ == CP_PWRIOL_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toDouble();
+        else if (champ == CP_CYLIOL_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toDouble();
+        else if (champ == CP_OBSERV_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toString();
     }
     intervention = new Intervention(data);
     if (intervention != Q_NULLPTR)

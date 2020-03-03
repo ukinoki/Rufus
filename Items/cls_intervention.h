@@ -36,25 +36,25 @@ public:
 
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
-    QTime m_heure           = QTime();          //! l'heure de l'intervention
-    int m_idsession         = 0;                //! id de la session
-    int m_idpatient         = 0;                //! id du patient
-    ModeAnesthesie m_anesth = NoLoSo;           //! le type d'anesthésie
-    int m_typeintervention  = 0;                //! id du type d'intervention
-    Utils::Cote m_cote      = Utils::NoLoSo;    //! côté de l'intervention
-    int m_idIOL             = 0;                //! id de l'IOL
-    double m_pwrIOL         = 0;                //! puissance de l'implant
-    double m_cylIOL         = 0;                //! cylindre de l'implant
-    QString m_observation   = "";               //! observation
-    ModeAnesthesie          ConvertModeAnesthesie(QString mode);
-    QString                 ConvertModeAnesthesie(ModeAnesthesie mode);
+    QTime m_heure               = QTime();          //! l'heure de l'intervention
+    int m_idsession             = 0;                //! id de la session
+    int m_idpatient             = 0;                //! id du patient
+    ModeAnesthesie m_anesth     = NoLoSo;           //! le type d'anesthésie
+    int m_idtypeintervention    = 0;                //! id du type d'intervention
+    Utils::Cote m_cote          = Utils::NoLoSo;    //! côté de l'intervention
+    int m_idIOL                 = 0;                //! id de l'IOL
+    double m_pwrIOL             = 0;                //! puissance de l'implant
+    double m_cylIOL             = 0;                //! cylindre de l'implant
+    QString m_observation       = "";               //! observation
+    ModeAnesthesie              ConvertModeAnesthesie(QString mode);
+    QString                     ConvertModeAnesthesie(ModeAnesthesie mode);
 
 public:
     QTime heure() const                     { return m_heure; }
     int idpatient() const                   { return m_idpatient; }
     int idsession() const                   { return m_idsession; }
     ModeAnesthesie anesthesie() const       { return m_anesth; }
-    int idtypeintervention() const          { return m_typeintervention; }
+    int idtypeintervention() const          { return m_idtypeintervention; }
     Utils::Cote cote() const                { return m_cote; }
     int idIOL() const                       { return m_idIOL; }
     double puissanceIOL() const             { return m_pwrIOL; }
@@ -67,19 +67,19 @@ public:
                                               m_data[CP_IDPATIENT_LIGNPRGOPERATOIRE] = id; }
     void setidsession(int id)               { m_idsession = id;
                                               m_data[CP_IDSESSION_LIGNPRGOPERATOIRE] = id; }
-    void anesthesie(ModeAnesthesie mode)    { m_anesth = mode;
+    void setanesthesie(ModeAnesthesie mode) { m_anesth = mode;
                                               m_data[CP_TYPEANESTH_LIGNPRGOPERATOIRE] = ConvertModeAnesthesie(mode); }
-    void setidtypeintervention(int id)      { m_typeintervention = id;
-                                              m_data[CP_TYPEINTERVENTION_LIGNPRGOPERATOIRE] = id; }
-    void cote(Utils::Cote cote)             { m_cote = cote;
+    void setidtypeintervention(int id)      { m_idtypeintervention = id;
+                                              m_data[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE] = id; }
+    void setcote(Utils::Cote cote)          { m_cote = cote;
                                               m_data[CP_COTE_LIGNPRGOPERATOIRE] = Utils::ConvertCote(cote); }
     void setidIOL(int id)                   { m_idIOL = id;
                                               m_data[CP_IDIOL_LIGNPRGOPERATOIRE] = id; }
-    void puissanceIOL(double pwr)           { m_pwrIOL = pwr;
+    void setpuissanceIOL(double pwr)        { m_pwrIOL = pwr;
                                               m_data[CP_PWRIOL_LIGNPRGOPERATOIRE] = pwr; }
     void cylindreIOL(double cyl)            { m_cylIOL = cyl;
                                               m_data[CP_CYLIOL_LIGNPRGOPERATOIRE] = cyl; }
-    void observation(QString txt)           { m_observation = txt;
+    void setobservation(QString txt)        { m_observation = txt;
                                               m_data[CP_OBSERV_LIGNPRGOPERATOIRE] = txt; }
 
     void resetdatas();

@@ -267,13 +267,13 @@ CREATE TABLE `IOLs` (
 
 DROP TABLE IF EXISTS `ProgrammesOperatoires`;
 CREATE TABLE `ProgrammesOperatoires` (
-  `idLigneProgramme` INT NOT NULL,
+  `idLigneProgramme` INT NOT NULL AUTO_INCREMENT,
   `ProgHeure` TIME(0) NULL,
   `idPat` INT NULL,
   `idSession` INT NULL,
   `TypeAnesthesie` VARCHAR(45) NULL,
   `TypeIntervention` INT NULL,
-  `Cote` INT NULL,
+  `Cote` VARCHAR(1) NULL,
   `idIOL` INT NULL,
   `PwIOL` DECIMAL(4,2) NULL,
   `CylIOL` DECIMAL(4,2) NULL,
@@ -283,7 +283,7 @@ CREATE TABLE `ProgrammesOperatoires` (
 
 DROP TABLE IF EXISTS `SessionsOperatoires`;
 CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
-  `idSession` INT NOT NULL,
+  `idSession` INT NOT NULL AUTO_INCREMENT,
   `idUser` INT NULL,
   `idAide` INT NULL,
   `DateSession` DATE NULL,
@@ -293,7 +293,7 @@ CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
 
 DROP TABLE IF EXISTS `TypesInterventions`;
 CREATE TABLE `TypesInterventions` (
-  `idTypeIntervention` INT NOT NULL,
+  `idTypeIntervention` INT NOT NULL AUTO_INCREMENT,
   `TypeIntervention` VARCHAR(80) NULL,
   `CodeIntervention` VARCHAR(20) NULL,
   PRIMARY KEY (`idTypeIntervention`)

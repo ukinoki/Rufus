@@ -147,8 +147,10 @@ public:
     static void CalcFontSize(QFont &font);
 
     //! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
-    static Cote     ConvertCote(QString mode);
+    static Cote     ConvertCote(QString cote);
     static QString  ConvertCote(Cote mode);
+    static QString  TraduitCote(Cote mode);
+    static QString  TraduitCote(QString cote);
 
     //! gestion des QJsonObject des items et des mesures
     static void setDataString(QJsonObject data, QString key, QString &prop, bool useTrim=false);
