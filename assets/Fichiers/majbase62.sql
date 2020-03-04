@@ -71,6 +71,15 @@ BEGIN
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'TypesInterventions' AND COLUMN_NAME = 'DureeIntervention') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `Ophtalmologie`.`TypesInterventions`
+            ADD COLUMN `DureeIntervention` TIME NULL DEFAULT NULL AFTER `CodeIntervention`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'LieuxExercice' AND COLUMN_NAME = 'LieuCouleur') as chp;
         IF tot=0
         THEN

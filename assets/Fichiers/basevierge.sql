@@ -296,6 +296,7 @@ CREATE TABLE `TypesInterventions` (
   `idTypeIntervention` INT NOT NULL AUTO_INCREMENT,
   `TypeIntervention` VARCHAR(80) NULL,
   `CodeIntervention` VARCHAR(20) NULL,
+  `DureeIntervention` TIME NULL,
   PRIMARY KEY (`idTypeIntervention`)
   ) ENGINE=InnoDB;
 
