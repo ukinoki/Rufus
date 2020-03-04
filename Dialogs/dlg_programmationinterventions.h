@@ -56,7 +56,7 @@ private:
 
 /*! les sessions */
     void                ChoixSessionFrame();
-    void                ChoixSession(QItemSelection select);
+    void                AfficheInterventionsSession(QModelIndex idx);
     void                RemplirTreeSessions(SessionOperatoire* session = Q_NULLPTR);
     void                MenuContextuelSessions();
     void                CreerSession();
@@ -64,7 +64,7 @@ private:
     void                SupprimeSession();
 
 /*! les interventions */
-    void                ChoixIntervention(QItemSelection select);
+    void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
     void                CreerIntervention();
     void                EditIntervention();

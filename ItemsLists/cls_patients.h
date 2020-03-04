@@ -71,6 +71,9 @@ public:
 
     void initListeByDDN(QDate DDN = QDate());                                              /*! crée une liste des patients de la table pour une date de naissance
                                                                                             * \param DDN la date de naissance */
+
+    static bool veriftelephone(Patient * pat);                                             /*! vérfie si le patient a au moins un no de tel enregistré */
+
 private:
     /*! > il y a 3 listes de patients:
      * une liste fourre tout m_patients

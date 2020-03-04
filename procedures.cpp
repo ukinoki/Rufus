@@ -1358,7 +1358,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                                 " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
                                 QString::number(docmt->compression()) + ")";
                         db->StandardSQL(req);
-                        qDebug() << req;
+                        //qDebug() << req;
                     }
                     else
                     {

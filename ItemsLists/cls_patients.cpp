@@ -298,3 +298,61 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     return pat;
 }
+
+bool Patients::veriftelephone(Patient *pat)
+{
+    bool retour = false;
+    UpDialog            *dlg_telephone = new UpDialog();
+    dlg_telephone->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_telephone->setWindowTitle(tr("No de téléphone"));
+
+    UpLabel* lbl    = new UpLabel;
+    lbl             ->setText(pat->nom() + " " + pat->prenom() + "\n" + tr("n'a pas de n°de téléphone enregistré") + "\n" + tr("Entrez au moins un n°"));
+    lbl             ->setAlignment(Qt::AlignCenter);
+
+    QHBoxLayout *telLay    = new QHBoxLayout();
+    UpLabel* lbltel = new UpLabel;
+    lbltel          ->setText(tr("Telephone"));
+    QLineEdit *linetel = new QLineEdit();
+    linetel         ->setFixedSize(QSize(120,24));
+    linetel         ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    telLay          ->addWidget(lbltel);
+    telLay          ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    telLay          ->addWidget(linetel);
+    telLay          ->setSpacing(5);
+    telLay          ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *portLay    = new QHBoxLayout();
+    UpLabel* lblport = new UpLabel;
+    lblport         ->setText(tr("Portable"));
+    QLineEdit *lineport = new QLineEdit();
+    lineport        ->setFixedSize(QSize(120,24));
+    lineport        ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    portLay         ->addWidget(lblport);
+    portLay         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    portLay         ->addWidget(lineport);
+    portLay         ->setSpacing(5);
+    portLay         ->setContentsMargins(0,0,0,0);
+
+    dlg_telephone->dlglayout()  ->insertLayout(0, telLay);
+    dlg_telephone->dlglayout()  ->insertLayout(0, portLay);
+    dlg_telephone->dlglayout()  ->insertWidget(0, lbl);
+    dlg_telephone->dlglayout()  ->setSpacing(5);
+    dlg_telephone->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_telephone->OKButton, &QPushButton::clicked, dlg_telephone, [&]
+    {
+        QString portable    = lineport->text();
+        QString fixe        = linetel->text();
+        if  (portable == "" && fixe == "")
+            return;
+        if  (fixe != "")
+            ItemsList::update(pat, CP_TELEPHONE_DSP, fixe);
+        if  (portable != "")
+            ItemsList::update(pat, CP_PORTABLE_DSP, portable);
+        dlg_telephone->close();
+        retour = true;
+    });
+    lineport->setFocus();
+    dlg_telephone->exec();
+    return retour;
+};

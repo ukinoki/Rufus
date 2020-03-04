@@ -93,10 +93,13 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     {
         wdg_listmedecinscombo->setCurrentIndex(wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id()));
         wdg_listmedecinscombo->setEnabled(false);
-        ChoixMedecin(Datas::I()->users->userconnected()->id());
+        ChoixMedecin(wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id()));
     }
     else
+    {
         connect(wdg_listmedecinscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this, &dlg_programmationinterventions::ChoixMedecin);
+        ChoixMedecin(0);
+    }
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     Datas::I()->typesinterventions->initListe();
     ReconstruitListeTypeInterventions();
@@ -134,33 +137,22 @@ void dlg_programmationinterventions::ChoixSessionFrame()
     }
 }
 
-void dlg_programmationinterventions::ChoixSession(QItemSelection select)
+void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx)
 {
-    QModelIndexList listindex = select.indexes();
-    if (listindex.size() == 0)
-        return;
-    QModelIndex mdl = listindex.at(0);
-    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(mdl));
+    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessions.itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
     m_currentsession = dynamic_cast<SessionOperatoire*>(upitem->item());
-    wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
-    wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(false);
-    if (m_currentsession == Q_NULLPTR)
-    {
-        wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(false);
-        wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(false);
-        wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(false);
-        return;
-    }
-    //qDebug() << m_currentsession->date() << Datas::I()->sites->getById(m_currentsession->idlieu())->nom();
+    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(m_currentsession != Q_NULLPTR);
+    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(m_currentsession != Q_NULLPTR);
+    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(m_currentsession != Q_NULLPTR);
     Datas::I()->interventions->initListebySessionId(m_currentsession->id());
     RemplirTreeInterventions();
 }
 
 void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* session)
 {
-    disconnect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &dlg_programmationinterventions::ChoixSession);
+    disconnect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
     m_sessions.clear();
     m_currentsession = Q_NULLPTR;
     foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
@@ -181,10 +173,9 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
     wdg_sessionstreeView->setModel(&m_sessions);
     m_sessions.setHeaderData(0, Qt::Horizontal, tr("Sessions"));
     wdg_sessionstreeView->expandAll();
-    connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &dlg_programmationinterventions::ChoixSession);
+    QModelIndex idx;
     if (m_sessions.rowCount() >0)
     {
-        QModelIndex idx;
         if (session == Q_NULLPTR)
             idx = m_sessions.item(m_sessions.rowCount()-1)->index();        //! l'index de ce dernier item
         else for (int i=0; i<m_sessions.rowCount(); ++i)
@@ -199,6 +190,8 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
         wdg_sessionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
         wdg_sessionstreeView->setCurrentIndex(idx);
     }
+    connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
+    AfficheInterventionsSession(idx);
 }
 
 void dlg_programmationinterventions::CreerSession()
@@ -385,13 +378,9 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
     }
 }
 
-void dlg_programmationinterventions::ChoixIntervention(QItemSelection select)
+void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
 {
-    QModelIndexList listindex = select.indexes();
-    if (listindex.size() == 0)
-        return;
-    QModelIndex mdl = listindex.at(0);
-    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventions.itemFromIndex(mdl));
+    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventions.itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
     m_currentintervention = dynamic_cast<Intervention*>(upitem->item());
@@ -408,7 +397,7 @@ void dlg_programmationinterventions::ChoixIntervention(QItemSelection select)
 
 void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* intervention)
 {
-    disconnect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    disconnect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
     m_interventions.clear();
     m_currentintervention = Q_NULLPTR;
     foreach (Intervention* interv, *Datas::I()->interventions->interventions())
@@ -453,10 +442,10 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_interventionstreeView->setModel(&m_interventions);
     m_interventions.setHeaderData(0, Qt::Horizontal, tr("interventions"));
     wdg_interventionstreeView->expandAll();
-    connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    QModelIndex idx;
     if (m_interventions.rowCount() >0)
     {
-        QModelIndex idx;
         if (intervention == Q_NULLPTR)
             idx = m_interventions.item(m_interventions.rowCount()-1)->index();        //! l'index du dernier item
         else for (int i=0; i<m_interventions.rowCount(); ++i)
@@ -471,7 +460,8 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         wdg_interventionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
         wdg_interventionstreeView->setCurrentIndex(idx);
     }
-    connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    ChoixIntervention(idx);
 }
 
 void dlg_programmationinterventions::CreerIntervention()
@@ -613,6 +603,9 @@ void dlg_programmationinterventions::CreerIntervention()
     dlg_intervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [=]
     {
+        if (m_currentchirpatient->telephone() == "" && m_currentchirpatient->portable() == "")
+            if (!Patients::veriftelephone(m_currentchirpatient))
+                return;
         QTime heure = timeedit->time();
         QStandardItem *itm = m_sessions.itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
         int idsession = dynamic_cast<UpStandardItem*>(itm)->item()->id();
