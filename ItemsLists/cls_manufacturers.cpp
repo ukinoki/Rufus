@@ -90,6 +90,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_CODEPOSTAL_MANUFACTURER)               data[champ] = itset.value().toInt();
         else if (champ == CP_VILLE_MANUFACTURER)                    data[champ] = itset.value().toString();
         else if (champ == CP_TELEPHONE_MANUFACTURER)                data[champ] = itset.value().toString();
+        else if (champ == CP_FAX_MANUFACTURER)                      data[champ] = itset.value().toString();
         else if (champ == CP_PORTABLE_MANUFACTURER)                 data[champ] = itset.value().toString();
         else if (champ == CP_WEBSITE_MANUFACTURER)                  data[champ] = itset.value().toString();
         else if (champ == CP_MAIL_MANUFACTURER)                     data[champ] = itset.value().toString();

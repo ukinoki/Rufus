@@ -39,6 +39,7 @@ public:
     int codepostal() const;
     QString ville() const;
     QString telephone() const;
+    QString fax() const;
     QString portable() const;
     QString website() const;
     QString mail() const;
@@ -55,6 +56,7 @@ public:
     void setcodepostal(int codepostal);
     void setville(const QString &ville);
     void settelephone(const QString &telephone);
+    void setfax(const QString &fax);
     void setportable(const QString &portable);
     void setwebsite(const QString &website);
     void setmail(const QString &mail);
@@ -75,6 +77,7 @@ private:
     int m_codepostal        = 0;
     QString m_ville         = "";
     QString m_telephone     = "";
+    QString m_fax           = "";
     QString m_portable      = "";
     QString m_website       = "";
     QString m_mail          = "";

@@ -34,6 +34,7 @@ void Manufacturer::setData(QJsonObject data)
     Utils::setDataInt(data, CP_CODEPOSTAL_MANUFACTURER, m_codepostal);
     Utils::setDataString(data, CP_VILLE_MANUFACTURER, m_ville);
     Utils::setDataString(data, CP_TELEPHONE_MANUFACTURER, m_telephone);
+    Utils::setDataString(data, CP_FAX_MANUFACTURER, m_fax);
     Utils::setDataString(data, CP_PORTABLE_MANUFACTURER, m_portable);
     Utils::setDataString(data, CP_WEBSITE_MANUFACTURER, m_website);
     Utils::setDataString(data, CP_MAIL_MANUFACTURER, m_mail);
@@ -58,6 +59,7 @@ void Manufacturer::resetdatas()
     data[CP_CODEPOSTAL_MANUFACTURER] = 0;
     data[CP_VILLE_MANUFACTURER] = "";
     data[CP_TELEPHONE_MANUFACTURER] = "";
+    data[CP_FAX_MANUFACTURER] = "";
     data[CP_PORTABLE_MANUFACTURER] = "";
     data[CP_WEBSITE_MANUFACTURER] = "";
     data[CP_MAIL_MANUFACTURER] = "";
@@ -76,6 +78,7 @@ QString Manufacturer::adresse3() const      { return m_adresse3; }
 int Manufacturer::codepostal() const        { return m_codepostal; }
 QString Manufacturer::ville() const         { return m_ville; }
 QString Manufacturer::telephone() const     { return m_telephone; }
+QString Manufacturer::fax() const           { return m_fax; }
 QString Manufacturer::portable() const      { return m_portable; }
 QString Manufacturer::website() const       { return m_website; }
 QString Manufacturer::mail() const          { return m_mail; }
@@ -92,6 +95,7 @@ void Manufacturer::setadresse3(const QString &adresse3)         { m_adresse3 = a
 void Manufacturer::setcodepostal(int codepostal)                { m_codepostal = codepostal; m_data[CP_CODEPOSTAL_MANUFACTURER] = codepostal; }
 void Manufacturer::setville(const QString &ville)               { m_ville = ville; m_data[CP_VILLE_MANUFACTURER] = ville; }
 void Manufacturer::settelephone(const QString &telephone)       { m_telephone = telephone; m_data[CP_TELEPHONE_MANUFACTURER] = telephone; }
+void Manufacturer::setfax(const QString &fax)                   { m_fax = fax; m_data[CP_FAX_MANUFACTURER] = fax; }
 void Manufacturer::setportable(const QString &portable)         { m_portable = portable; m_data[CP_PORTABLE_MANUFACTURER] = portable; }
 void Manufacturer::setwebsite(const QString &website)           { m_website = website; m_data[CP_WEBSITE_MANUFACTURER] = website; }
 void Manufacturer::setmail(const QString &mail)                 { m_mail = mail; m_data[CP_MAIL_MANUFACTURER] = mail; }

@@ -104,6 +104,15 @@ BEGIN
             ALTER TABLE `rufus`.`Manufacturers`
             ADD COLUMN `CorMail` VARCHAR(45) NULL DEFAULT NULL AFTER `CorStatut`;
         END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'Manufacturers' AND COLUMN_NAME = 'ManFax') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`Manufacturers`
+            ADD COLUMN `ManFax` VARCHAR(17) NULL DEFAULT NULL AFTER `ManTelephone`;
+        END IF;
     DROP TABLE IF EXISTS `SessionsOperatoires`;
     CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
         `idSession` INT NOT NULL AUTO_INCREMENT,

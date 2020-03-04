@@ -210,6 +210,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CODEPOSTAL_MANUFACTURER                      "ManCodepostal"
 #define CP_VILLE_MANUFACTURER                           "ManVille"
 #define CP_TELEPHONE_MANUFACTURER                       "ManTelephone"
+#define CP_FAX_MANUFACTURER                             "ManFax"
 #define CP_PORTABLE_MANUFACTURER                        "ManPortable"
 #define CP_WEBSITE_MANUFACTURER                         "ManWebsite"
 #define CP_MAIL_MANUFACTURER                            "ManMail"

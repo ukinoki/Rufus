@@ -727,6 +727,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             man->settelephone(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
+        else if (field == CP_FAX_MANUFACTURER)
+        {
+            man->setfax(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
         else if (field == CP_PORTABLE_MANUFACTURER)
         {
             man->setportable(newvalue.toString());

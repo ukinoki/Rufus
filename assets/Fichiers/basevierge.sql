@@ -606,6 +606,7 @@ CREATE TABLE `Manufacturers` (
   `ManCodepostal` varchar(5) DEFAULT NULL,
   `ManVille` varchar(40) DEFAULT NULL,
   `ManTelephone` varchar(17) DEFAULT NULL,
+  `ManFax` VARCHAR(17) DEFAULT NULL,
   `ManPortable` varchar(17) DEFAULT NULL,
   `ManWebsite` varchar(120) DEFAULT NULL,
   `ManMail` varchar(45) DEFAULT NULL,
