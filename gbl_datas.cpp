@@ -39,6 +39,7 @@ Datas::Datas()
     iols                = new IOLs();
     lignescomptes       = new LignesComptes();
     lignespaiements     = new LignesPaiements();
+    manufacturers       = new Manufacturers();
     metadocuments       = new DossiersImpressions();
     motifs              = new Motifs();
     paiementstiers      = new PaiementsTiers();

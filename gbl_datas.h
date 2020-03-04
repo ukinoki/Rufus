@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_lignespaiements.h"
 #include "cls_docsexternes.h"
 #include "cls_interventions.h"
+#include "cls_manufacturers.h"
 #include "cls_motifs.h"
 #include "cls_paiementstiers.h"
 #include "cls_patients.h"
@@ -70,6 +71,7 @@ public:
     LignesComptes *lignescomptes;           //!< Les lignes non rapprochées d'un compte bancaire
     LignesPaiements *lignespaiements;       //!< Les lignes de paiement des actes d'un patient
     DossiersImpressions *metadocuments;     //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Manufacturers *manufacturers;           //!< tous les fabricants
     Motifs *motifs;                         //!< tous les motifs d'actes
     PaiementsTiers *paiementstiers;         //!< tous les paiements par tiers payants
     Patients *patients;                     //!> tous les patients en mémoire

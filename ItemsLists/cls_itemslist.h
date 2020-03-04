@@ -330,6 +330,13 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<Manufacturer*>(item) != Q_NULLPTR)
+        {
+            table = TBL_MANUFACTURERS;
+            idname = CP_ID_MANUFACTURER;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table != "" && idname != "")

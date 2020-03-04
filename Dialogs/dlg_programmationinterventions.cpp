@@ -512,6 +512,7 @@ void dlg_programmationinterventions::CreerIntervention()
     interventioncombo       ->setFixedSize(QSize(250,28));
     interventioncombo       ->setEditable(true);
     interventioncombo       ->setModel(&m_typeinterventions);
+    interventioncombo       ->lineEdit()->setAlignment(Qt::AlignRight);
     interventioncombo       ->setCompleter(new QCompleter(&m_typeinterventions));
     choixinterventionLay    ->addWidget(lblinterv);
     choixinterventionLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -544,9 +545,19 @@ void dlg_programmationinterventions::CreerIntervention()
     checkIOLLay     ->setSpacing(5);
     checkIOLLay     ->setContentsMargins(0,0,0,0);
 
-    wdg_IOL         = new QWidget();
+    QWidget *wdg_IOL         = new QWidget();
     QVBoxLayout *box_IOLlay  = new QVBoxLayout();
-    box_IOLlay->setSpacing(0);
+    box_IOLlay->setSpacing(5);
+
+    QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
+    UpLabel* lblManufacturerIOL = new UpLabel;
+    lblManufacturerIOL          ->setText(tr("Fabricant"));
+    QComboBox *ManufacturerIOLcombo = new QComboBox();
+    choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
+    choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixManufacturerIOLLay     ->addWidget(ManufacturerIOLcombo);
+    choixManufacturerIOLLay     ->setSpacing(5);
+    choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
     UpLabel* lblIOL = new UpLabel;
@@ -584,11 +595,16 @@ void dlg_programmationinterventions::CreerIntervention()
     choixCylIOLLay  ->setSpacing(5);
     choixCylIOLLay  ->setContentsMargins(0,0,0,0);
 
-    connect(IOLchk, &QCheckBox::stateChanged, this, &dlg_programmationinterventions::AfficheChoixIOL);
+    connect(IOLchk, &QCheckBox::stateChanged, dlg_intervention, [=]
+    {
+        wdg_IOL->setVisible(IOLchk->isChecked());
+    });
 
     box_IOLlay      ->insertLayout(0, choixCylIOLLay);
     box_IOLlay      ->insertLayout(0, choixPwrIOLLay);
     box_IOLlay      ->insertLayout(0, choixIOLLay);
+    box_IOLlay      ->insertLayout(0, choixManufacturerIOLLay);
+    box_IOLlay      ->setContentsMargins(0,0,0,0);
     wdg_IOL         ->setLayout(box_IOLlay);
     wdg_IOL         ->setVisible(false);
 
@@ -837,6 +853,6 @@ void dlg_programmationinterventions::CreerTypeIntervention()
 
 void dlg_programmationinterventions::AfficheChoixIOL(int state)
 {
-    wdg_IOL->setVisible(state == Qt::Checked);
+
 }
 

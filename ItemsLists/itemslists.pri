@@ -6,6 +6,7 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_impressions.cpp \
     $$PWD/cls_interventions.cpp \
     $$PWD/cls_lignescomptes.cpp \
+    $$PWD/cls_manufacturers.cpp \
         $$PWD/cls_patients.cpp \
     $$PWD/cls_postesconnectes.cpp \
     $$PWD/cls_refractions.cpp \
@@ -31,6 +32,7 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_impressions.h \
     $$PWD/cls_interventions.h \
     $$PWD/cls_lignescomptes.h \
+    $$PWD/cls_manufacturers.h \
         $$PWD/cls_patients.h \
     $$PWD/cls_postesconnectes.h \
     $$PWD/cls_refractions.h \

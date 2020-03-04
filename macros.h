@@ -77,6 +77,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
 #define TBL_LISTEAPPAREILS                    "rufus.listeappareils"
 #define TBL_LISTETIERS                        "rufus.listetiers"
+#define TBL_MANUFACTURERS                     "rufus.Manufacturers"
 #define TBL_MESSAGES                          "rufus.Messagerie"
 #define TBL_MESSAGESJOINTURES                 "rufus.MessagerieJointures"
 #define TBL_MOTIFSRDV                         "rufus.MotifsRDV"
@@ -199,6 +200,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
                             //! Table Rufus.jointuresLieux
 #define CP_IDUSER_JOINTSITE                             "idUser"
 #define CP_IDLIEU_JOINTSITE                             "idLieu"
+
+                            //! Table Rufus.Manufacturers
+#define CP_ID_MANUFACTURER                              "idManufacturer"
+#define CP_NOM_MANUFACTURER                             "ManName"
+#define CP_ADRESSE1_MANUFACTURER                        "ManAdresse1"
+#define CP_ADRESSE2_MANUFACTURER                        "ManAdresse2"
+#define CP_ADRESSE3_MANUFACTURER                        "ManAdresse3"
+#define CP_CODEPOSTAL_MANUFACTURER                      "ManCodepostal"
+#define CP_VILLE_MANUFACTURER                           "ManVille"
+#define CP_TELEPHONE_MANUFACTURER                       "ManTelephone"
+#define CP_PORTABLE_MANUFACTURER                        "ManPortable"
+#define CP_WEBSITE_MANUFACTURER                         "ManWebsite"
+#define CP_MAIL_MANUFACTURER                            "ManMail"
+#define CP_CORNOM_MANUFACTURER                          "CorNom"
+#define CP_CORPRENOM_MANUFACTURER                       "CorPrenom"
+#define CP_CORSTATUT_MANUFACTURER                       "CorStatut"
+#define CP_CORMAIL_MANUFACTURER                         "CorMail"
+#define CP_CORTELEPHONE_MANUFACTURER                    "CorTelephone"
 
                             //! Table Rufus.Metadocuments
 #define CP_ID_DOSSIERIMPRESSIONS                        "idMetaDocument"

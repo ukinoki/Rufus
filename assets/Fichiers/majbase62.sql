@@ -86,6 +86,24 @@ BEGIN
             ALTER TABLE `rufus`.`LieuxExercice`
             ADD COLUMN `LieuCouleur` VARCHAR(6) NULL AFTER `LieuFax`;
         END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'Manufacturers' AND COLUMN_NAME = 'CorStatut') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`Manufacturers`
+            ADD COLUMN `CorStatut` VARCHAR(45) NULL DEFAULT NULL AFTER `CorPrenom`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'Manufacturers' AND COLUMN_NAME = 'CorMail') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`Manufacturers`
+            ADD COLUMN `CorMail` VARCHAR(45) NULL DEFAULT NULL AFTER `CorStatut`;
+        END IF;
     DROP TABLE IF EXISTS `SessionsOperatoires`;
     CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
         `idSession` INT NOT NULL AUTO_INCREMENT,

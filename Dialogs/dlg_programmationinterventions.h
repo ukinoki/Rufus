@@ -47,7 +47,6 @@ private:
     QTreeView           *wdg_interventionstreeView  = new QTreeView();
     QTreeView           *wdg_sessionstreeView       = new QTreeView();
     QComboBox           *wdg_listmedecinscombo;
-    QWidget             *wdg_IOL;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
 

@@ -21,6 +21,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     User *usr                   = Q_NULLPTR;
     SessionOperatoire *session  = Q_NULLPTR;
     Site *sit                   = Q_NULLPTR;
+    Manufacturer *man           = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -126,6 +127,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (sit != Q_NULLPTR)
         {
             table = TBL_LIEUXEXERCICE;
+            loop = true;
+            break;
+        }
+        man = dynamic_cast<Manufacturer*>(item);
+        if (man != Q_NULLPTR)
+        {
+            table = TBL_MANUFACTURERS;
             loop = true;
             break;
         }
@@ -677,6 +685,86 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         else if (field == CP_COULEUR_SITE)
         {
             sit->setcouleur(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+    }
+    else if (table == TBL_MANUFACTURERS)
+    {
+        ok = true;
+        clause = CP_ID_MANUFACTURER " = " + QString::number(item->id());
+        if (field == CP_NOM_MANUFACTURER)
+        {
+            man->setnom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE1_MANUFACTURER)
+        {
+            man->setadresse1(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE2_MANUFACTURER)
+        {
+            man->setadresse2(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE3_MANUFACTURER)
+        {
+            man->setadresse3(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CODEPOSTAL_MANUFACTURER )
+        {
+            man->setcodepostal(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_VILLE_MANUFACTURER)
+        {
+            man->setville(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_TELEPHONE_MANUFACTURER)
+        {
+            man->settelephone(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_PORTABLE_MANUFACTURER)
+        {
+            man->setportable(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_WEBSITE_MANUFACTURER)
+        {
+            man->setwebsite(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_MAIL_MANUFACTURER)
+        {
+            man->setmail(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CORNOM_MANUFACTURER)
+        {
+            man->setcornom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CORPRENOM_MANUFACTURER )
+        {
+            man->setcorprenom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CORSTATUT_MANUFACTURER)
+        {
+            man->setcorstatut(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CORTELEPHONE_MANUFACTURER)
+        {
+            man->setcortelephone(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CORMAIL_MANUFACTURER)
+        {
+            man->setcormail(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
     }

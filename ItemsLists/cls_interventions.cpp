@@ -53,7 +53,6 @@ void Interventions::initListebySessionId(int id)
     addList(map_interventions, &listInterventions, Item::Update);
 }
 
-
 void Interventions::SupprimeIntervention(Intervention* intervention)
 {
     Supprime(map_interventions, intervention);

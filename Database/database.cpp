@@ -2696,3 +2696,67 @@ TypeIntervention* DataBase::loadTypeInterventionById(int idtypeintervention)    
     typeintervention = new TypeIntervention(data);
     return typeintervention;
 }
+
+/*
+ * Manufacturers
+*/
+
+QJsonObject DataBase::loadManufacturerData(QVariantList Mandata)         //! attribue la liste des datas à un fabricant
+{
+    QJsonObject data{};
+    data[CP_ID_MANUFACTURER]            = Mandata.at(0).toInt();
+    data[CP_NOM_MANUFACTURER]           = Mandata.at(1).toString();
+    data[CP_ADRESSE1_MANUFACTURER]      = Mandata.at(2).toString();
+    data[CP_ADRESSE2_MANUFACTURER]      = Mandata.at(3).toString();
+    data[CP_ADRESSE3_MANUFACTURER]      = Mandata.at(4).toString();
+    data[CP_CODEPOSTAL_MANUFACTURER]    = Mandata.at(5).toInt();
+    data[CP_VILLE_MANUFACTURER]         = Mandata.at(6).toString();
+    data[CP_TELEPHONE_MANUFACTURER]     = Mandata.at(7).toString();
+    data[CP_PORTABLE_MANUFACTURER]      = Mandata.at(8).toString();
+    data[CP_WEBSITE_MANUFACTURER]       = Mandata.at(9).toString();
+    data[CP_MAIL_MANUFACTURER]          = Mandata.at(10).toString();
+    data[CP_CORNOM_MANUFACTURER]        = Mandata.at(11).toString();
+    data[CP_CORPRENOM_MANUFACTURER]     = Mandata.at(12).toString();
+    data[CP_CORSTATUT_MANUFACTURER]     = Mandata.at(13).toString();
+    data[CP_CORMAIL_MANUFACTURER]       = Mandata.at(14).toString();
+    data[CP_CORTELEPHONE_MANUFACTURER]  = Mandata.at(15).toString();
+    return data;
+}
+
+QList<Manufacturer*> DataBase::loadManufacturers()                       //! charge tous les fabricants
+{
+    QList<Manufacturer*> list = QList<Manufacturer*> ();
+    QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
+                              CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
+                              CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
+                              CP_CORTELEPHONE_MANUFACTURER
+                    " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER;
+    QList<QVariantList> Manufacturerlist = StandardSelectSQL(req,ok);
+    if(!ok || Manufacturerlist.size()==0)
+        return list;
+    for (int i=0; i<Manufacturerlist.size(); ++i)
+    {
+        QJsonObject data = loadManufacturerData(Manufacturerlist.at(i));
+        Manufacturer *Man = new Manufacturer(data);
+        if (Man != Q_NULLPTR)
+            list << Man;
+    }
+    return list;
+}
+
+Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                   //! charge un fabricant défini par son id - utilisé pour renouveler les données en cas de modification
+{
+    Manufacturer *Man = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
+                              CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
+                              CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
+                              CP_CORTELEPHONE_MANUFACTURER
+                    " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER;
+                    " WHERE " CP_ID_MANUFACTURER " = " + QString::number(idManufacturer) ;
+    QVariantList Manufacturerdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || Manufacturerdata.size()==0)
+        return Man;
+    QJsonObject data = loadManufacturerData(Manufacturerdata);
+    Man = new Manufacturer(data);
+    return Man;
+}

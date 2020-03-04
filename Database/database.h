@@ -43,6 +43,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_impression.h"
 #include "cls_intervention.h"
 #include "cls_lignepaiement.h"
+#include "cls_manufacturer.h"
 #include "cls_motif.h"
 #include "cls_paiementtiers.h"
 #include "cls_patient.h"
@@ -369,6 +370,16 @@ private:
 public:
     QList<TypeIntervention*>    loadTypeInterventions();                                        //! charge tous les TypeInterventionS
     TypeIntervention*           loadTypeInterventionById(int idtypeintervention);               //! charge les datas d'un TypeIntervention défini par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
+     * Manufacturers
+    */
+private:
+    QJsonObject             loadManufacturerData(QVariantList Mandata);             //! attribue le liste des datas à un fabricant
+public:
+    QList<Manufacturer*>    loadManufacturers();                                    //! charge toutes les fabricants
+    Manufacturer*           loadManufacturerById(int idManufacturer);               //! charge un fabricant défini par son id - utilisé pour renouveler les données en cas de modification
+
 };
 
 #endif // DataBase_H
