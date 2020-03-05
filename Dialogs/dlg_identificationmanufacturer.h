@@ -1,0 +1,60 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef DLG_IDENTIFICATIONMANUFACTURER_H
+#define DLG_IDENTIFICATIONMANUFACTURER_H
+
+#include "procedures.h"
+#include "villecpwidget.h"
+#include "ui_villecpwidget.h"
+#include "flags.h"
+
+namespace Ui {
+class dlg_identificationmanufacturer;
+}
+
+class dlg_identificationmanufacturer : public UpDialog
+{
+    Q_OBJECT
+public:
+    enum Mode   {Creation, Modification};    Q_ENUM(Mode)
+    explicit dlg_identificationmanufacturer(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    Ui::dlg_identificationmanufacturer *ui;
+    ~dlg_identificationmanufacturer();
+    bool                identcorrespondantmodifiee() const;
+    Correspondant*      correspondantrenvoye() const;
+
+private:
+    DataBase            *db                 = DataBase::I();
+    Correspondant       *m_correspondant    = Q_NULLPTR;
+
+    bool                m_onlydoctors;
+    bool                m_modifdatascor;
+    QString             m_nomcor, m_prenomcor, m_sexecor;
+    Mode                m_mode;
+    QLineEdit           *wdg_CPlineedit, *wdg_villelineedit;
+    VilleCPWidget       *wdg_villeCP;
+
+
+    bool                eventFilter(QObject *obj, QEvent *event)  ;
+    void                AfficheDossierAlOuverture();
+    void                EnableOKpushButton();
+    void                Majuscule(QLineEdit *ledit);
+    void                OKpushButtonClicked();
+    void                RegleAffichage();
+};
+#endif // DLG_IDENTIFICATIONMANUFACTURER_H
