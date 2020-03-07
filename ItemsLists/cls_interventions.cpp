@@ -182,22 +182,32 @@ SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString,
 
 IOLs::IOLs(QObject *parent) : ItemsList(parent)
 {
-    map_IOLs = new QMap<int, IOL*>();
+    map_actifs  = new QMap<int, IOL*>();
+    map_all     = new QMap<int, IOL*>();
 }
 
-QMap<int, IOL*>* IOLs::iols() const
+QMap<int, IOL*>* IOLs::alls() const
 {
-    return map_IOLs;
+    return map_all;
+}
+
+QMap<int, IOL*>* IOLs::actifs() const
+{
+    return map_actifs;
 }
 
 IOL* IOLs::getById(int id)
 {
-    QMap<int, IOL*>::const_iterator itref = map_IOLs->find(id);
-    if( itref == map_IOLs->constEnd() )
+    QMap<int, IOL*>::const_iterator itref = map_all->find(id);
+    if( itref == map_all->constEnd() )
     {
         IOL* ref = DataBase::I()->loadIOLById(id);
         if (ref != Q_NULLPTR)
-            add( map_IOLs, ref );
+        {
+            add( map_all, ref, Item::Update );
+            if (ref->isactif())
+                add( map_actifs, ref, Item::Update );
+        }
         return ref;
     }
     return itref.value();
@@ -211,14 +221,37 @@ IOL* IOLs::getById(int id)
 void IOLs::initListe()
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
-    epurelist(map_IOLs, &listIOLs);
-    addList(map_IOLs, &listIOLs, Item::Update);
+    epurelist(map_all, &listIOLs);
+    epurelist(map_actifs, &listIOLs);
+    foreach (IOL *iol, listIOLs)
+    {
+        if( iol != Q_NULLPTR)
+        {
+            auto itman = map_all->find(iol->id());
+            if( itman != map_all->constEnd() )
+            {
+                itman.value()->setData(iol->datas());
+                if (!iol->isactif())
+                    map_actifs->remove(iol->id());
+                else if (map_actifs->find(iol->id()) == map_actifs->constEnd())
+                    map_actifs->insert(iol->id(), itman.value());
+                delete iol;
+            }
+            else
+            {
+                map_all->insert(iol->id(), iol);
+                if (iol->isactif())
+                    map_actifs->insert(iol->id(), iol);
+            }
+        }
+    }
 }
 
 
 void IOLs::SupprimeIOL(IOL *iol)
 {
-    Supprime(map_IOLs, iol);
+    Supprime(map_all, iol);
+    map_actifs->remove(iol->id());
 }
 
 IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
@@ -252,7 +285,11 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
     }
     iol = new IOL(data);
     if (iol != Q_NULLPTR)
-        map_IOLs->insert(iol->id(), iol);
+    {
+        map_all->insert(iol->id(), iol);
+        if (iol->isactif())
+            map_actifs->insert(iol->id(), iol);
+    }
     return iol;
 }
 
@@ -313,7 +350,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cet implant dans la base!"));
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce type d'intervention dans la base!"));
         return typeintervention;
     }
     QJsonObject  data = QJsonObject{};
@@ -325,6 +362,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
         champ  = itset.key();
         if (champ == CP_TYPEINTERVENTION_TYPINTERVENTION)   data[champ] = itset.value().toString();
         else if (champ == CP_CODECCAM_TYPINTERVENTION)      data[champ] = itset.value().toString();
+        else if (champ == CP_DUREE_TYPINTERVENTION)         data[champ] = itset.value().toString();
     }
     typeintervention = new TypeIntervention(data);
     if (typeintervention != Q_NULLPTR)

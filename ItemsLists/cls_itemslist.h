@@ -66,9 +66,9 @@ void addList(QMap<K, T*> *m_map, QList<T*> *listitems, Item::UPDATE upd = Item::
 
 /*!
  * \brief ItemsList::epurelist
- * Cette fonction va retirer dans le QMap m_oldmap tous les éléments qui ne sont pas dans la liste d'items m_newlist
+ * Cette fonction va retirer dans le QMap m_oldmap tous les éléments dont l'id ne figure pas dans la liste d'items m_newlist
  * Utile quand on veut réinitialiser une QMap d'items à partir d'une nouvelle liste
- * tous les éléments du QMap qui ne sont pas dans la nouvelle liste sont supprimés et délétés
+ * tous les éléments du QMap dont l'id ne figure pas dans la nouvelle liste sont supprimés et délétés
  */
 template <typename T>
 void epurelist(QMap<int, T*> *m_oldmap, const QList<T*> *m_newlist)

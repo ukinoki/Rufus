@@ -24,12 +24,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Manufacturers : public ItemsList
 {
 private:
-    QMap<int, Manufacturer*> *map_manufacturers = Q_NULLPTR;    //!< la liste des manufacturers
+    QMap<int, Manufacturer*> *map_actifs = Q_NULLPTR;    //!< la liste des manufacturers actifs
+    QMap<int, Manufacturer*> *map_all = Q_NULLPTR;      //!< la liste de tous les manufacturers, y compris les inactifs
 
 public:
     explicit Manufacturers(QObject *parent = Q_NULLPTR);
 
-    QMap<int, Manufacturer*> *manufacturers() const;
+    QMap<int, Manufacturer*> *actifs() const;
+    QMap<int, Manufacturer*> *alls() const;
 
     Manufacturer* getById(int id);
     void initListe();

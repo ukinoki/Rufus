@@ -408,7 +408,7 @@ void dlg_gestioncomptes::ValidCompte()
     if (m_mode == Modif)
     {
         idcompte = ui->idCompteupLineEdit->text().toInt();
-        QHash<QString, QString> listsets;
+        QHash<QString, QVariant> listsets;
         listsets.insert("IBAN"                  , ui->IBANuplineEdit->text());
         listsets.insert("IntituleCompte"        , ui->IntituleCompteuplineEdit->text());
         listsets.insert("NomCompteABrege"       , ui->NomCompteAbregeuplineEdit->text());
@@ -418,7 +418,7 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("desactive"             , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->UpdateTable(TBL_COMPTES,
                         listsets,
-                        "where idCompte = "          + ui->idCompteupLineEdit->text());
+                        "where idCompte = "     + ui->idCompteupLineEdit->text());
         Datas::I()->comptes->reloadCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
     }
     else if (m_mode == Nouv)

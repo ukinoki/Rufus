@@ -31,7 +31,7 @@ void Manufacturer::setData(QJsonObject data)
     Utils::setDataString(data, CP_ADRESSE1_MANUFACTURER, m_adresse1);
     Utils::setDataString(data, CP_ADRESSE2_MANUFACTURER, m_adresse2);
     Utils::setDataString(data, CP_ADRESSE3_MANUFACTURER, m_adresse3);
-    Utils::setDataInt(data, CP_CODEPOSTAL_MANUFACTURER, m_codepostal);
+    Utils::setDataString(data, CP_CODEPOSTAL_MANUFACTURER, m_codepostal);
     Utils::setDataString(data, CP_VILLE_MANUFACTURER, m_ville);
     Utils::setDataString(data, CP_TELEPHONE_MANUFACTURER, m_telephone);
     Utils::setDataString(data, CP_FAX_MANUFACTURER, m_fax);
@@ -43,6 +43,7 @@ void Manufacturer::setData(QJsonObject data)
     Utils::setDataString(data, CP_CORSTATUT_MANUFACTURER, m_corstatut);
     Utils::setDataString(data, CP_CORMAIL_MANUFACTURER, m_cormail);
     Utils::setDataString(data, CP_CORTELEPHONE_MANUFACTURER, m_cortelephone);
+    Utils::setDataBool(data, CP_INACTIF_MANUFACTURER, m_inactif);
 
     m_data = data;
 }
@@ -68,6 +69,7 @@ void Manufacturer::resetdatas()
     data[CP_CORSTATUT_MANUFACTURER] = "";
     data[CP_CORMAIL_MANUFACTURER] = "";
     data[CP_CORTELEPHONE_MANUFACTURER] = "";
+    data[CP_INACTIF_MANUFACTURER] = false;
     setData(data);
 }
 
@@ -75,7 +77,7 @@ QString Manufacturer::nom() const           { return m_nom; }
 QString Manufacturer::adresse1() const      { return m_adresse1; }
 QString Manufacturer::adresse2() const      { return m_adresse2; }
 QString Manufacturer::adresse3() const      { return m_adresse3; }
-int Manufacturer::codepostal() const        { return m_codepostal; }
+QString Manufacturer::codepostal() const    { return m_codepostal; }
 QString Manufacturer::ville() const         { return m_ville; }
 QString Manufacturer::telephone() const     { return m_telephone; }
 QString Manufacturer::fax() const           { return m_fax; }
@@ -87,12 +89,13 @@ QString Manufacturer::corprenom() const     { return m_corprenom; }
 QString Manufacturer::corstatut() const     { return m_corstatut; }
 QString Manufacturer::cormail() const       { return m_cormail; }
 QString Manufacturer::cortelephone() const  { return m_cortelephone; }
+bool Manufacturer::isactif() const          { return !m_inactif; }
 
 void Manufacturer::setnom(const QString &nom)                   { m_nom = nom; m_data[CP_NOM_MANUFACTURER] = nom; }
 void Manufacturer::setadresse1(const QString &adresse1)         { m_adresse1 = adresse1; m_data[CP_ADRESSE1_MANUFACTURER] = adresse1; }
 void Manufacturer::setadresse2(const QString &adresse2)         { m_adresse2 = adresse2; m_data[CP_ADRESSE2_MANUFACTURER] = adresse2; }
 void Manufacturer::setadresse3(const QString &adresse3)         { m_adresse3 = adresse3; m_data[CP_ADRESSE3_MANUFACTURER] = adresse3; }
-void Manufacturer::setcodepostal(int codepostal)                { m_codepostal = codepostal; m_data[CP_CODEPOSTAL_MANUFACTURER] = codepostal; }
+void Manufacturer::setcodepostal(const QString codepostal)      { m_codepostal = codepostal; m_data[CP_CODEPOSTAL_MANUFACTURER] = codepostal; }
 void Manufacturer::setville(const QString &ville)               { m_ville = ville; m_data[CP_VILLE_MANUFACTURER] = ville; }
 void Manufacturer::settelephone(const QString &telephone)       { m_telephone = telephone; m_data[CP_TELEPHONE_MANUFACTURER] = telephone; }
 void Manufacturer::setfax(const QString &fax)                   { m_fax = fax; m_data[CP_FAX_MANUFACTURER] = fax; }
@@ -104,3 +107,34 @@ void Manufacturer::setcorprenom(const QString &corprenom)       { m_corprenom = 
 void Manufacturer::setcorstatut(const QString &corstatut)       { m_corstatut = corstatut; m_data[CP_CORSTATUT_MANUFACTURER] = corstatut; }
 void Manufacturer::setcormail(const QString &cormail)           { m_cormail = cormail; m_data[CP_CORMAIL_MANUFACTURER] = cormail; }
 void Manufacturer::setcortelephone(const QString &cortelephone) { m_cortelephone = cortelephone; m_data[CP_CORTELEPHONE_MANUFACTURER] = cortelephone; }
+void Manufacturer::setactif(const bool &actif)                  { m_inactif = !actif; m_data[CP_INACTIF_MANUFACTURER] = !actif; }
+
+QString Manufacturer::adresseComplete() const
+{
+    QString ttip;
+    if (m_adresse1!= "") ttip += m_adresse1;
+    if (m_adresse2 != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_adresse2;
+    }
+    if (m_adresse3 != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_adresse3;
+    }
+    if (m_codepostal + m_ville != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_codepostal;
+        if (m_codepostal != "" && m_ville != "")
+            ttip += " ";
+        ttip += m_ville;
+    }
+    if (m_telephone != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_telephone;
+    }
+    return ttip;
+}

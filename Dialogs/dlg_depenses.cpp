@@ -1190,7 +1190,7 @@ void dlg_depenses::ModifierDepense()
                                                                               "where idDep = " + idDep);
         if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
         {
-           QHash<QString, QString> listsets;
+           QHash<QString, QVariant> listsets;
            listsets.insert("LigneDate",             ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
            listsets.insert("LigneLibelle",          ui->ObjetlineEdit->text());
            listsets.insert("LigneMontant",          QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
@@ -1208,7 +1208,7 @@ void dlg_depenses::ModifierDepense()
                                                                                    "where idDep = " + idDep);
             if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
             {
-                QHash<QString, QString> listsets;
+                QHash<QString, QVariant> listsets;
                 listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
                 listsets.insert("LigneLibelle",         ui->ObjetlineEdit->text());
                 listsets.insert("LigneDebitCredit",     "0");

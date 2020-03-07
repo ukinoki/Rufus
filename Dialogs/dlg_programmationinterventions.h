@@ -40,6 +40,7 @@ private:
     Patient             *m_currentchirpatient   = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
     SessionOperatoire   *m_currentsession       = Q_NULLPTR;                        //! la session en cours
     Intervention        *m_currentintervention  = Q_NULLPTR;                        //! l'intervention en cours
+    TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                    //! le type d'intervention en cours
 
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
@@ -73,7 +74,7 @@ private:
 
 /*! les types d'interventions */
     void                ReconstruitListeTypeInterventions();
-    void                CreerTypeIntervention();
+    void                CreerTypeIntervention(QString txt);
 
 /*! les IOLs */
     void                AfficheChoixIOL(int state);

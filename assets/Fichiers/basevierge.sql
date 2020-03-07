@@ -262,6 +262,7 @@ CREATE TABLE `IOLs` (
   `idIOL` INT NOT NULL AUTO_INCREMENT,
   `idmanufacturer` INT NULL,
   `modelname` VARCHAR(45) NULL,
+  `IOLInactif` INT(1) NULL
   PRIMARY KEY (`idIOL`)
   ) ENGINE=InnoDB;
 
@@ -615,6 +616,7 @@ CREATE TABLE `Manufacturers` (
   `CorStatut` varchar(45) DEFAULT NULL,
   `CorMail` varchar(45) DEFAULT NULL,
   `CorTelephone` varchar(17) DEFAULT NULL,
+  `ManInactif` INT(1) DEFAULT NULL,
   PRIMARY KEY (`idManufacturer`)
 ) ENGINE=InnoDB;
 

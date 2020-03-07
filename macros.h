@@ -219,6 +219,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CORSTATUT_MANUFACTURER                       "CorStatut"
 #define CP_CORMAIL_MANUFACTURER                         "CorMail"
 #define CP_CORTELEPHONE_MANUFACTURER                    "CorTelephone"
+#define CP_INACTIF_MANUFACTURER                         "ManInactif"
 
                             //! Table Rufus.Metadocuments
 #define CP_ID_DOSSIERIMPRESSIONS                        "idMetaDocument"
@@ -488,11 +489,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ID_IOLS                                      "idIOL"
 #define CP_IDMANUFACTURER_IOLS                          "idmanufacturer"
 #define CP_MODELNAME_IOLS                               "modelname"
+#define CP_INACTIF_IOLS                                 "IOLInactif"
 
                             //! Table Ophtalmologie.TypeInterventions
 #define CP_ID_TYPINTERVENTION                           "idTypeIntervention"
 #define CP_TYPEINTERVENTION_TYPINTERVENTION             "TypeIntervention"
 #define CP_CODECCAM_TYPINTERVENTION                     "CodeIntervention"
+#define CP_DUREE_TYPINTERVENTION                        "DureeIntervention"
 
                             //! Table Ophtalmologie.Refractions
 #define CP_ID_REFRACTIONS                              "idRefraction"

@@ -91,6 +91,7 @@ void IOL::setData(QJsonObject data)
     Utils::setDataInt(data, CP_ID_IOLS, m_id);
     Utils::setDataInt(data, CP_IDMANUFACTURER_IOLS, m_idmanufacturer);
     Utils::setDataString(data, CP_MODELNAME_IOLS, m_modele);
+    Utils::setDataBool(data, CP_INACTIF_IOLS, m_inactif);
     m_data = data;
 }
 
@@ -100,6 +101,7 @@ void IOL::resetdatas()
     data[CP_ID_IOLS]                = 0;
     data[CP_IDMANUFACTURER_IOLS]    = 0;
     data[CP_MODELNAME_IOLS]         = "";
+    data[CP_INACTIF_IOLS]           = false;
     setData(data);
 }
 
@@ -122,6 +124,7 @@ void TypeIntervention::setData(QJsonObject data)
     Utils::setDataInt(data, CP_ID_TYPINTERVENTION, m_id);
     Utils::setDataString(data, CP_TYPEINTERVENTION_TYPINTERVENTION, m_typeintervention);
     Utils::setDataString(data, CP_CODECCAM_TYPINTERVENTION, m_codeCCAM);
+    Utils::setDataTime(data, CP_DUREE_TYPINTERVENTION, m_duree);
     m_data = data;
 }
 
@@ -131,6 +134,7 @@ void TypeIntervention::resetdatas()
     data[CP_ID_TYPINTERVENTION]                 = 0;
     data[CP_TYPEINTERVENTION_TYPINTERVENTION]   = "";
     data[CP_CODECCAM_TYPINTERVENTION]           = "";
+    data[CP_DUREE_TYPINTERVENTION]              = "";
     setData(data);
 }
 

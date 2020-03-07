@@ -36,7 +36,8 @@ public:
     QString adresse1() const;
     QString adresse2() const;
     QString adresse3() const;
-    int codepostal() const;
+    QString adresseComplete() const;
+    QString codepostal() const;
     QString ville() const;
     QString telephone() const;
     QString fax() const;
@@ -48,12 +49,13 @@ public:
     QString corstatut() const;
     QString cormail() const;
     QString cortelephone() const;
+    bool isactif() const;
 
     void setnom(const QString &nom);
     void setadresse1(const QString &adresse1);
     void setadresse2(const QString &adresse2);
     void setadresse3(const QString &adresse3);
-    void setcodepostal(int codepostal);
+    void setcodepostal(const QString codepostal);
     void setville(const QString &ville);
     void settelephone(const QString &telephone);
     void setfax(const QString &fax);
@@ -65,6 +67,7 @@ public:
     void setcorstatut(const QString &corstatut);
     void setcormail(const QString &corstatut);
     void setcortelephone(const QString &cortelephone);
+    void setactif(const bool &actif);
     void resetdatas();
 
     bool isnull() const                     { return m_id == 0; }
@@ -74,7 +77,7 @@ private:
     QString m_adresse1      = "";
     QString m_adresse2      = "";
     QString m_adresse3      = "";
-    int m_codepostal        = 0;
+    QString m_codepostal    = "";
     QString m_ville         = "";
     QString m_telephone     = "";
     QString m_fax           = "";
@@ -86,6 +89,7 @@ private:
     QString m_corstatut     = "";
     QString m_cormail       = "";
     QString m_cortelephone  = "";
+    bool m_inactif          = false;
 };
 
 #endif // MANUFACTURER_H

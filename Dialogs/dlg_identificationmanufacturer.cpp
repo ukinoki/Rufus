@@ -19,27 +19,21 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_identificationmanufacturer.h"
 
-dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, bool quelesmedecins, Correspondant *cor, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
+dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufacturer *man, QWidget *parent) :
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentManuFacturer", parent),
     ui(new Ui::dlg_identificationmanufacturer)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    if (cor != Q_NULLPTR)
-    {
-        m_correspondant  = cor;
-        if (!m_correspondant->isallloaded())
-            Datas::I()->correspondants->loadAllData(m_correspondant);
-    }
-    m_mode               = mode;
-    m_onlydoctors         = quelesmedecins;
-    wdg_villeCP     = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
-    wdg_CPlineedit      = wdg_villeCP->ui->CPlineEdit;
-    wdg_villelineedit   = wdg_villeCP->ui->VillelineEdit;
-    wdg_villeCP     ->move(10,224);
-    m_nomcor         = "";
-    m_prenomcor      = "";
-    m_modifdatascor           = false;
+    if (man != Q_NULLPTR)
+        m_manufacturer          = man;
+    m_mode                      = mode;
+    wdg_villeCP                 = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
+    wdg_CPlineedit              = wdg_villeCP->ui->CPlineEdit;
+    wdg_villelineedit           = wdg_villeCP->ui->VillelineEdit;
+    wdg_villeCP                 ->move(10,156);
+    m_nommanufacturer           = "";
+    m_modifdatasmanufacturer    = false;
 
     dlglayout()     ->insertWidget(0,ui->CorgroupBox);
     dlglayout()     ->insertWidget(0,ui->Principalframe);
@@ -55,9 +49,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, bool q
 
     AfficheDossierAlOuverture();
     if (m_mode == Creation)
-    {
         ui->idManufacturerlabel  ->setVisible(false);
-    }
 
     ui->NomlineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     ui->MaillineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
@@ -122,8 +114,8 @@ void dlg_identificationmanufacturer::Majuscule(QLineEdit *ledit)
 
 void    dlg_identificationmanufacturer::OKpushButtonClicked()
 {
-    QString CorNom, CorPrenom;
-    CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
+    QString ManNom;
+    ManNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
 
     if (wdg_CPlineedit->text() == "" && wdg_villelineedit->text() == "")
     {
@@ -148,7 +140,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
         }
     }
     // B - On vérifie ensuite que la saisie est complète
-    if (CorNom == "")
+    if (ManNom == "")
     {
         UpMessageBox::Watch(this,tr("Vous devez spécifier un nom!"));
         ui->NomlineEdit->setFocus();
@@ -162,99 +154,63 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
 
     // D - On vérifie ensuite si ce correspondant existe déjà
     bool ok;
-    QString requete = "select idcor, corspecialite, cormedecin from " TBL_CORRESPONDANTS
-            " where CorNom LIKE '" + CorNom + "%' and CorPrenom LIKE '" + CorPrenom + "%'";
-    QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des correspondants!"));
+    QString requete = "select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS
+            " where " CP_NOM_MANUFACTURER " LIKE '" + ManNom + "%'";
+    QVariantList mandata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des correspondants!"));
     if (!ok)
     {
         reject();
         return;
     }
 
-    if (cordata.size() > 0)
+    if (mandata.size() > 0)
     {
-        if (cordata.at(0).toInt() != m_correspondant->id())
+        if (mandata.at(0).toInt() != m_manufacturer->id())
         {
-            UpMessageBox::Watch(this,tr("Ce correspondant existe déjà!"));
-            m_correspondant->setid(cordata.at(0).toInt());
-            if (m_onlydoctors)
-                m_onlydoctors = (cordata.at(2).toInt()==1);
+            UpMessageBox::Watch(this,tr("Ce fabricant existe déjà!"));
+            m_manufacturer = Datas::I()->manufacturers->getById(mandata.at(0).toInt());
             OKButton->setEnabled(false);
             m_mode = Modification;
             AfficheDossierAlOuverture();
             disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::OKpushButtonClicked);
             connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::accept);
-            QList<QLineEdit *> listline = findChildren<QLineEdit *>();
-            for (int i = 0;i<listline.size();i++) listline.at(i)->setEnabled(false);
-            ui->CorgroupBox->setEnabled(false);
             return;
         }
     }
-    int idcor = 0;
 
+    QHash<QString, QVariant> listbinds;
+    listbinds[CP_NOM_MANUFACTURER]          = ManNom.toUpper();
+    listbinds[CP_ADRESSE1_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse1lineEdit->text().toUpper(),true);
+    listbinds[CP_ADRESSE2_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true);
+    listbinds[CP_ADRESSE3_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true);
+    listbinds[CP_CODEPOSTAL_MANUFACTURER]   = wdg_CPlineedit->text();
+    listbinds[CP_VILLE_MANUFACTURER]        = wdg_villelineedit->text();
+    listbinds[CP_TELEPHONE_MANUFACTURER]    = ui->TellineEdit->text();
+    listbinds[CP_FAX_MANUFACTURER]          = ui->FaxlineEdit->text();
+    listbinds[CP_PORTABLE_MANUFACTURER]     = ui->PortablelineEdit->text();
+    listbinds[CP_WEBSITE_MANUFACTURER]      = ui->WebsiteineEdit->text();
+    listbinds[CP_MAIL_MANUFACTURER]         = ui->MaillineEdit->text();
+    listbinds[CP_CORNOM_MANUFACTURER]       = Utils::trimcapitilize(ui->CorNomlineEdit->text(), true);
+    listbinds[CP_CORPRENOM_MANUFACTURER]    = Utils::trimcapitilize(ui->CorPrenomlineEdit->text(), true);
+    listbinds[CP_CORSTATUT_MANUFACTURER]    = Utils::trimcapitilize(ui->CorStatutlineEdit->text(), true);
+    listbinds[CP_CORMAIL_MANUFACTURER]      = Utils::trimcapitilize(ui->CorMaillineEdit->text(), true);
+    listbinds[CP_CORTELEPHONE_MANUFACTURER] = Utils::trimcapitilize(ui->CorTelephonelineEdit->text(), true);
     if (m_mode == Creation)
-    {
-        // D - le dossier n'existe pas, on le crée
-        QString gSexeCor = "";
-        db->locktables(QStringList() << TBL_CORRESPONDANTS);
-        QString insrequete = "INSERT INTO " TBL_CORRESPONDANTS
-                " (CORNom, CORPrenom, CorSexe, CORAdresse1, CORAdresse2, CORAdresse3, CorVille, CorCodePostal,"
-                " CorTelephone, CorPortable, CorFax, CorMail,CorMedecin,CorSpecialite,CorAutreProfession) "
-                " VALUES "
-                " ('" + CorNom + "', '" + CorPrenom + "', '" + gSexeCor
-                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
-                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
-                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
-                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_villelineedit->text(),true))
-                + "', '" + wdg_CPlineedit->text()
-                + "', '" + ui->TellineEdit->text()
-                + "', '" + ui->PortablelineEdit->text()
-                + "', '" + ui->FaxlineEdit->text()
-                + "', '" + Utils::correctquoteSQL(ui->MaillineEdit->text());
-        if (!db->StandardSQL(insrequete,tr("Impossible de créer le dossier")))
-            reject();
-        insrequete = "select max(idcor) from " TBL_CORRESPONDANTS;
-        QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
-        if (ok && cordata.size()>0)
-            idcor = cordata.at(0).toInt();
-        db->unlocktables();
-        m_correspondant = new Correspondant();
-        m_correspondant->setid(idcor);
-    }
+        m_manufacturer = Datas::I()->manufacturers->CreationManufacturer(listbinds);
     else if (m_mode == Modification)
-    {
-        idcor = m_correspondant->id();
-        // D - Il n'existe pas de dossier similaire, on le modifie
-        QString gSexeCor = "";
-        QString Modifrequete = "update " TBL_CORRESPONDANTS
-                " set CorNom = '" + CorNom + "', CorPrenom = '" + CorPrenom + "', CorSexe = '" + gSexeCor
-                + "', CorAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
-                + "', CorAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
-                + "', CorAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
-                + "', CorVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_villelineedit->text(),true))
-                + "', CorCodePostal = '" + wdg_CPlineedit->text()
-                + "', CorTelephone = '" + ui->TellineEdit->text()
-                + "', CorPortable = '" + ui->PortablelineEdit->text()
-                + "', CorFax = '" + ui->FaxlineEdit->text()
-                + "', CorMail = '" + Utils::correctquoteSQL(ui->MaillineEdit->text()) + "'";
-        Modifrequete += " where idCor =" + QString::number(idcor);
-        //qDebug() <<  Modifrequete;
-        db->StandardSQL(Modifrequete, tr("Impossible de modifier le dossier"));
-    }
-    m_modifdatascor = true;
-    Datas::I()->correspondants->loadAllData(m_correspondant);
-    Flags::I()->MAJflagCorrespondants();
+        DataBase::I()->UpdateTable(TBL_MANUFACTURERS, listbinds, " where " CP_ID_MANUFACTURER " = " + QString::number(m_manufacturer->id()),tr("Impossible de modifier le dossier"));
+    m_modifdatasmanufacturer = true;
     accept();
 }
 
 bool dlg_identificationmanufacturer::identcorrespondantmodifiee() const
 {
-    return m_modifdatascor;
+    return m_modifdatasmanufacturer;
 }
 
-Correspondant* dlg_identificationmanufacturer::correspondantrenvoye() const
+Manufacturer *dlg_identificationmanufacturer::manufacturerrenvoye() const
 {
-    return m_correspondant;
+    return m_manufacturer;
 }
 
 void dlg_identificationmanufacturer::RegleAffichage()
@@ -299,24 +255,21 @@ void dlg_identificationmanufacturer::AfficheDossierAlOuverture()
 {
     if (m_mode == Modification)
     {
-        m_nomcor                 = m_correspondant->nom();
-        m_prenomcor              = m_correspondant->prenom();
-        ui->NomlineEdit         ->setText(m_nomcor);
-        // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
-        m_sexecor                    = m_correspondant->sexe();
-        ui->idManufacturerlabel      ->setText(tr("Correspondant n° ") + QString::number(m_correspondant->id()));
+        m_nommanufacturer       = m_manufacturer->nom();
+        ui->NomlineEdit         ->setText(m_nommanufacturer);
+        ui->idManufacturerlabel ->setText(tr("Fabricant n° ") + QString::number(m_manufacturer->id()));
 
-        ui->Adresse1lineEdit    ->setText(m_correspondant->adresse1());
-        ui->Adresse2lineEdit    ->setText(m_correspondant->adresse2());
-        ui->Adresse3lineEdit    ->setText(m_correspondant->adresse3());
-        QString CP              = m_correspondant->codepostal();
-        wdg_CPlineedit              ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        ui->Adresse1lineEdit    ->setText(m_manufacturer->adresse1());
+        ui->Adresse2lineEdit    ->setText(m_manufacturer->adresse2());
+        ui->Adresse3lineEdit    ->setText(m_manufacturer->adresse3());
+        QString CP              = m_manufacturer->codepostal();
+        wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-        wdg_CPlineedit              ->setText(CP);
-        wdg_villelineedit           ->setText(m_correspondant->ville());
-        ui->TellineEdit         ->setText(m_correspondant->telephone());
-        ui->PortablelineEdit    ->setText(m_correspondant->portable());
-        ui->MaillineEdit        ->setText(m_correspondant->mail());
+        wdg_CPlineedit          ->setText(CP);
+        wdg_villelineedit       ->setText(m_manufacturer->ville());
+        ui->TellineEdit         ->setText(m_manufacturer->telephone());
+        ui->PortablelineEdit    ->setText(m_manufacturer->portable());
+        ui->MaillineEdit        ->setText(m_manufacturer->mail());
     }
     else if (m_mode == Creation)
     {

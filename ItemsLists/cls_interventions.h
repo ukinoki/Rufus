@@ -64,12 +64,14 @@ public:
 class IOLs : public ItemsList
 {
 private:
-    QMap<int, IOL*> *map_IOLs = Q_NULLPTR;    //!< la liste des IOLS
+    QMap<int, IOL*> *map_actifs = Q_NULLPTR;    //!< la liste des IOLS encore fabriqués
+    QMap<int, IOL*> *map_all = Q_NULLPTR;       //!< la liste de tous les IOLs, y compris ceux qui nes ont plus fabriqués
 
 public:
     explicit IOLs(QObject *parent = Q_NULLPTR);
 
-    QMap<int, IOL*> *iols() const;
+    QMap<int, IOL*> *alls() const;
+    QMap<int, IOL*> *actifs() const;
 
     IOL*    getById(int id);
     void    initListe();

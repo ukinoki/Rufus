@@ -45,9 +45,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestionlieux.h"
 #include "dlg_identificationcorresp.h"
 #include "ui_dlg_identificationcorresp.h"
+#include "dlg_identificationmanufacturer.h"
+#include "ui_dlg_identificationmanufacturer.h"
 #include "dlg_identificationpatient.h"
 #include "ui_dlg_identificationpatient.h"
 #include "dlg_listecorrespondants.h"
+#include "dlg_listemanufacturers.h"
 #include "dlg_listemotscles.h"
 #include "dlg_paiementdirect.h"
 #include "dlg_paiementtiers.h"
@@ -92,6 +95,7 @@ public:
 
 private:
     bool                            UtiliserTcpSocket = false;
+    QAction                         *actionFabricants = Q_NULLPTR;  // si on rajoute cette ligne avec les autres variables de menu, le programme plante (???)
 
     dlg_actesprecedents             *Dlg_ActesPrecs;
     dlg_bilanortho                  *Dlg_BlOrtho;
@@ -102,8 +106,10 @@ private:
     dlg_docsvideo                   *Dlg_DocsVideo;
     dlg_impressions                 *Dlg_Imprs;
     dlg_identificationcorresp       *Dlg_IdentCorresp;
+    dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
     dlg_identificationpatient       *Dlg_IdentPatient;
     dlg_listecorrespondants         *Dlg_ListCor;
+    dlg_listemanufacturers          *Dlg_ListManufacturers;
     dlg_paiementdirect              *Dlg_PmtDirect;
     dlg_paiementtiers               *Dlg_PmtTiers;
     dlg_param                       *Dlg_Param;
@@ -166,6 +172,7 @@ private:
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        ListeCorrespondants();
+    void        ListeManufacturers();
     void        MajusculeCreerNom();
     void        MajusculeCreerPrenom();
     void        ModifCotationActe();
@@ -375,16 +382,39 @@ private:
     QString             m_resumeStatut;
 
     // Les menus
-private:
-        QMenu           *menuActe, *menuComptabilite, *menuEdition, *menuDocuments, *menuDossier;
-        QMenu           *menuEmettre, *menuPrecedentsActes;
-        QMenu           *menuAide;
-        QAction         *actionCreerDossier, *actionCreerActe, *actionOuvrirDossier, *actionEmettreDocument, *actionRecopierDossier;
-        QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
-        QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo, *actionRechercheCourrier, *actionExportActe;
-        QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementTiers, *actionRecettesSpeciales, *actionResumeStatut;
-        QAction         *actionBilanRecettes, *actionJournalDepenses, *actionRemiseCheques;
-        QAction         *actionQuit;
+    QMenu           *menuActe                       = Q_NULLPTR;
+    QMenu           *menuComptabilite               = Q_NULLPTR;
+    QMenu           *menuEdition                    = Q_NULLPTR;
+    QMenu           *menuDocuments                  = Q_NULLPTR;
+    QMenu           *menuDossier                    = Q_NULLPTR;
+    QMenu           *menuEmettre                    = Q_NULLPTR;
+    QMenu           *menuPrecedentsActes            = Q_NULLPTR;
+    QMenu           *menuAide                       = Q_NULLPTR;
+    QAction         *actionCreerDossier             = Q_NULLPTR;
+    QAction         *actionCreerActe                = Q_NULLPTR;
+    QAction         *actionOuvrirDossier            = Q_NULLPTR;
+    QAction         *actionEmettreDocument          = Q_NULLPTR;
+    QAction         *actionRecopierDossier          = Q_NULLPTR;
+    QAction         *actionParametres               = Q_NULLPTR;
+    QAction         *actionSupprimerActe            = Q_NULLPTR;
+    QAction         *actionSupprimerDossier         = Q_NULLPTR;
+    QAction         *actionRechercheParMotCle       = Q_NULLPTR;
+    QAction         *actionRechercheParID           = Q_NULLPTR;
+    QAction         *actionDossierPatient           = Q_NULLPTR;
+    QAction         *actionCorrespondants           = Q_NULLPTR;
+    QAction         *actionEnregistrerDocScanner    = Q_NULLPTR;
+    QAction         *actionEnregistrerVideo         = Q_NULLPTR;
+    QAction         *actionRechercheCourrier        = Q_NULLPTR;
+    QAction         *actionExportActe               = Q_NULLPTR;
+    QAction         *actionGestionComptesBancaires  = Q_NULLPTR;
+    QAction         *actionPaiementDirect           = Q_NULLPTR;
+    QAction         *actionPaiementTiers            = Q_NULLPTR;
+    QAction         *actionRecettesSpeciales        = Q_NULLPTR;
+    QAction         *actionResumeStatut             = Q_NULLPTR;
+    QAction         *actionBilanRecettes            = Q_NULLPTR;
+    QAction         *actionJournalDepenses          = Q_NULLPTR;
+    QAction         *actionRemiseCheques            = Q_NULLPTR;
+    QAction         *actionQuit                     = Q_NULLPTR;
 };
 
 #endif // RUFUS_H

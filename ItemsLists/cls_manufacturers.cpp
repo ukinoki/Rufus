@@ -19,22 +19,32 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Manufacturers::Manufacturers(QObject *parent) : ItemsList(parent)
 {
-    map_manufacturers = new QMap<int, Manufacturer*>();
+    map_actifs  = new QMap<int, Manufacturer*>();
+    map_all     = new QMap<int, Manufacturer*>();
 }
 
-QMap<int, Manufacturer*>* Manufacturers::manufacturers() const
+QMap<int, Manufacturer*>* Manufacturers::actifs() const
 {
-    return map_manufacturers;
+    return map_actifs;
+}
+
+QMap<int, Manufacturer*>* Manufacturers::alls() const
+{
+    return map_all;
 }
 
 Manufacturer* Manufacturers::getById(int id)
 {
-    QMap<int, Manufacturer*>::const_iterator itman = map_manufacturers->find(id);
-    if( itman == map_manufacturers->constEnd() )
+    QMap<int, Manufacturer*>::const_iterator itman = map_all->find(id);
+    if( itman == map_all->constEnd() )
     {
         Manufacturer * man = DataBase::I()->loadManufacturerById(id);
         if (man != Q_NULLPTR)
-            add( map_manufacturers, man );
+        {
+            add( map_all, man, Item::Update );
+            if (man->isactif())
+                add( map_actifs, man, Item::Update );
+        }
         return man;
     }
     return itman.value();
@@ -48,18 +58,41 @@ Manufacturer* Manufacturers::getById(int id)
 void Manufacturers::initListe()
 {
     QList<Manufacturer*> listManufacturers = DataBase::I()->loadManufacturers();
-    epurelist(map_manufacturers, &listManufacturers);
-    addList(map_manufacturers, &listManufacturers, Item::Update);
+    epurelist(map_all, &listManufacturers);
+    epurelist(map_actifs, &listManufacturers);
+    foreach (Manufacturer *man, listManufacturers)
+    {
+        if( man != Q_NULLPTR)
+        {
+            auto itman = map_all->find(man->id());
+            if( itman != map_all->constEnd() )
+            {
+                itman.value()->setData(man->datas());
+                if (!man->isactif())
+                    map_actifs->remove(man->id());
+                else if (map_actifs->find(man->id()) == map_actifs->constEnd())
+                    map_actifs->insert(man->id(), itman.value());
+                delete man;
+            }
+            else
+            {
+                map_all->insert(man->id(), man);
+                if (man->isactif())
+                    map_actifs->insert(man->id(), man);
+            }
+        }
+    }
 }
 
-void Manufacturers::SupprimeManufacturer(Manufacturer* Manufacturer)
+void Manufacturers::SupprimeManufacturer(Manufacturer* man)
 {
-    Supprime(map_manufacturers, Manufacturer);
+    Supprime(map_all, man);
+    map_actifs->remove(man->id());
 }
 
 Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
 {
-    Manufacturer *Man = Q_NULLPTR;
+    Manufacturer *man = Q_NULLPTR;
     int idManufacturer = 0;
     DataBase::I()->locktables(QStringList() << TBL_MANUFACTURERS);
     idManufacturer = DataBase::I()->selectMaxFromTable(CP_ID_MANUFACTURER, TBL_MANUFACTURERS, m_ok);
@@ -74,7 +107,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
     if (!result)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce fabricant dans la base!"));
-        return Man;
+        return man;
     }
     QJsonObject  data = QJsonObject{};
     data[CP_ID_MANUFACTURER] = idManufacturer;
@@ -87,7 +120,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_ADRESSE1_MANUFACTURER)                 data[champ] = itset.value().toString();
         else if (champ == CP_ADRESSE2_MANUFACTURER)                 data[champ] = itset.value().toString();
         else if (champ == CP_ADRESSE3_MANUFACTURER)                 data[champ] = itset.value().toString();
-        else if (champ == CP_CODEPOSTAL_MANUFACTURER)               data[champ] = itset.value().toInt();
+        else if (champ == CP_CODEPOSTAL_MANUFACTURER)               data[champ] = itset.value().toString();
         else if (champ == CP_VILLE_MANUFACTURER)                    data[champ] = itset.value().toString();
         else if (champ == CP_TELEPHONE_MANUFACTURER)                data[champ] = itset.value().toString();
         else if (champ == CP_FAX_MANUFACTURER)                      data[champ] = itset.value().toString();
@@ -100,9 +133,13 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_CORMAIL_MANUFACTURER)                  data[champ] = itset.value().toString();
         else if (champ == CP_CORTELEPHONE_MANUFACTURER)             data[champ] = itset.value().toString();
     }
-    Man = new Manufacturer(data);
-    if (Man != Q_NULLPTR)
-        map_manufacturers->insert(Man->id(), Man);
-    return Man;
+    man = new Manufacturer(data);
+    if (man != Q_NULLPTR)
+    {
+        map_all->insert(man->id(), man);
+        if (man->isactif())
+            map_actifs->insert(man->id(), man);
+    }
+    return man;
 }
 

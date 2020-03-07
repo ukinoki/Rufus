@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-03-2020/1");
+    qApp->setApplicationVersion("07-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1096,6 +1096,7 @@ void Rufus::AfficheMenu(QMenu *menu)
         }
         menuDocuments->addAction(actionRechercheCourrier);
         menuDocuments->addAction(actionCorrespondants);
+        menuDocuments->addAction(actionFabricants);
     }
 }
 
@@ -2799,6 +2800,21 @@ void Rufus::ListeCorrespondants()
     Dlg_ListCor = new dlg_listecorrespondants(this);
     Dlg_ListCor->exec();
     delete Dlg_ListCor;
+}
+
+void Rufus::ListeManufacturers()
+{
+    if (Datas::I()->manufacturers->actifs()->size()==0)
+    {
+        UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
+        Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+        Dlg_IdentManufacturer->exec();
+        delete Dlg_IdentManufacturer;
+        return;
+    }
+    Dlg_ListManufacturers = new dlg_listemanufacturers(this);
+    Dlg_ListManufacturers->exec();
+    delete Dlg_ListManufacturers;
 }
 
 void Rufus::MajusculeCreerNom()
@@ -7122,6 +7138,7 @@ void Rufus::CreerMenu()
     actionEnregistrerVideo          = new QAction(tr("Enregistrer une video"));
     actionRechercheCourrier         = new QAction(tr("Afficher les courriers à faire"));
     actionCorrespondants            = new QAction(tr("Liste des correspondants"));
+    actionFabricants                = new QAction(tr("Liste des fabricants"));
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
@@ -7168,6 +7185,7 @@ void Rufus::CreerMenu()
     connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirImpressions);
     connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
     connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
+    connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
     connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
     connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo(currentpatient());});
     connect (actionExportActe,                  &QAction::triggered,        this,                   [=] {ExporteActe(currentacte());});

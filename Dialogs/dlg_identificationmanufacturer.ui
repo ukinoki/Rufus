@@ -446,12 +446,24 @@
     <rect>
      <x>0</x>
      <y>410</y>
-     <width>551</width>
-     <height>191</height>
+     <width>550</width>
+     <height>190</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>550</width>
+     <height>190</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>550</width>
+     <height>190</height>
+    </size>
+   </property>
    <property name="title">
-    <string>Correspondant</string>
+    <string>Interlocuteur</string>
    </property>
    <widget class="QLabel" name="CorNomlabel">
     <property name="geometry">
@@ -511,7 +523,7 @@
      <string>Fonction</string>
     </property>
    </widget>
-   <widget class="UpLineEdit" name="CorTelephoneineEdit">
+   <widget class="UpLineEdit" name="CorTelephonelineEdit">
     <property name="geometry">
      <rect>
       <x>170</x>

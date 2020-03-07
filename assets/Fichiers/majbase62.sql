@@ -62,6 +62,15 @@ BEGIN
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'IOLInactif') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `Ophtalmologie`.`IOLs`
+            ADD COLUMN `IOLInactif` INT(1) NULL DEFAULT NULL AFTER `modelname`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'TypesInterventions' AND COLUMN_NAME = 'idTypeIntervention') as chp;
         IF tot=1
         THEN
@@ -113,6 +122,15 @@ BEGIN
             ALTER TABLE `rufus`.`Manufacturers`
             ADD COLUMN `ManFax` VARCHAR(17) NULL DEFAULT NULL AFTER `ManTelephone`;
         END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT COLUMN_KEY
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'Manufacturers' AND COLUMN_NAME = 'ManInactif') as chp;
+            IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`Manufacturers`
+                ADD COLUMN `ManInactif` INT(1) NULL DEFAULT NULL AFTER `CorTelephone`;
+            END IF;
     DROP TABLE IF EXISTS `SessionsOperatoires`;
     CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
         `idSession` INT NOT NULL AUTO_INCREMENT,

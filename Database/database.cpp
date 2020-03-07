@@ -211,19 +211,20 @@ QList<QVariantList> DataBase::SelectRecordsFromTable(QStringList listselectChamp
 }
 
 bool DataBase::UpdateTable(QString nomtable,
-                           QHash<QString, QString> sets,
+                           QHash<QString, QVariant> sets,
                            QString where,
                            QString errormsg)
 {
     QString req = "update " + nomtable + " set";
-    QHashIterator<QString, QString> itset(sets);
+    QHashIterator<QString, QVariant> itset(sets);
     while (itset.hasNext())
     {
         itset.next();
-        req += " " + itset.key() + " = " + (itset.value().toLower()=="null"? "null," : "'" + Utils::correctquoteSQL(itset.value()) + "',");
+        req += " " + itset.key() + " = " + (itset.value().toString().toLower()=="null"? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
     }
     req = req.left(req.size()-1); //retire la virgule de la fin
     req += " " + where;
+    //qDebug() << req;
     return StandardSQL(req, errormsg);
 }
 
@@ -2614,16 +2615,17 @@ Intervention* DataBase::loadInterventionById(int idintervention)                
 QJsonObject DataBase::loadIOLData(QVariantList ioldata)         //! attribue la liste des datas à un IOL
 {
     QJsonObject data{};
-    data[CP_ID_IOLS]                   = ioldata.at(0).toInt();
-    data[CP_IDMANUFACTURER_IOLS]       = ioldata.at(1).toInt();
-    data[CP_MODELNAME_IOLS]            = ioldata.at(2).toString();
+    data[CP_ID_IOLS]                = ioldata.at(0).toInt();
+    data[CP_IDMANUFACTURER_IOLS]    = ioldata.at(1).toInt();
+    data[CP_MODELNAME_IOLS]         = ioldata.at(2).toString();
+    data[CP_INACTIF_IOLS]           = (ioldata.at(3).toInt() == 1);
     return data;
 }
 
 QList<IOL*> DataBase::loadIOLs()                       //! charge tous les IOLS
 {
     QList<IOL*> list = QList<IOL*> ();
-    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS // 0-1-2
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_INACTIF_IOLS // 0-1-2
                     " FROM " TBL_IOLS " order by " CP_IDMANUFACTURER_IOLS;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
     if(!ok || iollist.size()==0)
@@ -2641,7 +2643,7 @@ QList<IOL*> DataBase::loadIOLs()                       //! charge tous les IOLS
 IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
 {
     IOL *iol = Q_NULLPTR;
-    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS // 0-1-2
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_INACTIF_IOLS // 0-1-2
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
     QVariantList ioldata = getFirstRecordFromStandardSelectSQL(req,ok);
@@ -2709,7 +2711,7 @@ QJsonObject DataBase::loadManufacturerData(QVariantList Mandata)         //! att
     data[CP_ADRESSE1_MANUFACTURER]      = Mandata.at(2).toString();
     data[CP_ADRESSE2_MANUFACTURER]      = Mandata.at(3).toString();
     data[CP_ADRESSE3_MANUFACTURER]      = Mandata.at(4).toString();
-    data[CP_CODEPOSTAL_MANUFACTURER]    = Mandata.at(5).toInt();
+    data[CP_CODEPOSTAL_MANUFACTURER]    = Mandata.at(5).toString();
     data[CP_VILLE_MANUFACTURER]         = Mandata.at(6).toString();
     data[CP_TELEPHONE_MANUFACTURER]     = Mandata.at(7).toString();
     data[CP_FAX_MANUFACTURER]           = Mandata.at(8).toString();
@@ -2721,6 +2723,7 @@ QJsonObject DataBase::loadManufacturerData(QVariantList Mandata)         //! att
     data[CP_CORSTATUT_MANUFACTURER]     = Mandata.at(14).toString();
     data[CP_CORMAIL_MANUFACTURER]       = Mandata.at(15).toString();
     data[CP_CORTELEPHONE_MANUFACTURER]  = Mandata.at(16).toString();
+    data[CP_INACTIF_MANUFACTURER]       = (Mandata.at(17).toInt() == 1);
     return data;
 }
 
@@ -2730,7 +2733,7 @@ QList<Manufacturer*> DataBase::loadManufacturers()                       //! cha
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
                               CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
-                              CP_CORTELEPHONE_MANUFACTURER
+                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER
                     " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER;
     QList<QVariantList> Manufacturerlist = StandardSelectSQL(req,ok);
     if(!ok || Manufacturerlist.size()==0)
@@ -2751,7 +2754,7 @@ Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
                               CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
-                              CP_CORTELEPHONE_MANUFACTURER
+                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER
                     " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER;
                     " WHERE " CP_ID_MANUFACTURER " = " + QString::number(idManufacturer) ;
     QVariantList Manufacturerdata = getFirstRecordFromStandardSelectSQL(req,ok);

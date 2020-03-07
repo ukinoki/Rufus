@@ -32,19 +32,18 @@ class dlg_identificationmanufacturer : public UpDialog
     Q_OBJECT
 public:
     enum Mode   {Creation, Modification};    Q_ENUM(Mode)
-    explicit dlg_identificationmanufacturer(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
     bool                identcorrespondantmodifiee() const;
-    Correspondant*      correspondantrenvoye() const;
+    Manufacturer*       manufacturerrenvoye() const;
 
 private:
     DataBase            *db                 = DataBase::I();
-    Correspondant       *m_correspondant    = Q_NULLPTR;
+    Manufacturer        *m_manufacturer    = Q_NULLPTR;
 
-    bool                m_onlydoctors;
-    bool                m_modifdatascor;
-    QString             m_nomcor, m_prenomcor, m_sexecor;
+    bool                m_modifdatasmanufacturer;
+    QString             m_nommanufacturer;
     Mode                m_mode;
     QLineEdit           *wdg_CPlineedit, *wdg_villelineedit;
     VilleCPWidget       *wdg_villeCP;

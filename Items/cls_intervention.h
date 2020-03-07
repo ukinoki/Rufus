@@ -154,21 +154,21 @@ private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
     int m_idmanufacturer    = 0;                //! id du fabricant
     QString m_modele        = "";               //! modèle de l'implant
+    bool m_inactif          = false;
 
 public:
 
     int idmanufacturer() const              { return m_idmanufacturer; }
     QString modele() const                  { return m_modele; }
+    bool isactif() const                    { return !m_inactif; }
 
-    void setidmanufacturer(int id)          { m_idmanufacturer = id;
-                                              m_data[CP_IDMANUFACTURER_IOLS] = id; }
-    void setmodele(QString txt)             { m_modele = txt;
-                                              m_data[CP_MODELNAME_IOLS] = txt; }
+    void setidmanufacturer(int &id)         { m_idmanufacturer = id;    m_data[CP_IDMANUFACTURER_IOLS] = id; }
+    void setmodele(const QString &txt)      { m_modele = txt;           m_data[CP_MODELNAME_IOLS] = txt; }
+    void setactif(bool &actif)              { m_inactif = !actif;       m_data[CP_INACTIF_IOLS] = !actif; }
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }
-
- };
+};
 
 /*!
  * \brief classe TypeIntervention
@@ -184,18 +184,22 @@ public:
 
 private: //Données de l'intervention
     //!<m_id = Id du type d'intervention en base
-    QString m_typeintervention  = "";                //! le type d'intervention
+    QString m_typeintervention  = "";               //! le type d'intervention
     QString m_codeCCAM          = "";               //! code CCAM
+    QTime   m_duree             = QTime();          //! la durée de l'intervention
 
 public:
 
     QString typeintervention() const        { return m_typeintervention; }
     QString codeCCAM() const                { return m_codeCCAM; }
+    QTime duree() const                     { return m_duree; }
 
     void settypeintervention(QString txt)   { m_typeintervention = txt;
                                               m_data[CP_TYPEINTERVENTION_TYPINTERVENTION] = txt; }
     void setcodeCCAM(QString txt)           { m_codeCCAM = txt;
                                               m_data[CP_CODECCAM_TYPINTERVENTION] = txt; }
+    void setduree(QTime duree)               { m_duree = duree;
+                                              m_data[CP_DUREE_TYPINTERVENTION] = duree.toString("HH:mm::ss"); }
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }

@@ -407,21 +407,26 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         if (!pat)
             return;
         nompatient = pat->nom().toUpper() + " " + pat->prenom();
+        //qDebug() << nompatient;
         UpStandardItem *item    = new UpStandardItem(interv->heure().toString("HH:mm") + " - " + nompatient, interv);
         item->setForeground(QBrush(QColor(Qt::blue)));
-        UpStandardItem *itemddn = new UpStandardItem((pat->sexe() == "M"? tr("Né le") : tr("Née le"))
-                                                     + " " + pat->datedenaissance().toString("dd-MM-yyyy")
-                                                     + " - " + Utils::CalculAge(pat->datedenaissance())["toString"].toString(),
-                                                     interv);        
+        QString sexeddn = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))
+                + " " + pat->datedenaissance().toString("dd-MM-yyyy")
+                + " - " + Utils::CalculAge(pat->datedenaissance())["toString"].toString();
+        UpStandardItem *itemddn = new UpStandardItem(sexeddn, interv);
         itemddn->setForeground(QBrush(QColor(Qt::gray)));
         item->appendRow(itemddn);
         if (pat->telephone() != "" || pat->portable() != "")
         {
-            QString tel = tr("Tel") + " " + pat->telephone();
-            if (tel != "" && pat->portable() != "")
-                tel += " - " + pat->portable();
+            QString tel = tr("Tel") + " ";
+            if (pat->telephone() != "")
+            {
+                tel += pat->telephone();
+                if (pat->portable() != "")
+                    tel += " - " + pat->portable();
+            }
             else
-                tel = pat->portable();
+                tel += pat->portable();
             UpStandardItem *itemtel = new UpStandardItem(tel, interv);
             itemtel->setForeground(QBrush(QColor(Qt::gray)));
             item->appendRow(itemtel);
@@ -466,6 +471,27 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
 
 void dlg_programmationinterventions::CreerIntervention()
 {
+    auto veriffiche = [=] (bool &ok, QTimeEdit *timeedit, QComboBox *box)
+    {
+        ok = true;
+        if (m_currentchirpatient->telephone() == "" && m_currentchirpatient->portable() == "")
+            if (!Patients::veriftelephone(m_currentchirpatient))
+            {
+                ok = false;
+                return;
+            }
+        if (!timeedit->time().isValid())
+        {
+            UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié une heure valide"));
+            ok = false;
+            return;
+        }
+        if (box->currentText() == "" || box->currentIndex() == -1)
+        {
+            UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié le type d'intervention"));
+            ok = false;
+            return;            }
+    };
     UpDialog *dlg_intervention = new UpDialog(this);
     dlg_intervention->setWindowTitle(tr("programmer une intervention pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
 
@@ -508,12 +534,11 @@ void dlg_programmationinterventions::CreerIntervention()
     QHBoxLayout *choixinterventionLay    = new QHBoxLayout();
     UpLabel* lblinterv = new UpLabel;
     lblinterv               ->setText(tr("Type d'intervention"));
-    QComboBox *interventioncombo = new QComboBox();
-    interventioncombo       ->setFixedSize(QSize(250,28));
+    UpComboBox *interventioncombo = new UpComboBox();
+    interventioncombo       ->setFixedSize(QSize(150,28));
     interventioncombo       ->setEditable(true);
     interventioncombo       ->setModel(&m_typeinterventions);
-    interventioncombo       ->lineEdit()->setAlignment(Qt::AlignRight);
-    interventioncombo       ->setCompleter(new QCompleter(&m_typeinterventions));
+    interventioncombo       ->setCurrentIndex(-1);
     choixinterventionLay    ->addWidget(lblinterv);
     choixinterventionLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixinterventionLay    ->addWidget(interventioncombo);
@@ -525,12 +550,11 @@ void dlg_programmationinterventions::CreerIntervention()
     lblcote                 ->setText(tr("Côté"));
     QComboBox *cotecombo    = new QComboBox();
     cotecombo               ->setFixedSize(QSize(100,28));
-    cotecombo               ->setEditable(true);
+    cotecombo               ->setEditable(false);
     cotecombo               ->addItem(tr("Droit"), "D");
     cotecombo               ->addItem(tr("Gauche"), "G");
     cotecombo               ->addItem(tr("Les 2"), "2");
     cotecombo               ->addItem(tr("Sans objet"));
-    cotecombo               ->setCompleter(new QCompleter(&m_typeinterventions));
     choixcoteLay            ->addWidget(lblcote);
     choixcoteLay            ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixcoteLay            ->addWidget(cotecombo);
@@ -616,12 +640,15 @@ void dlg_programmationinterventions::CreerIntervention()
     dlg_intervention->dlglayout()   ->insertLayout(0, choixsessionLay);
     dlg_intervention->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_intervention->dlglayout()   ->setSpacing(5);
+
     dlg_intervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    disconnect(dlg_intervention->CancelButton,   &QPushButton::clicked, dlg_intervention, &UpDialog::reject);
     connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [=]
     {
-        if (m_currentchirpatient->telephone() == "" && m_currentchirpatient->portable() == "")
-            if (!Patients::veriftelephone(m_currentchirpatient))
-                return;
+        bool ok;
+        veriffiche(ok, timeedit, interventioncombo);
+        if (!ok)
+            return;
         QTime heure = timeedit->time();
         QStandardItem *itm = m_sessions.itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
         int idsession = dynamic_cast<UpStandardItem*>(itm)->item()->id();
@@ -654,12 +681,28 @@ void dlg_programmationinterventions::CreerIntervention()
     connect(interventioncombo->lineEdit(), &QLineEdit::editingFinished, dlg_intervention, [=]
     {
         QString txt = interventioncombo->lineEdit()->text();
-        if (m_typeinterventions.findItems(txt).size()==0)
+        if (m_typeinterventions.findItems(txt).size() ==0 && txt !="")
         {
             if (UpMessageBox::Question(this, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
                 return;
+            else
+            {
+                CreerTypeIntervention(Utils::trimcapitilize(txt));
+                interventioncombo->setModel(&m_typeinterventions);
+                int id = m_currenttypeintervention->id();
+                int row = m_typeinterventions.findItems(QString::number(id)).at(0)->row();
+                qDebug() << "id = " << id << "row = " << row;
+                if (m_currenttypeintervention != Q_NULLPTR)
+                    interventioncombo->setCurrentIndex(row);
+            }
         }
     });
+    connect(dlg_intervention->CancelButton, &QPushButton::clicked, dlg_intervention, [=]
+    {
+        interventioncombo->lineEdit()->disconnect();
+        dlg_intervention->reject();
+    });
+    timeedit->setFocus();
     dlg_intervention->exec();
 }
 
@@ -785,13 +828,14 @@ void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
         QString nomtype = typ->typeintervention();
         UpStandardItem *itemtyp = new UpStandardItem(typ->typeintervention(), typ);
         UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
-        items << itemtyp << itemccam;
+        UpStandardItem *itemid = new UpStandardItem(QString::number(typ->id()), typ);
+        items << itemtyp << itemccam << itemid;
         m_typeinterventions.appendRow(items);
     }
     m_typeinterventions.sort(0, Qt::AscendingOrder);
 }
 
-void dlg_programmationinterventions::CreerTypeIntervention()
+void dlg_programmationinterventions::CreerTypeIntervention(QString txt)
 {
     UpDialog            *dlg_typintervention = new UpDialog(this);
     dlg_typintervention->setAttribute(Qt::WA_DeleteOnClose);
@@ -802,6 +846,7 @@ void dlg_programmationinterventions::CreerTypeIntervention()
     lblnom         ->setText(tr("Type"));
     QLineEdit *linenom = new QLineEdit();
     linenom        ->setFixedSize(QSize(200,24));
+    linenom         ->setText(txt);
     nomLay    ->addWidget(lblnom);
     nomLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     nomLay    ->addWidget(linenom);
@@ -838,10 +883,11 @@ void dlg_programmationinterventions::CreerTypeIntervention()
             }
         }
         QHash<QString, QVariant> listbinds;
-        listbinds[CP_TYPEINTERVENTION_TYPINTERVENTION]    = Utils::trimcapitilize(linenom->text());
+        listbinds[CP_TYPEINTERVENTION_TYPINTERVENTION] = Utils::trimcapitilize(linenom->text());
         listbinds[CP_CODECCAM_TYPINTERVENTION]  = lineccam->text().toUpper();
-        listbinds[CP_IDUSER_SESSIONOPERATOIRE]  = m_currentchiruser->id();
-        Datas::I()->typesinterventions->CreationTypeIntervention(listbinds);
+        if (m_currenttypeintervention != Q_NULLPTR)
+            delete m_currenttypeintervention;
+        m_currenttypeintervention = Datas::I()->typesinterventions->CreationTypeIntervention(listbinds);
         ReconstruitListeTypeInterventions();
         dlg_typintervention->close();
     });

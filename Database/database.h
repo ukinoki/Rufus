@@ -131,7 +131,7 @@ public:
                                                                 /*! renvoie sous forme de QList<QVariantList> les select SQL des champs listselectchamp de la table nomtable
                                                                 *  avec la clause where et les modulations order by et distinct
                                                                 * affiche le message errormsg en cas de pb */
-    bool                    UpdateTable(QString nomtable, QHash<QString, QString> sets, QString where, QString errormsg="");
+    bool                    UpdateTable(QString nomtable, QHash<QString, QVariant> sets, QString where, QString errormsg="");
                                                                 /*! Update la table nomtable
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
                                                                 *  avec la clause where

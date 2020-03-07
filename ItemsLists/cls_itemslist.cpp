@@ -22,6 +22,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     SessionOperatoire *session  = Q_NULLPTR;
     Site *sit                   = Q_NULLPTR;
     Manufacturer *man           = Q_NULLPTR;
+    TypeIntervention *typinterv = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -134,6 +135,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (man != Q_NULLPTR)
         {
             table = TBL_MANUFACTURERS;
+            loop = true;
+            break;
+        }
+        typinterv = dynamic_cast<TypeIntervention*>(item);
+        if (typinterv != Q_NULLPTR)
+        {
+            table = TBL_TYPESINTERVENTIONS;
             loop = true;
             break;
         }
@@ -714,8 +722,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_CODEPOSTAL_MANUFACTURER )
         {
-            man->setcodepostal(newvalue.toInt());
-            Utils::CalcintValueSQL(newvalue);
+            man->setcodepostal(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_VILLE_MANUFACTURER)
         {
@@ -771,6 +779,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             man->setcormail(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
+        }
+    }
+    else if (table == TBL_TYPESINTERVENTIONS)
+    {
+        ok = true;
+        clause = CP_ID_TYPINTERVENTION " = " + QString::number(item->id());
+        if (field == CP_TYPEINTERVENTION_TYPINTERVENTION)
+        {
+            typinterv->settypeintervention(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CODECCAM_TYPINTERVENTION)
+        {
+            typinterv->setcodeCCAM(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_DUREE_TYPINTERVENTION)
+        {
+            typinterv->setduree(newvalue.toTime());
+            Utils::CalcTimeValueSQL(newvalue);
         }
     }
 
