@@ -336,7 +336,7 @@ void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeinterven
 
 TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
 {
-    TypeIntervention *typeintervention = Q_NULLPTR;
+    TypeIntervention *typ = Q_NULLPTR;
     int idtypeintervention = 0;
     DataBase::I()->locktables(QStringList() << TBL_TYPESINTERVENTIONS);
     idtypeintervention = DataBase::I()->selectMaxFromTable(CP_ID_TYPINTERVENTION, TBL_TYPESINTERVENTIONS, m_ok);
@@ -351,7 +351,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     if (!result)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce type d'intervention dans la base!"));
-        return typeintervention;
+        return typ;
     }
     QJsonObject  data = QJsonObject{};
     data[CP_ID_TYPINTERVENTION] = idtypeintervention;
@@ -364,8 +364,8 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
         else if (champ == CP_CODECCAM_TYPINTERVENTION)      data[champ] = itset.value().toString();
         else if (champ == CP_DUREE_TYPINTERVENTION)         data[champ] = itset.value().toString();
     }
-    typeintervention = new TypeIntervention(data);
-    if (typeintervention != Q_NULLPTR)
-        map_typeinterventions->insert(typeintervention->id(), typeintervention);
-    return typeintervention;
+    typ = new TypeIntervention(data);
+    if (typ != Q_NULLPTR)
+        map_typeinterventions->insert(typ->id(), typ);
+    return typ;
 }

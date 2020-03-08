@@ -74,7 +74,7 @@ void Intervention::resetdatas()
     data[CP_IDIOL_LIGNPRGOPERATOIRE]                = 0;
     data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = 0;
     data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = 0;
-    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = 0;
+    data[CP_OBSERV_LIGNPRGOPERATOIRE]               = "";
     setData(data);
 }
 

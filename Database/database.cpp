@@ -2577,7 +2577,7 @@ QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)             
                               CP_OBSERV_LIGNPRGOPERATOIRE // 10
                     " FROM " TBL_LIGNESPRGOPERATOIRES
                     " WHERE " CP_IDSESSION_LIGNPRGOPERATOIRE " = " + QString::number(id) +
-                    " order by " CP_ID_LIGNPRGOPERATOIRE " asc";
+                    " order by " CP_HEURE_LIGNPRGOPERATOIRE " asc";
     //qDebug() << req;
     QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
     if(!ok || interventionlist.size()==0)

@@ -23,6 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updoublespinbox.h"
 #include <uptableview.h>
 #include "widgetbuttonframe.h"
+#include "dlg_impressions.h"
+#include "ui_dlg_impressions.h"
 
 class dlg_programmationinterventions : public UpDialog
 {
@@ -30,10 +32,17 @@ class dlg_programmationinterventions : public UpDialog
 public:
     explicit            dlg_programmationinterventions(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_programmationinterventions();
+    bool                docimprime() const      { return m_docimprime; }
 
 private:
     Procedures          *proc = Procedures::I();
-    QStandardItemModel  m_medecins, m_sessions, m_interventions, m_typeinterventions;
+    QStandardItemModel  m_medecinsmodel, m_sessionsmodel, m_interventionsmodel, m_typeinterventionsmodel;
+    QFont               m_font          = QApplication::font();
+    dlg_impressions     *Dlg_Imprs;
+
+    bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
+    bool                m_docimprime = false;
 
 /*! les items */
     User                *m_currentchiruser      = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
@@ -44,7 +53,7 @@ private:
 
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
-    QMenu               *m_ctextmenuinterventions;
+    QMenu               *m_ctxtmenuinterventions;
     QTreeView           *wdg_interventionstreeView  = new QTreeView();
     QTreeView           *wdg_sessionstreeView       = new QTreeView();
     QComboBox           *wdg_listmedecinscombo;
@@ -66,11 +75,13 @@ private:
 /*! les interventions */
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
-    void                CreerIntervention();
-    void                EditIntervention();
-    void                SupprimeIntervention();
+    void                CreerFicheIntervention(Intervention * interv = Q_NULLPTR);                                       // crée la fiche qui permet de modifier ou d'enregistrer une intervention
+    void                ImprimeDoc(Patient *pat);
+    void                SupprimeIntervention(Intervention *intervention = Q_NULLPTR);
     void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
     void                MenuContextuelInterventionsions();
+    void                VerifExistIntervention(bool &ok, QComboBox *box);
+    void                VerifFicheIntervention(bool &ok, QTimeEdit *timeedit, QComboBox *box, Patient *pat);
 
 /*! les types d'interventions */
     void                ReconstruitListeTypeInterventions();

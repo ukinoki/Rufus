@@ -26,8 +26,10 @@ class UpStandardItem : public QStandardItem
 public:
     UpStandardItem();
     UpStandardItem(QString txt, Item* item = Q_NULLPTR);
+    UpStandardItem(const QIcon &icon, const QString &text, Item* item = Q_NULLPTR);
     void    setitem(Item* item);
     Item*   item() const;
+    bool    hasitem() const     { return m_item != Q_NULLPTR; }
 
 private:
     Item*   m_item = Q_NULLPTR;

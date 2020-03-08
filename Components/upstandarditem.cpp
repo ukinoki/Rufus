@@ -27,6 +27,12 @@ UpStandardItem::UpStandardItem(QString txt, Item *item) : QStandardItem(txt)
         setitem(item);
 }
 
+UpStandardItem::UpStandardItem(const QIcon &icon, const QString &txt, Item *item) : QStandardItem(icon, txt)
+{
+    if (item != Q_NULLPTR)
+        setitem(item);
+}
+
 void UpStandardItem::setitem(Item* item)
 {
     m_item = item;

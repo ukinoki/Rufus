@@ -76,6 +76,7 @@ public:
 
     QString nom() const;
     QString prenom() const;
+    QString nomcomplet() const          { return nom() + " "  + prenom(); }
     QString sexe() const;
     QDate   datecreationdossier() const;
     QDate   datedenaissance() const;
@@ -87,6 +88,22 @@ public:
     QString adresse3() const;
     QString codepostal() const;
     QString ville() const;
+    QString adressecomplete() const     {
+                                          QString adress ("");
+                                          if (adresse1() != "")
+                                              adress += adresse1();
+                                          if (adresse2() != "" && adress != "")
+                                              adress += + "\n" + adresse2();
+                                          if (adresse3() != "" && adress != "")
+                                              adress += + "\n" + adresse3();
+                                          if (ville() != "" && adress != "")
+                                              adress += + "\n" + codepostal() + " " + ville();
+                                          if (telephone() != "" && adress != "")
+                                              adress += + "\n" + telephone();
+                                          if (portable() != "" && adress != "")
+                                              adress += + "\n" + portable();
+                                          return adress;
+                                        }
     QString telephone() const;
     QString portable() const;
     QString mail() const;
