@@ -145,7 +145,7 @@ private:
     QString NOMUSER             = tr(STR_NOMUSER);
     QString TELEPHONE           = tr(STR_TELEPHONE);
 
-    QString TYPEANESTHESIE      = tr(STR_TYPEANESTHESIE);
+    QString ANESTHINTERVENTION  = tr(STR_ANESTHINTERVENTION);
     QString PROVENANCE          = tr(STR_PROVENANCE);
     QString TYPESEJOUR          = tr(STR_TYPESEJOUR);
     QString COTE                = tr(STR_COTE);
@@ -161,6 +161,7 @@ private:
     QString TITREDATEINTERVENTION    = tr("Date d'intervention");
     QString TITREHEUREINTERVENTION   = tr("Heure d'intervention");
     QString TITRECOTEINTERVENTION    = tr("Côté de l'intervention");
+    QString TITREANESTHINTERVENTION  = tr("Type d'anesthésie");
     QString TITRESITEINTERVENTION    = tr("Lieu d'intervention");
     QString TITRETYPEINTERVENTION    = tr("Type d'intervention");
 

@@ -30,9 +30,11 @@ class Intervention : public Item
 {
 
 public:
-    enum ModeAnesthesie {Locale, LocoRegionale, Generale, NoLoSo};      Q_ENUM(ModeAnesthesie)
-    explicit Intervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data = QJsonObject{});
+    enum                    ModeAnesthesie {Locale, LocoRegionale, Generale, NoLoSo};      Q_ENUM(ModeAnesthesie)
+    explicit                Intervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    void                    setData(QJsonObject data = QJsonObject{});
+    static ModeAnesthesie   ConvertModeAnesthesie(QString mode);
+    static QString          ConvertModeAnesthesie(ModeAnesthesie mode);
 
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
@@ -46,8 +48,6 @@ private: //Données de l'intervention
     double m_pwrIOL             = 0;                //! puissance de l'implant
     double m_cylIOL             = 0;                //! cylindre de l'implant
     QString m_observation       = "";               //! observation
-    ModeAnesthesie              ConvertModeAnesthesie(QString mode);
-    QString                     ConvertModeAnesthesie(ModeAnesthesie mode);
 
 public:
     QTime heure() const                     { return m_heure; }

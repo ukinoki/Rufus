@@ -272,7 +272,7 @@ CREATE TABLE `ProgrammesOperatoires` (
   `ProgHeure` TIME(0) NULL,
   `idPat` INT NULL,
   `idSession` INT NULL,
-  `TypeAnesthesie` VARCHAR(45) NULL,
+  `TypeAnesthesie` VARCHAR(1) NULL,
   `TypeIntervention` INT NULL,
   `Cote` VARCHAR(1) NULL,
   `idIOL` INT NULL,

@@ -422,6 +422,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     UpStandardItem *itemddn = Q_NULLPTR;
     UpStandardItem *itemtel = Q_NULLPTR;
     UpStandardItem *itemtyp = Q_NULLPTR;
+    UpStandardItem *itemane = Q_NULLPTR;
     UpStandardItem *heureitem = Q_NULLPTR;
     // Tri par date
     std::sort(listheures.begin(), listheures.end());
@@ -452,24 +453,45 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
             itempat     ->setFont(fontitem);
             itempat     ->setForeground(QBrush(QColor(Qt::darkBlue)));
             itempat     ->setEditable(false);
-            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itempat << new QStandardItem(QString::number(a) + "a"));
-            if (interv->observation() != "")                                                                    //! observation
-            {
-                itemobs = new UpStandardItem(tr("Remarque") + " : " + interv->observation(), interv);
-                itemobs ->setForeground(QBrush(QColor(Qt::red)));
-                itemobs ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "e"));
-            }
+            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itempat << new QStandardItem(QString::number(a) + "a"));         //! nom du patient
 
-            QString sexeddn = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                  //! date de naissance - sexe
+            TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());                              //! type d'intervention
+            if (typ)
+            {
+                QString typinterv = typ->typeintervention().toUpper();
+                if (interv->cote() != Utils::NoLoSo)
+                    typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
+                itemtyp = new UpStandardItem("\t" + typinterv, interv);
+                itemtyp ->setForeground(QBrush(QColor(Qt::darkBlue)));
+                itemtyp ->setEditable(false);
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtyp << new QStandardItem(QString::number(a) + "b"));
+            }
+            if (interv->anesthesie() != Intervention::NoLoSo)                                                                           //! type d'anesthésie
+            {
+                QString anesth = "";
+                switch (interv->anesthesie()) {
+                case Intervention::Locale:          anesth = tr("Anesthésie locale");           break;
+                case Intervention::LocoRegionale:   anesth = tr("Anesthésie locoregionale");    break;
+                case Intervention::Generale:        anesth = tr("Anesthésie générale");         break;
+                default: break;
+                }
+                itemane = new UpStandardItem("\t" + anesth, interv);
+                if (interv->anesthesie() == Intervention::Generale)
+                    itemane ->setForeground(QBrush(QColor(Qt::red)));
+                else
+                    itemane ->setForeground(QBrush(QColor(Qt::darkGray)));
+                itemane ->setEditable(false);
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemane << new QStandardItem(QString::number(a) + "c"));
+            }
+            QString sexeddn = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                          //! date de naissance - sexe
                     + " " + pat->datedenaissance().toString("dd-MM-yyyy")
                     + " - " + Utils::CalculAge(pat->datedenaissance())["toString"].toString();
-            itemddn = new UpStandardItem(sexeddn, interv);
-            itemddn ->setForeground(QBrush(QColor(Qt::gray)));
+            itemddn = new UpStandardItem("\t" + sexeddn, interv);
+            itemddn ->setForeground(QBrush(QColor(Qt::darkGray)));
             itemddn ->setEditable(false);
-            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemddn << new QStandardItem(QString::number(a) + "c"));
+            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemddn << new QStandardItem(QString::number(a) + "d"));
 
-            if (pat->telephone() != "" || pat->portable() != "")                                                //! telephone
+            if (pat->telephone() != "" || pat->portable() != "")                                                                        //! telephone
             {
                 QString tel = tr("Tel") + " ";
                 if (pat->telephone() != "")
@@ -480,22 +502,18 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                 }
                 else
                     tel += pat->portable();
-                itemtel = new UpStandardItem(tel, interv);
-                itemtel ->setForeground(QBrush(QColor(Qt::gray)));
+                itemtel = new UpStandardItem("\t" + tel, interv);
+                itemtel ->setForeground(QBrush(QColor(Qt::darkGray)));
                 itemtel ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtel << new QStandardItem(QString::number(a) + "d"));
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtel << new QStandardItem(QString::number(a) + "e"));
             }
 
-            TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());      //! type d'intervention
-            if (typ)
+            if (interv->observation() != "")                                                                                            //! observation
             {
-                QString typinterv = typ->typeintervention().toUpper();
-                if (interv->cote() != Utils::NoLoSo)
-                    typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
-                itemtyp = new UpStandardItem(typinterv, interv);
-                itemtyp ->setForeground(QBrush(QColor(Qt::darkBlue)));
-                itemtyp ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtyp << new QStandardItem(QString::number(a) + "b"));
+                itemobs = new UpStandardItem("\t" + tr("Remarque") + " : " + interv->observation(), interv);
+                itemobs ->setForeground(QBrush(QColor(Qt::red)));
+                itemobs ->setEditable(false);
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "f"));
             }
         }
         listitemsheure.at(0)->sortChildren(1);
@@ -589,6 +607,24 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     choixinterventionLay    ->addWidget(interventioncombo);
     choixinterventionLay    ->setSpacing(5);
     choixinterventionLay    ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *choixanesthLay = new QHBoxLayout();
+    UpLabel* lblanesth          = new UpLabel;
+    lblanesth                   ->setText(tr("Anesthésie"));
+    QComboBox *anesthcombo      = new QComboBox();
+    anesthcombo                 ->setFixedSize(QSize(100,28));
+    anesthcombo                 ->setEditable(false);
+    anesthcombo                 ->addItem(tr("Locale"), "L");
+    anesthcombo                 ->addItem(tr("LocoRegionale"), "R");
+    anesthcombo                 ->addItem(tr("Générale"), "G");
+    anesthcombo                 ->addItem(tr("Sans objet", ""));
+    anesthcombo                 ->setCurrentIndex(0);
+    choixanesthLay              ->addWidget(lblanesth);
+    choixanesthLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixanesthLay              ->addWidget(anesthcombo);
+    choixanesthLay              ->setSpacing(5);
+    choixanesthLay              ->setContentsMargins(0,0,0,0);
+
     QHBoxLayout *choixcoteLay    = new QHBoxLayout();
     UpLabel* lblcote        = new UpLabel;
     lblcote                 ->setText(tr("Côté"));
@@ -698,6 +734,7 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         if (typ)
             interventioncombo->setCurrentIndex(interventioncombo->findText(typ->typeintervention()));
         cotecombo->setCurrentIndex(cotecombo->findData(Utils::ConvertCote(interv->cote())));
+        anesthcombo->setCurrentIndex(anesthcombo->findData(Intervention::ConvertModeAnesthesie(interv->anesthesie())));
         ObservtextEdit->setText(interv->observation());
     }
 
@@ -705,6 +742,7 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     dlg_intervention->dlglayout()   ->insertLayout(0, ObservLay);
     dlg_intervention->dlglayout()   ->insertWidget(0, wdg_IOL);
     dlg_intervention->dlglayout()   ->insertLayout(0, checkIOLLay);
+    dlg_intervention->dlglayout()   ->insertLayout(0, choixanesthLay);
     dlg_intervention->dlglayout()   ->insertLayout(0, choixinterventionLay);
     dlg_intervention->dlglayout()   ->insertLayout(0, choixcoteLay);
     dlg_intervention->dlglayout()   ->insertLayout(0, choixheureLay);
@@ -726,17 +764,18 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         int idpat = pat->id();
         int idtype = 0;
         QString cote = cotecombo->currentData().toString();
+        QString anesth = anesthcombo->currentData().toString();
         UpStandardItem *itmitv = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel.item(interventioncombo->currentIndex()));
         if (itm)
             idtype = itmitv->item()->id();
         QHash<QString, QVariant> listbinds;
         listbinds[CP_HEURE_LIGNPRGOPERATOIRE]    = heure.toString("HH:mm:ss");
-        listbinds[CP_IDPATIENT_LIGNPRGOPERATOIRE]  = idpat;
         listbinds[CP_IDSESSION_LIGNPRGOPERATOIRE]  = idsession;
         listbinds[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE]  = idtype;
         listbinds[CP_COTE_LIGNPRGOPERATOIRE]  = cote;
+        listbinds[CP_TYPEANESTH_LIGNPRGOPERATOIRE]  = anesth;
         listbinds[CP_OBSERV_LIGNPRGOPERATOIRE]  = ObservtextEdit->toPlainText();
-        if (interv == Q_NULLPTR) // il s'agit d'une création parce qu'aucune intervention n'a été passée en paramètre de la fonction
+        if (interv == Q_NULLPTR)                                                                                        //! il s'agit d'une création parce qu'aucune intervention n'a été passée en paramètre de la fonction
         {
             for (int i = 0; i < m_interventionsmodel.rowCount(); ++i)
             {
@@ -759,23 +798,19 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
                     }
                 }
             }
+            listbinds[CP_IDPATIENT_LIGNPRGOPERATOIRE]  = idpat;
             Datas::I()->interventions->CreationIntervention(listbinds);
             RemplirTreeInterventions();
         }
-        else
+        else                                                                                                            //! il s'agit de modifier l'intervention passée en paramètre de la fonction
         {
             int oldidsession = interv->idsession();
-            QHash<QString, QVariant> listbinds;
-            listbinds[CP_HEURE_LIGNPRGOPERATOIRE]    = heure.toString("HH:mm:ss");
-            listbinds[CP_IDSESSION_LIGNPRGOPERATOIRE]  = idsession;
-            listbinds[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE]  = idtype;
-            listbinds[CP_COTE_LIGNPRGOPERATOIRE]  = cote;
-            listbinds[CP_OBSERV_LIGNPRGOPERATOIRE]  = ObservtextEdit->toPlainText();
             DataBase::I()->UpdateTable(TBL_LIGNESPRGOPERATOIRES, listbinds, "where " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(interv->id()));
             interv->setheure(heure);
             interv->setidsession(idsession);
             interv->setidtypeintervention(idtype);
             interv->setcote(Utils::ConvertCote(cote));
+            interv->setanesthesie(Intervention::ConvertModeAnesthesie(anesth));
             interv->setobservation(ObservtextEdit->toPlainText());
             Datas::I()->interventions->initListebySessionId(idsession);
             if (idsession != oldidsession) // on a changé de session, on change la session active

@@ -816,11 +816,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define STR_NOMUSER             "NOM RESPONSABLE"
 #define STR_TELEPHONE           "TELEPHONE PATIENT"
 
-#define STR_TYPEANESTHESIE      "TYPEANESTHESIE"
 #define STR_PROVENANCE          "PROVENANCE"
 #define STR_TYPESEJOUR          "SEJOUR"
 #define STR_COTE                "COTE"
 #define STR_SITE                "SITE"
+#define STR_ANESTHINTERVENTION  "ANESTHINTERVENTION"
 #define STR_DATEINTERVENTION    "DATEINTERVENTION"
 #define STR_HEUREINTERVENTION   "HEUREINTERVENTION"
 #define STR_COTEINTERVENTION    "COTEINTERVENTION"

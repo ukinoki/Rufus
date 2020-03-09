@@ -656,7 +656,7 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
     QAction *pAction_InsInterroHeure;
     QAction *pAction_InsInterroMontant;
     QAction *pAction_InsInterroMedecin;
-    QAction *pAction_InsInterroAnesthesie;
+    QAction *pAction_InsInterroAnesthIntervention;
     QAction *pAction_InsInterroProvenance;
     QAction *pAction_InsInterroDateIntervention;
     QAction *pAction_InsInterroHeureIntervention;
@@ -763,15 +763,15 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
         pAction_InsInterroMontant           = interro->addAction            (Icons::icEuro(),       tr("Montant"));
         pAction_InsInterroMedecin           = interro->addAction            (Icons::icStetho(),     tr("Soignant"));
         pAction_InsInterroProvenance        = interro->addAction            (Icons::icFamily(),     tr("Provenance"));
-        pAction_InsInterroAnesthesie        = interro->addAction            (Icons::icStetho(),     tr("Anesthésie"));
         pAction_InsInterroSejour            = interro->addAction            (Icons::icInformation(),tr("Séjour"));
         pAction_InsInterroSite              = interro->addAction            (Icons::icClinic(),     tr("Centre"));
         pAction_InsInterroText              = interro->addAction            (Icons::icMedoc(),      tr("Texte libre"));
-        pAction_InsInterroDateIntervention  = interro->addAction            (Icons::icDate(),       tr("Date d'intervention"));
-        pAction_InsInterroHeureIntervention = interro->addAction            (Icons::icClock(),      tr("Heure d'intervention"));
-        pAction_InsInterroCoteIntervention  = interro->addAction            (Icons::icSide(),       tr("Cote d'intervention"));
-        pAction_InsInterroTypeIntervention  = interro->addAction            (Icons::icMedoc(),      tr("Type d'intervention"));
-        pAction_InsInterroSiteIntervention  = interro->addAction            (Icons::icClinic(),     tr("Lieu d'intervention"));
+        pAction_InsInterroDateIntervention  = interro->addAction            (Icons::icDate(),       TITREDATEINTERVENTION);
+        pAction_InsInterroAnesthIntervention= interro->addAction            (Icons::icStetho(),     TITREANESTHINTERVENTION);
+        pAction_InsInterroHeureIntervention = interro->addAction            (Icons::icClock(),      TITREHEUREINTERVENTION);
+        pAction_InsInterroCoteIntervention  = interro->addAction            (Icons::icSide(),       TITRECOTEINTERVENTION);
+        pAction_InsInterroTypeIntervention  = interro->addAction            (Icons::icMedoc(),      TITRETYPEINTERVENTION);
+        pAction_InsInterroSiteIntervention  = interro->addAction            (Icons::icClinic(),     TITRESITEINTERVENTION);
 
         m_menucontextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
@@ -815,7 +815,6 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
         connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Montant");});
         connect (pAction_InsInterroMedecin,             &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Soignant");});
         connect (pAction_InsInterroProvenance,          &QAction::triggered,    this,   [=] {ChoixMenuContextuel(PROVENANCE);});
-        connect (pAction_InsInterroAnesthesie,          &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPEANESTHESIE);});
         connect (pAction_InsInterroSejour,              &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPESEJOUR);});
         connect (pAction_InsInterroSite,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel(SITE);});
         connect (pAction_InsInterroText,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Texte");});
@@ -828,6 +827,7 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
         connect (pAction_InsInterroCoteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(COTEINTERVENTION);});
         connect (pAction_InsInterroTypeIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPEINTERVENTION);});
         connect (pAction_InsInterroSiteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(SITEINTERVENTION);});
+        connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=] {ChoixMenuContextuel(ANESTHINTERVENTION);});
     }
 
     // ouvrir le menu
@@ -1165,11 +1165,9 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
     {
         ui->upTextEdit->textCursor().insertHtml("((" + tr("Quel soignant?") + "//SOIGNANT))");
     }
-    else if (choix == TYPEANESTHESIE)
+    else if (choix == ANESTHINTERVENTION)
     {
-        QString txt = "((" + tr("Anesthésie") + "//";
-        txt += TYPEANESTHESIE;
-        txt += "))";
+        QString txt = "((" + TITREANESTHINTERVENTION + "//" + ANESTHINTERVENTION + "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
      }
     else if (choix == PROVENANCE)
@@ -1257,9 +1255,17 @@ void dlg_impressions::Validation()
     QString listusers = "ListUsers";
     QString listsoignants = "ListSoignants";
     m_userentete = Q_NULLPTR;
-    if (currentuser()->ishisownsupervisor())
-        m_userentete = currentuser();
-
+    if (m_currentintervention == Q_NULLPTR)
+    {
+        if (currentuser()->ishisownsupervisor())
+            m_userentete = currentuser();
+    }
+    else
+    {
+        SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
+        if (session != Q_NULLPTR)
+            m_userentete = Datas::I()->users->getById(session->iduser());
+    }
     int ndocs = 0;
     switch (m_mode) {
     case CreationDOC:
@@ -1321,9 +1327,9 @@ void dlg_impressions::Validation()
                 {
                     QString text = getDocumentFromRow(i)->texte();
                     QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
-                    quest+= "|" + COTE + "|" + TYPEANESTHESIE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
+                    quest+= "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
-                        quest+= "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION;
+                        quest+= "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
                     quest += ")[)][)])";
                     QRegExp reg;
                     reg.setPattern(quest);
@@ -1356,7 +1362,7 @@ void dlg_impressions::Validation()
             }
         }
         // On a établi la liste de questions - on prépare la fiche qui va les poser
-        if (listQuestions.size()>0 || !currentuser()->ishisownsupervisor())
+        if (listQuestions.size()>0 || m_userentete == Q_NULLPTR)
         {
             dlg_ask = new UpDialog(this);
             dlg_ask->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
@@ -1439,17 +1445,21 @@ void dlg_impressions::Validation()
                     Combo->addItems(listcote);
                     lay->addWidget(Combo);
                 }
-                else if (listtypeQuestions.at(m)  == TYPEANESTHESIE)
+                else if (listtypeQuestions.at(m) == ANESTHINTERVENTION)
                 {
                     UpComboBox *Combo = new UpComboBox();
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(TYPEANESTHESIE);
-                    Combo->addItems(QStringList() << tr("locale") << tr("locorégionale") << tr("générale"));
+                    Combo->setAccessibleDescription(ANESTHINTERVENTION);
+                    Combo->addItem(tr("Locale"), "L");
+                    Combo->addItem(tr("LocoRegionale"), "R");
+                    Combo->addItem(tr("Générale"), "G");
+                    Combo->addItem(tr("Sans objet", ""));
+                    Combo->setCurrentIndex(0);
                     lay->addWidget(Combo);
                 }
-                else if (listtypeQuestions.at(m)  == PROVENANCE)
+                else if (listtypeQuestions.at(m) == PROVENANCE)
                 {
                     UpComboBox *Combo = new UpComboBox();
                     Combo->setContentsMargins(0,0,0,0);
@@ -1542,7 +1552,7 @@ void dlg_impressions::Validation()
                 line->setFrameShape(QFrame::HLine);
                 layWidg->addWidget(line);
             }
-            if (!currentuser()->ishisownsupervisor())
+            if (m_userentete == Q_NULLPTR)
             {
                 QHBoxLayout *lay = new QHBoxLayout();
                 lay->setContentsMargins(5,0,5,0);
@@ -1657,6 +1667,7 @@ void dlg_impressions::Validation()
                                     }
                                     if (linecombo->accessibleDescription() == COTEINTERVENTION
                                             || linecombo->accessibleDescription() == SITEINTERVENTION
+                                            || linecombo->accessibleDescription() == ANESTHINTERVENTION
                                             || linecombo->accessibleDescription() == TYPEINTERVENTION)
                                     {
                                         Rempla          << linecombo->currentText();
@@ -2974,9 +2985,21 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
                 cote = tr("l'oeil droit");
             else if (m_currentintervention->cote() == Utils::Gauche)
                 cote = tr("l'oeil gauche");
-            if (m_currentintervention->cote() == Utils::Les2)
+            else if (m_currentintervention->cote() == Utils::Les2)
                 cote = tr("des deux yeux");
             texte.replace(txt, cote);
+        }
+
+        txt = "((" + TITREANESTHINTERVENTION + "//" + ANESTHINTERVENTION + "))";
+        {
+            QString anesth ="";
+            if (m_currentintervention->anesthesie() == Intervention::Locale)
+                anesth = tr("Locale");
+            else if (m_currentintervention->anesthesie() == Intervention::LocoRegionale)
+                anesth = tr("LocoRegionale");
+            else if (m_currentintervention->anesthesie() == Intervention::Generale)
+                anesth = tr("Générale");
+            texte.replace(txt, anesth);
         }
 
         txt = "((" + TITRESITEINTERVENTION + "//" + SITEINTERVENTION + "))";

@@ -62,6 +62,15 @@ BEGIN
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ProgrammesOperatoires' AND COLUMN_NAME = 'TypeAnesthesie') as chp;
+        IF tot=1
+        THEN
+            ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
+            CHANGE COLUMN `TypeAnesthesie` `TypeAnesthesie` VARCHAR(1) NULL DEFAULT NULL;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'IOLInactif') as chp;
         IF tot=0
         THEN
