@@ -32,7 +32,14 @@ class dlg_impressions : public QDialog
 {
     Q_OBJECT
 public:
-    explicit                                    dlg_impressions(Patient *pat, QWidget *parent = Q_NULLPTR);
+    /*!
+     * \brief dlg_impressions
+     * \param pat = le patient concerné
+     * \param intervention si ce paramètre n'est pas null, la fiche est appelée depuis la rpogrammation des interventions et les champs
+        DATEINTERVENTION, HEUREINTERVENTION, COTEINTERVENTION, SITEINTERVENTION et TYPEINTERVENTION seront complétés automatiquement
+     * \param parent
+     */
+    explicit                                    dlg_impressions(Patient *pat, Intervention* intervention = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     ~dlg_impressions();
     Ui::dlg_impressions                         *ui;
     enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                                     Q_ENUM(DATASAIMPRIMER)
@@ -46,6 +53,7 @@ private:
     Procedures                                  *proc           = Procedures::I();
     Impression                                  *m_currentdocument = Q_NULLPTR;
     Patient                                     *m_currentpatient;
+    Intervention                                *m_currentintervention = Q_NULLPTR;
     User                                        *m_userentete;
     QList<Correspondant*>                       m_listedestinataires;
     QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
@@ -114,36 +122,47 @@ private:
     bool                        VerifDossierPublic(int row, bool msg = true);
 
 private:
-    QString TITRUSER            = tr("TITREUSER");
-    QString NOMPAT              = tr("NOM PATIENT");
-    QString DATEDOC             = tr("DATE");
-    QString DDNPAT              = tr("DDN");
-    QString TITREPAT            = tr("TITRE PATIENT");
-    QString AGEPAT              = tr("AGE PATIENT");
-    QString PRENOMPAT           = tr("PRENOM PATIENT");
-    QString SEXEPAT             = tr("SEXE PATIENT");
-    QString MGPAT               = tr("MEDECIN PATIENT");
-    QString MGPATTITRE          = tr("TITRE MEDECIN PATIENT");
-    QString POLITESSEMG         = tr("FORMULE POLITESSE MEDECIN");
-    QString PRENOMMG            = tr("PRENOM MEDECIN");
-    QString NOMMG               = tr("NOM MEDECIN");
-    QString REFRACT             = tr("REFRACTION");
-    QString KERATO              = tr("KERATOMETRIE");
-    QString POLITESSECOR        = tr("FORMULE POLITESSE CORRESPONDANT");
-    QString CORPAT              = tr("CORRESPONDANT PATIENT");
-    QString PRENOMCOR           = tr("PRENOM CORRESPONDANT");
-    QString NOMCOR              = tr("NOM CORRESPONDANT");
-    QString PRENOMUSER          = tr("PRENOM RESPONSABLE");
-    QString NOMUSER             = tr("NOM RESPONSABLE");
-    QString TELEPHONE           = tr("TELEPHONE PATIENT");
+    QString TITRUSER            = tr(STR_TITRUSER);
+    QString NOMPAT              = tr(STR_NOMPAT);
+    QString DATEDOC             = tr(STR_DATEDOC);
+    QString DDNPAT              = tr(STR_DDNPAT);
+    QString TITREPAT            = tr(STR_TITREPAT);
+    QString AGEPAT              = tr(STR_AGEPAT);
+    QString PRENOMPAT           = tr(STR_PRENOMPAT);
+    QString SEXEPAT             = tr(STR_SEXEPAT);
+    QString MGPAT               = tr(STR_MGPAT);
+    QString MGPATTITRE          = tr(STR_MGPATTITRE);
+    QString POLITESSEMG         = tr(STR_POLITESSEMG);
+    QString PRENOMMG            = tr(STR_PRENOMMG);
+    QString NOMMG               = tr(STR_NOMMG);
+    QString REFRACT             = tr(STR_REFRACT);
+    QString KERATO              = tr(STR_KERATO);
+    QString POLITESSECOR        = tr(STR_POLITESSECOR);
+    QString CORPAT              = tr(STR_CORPAT);
+    QString PRENOMCOR           = tr(STR_PRENOMCOR);
+    QString NOMCOR              = tr(STR_NOMCOR);
+    QString PRENOMUSER          = tr(STR_PRENOMUSER);
+    QString NOMUSER             = tr(STR_NOMUSER);
+    QString TELEPHONE           = tr(STR_TELEPHONE);
 
-    QString TYPEANESTHESIE      = tr("TYPEANESTHESIE");
-    QString PROVENANCE          = tr("PROVENANCE");
-    QString TYPESEJOUR          = tr("SEJOUR");
-    QString COTE                = tr("COTE");
-    QString SITE                = tr("SITE");
+    QString TYPEANESTHESIE      = tr(STR_TYPEANESTHESIE);
+    QString PROVENANCE          = tr(STR_PROVENANCE);
+    QString TYPESEJOUR          = tr(STR_TYPESEJOUR);
+    QString COTE                = tr(STR_COTE);
+    QString SITE                = tr(STR_SITE);
+    QString DATEINTERVENTION    = tr(STR_DATEINTERVENTION);
+    QString HEUREINTERVENTION   = tr(STR_HEUREINTERVENTION);
+    QString COTEINTERVENTION    = tr(STR_COTEINTERVENTION);
+    QString SITEINTERVENTION    = tr(STR_SITEINTERVENTION);
+    QString TYPEINTERVENTION    = tr(STR_TYPEINTERVENTION);
 
-    QString NOCOR               = tr("PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT");
+    QString NOCOR               = tr(STR_NOCOR);
+
+    QString TITREDATEINTERVENTION    = tr("Date d'intervention");
+    QString TITREHEUREINTERVENTION   = tr("Heure d'intervention");
+    QString TITRECOTEINTERVENTION    = tr("Côté de l'intervention");
+    QString TITRESITEINTERVENTION    = tr("Lieu d'intervention");
+    QString TITRETYPEINTERVENTION    = tr("Type d'intervention");
 
 };
 

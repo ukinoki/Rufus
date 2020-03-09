@@ -637,11 +637,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_OKConnexion                          "OKConnexion"                                       /*! fin du message de confirmation de la connexion */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
-#define ARRIVE                                  tr("Arrivé")
-#define ENCOURS                                 tr("En cours")
-#define ENATTENTENOUVELEXAMEN                   tr("En attente de nouvel examen par ")
-#define RETOURACCUEIL                           tr("Retour accueil")
-#define ENCOURSEXAMEN                           tr("En cours de consultation avec ")
+#define ARRIVE                                  "Arrivé"
+#define ENCOURS                                 "En cours"
+#define ENATTENTENOUVELEXAMEN                   "En attente de nouvel examen par "
+#define RETOURACCUEIL                           "Retour accueil"
+#define ENCOURSEXAMEN                           "En cours de consultation avec "
 
 // Les fichiers et répertoires divers
 #define NOM_DIR_RUFUS                           "/Documents/Rufus"
@@ -792,5 +792,41 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define ECHO_BIOMETRIE              "EBM"
 #define AUTRE_BIOMETRIE             "ABM"
 
+//mots utilisés en macros dans les documents à imprimer
+#define STR_TITRUSER            "TITREUSER"
+#define STR_NOMPAT              "NOM PATIENT"
+#define STR_DATEDOC             "DATE"
+#define STR_DDNPAT              "DDN"
+#define STR_TITREPAT            "TITRE PATIENT"
+#define STR_AGEPAT              "AGE PATIENT"
+#define STR_PRENOMPAT           "PRENOM PATIENT"
+#define STR_SEXEPAT             "SEXE PATIENT"
+#define STR_MGPAT               "MEDECIN PATIENT"
+#define STR_MGPATTITRE          "TITRE MEDECIN PATIENT"
+#define STR_POLITESSEMG         "FORMULE POLITESSE MEDECIN"
+#define STR_PRENOMMG            "PRENOM MEDECIN"
+#define STR_NOMMG               "NOM MEDECIN"
+#define STR_REFRACT             "REFRACTION"
+#define STR_KERATO              "KERATOMETRIE"
+#define STR_POLITESSECOR        "FORMULE POLITESSE CORRESPONDANT"
+#define STR_CORPAT              "CORRESPONDANT PATIENT"
+#define STR_PRENOMCOR           "PRENOM CORRESPONDANT"
+#define STR_NOMCOR              "NOM CORRESPONDANT"
+#define STR_PRENOMUSER          "PRENOM RESPONSABLE"
+#define STR_NOMUSER             "NOM RESPONSABLE"
+#define STR_TELEPHONE           "TELEPHONE PATIENT"
+
+#define STR_TYPEANESTHESIE      "TYPEANESTHESIE"
+#define STR_PROVENANCE          "PROVENANCE"
+#define STR_TYPESEJOUR          "SEJOUR"
+#define STR_COTE                "COTE"
+#define STR_SITE                "SITE"
+#define STR_DATEINTERVENTION    "DATEINTERVENTION"
+#define STR_HEUREINTERVENTION   "HEUREINTERVENTION"
+#define STR_COTEINTERVENTION    "COTEINTERVENTION"
+#define STR_SITEINTERVENTION    "SITEINTERVENTION"
+#define STR_TYPEINTERVENTION    "TYPEINTERVENTION"
+
+#define STR_NOCOR               "PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT"
 
 #endif // MACROS_H

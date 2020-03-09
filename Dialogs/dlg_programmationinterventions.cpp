@@ -812,15 +812,14 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     dlg_intervention->exec();
 }
 
-void dlg_programmationinterventions::ImprimeDoc(Patient *pat)
+void dlg_programmationinterventions::ImprimeDoc(Patient *pat, Intervention *interv)
 {
-    if (pat == Q_NULLPTR)
+    if (pat == Q_NULLPTR || interv == Q_NULLPTR)
         return;
-    UpMessageBox::Watch(this, "OK pour imprimer pour " + pat->nom() + " " + pat->prenom());
 
     QString nom         = pat->nom();
     QString prenom      = pat->prenom();
-    Dlg_Imprs   = new dlg_impressions(pat);
+    Dlg_Imprs   = new dlg_impressions(pat, interv);
     Dlg_Imprs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
     Dlg_Imprs->setWindowIcon(Icons::icLoupe());
     m_docimprime = false;
@@ -856,7 +855,7 @@ void dlg_programmationinterventions::ImprimeDoc(Patient *pat)
                 Entete.replace("{{TITRE}}"         , "");
                 Entete.replace("{{DDN}}"           , "");
                 proc                        ->setNomImprimante(imprimante);
-                m_docimprime                = Imprimer_Document(userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+                m_docimprime                = Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
                 if (!m_docimprime)
                     break;
                 imprimante = proc->nomImprimante();
@@ -868,7 +867,7 @@ void dlg_programmationinterventions::ImprimeDoc(Patient *pat)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Ouvrir la fiche documents ------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool   dlg_programmationinterventions::Imprimer_Document(User * user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+bool   dlg_programmationinterventions::Imprimer_Document(Patient *pat, User * user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                  bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
     QString     Corps, Pied;
@@ -901,7 +900,8 @@ bool   dlg_programmationinterventions::Imprimer_Document(User * user, QString ti
         Utils::nettoieHTML(Corps);
 
         int idpat = 0;
-        idpat = m_currentchirpatient->id();
+        idpat = pat->id();
+        qDebug() << Datas::I()->patients->getById(idpat)->nomcomplet();
 
         QHash<QString, QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
@@ -1026,7 +1026,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
         QAction *pAction_SupprIntervention = m_ctxtmenuinterventions->addAction(tr("Supprimer cette intervention"));
         connect (pAction_SupprIntervention,        &QAction::triggered,    this,    [=] {SupprimeIntervention(interv);});
         QAction *pAction_ImprIntervention = m_ctxtmenuinterventions->addAction(tr("Imprimer un document"));
-        connect (pAction_ImprIntervention,        &QAction::triggered,    this,    [=] {ImprimeDoc(Datas::I()->patients->getById(interv->idpatient()));});
+        connect (pAction_ImprIntervention,        &QAction::triggered,    this,    [=] {ImprimeDoc(Datas::I()->patients->getById(interv->idpatient()), interv);});
     }
     // ouvrir le menu
     m_ctxtmenuinterventions->exec(cursor().pos());

@@ -40,7 +40,7 @@ private:
     QFont               m_font          = QApplication::font();
     dlg_impressions     *Dlg_Imprs;
 
-    bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+    bool                Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     bool                m_docimprime = false;
 
@@ -76,7 +76,7 @@ private:
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
     void                CreerFicheIntervention(Intervention * interv = Q_NULLPTR);                                       // crée la fiche qui permet de modifier ou d'enregistrer une intervention
-    void                ImprimeDoc(Patient *pat);
+    void                ImprimeDoc(Patient *pat, Intervention *interv);
     void                SupprimeIntervention(Intervention *intervention = Q_NULLPTR);
     void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
     void                MenuContextuelInterventionsions();
