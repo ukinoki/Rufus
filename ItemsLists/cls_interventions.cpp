@@ -218,9 +218,9 @@ IOL* IOLs::getById(int id)
  * Charge l'ensemble des IOLs
  * et les ajoute à la classe IOLS
  */
-void IOLs::initListe()
+void IOLs::initListeByManifacturerId(int id)
 {
-    QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
+    QList<IOL*> listIOLs = DataBase::I()->loadIOLsByManufacturerId(id);
     epurelist(map_all, &listIOLs);
     epurelist(map_actifs, &listIOLs);
     foreach (IOL *iol, listIOLs)

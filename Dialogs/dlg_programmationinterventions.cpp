@@ -108,6 +108,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
     Datas::I()->typesinterventions->initListe();
     ReconstruitListeTypeInterventions();
+    ReconstruitListeManufacturers();
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -625,22 +626,24 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     choixanesthLay              ->setSpacing(5);
     choixanesthLay              ->setContentsMargins(0,0,0,0);
 
-    QHBoxLayout *choixcoteLay    = new QHBoxLayout();
-    UpLabel* lblcote        = new UpLabel;
-    lblcote                 ->setText(tr("Côté"));
-    QComboBox *cotecombo    = new QComboBox();
-    cotecombo               ->setFixedSize(QSize(100,28));
-    cotecombo               ->setEditable(false);
-    cotecombo               ->addItem(tr("Droit"), "D");
-    cotecombo               ->addItem(tr("Gauche"), "G");
-    cotecombo               ->addItem(tr("Les 2"), "2");
-    cotecombo               ->addItem(tr("Sans objet", ""));
-    choixcoteLay            ->addWidget(lblcote);
-    choixcoteLay            ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixcoteLay            ->addWidget(cotecombo);
-    choixcoteLay            ->setSpacing(5);
-    choixcoteLay            ->setContentsMargins(0,0,0,0);
+    QHBoxLayout *choixcoteLay   = new QHBoxLayout();
+    UpLabel* lblcote            = new UpLabel;
+    lblcote                     ->setText(tr("Côté"));
+    QComboBox *cotecombo        = new QComboBox();
+    cotecombo                   ->setFixedSize(QSize(100,28));
+    cotecombo                   ->setEditable(false);
+    cotecombo                   ->addItem(tr("Droit"), "D");
+    cotecombo                   ->addItem(tr("Gauche"), "G");
+    cotecombo                   ->addItem(tr("Les 2"), "2");
+    cotecombo                   ->addItem(tr("Sans objet", ""));
+    choixcoteLay                ->addWidget(lblcote);
+    choixcoteLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixcoteLay                ->addWidget(cotecombo);
+    choixcoteLay                ->setSpacing(5);
+    choixcoteLay                ->setContentsMargins(0,0,0,0);
 
+
+    //! -----------------------------------------------------------------------------------------     CHOIX DE L'IOL
     QHBoxLayout *checkIOLLay    = new QHBoxLayout();
     QCheckBox *IOLchk = new QCheckBox(tr("Utiliser un implant"));
     IOLchk          ->setCheckState(Qt::Unchecked);
@@ -649,55 +652,63 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     checkIOLLay     ->setSpacing(5);
     checkIOLLay     ->setContentsMargins(0,0,0,0);
 
-    QWidget *wdg_IOL         = new QWidget();
-    QVBoxLayout *box_IOLlay  = new QVBoxLayout();
+    QWidget *wdg_IOL            = new QWidget();
+    QVBoxLayout *box_IOLlay     = new QVBoxLayout();
     box_IOLlay->setSpacing(5);
 
+            //! FABRICANT
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
-    QComboBox *ManufacturerIOLcombo = new QComboBox();
+    QComboBox *manufacturercombo = new QComboBox();
+    manufacturercombo           ->setFixedSize(QSize(150,28));
+    manufacturercombo           ->setEditable(true);
+    manufacturercombo           ->setModel(&m_manufacturersmodel);
+    manufacturercombo           ->setInsertPolicy(QComboBox::NoInsert);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixManufacturerIOLLay     ->addWidget(ManufacturerIOLcombo);
+    choixManufacturerIOLLay     ->addWidget(manufacturercombo);
     choixManufacturerIOLLay     ->setSpacing(5);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
+            //! MODELE
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
-    UpLabel* lblIOL = new UpLabel;
-    lblIOL          ->setText(tr("Implant"));
-    QComboBox *IOLcombo = new QComboBox();
-    choixIOLLay     ->addWidget(lblIOL);
-    choixIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixIOLLay     ->addWidget(IOLcombo);
-    choixIOLLay     ->setSpacing(5);
-    choixIOLLay     ->setContentsMargins(0,0,0,0);
+    UpLabel* lblIOL             = new UpLabel;
+    lblIOL                      ->setText(tr("Implant"));
+    QComboBox *IOLcombo         = new QComboBox();
+    choixIOLLay                 ->addWidget(lblIOL);
+    choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixIOLLay                 ->addWidget(IOLcombo);
+    choixIOLLay                 ->setSpacing(5);
+    choixIOLLay                 ->setContentsMargins(0,0,0,0);
 
-    QHBoxLayout *choixPwrIOLLay    = new QHBoxLayout();
-    UpLabel* lblPwrIOL = new UpLabel;
-    lblPwrIOL       ->setText(tr("Puissance"));
-    UpDoubleSpinBox *PwrIOLspinbox = new UpDoubleSpinBox();
-    PwrIOLspinbox   ->setRange(-10.00, 35.00);
-    PwrIOLspinbox   ->setSingleStep(0.50);
-    PwrIOLspinbox   ->setValue(21.00);
-    choixPwrIOLLay  ->addWidget(lblPwrIOL);
-    choixPwrIOLLay  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixPwrIOLLay  ->addWidget(PwrIOLspinbox);
-    choixPwrIOLLay  ->setSpacing(5);
-    choixPwrIOLLay  ->setContentsMargins(0,0,0,0);
+            //! PUISSANCE
+    QHBoxLayout *choixPwrIOLLay     = new QHBoxLayout();
+    UpLabel* lblPwrIOL              = new UpLabel;
+    lblPwrIOL                       ->setText(tr("Puissance"));
+    UpDoubleSpinBox *PwrIOLspinbox  = new UpDoubleSpinBox();
+    PwrIOLspinbox                   ->setRange(-10.00, 35.00);
+    PwrIOLspinbox                   ->setSingleStep(0.50);
+    PwrIOLspinbox                   ->setValue(21.00);
+    choixPwrIOLLay                  ->addWidget(lblPwrIOL);
+    choixPwrIOLLay                  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixPwrIOLLay                  ->addWidget(PwrIOLspinbox);
+    choixPwrIOLLay                  ->setSpacing(5);
+    choixPwrIOLLay                  ->setContentsMargins(0,0,0,0);
 
-    QHBoxLayout *choixCylIOLLay    = new QHBoxLayout();
-    UpLabel* lblCylIOL = new UpLabel;
-    lblCylIOL       ->setText(tr("Cylindre"));
-    UpDoubleSpinBox *CylIOLspinbox = new UpDoubleSpinBox();
-    CylIOLspinbox   ->setRange(0.00, 10.00);
-    CylIOLspinbox   ->setSingleStep(0.50);
-    CylIOLspinbox   ->setValue(0.00);
-    choixCylIOLLay  ->addWidget(lblCylIOL);
-    choixCylIOLLay  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixCylIOLLay  ->addWidget(CylIOLspinbox);
-    choixCylIOLLay  ->setSpacing(5);
-    choixCylIOLLay  ->setContentsMargins(0,0,0,0);
+            //! CYLINDRE
+    QHBoxLayout *choixCylIOLLay     = new QHBoxLayout();
+    UpLabel* lblCylIOL              = new UpLabel;
+    lblCylIOL                       ->setText(tr("Cylindre"));
+    UpDoubleSpinBox *CylIOLspinbox  = new UpDoubleSpinBox();
+    CylIOLspinbox                   ->setRange(0.00, 10.00);
+    CylIOLspinbox                   ->setSingleStep(0.50);
+    CylIOLspinbox                   ->setValue(0.00);
+    choixCylIOLLay                  ->addWidget(lblCylIOL);
+    choixCylIOLLay                  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixCylIOLLay                  ->addWidget(CylIOLspinbox);
+    choixCylIOLLay                  ->setSpacing(5);
+    choixCylIOLLay                  ->setContentsMargins(0,0,0,0);
 
     connect(IOLchk, &QCheckBox::stateChanged, dlg_intervention, [=]
     {
@@ -736,6 +747,25 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         cotecombo->setCurrentIndex(cotecombo->findData(Utils::ConvertCote(interv->cote())));
         anesthcombo->setCurrentIndex(anesthcombo->findData(Intervention::ConvertModeAnesthesie(interv->anesthesie())));
         ObservtextEdit->setText(interv->observation());
+        if (interv->idIOL() > 0)
+        {
+            IOL *iol = Datas::I()->iols->getById(interv->idIOL());
+            Manufacturer *man = Q_NULLPTR;
+            if (iol != Q_NULLPTR)
+                man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+            if (man != Q_NULLPTR)
+                for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+                {
+                    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel.item(i,0));
+                    if (itm)
+                        if (itm->item())
+                            if (itm->item()->id() == man->id())
+                            {
+                                manufacturercombo  ->setCurrentIndex(i);
+                                break;
+                            }
+                }
+        }
     }
 
 
@@ -837,8 +867,9 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         }
         dlg_intervention->close();
     });
-    connect(interventioncombo->lineEdit(), &QLineEdit::editingFinished, dlg_intervention, [&] { VerifExistIntervention(verifencours, interventioncombo); });
-    connect(dlg_intervention->CancelButton, &QPushButton::clicked, dlg_intervention, [=]
+    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention, [&] { VerifExistIntervention(verifencours, interventioncombo); });
+    connect(manufacturercombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention, [&] { VerifExistManufacturer(verifencours, manufacturercombo); });
+    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention, [=]
     {
         interventioncombo->lineEdit()->disconnect();
         dlg_intervention->reject();
@@ -1153,4 +1184,53 @@ void dlg_programmationinterventions::AfficheChoixIOL(int state)
 {
 
 }
+
+void dlg_programmationinterventions::ReconstruitListeManufacturers()
+{
+    m_manufacturersmodel.clear();
+    foreach (Manufacturer* man, *Datas::I()->manufacturers->actifs())
+    {
+        QList<QStandardItem *> items;
+        QString nomman = man->nom();
+        UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
+        UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
+        items << itemman << itemid;
+        m_manufacturersmodel.appendRow(items);
+    }
+    m_manufacturersmodel.sort(0, Qt::AscendingOrder);
+}
+
+void dlg_programmationinterventions::VerifExistManufacturer(bool &ok, QComboBox *box)
+{
+    if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
+    ok = true;
+    QString txt = box->lineEdit()->text();
+    if (m_manufacturersmodel.findItems(txt).size() == 0 && txt !="")
+    {
+        if (UpMessageBox::Question(this, tr("Fabricant non référencé!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+            return;
+        else
+        {
+            if (m_currentmanufacturer != Q_NULLPTR)
+            {
+                delete m_currentmanufacturer;
+                m_currentmanufacturer = Q_NULLPTR;
+            }
+            Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+            Dlg_IdentManufacturer->exec();
+            if (Dlg_IdentManufacturer->identmanufacturermodifiee())
+                m_currentmanufacturer = Dlg_IdentManufacturer->manufacturerrenvoye();
+            delete Dlg_IdentManufacturer;
+            ReconstruitListeManufacturers();
+            box->setModel(&m_manufacturersmodel);
+            if (m_currentmanufacturer != Q_NULLPTR)
+            {
+                int id = m_currentmanufacturer->id();
+                int row = m_manufacturersmodel.findItems(QString::number(id), Qt::MatchExactly, 1).at(0)->row();
+                box->setCurrentIndex(row);
+            }
+        }
+    }
+    ok = false;
+};
 

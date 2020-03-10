@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "widgetbuttonframe.h"
 #include "dlg_impressions.h"
 #include "ui_dlg_impressions.h"
+#include "dlg_identificationmanufacturer.h"
 
 class dlg_programmationinterventions : public UpDialog
 {
@@ -35,21 +36,22 @@ public:
     bool                docimprime() const      { return m_docimprime; }
 
 private:
-    Procedures          *proc = Procedures::I();
-    QStandardItemModel  m_medecinsmodel, m_sessionsmodel, m_interventionsmodel, m_typeinterventionsmodel;
-    QFont               m_font          = QApplication::font();
-    dlg_impressions     *Dlg_Imprs;
-
-    bool                Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+    Procedures                      *proc = Procedures::I();
+    QStandardItemModel              m_medecinsmodel, m_sessionsmodel, m_interventionsmodel, m_typeinterventionsmodel, m_manufacturersmodel;
+    QFont                           m_font = QApplication::font();
+    dlg_impressions                 *Dlg_Imprs;
+    dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
+    bool                            Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
-    bool                m_docimprime = false;
+    bool                            m_docimprime = false;
 
 /*! les items */
-    User                *m_currentchiruser      = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
-    Patient             *m_currentchirpatient   = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
-    SessionOperatoire   *m_currentsession       = Q_NULLPTR;                        //! la session en cours
-    Intervention        *m_currentintervention  = Q_NULLPTR;                        //! l'intervention en cours
-    TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                    //! le type d'intervention en cours
+    User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
+    Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
+    SessionOperatoire   *m_currentsession           = Q_NULLPTR;                        //! la session en cours
+    Intervention        *m_currentintervention      = Q_NULLPTR;                        //! l'intervention en cours
+    TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                        //! le type d'intervention en cours
+    Manufacturer        *m_currentmanufacturer      = Q_NULLPTR;                        //! le fabricant en cours
 
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
@@ -89,6 +91,8 @@ private:
 
 /*! les IOLs */
     void                AfficheChoixIOL(int state);
+    void                ReconstruitListeManufacturers();
+    void                VerifExistManufacturer(bool &ok, QComboBox *box);
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

@@ -2622,11 +2622,13 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)         //! attribue la 
     return data;
 }
 
-QList<IOL*> DataBase::loadIOLs()                       //! charge tous les IOLS
+QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //! charge tous les IOLS
 {
     QList<IOL*> list = QList<IOL*> ();
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_INACTIF_IOLS // 0-1-2
-                    " FROM " TBL_IOLS " order by " CP_IDMANUFACTURER_IOLS;
+                    " FROM " TBL_IOLS
+                    " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
+                    " order by " CP_IDMANUFACTURER_IOLS;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
     if(!ok || iollist.size()==0)
         return list;

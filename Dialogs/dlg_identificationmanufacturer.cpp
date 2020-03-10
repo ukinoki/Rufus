@@ -203,7 +203,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     accept();
 }
 
-bool dlg_identificationmanufacturer::identcorrespondantmodifiee() const
+bool dlg_identificationmanufacturer::identmanufacturermodifiee() const
 {
     return m_modifdatasmanufacturer;
 }

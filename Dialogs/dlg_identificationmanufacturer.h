@@ -35,7 +35,7 @@ public:
     explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
-    bool                identcorrespondantmodifiee() const;
+    bool                identmanufacturermodifiee() const;
     Manufacturer*       manufacturerrenvoye() const;
 
 private:
