@@ -41,8 +41,8 @@ Intervention* Interventions::getById(int id)
 }
 
 /*!
- * \brief Interventions::initListeByUserId
- * Charge l'ensemble des documments accessibles à l'utilisateur en cours
+ * \brief Interventions::initListeBySessionId
+ * Charge l'ensemble des interventions relatives à la session
  * et les ajoute à la classe Interventions
  */
 void Interventions::initListebySessionId(int id)
@@ -87,6 +87,7 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
         if (champ == CP_IDPATIENT_LIGNPRGOPERATOIRE)                data[champ] = itset.value().toInt();
         else if (champ == CP_HEURE_LIGNPRGOPERATOIRE)               data[champ] = itset.value().toString();
         else if (champ == CP_IDSESSION_LIGNPRGOPERATOIRE)           data[champ] = itset.value().toInt();
+        else if (champ == CP_IDACTE_LIGNPRGOPERATOIRE)              data[champ] = itset.value().toInt();
         else if (champ == CP_TYPEANESTH_LIGNPRGOPERATOIRE)          data[champ] = itset.value().toString();
         else if (champ == CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE)  data[champ] = itset.value().toInt();
         else if (champ == CP_COTE_LIGNPRGOPERATOIRE)                data[champ] = itset.value().toString();
@@ -215,7 +216,7 @@ IOL* IOLs::getById(int id)
 
 /*!
  * \brief IOLs::initListe
- * Charge l'ensemble des IOLs
+ * Charge l'ensemble des IOLs d'un fabricant
  * et les ajoute à la classe IOLS
  */
 void IOLs::initListeByManifacturerId(int id)
@@ -247,6 +248,39 @@ void IOLs::initListeByManifacturerId(int id)
     }
 }
 
+/*!
+ * \brief IOLs::initListe
+ * Charge l'ensemble des IOLs
+ * et les ajoute à la classe IOLS
+ */
+void IOLs::initListe()
+{
+    QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
+    epurelist(map_all, &listIOLs);
+    epurelist(map_actifs, &listIOLs);
+    foreach (IOL *iol, listIOLs)
+    {
+        if( iol != Q_NULLPTR)
+        {
+            auto itman = map_all->find(iol->id());
+            if( itman != map_all->constEnd() )
+            {
+                itman.value()->setData(iol->datas());
+                if (!iol->isactif())
+                    map_actifs->remove(iol->id());
+                else if (map_actifs->find(iol->id()) == map_actifs->constEnd())
+                    map_actifs->insert(iol->id(), itman.value());
+                delete iol;
+            }
+            else
+            {
+                map_all->insert(iol->id(), iol);
+                if (iol->isactif())
+                    map_actifs->insert(iol->id(), iol);
+            }
+        }
+    }
+}
 
 void IOLs::SupprimeIOL(IOL *iol)
 {
@@ -282,6 +316,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         champ  = itset.key();
         if (champ == CP_IDMANUFACTURER_IOLS)              data[champ] = itset.value().toInt();
         else if (champ == CP_MODELNAME_IOLS)              data[champ] = itset.value().toString();
+        else if (champ == CP_INACTIF_IOLS)                data[champ] = (itset.value().toString() == 1);
     }
     iol = new IOL(data);
     if (iol != Q_NULLPTR)

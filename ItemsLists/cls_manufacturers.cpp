@@ -19,16 +19,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Manufacturers::Manufacturers(QObject *parent) : ItemsList(parent)
 {
-    map_actifs  = new QMap<int, Manufacturer*>();
     map_all     = new QMap<int, Manufacturer*>();
 }
 
-QMap<int, Manufacturer*>* Manufacturers::actifs() const
-{
-    return map_actifs;
-}
-
-QMap<int, Manufacturer*>* Manufacturers::alls() const
+QMap<int, Manufacturer*>* Manufacturers::manufacturers() const
 {
     return map_all;
 }
@@ -40,11 +34,7 @@ Manufacturer* Manufacturers::getById(int id)
     {
         Manufacturer * man = DataBase::I()->loadManufacturerById(id);
         if (man != Q_NULLPTR)
-        {
             add( map_all, man, Item::Update );
-            if (man->isactif())
-                add( map_actifs, man, Item::Update );
-        }
         return man;
     }
     return itman.value();
@@ -58,36 +48,29 @@ Manufacturer* Manufacturers::getById(int id)
 void Manufacturers::initListe()
 {
     QList<Manufacturer*> listManufacturers = DataBase::I()->loadManufacturers();
-    epurelist(map_all, &listManufacturers);
-    epurelist(map_actifs, &listManufacturers);
+    //! le code qui suit provoque un plantage quand on met à jour la liste et je ne comprends pas pourquoi
+//    epurelist(map_all, &listManufacturers);
+//    addList(map_all, &listManufacturers);
+    //! et celui là aussi
+//    for (auto it = map_all->constBegin(); it != map_all->constEnd(); ++it)
+//        if (it.value())
+//        {
+//            Manufacturer * man = const_cast<Manufacturer*>(it.value());
+//            if (man)
+//            {
+//              qDebug() << man->id() << man->nom();
+//              delete man;
+//            }
+//        }
+    map_all->clear();
     foreach (Manufacturer *man, listManufacturers)
-    {
         if( man != Q_NULLPTR)
-        {
-            auto itman = map_all->find(man->id());
-            if( itman != map_all->constEnd() )
-            {
-                itman.value()->setData(man->datas());
-                if (!man->isactif())
-                    map_actifs->remove(man->id());
-                else if (map_actifs->find(man->id()) == map_actifs->constEnd())
-                    map_actifs->insert(man->id(), itman.value());
-                delete man;
-            }
-            else
-            {
-                map_all->insert(man->id(), man);
-                if (man->isactif())
-                    map_actifs->insert(man->id(), man);
-            }
-        }
-    }
+            map_all->insert(man->id(), man);
 }
 
 void Manufacturers::SupprimeManufacturer(Manufacturer* man)
 {
     Supprime(map_all, man);
-    map_actifs->remove(man->id());
 }
 
 Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
@@ -132,14 +115,11 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_CORSTATUT_MANUFACTURER)                data[champ] = itset.value().toString();
         else if (champ == CP_CORMAIL_MANUFACTURER)                  data[champ] = itset.value().toString();
         else if (champ == CP_CORTELEPHONE_MANUFACTURER)             data[champ] = itset.value().toString();
+        else if (champ == CP_INACTIF_MANUFACTURER)                  data[champ] = (itset.value().toString() == 1);
     }
     man = new Manufacturer(data);
     if (man != Q_NULLPTR)
-    {
         map_all->insert(man->id(), man);
-        if (man->isactif())
-            map_actifs->insert(man->id(), man);
-    }
     return man;
 }
 

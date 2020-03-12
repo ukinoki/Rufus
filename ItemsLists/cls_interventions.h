@@ -74,7 +74,8 @@ public:
     QMap<int, IOL*> *actifs() const;
 
     IOL*    getById(int id);
-    void    initListeByManifacturerId(int id);
+    void    initListeByManifacturerId(int id);  //! la liste de tous les IOLs d'un fabricant
+    void    initListe();                        //! la liste de tous les IOLs
 
     //!> actions sur les enregistrements
     void    SupprimeIOL(IOL *iol);

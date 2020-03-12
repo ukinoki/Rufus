@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-03-2020/1");
+    qApp->setApplicationVersion("11-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -240,9 +240,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 11 - Vérification de la messagerie
     ReconstruitListeMessages();
 
-    //! 12 - Affichage des boutons bilan orthoptique
+    //! 12 - Affichage des boutons bilan orthoptique et création intervention
     ui->CreerBOpushButton   ->setVisible(currentuser()->isOrthoptist());
     ui->CreerBOpushButton_2 ->setVisible(currentuser()->isOrthoptist());
+    ui->CreerInterventionpushButton->setVisible(currentuser()->isMedecin());
 
     //! 13 - mise à jour du programmateur de sauvegarde
     if (db->ModeAccesDataBase() == Utils::Poste)
@@ -297,6 +298,7 @@ void Rufus::ConnectSignals()
     connect (ui->CreerActepushButton_2,                             &QPushButton::clicked,                              this,   [=] {CreerActe(currentpatient());});
     connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   &Rufus::CreerBilanOrtho);
     connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   &Rufus::CreerBilanOrtho);
+    connect (ui->CreerInterventionpushButton,                       &QPushButton::clicked,                              this,   [=] { ProgrammationIntervention(currentpatient()); });
     connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (m_mode == RechercheDDN) FiltreTableparDDN();});
     connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   &Rufus::ChercherDepuisListe);
     connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   &Rufus::MajusculeCreerNom);
@@ -2804,7 +2806,7 @@ void Rufus::ListeCorrespondants()
 
 void Rufus::ListeManufacturers()
 {
-    if (Datas::I()->manufacturers->actifs()->size()==0)
+    if (Datas::I()->manufacturers->manufacturers()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
         Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
@@ -7691,6 +7693,7 @@ void Rufus::InitWidgets()
     proc->ModifTailleFont(ui->OuvreDocsExternespushButton,a);
     proc->ModifTailleFont(ui->CreerActepushButton,a);
     proc->ModifTailleFont(ui->CreerBOpushButton,a);
+    proc->ModifTailleFont(ui->CreerInterventionpushButton,a);
     proc->ModifTailleFont(ui->MotsClesLabel,a);
     proc->ModifTailleFont(ui->ModifierCotationActepushButton,a);
 

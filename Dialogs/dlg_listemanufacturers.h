@@ -38,11 +38,14 @@ private:
     UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
 
+    Manufacturer            *m_currentmanufacturer = Q_NULLPTR;
+
     void                    ChoixButtonFrame();
     void                    Enablebuttons();
     void                    EnregistreNouveauManufacturer();
     Manufacturer*           getmanufacturerFromIndex(QModelIndex idx);
     void                    ModifManufacturer(Manufacturer *man);
+    void                    scrollToManufacturer(Manufacturer *man);
     void                    SupprManufacturer();
     void                    ReconstruitTreeViewManufacturers(bool reconstruirelaliste = false, QString filtre = "");
 };

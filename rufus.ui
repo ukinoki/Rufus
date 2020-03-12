@@ -4383,6 +4383,61 @@ color : gray;
            <bool>true</bool>
           </property>
          </widget>
+         <widget class="UpPushButton" name="CreerInterventionpushButton">
+          <property name="geometry">
+           <rect>
+            <x>580</x>
+            <y>330</y>
+            <width>180</width>
+            <height>35</height>
+           </rect>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Bilan orthoptique</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton
+{
+border: 1px solid gray; border-radius: 5px; margin-left: 5px; margin-right: 5px;  margin-top: 5px; margin-bottom: 5px;
+padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px;
+qproperty-flat: false;
+color : #000000;
+background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde);
+}
+QPushButton:focus
+{
+color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
+}
+QPushButton:pressed
+{
+color : gray; background-color: rgb(175, 175, 175);
+}
+QPushButton:!enabled
+{
+color : gray;
+}
+</string>
+          </property>
+          <property name="text">
+           <string>Programme opératoire</string>
+          </property>
+          <property name="icon">
+           <iconset resource="assets/Images/images.qrc">
+            <normaloff>:/orthoptist.png</normaloff>:/orthoptist.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
         </widget>
         <widget class="Line" name="line_9">
          <property name="geometry">
@@ -4648,6 +4703,16 @@ color : gray;
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
@@ -4661,16 +4726,6 @@ color : gray;
    <class>UpTextEdit</class>
    <extends>QTextEdit</extends>
    <header>uptextedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

@@ -30,6 +30,7 @@ void Intervention::setData(QJsonObject data)
 
     Utils::setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_id);
     Utils::setDataInt(data, CP_IDSESSION_LIGNPRGOPERATOIRE, m_idsession);
+    Utils::setDataInt(data, CP_IDACTE_LIGNPRGOPERATOIRE, m_idacte);
     Utils::setDataInt(data, CP_IDPATIENT_LIGNPRGOPERATOIRE, m_idpatient);
     Utils::setDataTime(data, CP_HEURE_LIGNPRGOPERATOIRE, m_heure);
     m_anesth = ConvertModeAnesthesie(data[CP_TYPEANESTH_LIGNPRGOPERATOIRE].toString());
@@ -67,6 +68,7 @@ void Intervention::resetdatas()
     data[CP_ID_LIGNPRGOPERATOIRE]                   = 0;
     data[CP_HEURE_LIGNPRGOPERATOIRE]                = "";
     data[CP_IDSESSION_LIGNPRGOPERATOIRE]            = 0;
+    data[CP_IDACTE_LIGNPRGOPERATOIRE]               = 0;
     data[CP_IDPATIENT_LIGNPRGOPERATOIRE]            = 0;
     data[CP_TYPEANESTH_LIGNPRGOPERATOIRE]           = "";
     data[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE]   = 0;

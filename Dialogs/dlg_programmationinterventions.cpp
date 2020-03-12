@@ -73,7 +73,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     dlglayout()     ->insertLayout(0, choixmedecinLay);
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
-    connect(OKButton,     &QPushButton::clicked,    this, [=] {close();});
+    connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
     setModal(true);
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
@@ -108,7 +108,6 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
     Datas::I()->typesinterventions->initListe();
     ReconstruitListeTypeInterventions();
-    ReconstruitListeManufacturers();
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -237,7 +236,7 @@ void dlg_programmationinterventions::CreerSession()
     dlg_session->dlglayout()   ->insertLayout(0, choixdateLay);
     dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
@@ -301,7 +300,7 @@ void dlg_programmationinterventions::EditSession()
     dlg_session->dlglayout()   ->insertLayout(0, choixdateLay);
     dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
@@ -335,7 +334,8 @@ void dlg_programmationinterventions::SupprimeSession()
         return;
     foreach (Intervention* interv, *Datas::I()->interventions->interventions())
     {
-        SupprimeIntervention(interv);
+        m_currentintervention = interv;
+        SupprimeIntervention();
     }
     Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(m_currentsession);
     RemplirTreeSessions();
@@ -349,7 +349,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
     if (upitem == Q_NULLPTR)
     {
         QAction *pAction_CreerSession = m_ctxtmenusessions->addAction(tr("Créer une session"));
-        connect (pAction_CreerSession,        &QAction::triggered,    this,    [=] {CreerSession();});
+        connect (pAction_CreerSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::CreerSession);
     }
     else
     {
@@ -360,9 +360,9 @@ void dlg_programmationinterventions::MenuContextuelSessions()
             return;
         }
         QAction *pAction_ModifSession = m_ctxtmenusessions->addAction(tr("Modifier la session"));
-        connect (pAction_ModifSession,        &QAction::triggered,    this,    [=] {EditSession();});
+        connect (pAction_ModifSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::EditSession);
         QAction *pAction_SupprSession = m_ctxtmenusessions->addAction(tr("Supprimer la session"));
-        connect (pAction_SupprSession,        &QAction::triggered,    this,    [=] {SupprimeSession();});
+        connect (pAction_SupprSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeSession);
     }
     // ouvrir le menu
     m_ctxtmenusessions->exec(cursor().pos());
@@ -379,10 +379,10 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
         CreerFicheIntervention();
         break;
     case WidgetButtonFrame::Modifier:
-        CreerFicheIntervention(m_currentintervention);
+        ModifFicheIntervention();
         break;
     case WidgetButtonFrame::Moins:
-        SupprimeIntervention(m_currentintervention);
+        SupprimeIntervention();
         break;
     }
 }
@@ -420,6 +420,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     }
     UpStandardItem *itempat = Q_NULLPTR;
     UpStandardItem *itemobs = Q_NULLPTR;
+    UpStandardItem *itemiol = Q_NULLPTR;
     UpStandardItem *itemddn = Q_NULLPTR;
     UpStandardItem *itemtel = Q_NULLPTR;
     UpStandardItem *itemtyp = Q_NULLPTR;
@@ -509,12 +510,37 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                 listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtel << new QStandardItem(QString::number(a) + "e"));
             }
 
+            if (interv->idIOL()>0)                                                                                                      //! IOL
+            {
+                QString ioltxt = "";
+                IOL *iol = Datas::I()->iols->getById(interv->idIOL());
+                if (iol)
+                {
+                    Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                    if (man)
+                        ioltxt += man->nom().toUpper() + " " + iol->modele() + " ";
+                }
+                QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
+                if (interv->puissanceIOL() > 0)
+                    pwriol = "+" + pwriol;
+                ioltxt += pwriol;
+                if (interv->cylindreIOL() != 0.0)
+                {
+                    QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
+                    if (interv->cylindreIOL() > 0)
+                        cyliol = "+" + cyliol;
+                    ioltxt += " Cyl. " + cyliol;
+                }
+                itemiol = new UpStandardItem("\t" + tr("Implant") + " : " + ioltxt, interv);
+                itemiol ->setEditable(false);
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemiol << new QStandardItem(QString::number(a) + "f"));
+            }
             if (interv->observation() != "")                                                                                            //! observation
             {
                 itemobs = new UpStandardItem("\t" + tr("Remarque") + " : " + interv->observation(), interv);
                 itemobs ->setForeground(QBrush(QColor(Qt::red)));
                 itemobs ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "f"));
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "g"));
             }
         }
         listitemsheure.at(0)->sortChildren(1);
@@ -550,9 +576,11 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     ChoixIntervention(idx);
 }
 
-void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv)
+void dlg_programmationinterventions::FicheIntervention()
 {
+    Intervention *interv = m_currentintervention;
     bool verifencours = false;
+    bool verifmanufacturerencours = false;
     UpDialog *dlg_intervention = new UpDialog(this);
     Patient *pat = (interv == Q_NULLPTR? m_currentchirpatient : Datas::I()->patients->getById(interv->idpatient()));
     if (pat != Q_NULLPTR)
@@ -660,14 +688,16 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
-    QComboBox *manufacturercombo = new QComboBox();
-    manufacturercombo           ->setFixedSize(QSize(150,28));
-    manufacturercombo           ->setEditable(true);
-    manufacturercombo           ->setModel(&m_manufacturersmodel);
-    manufacturercombo           ->setInsertPolicy(QComboBox::NoInsert);
+    wdg_manufacturercombo       = new QComboBox();
+    wdg_manufacturercombo       ->setFixedSize(QSize(150,28));
+    wdg_manufacturercombo       ->setEditable(true);
+    ReconstruitListeManufacturers();
+    wdg_manufacturercombo       ->setInsertPolicy(QComboBox::NoInsert);
+    if (m_manufacturersmodel.rowCount()>0)
+        ChoixManufacturer(0);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixManufacturerIOLLay     ->addWidget(manufacturercombo);
+    choixManufacturerIOLLay     ->addWidget(wdg_manufacturercombo);
     choixManufacturerIOLLay     ->setSpacing(5);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
@@ -676,6 +706,13 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     UpLabel* lblIOL             = new UpLabel;
     lblIOL                      ->setText(tr("Implant"));
     QComboBox *IOLcombo         = new QComboBox();
+    IOLcombo                    ->setFixedSize(QSize(150,28));
+    IOLcombo                    ->setEditable(true);
+    IOLcombo                    ->setModel(&m_IOLsmodel);
+    IOLcombo                    ->setInsertPolicy(QComboBox::NoInsert);
+    connect(IOLcombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    dlg_intervention,   [&] (int idx) { ChoixIOL(m_IOLsmodel.index(idx,0)); });
+    if (m_IOLsmodel.rowCount()>0)
+        ChoixIOL(m_IOLsmodel.item(0,0)->index());
     choixIOLLay                 ->addWidget(lblIOL);
     choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixIOLLay                 ->addWidget(IOLcombo);
@@ -710,10 +747,7 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
     choixCylIOLLay                  ->setSpacing(5);
     choixCylIOLLay                  ->setContentsMargins(0,0,0,0);
 
-    connect(IOLchk, &QCheckBox::stateChanged, dlg_intervention, [=]
-    {
-        wdg_IOL->setVisible(IOLchk->isChecked());
-    });
+    connect(IOLchk, &QCheckBox::stateChanged, dlg_intervention, [&] { wdg_IOL->setVisible(IOLchk->isChecked()); });
 
     box_IOLlay      ->insertLayout(0, choixCylIOLLay);
     box_IOLlay      ->insertLayout(0, choixPwrIOLLay);
@@ -749,22 +783,19 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         ObservtextEdit->setText(interv->observation());
         if (interv->idIOL() > 0)
         {
+            wdg_IOL->setVisible(true);
+            IOLchk->setChecked(true);
             IOL *iol = Datas::I()->iols->getById(interv->idIOL());
             Manufacturer *man = Q_NULLPTR;
             if (iol != Q_NULLPTR)
+            {
                 man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                IOLcombo->setCurrentText(iol->modele());
+            }
             if (man != Q_NULLPTR)
-                for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
-                {
-                    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel.item(i,0));
-                    if (itm)
-                        if (itm->item())
-                            if (itm->item()->id() == man->id())
-                            {
-                                manufacturercombo  ->setCurrentIndex(i);
-                                break;
-                            }
-                }
+                wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(man->id()));
+            PwrIOLspinbox->setValue(interv->puissanceIOL());
+            CylIOLspinbox->setValue(interv->cylindreIOL());
         }
     }
 
@@ -782,7 +813,7 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
 
     dlg_intervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     disconnect(dlg_intervention->CancelButton,   &QPushButton::clicked, dlg_intervention, &UpDialog::reject);
-    connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [=]
+    connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [&]
     {
         bool ok;
         VerifFicheIntervention(ok, timeedit, interventioncombo, pat);
@@ -805,6 +836,12 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         listbinds[CP_COTE_LIGNPRGOPERATOIRE]  = cote;
         listbinds[CP_TYPEANESTH_LIGNPRGOPERATOIRE]  = anesth;
         listbinds[CP_OBSERV_LIGNPRGOPERATOIRE]  = ObservtextEdit->toPlainText();
+        if (IOLchk->isChecked())
+        {
+            listbinds[CP_IDIOL_LIGNPRGOPERATOIRE] = m_currentIOL->id();
+            listbinds[CP_PWRIOL_LIGNPRGOPERATOIRE] = PwrIOLspinbox->value();
+            listbinds[CP_CYLIOL_LIGNPRGOPERATOIRE] = CylIOLspinbox->value();
+        }
         if (interv == Q_NULLPTR)                                                                                        //! il s'agit d'une création parce qu'aucune intervention n'a été passée en paramètre de la fonction
         {
             for (int i = 0; i < m_interventionsmodel.rowCount(); ++i)
@@ -867,13 +904,14 @@ void dlg_programmationinterventions::CreerFicheIntervention(Intervention* interv
         }
         dlg_intervention->close();
     });
-    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention, [&] { VerifExistIntervention(verifencours, interventioncombo); });
-    connect(manufacturercombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention, [&] { VerifExistManufacturer(verifencours, manufacturercombo); });
-    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention, [=]
-    {
-        interventioncombo->lineEdit()->disconnect();
-        dlg_intervention->reject();
-    });
+    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(verifencours, interventioncombo); });
+    connect(wdg_manufacturercombo->lineEdit(),  &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistManufacturer(verifmanufacturerencours); });
+    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [&]
+                                                                                                    {
+                                                                                                        interventioncombo->lineEdit()->disconnect();
+                                                                                                        dlg_intervention->reject();
+                                                                                                    });
+    connect(IOLcombo->lineEdit(),               &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIOL(verifencours, IOLcombo); });
     timeedit->setFocus();
     dlg_intervention->exec();
 }
@@ -967,7 +1005,6 @@ bool   dlg_programmationinterventions::Imprimer_Document(Patient *pat, User * us
 
         int idpat = 0;
         idpat = pat->id();
-        qDebug() << Datas::I()->patients->getById(idpat)->nomcomplet();
 
         QHash<QString, QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
@@ -995,15 +1032,27 @@ bool   dlg_programmationinterventions::Imprimer_Document(Patient *pat, User * us
     return aa;
 }
 
-void dlg_programmationinterventions::SupprimeIntervention(Intervention* intervention)
+void dlg_programmationinterventions::CreerFicheIntervention()
 {
-    if (intervention == Q_NULLPTR)
+    m_currentintervention = Q_NULLPTR;
+    FicheIntervention();
+}
+
+void dlg_programmationinterventions::ModifFicheIntervention()
+{
+    if (m_currentintervention != Q_NULLPTR)
+        FicheIntervention();
+}
+
+void dlg_programmationinterventions::SupprimeIntervention()
+{
+    if (m_currentintervention == Q_NULLPTR)
         return;
     QString nomintervention = "";
-    TypeIntervention *typ = Datas::I()->typesinterventions->getById(intervention->idtypeintervention());
+    TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
     if (typ)
         nomintervention += typ->typeintervention();
-    Patient * pat = Datas::I()->patients->getById(intervention->idpatient());
+    Patient * pat = Datas::I()->patients->getById(m_currentintervention->idpatient());
     if (pat)
         nomintervention += " - " + pat->nom() + " " + pat->prenom();
     QString nomsession = m_currentsession->date().toString("dd-MMM-yy");
@@ -1012,7 +1061,7 @@ void dlg_programmationinterventions::SupprimeIntervention(Intervention* interven
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer l'intervention"), nomintervention + "\n" + nomsession + " ?") != UpSmallButton::STARTBUTTON)
         return;
-    Datas::I()->interventions->SupprimeIntervention(intervention);
+    Datas::I()->interventions->SupprimeIntervention(m_currentintervention);
     RemplirTreeInterventions();
 }
 
@@ -1077,7 +1126,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
     if (upitem == Q_NULLPTR)
     {
         QAction *pAction_CreerSession = m_ctxtmenuinterventions->addAction(tr("Créer une intervention"));
-        connect (pAction_CreerSession,        &QAction::triggered,    this,    [=] {CreerFicheIntervention();});
+        connect (pAction_CreerSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::CreerFicheIntervention);
     }
     else
     {
@@ -1088,11 +1137,11 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
             return;
         }
         QAction *pAction_ModifIntervention = m_ctxtmenuinterventions->addAction(tr("Modifier cette intervention"));
-        connect (pAction_ModifIntervention,        &QAction::triggered,    this,    [=] {CreerFicheIntervention(interv);});
+        connect (pAction_ModifIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::ModifFicheIntervention);
         QAction *pAction_SupprIntervention = m_ctxtmenuinterventions->addAction(tr("Supprimer cette intervention"));
-        connect (pAction_SupprIntervention,        &QAction::triggered,    this,    [=] {SupprimeIntervention(interv);});
+        connect (pAction_SupprIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeIntervention);
         QAction *pAction_ImprIntervention = m_ctxtmenuinterventions->addAction(tr("Imprimer un document"));
-        connect (pAction_ImprIntervention,        &QAction::triggered,    this,    [=] {ImprimeDoc(Datas::I()->patients->getById(interv->idpatient()), interv);});
+        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [&] {ImprimeDoc(Datas::I()->patients->getById(interv->idpatient()), interv);});
     }
     // ouvrir le menu
     m_ctxtmenuinterventions->exec(cursor().pos());
@@ -1104,6 +1153,15 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
 
 void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
 {
+    for (int i=0; i< m_typeinterventionsmodel.rowCount(); ++i)
+    {
+        if (m_typeinterventionsmodel.item(i,0) != Q_NULLPTR)
+            delete m_typeinterventionsmodel.item(i,0);
+        if (m_typeinterventionsmodel.item(i,1) != Q_NULLPTR)
+            delete m_typeinterventionsmodel.item(i,1);
+        if (m_typeinterventionsmodel.item(i,2) != Q_NULLPTR)
+            delete m_typeinterventionsmodel.item(i,2);
+    }
     m_typeinterventionsmodel.clear();
     foreach (TypeIntervention* typ, *Datas::I()->typesinterventions->typeinterventions())
     {
@@ -1151,7 +1209,7 @@ void dlg_programmationinterventions::CreerTypeIntervention(QString txt)
     dlg_typintervention->dlglayout()   ->insertLayout(0, nomLay);
     dlg_typintervention->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_typintervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_typintervention->OKButton, &QPushButton::clicked, dlg_typintervention, [=]
+    connect(dlg_typintervention->OKButton, &QPushButton::clicked, dlg_typintervention, [&]
     {
         if (linenom->text() == "")
             return;
@@ -1185,26 +1243,199 @@ void dlg_programmationinterventions::AfficheChoixIOL(int state)
 
 }
 
-void dlg_programmationinterventions::ReconstruitListeManufacturers()
+void dlg_programmationinterventions::ChoixIOL(QModelIndex idx)
 {
-    m_manufacturersmodel.clear();
-    foreach (Manufacturer* man, *Datas::I()->manufacturers->actifs())
+    IOL *iol = Q_NULLPTR;
+    QStandardItem *itm = m_IOLsmodel.itemFromIndex(idx);
+    if (itm)
     {
-        QList<QStandardItem *> items;
-        QString nomman = man->nom();
-        UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
-        UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
-        items << itemman << itemid;
-        m_manufacturersmodel.appendRow(items);
+        UpStandardItem *upitm = dynamic_cast<UpStandardItem*>(itm);
+        if (upitm)
+            iol = dynamic_cast<IOL*>(upitm->item());
     }
-    m_manufacturersmodel.sort(0, Qt::AscendingOrder);
+    m_currentIOL = iol;
 }
 
-void dlg_programmationinterventions::VerifExistManufacturer(bool &ok, QComboBox *box)
+void dlg_programmationinterventions::CreerIOL(QString nomiol)
+{
+    UpDialog            *dlg_IOL = new UpDialog(this);
+    dlg_IOL->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_IOL->setWindowTitle(tr("créer un IOL"));
+
+    //! FABRICANT
+    QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
+    UpLabel* lblManufacturerIOL = new UpLabel;
+    lblManufacturerIOL          ->setText(tr("Fabricant"));
+    QComboBox *manufacturercombo = new QComboBox();
+    for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+    {
+        manufacturercombo->addItem(m_manufacturersmodel.item(i,0)->text());         //! le nom du fabricant
+        manufacturercombo->setItemData(i, m_manufacturersmodel.item(i,1)->text());       //! l'id en data
+    }
+    if (m_currentmanufacturer)
+    {
+        manufacturercombo           ->setCurrentIndex(manufacturercombo->findData(m_currentmanufacturer->id()));
+        manufacturercombo           ->setEnabled(false);
+    }
+    choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
+    choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixManufacturerIOLLay     ->addWidget(manufacturercombo);
+    choixManufacturerIOLLay     ->setSpacing(5);
+    choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
+
+    //! MODELE
+    QHBoxLayout *choixIOLLay    = new QHBoxLayout();
+    UpLabel* lblIOL             = new UpLabel;
+    lblIOL                      ->setText(tr("Nom du modèle"));
+    QLineEdit *IOLline          = new QLineEdit(nomiol);
+    IOLline                     ->setFixedSize(QSize(150,28));
+    IOLline                     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric));
+    choixIOLLay                 ->addWidget(lblIOL);
+    choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixIOLLay                 ->addWidget(IOLline);
+    choixIOLLay                 ->setSpacing(5);
+    choixIOLLay                 ->setContentsMargins(0,0,0,0);
+
+
+    dlg_IOL->dlglayout()   ->insertLayout(0, choixIOLLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
+    dlg_IOL->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_IOL->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_IOL->OKButton, &QPushButton::clicked, dlg_IOL, [&]
+    {
+        QString modele = IOLline->text();
+        int idmanufacturer = m_currentmanufacturer->id();
+        for (int i = 0; i < m_IOLsmodel.rowCount(); ++i)
+        {
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel.item(i));
+            IOL *iol = dynamic_cast<IOL*>(upitem->item());
+            if (iol->modele() == modele)
+            {
+                UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
+                return;
+            }
+        }
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_MODELNAME_IOLS]    = modele;
+        listbinds[CP_IDMANUFACTURER_IOLS]  = idmanufacturer;
+        listbinds[CP_INACTIF_IOLS]  = QVariant();
+        m_currentIOL = Datas::I()->iols->CreationIOL(listbinds);
+        ReconstruitListeIOLs(idmanufacturer);
+        dlg_IOL->close();
+    });
+    dlg_IOL->exec();
+}
+
+void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer)
+{
+    Datas::I()->iols->initListe();
+    for (int i=0; i< m_IOLsmodel.rowCount(); ++i)
+    {
+        if (m_IOLsmodel.item(i,0) != Q_NULLPTR)
+            delete m_IOLsmodel.item(i,0);
+        if (m_IOLsmodel.item(i,1) != Q_NULLPTR)
+            delete m_IOLsmodel.item(i,1);
+    }
+    m_IOLsmodel.clear();
+    foreach (IOL* iol, *Datas::I()->iols->alls())
+    {
+        QList<QStandardItem *> items;
+        if (iol->idmanufacturer() == idmanufacturer)
+        {
+            UpStandardItem *itemiol = new UpStandardItem(iol->modele(), iol);
+            UpStandardItem *itemid = new UpStandardItem(QString::number(iol->id()), iol);
+            items << itemiol << itemid;
+            m_IOLsmodel.appendRow(items);
+        }
+    }
+    m_IOLsmodel.sort(0, Qt::AscendingOrder);
+}
+
+void dlg_programmationinterventions::VerifExistIOL(bool &ok, QComboBox *box)
 {
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
     QString txt = box->lineEdit()->text();
+    if (m_IOLsmodel.findItems(txt).size() == 0 && txt !="")
+    {
+        if (UpMessageBox::Question(this, tr("Implant non référencé!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+            return;
+        else
+        {
+            if (m_currentIOL != Q_NULLPTR)
+            {
+                delete m_currentIOL;
+                m_currentIOL = Q_NULLPTR;
+            }
+            CreerIOL(txt);
+            box->setModel(&m_IOLsmodel);
+            if (m_currentIOL != Q_NULLPTR)
+            {
+                int id = m_currentIOL->id();
+                int row = m_IOLsmodel.findItems(QString::number(id), Qt::MatchExactly, 1).at(0)->row();
+                box->setCurrentIndex(row);
+            }
+        }
+    }
+    ok = false;
+};
+
+/*! les fabricants ----------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+void dlg_programmationinterventions::ChoixManufacturer(int idx)
+{
+    m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->itemData(idx).toInt());
+    if (m_currentmanufacturer)
+        ReconstruitListeIOLs(m_currentmanufacturer->id());
+}
+
+void dlg_programmationinterventions::ReconstruitListeManufacturers()
+{
+    if (m_currentmanufacturer)
+    qDebug() << m_currentmanufacturer->nom() << m_currentmanufacturer->id();
+    int id(0);
+    if (m_currentmanufacturer)
+    {
+        id = m_currentmanufacturer->id();
+    Datas::I()->manufacturers->initListe();
+    if (id >0)
+        m_currentmanufacturer = Datas::I()->manufacturers->getById(id);
+    qDebug() << m_currentmanufacturer->nom() << m_currentmanufacturer->id();
+    }
+    wdg_manufacturercombo->disconnect();
+    wdg_manufacturercombo->clear();
+    for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+    {
+        if (m_manufacturersmodel.item(i,0) != Q_NULLPTR)
+            delete m_manufacturersmodel.item(i,0);
+        if (m_manufacturersmodel.item(i,1) != Q_NULLPTR)
+            delete m_manufacturersmodel.item(i,1);
+    }
+    m_manufacturersmodel.clear();
+    foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
+        if (man->isactif()) {
+            QList<QStandardItem *> items;
+            //qDebug() << man->nom() << man->id();
+            UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
+            UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
+            items << itemman << itemid;
+            m_manufacturersmodel.appendRow(items);
+        }
+     m_manufacturersmodel.sort(0, Qt::AscendingOrder);
+    wdg_manufacturercombo->clear();
+    for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+    {
+        wdg_manufacturercombo->addItem(m_manufacturersmodel.item(i,0)->text());         //! le nom du fabricant
+        wdg_manufacturercombo->setItemData(i, m_manufacturersmodel.item(i,1)->text());       //! l'id en data
+    }
+   connect(wdg_manufacturercombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { ChoixManufacturer(idx); });
+}
+
+void dlg_programmationinterventions::VerifExistManufacturer(bool &ok)
+{
+    if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
+    ok = true;
+    QString txt = wdg_manufacturercombo->lineEdit()->text();
     if (m_manufacturersmodel.findItems(txt).size() == 0 && txt !="")
     {
         if (UpMessageBox::Question(this, tr("Fabricant non référencé!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
@@ -1217,18 +1448,18 @@ void dlg_programmationinterventions::VerifExistManufacturer(bool &ok, QComboBox 
                 m_currentmanufacturer = Q_NULLPTR;
             }
             Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+            Dlg_IdentManufacturer->ui->NomlineEdit->setText(txt.toUpper());
+            Dlg_IdentManufacturer->ui->ActifcheckBox->setChecked(true);
+            Dlg_IdentManufacturer->ui->ActifcheckBox->setEnabled(false);
+            Dlg_IdentManufacturer->OKButton->setEnabled(true);
             Dlg_IdentManufacturer->exec();
             if (Dlg_IdentManufacturer->identmanufacturermodifiee())
-                m_currentmanufacturer = Dlg_IdentManufacturer->manufacturerrenvoye();
+                m_currentmanufacturer = Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idmanufacturerrenvoye());
             delete Dlg_IdentManufacturer;
+            qDebug() << m_currentmanufacturer->nom() << m_currentmanufacturer->id();
             ReconstruitListeManufacturers();
-            box->setModel(&m_manufacturersmodel);
             if (m_currentmanufacturer != Q_NULLPTR)
-            {
-                int id = m_currentmanufacturer->id();
-                int row = m_manufacturersmodel.findItems(QString::number(id), Qt::MatchExactly, 1).at(0)->row();
-                box->setCurrentIndex(row);
-            }
+                wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
         }
     }
     ok = false;

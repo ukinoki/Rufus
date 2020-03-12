@@ -279,6 +279,7 @@ CREATE TABLE `ProgrammesOperatoires` (
   `PwIOL` DECIMAL(4,2) NULL,
   `CylIOL` DECIMAL(4,2) NULL,
   `Observation` VARCHAR(100) NULL,
+  `idActe` int(11) DEFAULT NULL,
   PRIMARY KEY (`idLigneProgramme`)
   ) ENGINE=InnoDB;
 

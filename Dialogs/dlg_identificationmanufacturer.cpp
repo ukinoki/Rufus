@@ -58,12 +58,11 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     ui->TellineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
     ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-
-    QList <QWidget *> listtab;
-    listtab << ui->NomlineEdit << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
-            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
-    for (int i = 0; i<listtab.size()-1 ; i++ )
-        setTabOrder(listtab.at(i), listtab.at(i+1));
+    ui->CorNomlineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->CorPrenomlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->CorStatutlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->CorMaillineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
+    ui->CorTelephonelineEdit->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     installEventFilter(this);
     ui->MaillineEdit->installEventFilter(this);
@@ -75,6 +74,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse1lineEdit);});
     connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse2lineEdit);});
     connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->ActifcheckBox,         &QCheckBox::clicked,                this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->NomlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->Adresse1lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->Adresse2lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
@@ -82,7 +82,20 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->TellineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->PortablelineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->MaillineEdit,          &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-
+    connect (ui->CorNomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->CorPrenomlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->CorMaillineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->DelCorupPushButton,    &QPushButton::clicked,              this,           [=]
+                                                                                            {
+                                                                                                ui->CorNomlineEdit      ->clear();
+                                                                                                ui->CorPrenomlineEdit   ->clear();
+                                                                                                ui->CorStatutlineEdit   ->clear();
+                                                                                                ui->CorMaillineEdit     ->clear();
+                                                                                                ui->CorTelephonelineEdit->clear();
+                                                                                                EnableOKpushButton();
+                                                                                            });
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
@@ -193,8 +206,9 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     listbinds[CP_CORNOM_MANUFACTURER]       = Utils::trimcapitilize(ui->CorNomlineEdit->text(), true);
     listbinds[CP_CORPRENOM_MANUFACTURER]    = Utils::trimcapitilize(ui->CorPrenomlineEdit->text(), true);
     listbinds[CP_CORSTATUT_MANUFACTURER]    = Utils::trimcapitilize(ui->CorStatutlineEdit->text(), true);
-    listbinds[CP_CORMAIL_MANUFACTURER]      = Utils::trimcapitilize(ui->CorMaillineEdit->text(), true);
-    listbinds[CP_CORTELEPHONE_MANUFACTURER] = Utils::trimcapitilize(ui->CorTelephonelineEdit->text(), true);
+    listbinds[CP_CORMAIL_MANUFACTURER]      = ui->CorMaillineEdit->text();
+    listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
+    listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
     if (m_mode == Creation)
         m_manufacturer = Datas::I()->manufacturers->CreationManufacturer(listbinds);
     else if (m_mode == Modification)
@@ -208,9 +222,9 @@ bool dlg_identificationmanufacturer::identmanufacturermodifiee() const
     return m_modifdatasmanufacturer;
 }
 
-Manufacturer *dlg_identificationmanufacturer::manufacturerrenvoye() const
+int dlg_identificationmanufacturer::idmanufacturerrenvoye() const
 {
-    return m_manufacturer;
+    return m_manufacturer->id();
 }
 
 void dlg_identificationmanufacturer::RegleAffichage()
@@ -256,6 +270,7 @@ void dlg_identificationmanufacturer::AfficheDossierAlOuverture()
     if (m_mode == Modification)
     {
         m_nommanufacturer       = m_manufacturer->nom();
+        ui->ActifcheckBox       ->setChecked(m_manufacturer->isactif());
         ui->NomlineEdit         ->setText(m_nommanufacturer);
         ui->idManufacturerlabel ->setText(tr("Fabricant n° ") + QString::number(m_manufacturer->id()));
 
@@ -270,6 +285,12 @@ void dlg_identificationmanufacturer::AfficheDossierAlOuverture()
         ui->TellineEdit         ->setText(m_manufacturer->telephone());
         ui->PortablelineEdit    ->setText(m_manufacturer->portable());
         ui->MaillineEdit        ->setText(m_manufacturer->mail());
+
+        ui->CorNomlineEdit      ->setText(m_manufacturer->cornom());
+        ui->CorPrenomlineEdit   ->setText(m_manufacturer->corprenom());
+        ui->CorStatutlineEdit   ->setText(m_manufacturer->corstatut());
+        ui->CorMaillineEdit     ->setText(m_manufacturer->cormail());
+        ui->CorTelephonelineEdit->setText(m_manufacturer->cortelephone());
     }
     else if (m_mode == Creation)
     {

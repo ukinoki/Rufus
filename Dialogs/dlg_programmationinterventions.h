@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_impressions.h"
 #include "ui_dlg_impressions.h"
 #include "dlg_identificationmanufacturer.h"
+#include "ui_dlg_identificationmanufacturer.h"
 
 class dlg_programmationinterventions : public UpDialog
 {
@@ -37,7 +38,7 @@ public:
 
 private:
     Procedures                      *proc = Procedures::I();
-    QStandardItemModel              m_medecinsmodel, m_sessionsmodel, m_interventionsmodel, m_typeinterventionsmodel, m_manufacturersmodel;
+    QStandardItemModel              m_medecinsmodel, m_sessionsmodel, m_interventionsmodel, m_typeinterventionsmodel, m_manufacturersmodel, m_IOLsmodel;
     QFont                           m_font = QApplication::font();
     dlg_impressions                 *Dlg_Imprs;
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
@@ -52,6 +53,7 @@ private:
     Intervention        *m_currentintervention      = Q_NULLPTR;                        //! l'intervention en cours
     TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                        //! le type d'intervention en cours
     Manufacturer        *m_currentmanufacturer      = Q_NULLPTR;                        //! le fabricant en cours
+    IOL                 *m_currentIOL               = Q_NULLPTR;                        //! l'IOL en cours
 
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
@@ -59,6 +61,7 @@ private:
     QTreeView           *wdg_interventionstreeView  = new QTreeView();
     QTreeView           *wdg_sessionstreeView       = new QTreeView();
     QComboBox           *wdg_listmedecinscombo;
+    QComboBox           *wdg_manufacturercombo;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
 
@@ -77,22 +80,32 @@ private:
 /*! les interventions */
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
-    void                CreerFicheIntervention(Intervention * interv = Q_NULLPTR);                                       // crée la fiche qui permet de modifier ou d'enregistrer une intervention
+    void                FicheIntervention();                                       // crée la fiche qui permet de modifier ou d'enregistrer une intervention
     void                ImprimeDoc(Patient *pat, Intervention *interv);
-    void                SupprimeIntervention(Intervention *intervention = Q_NULLPTR);
+    void                SupprimeIntervention();
     void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
     void                MenuContextuelInterventionsions();
     void                VerifExistIntervention(bool &ok, QComboBox *box);
     void                VerifFicheIntervention(bool &ok, QTimeEdit *timeedit, QComboBox *box, Patient *pat);
+private slots:
+    void                CreerFicheIntervention();
+    void                ModifFicheIntervention();
 
 /*! les types d'interventions */
+private:
     void                ReconstruitListeTypeInterventions();
     void                CreerTypeIntervention(QString txt);
 
+/*! les fabricants */
+    void                ChoixManufacturer(int idx);
+    void                ReconstruitListeManufacturers();
+    void                VerifExistManufacturer(bool &ok);
 /*! les IOLs */
     void                AfficheChoixIOL(int state);
-    void                ReconstruitListeManufacturers();
-    void                VerifExistManufacturer(bool &ok, QComboBox *box);
+    void                ChoixIOL(QModelIndex idx);
+    void                CreerIOL(QString nomiol);
+    void                ReconstruitListeIOLs(int idmanufacturer);                                        //! recalcule la liste des IOLs pour un fabricant
+    void                VerifExistIOL(bool &ok, QComboBox *box);
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

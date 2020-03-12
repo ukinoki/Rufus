@@ -66,7 +66,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
-    wdg_chercheuplineedit           ->setFocus();
+    wdg_chercheuplineedit               ->setFocus();
 }
 
 dlg_listecorrespondants::~dlg_listecorrespondants()
@@ -230,16 +230,10 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     {
         m_model->sort(0);
         m_model->sort(1);
-        connect(wdg_correspstree,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
-                                                                            {
-                                                                                if (!m_model->itemFromIndex(idx)->hasChildren())
-                                                                                    QToolTip::showText(cursor().pos(), getCorrespondantFromIndex(idx)->adresseComplete());
-                                                                            } );
-        connect(wdg_correspstree,    &QAbstractItemView::pressed,        this,   &dlg_listecorrespondants::Enablebuttons);
-        connect(wdg_correspstree,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
-                                                                            {
-                                                                                if (!m_model->itemFromIndex(idx)->hasChildren())
-                                                                                    ModifCorresp(getCorrespondantFromIndex(idx));
-                                                                            });
+        connect(wdg_correspstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_model->itemFromIndex(idx)->hasChildren())
+                                                                                                            QToolTip::showText(cursor().pos(), getCorrespondantFromIndex(idx)->adresseComplete()); } );
+        connect(wdg_correspstree,    &QAbstractItemView::pressed,       this,   &dlg_listecorrespondants::Enablebuttons);
+        connect(wdg_correspstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_model->itemFromIndex(idx)->hasChildren())
+                                                                                                            ModifCorresp(getCorrespondantFromIndex(idx)); });
     }
 }

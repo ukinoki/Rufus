@@ -73,8 +73,9 @@ dlg_listemanufacturers::~dlg_listemanufacturers()
 
 void dlg_listemanufacturers::Enablebuttons()
 {
-    wdg_buttonframe->wdg_modifBouton->setEnabled(getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
+    m_currentmanufacturer = getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0));
+    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentmanufacturer != Q_NULLPTR);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentmanufacturer != Q_NULLPTR);
 }
 
 
@@ -87,7 +88,7 @@ void dlg_listemanufacturers::ChoixButtonFrame()
     case WidgetButtonFrame::Modifier:
         if (wdg_manufacturerstree->selectionModel()->selectedIndexes().size()==0)
             return;
-        ModifManufacturer(getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0)));
+        ModifManufacturer(m_currentmanufacturer);
         break;
     case WidgetButtonFrame::Moins:
         SupprManufacturer();
@@ -110,6 +111,7 @@ void dlg_listemanufacturers::EnregistreNouveauManufacturer()
     {
         m_listemodifiee = true;
         ReconstruitTreeViewManufacturers();
+        scrollToManufacturer(Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idmanufacturerrenvoye()));
     }
     delete Dlg_IdentManufacturer;
 }
@@ -137,12 +139,43 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
     Dlg_IdentManufacturer   = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man);
     if (Dlg_IdentManufacturer->exec()>0)
     {
-        m_listemodifiee = true;
-        ReconstruitTreeViewManufacturers(true);
+        if (m_currentmanufacturer != Q_NULLPTR)
+        {
+            m_listemodifiee = true;
+            ReconstruitTreeViewManufacturers(true);
+            scrollToManufacturer(m_currentmanufacturer);
+        }
     }
     delete Dlg_IdentManufacturer;
 }
 
+void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
+{
+    if (man != Q_NULLPTR)
+    {
+        int id = man->id();
+        for (int i=0; i < m_model->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_model->item(i));
+            if (itm)
+            {
+                if (itm->item() != Q_NULLPTR)
+                {
+                    if (itm->item()->id() == id)
+                    {
+                        wdg_manufacturerstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
+                        Manufacturer *itman = dynamic_cast<Manufacturer*>(itm->item());
+                        if (itman)
+                            m_currentmanufacturer = itman;
+                        i = m_model->rowCount();
+                    }
+                }
+            }
+        }
+    }
+    else
+        m_currentmanufacturer = Q_NULLPTR;
+}
 // ------------------------------------------------------------------------------------------
 // Supprime un fabricant
 // ------------------------------------------------------------------------------------------
@@ -166,7 +199,7 @@ void dlg_listemanufacturers::SupprManufacturer()
     {
         Datas::I()->manufacturers->SupprimeManufacturer(getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0)));
         m_listemodifiee = true;
-        ReconstruitTreeViewManufacturers(true);
+        ReconstruitTreeViewManufacturers();
     }
 }
 
@@ -179,12 +212,14 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
 
     UpStandardItem *pitem;
 
-    foreach(Manufacturer *man, Datas::I()->manufacturers->actifs()->values())
+    foreach(Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
     {
         if (man->nom().startsWith(filtre))
         {
             pitem   = new UpStandardItem(man->nom(), man);
             pitem   ->setEditable(false);
+            if (!man->isactif())
+                pitem ->setForeground(QBrush(QColor(Qt::gray)));
             m_model->appendRow(pitem);
         }
     }
@@ -193,14 +228,8 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
     if (m_model->rowCount()>0)
     {
         m_model->sort(0);
-        connect(wdg_manufacturerstree,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
-                                                                            {
-                                                                                    QToolTip::showText(cursor().pos(), getmanufacturerFromIndex(idx)->adresseComplete());
-                                                                            } );
-        connect(wdg_manufacturerstree,    &QAbstractItemView::pressed,        this,   &dlg_listemanufacturers::Enablebuttons);
-        connect(wdg_manufacturerstree,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
-                                                                            {
-                                                                                    ModifManufacturer(getmanufacturerFromIndex(idx));
-                                                                            });
+        connect(wdg_manufacturerstree,    &QAbstractItemView::entered,          this,   [=] (QModelIndex idx) { QToolTip::showText(cursor().pos(), getmanufacturerFromIndex(idx)->adresseComplete()); } );
+        connect(wdg_manufacturerstree,    &QAbstractItemView::pressed,          this,   &dlg_listemanufacturers::Enablebuttons);
+        connect(wdg_manufacturerstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifManufacturer(getmanufacturerFromIndex(idx)); });
     }
 }

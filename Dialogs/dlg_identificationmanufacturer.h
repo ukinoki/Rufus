@@ -36,7 +36,7 @@ public:
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
     bool                identmanufacturermodifiee() const;
-    Manufacturer*       manufacturerrenvoye() const;
+    int                 idmanufacturerrenvoye() const;
 
 private:
     DataBase            *db                 = DataBase::I();

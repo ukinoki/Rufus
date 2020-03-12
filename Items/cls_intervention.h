@@ -48,11 +48,13 @@ private: //Données de l'intervention
     double m_pwrIOL             = 0;                //! puissance de l'implant
     double m_cylIOL             = 0;                //! cylindre de l'implant
     QString m_observation       = "";               //! observation
+    int m_idacte                = 0;                //! id de l'acte correspondant
 
 public:
     QTime heure() const                     { return m_heure; }
     int idpatient() const                   { return m_idpatient; }
     int idsession() const                   { return m_idsession; }
+    int idacte() const                      { return m_idacte; }
     ModeAnesthesie anesthesie() const       { return m_anesth; }
     int idtypeintervention() const          { return m_idtypeintervention; }
     Utils::Cote cote() const                { return m_cote; }
@@ -67,6 +69,8 @@ public:
                                               m_data[CP_IDPATIENT_LIGNPRGOPERATOIRE] = id; }
     void setidsession(int id)               { m_idsession = id;
                                               m_data[CP_IDSESSION_LIGNPRGOPERATOIRE] = id; }
+    void setidacte(int id)                  { m_idacte = id;
+                                              m_data[CP_IDACTE_LIGNPRGOPERATOIRE] = id; }
     void setanesthesie(ModeAnesthesie mode) { m_anesth = mode;
                                               m_data[CP_TYPEANESTH_LIGNPRGOPERATOIRE] = ConvertModeAnesthesie(mode); }
     void setidtypeintervention(int id)      { m_idtypeintervention = id;

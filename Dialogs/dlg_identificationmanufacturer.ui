@@ -181,7 +181,7 @@
      <rect>
       <x>170</x>
       <y>8</y>
-      <width>170</width>
+      <width>241</width>
       <height>21</height>
      </rect>
     </property>
@@ -424,13 +424,32 @@
      <number>45</number>
     </property>
    </widget>
+   <widget class="QCheckBox" name="ActifcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>10</y>
+      <width>86</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Activer/Desactiver ce fabricant</string>
+    </property>
+    <property name="text">
+     <string>Actif</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QLabel" name="idManufacturerlabel">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>620</y>
-     <width>240</width>
+     <width>111</width>
      <height>16</height>
     </rect>
    </property>
@@ -469,8 +488,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>34</y>
-      <width>145</width>
+      <y>40</y>
+      <width>99</width>
       <height>16</height>
      </rect>
     </property>
@@ -481,8 +500,8 @@
    <widget class="UpLineEdit" name="CorStatutlineEdit">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>90</y>
+      <x>130</x>
+      <y>96</y>
       <width>240</width>
       <height>21</height>
      </rect>
@@ -497,38 +516,9 @@
    <widget class="UpLineEdit" name="CorNomlineEdit">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>30</y>
+      <x>130</x>
+      <y>36</y>
       <width>240</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="maxLength">
-     <number>17</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="CorStatutlabel">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>94</y>
-      <width>145</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Fonction</string>
-    </property>
-   </widget>
-   <widget class="UpLineEdit" name="CorTelephonelineEdit">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>150</y>
-      <width>150</width>
       <height>21</height>
      </rect>
     </property>
@@ -539,28 +529,25 @@
      <number>45</number>
     </property>
    </widget>
-   <widget class="UpLineEdit" name="CorMaillineEdit">
+   <widget class="QLabel" name="CorStatutlabel">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>120</y>
-      <width>240</width>
-      <height>21</height>
+      <x>10</x>
+      <y>100</y>
+      <width>99</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
-    </property>
-    <property name="maxLength">
-     <number>15</number>
+     <string>Fonction</string>
     </property>
    </widget>
-   <widget class="UpLineEdit" name="CorPrenomlineEdit">
+   <widget class="UpLineEdit" name="CorTelephonelineEdit">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>60</y>
-      <width>240</width>
+      <x>130</x>
+      <y>156</y>
+      <width>150</width>
       <height>21</height>
      </rect>
     </property>
@@ -571,12 +558,44 @@
      <number>17</number>
     </property>
    </widget>
+   <widget class="UpLineEdit" name="CorMaillineEdit">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>126</y>
+      <width>240</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="CorPrenomlineEdit">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>66</y>
+      <width>240</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
+   </widget>
    <widget class="QLabel" name="CorTelephonelabel">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>154</y>
-      <width>145</width>
+      <y>160</y>
+      <width>99</width>
       <height>16</height>
      </rect>
     </property>
@@ -588,8 +607,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>124</y>
-      <width>145</width>
+      <y>130</y>
+      <width>99</width>
       <height>16</height>
      </rect>
     </property>
@@ -601,14 +620,70 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>64</y>
-      <width>145</width>
+      <y>70</y>
+      <width>99</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Prénom</string>
     </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>30</y>
+      <width>165</width>
+      <height>146</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="UpPushButton" name="DelCorupPushButton">
+       <property name="text">
+        <string>Supprimer ce
+correspondant</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../assets/Images/images.qrc">
+         <normaloff>:/killer.png</normaloff>:/killer.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </widget>
   </widget>
  </widget>
@@ -617,6 +692,11 @@
    <class>UpLineEdit</class>
    <extends>QLineEdit</extends>
    <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -628,7 +708,15 @@
   <tabstop>PortablelineEdit</tabstop>
   <tabstop>MaillineEdit</tabstop>
   <tabstop>FaxlineEdit</tabstop>
+  <tabstop>WebsiteineEdit</tabstop>
+  <tabstop>CorNomlineEdit</tabstop>
+  <tabstop>CorPrenomlineEdit</tabstop>
+  <tabstop>CorStatutlineEdit</tabstop>
+  <tabstop>CorMaillineEdit</tabstop>
+  <tabstop>CorTelephonelineEdit</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../assets/Images/images.qrc"/>
+ </resources>
  <connections/>
 </ui>
