@@ -280,6 +280,7 @@ CREATE TABLE `ProgrammesOperatoires` (
   `CylIOL` DECIMAL(4,2) NULL,
   `Observation` VARCHAR(100) NULL,
   `idActe` int(11) DEFAULT NULL,
+  `Incident` LONGTEXT NULL,
   PRIMARY KEY (`idLigneProgramme`)
   ) ENGINE=InnoDB;
 
@@ -290,6 +291,7 @@ CREATE TABLE `Ophtalmologie`.`SessionsOperatoires` (
   `idAide` INT NULL,
   `DateSession` DATE NULL,
   `idLieu` INT NULL,
+  `Incident` LONGTEXT NULL,
   PRIMARY KEY (`idSession`)
   ) ENGINE=InnoDB;
 

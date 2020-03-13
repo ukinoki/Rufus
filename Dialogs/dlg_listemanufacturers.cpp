@@ -74,10 +74,14 @@ dlg_listemanufacturers::~dlg_listemanufacturers()
 void dlg_listemanufacturers::Enablebuttons()
 {
     m_currentmanufacturer = getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0));
+    if (m_currentmanufacturer != Q_NULLPTR)
+        Datas::I()->iols->initListeByManufacturerId(m_currentmanufacturer->id());
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentmanufacturer != Q_NULLPTR);
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentmanufacturer != Q_NULLPTR);
+    if (m_currentmanufacturer != Q_NULLPTR)
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(Datas::I()->iols->alls()->size() == 0);
+    else
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }
-
 
 void dlg_listemanufacturers::ChoixButtonFrame()
 {
@@ -109,9 +113,11 @@ void dlg_listemanufacturers::EnregistreNouveauManufacturer()
     Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
     if (Dlg_IdentManufacturer->exec()>0)
     {
+        Manufacturer * man = Datas::I()->manufacturers->CreationManufacturer(Dlg_IdentManufacturer->Listbinds());
         m_listemodifiee = true;
         ReconstruitTreeViewManufacturers();
-        scrollToManufacturer(Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idmanufacturerrenvoye()));
+        if (man)
+            scrollToManufacturer(man);
     }
     delete Dlg_IdentManufacturer;
 }
@@ -139,6 +145,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
     Dlg_IdentManufacturer   = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man);
     if (Dlg_IdentManufacturer->exec()>0)
     {
+        DataBase::I()->UpdateTable(TBL_MANUFACTURERS, Dlg_IdentManufacturer->Listbinds(), " where " CP_ID_MANUFACTURER " = " + QString::number(man->id()),tr("Impossible de modifier le dossier"));
         if (m_currentmanufacturer != Q_NULLPTR)
         {
             m_listemodifiee = true;

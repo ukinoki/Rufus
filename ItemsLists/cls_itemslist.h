@@ -30,14 +30,7 @@ template <typename K, typename T>
 static void clearAll(QMap<K, T*> *m_map)
 {
     for (auto it = m_map->begin(); it != m_map->end();)
-    {
-        if (it.value() != Q_NULLPTR)
-        {
-            T* item = const_cast<T*>(it.value());
-            delete item;
-        }
         it = m_map->erase(it);
-    }
     m_map->clear();
 }
 
@@ -83,12 +76,7 @@ void epurelist(QMap<int, T*> *m_oldmap, const QList<T*> *m_newlist)
         m_newmap.insert(item->id(), item);
     for (auto it = m_oldmap->begin(); it != m_oldmap->end();)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
-        {
-            T* item = const_cast<T*>(it.value());
-            if (item != Q_NULLPTR)
-                delete item;
             it = m_oldmap->erase(it);
-        }
         else
             ++it;
     }
@@ -108,12 +96,7 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
         m_newmap.insert(item->stringid(), item);
     for (auto it = m_oldmap->begin(); it != m_oldmap->end();)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
-        {
-            T* item = const_cast<T*>(it.value());
-            if (item != Q_NULLPTR)
-                delete item;
             it = m_oldmap->erase(it);
-        }
         else
             ++it;
     }

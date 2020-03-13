@@ -27,6 +27,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_impressions.h"
 #include "dlg_identificationmanufacturer.h"
 #include "ui_dlg_identificationmanufacturer.h"
+#include "dlg_listeiols.h"
+#include "dlg_listemanufacturers.h"
 
 class dlg_programmationinterventions : public UpDialog
 {
@@ -42,9 +44,12 @@ private:
     QFont                           m_font = QApplication::font();
     dlg_impressions                 *Dlg_Imprs;
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
+    dlg_listeiols                   *Dlg_ListIOLs;
+    dlg_listemanufacturers          *Dlg_ListManufacturers;
     bool                            Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     bool                            m_docimprime = false;
+    void                EnregistreIncident(Item *itm);
 
 /*! les items */
     User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
@@ -62,6 +67,7 @@ private:
     QTreeView           *wdg_sessionstreeView       = new QTreeView();
     QComboBox           *wdg_listmedecinscombo;
     QComboBox           *wdg_manufacturercombo;
+    QComboBox           *wdg_IOLcombo;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
 
@@ -71,6 +77,7 @@ private:
 /*! les sessions */
     void                ChoixSessionFrame();
     void                AfficheInterventionsSession(QModelIndex idx);
+    void                EnregistreIncidentSession()             {EnregistreIncident(m_currentsession);}
     void                RemplirTreeSessions(SessionOperatoire* session = Q_NULLPTR);
     void                MenuContextuelSessions();
     void                CreerSession();
@@ -80,6 +87,7 @@ private:
 /*! les interventions */
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
+    void                EnregistreIncidentIntervention()        {EnregistreIncident(m_currentintervention);}
     void                FicheIntervention();                                       // crée la fiche qui permet de modifier ou d'enregistrer une intervention
     void                ImprimeDoc(Patient *pat, Intervention *interv);
     void                SupprimeIntervention();
@@ -98,12 +106,14 @@ private:
 
 /*! les fabricants */
     void                ChoixManufacturer(int idx);
+    void                ListeManufacturers();
     void                ReconstruitListeManufacturers();
     void                VerifExistManufacturer(bool &ok);
 /*! les IOLs */
     void                AfficheChoixIOL(int state);
-    void                ChoixIOL(QModelIndex idx);
+    void                ChoixIOL(int idx);
     void                CreerIOL(QString nomiol);
+    void                ListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer);                                        //! recalcule la liste des IOLs pour un fabricant
     void                VerifExistIOL(bool &ok, QComboBox *box);
 };

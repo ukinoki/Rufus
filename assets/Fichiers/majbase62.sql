@@ -76,6 +76,24 @@ BEGIN
         THEN
             ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
             ADD COLUMN `idActe` INT(11) NULL DEFAULT NULL AFTER `Observation`;
+    END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ProgrammesOperatoires' AND COLUMN_NAME = 'Incident') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
+            ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idActe`;
+    END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'SessionsOperatoires' AND COLUMN_NAME = 'Incident') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `Ophtalmologie`.`SessionsOperatoires`
+            ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idLieu`;
         END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -156,6 +174,7 @@ BEGIN
         `idAide` INT NULL,
         `DateSession` DATE NULL,
         `idLieu` INT NULL,
+        `Incident` LONGTEXT NULL,
         PRIMARY KEY (`idSession`)
         ) ENGINE=InnoDB;
 END|

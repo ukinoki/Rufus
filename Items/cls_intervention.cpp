@@ -40,6 +40,7 @@ void Intervention::setData(QJsonObject data)
     Utils::setDataDouble(data, CP_PWRIOL_LIGNPRGOPERATOIRE, m_pwrIOL);
     Utils::setDataDouble(data, CP_CYLIOL_LIGNPRGOPERATOIRE, m_cylIOL);
     Utils::setDataString(data, CP_OBSERV_LIGNPRGOPERATOIRE, m_observation);
+    Utils::setDataString(data, CP_INCIDENT_LIGNPRGOPERATOIRE, m_incident);
     m_data = data;
 }
 
@@ -77,6 +78,7 @@ void Intervention::resetdatas()
     data[CP_PWRIOL_LIGNPRGOPERATOIRE]               = 0;
     data[CP_CYLIOL_LIGNPRGOPERATOIRE]               = 0;
     data[CP_OBSERV_LIGNPRGOPERATOIRE]               = "";
+    data[CP_INCIDENT_LIGNPRGOPERATOIRE]             = "";
     setData(data);
 }
 

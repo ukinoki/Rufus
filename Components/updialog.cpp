@@ -142,7 +142,7 @@ QWidget* UpDialog::widgetbuttons() const
  */
 void UpDialog::setStageCount(double nbstages)
 {
-    wdg_buttonswidget->setFixedHeight(int(m_stageheight * nbstages) + wdg_buttonslayout->contentsMargins().bottom() +wdg_buttonslayout->contentsMargins().top());
+    wdg_buttonswidget->setFixedHeight(int(m_stageheight * nbstages) + wdg_buttonslayout->contentsMargins().bottom() + wdg_buttonslayout->contentsMargins().top());
 }
 
 void UpDialog::UpdateTabOrder()

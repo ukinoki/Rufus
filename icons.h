@@ -205,6 +205,7 @@ public:
     static QIcon icEuro() { return foundIC("icEuro", "://euro.ico", QSize(40,40)); }
     static QIcon icEuroCount() { return foundIC("icEuroCount", "://EuroCount.png", QSize(40,40)); }
 
+    static QIcon icFactory(QSize size = QSize(20,20)) { return foundIC("icFactory", "://factory.png", size); }
     static QIcon icFamily() { return foundIC("icFamily", "://family.png", QSize(30,30)); }
     static QIcon icFerme(QSize size = QSize(30,30)) { return foundIC("icFermeRelache", "://shutdown.png", size); }
     static QIcon icFermeAppuye(QSize size = QSize(30,30)) { return foundIC("icFermeAppuye", "://shutdowndown.png", size); }
@@ -223,6 +224,7 @@ public:
     static QIcon icImprimer(QSize size = QSize(30,30)) { return foundIC("icImprimer", pxImprimer(), size); }
     static QIcon icInformation() { return foundIC("icInformation", pxInformation(), QSize(25,25)); }
     static QIcon icInternet() { return foundIC("icInternet", "://internet.png", QSize(25,25)); }
+    static QIcon icIOL() { return foundIC("icIOL", "://IOL.png", QSize(25,25)); }
 
     static QIcon icListe() { return foundIC("icListe", pxListe()); }
     static QIcon icLoupe() { return foundIC("icLoupe", pxLoupe()); }
@@ -232,6 +234,7 @@ public:
     static QIcon icMedoc() { return foundIC("icMedoc", "://medoc.png"); }
     static QIcon icMessage() { return foundIC("icMessage", "://3Dmessage.png", QSize(40,40)); }
     static QIcon icNetwork() { return foundIC("icNetwork", "://network.png", QSize(40,40)); }
+    static QIcon icNotepad() { return foundIC("icNotepad", "://Notepad.png", QSize(40,40)); }
 
     static QIcon icNull(QSize size = QSize()) { return foundIC("icNull", "", size); } //30
 

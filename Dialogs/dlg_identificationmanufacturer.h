@@ -35,18 +35,17 @@ public:
     explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
-    bool                identmanufacturermodifiee() const;
-    int                 idmanufacturerrenvoye() const;
+    QHash<QString, QVariant> Listbinds() const;
 
 private:
-    DataBase            *db                 = DataBase::I();
-    Manufacturer        *m_manufacturer    = Q_NULLPTR;
+    DataBase                    *db                 = DataBase::I();
+    Manufacturer                *m_manufacturer    = Q_NULLPTR;
 
-    bool                m_modifdatasmanufacturer;
-    QString             m_nommanufacturer;
-    Mode                m_mode;
-    QLineEdit           *wdg_CPlineedit, *wdg_villelineedit;
-    VilleCPWidget       *wdg_villeCP;
+    QString                     m_nommanufacturer;
+    Mode                        m_mode;
+    QLineEdit                   *wdg_CPlineedit, *wdg_villelineedit;
+    VilleCPWidget               *wdg_villeCP;
+    QHash<QString, QVariant>    m_listbinds;
 
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;

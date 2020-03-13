@@ -22,6 +22,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_identificationuser.cpp \
     $$PWD/dlg_impressions.cpp \
     $$PWD/dlg_listecorrespondants.cpp \
+    $$PWD/dlg_listeiols.cpp \
     $$PWD/dlg_listemanufacturers.cpp \
     $$PWD/dlg_listemotscles.cpp \
     $$PWD/dlg_message.cpp \
@@ -60,6 +61,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_identificationuser.h \
     $$PWD/dlg_impressions.h \
     $$PWD/dlg_listecorrespondants.h \
+    $$PWD/dlg_listeiols.h \
     $$PWD/dlg_listemanufacturers.h \
     $$PWD/dlg_listemotscles.h \
     $$PWD/dlg_message.h \

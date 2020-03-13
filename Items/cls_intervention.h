@@ -49,6 +49,7 @@ private: //Données de l'intervention
     double m_cylIOL             = 0;                //! cylindre de l'implant
     QString m_observation       = "";               //! observation
     int m_idacte                = 0;                //! id de l'acte correspondant
+    QString m_incident          = "";               //! incident opératoire
 
 public:
     QTime heure() const                     { return m_heure; }
@@ -62,6 +63,7 @@ public:
     double puissanceIOL() const             { return m_pwrIOL; }
     double cylindreIOL() const              { return m_cylIOL; }
     QString observation() const             { return m_observation; }
+    QString incident() const                { return m_incident; }
 
     void setheure(QTime time)               { m_heure = time;
                                               m_data[CP_HEURE_LIGNPRGOPERATOIRE] = time.toString("HH:mm::ss"); }
@@ -85,6 +87,8 @@ public:
                                               m_data[CP_CYLIOL_LIGNPRGOPERATOIRE] = cyl; }
     void setobservation(QString txt)        { m_observation = txt;
                                               m_data[CP_OBSERV_LIGNPRGOPERATOIRE] = txt; }
+    void setincident(QString txt)           { m_incident = txt;
+                                              m_data[CP_INCIDENT_LIGNPRGOPERATOIRE] = txt; }
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }
@@ -104,6 +108,7 @@ public:
         Utils::setDataDate(data, CP_DATE_SESSIONOPERATOIRE, m_date);
         Utils::setDataInt(data, CP_IDUSER_SESSIONOPERATOIRE, m_iduser);
         Utils::setDataInt(data, CP_IDAIDE_SESSIONOPERATOIRE, m_idaide);
+        Utils::setDataString(data, CP_INCIDENT_SESSIONOPERATOIRE, m_incident);
         m_data = data;
     }
 
@@ -114,12 +119,14 @@ private: //Données de la session
     int m_idlieu            = 0;                //! id du lieu de la session
     int m_iduser            = 0;                //! id du chirurgien
     int m_idaide            = 0;                //! id de l'aide opératoire
+    QString m_incident      = "";               //! incident druant la session
 
 public:
     QDate date() const                      { return m_date; }
     int idlieu() const                      { return m_idlieu; }
     int iduser() const                      { return m_iduser; }
     int idaide() const                      { return m_idaide; }
+    QString incident() const                { return m_incident; }
 
     void setdate(QDate date)                { m_date = date;
                                               m_data[CP_DATE_SESSIONOPERATOIRE] = date.toString("yyyy-MM-dd"); }
@@ -129,6 +136,8 @@ public:
                                               m_data[CP_IDUSER_SESSIONOPERATOIRE] = id; }
     void setidaide(int id)                  { m_iduser = id;
                                               m_data[CP_IDAIDE_SESSIONOPERATOIRE] = id; }
+    void setincident(QString txt)           { m_incident = txt;
+                                              m_data[CP_INCIDENT_SESSIONOPERATOIRE] = txt; }
     void resetdatas()
     {
         QJsonObject data;
@@ -136,6 +145,7 @@ public:
         data[CP_IDLIEU_SESSIONOPERATOIRE]       = 0;
         data[CP_IDUSER_SESSIONOPERATOIRE]       = 0;
         data[CP_IDAIDE_SESSIONOPERATOIRE]       = 0;
+        data[CP_INCIDENT_SESSIONOPERATOIRE]     = "";
         setData(data);
     }
     bool isnull() const                     { return m_id == 0; }

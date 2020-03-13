@@ -478,6 +478,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CYLIOL_LIGNPRGOPERATOIRE                     "CylIOL"
 #define CP_OBSERV_LIGNPRGOPERATOIRE                     "Observation"
 #define CP_IDACTE_LIGNPRGOPERATOIRE                     "idActe"
+#define CP_INCIDENT_LIGNPRGOPERATOIRE                   "Incident"
 
                             //! Table Ophtalmologie.SessionsOperatoires
 #define CP_ID_SESSIONOPERATOIRE                         "idSession"
@@ -485,6 +486,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDUSER_SESSIONOPERATOIRE                     "idUser"
 #define CP_IDAIDE_SESSIONOPERATOIRE                     "idAide"
 #define CP_IDLIEU_SESSIONOPERATOIRE                     "idLieu"
+#define CP_INCIDENT_SESSIONOPERATOIRE                   "Incident"
 
                             //! Table Ophtalmologie.IOLs
 #define CP_ID_IOLS                                      "idIOL"

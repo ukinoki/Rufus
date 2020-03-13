@@ -119,7 +119,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
     }
     man = new Manufacturer(data);
     if (man != Q_NULLPTR)
-        map_all->insert(man->id(), man);
+        initListe();
     return man;
 }
 

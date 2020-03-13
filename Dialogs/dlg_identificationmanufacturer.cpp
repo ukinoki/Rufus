@@ -33,7 +33,6 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     wdg_villelineedit           = wdg_villeCP->ui->VillelineEdit;
     wdg_villeCP                 ->move(10,156);
     m_nommanufacturer           = "";
-    m_modifdatasmanufacturer    = false;
 
     dlglayout()     ->insertWidget(0,ui->CorgroupBox);
     dlglayout()     ->insertWidget(0,ui->Principalframe);
@@ -191,40 +190,29 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
         }
     }
 
-    QHash<QString, QVariant> listbinds;
-    listbinds[CP_NOM_MANUFACTURER]          = ManNom.toUpper();
-    listbinds[CP_ADRESSE1_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse1lineEdit->text().toUpper(),true);
-    listbinds[CP_ADRESSE2_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true);
-    listbinds[CP_ADRESSE3_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true);
-    listbinds[CP_CODEPOSTAL_MANUFACTURER]   = wdg_CPlineedit->text();
-    listbinds[CP_VILLE_MANUFACTURER]        = wdg_villelineedit->text();
-    listbinds[CP_TELEPHONE_MANUFACTURER]    = ui->TellineEdit->text();
-    listbinds[CP_FAX_MANUFACTURER]          = ui->FaxlineEdit->text();
-    listbinds[CP_PORTABLE_MANUFACTURER]     = ui->PortablelineEdit->text();
-    listbinds[CP_WEBSITE_MANUFACTURER]      = ui->WebsiteineEdit->text();
-    listbinds[CP_MAIL_MANUFACTURER]         = ui->MaillineEdit->text();
-    listbinds[CP_CORNOM_MANUFACTURER]       = Utils::trimcapitilize(ui->CorNomlineEdit->text(), true);
-    listbinds[CP_CORPRENOM_MANUFACTURER]    = Utils::trimcapitilize(ui->CorPrenomlineEdit->text(), true);
-    listbinds[CP_CORSTATUT_MANUFACTURER]    = Utils::trimcapitilize(ui->CorStatutlineEdit->text(), true);
-    listbinds[CP_CORMAIL_MANUFACTURER]      = ui->CorMaillineEdit->text();
-    listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
-    listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
-    if (m_mode == Creation)
-        m_manufacturer = Datas::I()->manufacturers->CreationManufacturer(listbinds);
-    else if (m_mode == Modification)
-        DataBase::I()->UpdateTable(TBL_MANUFACTURERS, listbinds, " where " CP_ID_MANUFACTURER " = " + QString::number(m_manufacturer->id()),tr("Impossible de modifier le dossier"));
-    m_modifdatasmanufacturer = true;
+    m_listbinds[CP_NOM_MANUFACTURER]          = ManNom.toUpper();
+    m_listbinds[CP_ADRESSE1_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse1lineEdit->text().toUpper(),true);
+    m_listbinds[CP_ADRESSE2_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true);
+    m_listbinds[CP_ADRESSE3_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true);
+    m_listbinds[CP_CODEPOSTAL_MANUFACTURER]   = wdg_CPlineedit->text();
+    m_listbinds[CP_VILLE_MANUFACTURER]        = wdg_villelineedit->text();
+    m_listbinds[CP_TELEPHONE_MANUFACTURER]    = ui->TellineEdit->text();
+    m_listbinds[CP_FAX_MANUFACTURER]          = ui->FaxlineEdit->text();
+    m_listbinds[CP_PORTABLE_MANUFACTURER]     = ui->PortablelineEdit->text();
+    m_listbinds[CP_WEBSITE_MANUFACTURER]      = ui->WebsiteineEdit->text();
+    m_listbinds[CP_MAIL_MANUFACTURER]         = ui->MaillineEdit->text();
+    m_listbinds[CP_CORNOM_MANUFACTURER]       = Utils::trimcapitilize(ui->CorNomlineEdit->text(), true);
+    m_listbinds[CP_CORPRENOM_MANUFACTURER]    = Utils::trimcapitilize(ui->CorPrenomlineEdit->text(), true);
+    m_listbinds[CP_CORSTATUT_MANUFACTURER]    = Utils::trimcapitilize(ui->CorStatutlineEdit->text(), true);
+    m_listbinds[CP_CORMAIL_MANUFACTURER]      = ui->CorMaillineEdit->text();
+    m_listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
+    m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
     accept();
 }
 
-bool dlg_identificationmanufacturer::identmanufacturermodifiee() const
+QHash<QString, QVariant> dlg_identificationmanufacturer::Listbinds() const
 {
-    return m_modifdatasmanufacturer;
-}
-
-int dlg_identificationmanufacturer::idmanufacturerrenvoye() const
-{
-    return m_manufacturer->id();
+    return m_listbinds;
 }
 
 void dlg_identificationmanufacturer::RegleAffichage()
