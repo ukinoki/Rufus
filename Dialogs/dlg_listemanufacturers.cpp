@@ -78,7 +78,7 @@ void dlg_listemanufacturers::Enablebuttons()
         Datas::I()->iols->initListeByManufacturerId(m_currentmanufacturer->id());
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentmanufacturer != Q_NULLPTR);
     if (m_currentmanufacturer != Q_NULLPTR)
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(Datas::I()->iols->alls()->size() == 0);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(Datas::I()->iols->iols()->size() == 0);
     else
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }

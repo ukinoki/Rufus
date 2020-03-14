@@ -34,6 +34,7 @@ public:
     int idsession() const { return m_idsession ; }
 
     Intervention* getById(int id);
+    Intervention* getInterventionByDateIdPatient(QDate date, int idpatient);
     void initListebySessionId(int id);
 
     //!> actions sur les enregistrements
@@ -64,14 +65,12 @@ public:
 class IOLs : public ItemsList
 {
 private:
-    QMap<int, IOL*> *map_actifs = Q_NULLPTR;    //!< la liste des IOLS encore fabriqués
     QMap<int, IOL*> *map_all = Q_NULLPTR;       //!< la liste de tous les IOLs, y compris ceux qui nes ont plus fabriqués
 
 public:
     explicit IOLs(QObject *parent = Q_NULLPTR);
 
-    QMap<int, IOL*> *alls() const;
-    QMap<int, IOL*> *actifs() const;
+    QMap<int, IOL*> *iols() const;
 
     IOL*    getById(int id);
     void    initListeByManufacturerId(int id);  //! la liste de tous les IOLs d'un fabricant

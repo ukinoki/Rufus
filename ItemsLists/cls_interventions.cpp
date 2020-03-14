@@ -40,6 +40,12 @@ Intervention* Interventions::getById(int id)
     return itref.value();
 }
 
+Intervention* Interventions::getInterventionByDateIdPatient(QDate date, int idpatient)
+{
+    Intervention * ref = DataBase::I()->loadInterventionByDateIdPatient(date, idpatient);
+    return ref;
+}
+
 /*!
  * \brief Interventions::initListeBySessionId
  * Charge l'ensemble des interventions relatives à la session
@@ -183,18 +189,12 @@ SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString,
 
 IOLs::IOLs(QObject *parent) : ItemsList(parent)
 {
-    map_actifs  = new QMap<int, IOL*>();
     map_all     = new QMap<int, IOL*>();
 }
 
-QMap<int, IOL*>* IOLs::alls() const
+QMap<int, IOL*>* IOLs::iols() const
 {
     return map_all;
-}
-
-QMap<int, IOL*>* IOLs::actifs() const
-{
-    return map_actifs;
 }
 
 IOL* IOLs::getById(int id)
@@ -204,11 +204,7 @@ IOL* IOLs::getById(int id)
     {
         IOL* ref = DataBase::I()->loadIOLById(id);
         if (ref != Q_NULLPTR)
-        {
             add( map_all, ref, Item::Update );
-            if (ref->isactif())
-                add( map_actifs, ref, Item::Update );
-        }
         return ref;
     }
     return itref.value();
@@ -222,30 +218,9 @@ IOL* IOLs::getById(int id)
 void IOLs::initListeByManufacturerId(int id)
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLsByManufacturerId(id);
-    epurelist(map_all, &listIOLs);
-    epurelist(map_actifs, &listIOLs);
-    foreach (IOL *iol, listIOLs)
-    {
-        if( iol != Q_NULLPTR)
-        {
-            auto itman = map_all->find(iol->id());
-            if( itman != map_all->constEnd() )
-            {
-                itman.value()->setData(iol->datas());
-                if (!iol->isactif())
-                    map_actifs->remove(iol->id());
-                else if (map_actifs->find(iol->id()) == map_actifs->constEnd())
-                    map_actifs->insert(iol->id(), itman.value());
-                delete iol;
-            }
-            else
-            {
-                map_all->insert(iol->id(), iol);
-                if (iol->isactif())
-                    map_actifs->insert(iol->id(), iol);
-            }
-        }
-    }
+//    qDebug() << "listIOLS.size() =  " << listIOLs.size();
+    ItemsList::clearAll(map_all);
+    addList(map_all, &listIOLs);
 }
 
 /*!
@@ -256,36 +231,13 @@ void IOLs::initListeByManufacturerId(int id)
 void IOLs::initListe()
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
-    epurelist(map_all, &listIOLs);
-    epurelist(map_actifs, &listIOLs);
-    foreach (IOL *iol, listIOLs)
-    {
-        if( iol != Q_NULLPTR)
-        {
-            auto itman = map_all->find(iol->id());
-            if( itman != map_all->constEnd() )
-            {
-                itman.value()->setData(iol->datas());
-                if (!iol->isactif())
-                    map_actifs->remove(iol->id());
-                else if (map_actifs->find(iol->id()) == map_actifs->constEnd())
-                    map_actifs->insert(iol->id(), itman.value());
-                delete iol;
-            }
-            else
-            {
-                map_all->insert(iol->id(), iol);
-                if (iol->isactif())
-                    map_actifs->insert(iol->id(), iol);
-            }
-        }
-    }
+    ItemsList::clearAll(map_all);
+    addList(map_all, &listIOLs);
 }
 
 void IOLs::SupprimeIOL(IOL *iol)
 {
     Supprime(map_all, iol);
-    map_actifs->remove(iol->id());
 }
 
 IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
@@ -320,11 +272,8 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
     }
     iol = new IOL(data);
     if (iol != Q_NULLPTR)
-    {
         map_all->insert(iol->id(), iol);
-        if (iol->isactif())
-            map_actifs->insert(iol->id(), iol);
-    }
+//    qDebug() << iol->id();
     return iol;
 }
 

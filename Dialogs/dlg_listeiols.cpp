@@ -162,7 +162,7 @@ QList<UpStandardItem*> dlg_listeiols::ListeIOLs()
     QStringList list;
     UpStandardItem *manufactureritem;
     QString metier  = "";
-    foreach(IOL *iol, Datas::I()->iols->alls()->values())
+    foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
         if (man != Q_NULLPTR)
@@ -193,7 +193,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
     foreach(UpStandardItem *item, ListeIOLs())
         m_model->appendRow(item);
 
-    foreach(IOL *iol, Datas::I()->iols->alls()->values())
+    foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         if (iol->modele().startsWith(filtre))
         {

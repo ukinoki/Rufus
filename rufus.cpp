@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-03-2020/1");
+    qApp->setApplicationVersion("14-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6910,7 +6910,14 @@ void Rufus::CreerActe(Patient *pat)
         if(!AutorDepartConsult(false)) return;
     Acte * acte = m_listeactes->CreationActe(pat, currentuser(), proc->idCentre(), Datas::I()->sites->idcurrentsite());
     setcurrentacte(acte);
-
+    Intervention* interv = Datas::I()->interventions->getInterventionByDateIdPatient(QDate::currentDate(), pat->id());
+    if (interv != Q_NULLPTR)
+    {
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_IDACTE_LIGNPRGOPERATOIRE] = acte->id();
+        DataBase::I()->UpdateTable(TBL_LIGNESPRGOPERATOIRES, listbinds, "where " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(interv->id()));
+        interv->setidacte(acte->id());
+    }
     AfficheActe(currentacte());
     if (m_listeactes->actes()->size() > 1)
     {

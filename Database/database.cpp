@@ -220,7 +220,7 @@ bool DataBase::UpdateTable(QString nomtable,
     while (itset.hasNext())
     {
         itset.next();
-        req += " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant()? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+        req += " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
     }
     req = req.left(req.size()-1); //retire la virgule de la fin
     req += " " + where;
@@ -2604,6 +2604,25 @@ Intervention* DataBase::loadInterventionById(int idintervention)                
                               CP_OBSERV_LIGNPRGOPERATOIRE ", " CP_IDACTE_LIGNPRGOPERATOIRE ", " CP_INCIDENT_LIGNPRGOPERATOIRE // 10-11-12
                     " FROM " TBL_LIGNESPRGOPERATOIRES ;
                     " WHERE " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(idintervention) ;
+    QVariantList interventiondata = getFirstRecordFromStandardSelectSQL(req,ok);
+    //qDebug() << req;
+    if(!ok || interventiondata.size()==0)
+        return intervention;
+    QJsonObject data = loadInterventionData(interventiondata);
+    intervention = new Intervention(data);
+    return intervention;
+}
+
+Intervention* DataBase::loadInterventionByDateIdPatient(QDate date, int idpatient)  //! charge une Intervention définie par sa date et l'iddu patietnt
+{
+    Intervention *intervention = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", lign." CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
+                              CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
+                              CP_OBSERV_LIGNPRGOPERATOIRE ", " CP_IDACTE_LIGNPRGOPERATOIRE ", lign." CP_INCIDENT_LIGNPRGOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE // 10-11-12
+                    " FROM " TBL_LIGNESPRGOPERATOIRES " lign, " TBL_SESSIONSOPERATOIRES " sess "
+                    " WHERE lign." CP_IDSESSION_LIGNPRGOPERATOIRE " = sess." CP_ID_SESSIONOPERATOIRE
+                    " AND " CP_IDPATIENT_LIGNPRGOPERATOIRE " = " + QString::number(idpatient) +
+                    " AND " CP_DATE_SESSIONOPERATOIRE " = '" + date.toString("yyyy-MM-dd") + "'" ;
     QVariantList interventiondata = getFirstRecordFromStandardSelectSQL(req,ok);
     //qDebug() << req;
     if(!ok || interventiondata.size()==0)

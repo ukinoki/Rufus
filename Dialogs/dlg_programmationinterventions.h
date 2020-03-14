@@ -107,15 +107,14 @@ private:
 /*! les fabricants */
     void                ChoixManufacturer(int idx);
     void                ListeManufacturers();
-    void                ReconstruitListeManufacturers();
+    void                ReconstruitListeManufacturers(int idmanufacturer = 0);
     void                VerifExistManufacturer(bool &ok);
 /*! les IOLs */
     void                AfficheChoixIOL(int state);
-    void                ChoixIOL(int idx);
     void                CreerIOL(QString nomiol);
     void                ListeIOLs();
-    void                ReconstruitListeIOLs(int idmanufacturer);                                        //! recalcule la liste des IOLs pour un fabricant
-    void                VerifExistIOL(bool &ok, QComboBox *box);
+    void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant
+    void                VerifExistIOL(bool &ok);
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

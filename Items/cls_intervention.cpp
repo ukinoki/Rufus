@@ -92,6 +92,10 @@ void IOL::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
+//    qDebug() << "data[CP_ID_IOLS]" << data[CP_ID_IOLS];
+//    qDebug() << "data[CP_IDMANUFACTURER_IOLS]" << data[CP_IDMANUFACTURER_IOLS];
+//    qDebug() << "data[CP_MODELNAME_IOLS]" << data[CP_MODELNAME_IOLS];
+//    qDebug() << "data[CP_INACTIF_IOLS]" << data[CP_INACTIF_IOLS];
     Utils::setDataInt(data, CP_ID_IOLS, m_id);
     Utils::setDataInt(data, CP_IDMANUFACTURER_IOLS, m_idmanufacturer);
     Utils::setDataString(data, CP_MODELNAME_IOLS, m_modele);

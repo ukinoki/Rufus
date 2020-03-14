@@ -348,10 +348,11 @@ public:
      * Interventions
     */
 private:
-    QJsonObject             loadInterventionData(QVariantList refdata);           //! attribue le liste des datas à une Intervention
+    QJsonObject             loadInterventionData(QVariantList refdata);                 //! attribue le liste des datas à une Intervention
 public:
-    QList<Intervention*>    loadInterventionsBySessionId(int id);                    //! charge toutes les Interventions d'un patient
-    Intervention*           loadInterventionById(int idintervention);             //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+    QList<Intervention*>    loadInterventionsBySessionId(int id);                       //! charge toutes les Interventions d'un patient
+    Intervention*           loadInterventionById(int idintervention);                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+    Intervention*           loadInterventionByDateIdPatient(QDate date, int idpatient); //! charge une Intervention définie par sa sate et l'id du patient
 
     /*
      * IOLs

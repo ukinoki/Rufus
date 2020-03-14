@@ -830,8 +830,6 @@ void dlg_programmationinterventions::FicheIntervention()
     wdg_manufacturercombo       ->setEditable(true);
     ReconstruitListeManufacturers();
     wdg_manufacturercombo       ->setInsertPolicy(QComboBox::NoInsert);
-    if (m_manufacturersmodel.rowCount()>0)
-        ChoixManufacturer(0);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixManufacturerIOLLay     ->addWidget(wdg_manufacturercombo);
@@ -844,10 +842,7 @@ void dlg_programmationinterventions::FicheIntervention()
     lblIOL                      ->setText(tr("Implant"));
     wdg_IOLcombo                ->setFixedSize(QSize(150,28));
     wdg_IOLcombo                ->setEditable(true);
-    ReconstruitListeIOLs(wdg_manufacturercombo->currentData().toInt());
     wdg_IOLcombo                ->setInsertPolicy(QComboBox::NoInsert);
-    if (m_IOLsmodel.rowCount()>0)
-        ChoixIOL(0);
     choixIOLLay                 ->addWidget(lblIOL);
     choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixIOLLay                 ->addWidget(wdg_IOLcombo);
@@ -925,7 +920,7 @@ void dlg_programmationinterventions::FicheIntervention()
             if (iol != Q_NULLPTR)
             {
                 man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-                wdg_IOLcombo->setCurrentText(iol->modele());
+                wdg_IOLcombo->setCurrentIndex(wdg_IOLcombo->findData(iol->id()));
             }
             if (man != Q_NULLPTR)
                 wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(man->id()));
@@ -965,10 +960,6 @@ void dlg_programmationinterventions::FicheIntervention()
             UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié le type d'anesthésie"));
             return;
         }
-        if (pat != Q_NULLPTR)
-            if (pat->telephone() == "" && pat->portable() == "")
-                if (!Patients::veriftelephone(pat))
-                    return;
         if (IOLchk->isChecked())
         {
             if (Datas::I()->manufacturers->getById(wdg_manufacturercombo->currentData().toInt()) == Q_NULLPTR)
@@ -982,6 +973,10 @@ void dlg_programmationinterventions::FicheIntervention()
                 return;
             }
         }
+        if (pat != Q_NULLPTR)
+            if (pat->telephone() == "" && pat->portable() == "")
+                if (!Patients::veriftelephone(pat))
+                    return;
         QTime heure = timeedit->time();
         QStandardItem *itm = m_sessionsmodel.itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
         int idsession = dynamic_cast<UpStandardItem*>(itm)->item()->id();
@@ -1074,7 +1069,7 @@ void dlg_programmationinterventions::FicheIntervention()
                                                                                                         interventioncombo->lineEdit()->disconnect();
                                                                                                         dlg_intervention->reject();
                                                                                                     });
-    connect(wdg_IOLcombo->lineEdit(),               &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIOL(verifencours, wdg_IOLcombo); });
+    connect(wdg_IOLcombo->lineEdit(),           &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIOL(verifencours); });
     timeedit->setFocus();
     dlg_intervention->exec();
 }
@@ -1412,11 +1407,6 @@ void dlg_programmationinterventions::AfficheChoixIOL(int state)
 
 }
 
-void dlg_programmationinterventions::ChoixIOL(int idx)
-{
-    m_currentIOL = Datas::I()->iols->getById(wdg_IOLcombo->itemData(idx).toInt());
-}
-
 void dlg_programmationinterventions::CreerIOL(QString nomiol)
 {
     UpDialog            *dlg_IOL = new UpDialog(this);
@@ -1481,7 +1471,8 @@ void dlg_programmationinterventions::CreerIOL(QString nomiol)
         listbinds[CP_IDMANUFACTURER_IOLS]  = idmanufacturer;
         listbinds[CP_INACTIF_IOLS]  = QVariant();
         m_currentIOL = Datas::I()->iols->CreationIOL(listbinds);
-        ReconstruitListeIOLs(idmanufacturer);
+        int id = (m_currentIOL != Q_NULLPTR? m_currentIOL->id() : 0);
+        ReconstruitListeIOLs(idmanufacturer, id);
         dlg_IOL->close();
     });
     dlg_IOL->exec();
@@ -1494,11 +1485,12 @@ void dlg_programmationinterventions::ListeIOLs()
     delete Dlg_ListIOLs;
 }
 
-void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer)
+void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, int idiol)
 {
+    m_currentIOL = Q_NULLPTR;
     wdg_IOLcombo->disconnect();
     wdg_IOLcombo->clear();
-    Datas::I()->iols->initListe();
+    Datas::I()->iols->initListeByManufacturerId(idmanufacturer);
     for (int i=0; i< m_IOLsmodel.rowCount(); ++i)
     {
         if (m_IOLsmodel.item(i,0) != Q_NULLPTR)
@@ -1507,10 +1499,10 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer)
             delete m_IOLsmodel.item(i,1);
     }
     m_IOLsmodel.clear();
-    foreach (IOL* iol, *Datas::I()->iols->alls())
+    foreach (IOL* iol, *Datas::I()->iols->iols())
     {
         QList<QStandardItem *> items;
-        if (iol->idmanufacturer() == idmanufacturer)
+        if (iol->idmanufacturer() == idmanufacturer && iol->isactif())
         {
             UpStandardItem *itemiol = new UpStandardItem(iol->modele(), iol);
             UpStandardItem *itemid = new UpStandardItem(QString::number(iol->id()), iol);
@@ -1518,41 +1510,45 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer)
             m_IOLsmodel.appendRow(items);
         }
     }
-    m_IOLsmodel.sort(0, Qt::AscendingOrder);
-    for (int i=0; i< m_IOLsmodel.rowCount(); ++i)
+    if (m_IOLsmodel.rowCount() > 0)
     {
-        wdg_IOLcombo->addItem(m_IOLsmodel.item(i,0)->text());              //! le modèle de l'IOL
-        wdg_IOLcombo->setItemData(i, m_IOLsmodel.item(i,1)->text());       //! l'id en data
+        if (m_IOLsmodel.rowCount() > 1)
+            m_IOLsmodel.sort(0, Qt::AscendingOrder);
+        for (int i=0; i< m_IOLsmodel.rowCount(); ++i)
+        {
+            wdg_IOLcombo->addItem(m_IOLsmodel.item(i,0)->text());              //! le modèle de l'IOL
+            wdg_IOLcombo->setItemData(i, m_IOLsmodel.item(i,1)->text());       //! l'id en data
+        }
+        if (idiol > 0)
+            m_currentIOL = Datas::I()->iols->getById(idiol);
+        if (m_currentIOL == Q_NULLPTR)
+        {
+            wdg_IOLcombo->setCurrentIndex(0);
+            m_currentIOL = Datas::I()->iols->getById(wdg_IOLcombo->currentData().toInt());
+        }
+        else
+        {
+            //qDebug() << "m_currentIOL->id() " << m_currentIOL->id();
+            int id = m_currentIOL->id();
+            //qDebug() << "wdg_IOLcombo->findData(id) " << wdg_IOLcombo->findData(id);
+            int idx = wdg_IOLcombo->findData(id);
+            wdg_IOLcombo->setCurrentIndex(idx);
+        }
+        connect(wdg_IOLcombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { m_currentIOL = Datas::I()->iols->getById(wdg_IOLcombo->itemData(idx).toInt()); });
     }
-   connect(wdg_IOLcombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { ChoixIOL(idx); });
-   ChoixIOL(0);
 }
 
-void dlg_programmationinterventions::VerifExistIOL(bool &ok, QComboBox *box)
+void dlg_programmationinterventions::VerifExistIOL(bool &ok)
 {
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
-    QString txt = box->lineEdit()->text();
+    QString txt = wdg_IOLcombo->lineEdit()->text();
     if (m_IOLsmodel.findItems(txt).size() == 0 && txt !="")
     {
         if (UpMessageBox::Question(this, tr("Implant non référencé!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
             return;
         else
-        {
-            if (m_currentIOL != Q_NULLPTR)
-            {
-                delete m_currentIOL;
-                m_currentIOL = Q_NULLPTR;
-            }
             CreerIOL(txt);
-            box->setModel(&m_IOLsmodel);
-            if (m_currentIOL != Q_NULLPTR)
-            {
-                int id = m_currentIOL->id();
-                int row = m_IOLsmodel.findItems(QString::number(id), Qt::MatchExactly, 1).at(0)->row();
-                box->setCurrentIndex(row);
-            }
-        }
     }
     ok = false;
 };
@@ -1561,8 +1557,9 @@ void dlg_programmationinterventions::VerifExistIOL(bool &ok, QComboBox *box)
 
 void dlg_programmationinterventions::ChoixManufacturer(int idx)
 {
-    m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->itemData(idx).toInt());
-    if (m_currentmanufacturer)
+    int id = wdg_manufacturercombo->itemData(idx).toInt();
+    m_currentmanufacturer = Datas::I()->manufacturers->getById(id);
+    if (m_currentmanufacturer != Q_NULLPTR)
         ReconstruitListeIOLs(m_currentmanufacturer->id());
 }
 
@@ -1581,8 +1578,9 @@ void dlg_programmationinterventions::ListeManufacturers()
     delete Dlg_ListManufacturers;
 }
 
-void dlg_programmationinterventions::ReconstruitListeManufacturers()
+void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufacturer)
 {
+    m_currentmanufacturer = Q_NULLPTR;
     wdg_manufacturercombo->disconnect();
     wdg_manufacturercombo->clear();
     for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
@@ -1602,14 +1600,28 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers()
             items << itemman << itemid;
             m_manufacturersmodel.appendRow(items);
         }
-     m_manufacturersmodel.sort(0, Qt::AscendingOrder);
-    wdg_manufacturercombo->clear();
-    for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+
+    if (m_manufacturersmodel.rowCount() > 0)
     {
-        wdg_manufacturercombo->addItem(m_manufacturersmodel.item(i,0)->text());         //! le nom du fabricant
-        wdg_manufacturercombo->setItemData(i, m_manufacturersmodel.item(i,1)->text());       //! l'id en data
+        if (m_manufacturersmodel.rowCount() > 1)
+            m_manufacturersmodel.sort(0, Qt::AscendingOrder);
+        for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+        {
+            wdg_manufacturercombo->addItem(m_manufacturersmodel.item(i,0)->text());         //! le nom du fabricant
+            wdg_manufacturercombo->setItemData(i, m_manufacturersmodel.item(i,1)->text());       //! l'id en data
+        }
+        if (idmanufacturer > 0)
+            m_currentmanufacturer = Datas::I()->manufacturers->getById(idmanufacturer);
+        if (m_currentmanufacturer == Q_NULLPTR)
+        {
+            wdg_manufacturercombo->setCurrentIndex(0);
+            m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->currentData().toInt());
+        }
+        else
+            wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
+        ReconstruitListeIOLs(wdg_manufacturercombo->currentData().toInt());
+        connect(wdg_manufacturercombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { ChoixManufacturer(idx); });
     }
-   connect(wdg_manufacturercombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { ChoixManufacturer(idx); });
 }
 
 void dlg_programmationinterventions::VerifExistManufacturer(bool &ok)
@@ -1636,11 +1648,9 @@ void dlg_programmationinterventions::VerifExistManufacturer(bool &ok)
             if (Dlg_IdentManufacturer->exec() >0)
                 m_currentmanufacturer = Datas::I()->manufacturers->CreationManufacturer(Dlg_IdentManufacturer->Listbinds());
             delete Dlg_IdentManufacturer;
-            ReconstruitListeManufacturers();
-            if (m_currentmanufacturer != Q_NULLPTR){
-                wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
-                ReconstruitListeIOLs(m_currentmanufacturer->id());
-            }}
+            int id = (m_currentmanufacturer != Q_NULLPTR? m_currentmanufacturer->id() : 0);
+            ReconstruitListeManufacturers(id);
+        }
     }
     ok = false;
 };
