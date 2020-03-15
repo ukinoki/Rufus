@@ -26,7 +26,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QProcess>
 #include <QJsonObject>
-#include <QStandardItemModel>
 #include <QTextCodec>
 #include <cmath>
 
