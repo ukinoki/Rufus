@@ -22,8 +22,6 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    m_model         = new QStandardItemModel(this);
-
     setModal(true);
     setWindowTitle(tr("Liste des IOLs"));
 
@@ -65,6 +63,12 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
     wdg_chercheuplineedit               ->setFocus();
+    QString req = "select " CP_ID_IOLS " from " TBL_IOLS " where " CP_ID_IOLS " in (select " CP_IDIOL_LIGNPRGOPERATOIRE " from " TBL_LIGNESPRGOPERATOIRES ")";
+    bool ok;
+    QList<QVariantList> listidiols = DataBase::I()->StandardSelectSQL(req,ok);
+    if (ok)
+        for (int i=0; i<listidiols.size(); ++i)
+            m_listidiolsutilises << listidiols.at(i).at(0).toInt();
 }
 
 dlg_listeiols::~dlg_listeiols()
@@ -73,8 +77,17 @@ dlg_listeiols::~dlg_listeiols()
 
 void dlg_listeiols::Enablebuttons()
 {
-    wdg_buttonframe->wdg_modifBouton->setEnabled(getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
+    IOL *iol = getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0));
+    if (iol != Q_NULLPTR)
+    {
+        wdg_buttonframe->wdg_modifBouton->setEnabled(true);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(m_listidiolsutilises.indexOf(iol->id()) == -1);
+    }
+    else
+    {
+        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+    }
 }
 
 
@@ -105,14 +118,117 @@ bool dlg_listeiols::listeIOLsmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::EnregistreNouveauIOL()
 {
+    FicheIOL();
 }
 
 // ------------------------------------------------------------------------------------------
-// renvoie le correpondant correspodant à l'index
+// Enregistre un nouveau correpondant
+// ------------------------------------------------------------------------------------------
+void dlg_listeiols::FicheIOL(IOL* iol)
+{
+    UpDialog            *dlg_IOL = new UpDialog(this);
+    dlg_IOL->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_IOL->setWindowTitle(tr("créer un IOL"));
+
+    //! FABRICANT
+    QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
+    UpLabel* lblManufacturerIOL = new UpLabel;
+    lblManufacturerIOL          ->setText(tr("Fabricant"));
+    QComboBox *manufacturercombo = new QComboBox();
+    for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
+    {
+        manufacturercombo->addItem(m_manufacturersmodel->item(i)->text());                  //! le nom du fabricant
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+        if (itm != Q_NULLPTR)
+            if (itm->item() != Q_NULLPTR)
+                manufacturercombo->setItemData(i, itm->item()->id());                       //! l'id en data
+    }
+
+    choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
+    choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixManufacturerIOLLay     ->addWidget(manufacturercombo);
+    choixManufacturerIOLLay     ->setSpacing(5);
+    choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
+
+    //! MODELE
+    QHBoxLayout *choixIOLLay    = new QHBoxLayout();
+    UpLabel* lblIOL             = new UpLabel;
+    lblIOL                      ->setText(tr("Nom du modèle"));
+    QLineEdit *IOLline          = new QLineEdit();
+    IOLline                     ->setFixedSize(QSize(150,28));
+    IOLline                     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric));
+    choixIOLLay                 ->addWidget(lblIOL);
+    choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixIOLLay                 ->addWidget(IOLline);
+    choixIOLLay                 ->setSpacing(5);
+    choixIOLLay                 ->setContentsMargins(0,0,0,0);
+    if (iol != Q_NULLPTR)
+    {
+        manufacturercombo->setCurrentIndex(manufacturercombo->findData(iol->idmanufacturer()));
+        IOLline->setText(iol->modele());
+    }
+
+
+    dlg_IOL->dlglayout()   ->insertLayout(0, choixIOLLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
+    dlg_IOL->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_IOL->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_IOL->OKButton, &QPushButton::clicked, dlg_IOL, [&]
+    {
+        QString modele = IOLline->text();
+        int idmanufacturer = manufacturercombo->currentData().toInt();
+        foreach(IOL *iol, Datas::I()->iols->iols()->values())
+        {
+            if (iol->modele() == modele)
+            {
+                UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
+                return;
+            }
+        }
+        QHash<QString, QVariant> listbinds;
+        listbinds[CP_MODELNAME_IOLS]    = modele;
+        listbinds[CP_IDMANUFACTURER_IOLS]  = idmanufacturer;
+        listbinds[CP_INACTIF_IOLS]  = QVariant();
+        if (iol == Q_NULLPTR)
+            iol =  Datas::I()->iols->CreationIOL(listbinds);
+        else
+        {
+            DataBase::I()->UpdateTable(TBL_IOLS, listbinds, "where " CP_ID_IOLS " = " +QString::number(iol->id()));
+            iol->setidmanufacturer(idmanufacturer);
+            iol->setmodele(modele);
+        }
+        m_listemodifiee = true;
+        ReconstruitTreeViewIOLs();
+        for (int i=0; i<m_IOLsmodel->rowCount(); ++i)
+        {
+            UpStandardItem *manitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
+            if (manitem != Q_NULLPTR)
+                if (manitem->item() != Q_NULLPTR)
+                    if (manitem->item()->id() == iol->idmanufacturer() && manitem->hasChildren())
+                        for (int k=0; k < manitem->rowCount(); ++k)
+                        {
+                            UpStandardItem *iolitem = dynamic_cast<UpStandardItem*>(manitem->child(k));
+                            if (iolitem != Q_NULLPTR)
+                                if (iolitem->item() != Q_NULLPTR)
+                                    if (iolitem->item()->id() == iol->id())
+                                    {
+                                        wdg_iolstree->scrollTo(iolitem->index(), QAbstractItemView::PositionAtCenter);
+                                        dlg_IOL->close();
+                                        return;
+                                    }
+                        }
+        }
+        dlg_IOL->close();
+    });
+    dlg_IOL->exec();
+}
+
+// ------------------------------------------------------------------------------------------
+// renvoie l'IOL correspondant à l'index
 // ------------------------------------------------------------------------------------------
 IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 {
-    UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
+    UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_IOLsmodel->itemFromIndex(idx));
     if (it != Q_NULLPTR)
         return dynamic_cast<IOL *>(it->item());
     else
@@ -127,6 +243,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 {
     if (iol == Q_NULLPTR)
         return;
+    FicheIOL(iol);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -137,7 +254,7 @@ void dlg_listeiols::SupprIOL()
     if (wdg_iolstree->selectionModel()->selectedIndexes().size() == 0) return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
-            m_model->itemFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0))->text() + "?" +
+            m_IOLsmodel->itemFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0))->text() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
@@ -156,43 +273,64 @@ void dlg_listeiols::SupprIOL()
     }
 }
 
-QList<UpStandardItem*> dlg_listeiols::ListeIOLs()
+void dlg_listeiols::ReconstruitListeManufacturers()
 {
-    QList<UpStandardItem*> listmanufacturers;
+    if (m_manufacturersmodel == Q_NULLPTR)
+        delete m_manufacturersmodel;
+    m_manufacturersmodel = new QStandardItemModel(this);
+
     QStringList list;
     UpStandardItem *manufactureritem;
-    QString metier  = "";
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
         if (man != Q_NULLPTR)
         {
-            QString fabricant  = Utils::trimcapitilize(man->nom(), true, false);
+            QString fabricant  = man->nom();
             if (!list.contains(fabricant))
             {
                 list << fabricant;
-                manufactureritem  = new UpStandardItem(fabricant);
+                manufactureritem  = new UpStandardItem(fabricant, man);
                 manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
                 manufactureritem  ->setEditable(false);
                 manufactureritem  ->setEnabled(false);
-                listmanufacturers << manufactureritem;
+                m_manufacturersmodel->appendRow(manufactureritem);
             }
         }
     }
-    return listmanufacturers;
+    m_manufacturersmodel->sort(0);
 }
 
 void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString filtre)
 {
     if (reconstruirelaliste)
+    {
         Datas::I()->iols->initListe();
+        ReconstruitListeManufacturers();
+    }
     wdg_iolstree->disconnect();
-    m_model->clear();
+    if (m_IOLsmodel == Q_NULLPTR)
+        delete m_IOLsmodel;
+    m_IOLsmodel = new QStandardItemModel(this);
 
     UpStandardItem *pitem;
-    foreach(UpStandardItem *item, ListeIOLs())
-        m_model->appendRow(item);
-
+    for (int i=0; i<  m_manufacturersmodel->rowCount(); ++i)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+        if (itm != Q_NULLPTR)
+        {
+            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            if (man != Q_NULLPTR)
+            {
+                UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
+                manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
+                manufactureritem  ->setEditable(false);
+                manufactureritem  ->setEnabled(false);
+                m_IOLsmodel->appendRow(manufactureritem);
+            }
+        }
+        m_IOLsmodel->sort(0);
+    }
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         if (iol->modele().startsWith(filtre))
@@ -202,27 +340,30 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
             if (man != Q_NULLPTR)
             {
-                QString fabricant  = Utils::trimcapitilize(man->nom(), true, false);
-                QList<QStandardItem *> listitems = m_model->findItems(fabricant);
+                QString fabricant  = man->nom();
+                QList<QStandardItem *> listitems = m_IOLsmodel->findItems(fabricant);
                 if (listitems.size()>0)
                     listitems.at(0)->appendRow(pitem);
             }
         }
     }
-    for (int i=0; i<m_model->rowCount();i++)
-        if (!m_model->item(i)->hasChildren())
-        {
-            m_model->removeRow(i);
-            i--;
-        }
-    wdg_iolstree     ->setModel(m_model);
-    wdg_iolstree     ->expandAll();
-    if (m_model->rowCount()>0)
+    for (int i=0; i<m_IOLsmodel->rowCount();i++)
     {
-        m_model->sort(0);
-        m_model->sort(1);
+        if (m_IOLsmodel->item(i) != Q_NULLPTR)
+            if (!m_IOLsmodel->item(i)->hasChildren())
+            {
+                m_IOLsmodel->removeRow(i);
+                i--;
+            }
+    }
+    wdg_iolstree     ->setModel(m_IOLsmodel);
+    wdg_iolstree     ->expandAll();
+    if (m_IOLsmodel->rowCount()>0)
+    {
+        m_IOLsmodel->sort(0);
+        m_IOLsmodel->sort(1);
         connect(wdg_iolstree,    &QAbstractItemView::pressed,       this,   &dlg_listeiols::Enablebuttons);
-        connect(wdg_iolstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_model->itemFromIndex(idx)->hasChildren())
+        connect(wdg_iolstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });
     }
 }

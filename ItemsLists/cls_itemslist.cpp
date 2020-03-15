@@ -23,6 +23,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Site *sit                   = Q_NULLPTR;
     Manufacturer *man           = Q_NULLPTR;
     TypeIntervention *typinterv = Q_NULLPTR;
+    IOL *iol                    = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -142,6 +143,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (typinterv != Q_NULLPTR)
         {
             table = TBL_TYPESINTERVENTIONS;
+            loop = true;
+            break;
+        }
+        iol = dynamic_cast<IOL*>(item);
+        if (iol != Q_NULLPTR)
+        {
+            table = TBL_IOLS;
             loop = true;
             break;
         }
@@ -799,6 +807,28 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             typinterv->setduree(newvalue.toTime());
             Utils::CalcTimeValueSQL(newvalue);
+        }
+    }
+    else if (table == TBL_IOLS)
+    {
+        ok = true;
+        clause = CP_ID_IOLS " = " + QString::number(item->id());
+        if (field == CP_IDMANUFACTURER_IOLS)
+        {
+            int a = newvalue.toInt();
+            iol->setidmanufacturer(a);
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_MODELNAME_IOLS)
+        {
+            iol->setmodele(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_INACTIF_IOLS)
+        {
+            bool a = newvalue.toBool();
+            iol->setactif(a);
+            newvalue = (a? "null" : "1");
         }
     }
 

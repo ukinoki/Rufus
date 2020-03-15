@@ -127,19 +127,21 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     dlglayout()->setStretch(1,15);
     setFixedWidth(1000);
 
+    m_medecinsmodel = new QStandardItemModel(this);
+
     foreach (User* usr, *Datas::I()->users->actifs())
         if (usr->isMedecin())
         {
             QList<QStandardItem *> items;
             items << new QStandardItem(usr->login())
                   << new QStandardItem(QString::number(usr->id()));
-            m_medecinsmodel.appendRow(items);
+            m_medecinsmodel->appendRow(items);
         }
-    m_medecinsmodel.sort(0, Qt::AscendingOrder);
-    for (int i=0; i< m_medecinsmodel.rowCount(); ++i)
+    m_medecinsmodel->sort(0, Qt::AscendingOrder);
+    for (int i=0; i< m_medecinsmodel->rowCount(); ++i)
     {
-        wdg_listmedecinscombo->addItem(m_medecinsmodel.item(i,0)->text());             //! le login
-        wdg_listmedecinscombo->setItemData(i, m_medecinsmodel.item(i,1)->text());      //! l'id en data
+        wdg_listmedecinscombo->addItem(m_medecinsmodel->item(i,0)->text());             //! le login
+        wdg_listmedecinscombo->setItemData(i, m_medecinsmodel->item(i,1)->text());      //! l'id en data
     }
     if (Datas::I()->users->userconnected()->isMedecin())
     {
@@ -191,7 +193,7 @@ void dlg_programmationinterventions::ChoixSessionFrame()
 
 void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx)
 {
-    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel.itemFromIndex(idx));
+    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
     m_currentsession = dynamic_cast<SessionOperatoire*>(upitem->item());
@@ -205,7 +207,9 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
 void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* session)
 {
     disconnect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
-    m_sessionsmodel.clear();
+    if (m_sessionsmodel == Q_NULLPTR)
+        delete m_sessionsmodel;
+    m_sessionsmodel = new QStandardItemModel(this);
     m_currentsession = Q_NULLPTR;
     foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
     {
@@ -218,13 +222,13 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
         if (site != Q_NULLPTR)
             item->setForeground(QBrush(QColor("#" + Datas::I()->sites->getById(session->idlieu())->couleur())));
         items << item << new UpStandardItem(session->date().toString("yyyy-MM-dd"));
-        m_sessionsmodel.appendRow(items);
+        m_sessionsmodel->appendRow(items);
     }
-    m_sessionsmodel.sort(1, Qt::AscendingOrder);
-    m_sessionsmodel.takeColumn(1);
-    for (int i=0; i< m_sessionsmodel.rowCount(); ++i)
+    m_sessionsmodel->sort(1, Qt::AscendingOrder);
+    m_sessionsmodel->takeColumn(1);
+    for (int i=0; i< m_sessionsmodel->rowCount(); ++i)
     {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel.item(0));
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(0));
         if (itm != Q_NULLPTR)
         {
             SessionOperatoire* sess = dynamic_cast<SessionOperatoire*>(itm->item());
@@ -236,17 +240,17 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
                 }
         }
     }
-    wdg_sessionstreeView->setModel(&m_sessionsmodel);
-    m_sessionsmodel.setHeaderData(0, Qt::Horizontal, tr("Sessions"));
+    wdg_sessionstreeView->setModel(m_sessionsmodel);
+    m_sessionsmodel->setHeaderData(0, Qt::Horizontal, tr("Sessions"));
     wdg_sessionstreeView->expandAll();
     QModelIndex idx;
-    if (m_sessionsmodel.rowCount() >0)
+    if (m_sessionsmodel->rowCount() >0)
     {
         if (session == Q_NULLPTR)
-            idx = m_sessionsmodel.item(m_sessionsmodel.rowCount()-1)->index();        //! l'index de ce dernier item
-        else for (int i=0; i<m_sessionsmodel.rowCount(); ++i)
+            idx = m_sessionsmodel->item(m_sessionsmodel->rowCount()-1)->index();        //! l'index de ce dernier item
+        else for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
         {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel.item(i));
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
             if (itm->item() == session)
             {
                 idx = itm->index();
@@ -302,9 +306,9 @@ void dlg_programmationinterventions::CreerSession()
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
-        for (int i = 0; i < m_sessionsmodel.rowCount(); ++i)
+        for (int i = 0; i < m_sessionsmodel->rowCount(); ++i)
         {
-            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel.item(i));
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
             SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
             if (session->date() ==  date && session->idlieu() == idsite)
             {
@@ -366,9 +370,9 @@ void dlg_programmationinterventions::EditSession()
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
-        for (int i = 0; i < m_sessionsmodel.rowCount(); ++i)
+        for (int i = 0; i < m_sessionsmodel->rowCount(); ++i)
         {
-            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel.item(i));
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
             SessionOperatoire *rechsession = dynamic_cast<SessionOperatoire*>(upitem->item());
             if (rechsession->date() ==  date && rechsession->idlieu() == idsite)
             {
@@ -407,7 +411,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
 {
     m_ctxtmenusessions = new QMenu(this);
     QModelIndex psortindx   = wdg_sessionstreeView->indexAt(wdg_sessionstreeView->viewport()->mapFromGlobal(cursor().pos()));
-    UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel.itemFromIndex(psortindx));
+    UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->itemFromIndex(psortindx));
     if (upitem == Q_NULLPTR)
     {
         QAction *pAction_CreerSession = m_ctxtmenusessions->addAction(tr("Créer une session"));
@@ -456,7 +460,7 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
 
 void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
 {
-    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel.itemFromIndex(idx));
+    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
     m_currentintervention = dynamic_cast<Intervention*>(upitem->item());
@@ -474,9 +478,12 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
 void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* intervention)
 {
     disconnect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
-    m_interventionsmodel.clear();
+    if (m_interventionsmodel == Q_NULLPTR)
+        delete m_interventionsmodel;
+    m_interventionsmodel = new QStandardItemModel(this);
+
     m_currentintervention = Q_NULLPTR;
-    QStandardItem * rootNodeDate = m_interventionsmodel.invisibleRootItem();
+    QStandardItem * rootNodeDate = m_interventionsmodel->invisibleRootItem();
     QList<QTime> listheures;
 
     foreach (Intervention *interv, *Datas::I()->interventions->interventions())
@@ -507,7 +514,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     foreach (Intervention *interv, *Datas::I()->interventions->interventions())
     {
         QString heure = "- " + interv->heure().toString("HH:mm") + " -";
-        QList<QStandardItem *> listitemsheure = m_interventionsmodel.findItems(heure);
+        QList<QStandardItem *> listitemsheure = m_interventionsmodel->findItems(heure);
         if (listitemsheure.size()>0)
         {
             QString nompatient = "";
@@ -613,23 +620,23 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         listitemsheure.at(0)->sortChildren(1);
         ++a;
     }
-    wdg_interventionstreeView->setModel(&m_interventionsmodel);
-    m_interventionsmodel.setHeaderData(0, Qt::Horizontal, tr("Interventions"));
-    m_interventionsmodel.setHeaderData(1, Qt::Horizontal, "");
-    m_interventionsmodel.setHeaderData(2, Qt::Horizontal, "");
+    wdg_interventionstreeView->setModel(m_interventionsmodel);
+    m_interventionsmodel->setHeaderData(0, Qt::Horizontal, tr("Interventions"));
+    m_interventionsmodel->setHeaderData(1, Qt::Horizontal, "");
+    m_interventionsmodel->setHeaderData(2, Qt::Horizontal, "");
     wdg_interventionstreeView->expandAll();
     wdg_interventionstreeView   ->setColumnWidth(0,340);
     wdg_interventionstreeView   ->header()->setSectionResizeMode(QHeaderView::Fixed);
     wdg_interventionstreeView   ->setSortingEnabled(false);
     connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
     QModelIndex idx;
-    if (m_interventionsmodel.rowCount() >0)
+    if (m_interventionsmodel->rowCount() >0)
     {
         if (intervention == Q_NULLPTR)
-            idx = m_interventionsmodel.item(m_interventionsmodel.rowCount()-1)->index();        //! l'index du dernier item
-        else for (int i=0; i<m_interventionsmodel.rowCount(); ++i)
+            idx = m_interventionsmodel->item(m_interventionsmodel->rowCount()-1)->index();        //! l'index du dernier item
+        else for (int i=0; i<m_interventionsmodel->rowCount(); ++i)
         {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_interventionsmodel.item(i));
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_interventionsmodel->item(i));
             if (itm->item() == intervention)
             {
                 idx = itm->index();
@@ -726,10 +733,10 @@ void dlg_programmationinterventions::FicheIntervention()
     UpLabel* lblsession = new UpLabel;
     lblsession          ->setText(tr("Session"));
     UpComboBox *sessioncombo = new UpComboBox();
-    sessioncombo        ->setModel(&m_sessionsmodel);
-    for (int i=0; i< m_sessionsmodel.rowCount(); ++i)
+    sessioncombo        ->setModel(m_sessionsmodel);
+    for (int i=0; i< m_sessionsmodel->rowCount(); ++i)
     {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel.item(i,0));
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i,0));
         if (itm)
             if (itm->item())
                 if (itm->item()->id() == m_currentsession->id())
@@ -764,7 +771,7 @@ void dlg_programmationinterventions::FicheIntervention()
     UpComboBox *interventioncombo = new UpComboBox();
     interventioncombo       ->setFixedSize(QSize(150,28));
     interventioncombo       ->setEditable(true);
-    interventioncombo       ->setModel(&m_typeinterventionsmodel);
+    interventioncombo       ->setModel(m_typeinterventionsmodel);
     interventioncombo       ->setCurrentIndex(-1);
     interventioncombo       ->setInsertPolicy(QComboBox::NoInsert);
     choixinterventionLay    ->addWidget(lblinterv);
@@ -978,13 +985,13 @@ void dlg_programmationinterventions::FicheIntervention()
                 if (!Patients::veriftelephone(pat))
                     return;
         QTime heure = timeedit->time();
-        QStandardItem *itm = m_sessionsmodel.itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
+        QStandardItem *itm = m_sessionsmodel->itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
         int idsession = dynamic_cast<UpStandardItem*>(itm)->item()->id();
         int idpat = pat->id();
         int idtype = 0;
         QString cote = cotecombo->currentData().toString();
         QString anesth = anesthcombo->currentData().toString();
-        UpStandardItem *itmitv = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel.item(interventioncombo->currentIndex()));
+        UpStandardItem *itmitv = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel->item(interventioncombo->currentIndex()));
         if (itm)
             idtype = itmitv->item()->id();
         QHash<QString, QVariant> listbinds;
@@ -1002,9 +1009,9 @@ void dlg_programmationinterventions::FicheIntervention()
         }
         if (interv == Q_NULLPTR)                                                                                        //! il s'agit d'une création parce qu'aucune intervention n'a été passée en paramètre de la fonction
         {
-            for (int i = 0; i < m_interventionsmodel.rowCount(); ++i)
+            for (int i = 0; i < m_interventionsmodel->rowCount(); ++i)
             {
-                UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel.item(i));
+                UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->item(i));
                 if(upitem->hasChildren())
                 {
                     UpStandardItem * itm = dynamic_cast<UpStandardItem*>(upitem->child(0));
@@ -1041,11 +1048,11 @@ void dlg_programmationinterventions::FicheIntervention()
             if (idsession != oldidsession) // on a changé de session, on change la session active
             {
                 QModelIndex idx;
-                if (m_sessionsmodel.rowCount() >0)
+                if (m_sessionsmodel->rowCount() >0)
                 {
-                    for (int i=0; i<m_sessionsmodel.rowCount(); ++i)
+                    for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
                     {
-                        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel.item(i));
+                        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
                         if (itm->item()->id() == idsession)
                         {
                             idx = itm->index();
@@ -1228,7 +1235,7 @@ void dlg_programmationinterventions::VerifExistIntervention(bool &ok, QComboBox 
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
     QString txt = box->lineEdit()->text();
-    if (m_typeinterventionsmodel.findItems(txt).size() ==0 && txt !="")
+    if (m_typeinterventionsmodel->findItems(txt).size() ==0 && txt !="")
     {
         if (UpMessageBox::Question(this, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
             return;
@@ -1240,11 +1247,11 @@ void dlg_programmationinterventions::VerifExistIntervention(bool &ok, QComboBox 
                 m_currenttypeintervention = Q_NULLPTR;
             }
             CreerTypeIntervention(Utils::trimcapitilize(txt));
-            box->setModel(&m_typeinterventionsmodel);
+            box->setModel(m_typeinterventionsmodel);
             if (m_currenttypeintervention != Q_NULLPTR)
             {
                 int id = m_currenttypeintervention->id();
-                int row = m_typeinterventionsmodel.findItems(QString::number(id), Qt::MatchExactly, 2).at(0)->row();
+                int row = m_typeinterventionsmodel->findItems(QString::number(id), Qt::MatchExactly, 2).at(0)->row();
                 box->setCurrentIndex(row);
             }
         }
@@ -1280,7 +1287,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
 {
     m_ctxtmenuinterventions = new QMenu(this);
     QModelIndex psortindx   = wdg_interventionstreeView->indexAt(wdg_interventionstreeView->viewport()->mapFromGlobal(cursor().pos()));
-    UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel.itemFromIndex(psortindx));
+    UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->itemFromIndex(psortindx));
     if (upitem == Q_NULLPTR)
     {
         QAction *pAction_CreerSession = m_ctxtmenuinterventions->addAction(tr("Créer une intervention"));
@@ -1317,16 +1324,9 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
 
 void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
 {
-    for (int i=0; i< m_typeinterventionsmodel.rowCount(); ++i)
-    {
-        if (m_typeinterventionsmodel.item(i,0) != Q_NULLPTR)
-            delete m_typeinterventionsmodel.item(i,0);
-        if (m_typeinterventionsmodel.item(i,1) != Q_NULLPTR)
-            delete m_typeinterventionsmodel.item(i,1);
-        if (m_typeinterventionsmodel.item(i,2) != Q_NULLPTR)
-            delete m_typeinterventionsmodel.item(i,2);
-    }
-    m_typeinterventionsmodel.clear();
+    if (m_typeinterventionsmodel == Q_NULLPTR)
+        delete m_typeinterventionsmodel;
+    m_typeinterventionsmodel = new QStandardItemModel(this);
     foreach (TypeIntervention* typ, *Datas::I()->typesinterventions->typeinterventions())
     {
         QList<QStandardItem *> items;
@@ -1335,9 +1335,9 @@ void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
         UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
         UpStandardItem *itemid = new UpStandardItem(QString::number(typ->id()), typ);
         items << itemtyp << itemccam << itemid;
-        m_typeinterventionsmodel.appendRow(items);
+        m_typeinterventionsmodel->appendRow(items);
     }
-    m_typeinterventionsmodel.sort(0, Qt::AscendingOrder);
+    m_typeinterventionsmodel->sort(0, Qt::AscendingOrder);
 }
 
 void dlg_programmationinterventions::CreerTypeIntervention(QString txt)
@@ -1377,9 +1377,9 @@ void dlg_programmationinterventions::CreerTypeIntervention(QString txt)
     {
         if (linenom->text() == "")
             return;
-        for (int i = 0; i < m_typeinterventionsmodel.rowCount(); ++i)
+        for (int i = 0; i < m_typeinterventionsmodel->rowCount(); ++i)
         {
-            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel.item(i));
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel->item(i));
             TypeIntervention *typ = dynamic_cast<TypeIntervention*>(upitem->item());
             if (typ->typeintervention() == Utils::trimcapitilize(linenom->text()))
             {
@@ -1402,11 +1402,6 @@ void dlg_programmationinterventions::CreerTypeIntervention(QString txt)
 
 /*! les IOLs ----------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void dlg_programmationinterventions::AfficheChoixIOL(int state)
-{
-
-}
-
 void dlg_programmationinterventions::CreerIOL(QString nomiol)
 {
     UpDialog            *dlg_IOL = new UpDialog(this);
@@ -1418,10 +1413,10 @@ void dlg_programmationinterventions::CreerIOL(QString nomiol)
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
     QComboBox *manufacturercombo = new QComboBox();
-    for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+    for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
     {
-        manufacturercombo->addItem(m_manufacturersmodel.item(i,0)->text());         //! le nom du fabricant
-        manufacturercombo->setItemData(i, m_manufacturersmodel.item(i,1)->text());       //! l'id en data
+        manufacturercombo->addItem(m_manufacturersmodel->item(i,0)->text());         //! le nom du fabricant
+        manufacturercombo->setItemData(i, m_manufacturersmodel->item(i,1)->text());       //! l'id en data
     }
     if (m_currentmanufacturer)
     {
@@ -1456,9 +1451,9 @@ void dlg_programmationinterventions::CreerIOL(QString nomiol)
     {
         QString modele = IOLline->text();
         int idmanufacturer = m_currentmanufacturer->id();
-        for (int i = 0; i < m_IOLsmodel.rowCount(); ++i)
+        for (int i = 0; i < m_IOLsmodel->rowCount(); ++i)
         {
-            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel.item(i));
+            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
             IOL *iol = dynamic_cast<IOL*>(upitem->item());
             if (iol->modele() == modele)
             {
@@ -1482,6 +1477,8 @@ void dlg_programmationinterventions::ListeIOLs()
 {
     Dlg_ListIOLs = new dlg_listeiols(this);
     Dlg_ListIOLs->exec();
+    if (Dlg_ListIOLs->listeIOLsmodifiee())
+        RemplirTreeInterventions();
     delete Dlg_ListIOLs;
 }
 
@@ -1491,14 +1488,9 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
     wdg_IOLcombo->disconnect();
     wdg_IOLcombo->clear();
     Datas::I()->iols->initListeByManufacturerId(idmanufacturer);
-    for (int i=0; i< m_IOLsmodel.rowCount(); ++i)
-    {
-        if (m_IOLsmodel.item(i,0) != Q_NULLPTR)
-            delete m_IOLsmodel.item(i,0);
-        if (m_IOLsmodel.item(i,1) != Q_NULLPTR)
-            delete m_IOLsmodel.item(i,1);
-    }
-    m_IOLsmodel.clear();
+    if (m_IOLsmodel == Q_NULLPTR)
+        delete m_IOLsmodel;
+    m_IOLsmodel = new QStandardItemModel(this);
     foreach (IOL* iol, *Datas::I()->iols->iols())
     {
         QList<QStandardItem *> items;
@@ -1507,17 +1499,17 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
             UpStandardItem *itemiol = new UpStandardItem(iol->modele(), iol);
             UpStandardItem *itemid = new UpStandardItem(QString::number(iol->id()), iol);
             items << itemiol << itemid;
-            m_IOLsmodel.appendRow(items);
+            m_IOLsmodel->appendRow(items);
         }
     }
-    if (m_IOLsmodel.rowCount() > 0)
+    if (m_IOLsmodel->rowCount() > 0)
     {
-        if (m_IOLsmodel.rowCount() > 1)
-            m_IOLsmodel.sort(0, Qt::AscendingOrder);
-        for (int i=0; i< m_IOLsmodel.rowCount(); ++i)
+        if (m_IOLsmodel->rowCount() > 1)
+            m_IOLsmodel->sort(0, Qt::AscendingOrder);
+        for (int i=0; i< m_IOLsmodel->rowCount(); ++i)
         {
-            wdg_IOLcombo->addItem(m_IOLsmodel.item(i,0)->text());              //! le modèle de l'IOL
-            wdg_IOLcombo->setItemData(i, m_IOLsmodel.item(i,1)->text());       //! l'id en data
+            wdg_IOLcombo->addItem(m_IOLsmodel->item(i,0)->text());              //! le modèle de l'IOL
+            wdg_IOLcombo->setItemData(i, m_IOLsmodel->item(i,1)->text());       //! l'id en data
         }
         if (idiol > 0)
             m_currentIOL = Datas::I()->iols->getById(idiol);
@@ -1543,7 +1535,7 @@ void dlg_programmationinterventions::VerifExistIOL(bool &ok)
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
     QString txt = wdg_IOLcombo->lineEdit()->text();
-    if (m_IOLsmodel.findItems(txt).size() == 0 && txt !="")
+    if (m_IOLsmodel->findItems(txt).size() == 0 && txt !="")
     {
         if (UpMessageBox::Question(this, tr("Implant non référencé!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
             return;
@@ -1575,6 +1567,8 @@ void dlg_programmationinterventions::ListeManufacturers()
     }
     Dlg_ListManufacturers = new dlg_listemanufacturers(this);
     Dlg_ListManufacturers->exec();
+    if (Dlg_ListManufacturers->listemanufacturersmodifiee())
+        AfficheInterventionsSession(wdg_sessionstreeView->currentIndex());
     delete Dlg_ListManufacturers;
 }
 
@@ -1583,14 +1577,9 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
     m_currentmanufacturer = Q_NULLPTR;
     wdg_manufacturercombo->disconnect();
     wdg_manufacturercombo->clear();
-    for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
-    {
-        if (m_manufacturersmodel.item(i,0) != Q_NULLPTR)
-            delete m_manufacturersmodel.item(i,0);
-        if (m_manufacturersmodel.item(i,1) != Q_NULLPTR)
-            delete m_manufacturersmodel.item(i,1);
-    }
-    m_manufacturersmodel.clear();
+    if (m_manufacturersmodel == Q_NULLPTR)
+        delete m_manufacturersmodel;
+    m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
         if (man->isactif()) {
             QList<QStandardItem *> items;
@@ -1598,17 +1587,17 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
             UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
             UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
             items << itemman << itemid;
-            m_manufacturersmodel.appendRow(items);
+            m_manufacturersmodel->appendRow(items);
         }
 
-    if (m_manufacturersmodel.rowCount() > 0)
+    if (m_manufacturersmodel->rowCount() > 0)
     {
-        if (m_manufacturersmodel.rowCount() > 1)
-            m_manufacturersmodel.sort(0, Qt::AscendingOrder);
-        for (int i=0; i< m_manufacturersmodel.rowCount(); ++i)
+        if (m_manufacturersmodel->rowCount() > 1)
+            m_manufacturersmodel->sort(0, Qt::AscendingOrder);
+        for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
         {
-            wdg_manufacturercombo->addItem(m_manufacturersmodel.item(i,0)->text());         //! le nom du fabricant
-            wdg_manufacturercombo->setItemData(i, m_manufacturersmodel.item(i,1)->text());       //! l'id en data
+            wdg_manufacturercombo->addItem(m_manufacturersmodel->item(i,0)->text());         //! le nom du fabricant
+            wdg_manufacturercombo->setItemData(i, m_manufacturersmodel->item(i,1)->text());       //! l'id en data
         }
         if (idmanufacturer > 0)
             m_currentmanufacturer = Datas::I()->manufacturers->getById(idmanufacturer);
@@ -1629,7 +1618,7 @@ void dlg_programmationinterventions::VerifExistManufacturer(bool &ok)
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
     QString txt = wdg_manufacturercombo->lineEdit()->text();
-    if (m_manufacturersmodel.findItems(txt).size() == 0 && txt !="")
+    if (m_manufacturersmodel->findItems(txt).size() == 0 && txt !="")
     {
         if (UpMessageBox::Question(this, tr("Fabricant non référencé!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
             return;

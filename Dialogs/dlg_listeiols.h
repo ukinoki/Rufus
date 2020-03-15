@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_LISTEIOLS_H
 
 #include "updialog.h"
+#include <QComboBox>
 #include <QHeaderView>
 #include <QTreeView>
 #include "gbl_datas.h"
@@ -34,8 +35,9 @@ public:
 
 private:
     bool                    m_listemodifiee = false;
-
-    QStandardItemModel      *m_model;
+    QList<int>              m_listidiolsutilises;
+    QStandardItemModel      *m_IOLsmodel = Q_NULLPTR;
+    QStandardItemModel      *m_manufacturersmodel = Q_NULLPTR;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_iolstree;
     UpLineEdit              *wdg_chercheuplineedit;
@@ -44,8 +46,9 @@ private:
     void                    ChoixButtonFrame();
     void                    Enablebuttons();
     void                    EnregistreNouveauIOL();
+    void                    FicheIOL(IOL* iol = Q_NULLPTR);
     IOL*                    getIOLFromIndex(QModelIndex idx);
-    QList<UpStandardItem*>  ListeIOLs();                // la liste des iols
+    void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
     void                    SupprIOL();
     void                    ReconstruitTreeViewIOLs(bool reconstruirelaliste = false, QString filtre = "");

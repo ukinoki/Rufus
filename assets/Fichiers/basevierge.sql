@@ -1,3 +1,5 @@
+-- 13/03/2020
+
 UNLOCK TABLES;
 
 DROP DATABASE IF EXISTS  `Images`;
@@ -262,7 +264,7 @@ CREATE TABLE `IOLs` (
   `idIOL` INT NOT NULL AUTO_INCREMENT,
   `idmanufacturer` INT NULL,
   `modelname` VARCHAR(45) NULL,
-  `IOLInactif` INT(1) NULL
+  `IOLInactif` INT(1) NULL,
   PRIMARY KEY (`idIOL`)
   ) ENGINE=InnoDB;
 

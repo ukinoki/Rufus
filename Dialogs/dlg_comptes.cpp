@@ -502,7 +502,7 @@ void dlg_comptes::VoirArchives()
     if (listarchives.size()==0)
         UpMessageBox::Watch(this, tr("Aucune écriture archivée depuis ") + QString::number(m_intervalledate) + tr("jours"));
     // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
-    QStandardItemModel *model = new QStandardItemModel();
+    QStandardItemModel *model = new QStandardItemModel(this);
     foreach (Archive * arc, *m_archivescptencours->archives())
     {
         QList<QStandardItem *> items;

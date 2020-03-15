@@ -24,8 +24,6 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    m_model         = new QStandardItemModel(this);
-
     setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
 
@@ -201,7 +199,9 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     if (reconstruirelaliste)
         Datas::I()->correspondants->initListe(true);
     wdg_correspstree->disconnect();
-    m_model->clear();
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    m_model = new QStandardItemModel(this);
 
     UpStandardItem *pitem;
     foreach(UpStandardItem *item, ListeMetiers())

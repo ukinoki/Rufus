@@ -32,7 +32,7 @@ private:
     bool                    m_listemodifiee = false;
 
     dlg_identificationcorresp   *Dlg_IdentCorresp;
-    QStandardItemModel      *m_model;
+    QStandardItemModel      *m_model = Q_NULLPTR;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_correspstree;
     UpLineEdit              *wdg_chercheuplineedit;

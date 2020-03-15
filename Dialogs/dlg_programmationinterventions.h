@@ -40,7 +40,12 @@ public:
 
 private:
     Procedures                      *proc = Procedures::I();
-    QStandardItemModel              m_medecinsmodel, m_sessionsmodel, m_interventionsmodel, m_typeinterventionsmodel, m_manufacturersmodel, m_IOLsmodel;
+    QStandardItemModel              *m_medecinsmodel = Q_NULLPTR;
+    QStandardItemModel              *m_sessionsmodel = Q_NULLPTR;
+    QStandardItemModel              *m_interventionsmodel = Q_NULLPTR;
+    QStandardItemModel              *m_typeinterventionsmodel = Q_NULLPTR;
+    QStandardItemModel              *m_manufacturersmodel = Q_NULLPTR;
+    QStandardItemModel              *m_IOLsmodel = Q_NULLPTR;
     QFont                           m_font = QApplication::font();
     dlg_impressions                 *Dlg_Imprs;
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
@@ -110,7 +115,6 @@ private:
     void                ReconstruitListeManufacturers(int idmanufacturer = 0);
     void                VerifExistManufacturer(bool &ok);
 /*! les IOLs */
-    void                AfficheChoixIOL(int state);
     void                CreerIOL(QString nomiol);
     void                ListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant

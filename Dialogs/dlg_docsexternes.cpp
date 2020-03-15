@@ -158,7 +158,7 @@ dlg_docsexternes::~dlg_docsexternes()
 
 void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 {
-    QModelIndex idx = getIndexFromId(m_modele, docmt->id());
+    QModelIndex idx = getIndexFromId(m_model, docmt->id());
     QMenu *menu = new QMenu(this);
     QAction *paction_ImportantMin   = new QAction(tr("Importance faible"));
     QAction *paction_ImportantNorm  = new QAction(tr("Importance normale"));
@@ -302,7 +302,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     case Norm:  imp = 1; break;
     case Max:   imp = 2; break;
     }
-    QStandardItem *item = getItemFromDocument(m_modele, docmt);
+    QStandardItem *item = getItemFromDocument(m_model, docmt);
     if (item == Q_NULLPTR)
         return;
     int id = docmt->id();
@@ -560,35 +560,36 @@ void dlg_docsexternes::BasculeTriListe(int a)
     if (wdg_listdocstreewiew->selectionModel()->selectedIndexes().size()>0)
     {
         QModelIndex actifidx = wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0);
-        if (!m_modele->itemFromIndex(actifidx)->hasChildren())
-            idimpraretrouver = m_modele->itemFromIndex(actifidx)->data().toMap().value("id").toString();
+        if (!m_model->itemFromIndex(actifidx)->hasChildren())
+            idimpraretrouver = m_model->itemFromIndex(actifidx)->data().toMap().value("id").toString();
     }
-    m_modele             = new QStandardItemModel(this);
-     if (a == 0)
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    if (a == 0)
     {
         m_modetri = parDate;
-        m_modele  = m_tripardatemodel;
+        m_model  = m_tripardatemodel;
     }
     else if (a == 1)
     {
         m_modetri = parType;
-        m_modele = m_tripartypemodel;
+        m_model = m_tripartypemodel;
     }
 
     QItemSelectionModel *m = wdg_listdocstreewiew->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-    wdg_listdocstreewiew->setModel(m_modele);
+    wdg_listdocstreewiew->setModel(m_model);
     delete m;
 
-    int nrows = m_modele->item(m_modele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
-    QStandardItem *item =  m_modele->item(m_modele->rowCount()-1)->child(nrows,0);    // le tout dernier item
+    int nrows = m_model->item(m_model->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
+    QStandardItem *item =  m_model->item(m_model->rowCount()-1)->child(nrows,0);    // le tout dernier item
     QModelIndex idx = item->index();                                                // l'index de ce dernier item
     if (idimpraretrouver != "")
     {
-        QModelIndex indx = getIndexFromId(m_modele, idimpraretrouver.toInt());
+        QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
         if (indx.isValid())
             idx = indx;
     }
-    wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_modele));
+    wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
     wdg_listdocstreewiew->expandAll();
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
@@ -660,7 +661,7 @@ void dlg_docsexternes::FiltrerListe(UpCheckBox *chk)
 
 DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
 {
-    QStandardItem *it = m_modele->itemFromIndex(idx);
+    QStandardItem *it = m_model->itemFromIndex(idx);
     if (it == Q_NULLPTR || it->hasChildren())
         return Q_NULLPTR;
     int idimpr = it->data().toMap().value("id").toInt();
@@ -683,7 +684,7 @@ QModelIndex dlg_docsexternes::getIndexFromId(QStandardItemModel *modele, int id)
 QStandardItem* dlg_docsexternes::getItemFromDocument(QStandardItemModel *model, DocExterne* docmt)
 {
     QModelIndex idx = getIndexFromId(model,docmt->id());
-    return m_modele->itemFromIndex(idx);
+    return m_model->itemFromIndex(idx);
 }
 
 void dlg_docsexternes::ImprimeDoc()
@@ -826,7 +827,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                 Datas::I()->docsexternes->SupprimeDocumentExterne(docmt);
             }
             ActualiseDocsExternes();
-            QModelIndex idx = getIndexFromId(m_modele, idimpr);
+            QModelIndex idx = getIndexFromId(m_model, idimpr);
             wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
             wdg_listdocstreewiew->setCurrentIndex(idx);
             AfficheDoc(idx);
@@ -982,7 +983,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
         {
             ItemsList::update(docmt, CP_SOUSTYPEDOC_DOCSEXTERNES, Line->text());
             QString titre = CalcTitre(docmt);
-            m_modele->itemFromIndex(idx)->setText(titre);
+            m_model->itemFromIndex(idx)->setText(titre);
             int id = docmt->id();
             m_tripardatemodel->itemFromIndex(getIndexFromId(m_tripardatemodel,id))->setText(titre);
             m_tripartypemodel->itemFromIndex(getIndexFromId(m_tripartypemodel,id))->setText(titre);
@@ -1063,7 +1064,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         wdg_listdocstreewiew->expandAll();
         if (idaafficher != "")
         {
-            QModelIndex idx = getIndexFromId(m_modele, idaafficher.toInt());
+            QModelIndex idx = getIndexFromId(m_model, idaafficher.toInt());
             if (idx.isValid())
             {
                 wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
@@ -1273,26 +1274,27 @@ void dlg_docsexternes::RemplirTreeView()
     if (wdg_listdocstreewiew->selectionModel() != Q_NULLPTR)
         wdg_listdocstreewiew->selectionModel()->disconnect();
     QString             idimpraretrouver = "";
-    m_modele = dynamic_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
-    if (m_modele)
+    m_model = dynamic_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
+    if (m_model)
     {
-        if (m_modele->rowCount()>0)
+        if (m_model->rowCount()>0)
             if (wdg_listdocstreewiew->selectionModel()->selectedIndexes().size()>0)
             {
                 QModelIndex actifidx = wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0);
-                if (!m_modele->itemFromIndex(actifidx)->hasChildren())
-                    idimpraretrouver = m_modele->itemFromIndex(actifidx)->data().toMap().value("id").toString();
+                if (!m_model->itemFromIndex(actifidx)->hasChildren())
+                    idimpraretrouver = m_model->itemFromIndex(actifidx)->data().toMap().value("id").toString();
             }
-        m_modele->clear();
-        m_tripardatemodel->clear();
-        m_tripartypemodel->clear();
     }
-    else
-    {
-        m_modele            = new QStandardItemModel(this);
-        m_tripardatemodel   = new QStandardItemModel(this);
-        m_tripartypemodel   = new QStandardItemModel(this);
-    }
+
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    m_model = new QStandardItemModel(this);
+    if (m_tripardatemodel == Q_NULLPTR)
+        delete m_tripardatemodel;
+    m_tripardatemodel = new QStandardItemModel(this);
+    if (m_tripartypemodel == Q_NULLPTR)
+        delete m_tripartypemodel;
+    m_tripartypemodel = new QStandardItemModel(this);
 
     /*
      *          |---------------------------|           TRI PAR DATE
@@ -1493,15 +1495,15 @@ void dlg_docsexternes::RemplirTreeView()
 //    qDebug() << "rowCount() du dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->rowCount()-1;
 
     if (m_modetri == parDate)
-        m_modele = m_tripardatemodel;
+        m_model = m_tripardatemodel;
     else
-        m_modele = m_tripartypemodel;
+        m_model = m_tripartypemodel;
     QItemSelectionModel *m = wdg_listdocstreewiew->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-    wdg_listdocstreewiew->setModel(m_modele);
+    wdg_listdocstreewiew->setModel(m_model);
     delete m;
 
-    int nrows = m_modele->item(m_modele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item
-    QStandardItem *item =  m_modele->item(m_modele->rowCount()-1)->child(nrows,0);    // le tout dernier item
+    int nrows = m_model->item(m_model->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item
+    QStandardItem *item =  m_model->item(m_model->rowCount()-1)->child(nrows,0);    // le tout dernier item
     QModelIndex idx = item->index();                                                // l'index de ce dernier item
     if (idimpraretrouver != "")
     {
@@ -1514,11 +1516,11 @@ void dlg_docsexternes::RemplirTreeView()
         //            if (getItemFromDocument(doc) != Q_NULLPTR)
         //                idx = getItemFromDocument(doc)->index();
         //        }
-        QModelIndex indx = getIndexFromId(m_modele, idimpraretrouver.toInt());
+        QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
         if (indx.isValid())
             idx = indx;
     }
-    wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_modele));
+    wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
     wdg_listdocstreewiew->expandAll();
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);

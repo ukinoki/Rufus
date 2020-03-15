@@ -32,11 +32,12 @@ private:
     bool                    m_listemodifiee = false;
 
     dlg_identificationmanufacturer   *Dlg_IdentManufacturer;
-    QStandardItemModel      *m_model;
+    QStandardItemModel      *m_model = Q_NULLPTR;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_manufacturerstree;
     UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
+    QList<int>              m_listidmanufacturersutilises;
 
     Manufacturer            *m_currentmanufacturer = Q_NULLPTR;
 

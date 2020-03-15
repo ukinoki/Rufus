@@ -24,8 +24,6 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    m_model         = new QStandardItemModel(this);
-
     setModal(true);
     setWindowTitle(tr("Liste des fabricants"));
 
@@ -134,7 +132,6 @@ Manufacturer* dlg_listemanufacturers::getmanufacturerFromIndex(QModelIndex idx )
         return Q_NULLPTR;
 }
 
-
 // ------------------------------------------------------------------------------------------
 // Modifie un fabricant
 // ------------------------------------------------------------------------------------------
@@ -215,7 +212,9 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
     if (reconstruirelaliste)
         Datas::I()->manufacturers->initListe();
     wdg_manufacturerstree->disconnect();
-    m_model->clear();
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    m_model = new QStandardItemModel(this);
 
     UpStandardItem *pitem;
 

@@ -607,11 +607,9 @@ void dlg_bilanrecettes::NouvPeriode()
 void dlg_bilanrecettes::RemplitLaTable()
 {
     UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5,*pitem6,*pitem7;
-    m_recettesmodel = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
-    if (m_recettesmodel != Q_NULLPTR)
-        m_recettesmodel->clear();
-    else
-        m_recettesmodel = new QStandardItemModel;
+    if (m_recettesmodel == Q_NULLPTR)
+        delete m_recettesmodel;
+    m_recettesmodel = new QStandardItemModel(this);
     foreach (Recette *rec, *Datas::I()->recettes->recettes())
     {
         pitem0 = new UpStandardItem(rec->date().toString(tr("d MMM yyyy")), rec);                   // Date - col = 0

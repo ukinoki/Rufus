@@ -38,7 +38,7 @@ private:
     WidgetButtonFrame   *wdg_buttonframe;
     QHBoxLayout         *wdg_editlayout;
     UpDialog            *dlg_ask;
-    QStandardItemModel  *m_model;
+    QStandardItemModel  *m_model = Q_NULLPTR;
     QItemSelectionModel *m_selectionmodel;
 
     void                ChoixButtonFrame();

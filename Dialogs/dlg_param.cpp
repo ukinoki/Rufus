@@ -1000,7 +1000,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     upheader->setVisible(true);
     QStringList list;
     list << tr("Liste des lieux d'exercice");
-    QStandardItemModel *mod = new QStandardItemModel();
+    QStandardItemModel *mod = new QStandardItemModel(this);
     mod->setHorizontalHeaderLabels(list);
     upheader->setModel(mod);
     upheader->reDim(0,0,2);

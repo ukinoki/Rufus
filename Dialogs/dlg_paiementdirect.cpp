@@ -1217,7 +1217,7 @@ void dlg_paiementdirect::ReconstruitListeTiers()
 
     ui->TypeTierscomboBox->clear();
     // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
-    QStandardItemModel *model = new QStandardItemModel();
+    QStandardItemModel *model = new QStandardItemModel(this);
     foreach (TypeTiers* typ, *m_typestiers)
     {
         QList<QStandardItem *> items;
@@ -1846,7 +1846,7 @@ void dlg_paiementdirect::ReconstruitListeBanques()
 {
     ui->BanqueChequecomboBox->clear();
     // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
-    QStandardItemModel *model = new QStandardItemModel();
+    QStandardItemModel *model = new QStandardItemModel(this);
     foreach (Banque* bq, map_banques->values())
     {
         QList<QStandardItem *> items;

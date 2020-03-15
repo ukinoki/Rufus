@@ -55,7 +55,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
-    QStandardItemModel *model = new QStandardItemModel();
+    QStandardItemModel *model = new QStandardItemModel(this);
     foreach (Banque* bq, Datas::I()->banques->banques()->values())
     {
         QList<QStandardItem *> items;

@@ -54,7 +54,7 @@ private:
     UpLineEdit              *wdg_faxlineedit;
     QString                 str_nouvcolor;
 
-    QStandardItemModel      *m_tabmodel;
+    QStandardItemModel      *m_tabmodel = Q_NULLPTR;
     WidgetButtonFrame       *wdg_buttonframe;
     int                     m_idlieuserveur;
     bool                    m_ok;

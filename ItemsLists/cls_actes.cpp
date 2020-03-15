@@ -58,10 +58,9 @@ void Actes::sortActesByDate()  /*! cette fonction n'est pour l'instant pas utili
                                  * si on continue à défiler par id, cet acte n'apparaîtra pas en ordre chronologique mais en dernier. */
 {
     // toute la manip qui suit sert à remetre les actes par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
-    if (m_actesmodel == Q_NULLPTR)
-        m_actesmodel = new QStandardItemModel();
-    else
-        m_actesmodel->clear();
+    if (m_actesmodel != Q_NULLPTR)
+        delete m_actesmodel;
+    m_actesmodel = new QStandardItemModel(this);
     foreach (Acte* act, map_actes->values())
     {
         QList<QStandardItem *> items;

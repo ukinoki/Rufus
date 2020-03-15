@@ -48,7 +48,7 @@ private:
     double                      m_grandtotalbanqu;
 
     Mode                        m_mode;
-    QStandardItemModel          *m_recettesmodel;
+    QStandardItemModel          *m_recettesmodel = Q_NULLPTR;
 
     QGroupBox                   *wdg_classmtupgrpbox;
     QHBoxLayout                 *wdg_lblbox;

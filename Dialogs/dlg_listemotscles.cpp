@@ -227,11 +227,9 @@ void dlg_listemotscles::RemplirTableView()
     req = "select idmotcle, motcle from " TBL_MOTSCLES " order by motcle";
     QList<QVariantList> motclelist = db->StandardSelectSQL(req, ok);
     QStandardItem       *pitem;
-    m_model = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
-    if (m_model)
-        m_model->clear();
-    else
-        m_model = new QStandardItemModel(this);
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    m_model = new QStandardItemModel(this);
     m_selectionmodel = new QItemSelectionModel(m_model);
 
     m_listemotscles.clear();

@@ -1508,7 +1508,7 @@ void dlg_depenses::RechercheValeur()
     QList<double> listmontants;
     // toute la manip qui suit sert à remettre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
 
-    QStandardItemModel *listmontant = new QStandardItemModel();
+    QStandardItemModel *listmontant = new QStandardItemModel(this);
     foreach( Depense *dep, *Datas::I()->depenses->depenses())
     {
         if (!listmontants.contains(dep->montant()))
@@ -1702,7 +1702,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             dlg_ask->OKButton->setEnabled(false);
             dlg_ask->EditButton->setEnabled(false);
 
-            QStandardItemModel *model = new QStandardItemModel();
+            QStandardItemModel *model = new QStandardItemModel(this);
             for (int i=0; i< ListeEch.size(); ++i)
             {
                 model->setItem(i,0, new QStandardItem(ListeEch.at(i).at(0).toString()));    //! idfacture
@@ -1778,7 +1778,6 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
                 SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
             }
-            model->clear();
             delete model;
             return;
         }

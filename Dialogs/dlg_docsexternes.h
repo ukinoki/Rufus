@@ -63,7 +63,9 @@ private:
     QRectF                  m_rect;
     QList<QPixmap>          m_listpixmp;
     QPrinter                *m_printer;
-    QStandardItemModel      *m_modele, *m_tripardatemodel, *m_tripartypemodel;
+    QStandardItemModel      *m_model = Q_NULLPTR;
+    QStandardItemModel      *m_tripardatemodel = Q_NULLPTR;
+    QStandardItemModel      *m_tripartypemodel = Q_NULLPTR;
     QPoint                  m_positionorigin;
     QSize                   m_sizeorigin;
 

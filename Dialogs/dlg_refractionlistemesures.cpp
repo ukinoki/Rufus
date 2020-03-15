@@ -62,7 +62,7 @@ dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *paren
     wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
     int larg = 0;
-    for (int i=0; i < m_modele->columnCount(); i++)
+    for (int i=0; i < m_model->columnCount(); i++)
         if (!wdg_bigtable->isColumnHidden(i))
             larg += wdg_bigtable->columnWidth(i);
     wdg_bigtable->setFixedWidth(larg+2+wdg_bigtable->verticalHeader()->width());
@@ -101,7 +101,7 @@ void dlg_refractionlistemesures::Validation()
         {
             for (int i =0 ; i<wdg_bigtable->selectionModel()->selectedRows().size(); i++)
             {
-                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_modele->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),0));
+                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),0));
                 if (itm != Q_NULLPTR)
                     DetruireLaMesure(Datas::I()->refractions->getById(itm->item()->id()));
             }
@@ -119,15 +119,15 @@ void dlg_refractionlistemesures::ItemClicked(QModelIndex mod)
         SupprButton->setEnabled(wdg_bigtable->selectionModel()->selectedIndexes().size()>0);
     else if (m_mode ==  Recuperer)
     {
-        UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(m_modele->itemFromIndex(mod));
+        UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(mod));
         if (pitem == Q_NULLPTR)
             return;
         if (pitem->checkState() == Qt::Checked)
         {
-            for (int i =0 ; i < m_modele->rowCount(); i++)
+            for (int i =0 ; i < m_model->rowCount(); i++)
             {
-                if (m_modele->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
-                    m_modele->item(i,0)->setCheckState(Qt::Unchecked);
+                if (m_model->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
+                    m_model->item(i,0)->setCheckState(Qt::Unchecked);
             }
             m_refselectionne = dynamic_cast<Refraction*>(pitem->item());
         }
@@ -185,8 +185,8 @@ Refraction* dlg_refractionlistemesures::RefractionAOuvrir() const
 int dlg_refractionlistemesures::Nombre_Mesure_Selected()
 {
     int nb = 0;
-    for (int i =0 ; i < m_modele->rowCount(); i++)
-        if (m_modele->item(i,0)->checkState() == Qt::Checked)
+    for (int i =0 ; i < m_model->rowCount(); i++)
+        if (m_model->item(i,0)->checkState() == Qt::Checked)
             nb ++;
     return nb;
 }
@@ -203,20 +203,18 @@ void dlg_refractionlistemesures::RemplirTableView()
         SupprButton->setEnabled(false);
 
     UpStandardItem       *pitem0, *pitem1, *pitem2, *pitem3;
-    m_modele = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
-    if (m_modele)
-        m_modele->clear();
-    else
-        m_modele = new QStandardItemModel(this);
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    m_model = new QStandardItemModel(this);
 
     pitem0  = new UpStandardItem(tr("Date"));
-    m_modele ->setHorizontalHeaderItem(0,pitem0);
+    m_model ->setHorizontalHeaderItem(0,pitem0);
     pitem1  = new UpStandardItem(tr("Mesure"));
-    m_modele ->setHorizontalHeaderItem(1,pitem1);
+    m_model ->setHorizontalHeaderItem(1,pitem1);
     pitem2  = new UpStandardItem(tr("Formule OD"));
-    m_modele ->setHorizontalHeaderItem(2,pitem2);
+    m_model ->setHorizontalHeaderItem(2,pitem2);
     pitem3  = new UpStandardItem(tr("Formule OG"));
-    m_modele ->setHorizontalHeaderItem(3,pitem3);
+    m_model ->setHorizontalHeaderItem(3,pitem3);
     pitem0  ->setEditable(false);
     pitem1  ->setEditable(false);
     pitem2  ->setEditable(false);
@@ -236,13 +234,13 @@ void dlg_refractionlistemesures::RemplirTableView()
         pitem3  = new UpStandardItem(ref->formuleOG(), ref);
         QList<QStandardItem*> listitems;
         listitems << pitem0 << pitem1 << pitem2 << pitem3;
-        m_modele ->appendRow(listitems);
+        m_model ->appendRow(listitems);
     }
-    wdg_bigtable->setModel(m_modele);
+    wdg_bigtable->setModel(m_model);
 
     QFontMetrics fm(qApp->font());
     int hauteurligne = int(fm.height()*1.1);
-    for (int j=0; j<m_modele->rowCount(); j++)
+    for (int j=0; j<m_model->rowCount(); j++)
         wdg_bigtable->setRowHeight(j,hauteurligne);
     wdg_bigtable->horizontalHeader()->setFixedHeight(hauteurligne);
 }

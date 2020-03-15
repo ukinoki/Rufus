@@ -33,7 +33,7 @@ private:
     Procedures          *proc   = Procedures::I();
     DataBase            *db     = DataBase::I();
     QTableView          *wdg_bigtable;
-    QStandardItemModel  *m_modele;
+    QStandardItemModel  *m_model = Q_NULLPTR;
     Mode                m_mode;
     Refraction*         m_refselectionne;
 

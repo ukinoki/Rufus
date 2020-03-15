@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("14-03-2020/1");
+    qApp->setApplicationVersion("15-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8692,11 +8692,9 @@ void Rufus::RemiseCheques()
 bool Rufus::Remplir_ListePatients_TableView()
 {
     UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5;
-    m_listepatientsmodel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
     if (m_listepatientsmodel != Q_NULLPTR)
-        m_listepatientsmodel->clear();
-    else
-        m_listepatientsmodel = new QStandardItemModel;
+        delete m_listepatientsmodel;
+    m_listepatientsmodel = new QStandardItemModel(this);
     foreach (Patient *pat, m_patients->patientstable()->values())
     {
         pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                   // id                           -> utilisé pour le drop event
@@ -8800,10 +8798,11 @@ void Rufus::Remplir_SalDat()
             listpatsaldat << pat;
     }
     TableAMettreAJour   ->setRowCount(listpatsaldat.size());
+
     if (m_listesuperviseursmodel == Q_NULLPTR)
-        m_listesuperviseursmodel = new QStandardItemModel();
-    else
-        m_listesuperviseursmodel->clear();
+        delete m_listesuperviseursmodel;
+    m_listesuperviseursmodel = new QStandardItemModel(this);
+
     QStandardItem       *pitem0, *pitem1;
     QList<int>          listidusers;
     foreach (PatientEnCours* patencours, listpatsaldat)
@@ -8880,6 +8879,7 @@ void Rufus::Remplir_SalDat()
                color = "color: red";
         }
         label6->setText(Datas::I()->users->getById(patencours->iduser())->login());  // Superviseur
+
         if (!listidusers.contains(patencours->iduser()))
         {
             listidusers << patencours->iduser();
@@ -9109,9 +9109,8 @@ void Rufus::Remplir_SalDat()
     }
     TableAMettreAJour   ->setRowCount(listpatvus.size());
     if (m_listeparentsmodel == Q_NULLPTR)
-        m_listeparentsmodel = new QStandardItemModel();
-    else
-        m_listeparentsmodel->clear();
+        delete m_listeparentsmodel;
+    m_listeparentsmodel = new QStandardItemModel(this);
     QStandardItem       *oitem0, *oitem1;
     QList<int>          listidparents;
     i = 0;

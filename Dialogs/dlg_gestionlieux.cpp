@@ -437,11 +437,9 @@ bool dlg_GestionLieux::ValidationFiche()
 
 void dlg_GestionLieux::ReconstruitModel()
 {
-    m_tabmodel = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
-    if (m_tabmodel != Q_NULLPTR)
-        m_tabmodel->clear();
-    else
-        m_tabmodel = new QStandardItemModel;
+    if (m_tabmodel == Q_NULLPTR)
+        delete m_tabmodel;
+    m_tabmodel = new QStandardItemModel(this);
 
     foreach (Site* sit, *Datas::I()->sites->sites())
     {
