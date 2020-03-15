@@ -73,6 +73,7 @@ private:
     QComboBox           *wdg_listmedecinscombo;
     QComboBox           *wdg_manufacturercombo;
     QComboBox           *wdg_IOLcombo;
+    UpLabel             *lblinterventions;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
 
@@ -87,6 +88,7 @@ private:
     void                MenuContextuelSessions();
     void                CreerSession();
     void                EditSession();
+    void                PrintSession();
     void                SupprimeSession();
 
 /*! les interventions */

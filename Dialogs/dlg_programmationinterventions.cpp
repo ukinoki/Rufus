@@ -62,7 +62,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
 
     wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_interventionstreeView);
     wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    UpLabel *lblinterventions = new UpLabel();
+    lblinterventions = new UpLabel();
     lblinterventions->setText("Total interventions");
     wdg_buttoninterventionframe->layButtons()->insertWidget(0, lblinterventions);
     connect (wdg_buttoninterventionframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixInterventionFrame);
@@ -117,11 +117,12 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     buttbox                         ->setSizeConstraint(QLayout::SetFixedSize);
     buttonslayout()                 ->insertLayout(0, buttbox);
 
-    connect(manufacturerbutt,       &QPushButton::clicked,                                  this,   &dlg_programmationinterventions::ListeManufacturers);
-    connect(IOLbutt,                &QPushButton::clicked,                                  this,   &dlg_programmationinterventions::ListeIOLs);
+    connect(manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeManufacturers);
+    connect(IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeIOLs);
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
+    connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::PrintSession);
     setModal(true);
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
@@ -388,6 +389,160 @@ void dlg_programmationinterventions::EditSession()
     dlg_session->exec();
 }
 
+void dlg_programmationinterventions::PrintSession()
+{
+    bool AvecDupli   = false;
+    bool AvecPrevisu = proc->ApercuAvantImpression();
+    bool AvecNumPage = true;
+
+    QString LigneIntervention;
+
+    //--------------------------------------------------------------------
+    // Préparation de l'état "bordereau de remise" dans un QplainTextEdit
+    //--------------------------------------------------------------------
+
+    QString req;
+    int iduser = m_currentsession->iduser();
+
+//    //création de l'entête
+    QString EnTete;
+    User *userEntete = Datas::I()->users->getById(iduser);
+    if(userEntete == Q_NULLPTR)
+        return;
+    EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    if (EnTete == "") return;
+
+    EnTete.replace("{{TITRE1}}"            , "<b>" + tr("PROGRAMME OPÉRATOIRE") +"</b>");
+    EnTete.replace("{{PRENOM PATIENT}}"    , Datas::I()->sites->getById(m_currentsession->idlieu())->nom() + " - " + Datas::I()->sites->getById(m_currentsession->idlieu())->ville());
+    EnTete.replace("{{NOM PATIENT}}"       , "");
+    EnTete.replace("{{TITRE}}"             , "<b>" + QString::number(Datas::I()->interventions->interventions()->size()) + " " + tr("Interventions") +"</b>");
+    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</font>");
+
+    // création du pied
+    QString Pied = proc->CalcPiedImpression(userEntete);
+    if (Pied == "") return;
+
+    // creation du corps
+    double c = CORRECTION_td_width;
+
+    QString texte = "";
+    for (int i=0; i< m_interventionsmodel->rowCount(); ++i)
+    {
+        QStandardItem *itm = m_interventionsmodel->item(i);
+        if (itm != Q_NULLPTR)
+        {
+            QString Ligne = "";
+            if (itm->hasChildren())
+            {
+                QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + itm->text() + "</b></span></font></td>" ;
+                Ligne += lign;
+                QTime time = QTime::fromString(itm->text(),"- HH:mm -");
+                foreach (Intervention* interv, *Datas::I()->interventions->interventions())
+                {
+                    if (interv->heure() == time)
+                    {
+                        Patient * pat = Datas::I()->patients->getById(interv->idpatient(), Item::LoadDetails);
+                        if (pat != Q_NULLPTR)
+                        {
+                            QString nompatient = "";
+                            nompatient  = pat->nom().toUpper() + " " + pat->prenom();
+                            lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"350\"><font color = darkgreen><span style=\"font-size:8pt;\"><b>" + nompatient + "</b></span></font></td>" ;
+                            Ligne += lign;
+                        }
+                        TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
+                        if (typ)                                                                                                                    //! type d'intervention et anesthésie
+                        {
+                            QString color = "black";
+                            QString typinterv = typ->typeintervention().toUpper();
+                            if (interv->cote() != Utils::NoLoSo)
+                                typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
+                            if (interv->anesthesie() != Intervention::NoLoSo)                                                                       //! type d'anesthésie
+                            {
+                                QString anesth = "";
+                                switch (interv->anesthesie()) {
+                                case Intervention::Locale:          anesth = tr("Anesthésie locale");           break;
+                                case Intervention::LocoRegionale:   anesth = tr("Anesthésie locoregionale");    break;
+                                case Intervention::Generale:        anesth = tr("Anesthésie générale");         break;
+                                default: break;
+                                }
+                                typinterv += " - " + anesth;
+                                if (interv->anesthesie() == Intervention::Generale)
+                                    color = "red";
+                            }
+                            lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = " + color + "><span style=\"font-size:8pt;\">" + typinterv + "</span></font></td>" ;
+                            Ligne += lign;
+                        }
+                        if (pat != Q_NULLPTR)
+                        {
+                            QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
+                                    + " " + pat->datedenaissance().toString("dd-MM-yyyy")
+                                    + " - " + Utils::CalculAge(pat->datedenaissance())["toString"].toString();
+                            if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
+                            {
+                                QString tel = tr("Tel") + " ";
+                                if (pat->telephone() != "")
+                                {
+                                    tel += pat->telephone();
+                                    if (pat->portable() != "")
+                                        tel += " - " + pat->portable();
+                                }
+                                else
+                                    tel += pat->portable();
+                                sexeddntel += "- " + tel;
+                            }
+                            lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = gray><span style=\"font-size:8pt;\">" + sexeddntel + "</span></font></td>" ;
+                            Ligne += lign;
+                        }
+                        if (interv->idIOL()>0)                                                                                                      //! IOL
+                        {
+                            QString ioltxt = "";
+                            IOL *iol = Datas::I()->iols->getById(interv->idIOL());
+                            if (iol)
+                            {
+                                Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                                if (man != Q_NULLPTR)
+                                    ioltxt += man->nom().toUpper() + " " + iol->modele() + " ";
+                            }
+                            QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
+                            if (interv->puissanceIOL() > 0)
+                                pwriol = "+" + pwriol;
+                            ioltxt += pwriol;
+                            if (interv->cylindreIOL() != 0.0)
+                            {
+                                QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
+                                if (interv->cylindreIOL() > 0)
+                                    cyliol = "+" + cyliol;
+                                ioltxt += " Cyl. " + cyliol;
+                            }
+                            ioltxt = tr("Implant") + " : " + ioltxt;
+                            lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
+                            Ligne += lign;
+                        }
+                        if (interv->observation() != "")                                                                                            //! observation
+                        {
+                            QString obs = tr("Remarque") + " : " + interv->observation();
+                            lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><font color = gray><span style=\"font-size:8pt;\">" + obs + "</span></font></td>" ;
+                            Ligne += lign;
+                        }
+                        if (interv->incident() != "")                                                                                               //! incident
+                        {
+                            QString inc = tr("Incident") + " : " + interv->incident();
+                            lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
+                            Ligne += lign;
+                        }
+                    }
+                }
+            texte += Ligne;
+            }
+        }
+    }
+    QTextEdit textEdit;
+    textEdit.setHtml(texte);
+    proc->Imprime_Etat(&textEdit, EnTete, Pied,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       AvecDupli, AvecPrevisu, AvecNumPage);
+}
+
 void dlg_programmationinterventions::SupprimeSession()
 {
     if (m_currentsession == Q_NULLPTR)
@@ -481,7 +636,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     if (m_interventionsmodel == Q_NULLPTR)
         delete m_interventionsmodel;
     m_interventionsmodel = new QStandardItemModel(this);
-
+    lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + tr("Interventions"));
     m_currentintervention = Q_NULLPTR;
     QStandardItem * rootNodeDate = m_interventionsmodel->invisibleRootItem();
     QList<QTime> listheures;
