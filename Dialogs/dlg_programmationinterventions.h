@@ -51,9 +51,6 @@ private:
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
     dlg_listeiols                   *Dlg_ListIOLs;
     dlg_listemanufacturers          *Dlg_ListManufacturers;
-    bool                            Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
-                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
-    bool                            m_docimprime = false;
     void                EnregistreIncident(Item *itm);
 
 /*! les items */
@@ -74,6 +71,10 @@ private:
     QComboBox           *wdg_manufacturercombo;
     QComboBox           *wdg_IOLcombo;
     UpLabel             *lblinterventions;
+    UpPushButton        *wdg_incidentbutt;
+    UpPushButton        *wdg_commandeIOLbutt;
+    UpPushButton        *wdg_manufacturerbutt;
+    UpPushButton        *wdg_IOLbutt;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
 
@@ -86,17 +87,15 @@ private:
     void                EnregistreIncidentSession()             {EnregistreIncident(m_currentsession);}
     void                RemplirTreeSessions(SessionOperatoire* session = Q_NULLPTR);
     void                MenuContextuelSessions();
-    void                CreerSession();
-    void                EditSession();
-    void                PrintSession();
+    void                FicheSession(SessionOperatoire *session = Q_NULLPTR);                                           //! crée la fiche qui permet de modifier ou d'enregistrer une session
+    void                ModifSession();
     void                SupprimeSession();
 
 /*! les interventions */
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
     void                EnregistreIncidentIntervention()        {EnregistreIncident(m_currentintervention);}
-    void                FicheIntervention();                                       // crée la fiche qui permet de modifier ou d'enregistrer une intervention
-    void                ImprimeDoc(Patient *pat, Intervention *interv);
+    void                FicheIntervention(Intervention *interv = Q_NULLPTR);                                            //! crée la fiche qui permet de modifier ou d'enregistrer une intervention
     void                SupprimeIntervention();
     void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
     void                MenuContextuelInterventionsions();
@@ -121,6 +120,15 @@ private:
     void                ListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant
     void                VerifExistIOL(bool &ok);
+
+/*! les impressions */
+    void                ImprimeSession();                                                                               //! imprime le programme pératoire
+    void                ImprimeRapportIncident();                                                                       //! imprime le rapport des incidents d'une session
+    void                ImprimeListeIOLsSession();                                                                      //! imprime la liste des IOLS nécessaires pour une session, classés par fabricant
+    void                ImprimeDoc(Patient *pat, Intervention *interv);                                                 //! prépare la liste de documents externes à imprimer
+    bool                Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
+    bool                m_docimprime = false;
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

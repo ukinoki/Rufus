@@ -62,3 +62,32 @@ void Site::settelephone(const QString &telephone)   { m_telephone = telephone; }
 void Site::setfax(const QString &fax)               { m_fax = fax; }
 void Site::setcouleur(const QString &couleur)       { m_couleur = couleur; }
 
+QString Site::adresseComplete() const
+{
+    QString ttip;
+    if (m_adresse1!= "") ttip += m_adresse1;
+    if (m_adresse2 != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_adresse2;
+    }
+    if (m_adresse3 != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_adresse3;
+    }
+    if (QString::number(m_codePostal) + m_ville != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += QString::number(m_codePostal);
+        if (QString::number(m_codePostal) != "" && m_ville != "")
+            ttip += " ";
+        ttip += m_ville;
+    }
+    if (m_telephone != "")
+    {
+        if (ttip != "") ttip += "\n";
+        ttip += m_telephone;
+    }
+    return ttip;
+}

@@ -89,40 +89,42 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
 //    buttbox                         ->setSizeConstraint(QLayout::SetFixedSize);
 
     QHBoxLayout *buttbox            = new QHBoxLayout;
-    UpPushButton *incidentbutt      = new UpPushButton(tr("Rapport d'incident"));
-    UpPushButton *commandeIOLbutt   = new UpPushButton(tr("Commande d'implants"));
-    UpPushButton *manufacturerbutt  = new UpPushButton(tr("Gestion fabricants"));
-    UpPushButton *IOLbutt           = new UpPushButton(tr("Gestion implants"));
+    wdg_incidentbutt      = new UpPushButton(tr("Rapport d'incident"));
+    wdg_commandeIOLbutt   = new UpPushButton(tr("Commande d'implants"));
+    wdg_manufacturerbutt  = new UpPushButton(tr("Gestion fabricants"));
+    wdg_IOLbutt           = new UpPushButton(tr("Gestion implants"));
     QSize size = QSize(190,35);
     QSize sizeicon = QSize(20,20);
-    incidentbutt                    ->setFixedSize(size);
-    commandeIOLbutt                 ->setFixedSize(size);
-    manufacturerbutt                ->setFixedSize(size);
-    IOLbutt                         ->setFixedSize(size);
-    incidentbutt                    ->setIcon(Icons::icOups());
-    commandeIOLbutt                 ->setIcon(Icons::icNotepad());
-    manufacturerbutt                ->setIcon(Icons::icFactory());
-    IOLbutt                         ->setIcon(Icons::icIOL());
-    incidentbutt                    ->setIconSize(sizeicon);
-    commandeIOLbutt                 ->setIconSize(sizeicon);
-    manufacturerbutt                ->setIconSize(sizeicon);
-    IOLbutt                         ->setIconSize(sizeicon);
-    buttbox                         ->addWidget(incidentbutt);
-    buttbox                         ->addWidget(commandeIOLbutt);
+    wdg_incidentbutt                    ->setFixedSize(size);
+    wdg_commandeIOLbutt                 ->setFixedSize(size);
+    wdg_manufacturerbutt                ->setFixedSize(size);
+    wdg_IOLbutt                         ->setFixedSize(size);
+    wdg_incidentbutt                    ->setIcon(Icons::icOups());
+    wdg_commandeIOLbutt                 ->setIcon(Icons::icNotepad());
+    wdg_manufacturerbutt                ->setIcon(Icons::icFactory());
+    wdg_IOLbutt                         ->setIcon(Icons::icIOL());
+    wdg_incidentbutt                    ->setIconSize(sizeicon);
+    wdg_commandeIOLbutt                 ->setIconSize(sizeicon);
+    wdg_manufacturerbutt                ->setIconSize(sizeicon);
+    wdg_IOLbutt                         ->setIconSize(sizeicon);
+    buttbox                         ->addWidget(wdg_incidentbutt);
+    buttbox                         ->addWidget(wdg_commandeIOLbutt);
     buttbox                         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    buttbox                         ->addWidget(manufacturerbutt);
-    buttbox                         ->addWidget(IOLbutt);
+    buttbox                         ->addWidget(wdg_manufacturerbutt);
+    buttbox                         ->addWidget(wdg_IOLbutt);
     buttbox                         ->setSpacing(5);
     buttbox                         ->setContentsMargins(0,0,0,0);
     buttbox                         ->setSizeConstraint(QLayout::SetFixedSize);
     buttonslayout()                 ->insertLayout(0, buttbox);
 
-    connect(manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeManufacturers);
-    connect(IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeIOLs);
+    connect(wdg_manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeManufacturers);
+    connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeIOLs);
+    connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeRapportIncident);
+    connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeListeIOLsSession);
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
-    connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::PrintSession);
+    connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::ImprimeSession);
     setModal(true);
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
@@ -181,10 +183,10 @@ void dlg_programmationinterventions::ChoixSessionFrame()
 {
     switch (wdg_buttonsessionsframe->Choix()) {
     case WidgetButtonFrame::Plus:
-        CreerSession();
+        FicheSession();
         break;
     case WidgetButtonFrame::Modifier:
-        EditSession();
+        ModifSession();
         break;
     case WidgetButtonFrame::Moins:
         SupprimeSession();
@@ -265,7 +267,7 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
     AfficheInterventionsSession(idx);
 }
 
-void dlg_programmationinterventions::CreerSession()
+void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
 {
     UpDialog            *dlg_session = new UpDialog(this);
     dlg_session->setAttribute(Qt::WA_DeleteOnClose);
@@ -295,14 +297,36 @@ void dlg_programmationinterventions::CreerSession()
     choixsiteLay    ->addWidget(sitecombo);
     choixsiteLay    ->setSpacing(5);
     choixsiteLay    ->setContentsMargins(0,0,0,0);
-
     foreach (Site* site, *Datas::I()->sites->sites())
         sitecombo->addItem(site->nom(), site->id());
 
+    QWidget *wdg_incident       = new QWidget();
+    QHBoxLayout *incidentLay    = new QHBoxLayout();
+    UpLabel* lblincident = new UpLabel;
+    lblincident               ->setText(tr("Incident"));
+    QTextEdit *incidenttxtedit  = new QTextEdit();
+    incidenttxtedit             ->setFixedSize(QSize(250,100));
+    incidentLay    ->addWidget(lblincident);
+    incidentLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    incidentLay    ->addWidget(incidenttxtedit);
+    incidentLay    ->setSpacing(5);
+    incidentLay    ->setContentsMargins(0,0,0,0);
+    wdg_incident   ->setLayout(incidentLay);
+    wdg_incident   ->setVisible(nwsession != Q_NULLPTR);
+
+
+    dlg_session->dlglayout()   ->insertWidget(0, wdg_incident);
     dlg_session->dlglayout()   ->insertLayout(0, choixsiteLay);
     dlg_session->dlglayout()   ->insertLayout(0, choixdateLay);
     dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+
+    if (nwsession != Q_NULLPTR)
+    {
+        dateedit        ->setDate(nwsession->date());
+        sitecombo       ->setCurrentIndex(sitecombo->findData(nwsession->idlieu()));
+        incidenttxtedit ->setText(nwsession->incident());
+    }
     connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
     {
         QDate date = dateedit->date();
@@ -321,75 +345,33 @@ void dlg_programmationinterventions::CreerSession()
         listbinds[CP_DATE_SESSIONOPERATOIRE]    = date.toString("yyyy-MM-dd");
         listbinds[CP_IDLIEU_SESSIONOPERATOIRE]  = idsite;
         listbinds[CP_IDUSER_SESSIONOPERATOIRE]  = m_currentchiruser->id();
-        m_currentsession = Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds);
-        RemplirTreeSessions();
-        dlg_session->close();
-    });
-    dlg_session->exec();
-}
-
-void dlg_programmationinterventions::EditSession()
-{
-    if (m_currentsession == Q_NULLPTR)
-        return;
-    UpDialog            *dlg_session = new UpDialog(this);
-    dlg_session->setAttribute(Qt::WA_DeleteOnClose);
-    dlg_session->setWindowTitle(tr("Modifier une session opératoire pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
-
-    QHBoxLayout *choixdateLay    = new QHBoxLayout();
-    UpLabel* lbldate = new UpLabel;
-    lbldate         ->setText(tr("Date"));
-    QDateEdit *dateedit = new QDateEdit(QDate::currentDate());
-    dateedit        ->setFixedSize(QSize(120,24));
-    dateedit        ->setDate(m_currentsession->date());
-    dateedit        ->setCalendarPopup(true);
-    choixdateLay    ->addWidget(lbldate);
-    choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixdateLay    ->addWidget(dateedit);
-    choixdateLay    ->setSpacing(5);
-    choixdateLay    ->setContentsMargins(0,0,0,0);
-
-    QHBoxLayout *choixsiteLay    = new QHBoxLayout();
-    UpLabel* lblsite = new UpLabel;
-    lblsite               ->setText(tr("Site"));
-    QComboBox *sitecombo = new QComboBox();
-    choixsiteLay    ->addWidget(lblsite);
-    choixsiteLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixsiteLay    ->addWidget(sitecombo);
-    choixsiteLay    ->setSpacing(5);
-    choixsiteLay    ->setContentsMargins(0,0,0,0);
-
-    foreach (Site* site, *Datas::I()->sites->sites())
-        sitecombo->addItem(site->nom(), site->id());
-    sitecombo->setCurrentIndex(sitecombo->findData(m_currentsession->idlieu()));
-
-    dlg_session->dlglayout()   ->insertLayout(0, choixsiteLay);
-    dlg_session->dlglayout()   ->insertLayout(0, choixdateLay);
-    dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
-    {
-        QDate date = dateedit->date();
-        int idsite = sitecombo->currentData().toInt();
-        for (int i = 0; i < m_sessionsmodel->rowCount(); ++i)
+        if (nwsession == Q_NULLPTR)
         {
-            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
-            SessionOperatoire *rechsession = dynamic_cast<SessionOperatoire*>(upitem->item());
-            if (rechsession->date() ==  date && rechsession->idlieu() == idsite)
-            {
-                UpMessageBox::Watch(this, tr("Cette session existe déjà!"));
-                return;
-            }
+            m_currentsession = Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds);
+            RemplirTreeSessions(m_currentsession);
         }
-        ItemsList::update(m_currentsession, CP_DATE_SESSIONOPERATOIRE, date);
-        ItemsList::update(m_currentsession, CP_IDLIEU_SESSIONOPERATOIRE, idsite);
-        RemplirTreeSessions();
+        else
+        {
+            ItemsList::update(nwsession, CP_DATE_SESSIONOPERATOIRE, date);
+            ItemsList::update(nwsession, CP_IDLIEU_SESSIONOPERATOIRE, idsite);
+            ItemsList::update(nwsession, CP_INCIDENT_SESSIONOPERATOIRE, incidenttxtedit->toPlainText());
+            RemplirTreeSessions(nwsession);
+        }
         dlg_session->close();
     });
     dlg_session->exec();
 }
 
-void dlg_programmationinterventions::PrintSession()
+void dlg_programmationinterventions::ModifSession()
+{
+    FicheSession(m_currentsession);
+}
+
+void dlg_programmationinterventions::ImprimeRapportIncident()
+{
+}
+
+void dlg_programmationinterventions::ImprimeSession()
 {
     bool AvecDupli   = false;
     bool AvecPrevisu = proc->ApercuAvantImpression();
@@ -431,11 +413,10 @@ void dlg_programmationinterventions::PrintSession()
         QStandardItem *itm = m_interventionsmodel->item(i);
         if (itm != Q_NULLPTR)
         {
-            QString Ligne = "";
-            if (itm->hasChildren())
+             if (itm->hasChildren())
             {
                 QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + itm->text() + "</b></span></font></td>" ;
-                Ligne += lign;
+                texte += lign;
                 QTime time = QTime::fromString(itm->text(),"- HH:mm -");
                 foreach (Intervention* interv, *Datas::I()->interventions->interventions())
                 {
@@ -447,7 +428,7 @@ void dlg_programmationinterventions::PrintSession()
                             QString nompatient = "";
                             nompatient  = pat->nom().toUpper() + " " + pat->prenom();
                             lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"350\"><font color = darkgreen><span style=\"font-size:8pt;\"><b>" + nompatient + "</b></span></font></td>" ;
-                            Ligne += lign;
+                            texte += lign;
                         }
                         TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
                         if (typ)                                                                                                                    //! type d'intervention et anesthésie
@@ -470,7 +451,7 @@ void dlg_programmationinterventions::PrintSession()
                                     color = "red";
                             }
                             lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = " + color + "><span style=\"font-size:8pt;\">" + typinterv + "</span></font></td>" ;
-                            Ligne += lign;
+                            texte += lign;
                         }
                         if (pat != Q_NULLPTR)
                         {
@@ -491,7 +472,7 @@ void dlg_programmationinterventions::PrintSession()
                                 sexeddntel += "- " + tel;
                             }
                             lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = gray><span style=\"font-size:8pt;\">" + sexeddntel + "</span></font></td>" ;
-                            Ligne += lign;
+                            texte += lign;
                         }
                         if (interv->idIOL()>0)                                                                                                      //! IOL
                         {
@@ -516,23 +497,22 @@ void dlg_programmationinterventions::PrintSession()
                             }
                             ioltxt = tr("Implant") + " : " + ioltxt;
                             lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
-                            Ligne += lign;
+                            texte += lign;
                         }
                         if (interv->observation() != "")                                                                                            //! observation
                         {
                             QString obs = tr("Remarque") + " : " + interv->observation();
                             lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><font color = gray><span style=\"font-size:8pt;\">" + obs + "</span></font></td>" ;
-                            Ligne += lign;
+                            texte += lign;
                         }
                         if (interv->incident() != "")                                                                                               //! incident
                         {
                             QString inc = tr("Incident") + " : " + interv->incident();
                             lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
-                            Ligne += lign;
+                            texte += lign;
                         }
                     }
                 }
-            texte += Ligne;
             }
         }
     }
@@ -570,7 +550,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
     if (upitem == Q_NULLPTR)
     {
         QAction *pAction_CreerSession = m_ctxtmenusessions->addAction(tr("Créer une session"));
-        connect (pAction_CreerSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::CreerSession);
+        connect (pAction_CreerSession,        &QAction::triggered,    this,    [&] {FicheSession();});
     }
     else
     {
@@ -581,12 +561,13 @@ void dlg_programmationinterventions::MenuContextuelSessions()
             return;
         }
         QAction *pAction_ModifSession = m_ctxtmenusessions->addAction(tr("Modifier la session"));
-        connect (pAction_ModifSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::EditSession);
+        connect (pAction_ModifSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::ModifSession);
         QAction *pAction_SupprSession = m_ctxtmenusessions->addAction(tr("Supprimer la session"));
         connect (pAction_SupprSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeSession);
         if (Datas::I()->users->userconnected()->isMedecin())
         {
-            QAction *pAction_IncidentSession = m_ctxtmenusessions->addAction(tr("Enregistrer un incident sur cette session"));
+            QString txt = (session->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette intervention"));
+            QAction *pAction_IncidentSession = m_ctxtmenusessions->addAction(txt);
             connect (pAction_IncidentSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::EnregistreIncidentSession);
         }
     }
@@ -637,7 +618,11 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         delete m_interventionsmodel;
     m_interventionsmodel = new QStandardItemModel(this);
     lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + tr("Interventions"));
-    m_currentintervention = Q_NULLPTR;
+
+    bool incident = false;          //! va servir à indiquer si des incidents sont notés sur la session
+    if (m_currentsession->incident() != "")
+        incident = true;
+    bool iollist = false;           //! va servir à indiquer si des implants sont prévus sur la session
     QStandardItem * rootNodeDate = m_interventionsmodel->invisibleRootItem();
     QList<QTime> listheures;
 
@@ -734,9 +719,10 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
 
             if (interv->idIOL()>0)                                                                                                          //! IOL
             {
+                iollist = true;
                 QString ioltxt = "";
                 IOL *iol = Datas::I()->iols->getById(interv->idIOL());
-                if (iol)
+                if (iol != Q_NULLPTR)
                 {
                     Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
                     if (man != Q_NULLPTR)
@@ -766,6 +752,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
             }
             if (interv->incident() != "")                                                                                               //! incident
             {
+                incident = true;
                 iteminc = new UpStandardItem("\t" + tr("Incident") + " : " + interv->incident(), interv);
                 iteminc ->setForeground(QBrush(QColor(Qt::red)));
                 iteminc ->setEditable(false);
@@ -775,6 +762,9 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         listitemsheure.at(0)->sortChildren(1);
         ++a;
     }
+    wdg_incidentbutt    ->setEnabled(incident);
+    wdg_commandeIOLbutt ->setEnabled(iollist);
+    PrintButton         ->setEnabled(Datas::I()->interventions->interventions()->size() >0);
     wdg_interventionstreeView->setModel(m_interventionsmodel);
     m_interventionsmodel->setHeaderData(0, Qt::Horizontal, tr("Interventions"));
     m_interventionsmodel->setHeaderData(1, Qt::Horizontal, "");
@@ -873,10 +863,8 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
 }
 
 
-void dlg_programmationinterventions::FicheIntervention()
+void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 {
-
-    Intervention *interv = m_currentintervention;
     bool verifencours = false;
     bool verifmanufacturerencours = false;
     UpDialog *dlg_intervention = new UpDialog(this);
@@ -884,11 +872,11 @@ void dlg_programmationinterventions::FicheIntervention()
     if (pat != Q_NULLPTR)
             dlg_intervention->setWindowTitle(pat->prenom() + " " + pat->nom());
 
-    QHBoxLayout *choixsessionLay    = new QHBoxLayout();
-    UpLabel* lblsession = new UpLabel;
-    lblsession          ->setText(tr("Session"));
-    UpComboBox *sessioncombo = new UpComboBox();
-    sessioncombo        ->setModel(m_sessionsmodel);
+    QHBoxLayout *choixsessionLay = new QHBoxLayout();
+    UpLabel* lblsession         = new UpLabel;
+    lblsession                  ->setText(tr("Session"));
+    UpComboBox *sessioncombo    = new UpComboBox();
+    sessioncombo                ->setModel(m_sessionsmodel);
     for (int i=0; i< m_sessionsmodel->rowCount(); ++i)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i,0));
@@ -910,8 +898,8 @@ void dlg_programmationinterventions::FicheIntervention()
     choixsessionLay     ->setSpacing(5);
     choixsessionLay     ->setContentsMargins(0,0,0,0);
 
-    QHBoxLayout *choixheureLay    = new QHBoxLayout();
-    UpLabel* lblheure = new UpLabel;
+    QHBoxLayout *choixheureLay = new QHBoxLayout();
+    UpLabel* lblheure   = new UpLabel;
     lblheure            ->setText(tr("Heure"));
     QTimeEdit *timeedit = new QTimeEdit();
     choixheureLay       ->addWidget(lblheure);
@@ -920,7 +908,7 @@ void dlg_programmationinterventions::FicheIntervention()
     choixheureLay       ->setSpacing(5);
     choixheureLay       ->setContentsMargins(0,0,0,0);
 
-    QHBoxLayout *choixinterventionLay    = new QHBoxLayout();
+    QHBoxLayout *choixinterventionLay = new QHBoxLayout();
     UpLabel* lblinterv = new UpLabel;
     lblinterv               ->setText(tr("Type d'intervention"));
     UpComboBox *interventioncombo = new UpComboBox();
@@ -1091,7 +1079,6 @@ void dlg_programmationinterventions::FicheIntervention()
         }
     }
 
-
     dlg_intervention->dlglayout()   ->insertLayout(0, ObservLay);
     dlg_intervention->dlglayout()   ->insertWidget(0, wdg_IOL);
     dlg_intervention->dlglayout()   ->insertLayout(0, checkIOLLay);
@@ -1186,8 +1173,8 @@ void dlg_programmationinterventions::FicheIntervention()
                 }
             }
             listbinds[CP_IDPATIENT_LIGNPRGOPERATOIRE]  = idpat;
-            Datas::I()->interventions->CreationIntervention(listbinds);
-            RemplirTreeInterventions();
+            m_currentintervention = Datas::I()->interventions->CreationIntervention(listbinds);
+            RemplirTreeInterventions(m_currentintervention);
         }
         else                                                                                                            //! il s'agit de modifier l'intervention passée en paramètre de la fonction
         {
@@ -1265,27 +1252,27 @@ void dlg_programmationinterventions::ImprimeDoc(Patient *pat, Intervention *inte
         foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::Prescription).value() == "1");
-                bool AvecDupli              = (mapdoc.find(dlg_impressions::Dupli).value() == "1");
-                bool Administratif          = (mapdoc.find(dlg_impressions::Administratif).value() == "1");
-                QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
-                QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
+            bool AvecDupli              = (mapdoc.find(dlg_impressions::Dupli).value() == "1");
+            bool Administratif          = (mapdoc.find(dlg_impressions::Administratif).value() == "1");
+            QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
+            QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
 
-                bool AvecChoixImprimante    = (mapdoc == Dlg_Imprs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
-                bool AvecPrevisu            = proc->ApercuAvantImpression();
-                ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
-                Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
-                if (Entete == "") return;
-                Entete.replace("{{TITRE1}}"        , "");
-                Entete.replace("{{TITRE}}"         , "");
-                Entete.replace("{{DDN}}"           , "");
-                proc                        ->setNomImprimante(imprimante);
-                m_docimprime                = Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
-                if (!m_docimprime)
-                    break;
-                imprimante = proc->nomImprimante();
-            }
+            bool AvecChoixImprimante    = (mapdoc == Dlg_Imprs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
+            bool AvecPrevisu            = proc->ApercuAvantImpression();
+            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
+            Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+            if (Entete == "") return;
+            Entete.replace("{{TITRE1}}"        , "");
+            Entete.replace("{{TITRE}}"         , "");
+            Entete.replace("{{DDN}}"           , "");
+            proc                        ->setNomImprimante(imprimante);
+            m_docimprime                = Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            if (!m_docimprime)
+                break;
+            imprimante = proc->nomImprimante();
         }
-        delete Dlg_Imprs;
+    }
+    delete Dlg_Imprs;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -1354,14 +1341,13 @@ bool   dlg_programmationinterventions::Imprimer_Document(Patient *pat, User * us
 
 void dlg_programmationinterventions::CreerFicheIntervention()
 {
-    m_currentintervention = Q_NULLPTR;
     FicheIntervention();
 }
 
 void dlg_programmationinterventions::ModifFicheIntervention()
 {
     if (m_currentintervention != Q_NULLPTR)
-        FicheIntervention();
+        FicheIntervention(m_currentintervention);
 }
 
 void dlg_programmationinterventions::SupprimeIntervention()
@@ -1635,6 +1621,121 @@ void dlg_programmationinterventions::ListeIOLs()
     if (Dlg_ListIOLs->listeIOLsmodifiee())
         RemplirTreeInterventions();
     delete Dlg_ListIOLs;
+}
+
+void dlg_programmationinterventions::ImprimeListeIOLsSession()
+{
+    if (Datas::I()->interventions->interventions()->size() == 0)
+        return;
+    QList<Manufacturer*> listmanufacturers;
+    double c = CORRECTION_td_width;
+    bool AvecDupli   = false;
+    bool AvecPrevisu = proc->ApercuAvantImpression();
+    bool AvecNumPage = true;
+    foreach (Intervention *interv, *Datas::I()->interventions->interventions())
+    {
+        if (interv->idIOL() >0)
+        {
+            IOL *iol = Datas::I()->iols->getById(interv->idIOL());
+            Manufacturer *man = Q_NULLPTR;
+            if (iol != Q_NULLPTR)
+            {
+                man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                if (man != Q_NULLPTR)
+                    if (listmanufacturers.indexOf(man) == -1)
+                        listmanufacturers << man;
+            }
+        }
+    }
+    foreach (Manufacturer *man, listmanufacturers)
+    {
+        //--------------------------------------------------------------------
+        // Préparation de l'état "liste des implants pour un fabriacant" dans un QplainTextEdit
+        //--------------------------------------------------------------------
+
+        QString req;
+        int iduser = m_currentsession->iduser();
+
+        //création de l'entête
+        QString EnTete;
+        User *userEntete = Datas::I()->users->getById(iduser);
+        if(userEntete == Q_NULLPTR)
+            return;
+        EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+        if (EnTete == "") return;
+
+        EnTete.replace("{{TITRE1}}"            , "");
+        EnTete.replace("{{PRENOM PATIENT}}"    , "");
+        EnTete.replace("{{NOM PATIENT}}"       , "");
+        EnTete.replace("{{TITRE}}"             , "");
+        EnTete.replace("{{DDN}}"               , "");
+
+        // création du pied
+        QString Pied = proc->CalcPiedImpression(userEntete);
+        if (Pied == "") return;
+
+        // creation du corps
+        QString texte = "";
+        QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("COMMANDE D'IMPLANTS INTRAOCULAIRES") + "</b></span></font></td>" ;
+        texte += lign;
+        Site *site = Datas::I()->sites->getById(m_currentsession->idlieu());
+        QString adresse = site->nom();
+        QString rue = "";
+        if (site->adresse1() != "")
+            rue += site->adresse1();
+        if (site->adresse2() != "")
+            if (rue != "")
+                rue += site->adresse2();
+        if (site->adresse3() != "")
+            if (rue != "")
+                rue += site->adresse3();
+        if (rue != "")
+            adresse += ", " + rue;
+        adresse += ", " + QString::number(site->codePostal()) + " " + site->ville().toUpper();
+
+        QString date = tr("Programme opératoire du") + " " + m_currentsession->date().toString("dddd dd MMMM yyyy");
+        lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + man->nom() + "</b></span></td>" ;
+        texte += lign;
+        lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + adresse + "</b></span></td>" ;
+        texte += lign;
+        lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + date + "</b></span></td>" ;
+        texte += lign;
+        foreach (Intervention *interv, *Datas::I()->interventions->interventions())
+        {
+            if (interv->idIOL() >0)
+            {
+                IOL *iol = Datas::I()->iols->getById(interv->idIOL());
+                Manufacturer *maniol = Q_NULLPTR;
+                if (iol != Q_NULLPTR)
+                {
+                    maniol = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                    if (maniol != Q_NULLPTR)
+                        if (man->id() == maniol->id())
+                        {
+                            QString ioltxt = iol->modele() + " ";
+                            QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
+                            if (interv->puissanceIOL() > 0)
+                                pwriol = "+" + pwriol;
+                            ioltxt += pwriol;
+                            if (interv->cylindreIOL() != 0.0)
+                            {
+                                QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
+                                if (interv->cylindreIOL() > 0)
+                                    cyliol = "+" + cyliol;
+                                ioltxt += " Cyl. " + cyliol;
+                            }
+                            QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
+                            texte += lign;
+                        }
+                }
+            }
+        }
+        QTextEdit textEdit;
+        textEdit.setHtml(texte);
+        proc->Imprime_Etat(&textEdit, EnTete, Pied,
+                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                           AvecDupli, AvecPrevisu, AvecNumPage);
+    }
 }
 
 void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, int idiol)

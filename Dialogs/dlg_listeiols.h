@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "updialog.h"
 #include <QComboBox>
+#include <QCheckBox>
 #include <QHeaderView>
 #include <QTreeView>
 #include "gbl_datas.h"

@@ -124,11 +124,11 @@ void dlg_listeiols::EnregistreNouveauIOL()
 // ------------------------------------------------------------------------------------------
 // Enregistre un nouveau correpondant
 // ------------------------------------------------------------------------------------------
-void dlg_listeiols::FicheIOL(IOL* iol)
+void dlg_listeiols::FicheIOL(IOL* nwiol)
 {
     UpDialog            *dlg_IOL = new UpDialog(this);
     dlg_IOL->setAttribute(Qt::WA_DeleteOnClose);
-    dlg_IOL->setWindowTitle(tr("créer un IOL"));
+    dlg_IOL->setWindowTitle(nwiol == Q_NULLPTR? tr("Créer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
@@ -162,40 +162,61 @@ void dlg_listeiols::FicheIOL(IOL* iol)
     choixIOLLay                 ->addWidget(IOLline);
     choixIOLLay                 ->setSpacing(5);
     choixIOLLay                 ->setContentsMargins(0,0,0,0);
-    if (iol != Q_NULLPTR)
+
+    QHBoxLayout *checkIOLLay    = new QHBoxLayout();
+    QCheckBox *IOLchk           = new QCheckBox(tr("Discontinué"));
+    IOLchk                      ->setCheckState(Qt::Unchecked);
+    checkIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    checkIOLLay                 ->addWidget(IOLchk);
+    checkIOLLay                 ->setSpacing(5);
+    checkIOLLay                 ->setContentsMargins(0,0,0,0);
+
+    if (nwiol != Q_NULLPTR)
     {
-        manufacturercombo->setCurrentIndex(manufacturercombo->findData(iol->idmanufacturer()));
-        IOLline->setText(iol->modele());
+        manufacturercombo   ->setCurrentIndex(manufacturercombo->findData(nwiol->idmanufacturer()));
+        IOLline             ->setText(nwiol->modele());
+        IOLchk              ->setChecked(!nwiol->isactif());
     }
 
-
-    dlg_IOL->dlglayout()   ->insertLayout(0, choixIOLLay);
-    dlg_IOL->dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
-    dlg_IOL->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_IOL->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_IOL->dlglayout()    ->insertLayout(0, checkIOLLay);
+    dlg_IOL->dlglayout()    ->insertLayout(0, choixIOLLay);
+    dlg_IOL->dlglayout()    ->insertLayout(0, choixManufacturerIOLLay);
+    dlg_IOL->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_IOL                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_IOL->OKButton, &QPushButton::clicked, dlg_IOL, [&]
     {
         QString modele = IOLline->text();
         int idmanufacturer = manufacturercombo->currentData().toInt();
         foreach(IOL *iol, Datas::I()->iols->iols()->values())
         {
-            if (iol->modele() == modele)
+            if (nwiol == Q_NULLPTR)
             {
-                UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
-                return;
+                if (iol->modele() == modele)
+                {
+                    UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
+                    return;
+                }
             }
+            else
+                if (iol->modele() == modele && iol->id()!= nwiol->id())
+                {
+                    UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
+                    return;
+                }
         }
         QHash<QString, QVariant> listbinds;
         listbinds[CP_MODELNAME_IOLS]    = modele;
         listbinds[CP_IDMANUFACTURER_IOLS]  = idmanufacturer;
-        listbinds[CP_INACTIF_IOLS]  = QVariant();
-        if (iol == Q_NULLPTR)
-            iol =  Datas::I()->iols->CreationIOL(listbinds);
+        listbinds[CP_INACTIF_IOLS]  = (IOLchk->isChecked()? "1" : QVariant());
+        if (nwiol == Q_NULLPTR)
+            nwiol =  Datas::I()->iols->CreationIOL(listbinds);
         else
         {
-            DataBase::I()->UpdateTable(TBL_IOLS, listbinds, "where " CP_ID_IOLS " = " +QString::number(iol->id()));
-            iol->setidmanufacturer(idmanufacturer);
-            iol->setmodele(modele);
+            DataBase::I()->UpdateTable(TBL_IOLS, listbinds, "where " CP_ID_IOLS " = " + QString::number(nwiol->id()));
+            nwiol->setidmanufacturer(idmanufacturer);
+            nwiol->setmodele(modele);
+            bool a = !IOLchk->isChecked();
+            nwiol->setactif(a);
         }
         m_listemodifiee = true;
         ReconstruitTreeViewIOLs();
@@ -204,13 +225,13 @@ void dlg_listeiols::FicheIOL(IOL* iol)
             UpStandardItem *manitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
             if (manitem != Q_NULLPTR)
                 if (manitem->item() != Q_NULLPTR)
-                    if (manitem->item()->id() == iol->idmanufacturer() && manitem->hasChildren())
+                    if (manitem->item()->id() == nwiol->idmanufacturer() && manitem->hasChildren())
                         for (int k=0; k < manitem->rowCount(); ++k)
                         {
                             UpStandardItem *iolitem = dynamic_cast<UpStandardItem*>(manitem->child(k));
                             if (iolitem != Q_NULLPTR)
                                 if (iolitem->item() != Q_NULLPTR)
-                                    if (iolitem->item()->id() == iol->id())
+                                    if (iolitem->item()->id() == nwiol->id())
                                     {
                                         wdg_iolstree->scrollTo(iolitem->index(), QAbstractItemView::PositionAtCenter);
                                         dlg_IOL->close();
@@ -336,6 +357,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
         if (iol->modele().startsWith(filtre))
         {
             pitem   = new UpStandardItem(iol->modele(), iol);
+            if (!iol->isactif())
+                pitem ->setForeground(QBrush(QColor(Qt::darkGray)));
             pitem   ->setEditable(false);
             Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
             if (man != Q_NULLPTR)
