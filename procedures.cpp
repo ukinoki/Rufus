@@ -3026,7 +3026,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             " where " CP_ID_USR " = " + QString::number(idusr);
     //Edit(req);
     db->StandardSQL(req);
-    req = "insert into " TBL_LIEUXEXERCICE "(" CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
+    req = "insert into " TBL_LIEUXEXERCICE "(" CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", "
             CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_COULEUR_SITE ")  values ("
             "'Centre ophtalmologique de La Mazière', "
             "'place rouge', "
@@ -3035,7 +3035,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             "'La Mazière', "
             "'O4 56 78 90 12', "
             "'FFFFEE')";
-    //Edit(req);
+    //qDebug() << req;
     db->StandardSQL(req);
     req = "select " CP_ID_SITE " from " TBL_LIEUXEXERCICE;
     int gidLieuExercice = 0;
