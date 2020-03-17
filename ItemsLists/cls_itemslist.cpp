@@ -24,6 +24,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Manufacturer *man           = Q_NULLPTR;
     TypeIntervention *typinterv = Q_NULLPTR;
     IOL *iol                    = Q_NULLPTR;
+    Intervention *interv        = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -150,6 +151,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (iol != Q_NULLPTR)
         {
             table = TBL_IOLS;
+            loop = true;
+            break;
+        }
+        interv = dynamic_cast<Intervention*>(item);
+        if (interv != Q_NULLPTR)
+        {
+            table = TBL_LIGNESPRGOPERATOIRES;
             loop = true;
             break;
         }
@@ -653,6 +661,12 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             session->setidaide(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
         }
+        else if (field == CP_INCIDENT_SESSIONOPERATOIRE)
+        {
+            session->setincident(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+
     }
     else if (table == TBL_LIEUXEXERCICE)
     {
@@ -829,6 +843,71 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             bool a = newvalue.toBool();
             iol->setactif(a);
             newvalue = (a? "null" : "1");
+        }
+    }
+    else if (table == TBL_LIGNESPRGOPERATOIRES)
+    {
+        ok = true;
+        clause = CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(item->id());
+        if (field == CP_HEURE_LIGNPRGOPERATOIRE)
+        {
+            interv->setheure(newvalue.toTime());
+            Utils::CalcTimeValueSQL(newvalue);
+        }
+        else if (field == CP_IDSESSION_LIGNPRGOPERATOIRE)
+        {
+            interv->setidsession(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_IDPATIENT_LIGNPRGOPERATOIRE)
+        {
+            interv->setidpatient(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_TYPEANESTH_LIGNPRGOPERATOIRE)
+        {
+            interv->setanesthesie(Intervention::ConvertModeAnesthesie(newvalue.toString()));
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE)
+        {
+            interv->setidtypeintervention(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_COTE_LIGNPRGOPERATOIRE)
+        {
+            interv->setcote(Utils::ConvertCote(newvalue.toString()));
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDIOL_LIGNPRGOPERATOIRE)
+        {
+            interv->setidIOL(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_PWRIOL_LIGNPRGOPERATOIRE)
+        {
+            interv->setpuissanceIOL(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_CYLIOL_LIGNPRGOPERATOIRE)
+        {
+            interv->setcylindreIOL(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_OBSERV_LIGNPRGOPERATOIRE)
+        {
+            interv->setobservation(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDACTE_LIGNPRGOPERATOIRE)
+        {
+            interv->setidacte(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_INCIDENT_LIGNPRGOPERATOIRE)
+        {
+            interv->setincident(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
         }
     }
 

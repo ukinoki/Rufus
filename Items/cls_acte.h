@@ -44,6 +44,7 @@ private:
     int m_idComptable;          //!< id du User qui comptabilise l'acte
     int m_numCentre;            //!< id du lieu où se trouve le serveur
     int m_idsite;               //!< id du lieu où l'acte est effectué
+    int m_idintervention = 0;   //!< l'id de l'intervention quand l'acte correspond à une intervention - utilisé pour la gestion des programmes opératoires
     bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
 
     double m_montant = 0.0;     //!< montant total
@@ -66,6 +67,7 @@ public:
 
     bool courrierAFaire();
     bool isFactureEnFranc() const;
+    bool isIntervention() const;
 
     /* GETTER / SETTER*/
 
@@ -83,6 +85,7 @@ public:
     QString paiementTiers() const;
     int idUserSuperviseur() const;
     bool effectueparremplacant() const;
+    int idIntervention() const;
 
     int numcentre() const;
     int idsite() const;
@@ -124,6 +127,8 @@ public:
                                               m_data[CP_CONCLUSION_ACTES] = conclusion; }
     void seteffectueparremplacant(bool logic) { m_remplacant = logic;
                                                 m_data[CP_SUPERVISEURREMPLACANT_ACTES] = logic; }
+    void setintervention(int id)            { m_idintervention = id;
+                                              m_data[CP_ID_LIGNPRGOPERATOIRE] = id; }
 };
 
 #endif // CLS_ACTE_H

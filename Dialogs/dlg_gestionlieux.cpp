@@ -380,7 +380,7 @@ void dlg_GestionLieux::enregModifLieu()
                 CP_FAX_SITE " = '"       + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_faxlineedit->text()))       + "', "
                 CP_COULEUR_SITE " = '"   + str_nouvcolor + "' " +
                 "where " CP_ID_SITE " = " + QString::number(sit->id());
-        qDebug() << req;
+        //qDebug() << req;
         db->StandardSQL(req);
         Datas::I()->sites->initListe();
         ReconstruitModel();

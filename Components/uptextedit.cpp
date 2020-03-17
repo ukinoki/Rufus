@@ -230,6 +230,26 @@ bool UpTextEdit::canInsertFromMimeData( const QMimeData *source ) const
         return QTextEdit::canInsertFromMimeData(source);
 }
 
+int UpTextEdit::row() const
+{
+    return m_row;
+}
+
+void UpTextEdit::setRow(int row)
+{
+    m_row = row;
+}
+
+int UpTextEdit::column() const
+{
+    return m_column;
+}
+
+void UpTextEdit::setColumn(int column)
+{
+    m_column = column;
+}
+
 bool UpTextEdit::acceptimagemimedatas() const
 {
     return m_acceptimagemimedatas;

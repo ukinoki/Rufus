@@ -267,11 +267,6 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
             return Q_NULLPTR;
         }
     }
-    if (id == -1)
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
     QJsonObject  data = QJsonObject{};
     data[CP_IDPAT_PATIENTS] = id;
     data[CP_IDCREATEUR_PATIENTS] = DataBase::I()->idUserConnected();

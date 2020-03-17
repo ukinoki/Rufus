@@ -446,6 +446,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TYPEOPERATION_LIGNCOMPTES                   "LigneTypeoperation"
 #define CP_CONSOLIDE_LIGNCOMPTES                       "LigneConsolide"
 
+                            //! Table ComptaMedicale.lignespaiements
+#define CP_IDACTE_LIGNEPAIEMENT                         "idActe"
+#define CP_IDRECETTE_LIGNEPAIEMENT                      "idRecette"
+#define CP_PAYE_LIGNEPAIEMENT                           "Paye"
+
                             //! Table ComptaMedicale.lignesrecettes
 #define CP_IDRECETTE_LIGNRECETTES                      "idRecette"
 #define CP_IDUSER_LIGNRECETTES                         "idUser"
@@ -464,6 +469,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CHQENATTENTE_LIGNRECETTES                   "EnAttente"
 #define CP_IDUSERENREGISTREUR_LIGNRECETTES             "EnregistrePar"
 #define CP_TYPERECETTE_LIGNRECETTES                    "TypeRecette"
+
+                            //! Table ComptaMedicale.typepaiementactes
+#define CP_IDACTE_TYPEPAIEMENTACTES                    "idActe"
+#define CP_TYPEPAIEMENT_TYPEPAIEMENTACTES              "TypePaiement"
+#define CP_TIERS_TYPEPAIEMENTACTES                     "Tiers"
 
                             //! Table Ophtalmologie.ProgrammesOperatoires
 #define CP_ID_LIGNPRGOPERATOIRE                         "idLigneProgramme"

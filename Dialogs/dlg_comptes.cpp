@@ -100,7 +100,7 @@ void dlg_comptes::AnnulArchive()
         return;
 
     int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
-    if (!ok || max == -1)
+    if (!ok)
     {
         db->rollback();
         return;

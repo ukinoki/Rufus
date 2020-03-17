@@ -55,6 +55,11 @@ public:
     bool        acceptimagemimedatas() const;
     void        setAcceptImageMimeDatas(bool acceptimagemimedatas);
 
+    int column() const;
+    void setColumn(int column);
+    int row() const;
+    void setRow(int row);
+
 private:
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;
     void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
@@ -63,7 +68,10 @@ private:
     QString     m_valeuravant, m_valeurapres, m_champ, m_table;
     QString     m_tooltipmsg;
     bool        m_acceptimagemimedatas = false;         //! Le textedit accepte de copier-coller des images
-    int         m_id, m_iduser;
+    int         m_id = 0;
+    int         m_iduser = 0;
+    int         m_column = -1;
+    int         m_row = -1;
     void        ChoixMenuContextuel(QString choix);
 
     void        MenuContextuel();

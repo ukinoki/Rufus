@@ -62,9 +62,8 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
 
     wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_interventionstreeView);
     wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    lblinterventions = new UpLabel();
-    lblinterventions->setText("Total interventions");
-    wdg_buttoninterventionframe->layButtons()->insertWidget(0, lblinterventions);
+    wdg_lblinterventions = new UpLabel();
+    wdg_buttoninterventionframe->layButtons()->insertWidget(0, wdg_lblinterventions);
     connect (wdg_buttoninterventionframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixInterventionFrame);
 
     programmLay     ->addWidget(wdg_buttonsessionsframe->widgButtonParent());
@@ -238,12 +237,15 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
             if (sess)
                 if (sess->incident() != "")
                 {
-                    UpStandardItem *itminc = new UpStandardItem(tr("Incident") + " : " + sess->incident(), session);
+                    UpStandardItem *itminc = new UpStandardItem(tr("Incident") + " : " + sess->incident(), sess);
+                    itminc ->setForeground(QBrush(QColor(Qt::red)));
+                    itminc ->setEditable(false);
                     itm->appendRow(itminc);
                 }
         }
     }
     wdg_sessionstreeView->setModel(m_sessionsmodel);
+
     m_sessionsmodel->setHeaderData(0, Qt::Horizontal, tr("Sessions"));
     wdg_sessionstreeView->expandAll();
     QModelIndex idx;
@@ -369,6 +371,79 @@ void dlg_programmationinterventions::ModifSession()
 
 void dlg_programmationinterventions::ImprimeRapportIncident()
 {
+    bool AvecDupli   = false;
+    bool AvecPrevisu = proc->ApercuAvantImpression();
+    bool AvecNumPage = true;
+
+    QString LigneIntervention;
+
+    //--------------------------------------------------------------------
+    // Préparation de l'état "session" dans un QplainTextEdit
+    //--------------------------------------------------------------------
+
+    QString req;
+    int iduser = m_currentsession->iduser();
+
+//    //création de l'entête
+    QString EnTete;
+    User *userEntete = Datas::I()->users->getById(iduser);
+    if(userEntete == Q_NULLPTR)
+        return;
+    EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    if (EnTete == "") return;
+
+    EnTete.replace("{{TITRE1}}"            , "<b>" + tr("RAPPORT D'INCIDENTS OPÉRATOIRES") +"</b>");
+    EnTete.replace("{{PRENOM PATIENT}}"    , Datas::I()->sites->getById(m_currentsession->idlieu())->nom() + " - " + Datas::I()->sites->getById(m_currentsession->idlieu())->ville());
+    EnTete.replace("{{NOM PATIENT}}"       , "");
+    EnTete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
+    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</font>");
+
+    // création du pied
+    QString Pied = proc->CalcPiedImpression(userEntete);
+    if (Pied == "") return;
+
+    // creation du corps
+    double c = CORRECTION_td_width;
+
+    QString texte = "";
+    QString lign = "";
+    if (m_currentsession->incident() != "")
+    {
+        lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + "</b></span></font></td>" ;
+        texte += lign;
+        lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + m_currentsession->incident() + "</span></td>" ;
+        texte += lign;
+        texte += HTML_RETOURLIGNE;
+    }
+    bool incidents = false;
+    foreach (Intervention* interv, *Datas::I()->interventions->interventions())
+    {
+        if (interv->incident() != "")
+            incidents = true;
+    }
+    if (incidents)
+    {
+        lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("INCIDENTS PAR INTERVENTION") + "</b></span></font></td>" ;
+        texte += lign;
+        foreach (Intervention* interv, *Datas::I()->interventions->interventions())
+        {
+            if (interv->incident() != "")
+            {
+                QString entete = tr("Intervention") + " " + QString::number(interv->id());
+                entete += " - " + Datas::I()->typesinterventions->getById(interv->idtypeintervention())->typeintervention();
+                lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"><td width=\"" + QString::number(int(c*400)) + "\"><span style=\"font-size:8pt;\"><b>" + entete + "</b></span></td>" ;
+                texte += lign;
+                QString inc = interv->incident();
+                lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
+                texte += lign;
+            }
+        }
+    }
+    QTextEdit textEdit;
+    textEdit.setHtml(texte);
+    proc->Imprime_Etat(&textEdit, EnTete, Pied,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       AvecDupli, AvecPrevisu, AvecNumPage);
 }
 
 void dlg_programmationinterventions::ImprimeSession()
@@ -380,7 +455,7 @@ void dlg_programmationinterventions::ImprimeSession()
     QString LigneIntervention;
 
     //--------------------------------------------------------------------
-    // Préparation de l'état "bordereau de remise" dans un QplainTextEdit
+    // Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
 
     QString req;
@@ -397,7 +472,7 @@ void dlg_programmationinterventions::ImprimeSession()
     EnTete.replace("{{TITRE1}}"            , "<b>" + tr("PROGRAMME OPÉRATOIRE") +"</b>");
     EnTete.replace("{{PRENOM PATIENT}}"    , Datas::I()->sites->getById(m_currentsession->idlieu())->nom() + " - " + Datas::I()->sites->getById(m_currentsession->idlieu())->ville());
     EnTete.replace("{{NOM PATIENT}}"       , "");
-    EnTete.replace("{{TITRE}}"             , "<b>" + QString::number(Datas::I()->interventions->interventions()->size()) + " " + tr("Interventions") +"</b>");
+    EnTete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
     EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</font>");
 
     // création du pied
@@ -617,7 +692,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     if (m_interventionsmodel == Q_NULLPTR)
         delete m_interventionsmodel;
     m_interventionsmodel = new QStandardItemModel(this);
-    lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + tr("Interventions"));
+    wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("Interventions") : tr("Intervention")));
 
     bool incident = false;          //! va servir à indiquer si des incidents sont notés sur la session
     if (m_currentsession->incident() != "")
@@ -807,9 +882,6 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     Intervention * interv = dynamic_cast<Intervention*>(itm);
     if (interv)
     {
-        table = TBL_LIGNESPRGOPERATOIRES;
-        champ = CP_INCIDENT_LIGNPRGOPERATOIRE;
-        idchamp = CP_ID_LIGNPRGOPERATOIRE;
         mode = "intervention";
         if (interv->incident() != "")
             incident = interv->incident();
@@ -819,9 +891,6 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
         SessionOperatoire * session = dynamic_cast<SessionOperatoire*>(itm);
         if (session)
         {
-            table = TBL_LIGNESPRGOPERATOIRES;
-            champ = CP_INCIDENT_LIGNPRGOPERATOIRE;
-            idchamp = CP_ID_LIGNPRGOPERATOIRE;
             mode = "session";
             if (session->incident() != "")
                 incident = session->incident();
@@ -835,7 +904,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     dlg_incident->setWindowTitle(tr("Rapport d'incident"));
 
     QTextEdit *incidenttxtedit  = new QTextEdit();
-    incidenttxtedit             ->setFixedSize(QSize(250,100));
+    incidenttxtedit             ->setFixedSize(QSize(450,150));
     incidenttxtedit             ->setText(incident);
 
     dlg_incident->dlglayout()   ->insertWidget(0, incidenttxtedit);
@@ -844,17 +913,14 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     connect(dlg_incident->OKButton, &QPushButton::clicked, dlg_incident, [&]
     {
         QString incident = incidenttxtedit->toPlainText();
-        QHash<QString, QVariant> listbinds;
-        listbinds[champ] = incident;
-        DataBase::I()->UpdateTable(table, listbinds, "where " + idchamp + " = " + QString::number(itm->id()));
         if (mode == "intervention")
         {
-            m_currentintervention->setincident(incident);
+            ItemsList::update(m_currentintervention, CP_INCIDENT_LIGNPRGOPERATOIRE, incident);
             RemplirTreeInterventions(m_currentintervention);
         }
         else if (mode == "session")
         {
-            m_currentsession->setincident(incident);
+            ItemsList::update(m_currentsession, CP_INCIDENT_SESSIONOPERATOIRE, incident);
             RemplirTreeSessions(m_currentsession);
         }
         dlg_incident->close();
@@ -1451,8 +1517,8 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
         if (Datas::I()->users->userconnected()->isMedecin())
         {
             QString txt = (interv->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette intervention"));
-            QAction *pAction_IncidentSession = m_ctxtmenuinterventions->addAction(txt);
-            connect (pAction_IncidentSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::EnregistreIncidentIntervention);
+            QAction *pAction_IncidentIntervention = m_ctxtmenuinterventions->addAction(txt);
+            connect (pAction_IncidentIntervention,        &QAction::triggered,    this,    &dlg_programmationinterventions::EnregistreIncidentIntervention);
         }
     }
     // ouvrir le menu

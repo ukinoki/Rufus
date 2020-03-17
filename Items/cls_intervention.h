@@ -83,7 +83,7 @@ public:
                                               m_data[CP_IDIOL_LIGNPRGOPERATOIRE] = id; }
     void setpuissanceIOL(double pwr)        { m_pwrIOL = pwr;
                                               m_data[CP_PWRIOL_LIGNPRGOPERATOIRE] = pwr; }
-    void cylindreIOL(double cyl)            { m_cylIOL = cyl;
+    void setcylindreIOL(double cyl)         { m_cylIOL = cyl;
                                               m_data[CP_CYLIOL_LIGNPRGOPERATOIRE] = cyl; }
     void setobservation(QString txt)        { m_observation = txt;
                                               m_data[CP_OBSERV_LIGNPRGOPERATOIRE] = txt; }

@@ -35,6 +35,9 @@ int Acte::numcentre() const             { return m_numCentre; }
 int Acte::idsite() const                { return m_idsite; }
 QTime Acte::heure() const               { return m_heure; }
 bool Acte::effectueparremplacant() const{ return m_remplacant; }
+int Acte::idIntervention() const        { return m_idintervention; }
+bool Acte::isIntervention() const       { return m_idintervention > 0; }
+
 
 Acte::Acte(QJsonObject data, QObject *parent) : Item(parent)
 {
@@ -69,6 +72,7 @@ void Acte::setData(QJsonObject data)
     Utils::setDataDate(data, CP_DATE_ACTES, m_date);
     Utils::setDataTime(data, CP_HEURE_ACTES, m_heure);
     Utils::setDataBool(data, CP_SUPERVISEURREMPLACANT_ACTES, m_remplacant);
+    Utils::setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_idintervention);
     m_data = data;
 }
 

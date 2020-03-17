@@ -172,6 +172,15 @@ void DataBase::unlocktables()
     StandardSQL("UNLOCK TABLES;");
 }
 
+/*!
+ * \brief DataBase::selectMaxFromTable
+ * \param nomchamp
+ * \param nomtable
+ * \param ok
+ * \param errormsg
+ * \return la valeur maximale du champ int d'une table
+ * sur une table vide, la fonction renvoie 0 parce que la requete "select max(id) from table" renvoie une valeur null mais le nombre de réponses est de 1
+ */
 int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg)
 {
     QString req = "select max(" + nomchamp + ") from " + nomtable;
@@ -2283,18 +2292,19 @@ QJsonObject DataBase::loadActeData(QVariantList actdata)
     data[CP_IDUSERCOMPTABLE_ACTES] = actdata.at(12).toInt();
     data[CP_IDUSERPARENT_ACTES] = actdata.at(13).toInt();
     if( actdata.at(14).isNull() )
-        data["paiementType"] = "";
+        data[CP_TYPEPAIEMENT_TYPEPAIEMENTACTES] = "";
     else
-        data["paiementType"] = actdata.at(14).toString();
+        data[CP_TYPEPAIEMENT_TYPEPAIEMENTACTES] = actdata.at(14).toString();
 
     if( actdata.at(15).isNull() )
-        data["paiementTiers"] = "";
+        data[CP_TIERS_TYPEPAIEMENTACTES] = "";
     else
-        data["paiementTiers"] = actdata.at(15).toString();
+        data[CP_TIERS_TYPEPAIEMENTACTES] = actdata.at(15).toString();
     data[CP_NUMCENTRE_ACTES] = actdata.at(16).toInt();
     data[CP_IDLIEU_ACTES] = actdata.at(17).toInt();
     data[CP_HEURE_ACTES] = actdata.at(18).toTime().toString("HH:mm:ss");
     data[CP_SUPERVISEURREMPLACANT_ACTES] = (actdata.at(19) == 1);
+    data[CP_ID_LIGNPRGOPERATOIRE] = actdata.at(20).toInt();
 
     return data;
 }
@@ -2314,10 +2324,11 @@ QJsonObject DataBase::loadActeAllData(int idActe)
     QString req = "SELECT act." CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
                   " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
                   " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
-                  " tpm.TypePaiement, tpm.Tiers, act." CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
-                  " act." CP_SUPERVISEURREMPLACANT_ACTES
+                  " tpm." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", tpm." CP_TIERS_TYPEPAIEMENTACTES ", " CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
+                  " act." CP_SUPERVISEURREMPLACANT_ACTES ", lign." CP_ID_LIGNPRGOPERATOIRE
                   " FROM " TBL_ACTES " act "
-                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
+                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_IDACTE_ACTES
+                  " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_IDACTE_ACTES
                   " WHERE act." CP_IDACTE_ACTES " = '" + QString::number(idActe) + "'";
     QVariantList actdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || actdata.size()==0 )
@@ -2333,13 +2344,15 @@ QList<Acte *> DataBase::loadActesByPat(Patient *pat)
     QString req = "SELECT act." CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
                   " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
                   " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
-                  " tpm.TypePaiement, tpm.Tiers, act." CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
-                  " act." CP_SUPERVISEURREMPLACANT_ACTES
+                  " tpm." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", tpm." CP_TIERS_TYPEPAIEMENTACTES ", act." CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
+                  " act." CP_SUPERVISEURREMPLACANT_ACTES ", lign." CP_ID_LIGNPRGOPERATOIRE
                   " FROM " TBL_ACTES " act "
-                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
+                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_IDACTE_ACTES
+                  " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_IDACTE_ACTES
                   " WHERE act." CP_IDPAT_ACTES " = '" + QString::number(pat->id()) + "' "
                   " ORDER BY act." CP_IDACTE_ACTES " DESC";
     QList<QVariantList> actlist = StandardSelectSQL(req,ok);
+    qDebug() << req;
     if(!ok || actlist.size()==0)
         return list;
     for (int i=0; i<actlist.size(); ++i)
@@ -2378,10 +2391,10 @@ double DataBase::getActePaye(int idActe)
 {
     double montant = 0.0;
     // on récupère les lignes de paiement
-    QString req = " SELECT lp.Paye, lr.Monnaie "
+    QString req = " SELECT lp." CP_PAYE_LIGNEPAIEMENT ", lr." CP_MONNAIE_LIGNRECETTES
                   " FROM " TBL_LIGNESPAIEMENTS " lp "
-                  " LEFT JOIN " TBL_RECETTES " lr on lr.idRecette = lp.idRecette "
-                  " WHERE idActe = " + QString::number(idActe);
+                  " LEFT JOIN " TBL_RECETTES " lr on lp." CP_IDRECETTE_LIGNEPAIEMENT " = lr." CP_IDRECETTE_LIGNRECETTES
+                  " WHERE " CP_IDACTE_LIGNEPAIEMENT " = " + QString::number(idActe);
     QList<QVariantList> mtntlist = StandardSelectSQL(req,ok);
     if(!ok || mtntlist.size()==0)
         return montant;
@@ -2511,7 +2524,7 @@ QJsonObject DataBase::loadSessionOpData(QVariantList sessiondata)           //! 
     data[CP_IDUSER_SESSIONOPERATOIRE]               = sessiondata.at(2).toInt();
     data[CP_IDAIDE_SESSIONOPERATOIRE]               = sessiondata.at(3).toInt();
     data[CP_IDLIEU_SESSIONOPERATOIRE]               = sessiondata.at(4).toInt();
-    data[CP_INCIDENT_SESSIONOPERATOIRE]             = sessiondata.at(5).toInt();
+    data[CP_INCIDENT_SESSIONOPERATOIRE]             = sessiondata.at(5).toString();
     return data;
 }
 
@@ -2523,7 +2536,8 @@ QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)              
                     " WHERE " CP_IDUSER_SESSIONOPERATOIRE " = " + QString::number(id) +
                     " order by " CP_DATE_SESSIONOPERATOIRE " asc";
     QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
-    if(!ok || interventionlist.size()==0)
+
+  if(!ok || interventionlist.size()==0)
         return list;
     for (int i=0; i<interventionlist.size(); ++i)
     {

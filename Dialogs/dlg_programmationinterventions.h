@@ -40,12 +40,12 @@ public:
 
 private:
     Procedures                      *proc = Procedures::I();
-    QStandardItemModel              *m_medecinsmodel = Q_NULLPTR;
-    QStandardItemModel              *m_sessionsmodel = Q_NULLPTR;
-    QStandardItemModel              *m_interventionsmodel = Q_NULLPTR;
-    QStandardItemModel              *m_typeinterventionsmodel = Q_NULLPTR;
-    QStandardItemModel              *m_manufacturersmodel = Q_NULLPTR;
-    QStandardItemModel              *m_IOLsmodel = Q_NULLPTR;
+    QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
+    QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
+    QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);
+    QStandardItemModel              *m_typeinterventionsmodel   = new QStandardItemModel(this);
+    QStandardItemModel              *m_manufacturersmodel       = new QStandardItemModel(this);
+    QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
     QFont                           m_font = QApplication::font();
     dlg_impressions                 *Dlg_Imprs;
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
@@ -70,7 +70,7 @@ private:
     QComboBox           *wdg_listmedecinscombo;
     QComboBox           *wdg_manufacturercombo;
     QComboBox           *wdg_IOLcombo;
-    UpLabel             *lblinterventions;
+    UpLabel             *wdg_lblinterventions;
     UpPushButton        *wdg_incidentbutt;
     UpPushButton        *wdg_commandeIOLbutt;
     UpPushButton        *wdg_manufacturerbutt;
