@@ -1193,7 +1193,7 @@ QList<Compte*> DataBase::loadComptesAll()
     for (int i=0; i<cptlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_IDCOMPTE_COMPTES]  = cptlist.at(i).at(0).toInt();
+        jData[CP_ID_COMPTES]  = cptlist.at(i).at(0).toInt();
         jData[CP_IDBANQUE_COMPTES]  = cptlist.at(i).at(1).toInt();
         jData[CP_IDUSER_COMPTES]    = cptlist.at(i).at(2).toInt();
         jData[CP_IBAN_COMPTES]      = cptlist.at(i).at(3).toString();
@@ -1221,7 +1221,7 @@ QJsonObject DataBase::loadCompteDataById(int id)
         return jData;
     for (int i=0; i<cptlist.size(); ++i)
     {
-        jData[CP_IDCOMPTE_COMPTES]  = id;
+        jData[CP_ID_COMPTES]  = id;
         jData[CP_IDBANQUE_COMPTES]  = cptlist.at(i).at(1).toInt();
         jData[CP_IDUSER_COMPTES]    = cptlist.at(i).at(2).toInt();
         jData[CP_IBAN_COMPTES]      = cptlist.at(i).at(3).toString();
@@ -1250,7 +1250,7 @@ QList<LigneCompte*> DataBase::loadLignesComptesByCompte(int idcompte)
 {
     QList<LigneCompte*> listlignes = QList<LigneCompte*>();
     bool ok;
-    QList<QVariantList> lignlist = SelectRecordsFromTable(QStringList() << CP_IDLIGNE_LIGNCOMPTES
+    QList<QVariantList> lignlist = SelectRecordsFromTable(QStringList() << CP_ID_LIGNCOMPTES
                                                                         << CP_IDDEP_LIGNCOMPTES
                                                                         << CP_IDREC_LIGNCOMPTES
                                                                         << CP_IDRECSPEC_LIGNCOMPTES
@@ -1270,7 +1270,7 @@ QList<LigneCompte*> DataBase::loadLignesComptesByCompte(int idcompte)
     for (int i=0; i<lignlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_IDLIGNE_LIGNCOMPTES]       = lignlist.at(i).at(0).toInt();
+        jData[CP_ID_LIGNCOMPTES]       = lignlist.at(i).at(0).toInt();
         jData[CP_IDCOMPTE_LIGNCOMPTES]      = idcompte;
         jData[CP_IDDEP_LIGNCOMPTES]         = lignlist.at(i).at(1).toInt();
         jData[CP_IDREC_LIGNCOMPTES]         = lignlist.at(i).at(2).toString();
@@ -1305,11 +1305,11 @@ QJsonObject DataBase::loadLigneCompteDataById(int id)
             CP_TYPEOPERATION_LIGNCOMPTES ", "
             CP_CONSOLIDE_LIGNCOMPTES " FROM "
             TBL_LIGNESCOMPTES
-            " where " CP_IDLIGNE_LIGNCOMPTES " = " + QString::number(id);
+            " where " CP_ID_LIGNCOMPTES " = " + QString::number(id);
     QVariantList lign = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || lign.size()==0)
         return jData;
-    jData[CP_IDLIGNE_LIGNCOMPTES]       = id;
+    jData[CP_ID_LIGNCOMPTES]       = id;
     jData[CP_IDCOMPTE_LIGNCOMPTES]      = lign.at(0).toInt();
     jData[CP_IDDEP_LIGNCOMPTES]         = lign.at(1).toInt();
     jData[CP_IDREC_LIGNCOMPTES]         = lign.at(2).toString();
@@ -1335,7 +1335,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " NoCheque, dep." CP_IDFACTURE_DEPENSES ", " CP_LIENFICHIER_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_INTITULE_FACTURES ","
                         " idRubrique"
                         " FROM " TBL_DEPENSES " dep"
-                        " left join " TBL_FACTURES " fac on dep.idFacture = fac." CP_IDFACTURE_FACTURES
+                        " left join " TBL_FACTURES " fac on dep.idFacture = fac." CP_ID_FACTURES
                         " left join " TBL_RUBRIQUES2035 " rub on dep.RefFiscale = rub.RefFiscale"
                         " WHERE dep.idUser = " + QString::number(idUser);
     //qDebug() << req;
@@ -1345,7 +1345,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
     for (int i=0; i<deplist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_IDDEPENSE_DEPENSES]      = deplist.at(i).at(0).toInt();
+        jData[CP_ID_DEPENSES]      = deplist.at(i).at(0).toInt();
         jData[CP_IDUSER_DEPENSES]         = idUser;
         jData[CP_DATE_DEPENSES]           = deplist.at(i).at(1).toDate().toString("yyyy-MM-dd");
         jData[CP_REFFISCALE_DEPENSES]     = deplist.at(i).at(2).toString();
@@ -1479,7 +1479,7 @@ QList<Banque*> DataBase::loadBanques()
     for (int i=0; i<banqlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_IDBANQUE_BANQUES] = banqlist.at(i).at(0).toInt();
+        jData[CP_ID_BANQUES] = banqlist.at(i).at(0).toInt();
         jData[CP_NOMABREGE_BANQUES] = banqlist.at(i).at(1).toString();
         jData[CP_NOMBANQUE_BANQUES] = banqlist.at(i).at(2).toString();
         jData[CP_CODE_BANQUES] = banqlist.at(i).at(3).toInt();
@@ -1548,11 +1548,11 @@ QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
         " res1.Tiers, Paye, res1.iduser, res1.userparent, res1.usercomptable, null as montantautresrecettes, null as typeautresrecettes from\n "
         "(\n"
             "select\n"
-            " act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", concat(patnom, ' ', patprenom) as nom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES
+            " act." CP_ID_ACTES ", " CP_DATE_ACTES ", concat(patnom, ' ', patprenom) as nom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES
             ", TypePaiement, Tiers, " CP_IDUSER_ACTES ", " CP_IDUSERPARENT_ACTES ", " CP_IDUSERCOMPTABLE_ACTES " from \n"
             TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
             " where act." CP_IDPAT_ACTES " = pat.idpat\n"
-            " and act." CP_IDACTE_ACTES " = typ.idacte\n"
+            " and act." CP_ID_ACTES " = typ.idacte\n"
             " and " CP_DATE_ACTES " >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
             " and " CP_DATE_ACTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
             " order by " CP_DATE_ACTES ", nom\n"
@@ -1637,7 +1637,7 @@ RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
     if(!ok || recette.size()==0)
         return Q_NULLPTR;
     QJsonObject jData{};
-    jData[CP_IDRECETTE_LIGNRECETTES]            = id;
+    jData[CP_ID_LIGNRECETTES]            = id;
     jData[CP_IDUSER_LIGNRECETTES]               = recette.at(0).toInt();
     jData[CP_DATE_LIGNRECETTES]                 = recette.at(1).toDate().toString("yyyy-MM-dd");
     jData[CP_DATEENREGISTREMENT_LIGNRECETTES]   = recette.at(2).toDate().toString("yyyy-MM-dd");
@@ -1718,7 +1718,7 @@ QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
     QString req =   "SELECT idActe, lig.idRecette, Paye, Monnaie FROM " TBL_LIGNESPAIEMENTS " as lig"
                     " inner join " TBL_RECETTES " rec on rec.idrecette = lig.idrecette"
                     " where idActe in"
-                    " (select " CP_IDACTE_ACTES " from " TBL_ACTES " where idpat = " + QString::number(pat->id()) + ")";
+                    " (select " CP_ID_ACTES " from " TBL_ACTES " where idpat = " + QString::number(pat->id()) + ")";
     QList<QVariantList> paiementslist = StandardSelectSQL(req, ok);
     if(!ok || paiementslist.size()==0)
         return listepaiements;
@@ -2277,7 +2277,7 @@ QString DataBase::getMDPAdmin()
 QJsonObject DataBase::loadActeData(QVariantList actdata)
 {
     QJsonObject data{};
-    data[CP_IDACTE_ACTES] = actdata.at(0).toInt();
+    data[CP_ID_ACTES] = actdata.at(0).toInt();
     data[CP_IDPAT_ACTES] = actdata.at(1).toInt();
     data[CP_IDUSER_ACTES] = actdata.at(2).toInt();
     data[CP_DATE_ACTES] = actdata.at(3).toDate().toString("yyyy-MM-dd");
@@ -2321,15 +2321,15 @@ Acte* DataBase::loadActeById(int idActe)
 
 QJsonObject DataBase::loadActeAllData(int idActe)
 {
-    QString req = "SELECT act." CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
+    QString req = "SELECT act." CP_ID_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
                   " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
                   " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
                   " tpm." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", tpm." CP_TIERS_TYPEPAIEMENTACTES ", " CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
                   " act." CP_SUPERVISEURREMPLACANT_ACTES ", lign." CP_ID_LIGNPRGOPERATOIRE
                   " FROM " TBL_ACTES " act "
-                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_IDACTE_ACTES
-                  " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_IDACTE_ACTES
-                  " WHERE act." CP_IDACTE_ACTES " = '" + QString::number(idActe) + "'";
+                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES
+                  " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_ID_ACTES
+                  " WHERE act." CP_ID_ACTES " = '" + QString::number(idActe) + "'";
     QVariantList actdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || actdata.size()==0 )
         return QJsonObject{};
@@ -2341,16 +2341,16 @@ QList<Acte *> DataBase::loadActesByPat(Patient *pat)
     QList<Acte*> list;
     if( pat == Q_NULLPTR )
         return list;
-    QString req = "SELECT act." CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
+    QString req = "SELECT act." CP_ID_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
                   " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
                   " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
                   " tpm." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", tpm." CP_TIERS_TYPEPAIEMENTACTES ", act." CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ", act." CP_HEURE_ACTES ","
                   " act." CP_SUPERVISEURREMPLACANT_ACTES ", lign." CP_ID_LIGNPRGOPERATOIRE
                   " FROM " TBL_ACTES " act "
-                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_IDACTE_ACTES
-                  " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_IDACTE_ACTES
+                  " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES
+                  " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_ID_ACTES
                   " WHERE act." CP_IDPAT_ACTES " = '" + QString::number(pat->id()) + "' "
-                  " ORDER BY act." CP_IDACTE_ACTES " DESC";
+                  " ORDER BY act." CP_ID_ACTES " DESC";
     QList<QVariantList> actlist = StandardSelectSQL(req,ok);
     qDebug() << req;
     if(!ok || actlist.size()==0)
@@ -2379,7 +2379,7 @@ QList<Acte *> DataBase::loadIdActesByPat(Patient *pat)
     for (int i=0; i<actlist.size(); ++i)
     {
         QJsonObject data{};
-        data[CP_IDACTE_ACTES] = actlist.at(i).at(0).toInt();
+        data[CP_ID_ACTES] = actlist.at(i).at(0).toInt();
         Acte *acte = new Acte(data);
         if (acte != Q_NULLPTR)
             list << acte;
@@ -2393,7 +2393,7 @@ double DataBase::getActePaye(int idActe)
     // on récupère les lignes de paiement
     QString req = " SELECT lp." CP_PAYE_LIGNEPAIEMENT ", lr." CP_MONNAIE_LIGNRECETTES
                   " FROM " TBL_LIGNESPAIEMENTS " lp "
-                  " LEFT JOIN " TBL_RECETTES " lr on lp." CP_IDRECETTE_LIGNEPAIEMENT " = lr." CP_IDRECETTE_LIGNRECETTES
+                  " LEFT JOIN " TBL_RECETTES " lr on lp." CP_IDRECETTE_LIGNEPAIEMENT " = lr." CP_ID_LIGNRECETTES
                   " WHERE " CP_IDACTE_LIGNEPAIEMENT " = " + QString::number(idActe);
     QList<QVariantList> mtntlist = StandardSelectSQL(req,ok);
     if(!ok || mtntlist.size()==0)
@@ -2407,6 +2407,16 @@ double DataBase::getActePaye(int idActe)
     }
     return montant;
 }
+int DataBase::getidActeCorrespondant(int idpat, QDate date)
+{
+    QString req = "select " CP_ID_ACTES " from " TBL_ACTES " where " CP_IDPAT_ACTES " = " + QString::number(idpat) + " and " CP_DATE_ACTES " = '" + date.toString("yyyy-MM-dd") + "'";
+    qDebug() << req;
+    QVariantList listid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver un acte correspondant"));
+    if (listid.size() > 0)
+        return listid.at(0).toInt();
+    else return 0;
+}
+
 
 /*
  * Refractions

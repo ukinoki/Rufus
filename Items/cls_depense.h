@@ -77,7 +77,7 @@ public:
     QByteArray  factureblob() const;
 
     void    setid(int id)                   { m_id = id;
-                                              m_data[CP_IDDEPENSE_DEPENSES] = id; }
+                                              m_data[CP_ID_DEPENSES] = id; }
     void    setiduser(int id)               { m_iduser = id;
                                               m_data[CP_IDUSER_DEPENSES] = id; }
     void    setdate(QDate date)             { m_datedepepense = date;

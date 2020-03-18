@@ -152,7 +152,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     // on cherche le comptable à créditer
     if (m_listidactes.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
     {
-        Acte *act = Datas::I()->actes->getById(m_listidactes.at(0), ItemsList::AddToList);
+        Acte *act = Datas::I()->actes->getById(m_listidactes.at(0));
         if (act != Q_NULLPTR)
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
@@ -364,11 +364,11 @@ void dlg_paiementdirect::Annuler()
         // 3.       restaurer les types de paiement quand il s'agit d'un paiement direct
         for (int i = 0; i < m_listidactesamodifier.size(); i++)
         {
-            requete = "select idacte FROM " TBL_TYPEPAIEMENTACTES " where idActe = " + QString::number(m_listidactesamodifier.at(i));
+            requete = "select " CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " where " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(m_listidactesamodifier.at(i));
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
             if (m_ok && actdata.size() == 0)
             {
-                requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (idActe,TypePaiement) VALUES "
+                requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES "," CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES "
                           "(" + QString::number(m_listidactesamodifier.at(i)) + ",'" + m_modepaiementdirectamodifier + "')";
                 db->StandardSQL(requete);
             }
@@ -646,7 +646,7 @@ void dlg_paiementdirect::ModifiePaiement()
         ModePaiement    = ui->ListeupTableWidget->item(ab,5)->text();
         int idActe      = ui->ListeupTableWidget->item(ab,0)->text().toInt();
         DateActe        = QDate::fromString(ui->ListeupTableWidget->item(ab,1)->text(),tr("dd-MM-yyyy"));
-        requete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(idActe);
+        requete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(idActe);
         db->StandardSQL(requete);
         m_listidactes.clear();
         m_listidactes << idActe;
@@ -820,7 +820,7 @@ void dlg_paiementdirect::ModifiePaiement()
             if (actlist.size() > 1)
                 GratuitImpayeVisible = false;
             if (actlist.size() == 1)
-                db->SupprRecordFromTable(m_listidactesamodifier.at(i), "idActe", TBL_TYPEPAIEMENTACTES);
+                db->SupprRecordFromTable(m_listidactesamodifier.at(i), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
         }
 
         // Nettoyer LignesPaiements
@@ -1512,15 +1512,15 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             }
             QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
 
-            requete =   "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", Paye, TypePaiement, Tiers, TotalPaye\n"
+            requete =   "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", Paye, " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ", TotalPaye\n"
                         " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig, " TBL_TYPEPAIEMENTACTES " typ,\n"
                         " (SELECT lig.idActe, SUM(lig.paye) as TotalPaye FROM " TBL_LIGNESPAIEMENTS " lig,\n"
                         " (SELECT idActe FROM " TBL_LIGNESPAIEMENTS
                         " WHERE idRecette = " + TextidRecette + ") AS Result\n"
                         " WHERE lig.idActe = Result.idActe GROUP BY lig.idActe) AS calc\n"
-                        " WHERE act." CP_IDACTE_ACTES " = lig.idActe\n"
-                        " AND typ.idActe = act." CP_IDACTE_ACTES "\n"
-                        " AND calc.idActe = act." CP_IDACTE_ACTES "\n"
+                        " WHERE act." CP_ID_ACTES " = lig.idActe\n"
+                        " AND typ.idActe = act." CP_ID_ACTES "\n"
+                        " AND calc.idActe = act." CP_ID_ACTES "\n"
                         " AND lig.idRecette = " + TextidRecette + "\n"
                         " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
                         " ORDER BY " CP_DATE_ACTES " DESC, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
@@ -1934,7 +1934,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 if (ui->DetailupTableWidget->rowCount() > 0)
                 {
                     QString req = "SELECT " CP_NOM_PATIENTS " FROM " TBL_PATIENTS " pat, " TBL_ACTES " act"
-                                  " WHERE pat." CP_IDPAT_PATIENTS " = act." CP_IDPAT_ACTES " and " CP_IDACTE_ACTES " = " + ui->DetailupTableWidget->item(0,0)->text();
+                                  " WHERE pat." CP_IDPAT_PATIENTS " = act." CP_IDPAT_ACTES " and " CP_ID_ACTES " = " + ui->DetailupTableWidget->item(0,0)->text();
                     QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                     if (m_ok && patdata.size()>0)
                         ui->TireurChequelineEdit->setText(patdata.at(0).toString());
@@ -2197,46 +2197,46 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
         DefinitArchitectureTable(ui->ListeupTableWidget, ActesDirects);
 
         requete =
-                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
+                    "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
                     CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as TypePaiement, " CP_MONTANT_ACTES " as ResteDu , SUM(Paye) as Regle, "   // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE "
-                    " act." CP_IDACTE_ACTES " IN (SELECT idActe from (\n"
+                    " act." CP_ID_ACTES " IN (SELECT idActe from (\n"
                     " SELECT  lig.idActe, SUM(Paye) as TotalPaye, " CP_MONTANT_ACTES "  FROM " TBL_LIGNESPAIEMENTS " as lig, " TBL_ACTES " as act2\n"
-                    " where lig.idActe= act2." CP_IDACTE_ACTES "\n"
+                    " where lig.idActe= act2." CP_ID_ACTES "\n"
                     " group by idacte) as blue\n"
                     " where blue." CP_MONTANT_ACTES " > blue.totalpaye and blue.totalpaye > 0)\n"
-                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat where saldat." CP_IDACTEAPAYER_SALDAT " is not null)\n"
-                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT Typ.idActe FROM " TBL_TYPEPAIEMENTACTES " Typ where Typ.TypePaiement = 'T')\n"
+                    " AND act." CP_ID_ACTES " NOT IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat where saldat." CP_IDACTEAPAYER_SALDAT " is not null)\n"
+                    " AND act." CP_ID_ACTES " NOT IN (SELECT Typ." CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " Typ where Typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'T')\n"
                     " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
-                    " AND act." CP_IDACTE_ACTES " = lig.idActe\n"
+                    " AND act." CP_ID_ACTES " = lig.idActe\n"
                     " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
         requete +=  " AND " CP_MONTANT_ACTES " > 0\n"
-                    " GROUP BY act." CP_IDACTE_ACTES "\n";                        // tous les actes dont le paiement est incomplet
+                    " GROUP BY act." CP_ID_ACTES "\n";                        // tous les actes dont le paiement est incomplet
 
         requete +=  " UNION \n\n"
-                    " SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                        // 0, 1, 2, 3, 4
+                    " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                        // 0, 1, 2, 3, 4
                     CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as TypePaiement, " CP_MONTANT_ACTES " as ResteDu , 0 as Regle, "           // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                              // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat"
                     " WHERE "
-                    " act." CP_IDACTE_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
-                    " AND act." CP_IDACTE_ACTES " not in (select idacte from " TBL_TYPEPAIEMENTACTES " WHERE TypePaiement = 'I' OR TypePaiement = 'T')\n"
-                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat where saldat." CP_IDACTEAPAYER_SALDAT " is not null)\n"
+                    " act." CP_ID_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
+                    " AND act." CP_ID_ACTES " not in (select " CP_IDACTE_TYPEPAIEMENTACTES " from " TBL_TYPEPAIEMENTACTES " WHERE " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'I' OR " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'T')\n"
+                    " AND act." CP_ID_ACTES " NOT IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat where saldat." CP_IDACTEAPAYER_SALDAT " is not null)\n"
                     " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
                     " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
         requete +=  " AND " CP_MONTANT_ACTES " > 0\n"
-                    " GROUP BY act." CP_IDACTE_ACTES "\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré et qui ne sont pas en salle d'attente
+                    " GROUP BY act." CP_ID_ACTES "\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré et qui ne sont pas en salle d'attente
 
         requete +=  " UNION \n\n"
-                    " SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                         // 0, 1, 2, 3, 4
+                    " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                         // 0, 1, 2, 3, 4
                     CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", TypePaiement, " CP_MONTANT_ACTES " as ResteDu, 0 as Regle, "                   // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                               // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
-                    " WHERE typ.TypePaiement = 'I'\n"
-                    " AND typ.idActe = act." CP_IDACTE_ACTES "\n"
-                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat where saldat." CP_IDACTEAPAYER_SALDAT " is not null)\n"
+                    " WHERE typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'I'\n"
+                    " AND typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES "\n"
+                    " AND act." CP_ID_ACTES " NOT IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat where saldat." CP_IDACTEAPAYER_SALDAT " is not null)\n"
                     " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
                     " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
         requete +=  " ORDER BY " CP_DATE_ACTES " DESC, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;   // tous les actes impayés
@@ -2250,11 +2250,11 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,ActesDirects);
-        requete =   "SELECT " CP_IDACTE_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                                  // 0, 1, 2, 3, 4
+        requete =   "SELECT " CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                                  // 0, 1, 2, 3, 4
                     CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as CalculPaiement, " CP_IDUSERCOMPTABLE_ACTES ","            // 5, 6, 7, 8, 9
                     CP_IDUSER_ACTES                                                                                                             // 10
                     " FROM \n" TBL_ACTES " act, " TBL_PATIENTS " pat \n"
-                    " WHERE " CP_IDACTE_ACTES " IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat) \n"
+                    " WHERE " CP_ID_ACTES " IN (SELECT saldat." CP_IDACTEAPAYER_SALDAT " FROM " TBL_SALLEDATTENTE " saldat) \n"
                     " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS " \n";
         requete +=  " AND " CP_MONTANT_ACTES " > 0 \n"
                     " ORDER BY " CP_DATE_ACTES " DESC, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
@@ -2302,25 +2302,25 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
     {
         // On sélectionne tous les actes sans exception, sauf les gratuits et les impayés
         requete =   "select * from (\n"
-                    "SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", SUM(Paye) as tot, TypePaiement, Tiers,"                             // 5, 6, 7, 8, 9
+                    "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                 // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", SUM(Paye) as tot, " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ","                             // 5, 6, 7, 8, 9
                     " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES "\n"                                                              // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ, " TBL_LIGNESPAIEMENTS " lig\n"
-                    " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
-                    " AND lig.idActe = act." CP_IDACTE_ACTES "\n"
-                    " AND TypePaiement NOT IN ('G','I')\n"
+                    " WHERE act." CP_ID_ACTES " = typ." CP_IDACTE_TYPEPAIEMENTACTES "\n"
+                    " AND lig.idActe = act." CP_ID_ACTES "\n"
+                    " AND " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " NOT IN ('G','I')\n"
                     " AND act." CP_IDPAT_ACTES " = pat.idPat\n"
                     " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n";
-        requete +=  " group by act." CP_IDACTE_ACTES ") as mar\n"
+        requete +=  " group by act." CP_ID_ACTES ") as mar\n"
                     " union\n\n"
 
-                    " SELECT act." CP_IDACTE_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", 0 as tot, TypePaiement, Tiers,"                                     // 5, 6, 7, 8, 9
+                    " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", PatNom, PatPrenom, " CP_COTATION_ACTES ","                                // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", 0 as tot, " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ","                                     // 5, 6, 7, 8, 9
                     " PatDDN, " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES "\n"                                                              // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
-                    " WHERE act." CP_IDACTE_ACTES " = typ.idActe\n"
-                    " AND act." CP_IDACTE_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
-                    " AND TypePaiement NOT IN ('I')\n"
+                    " WHERE act." CP_ID_ACTES " = typ." CP_IDACTE_TYPEPAIEMENTACTES "\n"
+                    " AND act." CP_ID_ACTES " not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
+                    " AND " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " NOT IN ('I')\n"
                     " AND " CP_DATE_ACTES " > AddDate(NOW(),-730)\n"
                     " AND act." CP_IDPAT_ACTES " = pat.idPat\n";
         requete +=  " order by " CP_DATE_ACTES " desc, PatNom, PatPrenom";
@@ -2819,7 +2819,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                 {
                     QString ChercheNomPat = "SELECT PatNom FROM " TBL_PATIENTS " pat, " TBL_ACTES " act"
                                             " WHERE pat.idPat = act." CP_IDPAT_ACTES ""
-                                            " AND act." CP_IDACTE_ACTES " = " + ui->DetailupTableWidget->item(0,0)->text();
+                                            " AND act." CP_ID_ACTES " = " + ui->DetailupTableWidget->item(0,0)->text();
                     QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, m_ok);
                     if (!m_ok)
                     {
@@ -2970,13 +2970,13 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                         db->rollback();
                         return Impossible;
                     }
-                    QString InsPmtrequete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (idActe, TypePaiement) VALUES (" + ui->DetailupTableWidget->item(i,0)->text() + ",'G')";
+                    QString InsPmtrequete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES (" + ui->DetailupTableWidget->item(i,0)->text() + ",'G')";
                     if (!db->StandardSQL(InsPmtrequete))
                     {
                         db->rollback();
                         return Impossible;
                     }
-                    QString UpdPmtrequete = "UPDATE " TBL_ACTES " SET " CP_MONTANT_ACTES " = 0 WHERE " CP_IDACTE_ACTES " = " + ui->DetailupTableWidget->item(i,0)->text();
+                    QString UpdPmtrequete = "UPDATE " TBL_ACTES " SET " CP_MONTANT_ACTES " = 0 WHERE " CP_ID_ACTES " = " + ui->DetailupTableWidget->item(i,0)->text();
                     if (!db->StandardSQL(UpdPmtrequete))
                     {
                         db->rollback();
@@ -2990,7 +2990,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
         for (int i = 0; i != ui->DetailupTableWidget->rowCount(); i++)
         {
             QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
-            QString Del2Pmtrequete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " where idActe = " + ActeAInserer;
+            QString Del2Pmtrequete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " where " CP_IDACTE_TYPEPAIEMENTACTES " = " + ActeAInserer;
             if (!db->StandardSQL(Del2Pmtrequete,tr("Impossible de supprimer le patient de la table TypePaiementActes")))
             {
                 db->rollback();
@@ -3020,7 +3020,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
         for (int i = 0; i != ui->DetailupTableWidget->rowCount(); i++)
         {
             QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
-            QString Ins2Pmtrequete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (idActe,TypePaiement,Tiers) VALUES ("
+            QString Ins2Pmtrequete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ") VALUES ("
                     + ActeAInserer + "," + ModePaiement + "," + TypeTiers +")";
             if (!db->StandardSQL(Ins2Pmtrequete,tr("Impossible de mettre à jour la table LignesPaiements")))
             {

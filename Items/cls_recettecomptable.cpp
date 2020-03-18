@@ -26,7 +26,7 @@ void RecetteComptable::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, CP_IDRECETTE_LIGNRECETTES, m_id);
+    Utils::setDataInt(data, CP_ID_LIGNRECETTES, m_id);
     Utils::setDataInt(data, CP_IDUSER_LIGNRECETTES, m_iduser);
     Utils::setDataDate(data, CP_DATE_LIGNRECETTES, m_date);
     Utils::setDataDate(data, CP_DATEENREGISTREMENT_LIGNRECETTES , m_dateenregistrement);

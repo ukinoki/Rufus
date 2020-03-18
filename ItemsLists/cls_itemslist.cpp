@@ -189,7 +189,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     else if (table == TBL_ACTES)
     {
         ok = true;
-        clause = CP_IDACTE_ACTES " = " + QString::number(item->id());
+        clause = CP_ID_ACTES " = " + QString::number(item->id());
         if (field == CP_MOTIF_ACTES)
         {
             act->setmotif(newvalue.toString());
@@ -546,7 +546,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     else if (table == TBL_BANQUES)
     {
         ok = true;
-        clause = CP_IDBANQUE_BANQUES " = " + QString::number(item->id());
+        clause = CP_ID_BANQUES " = " + QString::number(item->id());
         if (field == CP_NOMABREGE_BANQUES )
         {
             bq->setnomabrege(newvalue.toString());
@@ -563,7 +563,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     else if (table == TBL_DEPENSES)
     {
         ok = true;
-        clause = CP_IDDEPENSE_DEPENSES " = " + QString::number(item->id());
+        clause = CP_ID_DEPENSES " = " + QString::number(item->id());
         if (field == CP_IDUSER_DEPENSES)
         {
             dep->setiduser(newvalue.toInt());

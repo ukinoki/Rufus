@@ -69,7 +69,7 @@ void Banques::SupprimeBanque(Banque *bq)
         return Q_NULLPTR;
     }
     // Récupération de l'idMotif créé ------------------------------------
-    int idbq = DataBase::I()->selectMaxFromTable(CP_IDBANQUE_BANQUES, TBL_BANQUES, m_ok, tr("Impossible de sélectionner les enregistrements"));
+    int idbq = DataBase::I()->selectMaxFromTable(CP_ID_BANQUES, TBL_BANQUES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();

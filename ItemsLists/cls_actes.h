@@ -43,7 +43,7 @@ public:
     void setcurrentacte(Acte *act);
     Acte* currentacte() const       { return m_currentacte; }
 
-    Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
+    Acte*   getById(int id, Item::LOADDETAILS details = Item::LoadDetails);                 //!> charge un acte à partir de son id
     QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
     QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
     void    initListeByPatient(Patient *pat, Item::UPDATE upd = Item::NoUpdate, bool quelesid = false);

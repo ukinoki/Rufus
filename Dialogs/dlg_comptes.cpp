@@ -213,7 +213,7 @@ void dlg_comptes::Archiver()
         db->rollback();
         return;
     }
-    if (!db->StandardSQL(" delete from " TBL_LIGNESCOMPTES " where " CP_IDLIGNE_LIGNCOMPTES " in " + reponse + ")"))
+    if (!db->StandardSQL(" delete from " TBL_LIGNESCOMPTES " where " CP_ID_LIGNCOMPTES " in " + reponse + ")"))
     {
         db->rollback();
         return;
@@ -282,7 +282,7 @@ void dlg_comptes::RenvoieRangee(UpCheckBox* Check)
         lign->setconsolide(Check->isChecked());
         QString requete = "update " TBL_LIGNESCOMPTES " set " CP_CONSOLIDE_LIGNCOMPTES " = ";
         requete += (Check->isChecked()? "1" : "null");
-        requete += " where " CP_IDLIGNE_LIGNCOMPTES " = " + QString::number(lign->id());
+        requete += " where " CP_ID_LIGNCOMPTES " = " + QString::number(lign->id());
         db->StandardSQL(requete);
         CalculeTotal();
     }
@@ -588,7 +588,7 @@ void dlg_comptes::ModifMontant(LigneCompte *lign)
         int row = getRowFromLigneCompte(lign);
         lign->setmontant(QLocale().toDouble(line->text()));
         SetLigneCompteToRow(lign, row);
-        QString req = "update " TBL_LIGNESCOMPTES " set " CP_MONTANT_LIGNCOMPTES " = " + QString::number(lign->montant()) + " where " CP_IDLIGNE_LIGNCOMPTES " = " + QString::number(lign->id());
+        QString req = "update " TBL_LIGNESCOMPTES " set " CP_MONTANT_LIGNCOMPTES " = " + QString::number(lign->montant()) + " where " CP_ID_LIGNCOMPTES " = " + QString::number(lign->id());
         DataBase::I()->StandardSQL(req);
         CalculeTotal();
         dlg_montant->accept();

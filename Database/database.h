@@ -325,6 +325,7 @@ public:
     QList<Acte*>            loadActesByPat(Patient *pat);                       //! chrage les actes d'un patient
     QList<Acte*>            loadIdActesByPat(Patient *pat);                     //! chrage les actes d'un patient en ne retenant que les id
     double                  getActePaye(int idActe);                            //! retrouve le total des paiements pour un acte
+    int                     getidActeCorrespondant(int idpat, QDate date);      //! recherche s'il existe un acte correspondant à cet idpatient et à cette date
 
     /*
      * Refractions

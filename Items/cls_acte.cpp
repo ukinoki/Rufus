@@ -49,7 +49,7 @@ void Acte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_IDACTE_ACTES, m_id);
+    Utils::setDataInt(data, CP_ID_ACTES, m_id);
     Utils::setDataInt(data, CP_IDUSERCREATEUR_ACTES, m_idCreatedBy);
     Utils::setDataInt(data, CP_IDPAT_ACTES, m_idPatient);
     Utils::setDataInt(data, CP_IDUSER_ACTES, m_idSuperviseur);
@@ -66,8 +66,8 @@ void Acte::setData(QJsonObject data)
     Utils::setDataString(data, CP_COURRIERAFAIRE_ACTES, m_courrierStatus);
     Utils::setDataString(data, CP_COTATION_ACTES, m_cotation);
     Utils::setDataString(data, CP_MONNAIE_ACTES, m_monnaie);
-    Utils::setDataString(data, "paiementType", m_paiementType);
-    Utils::setDataString(data, "paiementTiers", m_paiementTiers);
+    Utils::setDataString(data, CP_TYPEPAIEMENT_TYPEPAIEMENTACTES, m_paiementType);
+    Utils::setDataString(data, CP_TIERS_TYPEPAIEMENTACTES, m_paiementTiers);
 
     Utils::setDataDate(data, CP_DATE_ACTES, m_date);
     Utils::setDataTime(data, CP_HEURE_ACTES, m_heure);

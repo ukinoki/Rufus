@@ -94,7 +94,7 @@ public:
     int idComptable() const;
 
     void setid(int id)                      { m_id = id;
-                                              m_data[CP_IDACTE_ACTES] = id; }
+                                              m_data[CP_ID_ACTES] = id; }
     void setdate(QDate date)                { m_date = date;
                                               m_data[CP_DATE_ACTES] = date.toString("yyyy-MM-dd"); }
     void setheure(QTime heure)              { m_heure = heure;
@@ -127,7 +127,7 @@ public:
                                               m_data[CP_CONCLUSION_ACTES] = conclusion; }
     void seteffectueparremplacant(bool logic) { m_remplacant = logic;
                                                 m_data[CP_SUPERVISEURREMPLACANT_ACTES] = logic; }
-    void setintervention(int id)            { m_idintervention = id;
+    void setidintervention(int id)          { m_idintervention = id;
                                               m_data[CP_ID_LIGNPRGOPERATOIRE] = id; }
 };
 

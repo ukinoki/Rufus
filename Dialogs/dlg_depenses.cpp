@@ -982,7 +982,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     if (supprimerlafacture)
     {
         /* on détruit l'enregistrement dans la table factures*/
-        db->SupprRecordFromTable(dep->idfacture(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
+        db->SupprRecordFromTable(dep->idfacture(), CP_ID_FACTURES, TBL_FACTURES);
         /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
          * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
          * se chargera de supprimer les fichiers du disque
@@ -1680,7 +1680,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         /* on recherche s'il y a d'autres échéanciers enregistrés dans la table factures pour cet utilisateur*/
         QString req = "select distinct dep." CP_IDFACTURE_DEPENSES ", " CP_INTITULE_FACTURES ", " CP_LIENFICHIER_FACTURES " from " TBL_DEPENSES " dep"
                       " left join " TBL_FACTURES " fac"
-                      " on dep." CP_IDFACTURE_DEPENSES " = fac." CP_IDFACTURE_FACTURES
+                      " on dep." CP_IDFACTURE_DEPENSES " = fac." CP_ID_FACTURES
                       " where " CP_ECHEANCIER_FACTURES " = 1"
                       " and " CP_IDUSER_DEPENSES " = " + QString::number(m_userencours->id()) +
                       " order by " CP_INTITULE_FACTURES;
@@ -1732,7 +1732,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                                                                             newlien             .replace(oldintitule, item->text());
                                                                             item->model()->item(rowit,2)->setText(newlien);
                                                                             QString req         = "update " TBL_FACTURES " set " CP_LIENFICHIER_FACTURES " = '" + newlien + "', " CP_INTITULE_FACTURES " = '" + item->text() + "' "
-                                                                                                                                                                                                                               " where " CP_IDFACTURE_FACTURES " = " + QString::number(idech);
+                                                                                                                                                                                                                               " where " CP_ID_FACTURES " = " + QString::number(idech);
                                                                             DataBase::I()       ->StandardSQL(req);
                                                                             QString newfilename = Procedures::I()->AbsolutePathDirImagerie() +  NOM_DIR_FACTURES + newlien;
                                                                             QString oldfilename = Procedures::I()->AbsolutePathDirImagerie() +  NOM_DIR_FACTURES + oldlien;

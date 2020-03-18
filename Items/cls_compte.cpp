@@ -37,7 +37,7 @@ void Compte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_IDCOMPTE_COMPTES, m_id);
+    Utils::setDataInt(data, CP_ID_COMPTES, m_id);
     Utils::setDataInt(data, CP_IDUSER_COMPTES, m_iduser);
     Utils::setDataInt(data, CP_IDBANQUE_COMPTES, m_idbanque);
     Utils::setDataString(data, CP_IBAN_COMPTES, m_iban);

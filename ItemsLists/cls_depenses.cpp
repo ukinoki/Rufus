@@ -108,7 +108,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
         return Q_NULLPTR;
     }
     // Récupération de l'idMotif créé ------------------------------------
-    int iddep = DataBase::I()->selectMaxFromTable(CP_IDDEPENSE_DEPENSES, TBL_DEPENSES, m_ok, tr("Impossible de sélectionner les enregistrements"));
+    int iddep = DataBase::I()->selectMaxFromTable(CP_ID_DEPENSES, TBL_DEPENSES, m_ok, tr("Impossible de sélectionner les enregistrements"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();

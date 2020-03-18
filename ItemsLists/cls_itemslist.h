@@ -221,28 +221,28 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
         if (dynamic_cast<Acte*>(item) != Q_NULLPTR)
         {
             table = TBL_ACTES;
-            idname = CP_IDACTE_ACTES;
+            idname = CP_ID_ACTES;
             loop = true;
             break;
         }
         if (dynamic_cast<Banque*>(item)!= Q_NULLPTR)
         {
             table = TBL_BANQUES;
-            idname = CP_IDBANQUE_BANQUES;
+            idname = CP_ID_BANQUES;
             loop = true;
             break;
         }
         if (dynamic_cast<Compte*>(item)!= Q_NULLPTR)
         {
             table = TBL_COMPTES;
-            idname = CP_IDCOMPTE_COMPTES;
+            idname = CP_ID_COMPTES;
             loop = true;
             break;
         }
         if (dynamic_cast<Depense*>(item)!= Q_NULLPTR)
         {
             table = TBL_DEPENSES;
-            idname = CP_IDDEPENSE_DEPENSES;
+            idname = CP_ID_DEPENSES;
             loop = true;
             break;
         }
@@ -277,7 +277,7 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
         if (dynamic_cast<LigneCompte*>(item) != Q_NULLPTR)
         {
             table = TBL_LIGNESCOMPTES;
-            idname = CP_IDLIGNE_LIGNCOMPTES;
+            idname = CP_ID_LIGNCOMPTES;
             loop = true;
             break;
         }

@@ -52,7 +52,7 @@ void Depense::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data,    CP_IDDEPENSE_DEPENSES,      m_id);
+    Utils::setDataInt(data,    CP_ID_DEPENSES,      m_id);
     Utils::setDataInt(data,    CP_IDUSER_DEPENSES,         m_iduser);
     Utils::setDataDate(data,   CP_DATE_DEPENSES,           m_datedepepense);
     Utils::setDataString(data, CP_REFFISCALE_DEPENSES,     m_rubriquefiscale);

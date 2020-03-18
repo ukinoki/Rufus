@@ -1570,7 +1570,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     {
         pitem0 = new QTableWidgetItem;
         pitem1 = new QTableWidgetItem;
-        QList<QVariantList> actlst = db->StandardSelectSQL("select count(" CP_IDACTE_ACTES ") from " TBL_ACTES
+        QList<QVariantList> actlst = db->StandardSelectSQL("select count(" CP_ID_ACTES ") from " TBL_ACTES
                                                            " where " CP_IDUSER_ACTES " = " + QString::number(usr->id()) +
                                                            " or " CP_IDUSERCREATEUR_ACTES " = " + QString::number(usr->id()), m_ok);
         if (actlst.size()>0)

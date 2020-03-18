@@ -51,8 +51,11 @@ private:
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
     dlg_listeiols                   *Dlg_ListIOLs;
     dlg_listemanufacturers          *Dlg_ListManufacturers;
-    void                EnregistreIncident(Item *itm);
 
+    void                EnregistreIncident(Item *itm);
+    void                ModifStatutActeCorrespondant(int idacte);                       /*! va rechercher s'il existe un acte correspondant à cette intervention (même patient, même date)
+                                                                                        * dans la liste des actes en cours et va modifier sa propriété m_intervention
+                                                                                        */
 /*! les items */
     User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
     Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme

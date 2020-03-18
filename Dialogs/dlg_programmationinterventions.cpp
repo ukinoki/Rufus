@@ -230,7 +230,7 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
     m_sessionsmodel->takeColumn(1);
     for (int i=0; i< m_sessionsmodel->rowCount(); ++i)
     {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(0));
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
         if (itm != Q_NULLPTR)
         {
             SessionOperatoire* sess = dynamic_cast<SessionOperatoire*>(itm->item());
@@ -928,6 +928,15 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     dlg_incident->exec();
 }
 
+void dlg_programmationinterventions::ModifStatutActeCorrespondant(int idacte)
+{
+    if (idacte >0)
+    {
+        Acte * act = Datas::I()->actes->getById(idacte, Item::NoLoadDetails);
+        if (act != Q_NULLPTR)
+            act->setidintervention(idacte);
+    }
+}
 
 void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 {
@@ -1194,8 +1203,16 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                     return;
         QTime heure = timeedit->time();
         QStandardItem *itm = m_sessionsmodel->itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
-        int idsession = dynamic_cast<UpStandardItem*>(itm)->item()->id();
+        UpStandardItem *upitm = dynamic_cast<UpStandardItem*>(itm);
+        int idsession = 0;
+        if (upitm == Q_NULLPTR)
+            return;
+        idsession = upitm->item()->id();
+        SessionOperatoire * session = dynamic_cast<SessionOperatoire*>(upitm->item());
+        if (session == Q_NULLPTR)
+            return;
         int idpat = pat->id();
+        int idact = DataBase::I()->getidActeCorrespondant(idpat, session->date());
         int idtype = 0;
         QString cote = cotecombo->currentData().toString();
         QString anesth = anesthcombo->currentData().toString();
@@ -1209,6 +1226,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         listbinds[CP_COTE_LIGNPRGOPERATOIRE]  = cote;
         listbinds[CP_TYPEANESTH_LIGNPRGOPERATOIRE]  = anesth;
         listbinds[CP_OBSERV_LIGNPRGOPERATOIRE]  = ObservtextEdit->toPlainText();
+        listbinds[CP_IDACTE_LIGNPRGOPERATOIRE]  = (idact > 0? idact : QVariant());
         if (IOLchk->isChecked())
         {
             listbinds[CP_IDIOL_LIGNPRGOPERATOIRE] = m_currentIOL->id();
@@ -1252,6 +1270,8 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             interv->setcote(Utils::ConvertCote(cote));
             interv->setanesthesie(Intervention::ConvertModeAnesthesie(anesth));
             interv->setobservation(ObservtextEdit->toPlainText());
+            interv->setidacte(idact);
+
             Datas::I()->interventions->initListebySessionId(idsession);
             if (idsession != oldidsession) // on a changé de session, on change la session active
             {
@@ -1275,6 +1295,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             else
                 RemplirTreeInterventions();
         }
+        ModifStatutActeCorrespondant(idact);
         dlg_intervention->close();
     });
     connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(verifencours, interventioncombo); });
@@ -1433,6 +1454,12 @@ void dlg_programmationinterventions::SupprimeIntervention()
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer l'intervention"), nomintervention + "\n" + nomsession + " ?") != UpSmallButton::STARTBUTTON)
         return;
+    if (m_currentintervention->idacte() >0)
+    {
+        Acte * act = Datas::I()->actes->getById(m_currentintervention->idacte(), Item::NoLoadDetails);
+        if (act != Q_NULLPTR)
+            act->setidintervention(0);
+    }
     Datas::I()->interventions->SupprimeIntervention(m_currentintervention);
     RemplirTreeInterventions();
 }

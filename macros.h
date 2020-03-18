@@ -145,7 +145,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TABAC_RMP                                    "Tabac"
 
                             //! Table Rufus.Actes
-#define CP_IDACTE_ACTES                                 "idActe"
+#define CP_ID_ACTES                                 "idActe"
 #define CP_IDPAT_ACTES                                  "idPat"
 #define CP_IDUSER_ACTES                                 "idUser"
 #define CP_IDSESSION_ACTES                              "idSession"    //!> pas utilisé
@@ -391,13 +391,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FAIT_JOINTURESMSG                            "Fait"
 
                             //! Table ComptaMedicale.banques
-#define CP_IDBANQUE_BANQUES                             "idBanque"
+#define CP_ID_BANQUES                                   "idBanque"
 #define CP_NOMABREGE_BANQUES                            "idBanqueAbrege"
 #define CP_NOMBANQUE_BANQUES                            "NomBanque"
 #define CP_CODE_BANQUES                                 "CodeBanque"
 
                             //! Table ComptaMedicale.Comptes
-#define CP_IDCOMPTE_COMPTES                             "idCompte"
+#define CP_ID_COMPTES                                   "idCompte"
 #define CP_IDBANQUE_COMPTES                             "idBanque"
 #define CP_IDUSER_COMPTES                               "idUser"
 #define CP_IBAN_COMPTES                                 "IBAN"
@@ -408,7 +408,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_DESACTIVE_COMPTES                            "Desactive"
 
                             //! Table ComptaMedicale.Depenses
-#define CP_IDDEPENSE_DEPENSES                          "idDep"
+#define CP_ID_DEPENSES                                 "idDep"
 #define CP_IDUSER_DEPENSES                             "idUser"
 #define CP_DATE_DEPENSES                               "DateDep"
 #define CP_REFFISCALE_DEPENSES                         "RefFiscale"
@@ -423,7 +423,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDFACTURE_DEPENSES                          "idFacture"
 
                             //! Table ComptaMedicale.Factures
-#define CP_IDFACTURE_FACTURES                          "idFacture"
+#define CP_ID_FACTURES                                 "idFacture"
 #define CP_DATEFACTURE_FACTURES                        "DateFacture"
 #define CP_LIENFICHIER_FACTURES                        "LienFichier"
 #define CP_INTITULE_FACTURES                           "Intitule"
@@ -433,7 +433,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_JPG_FACTURES                                "jpg"
 
                             //! Table ComptaMedicale.lignescomptes
-#define CP_IDLIGNE_LIGNCOMPTES                         "idLigne"
+#define CP_ID_LIGNCOMPTES                              "idLigne"
 #define CP_IDCOMPTE_LIGNCOMPTES                        "idCompte"
 #define CP_IDDEP_LIGNCOMPTES                           "idDep"
 #define CP_IDREC_LIGNCOMPTES                           "idRec"
@@ -452,7 +452,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_PAYE_LIGNEPAIEMENT                           "Paye"
 
                             //! Table ComptaMedicale.lignesrecettes
-#define CP_IDRECETTE_LIGNRECETTES                      "idRecette"
+#define CP_ID_LIGNRECETTES                             "idRecette"
 #define CP_IDUSER_LIGNRECETTES                         "idUser"
 #define CP_DATE_LIGNRECETTES                           "DatePaiement"
 #define CP_DATEENREGISTREMENT_LIGNRECETTES             "DateEnregistrement"

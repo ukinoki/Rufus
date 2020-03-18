@@ -393,7 +393,7 @@ void dlg_docsscanner::ValideFiche()
     }
     else                        // c'est une facture ou un échéancier
     {
-        idimpr =  db->selectMaxFromTable(CP_IDFACTURE_FACTURES, TBL_FACTURES, ok) + 1;
+        idimpr =  db->selectMaxFromTable(CP_ID_FACTURES, TBL_FACTURES, ok) + 1;
         QString NomFileDoc = QString::number(idimpr) + "_"
                 + wdg_typedoccombobx->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
@@ -401,7 +401,7 @@ void dlg_docsscanner::ValideFiche()
         lien = "/" + user + "/" + NomFileDoc  + ( m_mode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
         if (!m_accesdistant)
         {
-            listbinds[CP_IDFACTURE_FACTURES] =        idimpr;
+            listbinds[CP_ID_FACTURES] =        idimpr;
             listbinds[CP_DATEFACTURE_FACTURES] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds[CP_INTITULE_FACTURES] =         sstypedoc;
             listbinds[CP_LIENFICHIER_FACTURES] =      lien;
@@ -411,7 +411,7 @@ void dlg_docsscanner::ValideFiche()
         }
         else
         {
-            listbinds[CP_IDFACTURE_FACTURES] =        idimpr;
+            listbinds[CP_ID_FACTURES] =        idimpr;
             listbinds[CP_DATEFACTURE_FACTURES] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds[CP_INTITULE_FACTURES] =         sstypedoc;
             listbinds[CP_ECHEANCIER_FACTURES] =       ( m_mode== Echeancier? "1" : QVariant(QVariant::String));

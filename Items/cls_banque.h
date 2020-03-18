@@ -42,7 +42,7 @@ public:
     QString nom() const;
 
     void setid(int id)              { m_id = id;
-                                      m_data[CP_IDBANQUE_BANQUES] = id; }
+                                      m_data[CP_ID_BANQUES] = id; }
     void setnom(QString txt)        { m_nombanque = txt;
                                       m_data[CP_NOMBANQUE_BANQUES] = txt; }
     void setnomabrege(QString txt)  { m_idbanqueabrege = txt;

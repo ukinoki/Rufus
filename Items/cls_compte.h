@@ -43,7 +43,7 @@ public:
     bool isDesactive() const;
 
     void setid(int id)                  { m_id = id;
-                                          m_data[CP_IDCOMPTE_COMPTES] = id; }
+                                          m_data[CP_ID_COMPTES] = id; }
     void setidbanque(int id)            { m_idbanque = id;
                                           m_data[CP_IDBANQUE_COMPTES] = id; }
     void setiduser(int id)              { m_iduser = id;

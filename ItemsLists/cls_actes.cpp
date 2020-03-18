@@ -52,8 +52,8 @@ void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
     addList(map_actes, &listActes, upd);
 }
 
-void Actes::sortActesByDate()  /*! cette fonction n'est pour l'instant pas utilisées.
-                                 * elles sont prévues pour réorganiser le tri des actes en fonction de leur date et pas en fonction de leur id
+void Actes::sortActesByDate()  /*! cette fonction n'est pour l'instant pas utilisée.
+                                 * elle est prévue pour réorganiser le tri des actes en fonction de leur date et pas en fonction de leur id
                                  * parce qu'il arrive (rarement) qu'on saisisse un acte a posteriori dont la date sera antérieure à celle du dernier acte
                                  * si on continue à défiler par id, cet acte n'apparaîtra pas en ordre chronologique mais en dernier. */
 {
@@ -96,17 +96,25 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
         return Q_NULLPTR;
 }
 
-Acte* Actes::getById(int id, ADDTOLIST add)
+/*!
+ * \brief Actes::getById -> charge un acte à partir de son id
+ * \param id
+ * \param details si l'acte n'est pas dans liste et si details = LoadDetails => va chercher l'acte dans la BDD sinon, renvoie Q_NULLPTR
+ * \return
+ * +++++ cette fonction n'ajoute pas l'acte à la map_actes quelquesoit son résultat
+ */
+Acte* Actes::getById(int id, Item::LOADDETAILS details)
 {
+    Acte * act = Q_NULLPTR;
     QMap<int, Acte*>::const_iterator itact = map_actes->find(id);
     if( itact == map_actes->constEnd() )
     {
-        Acte * act = Q_NULLPTR;
-        if (add == AddToList)
+        if (details == Item::LoadDetails)
             act = DataBase::I()->loadActeById(id);
-        return act;
     }
-    return itact.value();
+    else
+        act = const_cast<Acte*>(itact.value());
+    return act;
 }
 
 QMap<int, Acte*>::const_iterator Actes::getLast()
@@ -159,7 +167,7 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
         DataBase::I()->unlocktables();
         return Q_NULLPTR;
     }
-    int idacte = DataBase::I()->selectMaxFromTable(CP_IDACTE_ACTES, TBL_ACTES, m_ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
+    int idacte = DataBase::I()->selectMaxFromTable(CP_ID_ACTES, TBL_ACTES, m_ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
     if (!m_ok)
     {
         DataBase::I()->unlocktables();

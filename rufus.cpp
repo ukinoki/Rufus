@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("17-03-2020/1");
+    qApp->setApplicationVersion("18-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -924,11 +924,11 @@ void Rufus::MAJPatientsVus()
     QString             NomPrenom, zw, A;
     QFontMetrics        fm(qApp->font());
     // PATIENTS VUS AUJOURD'HUI ---------------------------------------------------------------------------------------------------
-    QString req =   "SELECT pat." CP_IDPAT_PATIENTS ", act." CP_IDACTE_ACTES " , " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_LOGIN_USR ", " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", TypePaiement, Tiers, usr." CP_ID_USR " FROM "
+    QString req =   "SELECT pat." CP_IDPAT_PATIENTS ", act." CP_ID_ACTES " , " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_LOGIN_USR ", " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_HEURE_ACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ", usr." CP_ID_USR " FROM "
                            TBL_PATIENTS " as pat, " TBL_ACTES " as act, " TBL_UTILISATEURS " as usr, " TBL_TYPEPAIEMENTACTES " as typ"
                            " WHERE usr." CP_ID_USR " = act." CP_IDUSER_ACTES " and act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS " and " CP_DATE_ACTES " = curdate()"
                            " and act." CP_IDPAT_ACTES " not in (select " CP_IDPAT_SALDAT " from " TBL_SALLEDATTENTE ")"
-                           " and act." CP_IDACTE_ACTES " = typ.idActe"
+                           " and act." CP_ID_ACTES " = typ." CP_IDACTE_TYPEPAIEMENTACTES ""
                            " ORDER BY " CP_HEURE_ACTES " DESC";
     QList<QVariantList> patlist = db->StandardSelectSQL(req, m_ok, tr("Impossible de remplir la salle d'attente!"));
     if (!m_ok)
@@ -1067,7 +1067,7 @@ void Rufus::AfficheMenu(QMenu *menu)
     if (currentuser()->isSoignant())
     {
         bool c;
-        QString req = "select " CP_IDACTE_ACTES " from " TBL_ACTES " where " CP_COURRIERAFAIRE_ACTES " = 'T' and " CP_IDUSER_ACTES " = " + QString::number(currentuser()->id());
+        QString req = "select " CP_ID_ACTES " from " TBL_ACTES " where " CP_COURRIERAFAIRE_ACTES " = 'T' and " CP_IDUSER_ACTES " = " + QString::number(currentuser()->id());
         c = (db->StandardSelectSQL(req, m_ok).size()>0);
         actionRechercheCourrier     ->setEnabled(a && c);
     }
@@ -1172,7 +1172,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
                 ui->ActeMontantlineEdit->setFocus();
             else
             {
-                QString enreggratuit = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (idActe, TypePaiement) VALUES (" + QString::number(currentacte()->id()) + ",'G')";
+                QString enreggratuit = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES (" + QString::number(currentacte()->id()) + ",'G')";
                 db->StandardSQL(enreggratuit, tr("Impossible d'enregister cet acte comme gratuit"));
                 AfficheActeCompta(currentacte());
             }
@@ -1880,7 +1880,7 @@ void Rufus::ExporteDocs()
     }
 
     int total = db->StandardSelectSQL("SELECT " CP_ID_DOCSEXTERNES " FROM " TBL_DOCSEXTERNES " where " CP_JPG_DOCSEXTERNES " is not null or pdf is not null",m_ok).size();
-    total +=    db->StandardSelectSQL("SELECT " CP_IDFACTURE_FACTURES " FROM " TBL_FACTURES " where " CP_JPG_FACTURES " is not null or " CP_PDF_FACTURES " is not null", m_ok).size();
+    total +=    db->StandardSelectSQL("SELECT " CP_ID_FACTURES " FROM " TBL_FACTURES " where " CP_JPG_FACTURES " is not null or " CP_PDF_FACTURES " is not null", m_ok).size();
     if (total>100)
     {
         int min = total/180;
@@ -1971,7 +1971,7 @@ void Rufus::ExporteDocs()
                 }
                 if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
                 {
-                    db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
+                    db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                     continue;
                 }
                 QFile prov(CheminOKTransfrProv);
@@ -2116,7 +2116,7 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES JPG
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    req = "SELECT " CP_IDFACTURE_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_JPG_FACTURES " FROM " TBL_FACTURES
+    req = "SELECT " CP_ID_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_JPG_FACTURES " FROM " TBL_FACTURES
                   " where " CP_JPG_FACTURES " is not null";
     //qDebug() << req;
     QList<QVariantList> listexportjpgfact = db->StandardSelectSQL(req, m_ok);
@@ -2129,7 +2129,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = pathDirImagerie + NOM_DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null where " CP_IDFACTURE_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
+                    db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null where " CP_ID_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2156,7 +2156,7 @@ void Rufus::ExporteDocs()
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
-                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
+                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
             }
             user = Listeusr.at(0).at(1).toString();
@@ -2194,7 +2194,7 @@ void Rufus::ExporteDocs()
             }
             if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
             {
-                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
+                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
             }
             QFile prov(CheminOKTransfrProv);
@@ -2206,7 +2206,7 @@ void Rufus::ExporteDocs()
             else
                 return;
             db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
-                            " where " CP_IDFACTURE_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
+                            " where " CP_ID_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
@@ -2225,7 +2225,7 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES PDF
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    reqpdf = "SELECT " CP_IDFACTURE_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_PDF_FACTURES " FROM " TBL_FACTURES
+    reqpdf = "SELECT " CP_ID_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_PDF_FACTURES " FROM " TBL_FACTURES
                   " where " CP_PDF_FACTURES " is not null";
     QList<QVariantList> listexportpdffact = db->StandardSelectSQL(reqpdf, m_ok );
     if (m_ok)
@@ -2236,7 +2236,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = pathDirImagerie + NOM_DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
+                    db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2260,7 +2260,7 @@ void Rufus::ExporteDocs()
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
-                db->SupprRecordFromTable(listexportpdffact.at(i).at(0).toInt(), CP_IDFACTURE_FACTURES, TBL_FACTURES);
+                db->SupprRecordFromTable(listexportpdffact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
             }
             user = Listeusr.at(0).at(1).toString();
@@ -2300,7 +2300,7 @@ void Rufus::ExporteDocs()
                         out << listexportpdffact.at(i).at(6).toByteArray() ;
                     }
                 }
-                QString delreq = "delete from  " TBL_FACTURES " where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
+                QString delreq = "delete from  " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 delete document;
@@ -2318,7 +2318,7 @@ void Rufus::ExporteDocs()
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
             db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc)  + "." PDF "'"
-                            " where " CP_IDFACTURE_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
+                            " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
@@ -3037,7 +3037,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
 
 void Rufus::AfficheCourriersAFaire()
 {
-    QString req = "select " CP_IDACTE_ACTES ", act." CP_IDPAT_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DATE_ACTES
+    QString req = "select " CP_ID_ACTES ", act." CP_IDPAT_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DATE_ACTES
                   " from " TBL_ACTES " as act"
                   " left outer join " TBL_PATIENTS " pat"
                   " on act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS
@@ -6538,9 +6538,9 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         {
             //! on recherche si le dernier acte du dossier est enregistré dans typepaiements - si le montant de l'acte est 0, on propose de l'enregistrer comme gratuit
 
-            QString requete =   "SELECT max(act." CP_IDACTE_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
+            QString requete =   "SELECT max(act." CP_ID_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
                     " act WHERE " CP_IDPAT_ACTES " = " + QString::number(currentpatient()->id()) +
-                    " AND act." CP_IDACTE_ACTES " NOT IN (SELECT typ.idActe FROM " TBL_TYPEPAIEMENTACTES " typ)";
+                    " AND act." CP_ID_ACTES " NOT IN (SELECT typ." CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " typ)";
 
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver  le dernier acte du patient pour le contrôler!"));
             // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
@@ -6562,7 +6562,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                         return false;
                     else
                     {
-                        requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (idActe, TypePaiement) VALUES (" + QString::number(currentacte()->id()) + ",'G')";
+                        requete = "INSERT INTO " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") VALUES (" + QString::number(currentacte()->id()) + ",'G')";
                         if (db->StandardSQL(requete))
                             AutorDepart = true;
                     }
@@ -9488,7 +9488,7 @@ void Rufus::SupprimerActe(Acte *act)
 
         // On actualise la table des lignes de paiement et la table des Types de paiement
         m_lignespaiements->SupprimeActeLignesPaiements(act);
-        req = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(act->id());
+        req = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(act->id());
         db->StandardSQL(req);
     }
 
@@ -9601,7 +9601,7 @@ void Rufus::SupprimerDossier(Patient *pat)
             if (i<listactes.size()-1)
                 critere += ",";
         }
-        QString requete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE idActe in (" + critere + ")";
+        QString requete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " in (" + critere + ")";
         db->StandardSQL(requete);
     }
 
@@ -9743,7 +9743,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     if (QLocale().toDouble(NouveauMontant) > 0)
     {
         // si le montant entré est supérieur à O, on vérifie qu'il n'y a pas d'enregistrement gratuit pour cet acte et on le supprime au cas où, après confirmation
-        req = "SELECT idActe, TypePaiement FROM " TBL_TYPEPAIEMENTACTES " WHERE TypePaiement = 'G' AND idActe = " + QString::number(currentacte()->id());
+        req = "SELECT " CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'G' AND " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(currentacte()->id());
         QVariantList idactdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok, "ValideActeMontantLineEdit");
         if (!m_ok)
             return false;
@@ -9766,7 +9766,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             }
             else
             {
-                db->StandardSQL("DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(currentacte()->id()));
+                db->StandardSQL("DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(currentacte()->id()));
                 AfficheActeCompta(currentacte());
             }
         }

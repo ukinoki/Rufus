@@ -1341,7 +1341,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                 if (docmt != Q_NULLPTR)
                     imgs = "select idimpression from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and (pdf is not null or jpg is not null)";
                 else
-                    imgs = "select " CP_IDFACTURE_FACTURES " from " TBL_FACTURES " where " CP_IDFACTURE_FACTURES " = " + iditem + " and (" CP_PDF_FACTURES " is not null or " CP_JPG_FACTURES " is not null)";
+                    imgs = "select " CP_ID_FACTURES " from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem + " and (" CP_PDF_FACTURES " is not null or " CP_JPG_FACTURES " is not null)";
                 QList<QVariantList> listid = db->StandardSelectSQL(imgs, m_ok);
                 if (!m_ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (docmt != Q_NULLPTR? TBL_ECHANGEIMAGES : TBL_FACTURES));
@@ -1397,7 +1397,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
             if (!m_ok)
                 return;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans factures
-                listimpr = db->StandardSelectSQL("select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_IDFACTURE_FACTURES " = " + iditem
+                listimpr = db->StandardSelectSQL("select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem
                                                                       , m_ok
                                                                       , tr("Impossible d'accéder à la table ") + TBL_FACTURES);
         }

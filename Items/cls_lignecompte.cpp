@@ -10,7 +10,7 @@ void LigneCompte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_IDLIGNE_LIGNCOMPTES, m_id);
+    Utils::setDataInt(data, CP_ID_LIGNCOMPTES, m_id);
     Utils::setDataInt(data, CP_IDCOMPTE_LIGNCOMPTES, m_idcompte);
     Utils::setDataInt(data, CP_IDDEP_LIGNCOMPTES , m_iddep);
     Utils::setDataInt(data, CP_IDREC_LIGNCOMPTES , m_idrecette);
