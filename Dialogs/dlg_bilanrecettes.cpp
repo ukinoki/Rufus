@@ -425,7 +425,8 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
     if( listiD.size() > 1 )
         wdg_supervcombobox->addItem(tr("Tout le monde"),-1);
     for( int i=0; i<listiD.size(); i++)
-        wdg_supervcombobox->addItem(Datas::I()->users->getById( listiD.at(i))->login(), QString::number(listiD.at(i)) );
+        if (Datas::I()->users->getById(listiD.at(i)) != Q_NULLPTR)
+            wdg_supervcombobox->addItem(Datas::I()->users->getById( listiD.at(i))->login(), QString::number(listiD.at(i)) );
 
     if (idcomptabletrouve)
         wdg_lblbox->insertWidget(0, wdg_classmtupgrpbox);

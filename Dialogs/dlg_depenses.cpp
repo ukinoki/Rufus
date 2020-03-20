@@ -337,13 +337,15 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
     QListIterator<int> itcpt(m_userencours->listecomptesbancaires());
     while (itcpt.hasNext()) {
         Compte *cpt = Datas::I()->comptes->getById(itcpt.next());
-        if (ActiveSeult)
-        {
-            if (!cpt->isDesactive())
+        if (cpt){
+            if (ActiveSeult)
+            {
+                if (!cpt->isDesactive())
+                    ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
+            }
+            else
                 ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
         }
-        else
-            ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
 }
 
@@ -1031,7 +1033,7 @@ void dlg_depenses::MetAJourFiche()
             {
                 //ATTENTION ERROR
             }
-            B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege();
+            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ConvertitModePaiement(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
@@ -1287,7 +1289,7 @@ void dlg_depenses::ModifierDepense()
             {
                 //ATTENTION ERROR
             }
-            B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege();
+            B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ConvertitModePaiement(A);
             if (A == tr("Chèque"))
                 if (dep->nocheque() > 0)
@@ -1896,7 +1898,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
         {
             //ATTENTION ERROR
         }
-        B = Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege();
+        B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
         if (A == tr("Chèque"))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());

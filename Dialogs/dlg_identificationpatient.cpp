@@ -515,8 +515,10 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->PrenomlineEdit->setEnabled(false);
         ui->DDNdateEdit->setEnabled(false);
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
-        ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
-                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login());
+        QString textcreateur (tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")));
+        if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
+            textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
+        ui->Createurlabel->setText(textcreateur);
         ui->Adresse1lineEdit->clear();
         ui->Adresse2lineEdit->clear();
         ui->Adresse3lineEdit->clear();
@@ -543,8 +545,10 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->MradioButton->setChecked(m_currentpatient->sexe() == "M");
         ui->FradioButton->setChecked(m_currentpatient->sexe() == "F");
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
-        ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
-                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login());
+        QString textcreateur (tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")));
+        if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
+            textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
+        ui->Createurlabel->setText(textcreateur);
         ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
         ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
         ui->Adresse3lineEdit->setText(m_currentpatient->adresse3());

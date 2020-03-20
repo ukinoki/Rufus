@@ -212,10 +212,15 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
     Acte *acte = it_currentacte.value();
-    User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
-
     if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
         return;
+    User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
+    QString nomcomplet(""), login ("");
+    if (usr != Q_NULLPTR)
+    {
+        nomcomplet =  usr->prenom() + " " + usr->nom();
+        login = usr->login();
+    }
 
     ui->idPatientlineEdit->setText(QString::number(acte->idPatient()));
 
@@ -227,7 +232,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                       "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
                       "<td width=\"60\">" + Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date())["toString"].toString() + "</td>"
-                      "<td width=\"300\">" + usr->prenom() + " " + usr->nom() + " - <font color = \"" COULEUR_TITRES "\" ><b>" + Datas::I()->sites->getById(acte->idsite())->nom() + "</b></font></td></p>";
+                      "<td width=\"300\">" + nomcomplet + " - <font color = \"" COULEUR_TITRES "\" ><b>" + Datas::I()->sites->getById(acte->idsite())->nom() + "</b></font></td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {
@@ -266,8 +271,12 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
     //2. retrouver le créateur de l'acte
     //idUser = ActesPrecsQuery.value(2).toInt();
-    ui->CreateurConsultlineEdit->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login() +
-                                         tr(" pour ") + usr->login()); //Avant idPatient
+    QString createurconsult ("");
+    if (Datas::I()->users->getById(acte->idCreatedBy()) != Q_NULLPTR)
+        createurconsult = tr("Créé par ")
+                          + Datas::I()->users->getById(acte->idCreatedBy())->login()
+                          + tr(" pour ") + login; //Avant idPatient
+    ui->CreateurConsultlineEdit->setText(createurconsult); //Avant idPatient
     ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite())->nom());
 
     //3. Mettre à jour le numéro d'acte

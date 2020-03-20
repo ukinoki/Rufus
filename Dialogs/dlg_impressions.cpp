@@ -1661,7 +1661,7 @@ void dlg_impressions::Validation()
                                     {
                                         int idusr = linecombo->currentData().toInt();
                                         User* usr = Datas::I()->users->getById(idusr);
-                                        QString babar = (usr->isMedecin()? usr->titre() : "") + " " + usr->prenom() + " " + usr->nom();
+                                        QString babar = (usr != Q_NULLPTR? (usr->isMedecin()? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom() : "");
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
                                     }
@@ -2013,10 +2013,15 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
             if (listdocs.at(i).at(0).toString().toUpper() == str.toUpper())
             {
                 a = true;
-                QString b = "vous";
+                QString b = " " + tr("créé par vous");
                 if (listdocs.at(i).at(1).toInt() != currentuser()->id())
-                    b = Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->login();
-                UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom créé par ") + b);
+                {
+                    if (Datas::I()->users->getById(listdocs.at(i).at(1).toInt()) != Q_NULLPTR)
+                        b =  " " + tr("créé par") + " " + Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->login();
+                    else
+                        b = "";
+                }
+                UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom") + b);
                 break;
             }
         }

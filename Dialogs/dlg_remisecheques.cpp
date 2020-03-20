@@ -527,13 +527,15 @@ void dlg_remisecheques::ChangeCompte()
 {
     int id = ui->ComptecomboBox->currentData().toInt();
     Compte *cpt = Datas::I()->comptes->getById(id);
-    if (cpt != Q_NULLPTR)
-        ui->IntituleComptetextEdit->setText(cpt->nomabrege() + "\n" + cpt->iban());
+    ui->IntituleComptetextEdit->setText(cpt? cpt->nomabrege() + "\n" + cpt->iban() : "");
 }
 
 void dlg_remisecheques::ChangeUser()
 {
-    m_userencours = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
+    User *usr = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
+    if (usr == Q_NULLPTR)
+        return;
+    m_userencours = usr;
     proc->MAJComptesBancaires(m_userencours);
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
@@ -1028,6 +1030,8 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     QString req;
     int id = ui->ComptecomboBox->currentData().toInt();
     Compte *cpt = Datas::I()->comptes->getById(id);
+    if (!cpt)
+        return false;
 
     if (m_mode == RevoirRemisesPrecs) {
         QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();
@@ -1043,12 +1047,12 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     QString EnTete;
     if (iduser == -1) return false;
     User *userEntete = Datas::I()->users->getById(iduser);
-    if(userEntete == Q_NULLPTR)
+    if(!userEntete)
         return false;
     EnTete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
     if (EnTete == "") return false;
 
-    EnTete.replace("{{TITRE1}}"            , Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper());
+    EnTete.replace("{{TITRE1}}"            , (Datas::I()->banques->getById(cpt->idBanque()) != Q_NULLPTR? Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper() : ""));
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
     EnTete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
     EnTete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
@@ -1124,8 +1128,11 @@ void dlg_remisecheques::ReconstruitListeUsers()
         if (listitem.at(0).toInt() > 0)
         {
             User *user = Datas::I()->users->getById(listitem.at(0).toInt());
-            map_comptablesavecchequesenattente->insert(user->id(), user);
-            ui->UserComboBox->addItem(user->login(), user->id() );
+            if (user)
+            {
+                map_comptablesavecchequesenattente->insert(user->id(), user);
+                ui->UserComboBox->addItem(user->login(), user->id() );
+            }
         }
     }
 
@@ -1148,7 +1155,8 @@ void dlg_remisecheques::ReconstruitListeUsers()
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
         m_userencours = Datas::I()->users->getById(idusr);
-        proc->MAJComptesBancaires(m_userencours);
+        if (m_userencours)
+            proc->MAJComptesBancaires(m_userencours);
     }
 }
 
@@ -1158,7 +1166,7 @@ void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)
     foreach (int id, m_userencours->listecomptesbancaires())
     {
         Compte *cpt = Datas::I()->comptes->getById(id);
-        if (cpt != Q_NULLPTR)
+        if (cpt)
         {
             if (ActiveSeult)
             {

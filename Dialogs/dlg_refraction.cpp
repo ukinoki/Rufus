@@ -1444,6 +1444,8 @@ bool    dlg_refraction::Imprimer_Ordonnance()
 
     //création de l'entête
     User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur());
+    if (userEntete == Q_NULLPTR)
+        return false;
     Entete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");

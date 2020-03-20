@@ -48,7 +48,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         while (itcpt.hasNext())
         {
             Compte *cpt = Datas::I()->comptes->getById(itcpt.next());
-            if (cpt != Q_NULLPTR)
+            if (cpt)
                 ui->BanquecomboBox->addItem(cpt->nomabrege(),cpt->id());
         }
         if (Datas::I()->users->userconnected()->idcomptepardefaut() > 0)
@@ -56,7 +56,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         ui->BanquecomboBox->setCurrentIndex(ui->BanquecomboBox->findData(idcptprefer));
         m_idcompte = ui->BanquecomboBox->currentData().toInt();
         m_compteencours = Datas::I()->comptes->getById(m_idcompte);
-        if (m_compteencours != Q_NULLPTR)
+        if (m_compteencours)
         {
             m_soldesurreleve = m_compteencours->solde();
             ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(m_soldesurreleve,'f',2) + " ");
@@ -661,7 +661,7 @@ void dlg_comptes::ChangeCompte(int idcompte)
 {
     m_idcompte = ui->BanquecomboBox->itemData(idcompte).toInt();
     m_compteencours = Datas::I()->comptes->getById(m_idcompte);
-    if (m_compteencours != Q_NULLPTR)
+    if (m_compteencours)
     {
         m_soldesurreleve = m_compteencours->solde();
         m_compteencours->setsolde(m_soldesurreleve);  // à tout hasard

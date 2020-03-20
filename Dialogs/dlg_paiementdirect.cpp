@@ -461,7 +461,8 @@ void dlg_paiementdirect::CalculTotalDetails()
 void dlg_paiementdirect::ChangeComptableBox()
 {
     User* usr = Datas::I()->users->getById(ui->ComptablescomboBox->currentData().toInt());
-    ChangeComptable(usr, true);
+    if (usr != Q_NULLPTR)
+        ChangeComptable(usr, true);
 }
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Change l'utilisateur comptable -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2415,9 +2416,14 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 pItem3->setText(A);
                 if (TableARemplir == ui->ListeupTableWidget)
                 {
+                    QString superviseur (""), comptable("");
+                    if (Datas::I()->users->getById(Tablelist.at(i).at(11).toInt()) != Q_NULLPTR)
+                        superviseur = Datas::I()->users->getById(Tablelist.at(i).at(12).toInt())->login();
+                    if (Datas::I()->users->getById(Tablelist.at(i).at(11).toInt()) != Q_NULLPTR)
+                        comptable = Datas::I()->users->getById(Tablelist.at(i).at(12).toInt())->login();
                     pItem3->setData(Qt::UserRole, QStringList()
-                    << tr("superviseur -> ") + Datas::I()->users->getById(Tablelist.at(i).at(12).toInt())->login()
-                    << tr("comptable -> ") + Datas::I()->users->getById(Tablelist.at(i).at(11).toInt())->login()
+                    << tr("superviseur -> ") + superviseur
+                    << tr("comptable -> ") + comptable
                     << tr("DDN ") + Tablelist.at(i).at(10).toDate().toString(tr("dd-MM-yyyy"))
                     << Tablelist.at(i).at(2).toString());                                             // Nom
                 }

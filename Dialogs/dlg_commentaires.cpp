@@ -530,11 +530,17 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
                 if (line->text().toUpper() == str.toUpper() && line->Row()!=row)
                 {
                     a = true;
-                    QString b = "vous";
+                    QString b = " " + tr(" créé par vous");
                     int iduser = ui->ComupTableWidget->item(i,3)->text().toInt();
+                    QString comment = tr("Il existe déjà un commentaire portant ce nom");
                     if (iduser != currentuser()->id())
-                        b = Datas::I()->users->getById(iduser)->login();
-                    UpMessageBox::Watch(this, tr("Il existe déjà un commentaire portant ce nom créé par ") + b);
+                    {
+                        if (Datas::I()->users->getById(iduser) != Q_NULLPTR)
+                            b = " " + tr("créé par") + " " + Datas::I()->users->getById(iduser)->login();
+                        else
+                            b = "";
+                    }
+                    UpMessageBox::Watch(this, comment + b);
                     break;
                 }
         }

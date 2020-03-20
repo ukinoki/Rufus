@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_gestioncomptes::dlg_gestioncomptes(User *user,
-                                       bool societe,
+                                       bool societe, bool &ok,
                                        bool AfficheLeSolde,
                                        QWidget *parent)
                                        : UpDialog(parent),
@@ -34,6 +34,11 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     m_affichelesolde         = AfficheLeSolde;
 
     m_comptencours           = Datas::I()->comptes->getById(m_userencours->idcomptepardefaut());
+    if (!m_comptencours)
+    {
+        ok = false;
+        return;
+    }
 
     t_timer                  = new QTimer(this);
     t_timer                  ->start(500);
@@ -125,6 +130,8 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
     m_comptencours = Datas::I()->comptes->getById(idCompte);
+    if (!m_comptencours)
+        return;
     ui->BanqueupcomboBox            ->setCurrentIndex(ui->BanqueupcomboBox->findData(m_comptencours->idBanque()));
     ui->IBANuplineEdit              ->setText(m_comptencours->iban());
     ui->IntituleCompteuplineEdit    ->setText(m_comptencours->intitulecompte());

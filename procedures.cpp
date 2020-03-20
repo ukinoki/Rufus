@@ -1080,27 +1080,19 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         qFileEnTete.close ();
         Entete = baEnTete;
         Entete.replace("{{POLICE}}", qApp->font().family());
+
         if (rplct)
         {
             User *userRemp = Datas::I()->users->getById(idparent);
-            if(userRemp && userRemp->titre().size())
+            if(userRemp)
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->titre() + " " + userRemp->prenom() + " " + userRemp->nom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
-                                                + user->titre() + " " + user->prenom() + " " + user->nom())
-                               + "</font>";
-            else
-                Entete.replace("{{TITREUSER}}", "<s>" + userRemp->prenom() + " " + userRemp->nom() + " </s> "
-                                                "<font color=\"red\">" + tr ("remplacé par") + " "
-                                                + user->prenom() + " " + user->nom())
-                               + "</font>";
+                                                + (user->titre().size()? user->titre() + " " : "") + user->prenom() + " " + user->nom())
+                                                + "</font>";
         }
         else
-        {
-            if (user->titre() != "")
-                Entete.replace("{{TITREUSER}}", user->titre() + " " + user->prenom() + " " + user->nom());
-            else
-                Entete.replace("{{TITREUSER}}", user->prenom() + " " + user->nom());
-        }
+            Entete.replace("{{TITREUSER}}", (user->titre() != ""? user->titre() + " " : "") + user->prenom() + " " + user->nom());
+
         if(user->numspecialite() != 0)
             Entete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
         else
@@ -1837,29 +1829,46 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(currentuser()->NumPS());
     if (medecin && ! assistant)
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
+    User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
     if (soignant)
     {
         txtstatut += "\n" + tr("Exercice :\t\t\t");
         if (liberal)
             txtstatut += tr("libéral");
         else if (pasliberal)
-            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + Datas::I()->users->getById(currentuser()->idemployeur())->login();
+        {
+            QString txtsalarie = tr("salarié");
+            txtsalarie += " - " + tr("Employeur : ") + (employeur? employeur->login() : "null");
+            txtstatut += txtsalarie;
+        }
         else if (retrocession)
             txtstatut += tr("remplaçant");
         else if (pasdecompta)
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->comptes->getById(currentuser()->idcompteencaissementhonoraires())->nomabrege() + " " + tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptable())->login();
+    {
+        QString txtliberal ("");
+        Compte * cptencaissement = Datas::I()->comptes->getById(currentuser()->idcompteencaissementhonoraires());
+        if (cptencaissement)
+        {
+            txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :\t") + cptencaissement->nomabrege();
+            if (Datas::I()->users->getById(currentuser()->idcomptable()) != Q_NULLPTR)
+                txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptable())->login();
+        }
+        txtstatut += txtliberal;
+    }
     else if (respsalarie)
     {
-        User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
-        Compte *cptt = Datas::I()->comptes->getById(employeur->idcompteencaissementhonoraires());
-        if (cptt != Q_NULLPTR)
+        if (employeur)
         {
-            txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");
-            txtstatut += cptt->nomabrege() + " ";
-            txtstatut += tr("de") + " " + Datas::I()->users->getById(currentuser()->idemployeur())->login();
+            Compte *cptemployeur = Datas::I()->comptes->getById(employeur->idcompteencaissementhonoraires());
+            if (cptemployeur)
+            {
+                txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");
+                txtstatut += cptemployeur->nomabrege() + " ";
+                txtstatut += tr("de") + " " + employeur->login();
+            }
         }
     }
     else if (retrocession)
@@ -1882,10 +1891,15 @@ QString Procedures::SessionStatus()
     if (respliberal || soccomptable)
     {
         QString cptabledefaut ("");
-        if (currentuser()->idcomptepardefaut() > 0)
-            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(Datas::I()->comptes->getById(currentuser()->idcomptepardefaut())->idUser())->login();
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + Datas::I()->comptes->getById(currentuser()->idcomptepardefaut())->nomabrege() + " "
-                          + cptabledefaut;
+        Compte *cpt = Datas::I()->comptes->getById(currentuser()->idcomptepardefaut());
+        if (cpt)
+        {
+            User *usrcptble = Datas::I()->users->getById(cpt->idUser());
+            cptabledefaut = tr("de") + " " + (usrcptble? usrcptble->login() : "null");
+            txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t")
+                         + cpt->nomabrege() + " "
+                         + cptabledefaut;
+        }
     }
     if (respliberal)
         txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
@@ -3331,9 +3345,10 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             {
                 if ( currentuser()->idsuperviseur() > 0 )
                 {
-                    if( Datas::I()->users->getById( currentuser()->idsuperviseur()) != Q_NULLPTR)
+                    User* superviseurusr = Datas::I()->users->getById( currentuser()->idsuperviseur());
+                    if (superviseurusr)
                     {
-                        if (Datas::I()->users->getById( currentuser()->idsuperviseur())->isRemplacant() )
+                        if (superviseurusr->isRemplacant() )
                         {
                             // le superviseur est remplaçant, on essaie de savoir s'il a un parent
                             QList<User*> listUserFound;
@@ -3352,15 +3367,15 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                             else if( !listUserFound.isEmpty() )
                             {
                                 // on va demander qui est le soignant parent de ce remplaçant....
-                                dlg_askUser                = new UpDialog();
-                                dlg_askUser                ->AjouteLayButtons();
-                                dlg_askUser                ->setAccessibleName(QString::number(currentuser()->idsuperviseur()));
-                                dlg_askUser->setdata(Datas::I()->users->getById( currentuser()->idsuperviseur()));
+                                dlg_askUser             = new UpDialog();
+                                dlg_askUser             ->AjouteLayButtons();
+                                dlg_askUser             ->setAccessibleName(QString::number(currentuser()->idsuperviseur()));
+                                dlg_askUser             ->setdata(superviseurusr);
                                 QVBoxLayout *boxlay     = new QVBoxLayout;
-                                dlg_askUser->dlglayout()   ->insertLayout(0,boxlay);
+                                dlg_askUser->dlglayout()->insertLayout(0,boxlay);
                                 QGroupBox*boxparent     = new QGroupBox(dlg_askUser);
                                 boxparent               ->setAccessibleName("Parent");
-                                QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getById(currentuser()->idsuperviseur())->login() + "?";
+                                QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + superviseurusr->login() + "?";
                                 boxparent               ->setTitle(lblUsrParent);
                                 boxparent               ->setVisible(false);
                                 boxlay                  ->addWidget(boxparent);
@@ -3402,17 +3417,17 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             // determination du comptable et de l'usage de la cotation
             if ( currentuser()->idparent() > 0 && currentuser()->ishisownsupervisor() )
             {
-                if ( Datas::I()->users->getById(currentuser()->idparent()) != Q_NULLPTR )
+                User *usrparent = Datas::I()->users->getById(currentuser()->idparent());
+                if ( usrparent )
                 {
                     // determination de l'utilisation de la cotation
-                    m_usecotation = Datas::I()->users->getById(currentuser()->idparent())->useCCAM();
+                    m_usecotation = usrparent->useCCAM();
                     // determination de l'utilisation de la comptabilité
-                    int idparent = currentuser()->idparent();
-                    m_aveccomptaprovisoire = !Datas::I()->users->getById(idparent)->isSansCompta();
-                    if( Datas::I()->users->getById(currentuser()->idparent())->isLiberal() )
-                        currentuser()->setidcomptable(Datas::I()->users->getById(currentuser()->idparent())->id());
-                    else if( Datas::I()->users->getById(currentuser()->idparent())->isSalarie() )
-                        currentuser()->setidcomptable(Datas::I()->users->getById(currentuser()->idparent())->idemployeur());
+                     m_aveccomptaprovisoire = !usrparent->isSansCompta();
+                    if( usrparent->isLiberal() )
+                        currentuser()->setidcomptable(usrparent->id());
+                    else if( usrparent->isSalarie() )
+                        currentuser()->setidcomptable(usrparent->idemployeur());
                     else
                         currentuser()->setidcomptable(User::ROLE_NON_RENSEIGNE);
                 }
@@ -3446,6 +3461,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
  */
 void Procedures::MAJComptesBancaires(User *usr)
 {
+    if (!usr)
+        return;
     usr->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
     if (usr->isSalarie())
         usr->setidcompteencaissementhonoraires(Datas::I()->users->getById(usr->idemployeur())->idcompteencaissementhonoraires());
@@ -4452,6 +4469,8 @@ void Procedures::RegleRefracteur()
 QString Procedures::currentuserstatus() const
 {
     const User *usr = Datas::I()->users->userconnected();
+    if (usr == Q_NULLPTR)
+        return "";
     QString str = "" +
             tr("utilisateur") + "\t\t= " + usr->login()  + "\n";
 
@@ -4459,42 +4478,44 @@ QString Procedures::currentuserstatus() const
     //qDebug() << "parent " << usr->idparent();
     //qDebug() << "comptable " << usr->idcomptable();
     QString strSup = "";
-    if( usr->idsuperviseur() == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
+    if ( usr->idsuperviseur() == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
         strSup = tr("tout le monde");
-    else if( usr->idsuperviseur() == User::ROLE_VIDE )               // le user est un administratif
+    else if ( usr->idsuperviseur() == User::ROLE_VIDE )               // le user est un administratif
         strSup = tr("sans objet");
-    else if( usr->idsuperviseur() == User::ROLE_INDETERMINE )        // jamais utilisé
+    else if ( usr->idsuperviseur() == User::ROLE_INDETERMINE )        // jamais utilisé
         strSup = tr("indéterminé");
-    else if(  Datas::I()->users->getById(usr->idsuperviseur()) != Q_NULLPTR )
+    else if ( Datas::I()->users->getById(usr->idsuperviseur()) != Q_NULLPTR )
         strSup = Datas::I()->users->getById(usr->idsuperviseur())->login();
     str += tr("superviseur") + "\t\t= " + strSup + "\n";
 
     QString strParent = "";
-    if( usr->idparent() == User::ROLE_NON_RENSEIGNE )                    // le user est soignant, assistant, travaille pour plusieurs superviseurs
+    if ( usr->idparent() == User::ROLE_NON_RENSEIGNE )                    // le user est soignant, assistant, travaille pour plusieurs superviseurs
         strParent = tr("sans objet");
-    else if( usr->idparent() == User::ROLE_VIDE )                        // le user est un administratif
+    else if ( usr->idparent() == User::ROLE_VIDE )                        // le user est un administratif
         strParent = tr("sans objet");
-    else if( usr->idparent() == User::ROLE_INDETERMINE )                 // jamais utilisé
+    else if ( usr->idparent() == User::ROLE_INDETERMINE )                 // jamais utilisé
         strParent = tr("indéterminé");
-    else if(  Datas::I()->users->getById(usr->idparent()) != Q_NULLPTR )
+    else if ( Datas::I()->users->getById(usr->idparent()) != Q_NULLPTR )
         strParent = Datas::I()->users->getById(usr->idparent())->login();
     str += tr("parent") + "\t\t= " + strParent + "\n";
 
     QString strComptable = "";
-    if( usr->idcomptable() == User::ROLE_NON_RENSEIGNE )
+    User * usrcptble = Datas::I()->users->getById(usr->idcomptable());
+    if ( usr->idcomptable() == User::ROLE_NON_RENSEIGNE )
         strComptable = tr("sans objet");
-    else if( usr->idcomptable() == User::ROLE_VIDE )
+    else if ( usr->idcomptable() == User::ROLE_VIDE )
         strComptable = tr("sans objet");
-    else if( usr->idcomptable() == User::ROLE_INDETERMINE )
+    else if ( usr->idcomptable() == User::ROLE_INDETERMINE )
         strComptable = tr("indéterminé");
-    else if(  Datas::I()->users->getById(usr->idcomptable()) != Q_NULLPTR )
-        strComptable = Datas::I()->users->getById(usr->idcomptable())->login();
-    str += tr("comptable") + "\t\t= " + strComptable + "\n";
-    if(  Datas::I()->users->getById(usr->idcomptable()) != Q_NULLPTR )
-        str += tr("cpte banque") + "\t= " + Datas::I()->comptes->getById(Datas::I()->users->getById(usr->idcomptable())->idcompteencaissementhonoraires())->nomabrege() + "\n";
+    str += tr("comptable") + "\t\t= " + (usrcptble? strComptable : "null") + "\n";
+    if ( usrcptble )
+    {
+        Compte * cpt = Datas::I()->comptes->getById(usrcptble->idcompteencaissementhonoraires());
+        str += tr("cpte banque") + "\t= " + (cpt? cpt->nomabrege() : "null") + "\n";
+    }
 
     QString strCompta = "";
-    if( usr->typecompta() == User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE )
+    if ( usr->typecompta() == User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE )
         strCompta = "avec cotation et comptabilité";
     else if( usr->typecompta() == User::COMPTA_SANS_COTATION_SANS_COMPTABILITE )
         strCompta = "sans cotation ni comptabilité";

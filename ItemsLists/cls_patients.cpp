@@ -132,7 +132,8 @@ void Patients::initListeSalDat(QList<int> listidaajouter)
     /*! on recrée la liste des patients en cours
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
-    epurelist(map_patientssaldat, &listpatients);
+    clearAll(map_patientssaldat);
+    //epurelist(map_patientssaldat, &listpatients);
     addList(map_patientssaldat, &listpatients, Item::Update);
 }
 
@@ -142,7 +143,8 @@ void Patients::initListeTable(QString nom, QString prenom, bool filtre)
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
     m_full = (nom == "" && prenom == "");
-    epurelist(map_patientstable, &listpatients);
+    clearAll(map_patientstable);
+    //epurelist(map_patientstable, &listpatients);
     addList(map_patientstable, &listpatients, Item::Update);
 }
 
@@ -150,7 +152,8 @@ void Patients::initListeByDDN(QDate DDN)
 {
     QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
-    epurelist(map_patientstable, &listpatients);
+    clearAll(map_patientstable);
+    //epurelist(map_patientstable, &listpatients);
     addList(map_patientstable, &listpatients, Item::Update);
 }
 

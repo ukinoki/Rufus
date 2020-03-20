@@ -842,4 +842,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define STR_NOCOR               "PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT"
 
+//champs de la map d'un rendez-vous
+#define RDV_MOTIF               "MOTIF"
+#define RDV_MESSAGE             "MESSAGE"
+#define RDV_HEURE               "HEURE"
+#define RDV_IDSUPERVISEUR       "IDSUPERVISEUR"
+
+
 #endif // MACROS_H

@@ -442,7 +442,7 @@ void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
     foreach (int idcpt, currentuser()->listecomptesbancaires() )
     {
         Compte *cpt = Datas::I()->comptes->getById(idcpt);
-        if (cpt != Q_NULLPTR)
+        if (cpt)
         {
             if (ActiveSeult)
             {
@@ -623,7 +623,9 @@ void dlg_recettesspeciales::MetAJourFiche()
                 int idx = currentuser()->listecomptesbancaires(true).indexOf(recette.at(6).toInt());
                 if( idx > -1 )
                 {
-                    B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx))->nomabrege();
+                    Compte *cpt = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx));
+                    if (cpt)
+                        B = cpt->nomabrege();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -1023,7 +1025,11 @@ void dlg_recettesspeciales::RemplitBigTable()
                 {
                     int idx = currentuser()->listecomptesbancaires(true).indexOf(recette.at(10).toInt());
                     if( idx > -1 )
-                        B = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx))->nomabrege();
+                    {
+                        Compte *cpt = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx));
+                        if (cpt)
+                            B = cpt->nomabrege();
+                    }
                 }
                 A = VIREMENT + (B==""? "" : " " + B);
             }

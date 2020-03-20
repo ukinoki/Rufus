@@ -335,7 +335,8 @@ private:
     void                MAJCorrespondant(QObject*);
     void                MonteUneLigne();
     void                Monte20Lignes();
-    QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
+    QMap<QString, QVariant>
+                        MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(DocsExternes *docs);

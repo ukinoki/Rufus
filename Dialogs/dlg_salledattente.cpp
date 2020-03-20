@@ -50,7 +50,7 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
         if (post->id() != Datas::I()->users->userconnected()->id())
         {
             User *usr = Datas::I()->users->getById(post->id());
-            if (usr != Q_NULLPTR)
+            if (usr)
                 if (usr->isSoignant())
                     listusrs << usr;
         }

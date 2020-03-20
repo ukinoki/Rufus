@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("18-03-2020/1");
+    qApp->setApplicationVersion("20-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1469,6 +1469,7 @@ void Rufus::CreerBilanOrtho()
         if (!m_ok)
             return;
         nouveauBO = (bodata.size()<1);
+        User *creatusr = Datas::I()->users->getById(currentacte()->idCreatedBy());
         if (!nouveauBO)
         {
             DateBl = currentacte()->date();
@@ -1491,14 +1492,15 @@ void Rufus::CreerBilanOrtho()
                 creeracte = (msgbox.clickedButton() == &NouveauBOBouton);
                 msgbox.close();
             }
-            else if (!Datas::I()->users->getById(currentacte()->idCreatedBy())->isOrthoptist())
-            {
-                nouveauBO = true;
-                creeracte = false;
-            }
+            else if (creatusr)
+                if (!creatusr->isOrthoptist())
+                {
+                    nouveauBO = true;
+                    creeracte = false;
+                }
         }
-        else
-            creeracte = !Datas::I()->users->getById(currentacte()->idCreatedBy())->isOrthoptist();
+        else if (creatusr)
+            creeracte = !creatusr->isOrthoptist();
     }
 
     if (!nouveauBO)
@@ -2591,10 +2593,12 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
             || act->texte() != ""
             || act->conclusion() != "")
         {
+            User *usr = Datas::I()->users->getById(act->idUserSuperviseur());
+            QString titre (!usr? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null");
             reponsevide = false;
             Reponse += "<p><td width=\"140\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
-                    + Datas::I()->users->getById(act->idUserSuperviseur())->titre() + " " + Datas::I()->users->getById(act->idUserSuperviseur())->prenom() + " " + Datas::I()->users->getById(act->idUserSuperviseur())->nom() + "</td></p>";
+                    + titre + "</td></p>";
             if (act->motif() != "")
             {
                 QString texte = act->motif();
@@ -2765,21 +2769,21 @@ bool Rufus::InscritEnSalDat(Patient *pat)
     else
     {
         //créer une fiche avec la liste des checkbox
-        QStringList llist = MotifRDV();
-        if (llist.isEmpty())
+        QMap<QString, QVariant> mapRDV = MotifRDV();
+        if (mapRDV.isEmpty())
             return false;
-        Datas::I()->patientsencours->CreationPatient(pat->id(),                                          //! idPat
-                                                Datas::I()->users->getById(llist.at(3).toInt()),    //! User
-                                                ARRIVE,                                             //! Statut
-                                                QTime(),                                            //! heureStatut
-                                                QTime().fromString(llist.at(2),"HH:mm"),            //! heureRDV
-                                                db->ServerDateTime().time(),                        //! heureArrivee
-                                                llist.at(0),                                        //! Motif
-                                                llist.at(1),                                        //! Message
-                                                0,                                                  //! idActeAPayer
-                                                "",                                                 //! PosteExamen
-                                                0,                                                  //! idUserEnCoursExamen
-                                                0);                                                 //! idSalDat
+        Datas::I()->patientsencours->CreationPatient(pat->id(),                                                 //! idPat
+                                                Datas::I()->users->getById(mapRDV[RDV_IDSUPERVISEUR].toInt()),  //! User
+                                                ARRIVE,                                                         //! Statut
+                                                QTime(),                                                        //! heureStatut
+                                                mapRDV[RDV_HEURE].toTime(),                                     //! heureRDV
+                                                db->ServerDateTime().time(),                                    //! heureArrivee
+                                                mapRDV[RDV_MOTIF].toString(),                                   //! Motif
+                                                mapRDV[RDV_MESSAGE].toString(),                                 //! Message
+                                                0,                                                              //! idActeAPayer
+                                                "",                                                             //! PosteExamen
+                                                0,                                                              //! idUserEnCoursExamen
+                                                0);                                                             //! idSalDat
         Flags::I()->MAJFlagSalleDAttente();
         RecaleTableView(pat);
     }
@@ -3544,36 +3548,36 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
         Motif = static_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
         QTime heurerdv = QTime::fromString(static_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
 
-        QStringList llist = MotifRDV(Motif, Message, heurerdv);
-        if (llist.isEmpty())
+        QMap<QString, QVariant> mapRDV = MotifRDV(Motif, Message, heurerdv);
+        if (mapRDV.isEmpty())
             return;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(dossierpatientaouvrir()->id());
         if (pat == Q_NULLPTR)
-            Datas::I()->patientsencours->CreationPatient(dossierpatientaouvrir()->id(),    //! idPat
-                                                    Datas::I()->users->getById(llist.at(3).toInt()),        //! User
-                                                    ARRIVE,                                                 //! Statut
-                                                    QTime(),                                                //! heureStatut
-                                                    QTime().fromString(llist.at(2), "HH:mm"),               //! heureRDV
-                                                    db->ServerDateTime().time(),                            //! heureArrivee
-                                                    llist.at(0),                                            //! Motif
-                                                    llist.at(1),                                            //! Message
-                                                    0,                                                      //! idActeAPayer
-                                                    "",                                                     //! PosteExamen
-                                                    0,                                                      //! idUserEnCoursExamen
-                                                    0);                                                     //! idSalDat
+            Datas::I()->patientsencours->CreationPatient(dossierpatientaouvrir()->id(),                             //! idPat
+                                                    Datas::I()->users->getById(mapRDV[RDV_IDSUPERVISEUR].toInt()),  //! User
+                                                    ARRIVE,                                                         //! Statut
+                                                    QTime(),                                                        //! heureStatut
+                                                    mapRDV[RDV_HEURE].toTime(),                                     //! heureRDV
+                                                    db->ServerDateTime().time(),                                    //! heureArrivee
+                                                    mapRDV[RDV_MOTIF].toString(),                                   //! Motif
+                                                    mapRDV[RDV_MESSAGE].toString(),                                 //! Message
+                                                    0,                                                              //! idActeAPayer
+                                                    "",                                                             //! PosteExamen
+                                                    0,                                                              //! idUserEnCoursExamen
+                                                    0);                                                             //! idSalDat
         else
         {
-            ItemsList::update(pat, CP_MOTIF_SALDAT, llist.at(0));
-            ItemsList::update(pat, CP_MESSAGE_SALDAT, llist.at(1));
-            ItemsList::update(pat, CP_HEURERDV_SALDAT, QTime().fromString(llist.at(2), "HH:mm"));
-            ItemsList::update(pat, CP_IDUSER_SALDAT, llist.at(3).toInt());
+            ItemsList::update(pat, CP_MOTIF_SALDAT, mapRDV[RDV_MOTIF]);
+            ItemsList::update(pat, CP_MESSAGE_SALDAT, mapRDV[RDV_MESSAGE]);
+            ItemsList::update(pat, CP_HEURERDV_SALDAT, mapRDV[RDV_HEURE]);
+            ItemsList::update(pat, CP_IDUSER_SALDAT, mapRDV[RDV_IDSUPERVISEUR]);
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
 }
 
 
-QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
+QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 {
     //créer une fiche avec tous les checkbox correspondant aux motifs de RDV : Cs, OCT, CV, BO, Biométrie, Urgence, Angio,...etc...
     dlg_ask            = new UpDialog(this);
@@ -3585,7 +3589,7 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     QTimeEdit       *HeureRDV       = new QTimeEdit(dlg_ask);
     UpComboBox *ComboSuperviseurs   = new UpComboBox(dlg_ask);
     UpLabel         *HeureTitre     = new UpLabel(dlg_ask);
-    QStringList     llist;
+    QMap<QString, QVariant>     mapRDV         = QMap<QString,QVariant>();
     grpBox      ->setTitle(tr("Motif de l'acte"));
 
     foreach (User *usr, Datas::I()->users->superviseurs()->values() )
@@ -3600,10 +3604,7 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 
 
     if (Datas::I()->motifs->motifs()->size()==0)
-    {
-        llist << "" << "";
-        return llist;
-    }
+        return mapRDV;
     int defaut = -1;
     int k = -1;
     foreach (Motif *mtf, Datas::I()->motifs->motifs()->values())
@@ -3691,10 +3692,13 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
                 }
             }
         }
-        llist << motif << Message << HeureRDV->time().toString("HH:mm") << ComboSuperviseurs->currentData().toString();
+        mapRDV[RDV_MOTIF]           = motif;
+        mapRDV[RDV_MESSAGE]         = Message;
+        mapRDV[RDV_HEURE]           = HeureRDV->time();
+        mapRDV[RDV_IDSUPERVISEUR]   = ComboSuperviseurs->currentData();
     }
     delete dlg_ask;
-    return llist;
+    return mapRDV;
 }
 
 
@@ -4857,7 +4861,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = destlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + destlist.at(i).at(6).toTime().toString("h:mm");
             if (destlist.at(i).at(1).toInt()>0)
-                txt += tr(" de ") + Datas::I()->users->getById(destlist.at(i).at(1).toInt())->login();
+                txt += tr(" de ") + (Datas::I()->users->getById(destlist.at(i).at(1).toInt()) != Q_NULLPTR? Datas::I()->users->getById(destlist.at(i).at(1).toInt())->login() : "null");
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -5013,7 +5017,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = emetlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + emetlist.at(i).at(6).toTime().toString("h:mm");
             if (emetlist.at(i).at(1).toInt()>0)
-                txt += tr(" pour ") + Datas::I()->users->getById(emetlist.at(i).at(1).toInt())->login();
+                txt += tr(" pour ") + (Datas::I()->users->getById(emetlist.at(i).at(1).toInt()) != Q_NULLPTR? Datas::I()->users->getById(emetlist.at(i).at(1).toInt())->login() : "null");
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -5480,7 +5484,7 @@ void Rufus::VerifCorrespondants()
 
 void Rufus::VerifVerrouDossier()
 {
-    // Seuls le poste importateur dees documents et les postes distants utilisent cette fonction
+    // Seuls le poste importateur des documents et les postes distants utilisent cette fonction
     /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
      * elle n'est utilisée qu'en cas de non utilisation du tcp
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
@@ -5501,7 +5505,7 @@ void Rufus::VerifVerrouDossier()
             qDebug() << "timenow = " << timenow;
             qDebug() << "heure dernière connexion = " << post->dateheurederniereconnexion();
             qDebug() << "temps ecoule depuis actualisation = " << tempsecouledepuisactualisation;
-            qDebug() << "user = " << Datas::I()->users->getById(post->id())->login();
+            qDebug() << "user = " << (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : tr("inconnu"));
             //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
             //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             foreach (PatientEnCours* pat, Datas::I()->patientsencours->patientsencours()->values())
@@ -6136,8 +6140,19 @@ void Rufus::AfficheActe(Acte* acte)
         ui->AgelineEdit             ->setAlignment(Qt::AlignCenter);
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
-        ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login()
-                                     + tr(" pour ") + Datas::I()->users->getById(acte->idUserSuperviseur())->login());
+        QString nomsuperviseur(""), superviseurlogin ("");
+        User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
+        if (usr != Q_NULLPTR)
+        {
+            nomsuperviseur =  usr->prenom() + " " + usr->nom();
+            superviseurlogin = usr->login();
+        }
+        QString createurconsult ("");
+        if (Datas::I()->users->getById(acte->idCreatedBy()) != Q_NULLPTR)
+            createurconsult = tr("Créé par ")
+                              + Datas::I()->users->getById(acte->idCreatedBy())->login()
+                              + tr(" pour ") + superviseurlogin; //Avant idPatient
+        ui->CreeParlineEdit ->setText(createurconsult); //Avant idPatient
         ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite()) != Q_NULLPTR? Datas::I()->sites->getById(acte->idsite())->nom() : "");
 
         //3. Mettre à jour le numéro d'acte
@@ -6316,7 +6331,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabDossier));
     }
 
-    ui->IdCreateurDossierlineEdit   ->setText(Datas::I()->users->getById(currentpatient()->idcreateur())->login());
+    ui->IdCreateurDossierlineEdit   ->setText(Datas::I()->users->getById(currentpatient()->idcreateur()) != Q_NULLPTR? Datas::I()->users->getById(currentpatient()->idcreateur())->login() : "");
 
     ui->IdentPatienttextEdit        ->setHtml(CalcHtmlIdentificationPatient(currentpatient()));
     ui->tabWidget                   ->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(currentpatient()));
@@ -7431,7 +7446,7 @@ bool Rufus::FermeDossier(Patient *patient)
 {
     if (patient == Q_NULLPTR)
         return false;
-                                                    //! qDebug() << "FermeDossier() " << pat->nom()  << pat->prenom() << pat->id();
+    //! qDebug() << "FermeDossier() " << pat->nom()  << pat->prenom() << pat->id();
     bool a = true;
     UpMessageBox msgbox;
     msgbox.setInformativeText(tr("Garder le dossier en salle d'attente?"));
@@ -7451,7 +7466,7 @@ bool Rufus::FermeDossier(Patient *patient)
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
         QString Message(""), Motif(""), idUser ("");
-        QStringList llist;
+        QMap<QString, QVariant> mapRDV;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(patient->id());
         if (pat != Q_NULLPTR)
         {
@@ -7459,14 +7474,15 @@ bool Rufus::FermeDossier(Patient *patient)
             Message = pat->message();
             if (Motif=="")
             {
-                llist = MotifRDV(Motif, Message);
-                if (llist.isEmpty())
+                mapRDV = MotifRDV(Motif, Message);
+                if (mapRDV.isEmpty())
                     return false;
-                Motif   = llist.at(0);
-                Message = llist.at(1);
-                idUser  = llist.at(3);
+                Motif   = mapRDV[RDV_MOTIF].toString();
+                Message = mapRDV[RDV_MESSAGE].toString();
+                idUser  = mapRDV[RDV_IDSUPERVISEUR].toString();
             }
             ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
+            ItemsList::update(pat, CP_IDUSER_SALDAT, idUser);
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
             ItemsList::update(pat, CP_MOTIF_SALDAT, Motif);
@@ -8815,7 +8831,7 @@ void Rufus::Remplir_SalDat()
         rsgnmt["motif"]             = patencours->motif();
         rsgnmt["ddnpat"]            = pat->datedenaissance();
         rsgnmt["idsuperviseur"]     = patencours->iduser();
-        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->login();
+        rsgnmt["loginsuperviseur"]  = (Datas::I()->users->getById(patencours->id()) != Q_NULLPTR? Datas::I()->users->getById(patencours->iduser())->login() : "");
         rsgnmt["urgence"]           = (patencours->motif() == "URG");
         rsgnmt["message"]           = patencours->message();
 
@@ -8877,13 +8893,17 @@ void Rufus::Remplir_SalDat()
             else
                color = "color: red";
         }
-        label6->setText(Datas::I()->users->getById(patencours->iduser())->login());  // Superviseur
+        QString superviseurlogin ("");
+        User *superviseur = Datas::I()->users->getById(patencours->iduser());
+        if (superviseur != Q_NULLPTR)
+            superviseurlogin = superviseur->login();
+        label6->setText(superviseurlogin);  // Superviseur
 
         if (!listidusers.contains(patencours->iduser()))
         {
             listidusers << patencours->iduser();
             pitem0 = new QStandardItem(QString::number(patencours->iduser()));
-            pitem1 = new QStandardItem(Datas::I()->users->getById(patencours->iduser())->login());
+            pitem1 = new QStandardItem(superviseurlogin);
             QList<QStandardItem*> listitems;
             listitems << pitem0 << pitem1;
             m_listesuperviseursmodel    ->appendRow(listitems);
@@ -9017,8 +9037,9 @@ void Rufus::Remplir_SalDat()
     foreach (PosteConnecte* post, Datas::I()->postesconnectes->postesconnectes()->values())
     {
         if (post != Q_NULLPTR)
-        if (Datas::I()->users->getById(post->id())->isSoignant())
-            listpostsoignant << post;
+            if (Datas::I()->users->getById(post->id()) != Q_NULLPTR)
+                if (Datas::I()->users->getById(post->id())->isSoignant())
+                    listpostsoignant << post;
     }
     if (listpostsoignant.size() >0)
     {
@@ -9033,6 +9054,7 @@ void Rufus::Remplir_SalDat()
         foreach (PosteConnecte *post, listpostsoignant)
         {
             User *usr = Datas::I()->users->getById(post->id());
+            QString usrlogin = (!usr? usr->login() : "");
             QString PosteLog  = post->nomposte().remove(".local");
             PatientEnCours *patencours = Q_NULLPTR;
             foreach (PatientEnCours *pat, *Datas::I()->patientsencours->patientsencours())
@@ -9041,7 +9063,7 @@ void Rufus::Remplir_SalDat()
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
-            UserBureau->setObjectName(usr->login() + "BureauupTextEdit");
+            UserBureau->setObjectName(usrlogin + "BureauupTextEdit");
             UserBureau->setIdUser(post->id());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
             UserBureau->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
@@ -9056,7 +9078,7 @@ void Rufus::Remplir_SalDat()
               "</style>"
             "</head>"
             "<body LANG=\"fr-FR\" DIR=\"LTR\">";
-            html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + usr->login() + "</b></p>";
+            html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + usrlogin + "</b></p>";
             if (patencours == Q_NULLPTR)
                 html += "<p class=\"p2\">ZZzzz...</p>";
             else
@@ -9120,12 +9142,15 @@ void Rufus::Remplir_SalDat()
             continue;
         Patient *pat                = it.value();
         Acte* actapayer             = Datas::I()->actes->getById(patencours->idacteapayer());
+        if (actapayer == Q_NULLPTR)
+            continue;
+        QString superviseurlogin    = (Datas::I()->users->getById(patencours->iduser()) != Q_NULLPTR? Datas::I()->users->getById(patencours->iduser())->login() : "");
         QMap<QString, QVariant> rsgnmt;
         rsgnmt["idpat"]             = patencours->id();
         rsgnmt["motif"]             = patencours->motif();
         rsgnmt["ddnpat"]            = pat->datedenaissance();
         rsgnmt["idsuperviseur"]     = patencours->iduser();
-        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->login();
+        rsgnmt["loginsuperviseur"]  = superviseurlogin;
         rsgnmt["urgence"]           = (patencours->motif() == "URG");
         rsgnmt["message"]           = patencours->message();
         rsgnmt["idComptable"]       = actapayer->idComptable();
@@ -9173,10 +9198,11 @@ void Rufus::Remplir_SalDat()
         int idparent = actapayer->idParent();
         label0->setText(" " + zw);                                                              // Heure acte
         label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
-        QString Soignant  = Datas::I()->users->getById(patencours->iduser())->login();
+        QString Soignant = superviseurlogin;
+        QString parent ("");
         if (patencours->iduser() != idparent)
-            Soignant +=  " / " + Datas::I()->users->getById(idparent)->login();
-        label2->setText(" " + Datas::I()->users->getById(patencours->iduser())->login());       // Soignant
+            Soignant +=  " / " +  (Datas::I()->users->getById(idparent) != Q_NULLPTR? Datas::I()->users->getById(idparent)->login() : "null");
+        label2->setText(" " + superviseurlogin);       // Soignant
         label3->setText(" " + actapayer->cotation());                                           // Cotation
         label4->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
         label5->setText(QString::number(idparent));                                             // Parent
@@ -9198,7 +9224,7 @@ void Rufus::Remplir_SalDat()
         {
             listidparents           << idparent;
             oitem0                  = new QStandardItem(QString::number(idparent));
-            oitem1                  = new QStandardItem(Datas::I()->users->getById(idparent)->login());
+            oitem1                  = new QStandardItem(parent);
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
             m_listeparentsmodel     ->appendRow(listitems);
@@ -9282,7 +9308,7 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += post->ipadress() + " - "
                             + post->macadress() + " - "
                             + post->nomposte() + " --- "
-                            + Datas::I()->users->getById(post->id())->login();
+                            + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "") ;
                 }
                 else
                     m_resumeStatut += tr("inconnu");
@@ -9295,7 +9321,7 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += "\t" + post->ipadress() + " - "
                             + post->macadress() + " - "
                             + post->nomposte() + " --- "
-                            + Datas::I()->users->getById(post->id())->login() + "\n";
+                            + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "") + "\n";
                 }
                 else
                     m_resumeStatut += "\t" + tr("inconnu");
@@ -9311,14 +9337,14 @@ void Rufus::ResumeStatut()
                 m_resumeStatut += "\t" + post->nomposte() + " - "
                         + post->ipadress() + " - "
                         + post->macadress() + " --- "
-                        + Datas::I()->users->getById(post->id())->login() + "\n";
+                        + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "") + "\n";
         }
     }
     foreach (PosteConnecte *post, *Datas::I()->postesconnectes->postesconnectes())
     {
         if(post->isdistant())
             m_resumeStatut += "\t" + Datas::I()->sites->getById(post->idlieu())->nom() + " ---- "
-                    + Datas::I()->users->getById(post->id())->login() + "\n";
+                    + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "" )+ "\n";
     }
 
     // l'importateur des documents
@@ -9463,6 +9489,10 @@ void Rufus::SupprimerActe(Acte *act)
     QString req = "DELETE FROM " TBL_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(act->id());
     db->StandardSQL(req);
 
+    // on supprime les éventuelles interventions du programme opératoire liées à cette consultation -----------------------------------------------------------
+    req = "update " TBL_LIGNESPRGOPERATOIRES " set " CP_IDACTE_LIGNPRGOPERATOIRE " = null where " CP_IDACTE_LIGNPRGOPERATOIRE " = "+ QString::number(act->id());
+    db->StandardSQL(req);
+
     /* on corrige la compta
     */
     if (listlignespaiement.size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
@@ -9604,6 +9634,10 @@ void Rufus::SupprimerDossier(Patient *pat)
         QString requete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " in (" + critere + ")";
         db->StandardSQL(requete);
     }
+
+    // on supprime les éventuelles interventions du programme opératoire liées à ce dossier -----------------------------------------------------------
+    QString req = "delete from " TBL_LIGNESPRGOPERATOIRES " where " CP_IDPATIENT_LIGNPRGOPERATOIRE " = " + QString::number(pat->id());
+    db->StandardSQL(req);
 
     //!. Fermeture de l'onglet dossier
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
