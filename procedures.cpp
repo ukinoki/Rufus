@@ -1721,6 +1721,69 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
     return true;
 }
 
+bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QString Entete, QString text, QDate date,
+                                                                          bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
+{
+    if (pat == Q_NULLPTR || user == Q_NULLPTR)
+        return false;
+    QString     Corps, Pied;
+    QTextEdit   *Etat_textEdit = new QTextEdit;
+    bool        AvecNumPage = false;
+    bool        aa;
+
+    Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()           : ""));
+    Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->prenom().toUpper() : ""));
+
+    //création du pied
+    Pied = CalcPiedImpression(user, false, ALD);
+    if (Pied == "") return false;
+
+    // creation du corps
+    Corps = CalcCorpsImpression(text, ALD);
+    if (Corps == "") return false;
+    Etat_textEdit->setHtml(Corps);
+    if (Etat_textEdit->toPlainText() == "") return false;
+
+    int tailleEnTete = TailleEnTete();
+    if (ALD) tailleEnTete = TailleEnTeteALD();
+    aa = Imprime_Etat(Etat_textEdit, Entete, Pied,
+                            TaillePieddePage(), tailleEnTete, TailleTopMarge(),
+                            AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
+
+    // stockage du document dans la base de donnees - table impressions
+    if (aa)
+    {
+        Utils::nettoieHTML(Corps);
+
+        int idpat = 0;
+        idpat = pat->id();
+
+        QHash<QString, QVariant> listbinds;
+        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
+        listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
+        listbinds[CP_IDPAT_DOCSEXTERNES]         = idpat;
+        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
+        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
+        listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
+        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = text;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+        listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
+        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QVariant::String));
+        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
+        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
+        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
+        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
+        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
+        if(doc != Q_NULLPTR)
+            delete doc;
+    }
+    delete Etat_textEdit;
+    return aa;
+}
+
 void Procedures::Print(QPrinter *Imprimante, QImage image)
 {
     QPainter PrintingPreView(Imprimante);

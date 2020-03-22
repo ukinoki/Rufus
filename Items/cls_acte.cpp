@@ -36,7 +36,7 @@ int Acte::idsite() const                { return m_idsite; }
 QTime Acte::heure() const               { return m_heure; }
 bool Acte::effectueparremplacant() const{ return m_remplacant; }
 int Acte::idIntervention() const        { return m_idintervention; }
-bool Acte::isIntervention() const       { return m_idintervention > 0; }
+bool Acte::isintervention() const       { return m_idintervention > 0; }
 
 
 Acte::Acte(QJsonObject data, QObject *parent) : Item(parent)

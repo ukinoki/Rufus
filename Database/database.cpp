@@ -1330,14 +1330,14 @@ QJsonObject DataBase::loadLigneCompteDataById(int id)
 QList<Depense*> DataBase::loadDepensesByUser(int idUser)
 {
     QList<Depense*> depenses;
-    QString req = "SELECT idDep, DateDep , dep.RefFiscale, Objet, Montant,"
-                        " dep.FamFiscale, Monnaie, idRec, ModePaiement, Compte,"
-                        " NoCheque, dep." CP_IDFACTURE_DEPENSES ", " CP_LIENFICHIER_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_INTITULE_FACTURES ","
+    QString req = "SELECT " CP_ID_DEPENSES ", " CP_DATE_DEPENSES " , dep." CP_REFFISCALE_DEPENSES ", " CP_OBJET_DEPENSES ", " CP_MONTANT_DEPENSES ","
+                        " dep." CP_FAMILLEFISCALE_DEPENSES ", " CP_MONNAIE_DEPENSES ", " CP_IDRECETTE_DEPENSES ", " CP_MODEPAIEMENT_DEPENSES ", " CP_COMPTE_DEPENSES ","
+                          CP_NUMCHEQUE_DEPENSES ", dep." CP_IDFACTURE_DEPENSES ", " CP_LIENFICHIER_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_INTITULE_FACTURES ","
                         " idRubrique"
                         " FROM " TBL_DEPENSES " dep"
-                        " left join " TBL_FACTURES " fac on dep.idFacture = fac." CP_ID_FACTURES
-                        " left join " TBL_RUBRIQUES2035 " rub on dep.RefFiscale = rub.RefFiscale"
-                        " WHERE dep.idUser = " + QString::number(idUser);
+                        " left join " TBL_FACTURES " fac on dep." CP_IDFACTURE_DEPENSES " = fac." CP_ID_FACTURES
+                        " left join " TBL_RUBRIQUES2035 " rub on dep." CP_REFFISCALE_DEPENSES " = rub.RefFiscale"
+                        " WHERE dep." CP_IDUSER_DEPENSES " = " + QString::number(idUser);
     //qDebug() << req;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)

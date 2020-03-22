@@ -391,9 +391,10 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         return;
     EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
     if (EnTete == "") return;
+    Site *sit = Datas::I()->sites->getById(m_currentsession->idlieu());
 
     EnTete.replace("{{TITRE1}}"            , "<b>" + tr("RAPPORT D'INCIDENTS OPÉRATOIRES") +"</b>");
-    EnTete.replace("{{PRENOM PATIENT}}"    , Datas::I()->sites->getById(m_currentsession->idlieu())->nom() + " - " + Datas::I()->sites->getById(m_currentsession->idlieu())->ville());
+    EnTete.replace("{{PRENOM PATIENT}}"    , (sit? sit->nom() + " - " + sit->ville() : ""));
     EnTete.replace("{{NOM PATIENT}}"       , "");
     EnTete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
     EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</font>");
@@ -430,7 +431,9 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
             if (interv->incident() != "")
             {
                 QString entete = tr("Intervention") + " " + QString::number(interv->id());
-                entete += " - " + Datas::I()->typesinterventions->getById(interv->idtypeintervention())->typeintervention();
+                TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
+                if (typ)
+                    entete += " - " + typ->typeintervention();
                 lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"><td width=\"" + QString::number(int(c*400)) + "\"><span style=\"font-size:8pt;\"><b>" + entete + "</b></span></td>" ;
                 texte += lign;
                 QString inc = interv->incident();
@@ -468,9 +471,10 @@ void dlg_programmationinterventions::ImprimeSession()
         return;
     EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
     if (EnTete == "") return;
+    Site *sit = Datas::I()->sites->getById(m_currentsession->idlieu());
 
     EnTete.replace("{{TITRE1}}"            , "<b>" + tr("PROGRAMME OPÉRATOIRE") +"</b>");
-    EnTete.replace("{{PRENOM PATIENT}}"    , Datas::I()->sites->getById(m_currentsession->idlieu())->nom() + " - " + Datas::I()->sites->getById(m_currentsession->idlieu())->ville());
+    EnTete.replace("{{PRENOM PATIENT}}"    , (sit? sit->nom() + " - " + sit->ville() : ""));
     EnTete.replace("{{NOM PATIENT}}"       , "");
     EnTete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
     EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</font>");
@@ -1310,16 +1314,11 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     dlg_intervention->exec();
 }
 
-void dlg_programmationinterventions::ImprimeDoc(Patient *pat, Intervention *interv)
+void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention *interv)
 {
     if (pat == Q_NULLPTR || interv == Q_NULLPTR)
         return;
-
-    QString nom         = pat->nom();
-    QString prenom      = pat->prenom();
-    Dlg_Imprs   = new dlg_impressions(pat, interv);
-    Dlg_Imprs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
-    Dlg_Imprs->setWindowIcon(Icons::icLoupe());
+    dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv);
     m_docimprime = false;
     if (Dlg_Imprs->exec() > 0)
     {
@@ -1353,77 +1352,13 @@ void dlg_programmationinterventions::ImprimeDoc(Patient *pat, Intervention *inte
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            m_docimprime                = Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            m_docimprime                = proc->Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!m_docimprime)
                 break;
             imprimante = proc->nomImprimante();
         }
     }
     delete Dlg_Imprs;
-}
-
-/*-----------------------------------------------------------------------------------------------------------------
--- Ouvrir la fiche documents ------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------*/
-bool   dlg_programmationinterventions::Imprimer_Document(Patient *pat, User * user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
-                                 bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
-{
-    QString     Corps, Pied;
-    QTextEdit   *Etat_textEdit = new QTextEdit;
-    bool        AvecNumPage = false;
-    bool        aa;
-
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? prenom        : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? nom.toUpper() : ""));
-
-    //création du pied
-    Pied = proc->CalcPiedImpression(user, false, ALD);
-    if (Pied == "") return false;
-
-    // creation du corps
-    Corps = proc->CalcCorpsImpression(text, ALD);
-    if (Corps == "") return false;
-    Etat_textEdit->setHtml(Corps);
-    if (Etat_textEdit->toPlainText() == "") return false;
-
-    int TailleEnTete = proc->TailleEnTete();
-    if (ALD) TailleEnTete = proc->TailleEnTeteALD();
-    aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
-                       proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
-
-    // stockage du document dans la base de donnees - table impressions
-    if (aa)
-    {
-        Utils::nettoieHTML(Corps);
-
-        int idpat = 0;
-        idpat = pat->id();
-
-        QHash<QString, QVariant> listbinds;
-        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
-        listbinds[CP_IDPAT_DOCSEXTERNES]         = idpat;
-        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
-        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
-        listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
-        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = text;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
-        listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
-        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QVariant::String));
-        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
-        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
-        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
-        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        if(doc != Q_NULLPTR)
-            delete doc;
-    }
-    delete Etat_textEdit;
-    return aa;
 }
 
 void dlg_programmationinterventions::CreerFicheIntervention()
@@ -1540,7 +1475,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
         QAction *pAction_SupprIntervention = m_ctxtmenuinterventions->addAction(tr("Supprimer cette intervention"));
         connect (pAction_SupprIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeIntervention);
         QAction *pAction_ImprIntervention = m_ctxtmenuinterventions->addAction(tr("Imprimer un document"));
-        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [&] {ImprimeDoc(Datas::I()->patients->getById(interv->idpatient()), interv);});
+        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [&] {FicheImpressions(Datas::I()->patients->getById(interv->idpatient()), interv);});
         if (Datas::I()->users->userconnected()->isMedecin())
         {
             QString txt = (interv->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette intervention"));
@@ -1772,19 +1707,23 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("COMMANDE D'IMPLANTS INTRAOCULAIRES") + "</b></span></font></td>" ;
         texte += lign;
         Site *site = Datas::I()->sites->getById(m_currentsession->idlieu());
-        QString adresse = site->nom();
-        QString rue = "";
-        if (site->adresse1() != "")
-            rue += site->adresse1();
-        if (site->adresse2() != "")
+        QString adresse = "";
+        if (site)
+        {
+            adresse = site->nom();
+            QString rue = "";
+            if (site->adresse1() != "")
+                rue += site->adresse1();
+            if (site->adresse2() != "")
+                if (rue != "")
+                    rue += site->adresse2();
+            if (site->adresse3() != "")
+                if (rue != "")
+                    rue += site->adresse3();
             if (rue != "")
-                rue += site->adresse2();
-        if (site->adresse3() != "")
-            if (rue != "")
-                rue += site->adresse3();
-        if (rue != "")
-            adresse += ", " + rue;
-        adresse += ", " + QString::number(site->codePostal()) + " " + site->ville().toUpper();
+                adresse += ", " + rue;
+            adresse += ", " + QString::number(site->codePostal()) + " " + site->ville().toUpper();
+        }
 
         QString date = tr("Programme opératoire du") + " " + m_currentsession->date().toString("dddd dd MMMM yyyy");
         lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + man->nom() + "</b></span></td>" ;

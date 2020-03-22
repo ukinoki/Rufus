@@ -67,7 +67,7 @@ public:
 
     bool courrierAFaire();
     bool isFactureEnFranc() const;
-    bool isIntervention() const;
+    bool isintervention() const;
 
     /* GETTER / SETTER*/
 

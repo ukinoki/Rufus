@@ -228,11 +228,11 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     ui->EnteteupLabel->clear();
     ui->CorpsupTextEdit->clear();
     ui->ConclusionupTextEdit->clear();
-
+    Site *sit = Datas::I()->sites->getById(acte->idsite());
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                       "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
                       "<td width=\"60\">" + Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date())["toString"].toString() + "</td>"
-                      "<td width=\"300\">" + nomcomplet + " - <font color = \"" COULEUR_TITRES "\" ><b>" + Datas::I()->sites->getById(acte->idsite())->nom() + "</b></font></td></p>";
+                      "<td width=\"300\">" + nomcomplet + " - <font color = \"" COULEUR_TITRES "\" ><b>" + (sit? sit->nom() : "") + "</b></font></td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {
@@ -277,7 +277,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
                           + Datas::I()->users->getById(acte->idCreatedBy())->login()
                           + tr(" pour ") + login; //Avant idPatient
     ui->CreateurConsultlineEdit->setText(createurconsult); //Avant idPatient
-    ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite())->nom());
+    ui->SitelineEdit->setText(sit? sit->nom() : "");
 
     //3. Mettre à jour le numéro d'acte
     if( map_actes->size() > 1 )

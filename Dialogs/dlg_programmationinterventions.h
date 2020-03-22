@@ -47,7 +47,6 @@ private:
     QStandardItemModel              *m_manufacturersmodel       = new QStandardItemModel(this);
     QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
     QFont                           m_font = QApplication::font();
-    dlg_impressions                 *Dlg_Imprs;
     dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
     dlg_listeiols                   *Dlg_ListIOLs;
     dlg_listemanufacturers          *Dlg_ListManufacturers;
@@ -128,9 +127,7 @@ private:
     void                ImprimeSession();                                                                               //! imprime le programme pératoire
     void                ImprimeRapportIncident();                                                                       //! imprime le rapport des incidents d'une session
     void                ImprimeListeIOLsSession();                                                                      //! imprime la liste des IOLS nécessaires pour une session, classés par fabricant
-    void                ImprimeDoc(Patient *pat, Intervention *interv);                                                 //! prépare la liste de documents externes à imprimer
-    bool                Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
-                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
+    void                FicheImpressions(Patient *pat, Intervention *interv);                                           //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     bool                m_docimprime = false;
 };
 

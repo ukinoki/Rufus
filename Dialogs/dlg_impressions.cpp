@@ -30,12 +30,15 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
         m_currentintervention = intervention;
     if (!pat->isalloaded())
         Datas::I()->patients->loadAll(pat, Item::Update);
+    QString nom         = pat->nom();
+    QString prenom      = pat->prenom();
+    setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
+    setWindowIcon(Icons::icLoupe());
 
 
     restoreGeometry(proc->settings()->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    setWindowTitle(tr("Liste des documents prédéfinis"));
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
     wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);

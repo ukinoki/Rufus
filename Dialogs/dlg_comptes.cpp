@@ -828,6 +828,8 @@ LigneCompte* dlg_comptes::getLigneCompteFromRow(int row)
 
 void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
 {
+    if (!lign)
+        return;
     UpLabel *      lbl0;
     UpLabel *      lbl1;
     UpLabel *      lbl2;

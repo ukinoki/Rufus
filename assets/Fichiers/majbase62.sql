@@ -86,14 +86,17 @@ BEGIN
             ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
             ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idActe`;
     END IF;
-    SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'SessionsOperatoires' AND COLUMN_NAME = 'Incident') as chp;
-        IF tot=0
+    IF EXISTS `Ophtalmologie`.`SessionsOperatoires`
         THEN
-            ALTER TABLE `Ophtalmologie`.`SessionsOperatoires`
-            ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idLieu`;
+            SELECT COUNT(*) INTO tot FROM
+                (SELECT COLUMN_KEY
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'SessionsOperatoires' AND COLUMN_NAME = 'Incident') as chp2;
+                IF tot=1
+                THEN
+                    ALTER TABLE `Ophtalmologie`.`SessionsOperatoires`
+                    ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idLieu`;
+                END IF;
         END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY

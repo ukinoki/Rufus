@@ -97,28 +97,6 @@ private:
     bool                            UtiliserTcpSocket = false;
     QAction                         *actionFabricants = Q_NULLPTR;  // si on rajoute cette ligne avec les autres variables de menu, le programme plante (???)
 
-    dlg_actesprecedents             *Dlg_ActesPrecs;
-    dlg_bilanortho                  *Dlg_BlOrtho;
-    dlg_comptes                     *Dlg_Cmpt;
-    dlg_depenses                    *Dlg_Deps;
-    dlg_docsexternes                *Dlg_DocsExt;
-    dlg_docsscanner                 *Dlg_DocsScan;
-    dlg_docsvideo                   *Dlg_DocsVideo;
-    dlg_impressions                 *Dlg_Imprs;
-    dlg_identificationcorresp       *Dlg_IdentCorresp;
-    dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
-    dlg_identificationpatient       *Dlg_IdentPatient;
-    dlg_listecorrespondants         *Dlg_ListCor;
-    dlg_listemanufacturers          *Dlg_ListManufacturers;
-    dlg_paiementdirect              *Dlg_PmtDirect;
-    dlg_paiementtiers               *Dlg_PmtTiers;
-    dlg_param                       *Dlg_Param;
-    dlg_autresmesures               *Dlg_AutresMes;
-    dlg_bilanrecettes               *Dlg_BilanRec;
-    dlg_recettesspeciales           *Dlg_RecSpec;
-    dlg_refraction                  *Dlg_Refraction;
-    dlg_remisecheques               *Dlg_RemCheq;
-    dlg_salledattente               *Dlg_SalDat;
     Procedures                      *proc;
     DataBase                        *db;
     ParametresSysteme               *m_parametres;
@@ -220,13 +198,13 @@ private:
     void            ChoixMenuContextuelCorrespondant(QString choix);
     void        MenuContextuelIdentPatient();
     void        MenuContextuelListePatients();
-    void            ChoixMenuContextuelListePatients(QString);
+    void            ChoixMenuContextuelListePatients(int idpat, QString);
     void        MenuContextuelMedecin();
     void            ChoixMenuContextuelMedecin();
     void        MenuContextuelMotsCles();
-    void        MenuContextuelSalDatPaiemt(UpLabel *labelCLicked);
+    void        MenuContextuelAccueil(UpLabel *labelCLicked);
     void        MenuContextuelSalDat(UpLabel *labelCLicked);
-    void            ChoixMenuContextuelSalDat(QString);
+    void            ChoixMenuContextuelSalDat(int idpat, QString);
 
     //fonctions lancées par des timers
     void        ActualiseDocsExternes();
@@ -323,8 +301,6 @@ private:
     Patient*            getPatientFromIndex(QModelIndex idx);               //!> retrouve le patient à partir du modelindex dans la table
     int                 getRowFromPatient(Patient *pat);                    //!> retrouve la rangée où se trouve un patient dans la table;
     bool                IdentificationPatient(dlg_identificationpatient::Mode mode, Patient *pat);
-    bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
-                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                InitWidgets();
     void                InitEventFilters();
     void                InitMenus();
@@ -340,7 +316,7 @@ private:
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(DocsExternes *docs);
-    void                OuvrirImpressions(bool AffichDocsExternes = true);
+    void                FicheImpressions(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                ProgrammationIntervention(Patient *pat);

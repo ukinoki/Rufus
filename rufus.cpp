@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("20-03-2020/1");
+    qApp->setApplicationVersion("22-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -329,7 +329,7 @@ void Rufus::ConnectSignals()
     connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   &Rufus::OuvrirActesPrecspushButtonClicked);
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
-    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {OuvrirImpressions();});
+    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {FicheImpressions(currentpatient());});
     connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelListePatients);
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {ChoixDossier(getPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getPatientFromCursorPositionInTable());});
@@ -395,7 +395,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
     }
     if (docs->docsexternes()->size()>0)
     {
-        Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP, this);
+        dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
         if (docs == Datas::I()->docsexternes)
             Dlg_DocsExt->show();
@@ -438,7 +438,7 @@ void Rufus::MAJDocsExternes()
     {
         if (Datas::I()->docsexternes->docsexternes()->size()>0)
         {
-            Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP, this);
+            dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP, this);
             Dlg_DocsExt->show();
             ui->OuvreDocsExternespushButton->setEnabled(true);
         }
@@ -1208,7 +1208,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         ListidActeAPasser << currentacte()->id();
     }
 
-    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, this);//NOTE : New Paiement
+    dlg_paiementdirect *Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, this);//NOTE : New Paiement
     if(Dlg_PmtDirect->initOK())
         Dlg_PmtDirect->exec();
     if (origin == BoutonPaiement)  // on redonne le statut en cours d'examen au dossier
@@ -1260,7 +1260,7 @@ void Rufus::AppelPaiementTiers()
                 PaimtList.at(i)->raise();
                 return;
             }
-    Dlg_PmtTiers = new dlg_paiementtiers(this); //NOTE : New Paiement
+    dlg_paiementtiers *Dlg_PmtTiers = new dlg_paiementtiers(this); //NOTE : New Paiement
     if(Dlg_PmtTiers->initOK())
     {
         Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
@@ -1281,7 +1281,8 @@ void Rufus::AutreDossier(Patient *pat)
     if(currentuser()->isSoignant())
     {
         setdossierpatientaouvrir(pat);
-        ChoixMenuContextuelListePatients(tr("Autre Dossier"));
+        if (pat)
+            ChoixMenuContextuelListePatients(pat->id(), tr("Autre Dossier"));
     }
 }
 
@@ -1313,7 +1314,7 @@ void Rufus::BasculerMontantActe()
 
 void Rufus::BilanRecettes()
 {   
-    Dlg_BilanRec            = new dlg_bilanrecettes();
+    dlg_bilanrecettes *Dlg_BilanRec            = new dlg_bilanrecettes();
     if (!Dlg_BilanRec->initOK())
     {
         delete Dlg_BilanRec;
@@ -1503,15 +1504,13 @@ void Rufus::CreerBilanOrtho()
             creeracte = !creatusr->isOrthoptist();
     }
 
+    dlg_bilanortho *Dlg_BlOrtho = new dlg_bilanortho(currentacte(), nouveauBO);
     if (!nouveauBO)
     {
-        Dlg_BlOrtho             = new dlg_bilanortho(currentacte(), nouveauBO);
-        QString Titre           = tr("Bilan orthoptique - ") + currentpatient()->prenom() + " " + currentpatient()->nom();
         Dlg_BlOrtho->ui->OcclAlternlabel    ->setVisible(currentpatient()->datedenaissance().daysTo(DateBl) < 730);
         Dlg_BlOrtho->ui->OcclAlterncomboBox ->setVisible(currentpatient()->datedenaissance().daysTo(DateBl) < 730);
         Dlg_BlOrtho->ui->MotiftextEdit      ->setHtml(ui->ActeMotiftextEdit->toHtml());
         Dlg_BlOrtho->ui->ConclusiontextEdit ->setHtml(ui->ActeConclusiontextEdit->toHtml());
-        Dlg_BlOrtho             ->setWindowTitle(Titre);
         Dlg_BlOrtho             ->setDateBO(QDate::fromString(ui->ActeDatedateEdit->text(),"dd/MM/yyyy"));
     }
     else
@@ -1522,9 +1521,6 @@ void Rufus::CreerBilanOrtho()
                 if (!AutorDepartConsult(false)) return;
             CreerActe(currentpatient());
         }
-        Dlg_BlOrtho             = new dlg_bilanortho(currentacte(), nouveauBO);
-        QString Titre           = tr("Bilan orthoptique - ") + currentpatient()->prenom() + " " + currentpatient()->nom();
-        Dlg_BlOrtho             ->setWindowTitle(Titre);
         QString RefractionOD    = "";
         QString RefractionOG    = "";
         Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
@@ -1790,7 +1786,7 @@ void Rufus::EnregistreDocScanner(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "", this);
+    dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "", this);
     if (!Dlg_DocsScan->initOK())
         return;
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
@@ -1803,8 +1799,7 @@ void Rufus::EnregistreVideo(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    Dlg_DocsVideo = new dlg_docsvideo(pat, this);
-    Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
+    dlg_docsvideo *Dlg_DocsVideo = new dlg_docsvideo(pat, this);
     Dlg_DocsVideo->exec();
     if (pat == currentpatient())
         MAJDocsExternes();
@@ -1854,7 +1849,7 @@ void Rufus::FiltreAccueil(int idx)
 
 void Rufus::GestionComptes()
 {
-    Dlg_Cmpt = new dlg_comptes(this);
+    dlg_comptes *Dlg_Cmpt = new dlg_comptes(this);
     if(Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
 }
@@ -2797,12 +2792,12 @@ void Rufus::ListeCorrespondants()
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
-        Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+        dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
         Dlg_IdentCorresp->exec();
         delete Dlg_IdentCorresp;
         return;
     }
-    Dlg_ListCor = new dlg_listecorrespondants(this);
+    dlg_listecorrespondants *Dlg_ListCor = new dlg_listecorrespondants(this);
     Dlg_ListCor->exec();
     delete Dlg_ListCor;
 }
@@ -2812,12 +2807,12 @@ void Rufus::ListeManufacturers()
     if (Datas::I()->manufacturers->manufacturers()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
-        Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
         Dlg_IdentManufacturer->exec();
         delete Dlg_IdentManufacturer;
         return;
     }
-    Dlg_ListManufacturers = new dlg_listemanufacturers(this);
+    dlg_listemanufacturers *Dlg_ListManufacturers = new dlg_listemanufacturers(this);
     Dlg_ListManufacturers->exec();
     delete Dlg_ListManufacturers;
 }
@@ -3231,13 +3226,13 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 {
     if (UpText->iD() == 0)
         return;
-    setdossierpatientaouvrir(Datas::I()->patients->getById(UpText->iD()));
+    int idpat = UpText->iD();
     if( currentuser()->isSoignant() )
     {
         m_menuContextuel = new QMenu(this);
         {
             QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
-            connect (pAction_ReprendreDossier,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
+            connect (pAction_ReprendreDossier,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelListePatients(idpat, "Autre Dossier");});
         }
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
@@ -3248,7 +3243,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
         m_menuContextuel = new QMenu(this);
         {
             QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-            connect (pAction_ModifierDossier,   &QAction::triggered,    this,   [=] {ChoixMenuContextuelListePatients("Modifier");});
+            connect (pAction_ModifierDossier,   &QAction::triggered,    this,   [=] {ChoixMenuContextuelListePatients(idpat, "Modifier");});
         }
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
@@ -3260,53 +3255,55 @@ void Rufus::MenuContextuelListePatients()
     Patient *pat = getPatientFromCursorPositionInTable();
     if (pat == Q_NULLPTR)
         return;
-    //if (!pat->isalloaded())
-    setdossierpatientaouvrir(pat);
+    int idpat = pat->id();
 
     m_menuContextuel = new QMenu(this);
 
     QAction *pAction_MettreEnSalDat = m_menuContextuel->addAction(tr("Inscrire ce patient en salle d'attente"));
-    connect (pAction_MettreEnSalDat,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("SalDat");});
+    connect (pAction_MettreEnSalDat,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "SalDat");});
 
     QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier,       &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Modifier");});
+    connect (pAction_ModifierDossier,       &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Modifier");});
 
     QAction *pAction_Copier = m_menuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Copie");});
+    connect (pAction_Copier,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Copie");});
 
     if( currentuser()->isSoignant() )
     {
         QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
-        connect (pAction_ReprendreDossier,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
+        connect (pAction_ReprendreDossier,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Autre Dossier");});
     }
     if( (currentuser()->isSoignant() || currentuser()->isSecretaire()) && Datas::I()->users->medecins()->size() > 0 )    {
         QAction *pAction_PrgIntervention = m_menuContextuel->addAction(tr("Programmer une intervention"));
-        connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Intervention");});
+        connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Intervention");});
     }
     QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("Document");});
+    connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
 
     QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(dossierpatientaouvrir()->id());
     if (db->StandardSelectSQL(req,m_ok).size() > 0){
         QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
-        connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
+        connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
     }
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
-    connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("EnregDocScan");});
+    connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "EnregDocScan");});
 
     QAction *pAction_EnregVideo = m_menuContextuel->addAction(tr("Enregistrer une video"));
-    connect (pAction_EnregVideo,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("EnregVideo");});
+    connect (pAction_EnregVideo,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "EnregVideo");});
 
     QAction *pAction_SendMess = m_menuContextuel->addAction(tr("Envoyer un message"));
-    connect (pAction_SendMess,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients("SendMess");});
+    connect (pAction_SendMess,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "SendMess");});
 
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
 }
 
-void Rufus::ChoixMenuContextuelListePatients(QString choix)
+void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
 {
+    if (idpat == 0)
+        return;
+    setdossierpatientaouvrir(Datas::I()->patients->getById(idpat));
     if (dossierpatientaouvrir() == Q_NULLPTR)
         return;
     if (choix == "Autre Dossier")
@@ -3320,7 +3317,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
         }
         else
         {
-            Dlg_ActesPrecs  = new dlg_actesprecedents(acts, false, this);
+            dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(acts, false, this);
             Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + dossierpatientaouvrir()->nom() + " " + dossierpatientaouvrir()->prenom());
             Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
@@ -3335,7 +3332,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     else if (choix == "Modifier")
         IdentificationPatient(dlg_identificationpatient::Modification,dossierpatientaouvrir());     //! depuis menu contextuel ListePatients
     else if (choix == "Document")
-        OuvrirImpressions(false);
+        FicheImpressions(dossierpatientaouvrir());
     else if (choix == "ImprimeAncienDoc") {
         DocsExternes *docs = new DocsExternes;
         docs->initListeByPatient(dossierpatientaouvrir());
@@ -3376,7 +3373,7 @@ void Rufus::ChoixMenuContextuelMedecin()
     int id = ui->MGupComboBox->currentData().toInt();
     int idxMG = ui->MGupComboBox->currentIndex();
     bool onlydoctors = true;
-    Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
     if (Dlg_IdentCorresp->exec()>0)
         if (Dlg_IdentCorresp->identcorrespondantmodifiee())
             ui->MGupComboBox->setCurrentIndex(idxMG);
@@ -3410,7 +3407,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
         id = ui->AutresCorresp2upComboBox->currentData().toInt();
     if (id==-1) return;
     bool onlydoctors = false;
-    Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idCor = Dlg_IdentCorresp->correspondantrenvoye()->id();
@@ -3425,10 +3422,10 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
 
 void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 {
+    int idpat (0);
     if (labelClicked == Q_NULLPTR) return;
     QMap<QString, QVariant> rsgnmt = labelClicked->datas();
-    int id = rsgnmt["idpat"].toInt();
-    setdossierpatientaouvrir(Datas::I()->patients->getById(id));
+    idpat = rsgnmt["idpat"].toInt();
     int row = labelClicked->Row();
 
     m_menuContextuel = new QMenu(this);
@@ -3441,38 +3438,41 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
             if (StatutClicked->text() == ARRIVE)
             {
                 QAction *pAction_RetirerDossier = m_menuContextuel->addAction(tr("Retirer ce dossier de la salle d'attente"));
-                connect (pAction_RetirerDossier, &QAction::triggered,   this,    [=] {ChoixMenuContextuelSalDat("Retirer");});
+                connect (pAction_RetirerDossier, &QAction::triggered,   this,    [=] {ChoixMenuContextuelSalDat(idpat, "Retirer");});
             }
         }
     }
     QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier,           &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Modifier");});
+    connect (pAction_ModifierDossier,           &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Modifier");});
 
     if (ui->SalleDAttenteupTableWidget->isAncestorOf(labelClicked))
     {
         QAction *pAction_ModifierMotif = m_menuContextuel->addAction(tr("Modifier le motif de l'acte"));
-        connect (pAction_ModifierMotif,         &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Motif");});
+        connect (pAction_ModifierMotif,         &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Motif");});
     }
 
     QAction *pAction_Copier = m_menuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier,                    &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Copie");});
+    connect (pAction_Copier,                    &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Copie");});
     if( currentuser()->isSoignant() )
     {
         QAction *pAction_OuvrirDossier = m_menuContextuel->addAction(tr("Ouvrir le dossier"));
-        connect (pAction_OuvrirDossier,         &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Ouvrir");});
+        connect (pAction_OuvrirDossier,         &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Ouvrir");});
     }
     QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat("Document");});
+    connect (pAction_EmettreDoc,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Document");});
 
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
 }
 
-void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
+void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
 {
+    int idpat(0);
     QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
     if (labelClicked == Q_NULLPTR) return;
+    QMap<QString, QVariant> rsgnmt = labelClicked->datas();
+    idpat = rsgnmt["idpat"].toInt();
     bool a = false;
     // si le label qui émet la demande de menu n'est pas dans la plage sélectionnée, on n'affiche pas de menu
     for (int i = 0; i< listRange.size();i++)
@@ -3480,7 +3480,6 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         {a = true;  break;}
     if (a == false) return;
 
-    setdossierpatientaouvrir(Datas::I()->patients->getById(labelClicked->iD()));
 
     m_menuContextuel = new QMenu(this);
 
@@ -3489,15 +3488,19 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         if( currentuser()->isSoignant() )
         {
             QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Reprendre le dossier"));
-            connect (pAction_ReprendreDossier,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Reprendre");});
+            connect (pAction_ReprendreDossier,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat(idpat, "Reprendre");});
         }
         QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-        connect (pAction_EmettreDoc,            &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Document");});
+        connect (pAction_EmettreDoc,            &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat(idpat, "Document");});
+        if( (currentuser()->isSoignant() || currentuser()->isSecretaire()) && Datas::I()->users->medecins()->size() > 0 )    {
+            QAction *pAction_PrgIntervention = m_menuContextuel->addAction(tr("Programmer une intervention"));
+            connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Intervention");});
+        }
     }
     if (currentuser()->isSecretaire() || labelClicked->datas().value("idComptable").toInt() == currentuser()->idcomptable())
     {
         QAction *pAction_EnregistrePaiement = m_menuContextuel->addAction(tr("Enregistrer le paiement"));
-        connect (pAction_EnregistrePaiement,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Payer");});
+        connect (pAction_EnregistrePaiement,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat(idpat, "Payer");});
     }
 
     // ouvrir le menu
@@ -3505,8 +3508,11 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
     delete m_menuContextuel;
 }
 
-void Rufus::ChoixMenuContextuelSalDat(QString choix)
+void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
 {
+    if (idpat == 0)
+        return;
+    setdossierpatientaouvrir(Datas::I()->patients->getById(idpat));
     if (dossierpatientaouvrir() == Q_NULLPTR)
         return;
     if (choix == "Reprendre")
@@ -3525,8 +3531,10 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
     else if (choix == "Copie")
         RecopierDossier(dossierpatientaouvrir());
     else if (choix == "Document")
-        OuvrirImpressions(false);
-    else if (choix == "Motif")  // il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
+        FicheImpressions(dossierpatientaouvrir());
+    else if (choix == "Intervention")
+        ProgrammationIntervention(dossierpatientaouvrir());                                         //! depuis menu contextuel ListePatients
+    else if (choix == "Motif")  //! il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
     {
         QMap<QString, QVariant> rsgnmt;
         rsgnmt["idpat"] = -1;
@@ -3934,7 +3942,7 @@ void Rufus::OuvrirActesPrecspushButtonClicked()
 
 void Rufus::OuvrirJournalDepenses()
 {
-    Dlg_Deps = new dlg_depenses();
+    dlg_depenses *Dlg_Deps = new dlg_depenses();
     if(Dlg_Deps->initOK())
     {
         Dlg_Deps->setWindowTitle(tr("Journal des dépenses"));
@@ -3947,7 +3955,7 @@ void Rufus::OuvrirJournalDepenses()
 void Rufus::OuvrirParametres()
 {
     //TODO : SQL
-    Dlg_Param = new dlg_param(this);
+    dlg_param *Dlg_Param = new dlg_param(this);
     Dlg_Param->setWindowTitle(tr("Paramètres"));
     Dlg_Param->exec();
     if (Dlg_Param->DataUserModifiees())
@@ -4040,7 +4048,7 @@ void Rufus::OuvrirParametres()
 
 void Rufus::RecettesSpeciales()
 {
-    Dlg_RecSpec           = new dlg_recettesspeciales();
+    dlg_recettesspeciales *Dlg_RecSpec           = new dlg_recettesspeciales();
     if(Dlg_RecSpec->initOK())
     {
         Dlg_RecSpec->setWindowTitle(tr("Journal des recettes spéciales"));
@@ -6699,6 +6707,8 @@ QString Rufus::CalcToolTipCorrespondant(int idcor)
 {
     QString tooltp = "";
     Correspondant *cor = Datas::I()->correspondants->getById(idcor, Item::LoadDetails);
+    if (!cor)
+        return tooltp;
     if (cor->idspecialite() != 0)
         tooltp = cor->metier();
     else if (cor->metier() != "")
@@ -6924,6 +6934,7 @@ void Rufus::CreerActe(Patient *pat)
         if(!AutorDepartConsult(false)) return;
     Acte * acte = m_listeactes->CreationActe(pat, currentuser(), proc->idCentre(), Datas::I()->sites->idcurrentsite());
     setcurrentacte(acte);
+    //! on recherche si cet acte pourrait correspondre à une intervention programmée
     Intervention* interv = Datas::I()->interventions->getInterventionByDateIdPatient(QDate::currentDate(), pat->id());
     if (interv != Q_NULLPTR)
     {
@@ -7205,7 +7216,7 @@ void Rufus::CreerMenu()
                                                                                                         });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(currentacte());});
     // Documents
-    connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirImpressions);
+    connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {FicheImpressions(currentpatient());});
     connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
     connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
     connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
@@ -7320,7 +7331,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 {
     int idcor = -1;
     bool onlydoctors = (Cor == "MG");
-    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(Nom);
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     if (Cor == "MG")
@@ -7353,6 +7364,8 @@ void Rufus::ExporteActe(Acte *act)
         for (int i=0; i<listimages.size(); i++)
         {
             DocExterne *docmt = Datas::I()->docsexternes->getById(listimages.at(i).at(0).toInt());
+            if (!docmt)
+                continue;
             QString filedest = pat->nom() + " " + pat->prenom() + " - " + docmt->typedoc() + " " + docmt->soustypedoc() + " " + QString::number(i);
             {
                 if (db->ModeAccesDataBase() != Utils::Distant)
@@ -7508,7 +7521,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 {
     // TODO mettre en place un signal de mise à jour de la liste des patients
     bool unpatientaetecreeoumodifie = false;
-    Dlg_IdentPatient           = new dlg_identificationpatient(mode, pat, this);
+    dlg_identificationpatient *Dlg_IdentPatient = new dlg_identificationpatient(mode, pat, this);
 
     if (Dlg_IdentPatient->exec() > 0)
     {
@@ -7614,74 +7627,6 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         envoieTCPMessage(QString::number(Dlg_IdentPatient->currentpatient()->id()) + TCPMSG_MAJPatient);
     delete Dlg_IdentPatient;
     return unpatientaetecreeoumodifie;
-}
-
-/*-----------------------------------------------------------------------------------------------------------------
--- Ouvrir la fiche documents ------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------*/
-bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
-                                 bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
-{
-    QString     Corps, Pied;
-    QTextEdit   *Etat_textEdit = new QTextEdit;
-    bool        AvecNumPage = false;
-    bool        aa;
-
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? prenom        : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? nom.toUpper() : ""));
-
-    //création du pied
-    Pied = proc->CalcPiedImpression(user, false, ALD);
-    if (Pied == "") return false;
-
-    // creation du corps
-    Corps = proc->CalcCorpsImpression(text, ALD);
-    if (Corps == "") return false;
-    Etat_textEdit->setHtml(Corps);
-    if (Etat_textEdit->toPlainText() == "") return false;
-
-    int TailleEnTete = proc->TailleEnTete();
-    if (ALD) TailleEnTete = proc->TailleEnTeteALD();
-    aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
-                       proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
-
-    // stockage du document dans la base de donnees - table impressions
-    if (aa)
-    {
-        Utils::nettoieHTML(Corps);
-
-        int idpat = 0;
-        if (ui->tabWidget->currentWidget() == ui->tabDossier)
-            idpat = currentpatient()->id();
-        else
-            idpat = dossierpatientaouvrir()->id();
-
-        QHash<QString, QVariant> listbinds;
-        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        listbinds[CP_IDUSER_DOCSEXTERNES]        = user->id();
-        listbinds[CP_IDPAT_DOCSEXTERNES]         = idpat;
-        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
-        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
-        listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
-        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = text;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
-        listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
-        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QVariant::String));
-        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
-        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
-        listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
-        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
-        ui->OuvreDocsExternespushButton->setEnabled(doc != Q_NULLPTR);
-        if(doc != Q_NULLPTR)
-            delete doc;
-    }
-    delete Etat_textEdit;
-    return aa;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8189,30 +8134,23 @@ bool Rufus::NavigationConsult(ItemsList::POSITION i)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::OuvrirActesPrecedents()
 {
-    Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes, true, this);
+    dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes, true, this);
     Dlg_ActesPrecs->show();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
--- Ouvrir la fiche documents ------------------------------------------------------------------------
+-- Ouvrir la fiche dlg_impressions------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::OuvrirImpressions(bool AffichDocsExternes)
+void    Rufus::FicheImpressions(Patient *pat)
 {
-    QString nom, prenom;
-    if (ui->tabWidget->currentWidget() == ui->tabDossier)
-    {
-        nom         = currentpatient()->nom();
-        prenom      = currentpatient()->prenom();
-        Dlg_Imprs   = new dlg_impressions(currentpatient());
-    }
-    else
-    {
-        nom         = dossierpatientaouvrir()->nom();
-        prenom      = dossierpatientaouvrir()->prenom();
-        Dlg_Imprs   = new dlg_impressions(dossierpatientaouvrir(), Q_NULLPTR, this);
-    }
-    Dlg_Imprs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
-    Dlg_Imprs->setWindowIcon(Icons::icLoupe());
+    if (!pat)
+        return;
+    Intervention * interv = Q_NULLPTR;
+    if (pat == currentpatient())
+        if (currentacte())
+            if (currentacte()->isintervention())
+                interv = Datas::I()->interventions->getById(currentacte()->idIntervention());
+    dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv, this);
     bool aa = true;
     if (Dlg_Imprs->exec() > 0)
     {
@@ -8246,15 +8184,16 @@ void    Rufus::OuvrirImpressions(bool AffichDocsExternes)
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            aa                          = Imprimer_Document(userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            aa                          = proc->Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!aa)
                 break;
             imprimante = proc->nomImprimante();
         }
     }
     delete Dlg_Imprs;
-    if (aa && AffichDocsExternes)
-        MAJDocsExternes();              // depuis dlg_impressions
+    if (currentpatient())
+        if (aa && currentpatient()->id() != pat->id())
+            MAJDocsExternes();              // depuis dlg_impressions
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8546,7 +8485,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
-    Dlg_Refraction     = new dlg_refraction(mode, this);
+    dlg_refraction *Dlg_Refraction     = new dlg_refraction(mode, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
     proc->setFicheRefractionOuverte(false);
@@ -8692,7 +8631,7 @@ void Rufus::SetDatasRefractionKerato()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::RemiseCheques()
 {
-    Dlg_RemCheq          = new dlg_remisecheques();
+    dlg_remisecheques *Dlg_RemCheq = new dlg_remisecheques();
     if (Dlg_RemCheq->initOK())
     {
         Dlg_RemCheq->setWindowTitle(tr("Remise de chèques"));
@@ -9230,12 +9169,12 @@ void Rufus::Remplir_SalDat()
             m_listeparentsmodel     ->appendRow(listitems);
         }
 
-        connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label0);});
-        connect (label1,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label1);});
-        connect (label2,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label2);});
-        connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label3);});
-        connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label4);});
-        connect (label5,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label5);});
+        connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label0);});
+        connect (label1,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label1);});
+        connect (label2,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label2);});
+        connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label3);});
+        connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label4);});
+        connect (label5,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label5);});
         connect (label0,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label0);});
         connect (label1,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label1);});
         connect (label2,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label2);});
@@ -9343,7 +9282,7 @@ void Rufus::ResumeStatut()
     foreach (PosteConnecte *post, *Datas::I()->postesconnectes->postesconnectes())
     {
         if(post->isdistant())
-            m_resumeStatut += "\t" + Datas::I()->sites->getById(post->idlieu())->nom() + " ---- "
+            m_resumeStatut += "\t" + (Datas::I()->sites->getById(post->idlieu())? Datas::I()->sites->getById(post->idlieu())->nom() : "") + " ---- "
                     + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "" )+ "\n";
     }
 
@@ -9382,7 +9321,7 @@ bool Rufus::RetourSalleDattente(QString Titre)
 {
     bool retour         = false;
 
-    Dlg_SalDat           = new dlg_salledattente(currentacte(), Titre);
+    dlg_salledattente *Dlg_SalDat = new dlg_salledattente(currentacte(), Titre);
     Dlg_SalDat->setWindowTitle(tr("Consultation incomplète!"));
 
     if (Titre == tr("Il manque le montant!") || Titre == tr("Il manque la cotation!"))
@@ -9665,7 +9604,7 @@ void Rufus::Pachymetrie()
 {
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
-    Dlg_AutresMes= new dlg_autresmesures(dlg_autresmesures::PACHY);
+    dlg_autresmesures *Dlg_AutresMes= new dlg_autresmesures(dlg_autresmesures::PACHY);
     Dlg_AutresMes->setWindowTitle(tr("Pachymétrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec()> 0)
@@ -9713,7 +9652,7 @@ void Rufus::Tonometrie()
 {
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
-    Dlg_AutresMes = new dlg_autresmesures(dlg_autresmesures::TONO);
+    dlg_autresmesures *Dlg_AutresMes = new dlg_autresmesures(dlg_autresmesures::TONO);
     Dlg_AutresMes->setWindowTitle(tr("Tonométrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec()> 0)

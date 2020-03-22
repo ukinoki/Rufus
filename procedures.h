@@ -209,6 +209,8 @@ private:
 
 public:
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
+    bool                    Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date,
+                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 

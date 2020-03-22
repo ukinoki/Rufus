@@ -22,6 +22,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     m_currentpatient = pat;
+    setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
 
     m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersVideos").toString();
     if (!QDir(m_docpath).exists())
