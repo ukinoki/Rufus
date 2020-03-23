@@ -1266,6 +1266,7 @@ void dlg_impressions::Validation()
     else
     {
         SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
+        //qDebug() << "idsession = " << session->id() << " - iduser = " << session->iduser();
         if (session != Q_NULLPTR)
             m_userentete = Datas::I()->users->getById(session->iduser());
     }

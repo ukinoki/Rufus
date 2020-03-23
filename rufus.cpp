@@ -6220,7 +6220,6 @@ void Rufus::AfficheActe(Acte* acte)
                 if (AutorDepartConsult(false))
                     AfficheActe(act);
             });
-
     }
     m_autorModifConsult = false;
     AfficheActeCompta(currentacte());
@@ -6933,16 +6932,14 @@ void Rufus::CreerActe(Patient *pat)
     if (ui->Acteframe->isVisible())
         if(!AutorDepartConsult(false)) return;
     Acte * acte = m_listeactes->CreationActe(pat, currentuser(), proc->idCentre(), Datas::I()->sites->idcurrentsite());
-    setcurrentacte(acte);
     //! on recherche si cet acte pourrait correspondre à une intervention programmée
     Intervention* interv = Datas::I()->interventions->getInterventionByDateIdPatient(QDate::currentDate(), pat->id());
     if (interv != Q_NULLPTR)
     {
-        QHash<QString, QVariant> listbinds;
-        listbinds[CP_IDACTE_LIGNPRGOPERATOIRE] = acte->id();
-        DataBase::I()->UpdateTable(TBL_LIGNESPRGOPERATOIRES, listbinds, "where " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(interv->id()));
-        interv->setidacte(acte->id());
+        ItemsList::update(interv, CP_IDACTE_LIGNPRGOPERATOIRE, acte->id());
+        acte->setidintervention(interv->id());
     }
+    setcurrentacte(acte);
     AfficheActe(currentacte());
     if (m_listeactes->actes()->size() > 1)
     {

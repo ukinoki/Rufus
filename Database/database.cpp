@@ -2352,7 +2352,7 @@ QList<Acte *> DataBase::loadActesByPat(Patient *pat)
                   " WHERE act." CP_IDPAT_ACTES " = '" + QString::number(pat->id()) + "' "
                   " ORDER BY act." CP_ID_ACTES " DESC";
     QList<QVariantList> actlist = StandardSelectSQL(req,ok);
-    qDebug() << req;
+    //qDebug() << req;
     if(!ok || actlist.size()==0)
         return list;
     for (int i=0; i<actlist.size(); ++i)
@@ -2410,7 +2410,7 @@ double DataBase::getActePaye(int idActe)
 int DataBase::getidActeCorrespondant(int idpat, QDate date)
 {
     QString req = "select " CP_ID_ACTES " from " TBL_ACTES " where " CP_IDPAT_ACTES " = " + QString::number(idpat) + " and " CP_DATE_ACTES " = '" + date.toString("yyyy-MM-dd") + "'";
-    qDebug() << req;
+    //qDebug() << req;
     QVariantList listid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver un acte correspondant"));
     if (listid.size() > 0)
         return listid.at(0).toInt();
