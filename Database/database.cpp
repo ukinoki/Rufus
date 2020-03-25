@@ -2660,20 +2660,43 @@ Intervention* DataBase::loadInterventionByDateIdPatient(QDate date, int idpatien
  * IOLs
 */
 
-QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! attribue la liste des datas à un IOL
+QMap<QString, QVariant> DataBase::loadIOLData(QVariantList ioldata)                     //! attribue la liste des datas à un IOL
 {
-    QJsonObject data{};
-    data[CP_ID_IOLS]                = ioldata.at(0).toInt();
-    data[CP_IDMANUFACTURER_IOLS]    = ioldata.at(1).toInt();
-    data[CP_MODELNAME_IOLS]         = ioldata.at(2).toString();
-    data[CP_INACTIF_IOLS]           = (ioldata.at(3).toInt() == 1);
+    QMap<QString, QVariant> data{};
+    data[CP_ID_IOLS]                = ioldata.at(0);
+    data[CP_IDMANUFACTURER_IOLS]    = ioldata.at(1);
+    data[CP_MODELNAME_IOLS]         = ioldata.at(2);
+    data[CP_DIAOPT_IOLS]            = ioldata.at(3);
+    data[CP_DIAALL_IOLS]            = ioldata.at(4);
+    data[CP_ACD_IOLS]               = ioldata.at(5);
+    data[CP_MINPWR_IOLS]            = ioldata.at(6);
+    data[CP_MAXPWR_IOLS]            = ioldata.at(7);
+    data[CP_PWRSTEP_IOLS]           = ioldata.at(8);
+    data[CP_MINCYL_IOLS]            = ioldata.at(9);
+    data[CP_MAXCYL_IOLS]            = ioldata.at(10);
+    data[CP_CYLSTEP_IOLS]           = ioldata.at(11);
+    data[CP_CSTEAOPT_IOLS]          = ioldata.at(12);
+    data[CP_CSTEAECHO_IOLS]         = ioldata.at(13);
+    data[CP_HAIGISA0_IOLS]          = ioldata.at(14);
+    data[CP_HAIGISA1_IOLS]          = ioldata.at(15);
+    data[CP_HAIGISA2_IOLS]          = ioldata.at(16);
+    data[CP_HOLL1_IOLS]             = ioldata.at(17);
+    data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(18);
+    data[CP_IMG_IOLS]               = ioldata.at(19);
+    data[CP_MATERIAU_IOLS]          = ioldata.at(20);
+    data[CP_REMARQUE_IOLS]          = ioldata.at(21);
+    data[CP_INACTIF_IOLS]           = (ioldata.at(22) == 1);
     return data;
 }
 
 QList<IOL*> DataBase::loadIOLs()                                            //! charge tous les IOLS
 {
     QList<IOL*> list = QList<IOL*> ();
-    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_INACTIF_IOLS // 0-1-2
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
+                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9                                               // 8-9-10-11-12
+                    CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
+                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
+                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                // 20-21-22
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
@@ -2681,8 +2704,8 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
         return list;
     for (int i=0; i<iollist.size(); ++i)
     {
-        QJsonObject data = loadIOLData(iollist.at(i));
-        IOL *iol = new IOL(data);
+        QMap<QString, QVariant> map = loadIOLData(iollist.at(i));
+        IOL *iol = new IOL(map);
         if (iol != Q_NULLPTR)
             list << iol;
     }
@@ -2692,17 +2715,22 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
 QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //! charge tous les IOLS d'un fabricant
 {
     QList<IOL*> list = QList<IOL*> ();
-    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_INACTIF_IOLS // 0-1-2
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
+                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9                                               // 8-9-10-11-12
+                    CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
+                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
+                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                // 20-21-22
                     " FROM " TBL_IOLS
                     " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
                     " order by " CP_IDMANUFACTURER_IOLS;
+    qDebug() << req;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
     if(!ok || iollist.size()==0)
         return list;
     for (int i=0; i<iollist.size(); ++i)
     {
-        QJsonObject data = loadIOLData(iollist.at(i));
-        IOL *iol = new IOL(data);
+        QMap<QString, QVariant> map = loadIOLData(iollist.at(i));
+        IOL *iol = new IOL(map);
         if (iol != Q_NULLPTR)
             list << iol;
     }
@@ -2712,15 +2740,17 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
 IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
 {
     IOL *iol = Q_NULLPTR;
-    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_INACTIF_IOLS // 0-1-2
+    QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
+                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9                                               // 8-9-10-11-12
+                    CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
+                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
+                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                // 20-21-22
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
     QVariantList ioldata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || ioldata.size()==0)
         return iol;
-    QJsonObject data = loadIOLData(ioldata);
-    iol = new IOL(data);
-    return iol;
+    return new IOL(loadIOLData(ioldata));
 }
 
 /*

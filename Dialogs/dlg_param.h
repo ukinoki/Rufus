@@ -61,12 +61,6 @@ private:
     QString                 m_ancienMDP             = "anc";
     QString                 m_confirmeMDP           = "confirm";
 
-    dlg_gestionbanques      *Dlg_Banq;
-    dlg_gestioncotations    *Dlg_CrrCot;
-    dlg_gestionusers        *Dlg_GestUsr;
-    dlg_fontdialog          *Dlg_Fonts;
-    dlg_motifs              *Dlg_motifs;
-
     QStringList             m_listeappareils;
 
     QTimer                  t_timerverifimportdocs;

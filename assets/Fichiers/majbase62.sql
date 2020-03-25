@@ -86,13 +86,17 @@ BEGIN
             ALTER TABLE `Ophtalmologie`.`ProgrammesOperatoires`
             ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idActe`;
     END IF;
-    IF EXISTS `Ophtalmologie`.`SessionsOperatoires`
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'SessionsOperatoires') as chp1;
+        IF tot=1
         THEN
             SELECT COUNT(*) INTO tot FROM
                 (SELECT COLUMN_KEY
                 FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE TABLE_NAME = 'SessionsOperatoires' AND COLUMN_NAME = 'Incident') as chp2;
-                IF tot=1
+                IF tot=0
                 THEN
                     ALTER TABLE `Ophtalmologie`.`SessionsOperatoires`
                     ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idLieu`;
@@ -105,8 +109,27 @@ BEGIN
         IF tot=0
         THEN
             ALTER TABLE `Ophtalmologie`.`IOLs`
-            ADD COLUMN `IOLInactif` INT(1) NULL DEFAULT NULL AFTER `modelname`;
-        END IF;
+            ADD COLUMN `DiametreOptique` DOUBLE NULL DEFAULT NULL AFTER `modelname`,
+            ADD COLUMN `DiametreAll` DOUBLE NULL DEFAULT NULL AFTER `DiametreOptique`,
+            ADD COLUMN `ACD` DOUBLE NULL DEFAULT NULL AFTER `DiametreAll`,
+            ADD COLUMN `PuissanceMin` DOUBLE NULL DEFAULT NULL AFTER `ACD`,
+            ADD COLUMN `PuissanceMax` DOUBLE NULL DEFAULT NULL AFTER `PuissanceMin`,
+            ADD COLUMN `PuissancePas` DOUBLE NULL DEFAULT NULL AFTER `PuissanceMax`,
+            ADD COLUMN `CylindreMin` DOUBLE NULL DEFAULT NULL AFTER `PuissancePas`,
+            ADD COLUMN `CylindreMax` DOUBLE NULL DEFAULT NULL AFTER `CylindreMin`,
+            ADD COLUMN `CylindrePas` DOUBLE NULL DEFAULT NULL AFTER `CylindreMax`,
+            ADD COLUMN `CsteAOptique` DOUBLE NULL DEFAULT NULL AFTER `CylindrePas`,
+            ADD COLUMN `CsteAEcho` DOUBLE NULL DEFAULT NULL AFTER `CsteAOptique`,
+            ADD COLUMN `Haigisa0` DOUBLE NULL DEFAULT NULL AFTER `CsteAEcho`,
+            ADD COLUMN `Haigisa1` DOUBLE NULL DEFAULT NULL AFTER `Haigisa0`,
+            ADD COLUMN `Haigisa2` DOUBLE NULL DEFAULT NULL AFTER `Haigisa1`,
+            ADD COLUMN `Holladay1sf` DOUBLE NULL DEFAULT NULL AFTER `Haigisa2`,
+            ADD COLUMN `DiametreInjecteur` DOUBLE NULL DEFAULT NULL AFTER `SRKTA`,
+            ADD COLUMN `Image` BLOB NULL DEFAULT NULL AFTER `DiametreInjecteur`,
+            ADD COLUMN `Materiau` VARCHAR(45) NULL DEFAULT NULL AFTER `Image`,
+            ADD COLUMN `Remarque` VARCHAR(100) NULL DEFAULT NULL AFTER `Materiau`,
+            ADD COLUMN `IOLInactif` INT(1) NULL DEFAULT NULL AFTER `Remarque`;
+            END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS

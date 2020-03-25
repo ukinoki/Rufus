@@ -38,7 +38,6 @@ private:
     Procedures                  *proc   = Procedures::I();
     DataBase                    *db     = DataBase::I();
 
-    dlg_comptes                 *Dlg_Cmpt;
     int                         m_idrecetteencours;
     QStringList                 m_listemoyensdepaiement;
     QStringList                 m_listerecettesfiscales;

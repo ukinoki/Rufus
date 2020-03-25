@@ -467,7 +467,7 @@ void dlg_refraction::AnnulPushButton_Clicked()
 
 void dlg_refraction::Commentaires()
 {
-    Dlg_Comments    = new dlg_commentaires();
+    dlg_commentaires *Dlg_Comments    = new dlg_commentaires();
     if (Dlg_Comments->exec() > 0)
     {
         m_commentaire =  Dlg_Comments->Commentaire();
@@ -2022,7 +2022,7 @@ else
 void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
 {
     int RetourListe = 0;
-    Dlg_ListeMes    = new dlg_refractionlistemesures(mode);
+    dlg_refractionlistemesures *Dlg_ListeMes    = new dlg_refractionlistemesures(mode);
     Dlg_ListeMes->setWindowTitle(tr("Liste des mesures : ") + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() );
 
     RetourListe = Dlg_ListeMes->exec();

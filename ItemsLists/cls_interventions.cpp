@@ -259,18 +259,43 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cet implant dans la base!"));
         return iol;
     }
-    QJsonObject  data = QJsonObject{};
-    data[CP_ID_IOLS] = idiol;
+    QMap<QString, QVariant>  map = QMap<QString, QVariant>{};
+    map[CP_ID_IOLS] = idiol;
     QString champ;
     QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
-        if (champ == CP_IDMANUFACTURER_IOLS)              data[champ] = itset.value().toInt();
-        else if (champ == CP_MODELNAME_IOLS)              data[champ] = itset.value().toString();
-        else if (champ == CP_INACTIF_IOLS)                data[champ] = (itset.value().toString() == 1);
+        if (champ == CP_INACTIF_IOLS)
+            map[champ] = (itset.value().toString() == "1");
+        else
+            map[champ] = itset.value();
+
+        //        if (champ == CP_IDMANUFACTURER_IOLS)        map[champ] = itset.value();
+        //        else if (champ == CP_MODELNAME_IOLS)        map[champ] = itset.value();
+        //        else if (champ == CP_DIAOPT_IOLS)           map[champ] = itset.value();
+        //        else if (champ == CP_DIAALL_IOLS)           map[champ] = itset.value();
+        //        else if (champ == CP_ACD_IOLS)              map[champ] = itset.value();
+        //        else if (champ == CP_MINPWR_IOLS)           map[champ] = itset.value();
+        //        else if (champ == CP_MAXPWR_IOLS)           map[champ] = itset.value();
+        //        else if (champ == CP_PWRSTEP_IOLS)          map[champ] = itset.value();
+        //        else if (champ == CP_MINCYL_IOLS)           map[champ] = itset.value();
+        //        else if (champ == CP_MAXCYL_IOLS)           map[champ] = itset.value();
+        //        else if (champ == CP_CYLSTEP_IOLS)          map[champ] = itset.value();
+        //        else if (champ == CP_CSTEAOPT_IOLS)         map[champ] = itset.value();
+        //        else if (champ == CP_CSTEAECHO_IOLS)        map[champ] = itset.value();
+        //        else if (champ == CP_HAIGISA0_IOLS)         map[champ] = itset.value();
+        //        else if (champ == CP_HAIGISA1_IOLS)         map[champ] = itset.value();
+        //        else if (champ == CP_HAIGISA2_IOLS)         map[champ] = itset.value();
+        //        else if (champ == CP_HOLL1_IOLS)            map[champ] = itset.value();
+        //        else if (champ == CP_SRKTA_IOLS)            map[champ] = itset.value();
+        //        else if (champ == CP_DIAINJECTEUR_IOLS)     map[champ] = itset.value();
+        //        else if (champ == CP_IMG_IOLS)              map[champ] = itset.value();
+        //        else if (champ == CP_MATERIAU_IOLS)         map[champ] = itset.value();
+        //        else if (champ == CP_REMARQUE_IOLS)         map[champ] = itset.value();
+        //        else if (champ == CP_INACTIF_IOLS)          map[champ] = (itset.value().toString() == "1");
     }
-    iol = new IOL(data);
+    iol = new IOL(map);
     if (iol != Q_NULLPTR)
         map_all->insert(iol->id(), iol);
 //    qDebug() << iol->id();

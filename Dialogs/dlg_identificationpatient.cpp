@@ -408,7 +408,7 @@ void dlg_identificationpatient::ModifCorrespondant()
 {
     int idcor           = ui->MGupComboBox->currentData().toInt();
     bool onlydoctors = true;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails));
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails));
     if (Datas::I()->correspondants->getById(idcor)==Q_NULLPTR)
         Dlg_IdentCorresp->ui->NomlineEdit   ->setText(ui->MGupComboBox->currentText());
     else
@@ -586,7 +586,7 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 {
     int idcor = -1;
     bool onlydoctors = true;
-    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+    dlg_identificationcorresp *Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(ui->MGupComboBox->currentText());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);

@@ -192,7 +192,7 @@ void dlg_gestioncomptes::AnnulModif()
 
 void dlg_gestioncomptes::Banques()
 {
-    Dlg_Banq = new dlg_gestionbanques();
+    dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques();
     if (Dlg_Banq->exec()>0)
         ReconstruitComboBanques();
 }

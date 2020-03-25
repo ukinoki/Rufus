@@ -709,7 +709,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_param::ChoixFontpushButtonClicked()
 {
-    Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, "PositionsFiches/PositionFontDialog");
+    dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, "PositionsFiches/PositionFontDialog");
     Dlg_Fonts->setFont(qApp->font());
     Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
@@ -932,13 +932,13 @@ void dlg_param::FiltreActesOphtaSeulmt(bool b)
 
 void dlg_param::GestionBanques()
 {
-    Dlg_Banq = new dlg_gestionbanques();
+    dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques();
     Dlg_Banq->exec();
 }
 
 void dlg_param::GestionDatasCurrentUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
+    dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  currentuser()->login());
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
@@ -954,7 +954,7 @@ void dlg_param::GestionDatasCurrentUser()
 
 void dlg_param::GestionUsers()
 {
-    Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
+    dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
     m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
     if(m_donneesusermodifiees)
@@ -1515,7 +1515,7 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
 
 void dlg_param::NouvAssocCCAM()
 {
-    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
@@ -1532,7 +1532,7 @@ void dlg_param::ModifAssocCCAM()
         return;
     int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
     CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
-    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
@@ -1573,7 +1573,7 @@ void dlg_param::SupprAssocCCAM()
 
 void dlg_param::NouvHorsNomenclature()
 {
-    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
@@ -1587,7 +1587,7 @@ void dlg_param::ModifHorsNomenclature()
 {
     int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
     QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
@@ -1662,7 +1662,7 @@ void dlg_param::ModifMDPAdmin()
 
 void dlg_param::ParamMotifs()
 {
-    Dlg_motifs = new dlg_motifs();
+    dlg_motifs *Dlg_motifs = new dlg_motifs();
     Dlg_motifs->setWindowTitle(tr("Motifs de consultations"));
     Dlg_motifs->exec();
     delete Dlg_motifs;

@@ -31,7 +31,6 @@ public:
 private:
     bool                    m_listemodifiee = false;
 
-    dlg_identificationmanufacturer   *Dlg_IdentManufacturer;
     QStandardItemModel      *m_model = Q_NULLPTR;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_manufacturerstree;

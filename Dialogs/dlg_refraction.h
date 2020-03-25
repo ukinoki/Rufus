@@ -40,8 +40,6 @@ public:
     dlg_refraction(ModeOuverture modeouverture, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
     Ui::dlg_refraction          *ui;
-    dlg_refractionlistemesures  *Dlg_ListeMes;
-    dlg_commentaires            *Dlg_Comments;
 
     QString                 ResultatPrescription() const;
     QString                 ResultatObservation() const;

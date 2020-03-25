@@ -566,7 +566,7 @@ void dlg_recettesspeciales::CalculTotalRecettes()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::GestionComptes()
 {
-    Dlg_Cmpt          = new dlg_comptes();
+    dlg_comptes *Dlg_Cmpt          = new dlg_comptes();
     if (Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
     wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);

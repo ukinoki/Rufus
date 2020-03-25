@@ -161,27 +161,78 @@ class IOL : public Item
 {
 
 public:
-    explicit IOL(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data = QJsonObject{});
+    explicit IOL(QMap<QString, QVariant> map = {}, QObject *parent = Q_NULLPTR);
+    void setData(QMap<QString, QVariant> map = QMap<QString, QVariant>{});
+    QMap<QString, QVariant> datas() const       { return m_map; }
 
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
     int m_idmanufacturer    = 0;                //! id du fabricant
     QString m_modele        = "";               //! modèle de l'implant
     bool m_inactif          = false;
+    double m_pwrmax         = 0;                //! puissance maximale de l'implant
+    double m_pwrmin         = 0;                //! puissance minimale de l'implant
+    double m_pwrstp         = 0;                //! pas de variation de la puissance l'implant
+    double m_cylmax         = 0;                //! cylindre maximale de l'implant
+    double m_cylmin         = 0;                //! cylinde minimale de l'implant
+    double m_cylstp         = 0;                //! pas de variation du cylindre l'implant
+    double m_csteAopt       = 0;                //! constante A optique
+    double m_csteAEcho      = 0;                //! constante A echographique
+    double m_haigisa0       = 0;                //! constante Haigis a0
+    double m_haigisa1       = 0;                //! constante Haigis a1
+    double m_haigisa2       = 0;                //! constante Haigis a2
+    double m_acd            = 0;                //! ACD
+    double m_diainjecteur   = 0;                //! diamètre minimal de l'injecteur
+    QByteArray m_imgiol     = QByteArray();     //! le cliché de l'IOL
+    QString m_materiau      = "";               //! le matériau de l'IOL
+    QString m_remarque      = "";               //! remarque à propos de l'IOL
+    QMap<QString, QVariant> m_map = QMap<QString, QVariant>{};
 
 public:
+    int idmanufacturer() const                  { return m_idmanufacturer; }
+    QString modele() const                      { return m_modele; }
+    double pwrmax() const                       { return m_pwrmax; }
+    double pwrmin() const                       { return m_pwrmin; }
+    double pwrstp() const                       { return m_pwrstp; }
+    double cylmax() const                       { return m_cylmax; }
+    double cylmin() const                       { return m_cylmin; }
+    double cylstp() const                       { return m_cylstp; }
+    double csteAopt() const                     { return m_csteAopt; }
+    double csteAEcho() const                    { return m_csteAEcho; }
+    double haigisa0() const                     { return m_haigisa0; }
+    double haigisa1() const                     { return m_haigisa1; }
+    double haigisa2() const                     { return m_haigisa2; }
+    double acd() const                          { return m_acd; }
+    double diainjecteur() const                 { return m_diainjecteur; }
+    QByteArray imgiol() const                   { return m_imgiol; }
+    QString materiau() const                    { return m_materiau; }
+    QString remarque() const                    { return m_remarque; }
+    bool isactif() const                        { return !m_inactif; }
 
-    int idmanufacturer() const              { return m_idmanufacturer; }
-    QString modele() const                  { return m_modele; }
-    bool isactif() const                    { return !m_inactif; }
 
-    void setidmanufacturer(int &id)         { m_idmanufacturer = id;    m_data[CP_IDMANUFACTURER_IOLS] = id; }
-    void setmodele(const QString &txt)      { m_modele = txt;           m_data[CP_MODELNAME_IOLS] = txt; }
-    void setactif(bool &actif)              { m_inactif = !actif;       m_data[CP_INACTIF_IOLS] = !actif; }
+    void setidmanufacturer(int &id)             { m_idmanufacturer = id;            m_map[CP_IDMANUFACTURER_IOLS] = id; }
+    void setmodele(const QString &txt)          { m_modele = txt;                   m_map[CP_MODELNAME_IOLS] = txt; }
+    void setactif(bool &actif)                  { m_inactif = !actif;               m_map[CP_INACTIF_IOLS] = !actif; }
+    void setPwrmax(double pwrmax)               { m_pwrmax = pwrmax;                m_map[CP_MAXPWR_IOLS] = pwrmax; }
+    void setPwrmin(double pwrmin)               { m_pwrmin = pwrmin;                m_map[CP_MINPWR_IOLS] = pwrmin; }
+    void setPwrstp(double pwrstp)               { m_pwrstp = pwrstp;                m_map[CP_PWRSTEP_IOLS] = pwrstp; }
+    void setCylmax(double cylmax)               { m_cylmax = cylmax;                m_map[CP_MAXCYL_IOLS] = cylmax; }
+    void setCylmin(double cylmin)               { m_cylmin = cylmin;                m_map[CP_MINCYL_IOLS] = cylmin; }
+    void setCylstp(double cylstp)               { m_cylstp = cylstp;                m_map[CP_CYLSTEP_IOLS] = cylstp; }
+    void setCsteAopt(double csteAopt)           { m_csteAopt = csteAopt;            m_map[CP_CSTEAOPT_IOLS] = csteAopt; }
+    void setCsteAEcho(double csteAEcho)         { m_csteAEcho = csteAEcho;          m_map[CP_CSTEAOPT_IOLS] = csteAEcho; }
+    void setHaigisa0(double haigisa0)           { m_haigisa0 = haigisa0;            m_map[CP_HAIGISA0_IOLS] = haigisa0; }
+    void setHaigisa1(double haigisa1)           { m_haigisa1 = haigisa1;            m_map[CP_HAIGISA1_IOLS] = haigisa1; }
+    void setHaigisa2(double haigisa2)           { m_haigisa2 = haigisa2;            m_map[CP_HAIGISA2_IOLS] = haigisa2; }
+    void setAcd(double acd)                     { m_acd = acd;                      m_map[CP_ACD_IOLS] = acd; }
+    void setDiainjecteur(double diainjecteur)   { m_diainjecteur = diainjecteur;    m_map[CP_DIAINJECTEUR_IOLS] = diainjecteur; }
+    void setImgiol(const QByteArray &imgiol)    { m_imgiol = imgiol;                m_map[CP_IMG_IOLS] = imgiol; }
+    void setMateriau(const QString &materiau)   { m_materiau = materiau;            m_map[CP_MATERIAU_IOLS] = materiau; }
+    void setRemarque(const QString &remarque)   { m_remarque = remarque;            m_map[CP_REMARQUE_IOLS] = remarque; }
 
     void resetdatas();
-    bool isnull() const                     { return m_id == 0; }
+    bool isnull() const                         { return m_id == 0; }
+
 };
 
 /*!

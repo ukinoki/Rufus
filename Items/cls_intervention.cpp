@@ -82,35 +82,69 @@ void Intervention::resetdatas()
     setData(data);
 }
 
-IOL::IOL(QJsonObject data, QObject *parent) : Item(parent)
+IOL::IOL(QMap<QString, QVariant> map, QObject *parent) : Item(parent)
 {
     resetdatas();
-    setData(data);
+    setData(map);
 }
 
-void IOL::setData(QJsonObject data)
+void IOL::setData(QMap<QString, QVariant> map)
 {
-    if( data.isEmpty() )
+    if( map.isEmpty() )
         return;
-//    qDebug() << "data[CP_ID_IOLS]" << data[CP_ID_IOLS];
-//    qDebug() << "data[CP_IDMANUFACTURER_IOLS]" << data[CP_IDMANUFACTURER_IOLS];
-//    qDebug() << "data[CP_MODELNAME_IOLS]" << data[CP_MODELNAME_IOLS];
-//    qDebug() << "data[CP_INACTIF_IOLS]" << data[CP_INACTIF_IOLS];
-    Utils::setDataInt(data, CP_ID_IOLS, m_id);
-    Utils::setDataInt(data, CP_IDMANUFACTURER_IOLS, m_idmanufacturer);
-    Utils::setDataString(data, CP_MODELNAME_IOLS, m_modele);
-    Utils::setDataBool(data, CP_INACTIF_IOLS, m_inactif);
-    m_data = data;
+//    qDebug() << "map[CP_ID_IOLS]" << map[CP_ID_IOLS];
+//    qDebug() << "map[CP_IDMANUFACTURER_IOLS]" << map[CP_IDMANUFACTURER_IOLS];
+//    qDebug() << "map[CP_MODELNAME_IOLS]" << map[CP_MODELNAME_IOLS];
+//    qDebug() << "map[CP_INACTIF_IOLS]" << map[CP_INACTIF_IOLS];
+    m_id                = map[CP_ID_IOLS].toInt();
+    m_idmanufacturer    = map[CP_IDMANUFACTURER_IOLS].toInt();
+    m_modele            = map[CP_MODELNAME_IOLS].toString();
+    m_inactif           = map[CP_INACTIF_IOLS].toBool();
+    m_acd               = map[CP_ACD_IOLS].toDouble();
+    m_pwrmin            = map[CP_MINPWR_IOLS].toDouble();
+    m_pwrmax            = map[CP_MAXPWR_IOLS].toDouble();
+    m_pwrstp            = map[CP_PWRSTEP_IOLS].toDouble();
+    m_cylmin            = map[CP_MINCYL_IOLS].toDouble();
+    m_cylmax            = map[CP_MAXCYL_IOLS].toDouble();
+    m_cylstp            = map[CP_CYLSTEP_IOLS].toDouble();
+    m_csteAopt          = map[CP_CSTEAOPT_IOLS].toDouble();
+    m_csteAEcho         = map[CP_CSTEAECHO_IOLS].toDouble();
+    m_haigisa0          = map[CP_HAIGISA0_IOLS].toDouble();
+    m_haigisa1          = map[CP_HAIGISA1_IOLS].toDouble();
+    m_haigisa2          = map[CP_HAIGISA2_IOLS].toDouble();
+    m_acd               = map[CP_HOLL1_IOLS].toDouble();
+    m_diainjecteur      = map[CP_DIAINJECTEUR_IOLS].toDouble();
+    m_imgiol            = map[CP_IMG_IOLS].toByteArray();
+    m_materiau          = map[CP_MATERIAU_IOLS].toString();
+    m_remarque          = map[CP_REMARQUE_IOLS].toString();
+    m_map = map;
 }
 
 void IOL::resetdatas()
 {
-    QJsonObject data;
-    data[CP_ID_IOLS]                = 0;
-    data[CP_IDMANUFACTURER_IOLS]    = 0;
-    data[CP_MODELNAME_IOLS]         = "";
-    data[CP_INACTIF_IOLS]           = false;
-    setData(data);
+    QMap<QString, QVariant> map;
+    map[CP_ID_IOLS]                 = 0;
+    map[CP_IDMANUFACTURER_IOLS]     = 0;
+    map[CP_MODELNAME_IOLS]          = "";
+    map[CP_INACTIF_IOLS]            = false;
+    map[CP_ACD_IOLS]                = 0;
+    map[CP_MINPWR_IOLS]             = 0;
+    map[CP_MAXPWR_IOLS]             = 0;
+    map[CP_PWRSTEP_IOLS]            = 0;
+    map[CP_MINCYL_IOLS]             = 0;
+    map[CP_MAXCYL_IOLS]             = 0;
+    map[CP_CYLSTEP_IOLS]            = 0;
+    map[CP_CSTEAOPT_IOLS]           = 0;
+    map[CP_CSTEAECHO_IOLS]          = 0;
+    map[CP_HAIGISA0_IOLS]           = 0;
+    map[CP_HAIGISA1_IOLS]           = 0;
+    map[CP_HAIGISA2_IOLS]           = 0;
+    map[CP_HOLL1_IOLS]              = 0;
+    map[CP_DIAINJECTEUR_IOLS]       = 0;
+    map[CP_IMG_IOLS]                = QVariant();
+    map[CP_MATERIAU_IOLS]           = "";
+    map[CP_REMARQUE_IOLS]           = "";
+    setData(map);
 }
 
 SessionOperatoire::SessionOperatoire(QJsonObject data, QObject *parent) : Item(parent)

@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QTreeView>
 #include "gbl_datas.h"
+#include "updoublespinbox.h"
 #include "widgetbuttonframe.h"
 
 class dlg_listeiols : public UpDialog

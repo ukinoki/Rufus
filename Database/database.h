@@ -359,7 +359,7 @@ public:
      * IOLs
     */
 private:
-    QJsonObject             loadIOLData(QVariantList refdata);                      //! attribue la liste des datas à un IOL
+    QMap<QString, QVariant> loadIOLData(QVariantList refdata);                      //! attribue la liste des datas à un IOL
 public:
     QList<IOL*>             loadIOLs();                                             //! charge tous les IOLs
     QList<IOL*>             loadIOLsByManufacturerId(int id);                       //! charge tous les IOLs d'un fabricant

@@ -46,7 +46,6 @@ private:
 
     Mode                    m_mode;
     OrdreTri                m_ordretri;
-    dlg_gestionbanques      *Dlg_Banq;
 
     bool                    m_ok;
     bool                    m_initok;

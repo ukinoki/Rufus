@@ -47,9 +47,6 @@ private:
     QStandardItemModel              *m_manufacturersmodel       = new QStandardItemModel(this);
     QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
     QFont                           m_font = QApplication::font();
-    dlg_identificationmanufacturer  *Dlg_IdentManufacturer;
-    dlg_listeiols                   *Dlg_ListIOLs;
-    dlg_listemanufacturers          *Dlg_ListManufacturers;
 
     void                EnregistreIncident(Item *itm);
     void                ModifStatutActeCorrespondant(int idacte);                       /*! va rechercher s'il existe un acte correspondant à cette intervention (même patient, même date)

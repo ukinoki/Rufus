@@ -108,7 +108,7 @@ bool dlg_listemanufacturers::listemanufacturersmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listemanufacturers::EnregistreNouveauManufacturer()
 {
-    Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+    dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
     if (Dlg_IdentManufacturer->exec()>0)
     {
         Manufacturer * man = Datas::I()->manufacturers->CreationManufacturer(Dlg_IdentManufacturer->Listbinds());
@@ -139,7 +139,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
 {
     if (man == Q_NULLPTR)
         return;
-    Dlg_IdentManufacturer   = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man);
+    dlg_identificationmanufacturer *Dlg_IdentManufacturer   = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man);
     if (Dlg_IdentManufacturer->exec()>0)
     {
         DataBase::I()->UpdateTable(TBL_MANUFACTURERS, Dlg_IdentManufacturer->Listbinds(), " where " CP_ID_MANUFACTURER " = " + QString::number(man->id()),tr("Impossible de modifier le dossier"));

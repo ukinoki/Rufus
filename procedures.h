@@ -101,7 +101,7 @@ private:
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
     UpDialog                *dlg_buprestore;
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
-    dlg_paramconnexion      *Dlg_ParamConnex;
+
     bool                    VerifBaseEtRessources();
     bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
@@ -144,7 +144,6 @@ public:
 * première connection
 * -------------------------------------------------------------------------------------------------------- */
 private:
-    dlg_gestionusers        *Dlg_GestUsr;
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    PremierDemarrage();
@@ -262,7 +261,6 @@ private:
     QList<QImage>           m_listeimages;
     UpDialog                *dlg_askLogin, *dlg_askUser;
     UpTableWidget           *wdg_tablewidget;
-    dlg_choixdate           *Dlg_ChxDate;
 
 public:
     void                    ab(int i = 1);

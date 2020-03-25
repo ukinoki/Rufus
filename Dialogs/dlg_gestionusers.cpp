@@ -837,7 +837,7 @@ void dlg_gestionusers::GestionComptes()
     bool comptedesociete    = ui->SocieteComptableupRadioButton->isChecked();
     bool affichelesolde     = (m_userencours == Datas::I()->users->userconnected());
     bool ok = true;
-    Dlg_GestComptes = new dlg_gestioncomptes(m_userencours, comptedesociete, ok, affichelesolde, this);
+    dlg_gestioncomptes *Dlg_GestComptes = new dlg_gestioncomptes(m_userencours, comptedesociete, ok, affichelesolde, this);
     if (!ok)
         return;
     Dlg_GestComptes ->setWindowTitle(tr("Comptes bancaires de ") + m_userencours->login());

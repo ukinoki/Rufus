@@ -178,11 +178,127 @@ void dlg_listeiols::FicheIOL(IOL* nwiol)
         IOLchk              ->setChecked(!nwiol->isactif());
     }
 
-    dlg_IOL->dlglayout()    ->insertLayout(0, checkIOLLay);
-    dlg_IOL->dlglayout()    ->insertLayout(0, choixIOLLay);
-    dlg_IOL->dlglayout()    ->insertLayout(0, choixManufacturerIOLLay);
-    dlg_IOL->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_IOL                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    //! Constante a et ACD
+    QHBoxLayout *csteIOLLay         = new QHBoxLayout();
+    UpLabel* lblcsteAIOL            = new UpLabel;
+    lblcsteAIOL                     ->setText(tr("cst. A"));
+    UpLabel* lblAOptIOL             = new UpLabel;
+    lblAOptIOL                      ->setText(tr("Optique"));
+    UpLabel* lblAEchoIOL            = new UpLabel;
+    lblAEchoIOL                     ->setText(tr("Echo"));
+    UpLabel* lblACDIOL              = new UpLabel;
+    lblACDIOL                       ->setText(tr("ACD"));
+    UpDoubleSpinBox *AoptIOLspinbox = new UpDoubleSpinBox();
+    AoptIOLspinbox                  ->setRange(116.0, 121.00);
+    AoptIOLspinbox                  ->setSingleStep(0.1);
+    AoptIOLspinbox                  ->setValue(118.5);
+    AoptIOLspinbox                  ->setDecimals(1);
+    UpDoubleSpinBox *AechoIOLspinbox= new UpDoubleSpinBox();
+    AechoIOLspinbox                 ->setRange(116.0, 121.00);
+    AechoIOLspinbox                 ->setSingleStep(0.1);
+    AechoIOLspinbox                 ->setValue(118.5);
+    AechoIOLspinbox                 ->setDecimals(1);
+    UpDoubleSpinBox *ACDIOLspinbox  = new UpDoubleSpinBox();
+    ACDIOLspinbox                   ->setRange(0.0, 8.00);
+    ACDIOLspinbox                   ->setSingleStep(0.01);
+    ACDIOLspinbox                   ->setValue(4.00);
+    csteIOLLay                      ->addWidget(lblcsteAIOL);
+    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    csteIOLLay                      ->addWidget(lblAOptIOL);
+    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    csteIOLLay                      ->addWidget(AoptIOLspinbox);
+    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    csteIOLLay                      ->addWidget(lblAEchoIOL);
+    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    csteIOLLay                      ->addWidget(AechoIOLspinbox);
+    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    csteIOLLay                      ->addWidget(lblACDIOL);
+    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    csteIOLLay                      ->addWidget(ACDIOLspinbox);
+    csteIOLLay                      ->setSpacing(5);
+    csteIOLLay                      ->setContentsMargins(0,0,0,0);
+
+    //! Haigis
+    QHBoxLayout *HaigisLay          = new QHBoxLayout();
+    UpLabel* HaigisIOL              = new UpLabel;
+    HaigisIOL                       ->setText("Haigis");
+    UpLabel* HaigisaIOL             = new UpLabel;
+    HaigisaIOL                      ->setText("a");
+    UpLabel* HaigisbIOL             = new UpLabel;
+    HaigisbIOL                      ->setText("b");
+    UpLabel* HaigiscIOL             = new UpLabel;
+    HaigiscIOL                      ->setText(tr("c"));
+    UpDoubleSpinBox *aIOLspinbox    = new UpDoubleSpinBox();
+    aIOLspinbox                     ->setRange(-1.0000, 1.0000);
+    aIOLspinbox                     ->setValue(0);
+    aIOLspinbox                     ->setSingleStep(0.0001);
+    aIOLspinbox                     ->setDecimals(4);
+    UpDoubleSpinBox *bIOLspinbox    = new UpDoubleSpinBox();
+    bIOLspinbox                     ->setRange(-1.0000, 1.0000);
+    bIOLspinbox                     ->setValue(0);
+    aIOLspinbox                     ->setSingleStep(0.0001);
+    bIOLspinbox                     ->setDecimals(4);
+    UpDoubleSpinBox *cIOLspinbox    = new UpDoubleSpinBox();
+    cIOLspinbox                     ->setRange(-1.0000, 1.0000);
+    cIOLspinbox                     ->setValue(0);
+    aIOLspinbox                     ->setSingleStep(0.0001);
+    cIOLspinbox                     ->setDecimals(4);
+    HaigisLay                      ->addWidget(HaigisIOL);
+    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    HaigisLay                      ->addWidget(HaigisaIOL);
+    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    HaigisLay                      ->addWidget(aIOLspinbox);
+    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    HaigisLay                      ->addWidget(HaigisbIOL);
+    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    HaigisLay                      ->addWidget(bIOLspinbox);
+    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    HaigisLay                      ->addWidget(HaigiscIOL);
+    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    HaigisLay                      ->addWidget(cIOLspinbox);
+    HaigisLay                      ->setSpacing(5);
+    HaigisLay                      ->setContentsMargins(0,0,0,0);
+
+    //! Materiau - Image
+    QVBoxLayout *MateriauLay    = new QVBoxLayout();
+    QHBoxLayout *MateriauImgLay = new QHBoxLayout();
+    UpLabel* Materiaulbl        = new UpLabel;
+    Materiaulbl                 ->setText(tr("Materiau"));
+    UpLabel* ImgIOL             = new UpLabel;
+    ImgIOL                      ->setPixmap(Icons::pxIOL());
+    //ImgIOL                      ->setFixedSize(QSize(50,50));
+    UpLineEdit *Materiauline    = new UpLineEdit();
+    MateriauLay                 ->insertWidget(0,Materiauline);
+    MateriauLay                 ->insertWidget(0,Materiaulbl);
+    MateriauLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    MateriauImgLay              ->addLayout(MateriauLay);
+    MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    MateriauImgLay              ->addWidget(ImgIOL);
+    MateriauImgLay              ->setContentsMargins(0,0,0,0);
+
+    //! Remarque
+    QHBoxLayout *remarqueLay    = new QHBoxLayout();
+    QVBoxLayout *RemarqueHLay   = new QVBoxLayout();
+    UpLabel* Remarquelbl        = new UpLabel;
+    Remarquelbl                 ->setText(tr("Remarque"));
+    UpTextEdit* Remarquetxt     = new UpTextEdit();
+    remarqueLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    remarqueLay                 ->insertWidget(0,Remarquelbl);
+    RemarqueHLay                ->addLayout(remarqueLay);
+    RemarqueHLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    RemarqueHLay                ->addWidget(Remarquetxt);
+    RemarqueHLay                ->setContentsMargins(0,0,0,0);
+
+
+    dlg_IOL->dlglayout()   ->insertLayout(0, RemarqueHLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, MateriauImgLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, HaigisLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, csteIOLLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, choixIOLLay);
+    dlg_IOL->dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
+    dlg_IOL->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_IOL->dlglayout()   ->setSpacing(5);
+    dlg_IOL->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_IOL->OKButton, &QPushButton::clicked, dlg_IOL, [&]
     {
         QString modele = IOLline->text();

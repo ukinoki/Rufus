@@ -102,6 +102,7 @@ public:
 
     static QPixmap pxImprimer() { return foundPX("pxImprimer", "://Imprimer.png"); }
     static QPixmap pxInformation() { return foundPX("pxInformation", "://information.png"); }
+    static QPixmap pxIOL() { return foundPX("pxIol", "://IOL.png"); }
 
     static QPixmap pxKiller() { return foundPX("pxKiller", "://killer.png"); }
 

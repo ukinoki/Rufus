@@ -2692,7 +2692,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
             {
-                Dlg_Banq = new dlg_gestionbanques(this, Banq.toUpper());
+                dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques(this, Banq.toUpper());
                 if (Dlg_Banq->exec()>0)
                 {
                     ReconstruitListeBanques();

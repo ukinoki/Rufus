@@ -106,7 +106,7 @@ bool dlg_listecorrespondants::listecorrespondantsmodifiee() const
 void dlg_listecorrespondants::EnregistreNouveauCorresp()
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     if (Dlg_IdentCorresp->exec()>0)
     {
         m_listemodifiee = true;
@@ -136,7 +136,7 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
     if (cor == Q_NULLPTR)
         return;
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor);
+    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor);
     if (Dlg_IdentCorresp->exec()>0)
     {
         m_listemodifiee = true;

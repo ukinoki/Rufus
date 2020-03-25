@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define UTILS_H
 #include <QCryptographicHash>
 #include <QDir>
+#include <QJsonDocument>
 #include <QRegExp>
 #include <QHostAddress>
 #include <QNetworkInterface>
@@ -161,9 +162,9 @@ public:
     static void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
     static void setDataDate(QJsonObject data, QString key, QDate &prop);
     static void setDataTime(QJsonObject data, QString key, QTime &prop);
-    static void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     static void setDataVariant(QJsonObject data, QString key, QVariant &prop);
     static void setDataLogic(QJsonObject data, QString key, Logic &prop);
+
 
     //! arrondit un int au multiple de 5 le plus proche
     static int roundToNearestFive(int number)   { return static_cast<int>(number / 5. + .5) * 5; }

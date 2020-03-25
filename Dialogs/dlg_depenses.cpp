@@ -907,7 +907,7 @@ void dlg_depenses::CalculTotalDepenses()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::GestionComptes()
 {
-    Dlg_Cmpt = new dlg_comptes();
+    dlg_comptes *Dlg_Cmpt = new dlg_comptes();
     if (Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
 }
@@ -1792,7 +1792,7 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
 {
     if (mode == dlg_docsscanner::Document)
         return;
-    Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
+    dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
     if (!Dlg_DocsScan->initOK())
         return;
     if (Dlg_DocsScan->exec() > 0)

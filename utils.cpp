@@ -929,11 +929,6 @@ void Utils::setDataDate(QJsonObject data, QString key, QDate &prop)
     if( data.contains(key) )
         prop = QDate::fromString(data[key].toString(),"yyyy-MM-dd");
 }
-void Utils::setDataByteArray(QJsonObject data, QString key, QByteArray &prop)
-{
-    if( data.contains(key) )
-        prop = data[key].toVariant().toByteArray();
-}
 void Utils::setDataVariant(QJsonObject data, QString key, QVariant &prop)
 {
     if( data.contains(key) )

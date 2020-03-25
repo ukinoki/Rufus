@@ -53,8 +53,6 @@ private:
     QStringList                 m_listemoyensdepaiement;
     Mode                        m_mode;
 
-    dlg_comptes                 *Dlg_Cmpt;
-    dlg_docsscanner             *Dlg_DocsScan;
     UpDialog                    *dlg_ask;
 
     UpTableWidget               *wdg_bigtable;

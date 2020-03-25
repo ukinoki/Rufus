@@ -83,8 +83,6 @@ private:
     QTimer                      *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
     UpPushButton                *wdg_supprimeuopushbutton;
 
-    dlg_gestionbanques           *Dlg_Banq;
-
     void                        closeEvent(QCloseEvent *event);
     bool                        eventFilter(QObject *obj, QEvent *event)  ;
     void                        ChangeComptable(User *comptable, bool depuislecombo = false);

@@ -44,7 +44,6 @@ public:
 private:
     DataBase                        *db = DataBase::I();
     Patient                         *m_currentpatient;
-    dlg_identificationcorresp       *Dlg_IdentCorresp;
     bool                            m_listecorrespondantsmodfifiee;
     bool                            m_ok;
     int                             m_flagcorrespondants;

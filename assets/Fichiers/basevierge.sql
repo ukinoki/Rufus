@@ -261,12 +261,31 @@ CREATE TABLE `speculaires` (
 
 DROP TABLE IF EXISTS `IOLs`;
 CREATE TABLE `IOLs` (
-  `idIOL` INT NOT NULL AUTO_INCREMENT,
-  `idmanufacturer` INT NULL,
-  `modelname` VARCHAR(45) NULL,
-  `IOLInactif` INT(1) NULL,
+  `idIOL` int(11) NOT NULL AUTO_INCREMENT,
+  `idmanufacturer` int(11) DEFAULT NULL,
+  `modelname` varchar(45) DEFAULT NULL,
+  `DiametreOptique` double DEFAULT NULL,
+  `DiametreAll` double DEFAULT NULL,
+  `ACD` double DEFAULT NULL,
+  `PuissanceMin` double DEFAULT NULL,
+  `PuissanceMax` double DEFAULT NULL,
+  `PuissancePas` double DEFAULT NULL,
+  `CylindreMin` double DEFAULT NULL,
+  `CylindreMax` double DEFAULT NULL,
+  `CylindrePas` double DEFAULT NULL,
+  `CsteAOptique` double DEFAULT NULL,
+  `CsteAEcho` double DEFAULT NULL,
+  `Haigisa0` double DEFAULT NULL,
+  `Haigisa1` double DEFAULT NULL,
+  `Haigisa2` double DEFAULT NULL,
+  `Holladay1sf` double DEFAULT NULL,
+  `DiametreInjecteur` double DEFAULT NULL,
+  `Image` blob,
+  `Materiau` varchar(45) DEFAULT NULL,
+  `Remarque` varchar(100) DEFAULT NULL,
+  `IOLInactif` int(1) DEFAULT NULL,
   PRIMARY KEY (`idIOL`)
-  ) ENGINE=InnoDB;
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `ProgrammesOperatoires`;
 CREATE TABLE `ProgrammesOperatoires` (

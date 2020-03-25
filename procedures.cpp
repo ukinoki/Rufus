@@ -130,7 +130,7 @@ void Procedures::ab(int i)
 --------------------------------------------------------------------------------------------------------------*/
 QMap<Utils::Period, QDate> Procedures::ChoixDate(QWidget *parent)
 {
-    Dlg_ChxDate = new dlg_choixdate(parent);
+    dlg_choixdate *Dlg_ChxDate = new dlg_choixdate(parent);
     Dlg_ChxDate ->setWindowTitle(tr("Choisir une période"));
     Dlg_ChxDate ->exec();
     QMap<Utils::Period, QDate> DateMap = Dlg_ChxDate->mapdate();
@@ -1731,8 +1731,8 @@ bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QSt
     bool        AvecNumPage = false;
     bool        aa;
 
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()           : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->prenom().toUpper() : ""));
+    Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+    Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
 
     //création du pied
     Pied = CalcPiedImpression(user, false, ALD);
@@ -3007,7 +3007,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         == UpSmallButton::EDITBUTTON)
     {
         int gidLieuExercice = -1;
-        Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true);
+        dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         if (Dlg_GestUsr->exec() > 0)
         {
@@ -3980,7 +3980,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant)
 {
-    Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
+    dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
     connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);

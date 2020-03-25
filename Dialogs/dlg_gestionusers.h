@@ -78,7 +78,6 @@ private:
 
     bool                    m_ok;
 
-    dlg_gestioncomptes      *Dlg_GestComptes;
     UpDialog                *dlg_ask;
     int                     m_idlieu;
     User                    *m_userencours;
