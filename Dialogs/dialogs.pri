@@ -17,6 +17,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_gestionlieux.cpp \
     $$PWD/dlg_gestionusers.cpp \
     $$PWD/dlg_identificationcorresp.cpp \
+    $$PWD/dlg_identificationiol.cpp \
     $$PWD/dlg_identificationmanufacturer.cpp \
     $$PWD/dlg_identificationpatient.cpp \
     $$PWD/dlg_identificationuser.cpp \
@@ -56,6 +57,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_gestionlieux.h \
     $$PWD/dlg_gestionusers.h \
     $$PWD/dlg_identificationcorresp.h \
+    $$PWD/dlg_identificationiol.h \
     $$PWD/dlg_identificationmanufacturer.h \
     $$PWD/dlg_identificationpatient.h \
     $$PWD/dlg_identificationuser.h \

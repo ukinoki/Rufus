@@ -23,6 +23,7 @@ upDoubleValidator::upDoubleValidator(double bottom, double top, int decimals, QO
 }
 
 QValidator::State upDoubleValidator::validate(QString &s, int &) const {
+    //qDebug() << s;
     if (s.isEmpty() || (s.startsWith("-") && s.length() == 1)) {
         // allow empty field or standalone minus sign
         return QValidator::Intermediate;
@@ -38,6 +39,7 @@ QValidator::State upDoubleValidator::validate(QString &s, int &) const {
     // check range of value
     bool isNumber;
     double value = locale().toDouble(s, &isNumber);
+    //qDebug() << "isNumber " << isNumber << " - value " << value<< " - bottom() " << bottom() << " - top() " << top();
     if (isNumber && bottom() <= value && value <= top()) {
         return QValidator::Acceptable;
     }

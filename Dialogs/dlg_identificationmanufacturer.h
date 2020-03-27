@@ -38,7 +38,7 @@ public:
     QHash<QString, QVariant> Listbinds() const;
 
 private:
-    DataBase                    *db                 = DataBase::I();
+    DataBase                    *db                = DataBase::I();
     Manufacturer                *m_manufacturer    = Q_NULLPTR;
 
     QString                     m_nommanufacturer;

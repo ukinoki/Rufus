@@ -102,10 +102,10 @@ BEGIN
                     ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idLieu`;
                 END IF;
         END IF;
-    SELECT COUNT(*) INTO tot FROM
+	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'IOLInactif') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'DiametreOptique') as chp;
         IF tot=0
         THEN
             ALTER TABLE `Ophtalmologie`.`IOLs`
@@ -124,10 +124,18 @@ BEGIN
             ADD COLUMN `Haigisa1` DOUBLE NULL DEFAULT NULL AFTER `Haigisa0`,
             ADD COLUMN `Haigisa2` DOUBLE NULL DEFAULT NULL AFTER `Haigisa1`,
             ADD COLUMN `Holladay1sf` DOUBLE NULL DEFAULT NULL AFTER `Haigisa2`,
-            ADD COLUMN `DiametreInjecteur` DOUBLE NULL DEFAULT NULL AFTER `SRKTA`,
+            ADD COLUMN `DiametreInjecteur` DOUBLE NULL DEFAULT NULL AFTER `Holladay1sf`,
             ADD COLUMN `Image` BLOB NULL DEFAULT NULL AFTER `DiametreInjecteur`,
             ADD COLUMN `Materiau` VARCHAR(45) NULL DEFAULT NULL AFTER `Image`,
-            ADD COLUMN `Remarque` VARCHAR(100) NULL DEFAULT NULL AFTER `Materiau`,
+            ADD COLUMN `Remarque` VARCHAR(100) NULL DEFAULT NULL AFTER `Materiau`;
+            END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'IOLInactif') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `Ophtalmologie`.`IOLs`
             ADD COLUMN `IOLInactif` INT(1) NULL DEFAULT NULL AFTER `Remarque`;
             END IF;
     SELECT COUNT(*) INTO tot FROM

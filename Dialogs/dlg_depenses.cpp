@@ -1528,7 +1528,6 @@ void dlg_depenses::RechercheValeur()
     label       ->setText(tr("Entrez le montant à rechercher"));
     int labelwidth = Utils::CalcSize(label->text()).width();
     label       ->setFixedWidth(labelwidth);
-    line        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     line        ->setAlignment(Qt::AlignRight);
     line        ->setMaxLength(9);
     line        ->setValidator(m_val);

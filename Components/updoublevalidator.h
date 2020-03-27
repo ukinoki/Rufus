@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleValidator>
 #include <QValidator>
 #include <QLocale>
+#include <QDebug>
 
 
 /*! la classe updoublevalidator permet de créer un QdoubleValidator avec

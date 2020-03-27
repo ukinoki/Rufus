@@ -20,10 +20,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : QDialog(parent)
 {
-    m_enregistreposition   = true;
-    m_position        = NomPosition;
-    m_nomfichierini      = NomSettings;
-    m_settings     = new QSettings(m_nomfichierini, QSettings::IniFormat);
+    m_enregistreposition    = true;
+    m_position              = NomPosition;
+    m_nomfichierini         = NomSettings;
+    m_settings              = new QSettings(m_nomfichierini, QSettings::IniFormat);
     restoreGeometry(m_settings->value(m_position).toByteArray());
     AjouteLay();
     setStageCount(0);

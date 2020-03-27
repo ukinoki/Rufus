@@ -34,7 +34,7 @@ DataBase::DataBase() {}
 
 void DataBase::initParametresConnexionSQL(QString Server, int Port)
 {
-    m_server = Server;
+    m_server = Utils::calcIP(Server)["SansZERO"];
     m_port = Port;
 }
 
@@ -2693,10 +2693,10 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
 {
     QList<IOL*> list = QList<IOL*> ();
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
-                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9                                               // 8-9-10-11-12
+                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
                     CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
-                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                // 20-21-22
+                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                 // 20-21-22
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
@@ -2716,14 +2716,14 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
 {
     QList<IOL*> list = QList<IOL*> ();
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
-                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9                                               // 8-9-10-11-12
+                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
                     CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
-                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                // 20-21-22
+                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                 // 20-21-22
                     " FROM " TBL_IOLS
                     " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
                     " order by " CP_IDMANUFACTURER_IOLS;
-    qDebug() << req;
+    //qDebug() << req;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
     if(!ok || iollist.size()==0)
         return list;
@@ -2741,12 +2741,13 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
 {
     IOL *iol = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
-                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9                                               // 8-9-10-11-12
+                    CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
                     CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
-                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                // 20-21-22
+                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS                                                                 // 20-21-22
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
+    //qDebug() << req;
     QVariantList ioldata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || ioldata.size()==0)
         return iol;
@@ -2766,7 +2767,7 @@ QJsonObject DataBase::loadTypeInterventionData(QVariantList typeinterventiondata
     return data;
 }
 
-QList<TypeIntervention*> DataBase::loadTypeInterventions()                       //! charge tous les TypeInterventionS
+QList<TypeIntervention*> DataBase::loadTypeInterventions()                       //! charge tous les TypeInterventions
 {
     QList<TypeIntervention*> list = QList<TypeIntervention*> ();
     QString req =   "SELECT " CP_ID_TYPINTERVENTION ", " CP_TYPEINTERVENTION_TYPINTERVENTION ", " CP_CODECCAM_TYPINTERVENTION // 0-1-2

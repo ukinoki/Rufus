@@ -109,7 +109,7 @@ dlg_identificationmanufacturer::~dlg_identificationmanufacturer()
 {
 }
 
-void    dlg_identificationmanufacturer::EnableOKpushButton()
+void    dlg_identificationmanufacturer:: EnableOKpushButton()
 {
     bool a  = ui->NomlineEdit->text() != ""
            && wdg_CPlineedit->text() != ""

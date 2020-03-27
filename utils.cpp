@@ -493,6 +493,32 @@ QString Utils::IPAdress()
     return IPadress;
 }
 
+QMap<QString,QString> Utils::calcIP(QString IP)
+{
+    QString IPaveczero (""), IPsanszero ("");
+    QMap<QString,QString> map = QMap<QString,QString>();
+    QStringList listIP = IP.split(".");
+    for (int i=0;i<listIP.size();i++)
+    {
+        IPsanszero += QString::number(listIP.at(i).toInt());
+        QString AvecZero;
+        AvecZero += QString::number(listIP.at(i).toInt());
+        if (listIP.at(i).toInt()<100)
+            AvecZero = "0" + AvecZero;
+        if (listIP.at(i).toInt()<10)
+            AvecZero = "0" + AvecZero;
+        IPaveczero += AvecZero;
+        if (i<listIP.size()-1)
+        {
+            IPaveczero += ".";
+            IPsanszero += ".";
+        }
+    }
+    map["SansZERO"] = IPsanszero;
+    map["AvecZERO"] = IPaveczero;
+    return map;
+}
+
 QString Utils::MACAdress()
 {
     QString IPadress = IPAdress();

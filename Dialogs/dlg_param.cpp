@@ -2855,7 +2855,7 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + "/Active","YES");
         else
             proc->settings()->setValue(Base + "/Active","NO");
-        proc->settings()->setValue(Base + "/Serveur",ui->EmplacementLocaluplineEdit->text());
+        proc->settings()->setValue(Base + "/Serveur",Utils::calcIP(ui->EmplacementLocaluplineEdit->text())["SansZERO"]);
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->settings()->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
 
@@ -2864,7 +2864,10 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + "/Active","YES");
         else
             proc->settings()->setValue(Base + "/Active","NO");
-        proc->settings()->setValue(Base + "/Serveur",ui->EmplacementDistantuplineEdit->text());
+        if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
+            proc->settings()->setValue(Base + "/Serveur", Utils::calcIP(ui->EmplacementDistantuplineEdit->text())["SansZERO"]);
+        else
+            proc->settings()->setValue(Base + "/Serveur", ui->EmplacementDistantuplineEdit->text());
         db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());
         proc->settings()->setValue(Base + "/Port",ui->SQLPortDistantcomboBox->currentText());
         proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->value());

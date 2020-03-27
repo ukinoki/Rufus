@@ -68,27 +68,10 @@ void dlg_paramconnexion::CalcIP(QString IP)
     else if (ui->LocalradioButton->isChecked()
          || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
     {
+        QMap<QString, QString> mapIP = Utils::calcIP(IP);
         QStringList listIP = IP.split(".");
-        m_IPaveczero        = "";
-        QString m_IPsanszero        = "";
-        m_adresseserveur           = "";
-        for (int i=0;i<listIP.size();i++)
-        {
-            m_IPsanszero += QString::number(listIP.at(i).toInt());
-            QString AvecZero;
-            AvecZero += QString::number(listIP.at(i).toInt());
-            if (listIP.at(i).toInt()<100)
-                AvecZero = "0" + AvecZero;
-            if (listIP.at(i).toInt()<10)
-                AvecZero = "0" + AvecZero;
-            m_IPaveczero += AvecZero;
-            if (i<listIP.size()-1)
-            {
-                m_IPaveczero += ".";
-                m_IPsanszero += ".";
-            }
-            m_adresseserveur = m_IPsanszero;
-        }
+        m_IPaveczero        = mapIP["AvecZERO"];
+        m_adresseserveur    = mapIP["SansZERO"];
     }
 }
 

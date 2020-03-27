@@ -106,6 +106,7 @@ public:
     static int                      MaxInt()    {return std::numeric_limits<int>::max();}
     static QByteArray               IntToArray(int source);
     static QString                  IPAdress();
+    static QMap<QString, QString>   calcIP(QString IP);
     static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
 

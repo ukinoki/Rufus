@@ -27,8 +27,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_impressions.h"
 #include "dlg_identificationmanufacturer.h"
 #include "ui_dlg_identificationmanufacturer.h"
+#include "dlg_identificationiol.h"
 #include "dlg_listeiols.h"
 #include "dlg_listemanufacturers.h"
+#include "updoublevalidator.h"
 
 class dlg_programmationinterventions : public UpDialog
 {
