@@ -77,16 +77,38 @@ public:
             testfile.close();
         }
     }
-    //!> supprime les fichiers de logs antérieurs à J - anciennete jours
-    static void EpureLogs(int anciennete = 7)
+    static void LogToDir(QString NomDir, QString msg)
     {
-        QStringList listfiles = QDir(dirlog()).entryList();
+        //syntaxe = LogToFile("test.txt", texte);
+        QDir targetdir;
+        QString dir = dirlog() + "/" + NomDir;
+        if (!targetdir.exists(dir))
+            targetdir.mkdir(dir);
+        QString fileName(dir + "/" + datelog());
+        QFile testfile(fileName);
+        if (testfile.open(QIODevice::Append))
+        {
+            QTextStream out(&testfile);
+            QString timelog = QTime::currentTime().toString();
+            out << timelog << " - " << msg << "\n";
+            testfile.close();
+        }
+        EpureLogs(dir);
+    }
+    static void LogSQL(QString msg)
+    {
+        LogToDir("SQLLogs", msg);
+    }
+    //!> supprime les fichiers de logs antérieurs à J - anciennete jours
+    static void EpureLogs(QString dirname = dirlog(), int anciennete = 7)
+    {
+        QStringList listfiles = QDir(dirname).entryList();
         for (int i=0; i<listfiles.size(); ++i)
         {
             QFile file(listfiles.at(i));
             QDate datefile = QDate::fromString(file.fileName().left(10), "yyyy-MM-dd");
             if (datefile < QDate::currentDate().addDays(-anciennete))
-                QFile::remove(dirlog() + "/" + file.fileName());
+                QFile::remove(dirname + "/" + file.fileName());
         }
     }
 private:

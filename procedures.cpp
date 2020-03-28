@@ -103,18 +103,19 @@ Procedures::Procedures(QObject *parent) :
 
     m_nomImprimante  = "";
 
-   Ouverture_Ports_Series();
-   m_typemesureRefraction               = None;
-   m_dlgrefractionouverte    = false;
-   int margemm         = TailleTopMarge(); // exprimé en mm
-   p_printer             = new QPrinter(QPrinter::HighResolution);
-   p_printer             ->setFullPage(true);
-   m_rect                = p_printer->paperRect();
-   m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
-                 Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
-                -Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
-                -Utils::mmToInches(margemm) * p_printer->logicalDpiY());
-   connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
+    Ouverture_Ports_Series();
+    ReconstruitListeModesAcces();
+    m_typemesureRefraction               = None;
+    m_dlgrefractionouverte    = false;
+    int margemm         = TailleTopMarge(); // exprimé en mm
+    p_printer             = new QPrinter(QPrinter::HighResolution);
+    p_printer             ->setFullPage(true);
+    m_rect                = p_printer->paperRect();
+    m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
+                  Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
+                - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
+                - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
+    connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
 }
 
 void Procedures::ab(int i)
@@ -2783,81 +2784,64 @@ bool Procedures::VerifBaseEtRessources()
 }
 
 
+void Procedures::ReconstruitListeModesAcces()
+{
+    if ( m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
+       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3307) )
+        m_listemodesacces << Utils::Poste;
+    if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
+       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
+       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3307) )
+        m_listemodesacces <<  Utils::ReseauLocal;
+    if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
+       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
+       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3307) )
+        m_listemodesacces << Utils::Distant;
+}
+
+
 /*--------------------------------------------------------------------------------------------------------------
     -- Choix du mode de connexion ----------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::FicheChoixConnexion()
 {
     bool initok;
-    bool lPoste, lDistant, lReseauLocal;
-    lPoste                          = (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
-                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306
-                                       || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3307)
-                                       );
-    lReseauLocal                    = (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
-                                       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
-                                       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3306
-                                       || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3307)
-                                       );
-    lDistant                        = (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
-                                       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
-                                       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3306
-                                       || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3307)
-                                       );
-    int a = 0;
-    if (lPoste)         a += 1;
-    if (lReseauLocal)   a += 1;
-    if (lDistant)       a += 1;
-
-    switch (a) {
-    case 0: {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Aucune base identifiée dans Rufus.ini !"), tr("Veuillez corriger ce paramètre."));
-        exit(0);
+    UpMessageBox msgbox;
+    msgbox.setText(tr("Quelle base de données souhaitez-vous utiliser?"));
+    msgbox.setIcon(UpMessageBox::Quest);
+    UpPushButton wdg_annulbouton(tr("Annuler"));
+    UpPushButton wdg_localbouton(tr("Locale, sur ce réseau"));
+    UpPushButton wdg_distantbouton(tr("Distante, par internet"));
+    UpPushButton wdg_postebouton(tr("Sur cette machine"));
+    wdg_annulbouton.setIcon(Icons::icAnnuler());
+    msgbox.addButton(&wdg_annulbouton);
+    if (m_listemodesacces.contains(Utils::ReseauLocal))
+    {
+        wdg_localbouton.setData(Utils::ReseauLocal);
+        msgbox.addButton(&wdg_localbouton);
+        wdg_localbouton.setIcon(Icons::icNetwork());
     }
-    case 1: {
-        if (lPoste)         db->setModeacces(Utils::Poste);
-        if (lReseauLocal)   db->setModeacces(Utils::ReseauLocal);
-        if (lDistant)       db->setModeacces(Utils::Distant);
-        initok  = true;
-        break;
+    if (m_listemodesacces.contains(Utils::Distant))
+    {
+        wdg_distantbouton.setData(Utils::Distant);
+        msgbox.addButton(&wdg_distantbouton);
+        wdg_distantbouton.setIcon(Icons::icInternet());
     }
-    default: {
-        UpMessageBox msgbox;
-        msgbox.setText(tr("Quelle base de données souhaitez-vous utiliser?"));
-        msgbox.setIcon(UpMessageBox::Quest);
-        UpPushButton OKBouton(tr("Sur cette machine"));
-        UpPushButton NoBouton(tr("Locale, sur ce réseau"));
-        UpPushButton AnnulBouton(tr("Distante, par internet"));
-        UpPushButton RejectButton(tr("Annuler"));
-        RejectButton.setIcon(Icons::icAnnuler());
-        msgbox.addButton(&RejectButton);
-        if (lReseauLocal)
-        {
-            msgbox.addButton(&NoBouton);
-            NoBouton.setIcon(Icons::icNetwork());
-        }
-        if (lDistant)
-        {
-            msgbox.addButton(&AnnulBouton);
-            AnnulBouton.setIcon(Icons::icInternet());
-        }
-        if (lPoste)
-        {
-            msgbox.addButton(&OKBouton);
-            OKBouton.setIcon(Icons::icComputer());
-        }
-        initok = false;
-        if (msgbox.exec()>0)
-        {
-            initok = (msgbox.clickedpushbutton() != &RejectButton);
-            if (initok)
-            {
-                if (msgbox.clickedpushbutton()      == &OKBouton)    db->setModeacces(Utils::Poste);
-                else if (msgbox.clickedpushbutton() == &NoBouton)    db->setModeacces(Utils::ReseauLocal);
-                else if (msgbox.clickedpushbutton() == &AnnulBouton) db->setModeacces(Utils::Distant);
-            }
-        }
+    if (m_listemodesacces.contains(Utils::Poste))
+    {
+        wdg_postebouton.setData(Utils::Poste);
+        msgbox.addButton(&wdg_postebouton);
+        wdg_postebouton.setIcon(Icons::icComputer());
     }
+    initok = false;
+    if (msgbox.exec()>0)
+    {
+        initok = (msgbox.clickedpushbutton() != &wdg_annulbouton);
+        if (initok)
+        {
+            db->setModeacces(static_cast<Utils::ModeAcces>(msgbox.clickedpushbutton()->data()));
+            Logs::LogSQL("Mode accès - Utils::" + Utils::EnumDescription(QMetaEnum::fromType<Utils::ModeAcces>(), db->ModeAccesDataBase()));
+        }
     }
     return initok;
 }
@@ -3996,13 +3980,13 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         else if (Dlg_ParamConnex->ui->LocalradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::ReseauLocal);
-            m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
+            m_settings->setValue(Base + "/Serveur",   Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
             db->setModeacces(Utils::ReseauLocal);
         }
         else if (Dlg_ParamConnex->ui->DistantradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::Distant);
-            m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
+            m_settings->setValue(Base + "/Serveur",    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
             db->setModeacces(Utils::Distant);
         }
         m_settings->setValue(Base + "/Active",    "YES");

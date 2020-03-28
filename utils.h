@@ -59,7 +59,7 @@ public:
         /*! pour certaines données bool, on a 3 valeurs possibles, true, false et null
          * en fait, on pourrait même faire une 4ème valeur correspondant à "ne sait pas" -> ne sait pas si la valeur est true, false ou null
          */
-    enum ModeAcces { Poste, ReseauLocal, Distant };
+    enum ModeAcces { Poste = 0x1, ReseauLocal = 0x2, Distant = 0x4};     Q_ENUM(ModeAcces)
     enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum Period {Debut, Fin};
 
@@ -106,7 +106,7 @@ public:
     static int                      MaxInt()    {return std::numeric_limits<int>::max();}
     static QByteArray               IntToArray(int source);
     static QString                  IPAdress();
-    static QMap<QString, QString>   calcIP(QString IP);
+    static QString                  calcIP(QString IP, bool aveczero = false);
     static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
 

@@ -37,10 +37,13 @@ public:
     void        setiD(int m_id);
     int         iD() const;
     void        setImmediateToolTip(QString Msg);
+    int         data() const;
+    void        setData(int data);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     int         m_id;
+    int         m_data;
     QString     m_tooltipmsg;
 };
 #endif // UPPUSHBUTTON_H

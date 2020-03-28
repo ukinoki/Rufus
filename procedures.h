@@ -99,9 +99,10 @@ private:
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
+    QList<Utils::ModeAcces> m_listemodesacces = QList<Utils::ModeAcces>();
     UpDialog                *dlg_buprestore;
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
-
+    void                    ReconstruitListeModesAcces();
     bool                    VerifBaseEtRessources();
     bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
@@ -119,7 +120,8 @@ public:
     bool                    AutresPostesConnectes(bool msg = true);
     bool                    FicheChoixConnexion();
     bool                    Connexion_A_La_Base();
-    bool                    ConnexionBaseOK() const { return m_connexionbaseOK; }
+    bool                    ConnexionBaseOK() const     { return m_connexionbaseOK; }
+    QList<Utils::ModeAcces> ListeModesAcces() const     { return m_listemodesacces; }
     void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imagerie
                                                                              * vide la table EchangeImages
                                                                              * purge les champs jpg et pdf de la table Factures  */

@@ -34,7 +34,7 @@ DataBase::DataBase() {}
 
 void DataBase::initParametresConnexionSQL(QString Server, int Port)
 {
-    m_server = Utils::calcIP(Server)["SansZERO"];
+    m_server = Utils::calcIP(Server, false);
     m_port = Port;
 }
 
@@ -105,6 +105,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     m_db.setUserName(login + (useSSL ? "SSL" : ""));
     m_db.setPassword(password);
+    Logs::LogSQL("Serveur      - " + m_db.hostName());
+    Logs::LogSQL("databaseName - " + m_db.databaseName());
+    Logs::LogSQL("Login        - " + m_db.userName());
+    Logs::LogSQL("port         - " + QString::number(m_db.port()));
 
     if( m_db.open() )
         return QString();

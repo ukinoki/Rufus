@@ -60,6 +60,16 @@ bool UpPushButton::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
+int UpPushButton::data() const
+{
+    return m_data;
+}
+
+void UpPushButton::setData(int data)
+{
+    m_data = data;
+}
+
 void UpPushButton::setImmediateToolTip(QString Msg)
 {
     m_tooltipmsg = Msg;

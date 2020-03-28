@@ -2855,7 +2855,7 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + "/Active","YES");
         else
             proc->settings()->setValue(Base + "/Active","NO");
-        proc->settings()->setValue(Base + "/Serveur",Utils::calcIP(ui->EmplacementLocaluplineEdit->text())["SansZERO"]);
+        proc->settings()->setValue(Base + "/Serveur",Utils::calcIP(ui->EmplacementLocaluplineEdit->text(), false));
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->settings()->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
 
@@ -2865,7 +2865,7 @@ bool dlg_param::Valide_Modifications()
         else
             proc->settings()->setValue(Base + "/Active","NO");
         if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
-            proc->settings()->setValue(Base + "/Serveur", Utils::calcIP(ui->EmplacementDistantuplineEdit->text())["SansZERO"]);
+            proc->settings()->setValue(Base + "/Serveur", Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));
         else
             proc->settings()->setValue(Base + "/Serveur", ui->EmplacementDistantuplineEdit->text());
         db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());

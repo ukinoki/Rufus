@@ -493,10 +493,13 @@ QString Utils::IPAdress()
     return IPadress;
 }
 
-QMap<QString,QString> Utils::calcIP(QString IP)
+QString Utils::calcIP(QString IP, bool aveczero)
 {
-    QString IPaveczero (""), IPsanszero ("");
     QMap<QString,QString> map = QMap<QString,QString>();
+    if (!rgx_IPV4.exactMatch(IP))
+        return IP;
+
+    QString IPaveczero (""), IPsanszero ("");
     QStringList listIP = IP.split(".");
     for (int i=0;i<listIP.size();i++)
     {
@@ -514,9 +517,7 @@ QMap<QString,QString> Utils::calcIP(QString IP)
             IPsanszero += ".";
         }
     }
-    map["SansZERO"] = IPsanszero;
-    map["AvecZERO"] = IPaveczero;
-    return map;
+    return (aveczero? IPaveczero : IPsanszero);
 }
 
 QString Utils::MACAdress()

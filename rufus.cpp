@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-03-2020/1");
+    qApp->setApplicationVersion("28-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -36,20 +36,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     db = DataBase::I();
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
-    int     nbmodes = 0;
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
-    Utils::ModeAcces modeacces = Utils::Poste;
-    if (proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES")       { nbmodes += 1; modeacces = Utils::Poste; }
-    if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES") { nbmodes += 1; modeacces = Utils::ReseauLocal; }
-    if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES")     { nbmodes += 1; modeacces = Utils::Distant; }
-    switch (nbmodes) {
+    switch (proc->ListeModesAcces().size()) {
     case 0:
         /*! si aucun mode d'accès n'est paramétré, sortie du programme */
         UpMessageBox::Watch(this, tr("Erreur fichier Rufus.ini"), tr("Aucun paramétrage valide de connexion retrouvé") + "\n" + tr("Le fichier rufus.ini est endommagé et doit être réparé"));
         exit(0);
     case 1:
         /*! si un seul mode d'accès est paramétré, on passe directement à la fiche de connexion */
-        db->setModeacces(modeacces);
+        db->setModeacces(proc->ListeModesAcces().at(0));
         if (!proc->Connexion_A_La_Base())
             exit(0);
         break;
