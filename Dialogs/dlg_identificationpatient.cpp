@@ -26,9 +26,8 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    m_currentpatient    = pat;
-    m_mode              = mode;
-    m_listecorrespondantsmodfifiee    = false;
+    m_currentpatient        = pat;
+    m_mode                  = mode;
     QVBoxLayout *vlay       = new QVBoxLayout;
     vlay                    ->setContentsMargins(0,10,0,10);
     vlay                    ->setSpacing(5);
@@ -37,10 +36,10 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     vlay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     dlglayout()             ->insertWidget(0,ui->Principalframe);
-    widg_vitalebutton            = new UpSmallButton();
-    widg_vitalebutton            ->setIcon(Icons::icVitale());
-    widg_vitalebutton            ->setFixedHeight(100);
-    widg_vitalebutton            ->setStyleSheet("qproperty-iconSize:120px 100px;");
+    widg_vitalebutton       = new UpSmallButton();
+    widg_vitalebutton       ->setIcon(Icons::icVitale());
+    widg_vitalebutton       ->setFixedHeight(100);
+    widg_vitalebutton       ->setStyleSheet("qproperty-iconSize:120px 100px;");
     AjouteWidgetLayButtons(widg_vitalebutton, true);
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                ->setText(tr("Enregistrer"));
@@ -185,6 +184,7 @@ void dlg_identificationpatient::VerifMGFlag()
     {
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
+        Datas::I()->correspondants->initListe();
         Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         Datas::I()->patients->loadAll(m_currentpatient, Item::Update);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
@@ -419,7 +419,6 @@ void dlg_identificationpatient::ModifCorrespondant()
     {
         Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
-        m_listecorrespondantsmodfifiee = Dlg_IdentCorresp->identcorrespondantmodifiee();
     }
     delete Dlg_IdentCorresp;
 }
@@ -591,19 +590,11 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
-    {
-        m_listecorrespondantsmodfifiee = Dlg_IdentCorresp->identcorrespondantmodifiee();
         idcor = Dlg_IdentCorresp->correspondantrenvoye()->id();
-    }
     delete Dlg_IdentCorresp;
     return idcor;
 }
 
-
-bool dlg_identificationpatient::listecorrespondantsmodifiee() const
-{
-    return  m_listecorrespondantsmodfifiee;
-}
 
 Patient* dlg_identificationpatient::currentpatient() const
 {

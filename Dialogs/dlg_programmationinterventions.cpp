@@ -1577,11 +1577,11 @@ void dlg_programmationinterventions::CreerIOL(QString nomiol)
     dlg_iol->setNomIOL(nomiol);
     if (dlg_iol->exec() > 0)
     {
-        m_currentIOL = dlg_iol->currentIOL();
+        m_currentIOL = Datas::I()->iols->CreationIOL(dlg_iol->Listbinds());
         int id = (m_currentIOL != Q_NULLPTR? m_currentIOL->id() : 0);
         Manufacturer *man = Datas::I()->manufacturers->getById(id);
         if (man)
-        ReconstruitListeIOLs(man->id(), id);
+            ReconstruitListeIOLs(man->id(), id);
     }
     delete dlg_iol;
 }

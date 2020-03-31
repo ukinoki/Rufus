@@ -40,7 +40,7 @@ public:
 
 private:
     DataBase            *db                 = DataBase::I();
-    Correspondant       *m_correspondant    = Q_NULLPTR;
+    Correspondant       *m_currentcorrespondant    = Q_NULLPTR;
 
     bool                m_onlydoctors;
     bool                m_modifdatascor;

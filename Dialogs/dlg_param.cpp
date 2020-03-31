@@ -1719,34 +1719,28 @@ void dlg_param::ModifHeureBackup()    //Modification de la date du backup
 
 void dlg_param::DirLocalStockage()
 {
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
     if (dir == "")
         dir = PATH_DIR_RUFUS;
-    QFileDialog dialog(this, "", dir);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
-    {
-        QDir dockdir = dialog.directory();
-        ui->LocalStockageupLineEdit->setText(dockdir.path());
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", dockdir.path());
-    }
+    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
+    ui->LocalStockageupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", url.path());
 }
 
 void dlg_param::DirDistantStockage()
 {
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
     if (dir == "")
         dir = PATH_DIR_RUFUS;
-    QFileDialog dialog(this, "", dir);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
-    {
-        QDir dockdir = dialog.directory();
-        ui->DistantStockageupLineEdit->setText(dockdir.path());
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", dockdir.path());
-    }
+    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
+    ui->DistantStockageupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", url.path());
 }
 
 void dlg_param::DirPosteStockage()
@@ -1756,24 +1750,20 @@ void dlg_param::DirPosteStockage()
         UpMessageBox::Watch(this, tr("Impossible de modifier ce paramètre"), tr("Vous devez être connecté sur le serveur de ce poste pour\npouvoir modifier le répertoire de stockage des documents"));
         return;
     }
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString dir = ui->PosteStockageupLineEdit->text();
     if (dir == "")
         dir = PATH_DIR_RUFUS;
-    QFileDialog dialog(this, "", dir);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
+    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
+    if (!QDir::match(PATH_DIR_RUFUS "/*", url.path()))
     {
-        QDir dockdir = dialog.directory();
-        if (!dockdir.match(PATH_DIR_RUFUS "/*", dockdir.path()))
-        {
-            UpMessageBox::Watch(this, tr("Vous devez choisir un sous-dossier du dossier Rufus"), PATH_DIR_RUFUS);
-            return;
-        }
-        ui->PosteStockageupLineEdit->setText(dockdir.path());
-        db->setdirimagerie(dockdir.path());
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", dockdir.path());
+        UpMessageBox::Watch(this, tr("Vous devez choisir un sous-dossier du dossier Rufus"), PATH_DIR_RUFUS);
+        return;
     }
+    ui->PosteStockageupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", url.path());
 }
 
 void dlg_param::DossierClesSSL()

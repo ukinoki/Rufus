@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "updoublespinbox.h"
 #include "widgetbuttonframe.h"
+#include "dlg_identificationiol.h"
 
 class dlg_listeiols : public UpDialog
 {
@@ -48,10 +49,10 @@ private:
     void                    ChoixButtonFrame();
     void                    Enablebuttons();
     void                    EnregistreNouveauIOL();
-    void                    FicheIOL(IOL* iol = Q_NULLPTR);
     IOL*                    getIOLFromIndex(QModelIndex idx);
     void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
+    void                    scrollToIOL(IOL *iol);
     void                    SupprIOL();
     void                    ReconstruitTreeViewIOLs(bool reconstruirelaliste = false, QString filtre = "");
 };

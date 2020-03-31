@@ -38,13 +38,11 @@ public:
     explicit                        dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
-    bool                            listecorrespondantsmodifiee() const;
     Patient*                        currentpatient() const;
 
 private:
     DataBase                        *db = DataBase::I();
     Patient                         *m_currentpatient;
-    bool                            m_listecorrespondantsmodfifiee;
     bool                            m_ok;
     int                             m_flagcorrespondants;
     Mode                            m_mode;

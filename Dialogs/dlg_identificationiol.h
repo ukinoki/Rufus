@@ -31,6 +31,7 @@ public:
     dlg_identificationIOL();
     void    setNomIOL(QString nom) {wdg_nomiolline->setText(nom);}
     IOL*    currentIOL() const      { return m_currentIOL; }
+    QHash<QString, QVariant> Listbinds() const  { return m_listbinds;  }
 
 private:
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
@@ -38,6 +39,8 @@ private:
     Mode                m_mode;
     Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
     IOL                 *m_currentIOL           = Q_NULLPTR;
+    QHash<QString, QVariant>    m_listbinds;
+    QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
     UpLineEdit          *wdg_Aoptline;
     UpLineEdit          *wdg_Aecholine;
@@ -48,8 +51,10 @@ private:
     UpLabel             *wdg_imgIOL;
     UpLineEdit          *wdg_materiauline;
     UpTextEdit          *wdg_remarquetxt;
+
+    void                AfficheDatasIOL();
+    void                EnableOKpushButton();
     void                OKpushButtonClicked();
-    bool                VerifFiche();
 };
 
 #endif // DLG_IDENTIFICATIONIOL_H

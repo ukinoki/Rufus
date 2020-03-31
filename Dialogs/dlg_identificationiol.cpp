@@ -21,8 +21,12 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentIOL", parent)
 {
     m_mode = mode;
-    m_currentIOL = iol;
+    if (iol != Q_NULLPTR)
+        m_currentIOL      = iol;
     m_currentmanufacturer = man;
+    if ((m_mode == Creation && man == Q_NULLPTR) || m_mode == Modification)
+        if (m_currentIOL)
+            m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
@@ -41,20 +45,17 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
-    QComboBox *manufacturercombo = new QComboBox();
+    wdg_manufacturercombo = new QComboBox();
     for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
     {
-        manufacturercombo->addItem(m_manufacturersmodel->item(i,0)->text());         //! le nom du fabricant
-        manufacturercombo->setItemData(i, m_manufacturersmodel->item(i,1)->text());       //! l'id en data
+        wdg_manufacturercombo   ->addItem(m_manufacturersmodel->item(i,0)->text());         //! le nom du fabricant
+        wdg_manufacturercombo   ->setItemData(i, m_manufacturersmodel->item(i,1)->text());       //! l'id en data
     }
     if (m_currentmanufacturer)
-    {
-        manufacturercombo           ->setCurrentIndex(manufacturercombo->findData(m_currentmanufacturer->id()));
-        manufacturercombo           ->setEnabled(false);
-    }
+        wdg_manufacturercombo   ->setEnabled(false);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixManufacturerIOLLay     ->addWidget(manufacturercombo);
+    choixManufacturerIOLLay     ->addWidget(wdg_manufacturercombo);
     choixManufacturerIOLLay     ->setSpacing(5);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
@@ -87,6 +88,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     wdg_Aoptline                    ->setValidator(csteA_val);
     wdg_Aoptline                    ->setFixedSize(QSize(60,28));
     wdg_Aecholine                   = new UpLineEdit();
+    wdg_Aecholine                   ->setFixedSize(QSize(60,28));
     upDoubleValidator *ACD_val      = new upDoubleValidator(1, 8, 2, this);
     wdg_ACDline                     = new UpLineEdit();
     wdg_ACDline                     ->setValidator(ACD_val);
@@ -103,6 +105,13 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     csteIOLLay                      ->addWidget(wdg_ACDline);
     csteIOLLay                      ->setSpacing(5);
     csteIOLLay                      ->setContentsMargins(0,0,0,0);
+    for (int i=0; i < csteIOLLay->count(); ++i)
+    {
+        if (i==7)
+            csteIOLLay->setStretch(i,5);
+        else
+            csteIOLLay->setStretch(i,1);
+    }
 
     //! Haigis
     QHBoxLayout *HaigisLay          = new QHBoxLayout();
@@ -183,22 +192,67 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     //font.setPointSize(font.pointSize()+2);
     foreach (UpLabel *lbl, findChildren<UpLabel*>())
         lbl->setFont(font);
+    foreach (UpLineEdit *line, findChildren<UpLineEdit*>())
+        line->setAlignment(Qt::AlignCenter);
+
+    AfficheDatasIOL();
 
     connect(OKButton, &QPushButton::clicked, this, &dlg_identificationIOL::OKpushButtonClicked);
+    connect (wdg_manufacturercombo, QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_nomiolline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_Aoptline,          &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_Aecholine,         &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_ACDline,           &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_haigisaline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_haigisbline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_haigiscline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_materiauline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_remarquetxt,       &QTextEdit::textChanged,                                this,   &dlg_identificationIOL::EnableOKpushButton);
+    OKButton->setEnabled(false);
+    OKButton->setText(tr("Enregistrer"));
+    CancelButton->setText(tr("Annuler"));
+    setStageCount(1);
+}
+
+/*--------------------------------------------------------------------------------------------
+-- Afficher la fiche de l'implant
+--------------------------------------------------------------------------------------------*/
+void dlg_identificationIOL::AfficheDatasIOL()
+{
+    if (!m_currentIOL)
+        return;
+    if (m_currentmanufacturer)
+        wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
+
+    if (m_mode == Modification)
+    {
+        wdg_nomiolline      ->setText(m_currentIOL->modele());
+        if (m_currentIOL->csteAopt() > 0.0)
+            wdg_Aoptline        ->setText(QString::number(m_currentIOL->csteAopt(), 'f', 1));
+        if (m_currentIOL->csteAEcho() > 0.0)
+            wdg_Aecholine       ->setText(QString::number(m_currentIOL->csteAEcho(), 'f', 1));
+        if (m_currentIOL->acd() > 0.0)
+            wdg_ACDline         ->setText(QString::number(m_currentIOL->acd(), 'f', 2));
+        if (m_currentIOL->haigisa0() > 0.0)
+            wdg_haigisaline     ->setText(QString::number(m_currentIOL->haigisa0(), 'f', 4));
+        if (m_currentIOL->haigisa1() > 0.0)
+            wdg_haigisbline     ->setText(QString::number(m_currentIOL->haigisa1(), 'f', 4));
+        if (m_currentIOL->haigisa2() > 0.0)
+            wdg_haigiscline     ->setText(QString::number(m_currentIOL->haigisa2(), 'f', 4));
+        wdg_materiauline    ->setText(m_currentIOL->materiau());
+        wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
+    }
+}
+void    dlg_identificationIOL:: EnableOKpushButton()
+{
+    bool a  = wdg_nomiolline->text() != ""
+           && wdg_manufacturercombo->currentData().toInt()>0;
+    OKButton->setEnabled(a);
+    OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
 void dlg_identificationIOL::OKpushButtonClicked()
 {
-    UpLineEdit          *m_nomiolline;
-    UpLineEdit          *m_Aoptline;
-    UpLineEdit          *m_Aecholine;
-    UpLineEdit          *m_ACDline;
-    UpLineEdit          *wdg_haigisaline;
-    UpLineEdit          *wdg_haigisbline;
-    UpLineEdit          *wdg_haigiscline;
-    UpLabel             *m_imgIOL;
-    UpLineEdit          *m_materiauline;
-    UpTextEdit          *m_remarquetxt;
     if (wdg_nomiolline->text() == "")
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas indiqué le modèle d'implant!"));
@@ -217,43 +271,42 @@ void dlg_identificationIOL::OKpushButtonClicked()
     }
     if (ioldata.size() > 0)
     {
-        if (ioldata.at(0).toInt() != m_currentIOL->id())
-        {
+        switch (m_mode) {
+        case Modification:
+            if (ioldata.at(0).toInt() != m_currentIOL->id())
+            {
+                UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
+                delete m_currentIOL;
+                m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
+                OKButton->setEnabled(false);
+                AfficheDatasIOL();
+                disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
+                connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);
+                return;
+            }
+            break;
+        case Creation:
             UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
             m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
             OKButton->setEnabled(false);
             m_mode = Modification;
+            AfficheDatasIOL();
             disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
             connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);
             return;
         }
-    }
+     }
 
-
-
-    switch (m_mode) {
-    case Creation:
-    {
-        QString modele = wdg_nomiolline->text();
-        for (int i = 0; i < m_IOLsmodel->rowCount(); ++i)
-        {
-            UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
-            IOL *iol = dynamic_cast<IOL*>(upitem->item());
-            if (iol->modele() == modele)
-            {
-                UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
-                return;
-            }
-        }
-        QHash<QString, QVariant> listbinds;
-        listbinds[CP_MODELNAME_IOLS]    = modele;
-        listbinds[CP_IDMANUFACTURER_IOLS]  = m_currentmanufacturer->id();
-        listbinds[CP_INACTIF_IOLS]  = QVariant();
-        m_currentIOL = Datas::I()->iols->CreationIOL(listbinds);
-        close();
-        break;
-    }
-    case Modification:
-        break;
-    }
+    m_listbinds[CP_MODELNAME_IOLS]      = wdg_nomiolline->text();
+    m_listbinds[CP_IDMANUFACTURER_IOLS] = m_currentmanufacturer->id();
+    m_listbinds[CP_ACD_IOLS]            = (QLocale().toDouble(wdg_ACDline->text()) >0?      QLocale().toDouble(wdg_ACDline->text())     : QVariant());
+    m_listbinds[CP_CSTEAOPT_IOLS]       = (QLocale().toDouble(wdg_Aoptline->text()) >0?     QLocale().toDouble(wdg_Aoptline->text())    : QVariant());
+    m_listbinds[CP_CSTEAECHO_IOLS]      = (QLocale().toDouble(wdg_Aoptline->text()) >0?     QLocale().toDouble(wdg_Aecholine->text())   : QVariant());
+    m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
+    m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) >0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
+    m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) >0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
+    m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiauline->text();
+    m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
+    m_listbinds[CP_INACTIF_IOLS]        = QVariant();
+    accept();
 }

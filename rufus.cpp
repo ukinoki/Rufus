@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("28-03-2020/1");
+    qApp->setApplicationVersion("31-03-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -3363,12 +3363,11 @@ void Rufus::MenuContextuelMedecin()
 void Rufus::ChoixMenuContextuelMedecin()
 {
     int id = ui->MGupComboBox->currentData().toInt();
-    int idxMG = ui->MGupComboBox->currentIndex();
     bool onlydoctors = true;
     dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
     if (Dlg_IdentCorresp->exec()>0)
         if (Dlg_IdentCorresp->identcorrespondantmodifiee())
-            ui->MGupComboBox->setCurrentIndex(idxMG);
+            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(id));
     delete Dlg_IdentCorresp;
 }
 

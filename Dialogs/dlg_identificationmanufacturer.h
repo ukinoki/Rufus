@@ -35,11 +35,11 @@ public:
     explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
-    QHash<QString, QVariant> Listbinds() const;
+    QHash<QString, QVariant> Listbinds() const  { return m_listbinds;  }
 
 private:
     DataBase                    *db                = DataBase::I();
-    Manufacturer                *m_manufacturer    = Q_NULLPTR;
+    Manufacturer                *m_currentmanufacturer    = Q_NULLPTR;
 
     QString                     m_nommanufacturer;
     Mode                        m_mode;
@@ -49,10 +49,9 @@ private:
 
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
-    void                AfficheDossierAlOuverture();
+    void                AfficheDatasManufacturer();
     void                EnableOKpushButton();
     void                Majuscule(QLineEdit *ledit);
     void                OKpushButtonClicked();
-    void                RegleAffichage();
 };
 #endif // DLG_IDENTIFICATIONMANUFACTURER_H

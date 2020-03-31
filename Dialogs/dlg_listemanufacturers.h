@@ -38,8 +38,6 @@ private:
     WidgetButtonFrame       *wdg_buttonframe;
     QList<int>              m_listidmanufacturersutilises;
 
-    Manufacturer            *m_currentmanufacturer = Q_NULLPTR;
-
     void                    ChoixButtonFrame();
     void                    Enablebuttons();
     void                    EnregistreNouveauManufacturer();

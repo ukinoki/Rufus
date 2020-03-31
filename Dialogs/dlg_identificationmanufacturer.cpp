@@ -26,7 +26,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     if (man != Q_NULLPTR)
-        m_manufacturer          = man;
+        m_currentmanufacturer          = man;
     m_mode                      = mode;
     wdg_villeCP                 = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
     wdg_CPlineedit              = wdg_villeCP->ui->CPlineEdit;
@@ -46,7 +46,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     setWindowIcon(Icons::icDoctor());
     connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationmanufacturer::EnableOKpushButton);
 
-    AfficheDossierAlOuverture();
+    AfficheDatasManufacturer();
     if (m_mode == Creation)
         ui->idManufacturerlabel  ->setVisible(false);
 
@@ -177,16 +177,31 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
 
     if (mandata.size() > 0)
     {
-        if (mandata.at(0).toInt() != m_manufacturer->id())
-        {
-            UpMessageBox::Watch(this,tr("Ce fabricant existe déjà!"));
-            m_manufacturer = Datas::I()->manufacturers->getById(mandata.at(0).toInt());
-            OKButton->setEnabled(false);
-            m_mode = Modification;
-            AfficheDossierAlOuverture();
-            disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::OKpushButtonClicked);
-            connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::accept);
-            return;
+        switch (m_mode) {
+        case Modification:
+            if (mandata.at(0).toInt() != m_currentmanufacturer->id())
+            {
+                UpMessageBox::Watch(this,tr("Ce fabricant existe déjà!"));
+                delete  m_currentmanufacturer;
+                m_currentmanufacturer = Datas::I()->manufacturers->getById(mandata.at(0).toInt());
+                OKButton->setEnabled(false);
+                AfficheDatasManufacturer();
+                disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::OKpushButtonClicked);
+                connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::accept);
+                return;
+            }
+            break;
+        case Creation:
+            {
+                UpMessageBox::Watch(this,tr("Ce fabricant existe déjà!"));
+                m_currentmanufacturer = Datas::I()->manufacturers->getById(mandata.at(0).toInt());
+                OKButton->setEnabled(false);
+                m_mode = Modification;
+                AfficheDatasManufacturer();
+                disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::OKpushButtonClicked);
+                connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationmanufacturer::accept);
+                return;
+            }
         }
     }
 
@@ -208,16 +223,6 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     m_listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
     m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
     accept();
-}
-
-QHash<QString, QVariant> dlg_identificationmanufacturer::Listbinds() const
-{
-    return m_listbinds;
-}
-
-void dlg_identificationmanufacturer::RegleAffichage()
-{
-    OKButton->setEnabled(true);
 }
 
 /*-------------------------------------------------------------------------------------
@@ -251,34 +256,34 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
 
 
 /*--------------------------------------------------------------------------------------------
--- Afficher la fiche du correspondant
+-- Afficher la fiche du fabricant
 --------------------------------------------------------------------------------------------*/
-void dlg_identificationmanufacturer::AfficheDossierAlOuverture()
+void dlg_identificationmanufacturer::AfficheDatasManufacturer()
 {
     if (m_mode == Modification)
     {
-        m_nommanufacturer       = m_manufacturer->nom();
-        ui->ActifcheckBox       ->setChecked(m_manufacturer->isactif());
+        m_nommanufacturer       = m_currentmanufacturer->nom();
+        ui->ActifcheckBox       ->setChecked(m_currentmanufacturer->isactif());
         ui->NomlineEdit         ->setText(m_nommanufacturer);
-        ui->idManufacturerlabel ->setText(tr("Fabricant n° ") + QString::number(m_manufacturer->id()));
+        ui->idManufacturerlabel ->setText(tr("Fabricant n° ") + QString::number(m_currentmanufacturer->id()));
 
-        ui->Adresse1lineEdit    ->setText(m_manufacturer->adresse1());
-        ui->Adresse2lineEdit    ->setText(m_manufacturer->adresse2());
-        ui->Adresse3lineEdit    ->setText(m_manufacturer->adresse3());
-        QString CP              = m_manufacturer->codepostal();
+        ui->Adresse1lineEdit    ->setText(m_currentmanufacturer->adresse1());
+        ui->Adresse2lineEdit    ->setText(m_currentmanufacturer->adresse2());
+        ui->Adresse3lineEdit    ->setText(m_currentmanufacturer->adresse3());
+        QString CP              = m_currentmanufacturer->codepostal();
         wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         wdg_CPlineedit          ->setText(CP);
-        wdg_villelineedit       ->setText(m_manufacturer->ville());
-        ui->TellineEdit         ->setText(m_manufacturer->telephone());
-        ui->PortablelineEdit    ->setText(m_manufacturer->portable());
-        ui->MaillineEdit        ->setText(m_manufacturer->mail());
+        wdg_villelineedit       ->setText(m_currentmanufacturer->ville());
+        ui->TellineEdit         ->setText(m_currentmanufacturer->telephone());
+        ui->PortablelineEdit    ->setText(m_currentmanufacturer->portable());
+        ui->MaillineEdit        ->setText(m_currentmanufacturer->mail());
 
-        ui->CorNomlineEdit      ->setText(m_manufacturer->cornom());
-        ui->CorPrenomlineEdit   ->setText(m_manufacturer->corprenom());
-        ui->CorStatutlineEdit   ->setText(m_manufacturer->corstatut());
-        ui->CorMaillineEdit     ->setText(m_manufacturer->cormail());
-        ui->CorTelephonelineEdit->setText(m_manufacturer->cortelephone());
+        ui->CorNomlineEdit      ->setText(m_currentmanufacturer->cornom());
+        ui->CorPrenomlineEdit   ->setText(m_currentmanufacturer->corprenom());
+        ui->CorStatutlineEdit   ->setText(m_currentmanufacturer->corstatut());
+        ui->CorMaillineEdit     ->setText(m_currentmanufacturer->cormail());
+        ui->CorTelephonelineEdit->setText(m_currentmanufacturer->cortelephone());
     }
     else if (m_mode == Creation)
     {

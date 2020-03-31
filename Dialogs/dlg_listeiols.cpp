@@ -118,248 +118,17 @@ bool dlg_listeiols::listeIOLsmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::EnregistreNouveauIOL()
 {
-    FicheIOL();
-}
-
-// ------------------------------------------------------------------------------------------
-// Enregistre un nouveau correpondant
-// ------------------------------------------------------------------------------------------
-void dlg_listeiols::FicheIOL(IOL* nwiol)
-{
-    UpDialog            *dlg_IOL = new UpDialog(this);
-    dlg_IOL->setAttribute(Qt::WA_DeleteOnClose);
-    dlg_IOL->setWindowTitle(nwiol == Q_NULLPTR? tr("Créer un IOL") : tr("Modifier un IOL"));
-
-    //! FABRICANT
-    QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
-    UpLabel* lblManufacturerIOL = new UpLabel;
-    lblManufacturerIOL          ->setText(tr("Fabricant"));
-    QComboBox *manufacturercombo = new QComboBox();
-    for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
+    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(dlg_identificationIOL::Creation);
+    if (Dlg_IdentIOL->exec()>0)
     {
-        manufacturercombo->addItem(m_manufacturersmodel->item(i)->text());                  //! le nom du fabricant
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
-        if (itm != Q_NULLPTR)
-            if (itm->item() != Q_NULLPTR)
-                manufacturercombo->setItemData(i, itm->item()->id());                       //! l'id en data
-    }
-
-    choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
-    choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixManufacturerIOLLay     ->addWidget(manufacturercombo);
-    choixManufacturerIOLLay     ->setSpacing(5);
-    choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
-
-    //! MODELE
-    QHBoxLayout *choixIOLLay    = new QHBoxLayout();
-    UpLabel* lblIOL             = new UpLabel;
-    lblIOL                      ->setText(tr("Nom du modèle"));
-    QLineEdit *IOLline          = new QLineEdit();
-    IOLline                     ->setFixedSize(QSize(150,28));
-    IOLline                     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric));
-    choixIOLLay                 ->addWidget(lblIOL);
-    choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    choixIOLLay                 ->addWidget(IOLline);
-    choixIOLLay                 ->setSpacing(5);
-    choixIOLLay                 ->setContentsMargins(0,0,0,0);
-
-    QHBoxLayout *checkIOLLay    = new QHBoxLayout();
-    QCheckBox *IOLchk           = new QCheckBox(tr("Discontinué"));
-    IOLchk                      ->setCheckState(Qt::Unchecked);
-    checkIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    checkIOLLay                 ->addWidget(IOLchk);
-    checkIOLLay                 ->setSpacing(5);
-    checkIOLLay                 ->setContentsMargins(0,0,0,0);
-
-    if (nwiol != Q_NULLPTR)
-    {
-        manufacturercombo   ->setCurrentIndex(manufacturercombo->findData(nwiol->idmanufacturer()));
-        IOLline             ->setText(nwiol->modele());
-        IOLchk              ->setChecked(!nwiol->isactif());
-    }
-
-    //! Constante a et ACD
-    QHBoxLayout *csteIOLLay         = new QHBoxLayout();
-    UpLabel* lblcsteAIOL            = new UpLabel;
-    lblcsteAIOL                     ->setText(tr("cst. A"));
-    UpLabel* lblAOptIOL             = new UpLabel;
-    lblAOptIOL                      ->setText(tr("Optique"));
-    UpLabel* lblAEchoIOL            = new UpLabel;
-    lblAEchoIOL                     ->setText(tr("Echo"));
-    UpLabel* lblACDIOL              = new UpLabel;
-    lblACDIOL                       ->setText(tr("ACD"));
-    UpDoubleSpinBox *AoptIOLspinbox = new UpDoubleSpinBox();
-    AoptIOLspinbox                  ->setRange(116.0, 121.00);
-    AoptIOLspinbox                  ->setSingleStep(0.1);
-    AoptIOLspinbox                  ->setValue(118.5);
-    AoptIOLspinbox                  ->setDecimals(1);
-    UpDoubleSpinBox *AechoIOLspinbox= new UpDoubleSpinBox();
-    AechoIOLspinbox                 ->setRange(116.0, 121.00);
-    AechoIOLspinbox                 ->setSingleStep(0.1);
-    AechoIOLspinbox                 ->setValue(118.5);
-    AechoIOLspinbox                 ->setDecimals(1);
-    UpDoubleSpinBox *ACDIOLspinbox  = new UpDoubleSpinBox();
-    ACDIOLspinbox                   ->setRange(0.0, 8.00);
-    ACDIOLspinbox                   ->setSingleStep(0.01);
-    ACDIOLspinbox                   ->setValue(4.00);
-    csteIOLLay                      ->addWidget(lblcsteAIOL);
-    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteIOLLay                      ->addWidget(lblAOptIOL);
-    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteIOLLay                      ->addWidget(AoptIOLspinbox);
-    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteIOLLay                      ->addWidget(lblAEchoIOL);
-    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteIOLLay                      ->addWidget(AechoIOLspinbox);
-    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteIOLLay                      ->addWidget(lblACDIOL);
-    csteIOLLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteIOLLay                      ->addWidget(ACDIOLspinbox);
-    csteIOLLay                      ->setSpacing(5);
-    csteIOLLay                      ->setContentsMargins(0,0,0,0);
-
-    //! Haigis
-    QHBoxLayout *HaigisLay          = new QHBoxLayout();
-    UpLabel* HaigisIOL              = new UpLabel;
-    HaigisIOL                       ->setText("Haigis");
-    UpLabel* HaigisaIOL             = new UpLabel;
-    HaigisaIOL                      ->setText("a");
-    UpLabel* HaigisbIOL             = new UpLabel;
-    HaigisbIOL                      ->setText("b");
-    UpLabel* HaigiscIOL             = new UpLabel;
-    HaigiscIOL                      ->setText(tr("c"));
-    UpDoubleSpinBox *aIOLspinbox    = new UpDoubleSpinBox();
-    aIOLspinbox                     ->setRange(-1.0000, 1.0000);
-    aIOLspinbox                     ->setValue(0);
-    aIOLspinbox                     ->setSingleStep(0.0001);
-    aIOLspinbox                     ->setDecimals(4);
-    UpDoubleSpinBox *bIOLspinbox    = new UpDoubleSpinBox();
-    bIOLspinbox                     ->setRange(-1.0000, 1.0000);
-    bIOLspinbox                     ->setValue(0);
-    aIOLspinbox                     ->setSingleStep(0.0001);
-    bIOLspinbox                     ->setDecimals(4);
-    UpDoubleSpinBox *cIOLspinbox    = new UpDoubleSpinBox();
-    cIOLspinbox                     ->setRange(-1.0000, 1.0000);
-    cIOLspinbox                     ->setValue(0);
-    aIOLspinbox                     ->setSingleStep(0.0001);
-    cIOLspinbox                     ->setDecimals(4);
-    HaigisLay                      ->addWidget(HaigisIOL);
-    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    HaigisLay                      ->addWidget(HaigisaIOL);
-    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    HaigisLay                      ->addWidget(aIOLspinbox);
-    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    HaigisLay                      ->addWidget(HaigisbIOL);
-    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    HaigisLay                      ->addWidget(bIOLspinbox);
-    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    HaigisLay                      ->addWidget(HaigiscIOL);
-    HaigisLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    HaigisLay                      ->addWidget(cIOLspinbox);
-    HaigisLay                      ->setSpacing(5);
-    HaigisLay                      ->setContentsMargins(0,0,0,0);
-
-    //! Materiau - Image
-    QVBoxLayout *MateriauLay    = new QVBoxLayout();
-    QHBoxLayout *MateriauImgLay = new QHBoxLayout();
-    UpLabel* Materiaulbl        = new UpLabel;
-    Materiaulbl                 ->setText(tr("Materiau"));
-    UpLabel* ImgIOL             = new UpLabel;
-    ImgIOL                      ->setPixmap(Icons::pxIOL());
-    //ImgIOL                      ->setFixedSize(QSize(50,50));
-    UpLineEdit *Materiauline    = new UpLineEdit();
-    MateriauLay                 ->insertWidget(0,Materiauline);
-    MateriauLay                 ->insertWidget(0,Materiaulbl);
-    MateriauLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    MateriauImgLay              ->addLayout(MateriauLay);
-    MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    MateriauImgLay              ->addWidget(ImgIOL);
-    MateriauImgLay              ->setContentsMargins(0,0,0,0);
-
-    //! Remarque
-    QHBoxLayout *remarqueLay    = new QHBoxLayout();
-    QVBoxLayout *RemarqueHLay   = new QVBoxLayout();
-    UpLabel* Remarquelbl        = new UpLabel;
-    Remarquelbl                 ->setText(tr("Remarque"));
-    UpTextEdit* Remarquetxt     = new UpTextEdit();
-    remarqueLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    remarqueLay                 ->insertWidget(0,Remarquelbl);
-    RemarqueHLay                ->addLayout(remarqueLay);
-    RemarqueHLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    RemarqueHLay                ->addWidget(Remarquetxt);
-    RemarqueHLay                ->setContentsMargins(0,0,0,0);
-
-
-    dlg_IOL->dlglayout()   ->insertLayout(0, RemarqueHLay);
-    dlg_IOL->dlglayout()   ->insertLayout(0, MateriauImgLay);
-    dlg_IOL->dlglayout()   ->insertLayout(0, HaigisLay);
-    dlg_IOL->dlglayout()   ->insertLayout(0, csteIOLLay);
-    dlg_IOL->dlglayout()   ->insertLayout(0, choixIOLLay);
-    dlg_IOL->dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
-    dlg_IOL->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_IOL->dlglayout()   ->setSpacing(5);
-    dlg_IOL->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_IOL->OKButton, &QPushButton::clicked, dlg_IOL, [&]
-    {
-        QString modele = IOLline->text();
-        int idmanufacturer = manufacturercombo->currentData().toInt();
-        foreach(IOL *iol, Datas::I()->iols->iols()->values())
-        {
-            if (nwiol == Q_NULLPTR)
-            {
-                if (iol->modele() == modele)
-                {
-                    UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
-                    return;
-                }
-            }
-            else
-                if (iol->modele() == modele && iol->id()!= nwiol->id())
-                {
-                    UpMessageBox::Watch(this, tr("Cet implant existe déjà!"));
-                    return;
-                }
-        }
-        QHash<QString, QVariant> listbinds;
-        listbinds[CP_MODELNAME_IOLS]    = modele;
-        listbinds[CP_IDMANUFACTURER_IOLS]  = idmanufacturer;
-        listbinds[CP_INACTIF_IOLS]  = (IOLchk->isChecked()? "1" : QVariant());
-        if (nwiol == Q_NULLPTR)
-            nwiol =  Datas::I()->iols->CreationIOL(listbinds);
-        else
-        {
-            DataBase::I()->UpdateTable(TBL_IOLS, listbinds, "where " CP_ID_IOLS " = " + QString::number(nwiol->id()));
-            nwiol->setidmanufacturer(idmanufacturer);
-            nwiol->setmodele(modele);
-            bool a = !IOLchk->isChecked();
-            nwiol->setactif(a);
-        }
+        IOL *iol = Datas::I()->iols->CreationIOL(Dlg_IdentIOL->Listbinds());
         m_listemodifiee = true;
         ReconstruitTreeViewIOLs();
-        for (int i=0; i<m_IOLsmodel->rowCount(); ++i)
-        {
-            UpStandardItem *manitem = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
-            if (manitem != Q_NULLPTR)
-                if (manitem->item() != Q_NULLPTR)
-                    if (manitem->item()->id() == nwiol->idmanufacturer() && manitem->hasChildren())
-                        for (int k=0; k < manitem->rowCount(); ++k)
-                        {
-                            UpStandardItem *iolitem = dynamic_cast<UpStandardItem*>(manitem->child(k));
-                            if (iolitem != Q_NULLPTR)
-                                if (iolitem->item() != Q_NULLPTR)
-                                    if (iolitem->item()->id() == nwiol->id())
-                                    {
-                                        wdg_iolstree->scrollTo(iolitem->index(), QAbstractItemView::PositionAtCenter);
-                                        dlg_IOL->close();
-                                        return;
-                                    }
-                        }
-        }
-        dlg_IOL->close();
-    });
-    dlg_IOL->exec();
+        if (iol)
+            scrollToIOL(iol);
+    }
+    delete Dlg_IdentIOL;
 }
-
 // ------------------------------------------------------------------------------------------
 // renvoie l'IOL correspondant à l'index
 // ------------------------------------------------------------------------------------------
@@ -374,17 +143,51 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 
 
 // ------------------------------------------------------------------------------------------
-// Modifie un correpondant
+// Modifie un IOL
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::ModifIOL(IOL *iol)
 {
     if (iol == Q_NULLPTR)
         return;
-    FicheIOL(iol);
+    dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(dlg_identificationIOL::Modification, iol, Q_NULLPTR, this);
+    if (Dlg_IdentIOL->exec()>0)
+    {
+        DataBase::I()->UpdateTable(TBL_IOLS, Dlg_IdentIOL->Listbinds(), " where " CP_ID_IOLS " = " + QString::number(iol->id()),tr("Impossible de modifier l'IOL"));
+        if (iol)
+        {
+            m_listemodifiee = true;
+            ReconstruitTreeViewIOLs();
+            scrollToIOL(iol);
+        }
+    }
+    delete Dlg_IdentIOL;
+}
+
+void dlg_listeiols::scrollToIOL(IOL *iol)
+{
+    if (iol != Q_NULLPTR)
+    {
+        int id = iol->id();
+        for (int i=0; i < m_IOLsmodel->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_IOLsmodel->item(i));
+            if (itm)
+            {
+                if (itm->item() != Q_NULLPTR)
+                {
+                    if (itm->item()->id() == id)
+                    {
+                        wdg_iolstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
+                        i = m_IOLsmodel->rowCount();
+                    }
+                }
+            }
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------
-// Supprime un correpondant
+// Supprime un IOL
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::SupprIOL()
 {
