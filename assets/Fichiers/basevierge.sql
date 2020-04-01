@@ -280,9 +280,13 @@ CREATE TABLE `IOLs` (
   `Haigisa2` double DEFAULT NULL,
   `Holladay1sf` double DEFAULT NULL,
   `DiametreInjecteur` double DEFAULT NULL,
-  `Image` blob,
+  `Image` longblob,
+  `TypeImage` varchar(3) DEFAULT NULL,
   `Materiau` varchar(45) DEFAULT NULL,
-  `Remarque` varchar(100) DEFAULT NULL,
+  `Remarque` varchar(200) DEFAULT NULL,
+  `Precharge` INT(1) DEFAULT NULL,
+  `Jaune` INT(1) NULL DEFAULT NULL,
+  `Multifocal` INT(1) NULL DEFAULT NULL,
   `IOLInactif` int(1) DEFAULT NULL,
   PRIMARY KEY (`idIOL`)
 ) ENGINE=InnoDB;

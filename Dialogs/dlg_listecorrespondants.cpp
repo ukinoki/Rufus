@@ -131,7 +131,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 // ------------------------------------------------------------------------------------------
 Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex idx )
 {
-    UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
+    UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_correspondantsmodel->itemFromIndex(idx));
     if (it != Q_NULLPTR)
         return dynamic_cast<Correspondant *>(it->item());
     else
@@ -164,9 +164,9 @@ void dlg_listecorrespondants::scrollToCorresp(Correspondant *cor)
 {
     if (cor != Q_NULLPTR)
     {
-        for (int i=0; i < m_model->rowCount(); ++i)
+        for (int i=0; i < m_correspondantsmodel->rowCount(); ++i)
         {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_model->item(i));
+            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_correspondantsmodel->item(i));
             if (itm)
             {
                 if (itm->hasChildren())
@@ -185,7 +185,7 @@ void dlg_listecorrespondants::scrollToCorresp(Correspondant *cor)
                                         wdg_correspstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
                                         wdg_correspstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
                                         j = itm->rowCount();
-                                        i = m_model->rowCount();
+                                        i = m_correspondantsmodel->rowCount();
                                     }
                                 }
                             }
@@ -250,13 +250,13 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     if (reconstruirelaliste)
         Datas::I()->correspondants->initListe(true);
     wdg_correspstree->disconnect();
-    if (m_model == Q_NULLPTR)
-        delete m_model;
-    m_model = new QStandardItemModel(this);
+    if (m_correspondantsmodel == Q_NULLPTR)
+        delete m_correspondantsmodel;
+    m_correspondantsmodel = new QStandardItemModel(this);
 
     UpStandardItem *pitem;
     foreach(UpStandardItem *item, ListeMetiers())
-        m_model->appendRow(item);
+        m_correspondantsmodel->appendRow(item);
 
     foreach(Correspondant *cor, Datas::I()->correspondants->correspondants()->values())
     {
@@ -264,27 +264,32 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         {
             pitem   = new UpStandardItem(cor->nomprenom(), cor);
             pitem   ->setEditable(false);
-            QList<QStandardItem *> listitems = m_model->findItems(Utils::trimcapitilize(cor->metier(), true, false));
+            QList<QStandardItem *> listitems = m_correspondantsmodel->findItems(Utils::trimcapitilize(cor->metier(), true, false));
             if (listitems.size()>0)
                 listitems.at(0)->appendRow(pitem);
         }
     }
-    for (int i=0; i<m_model->rowCount();i++)
-        if (!m_model->item(i)->hasChildren())
+    for (int i=0; i<m_correspondantsmodel->rowCount();i++)
+        if (!m_correspondantsmodel->item(i)->hasChildren())
         {
-            m_model->removeRow(i);
+            m_correspondantsmodel->removeRow(i);
             i--;
         }
-    wdg_correspstree     ->setModel(m_model);
+    wdg_correspstree     ->setModel(m_correspondantsmodel);
     wdg_correspstree     ->expandAll();
-    if (m_model->rowCount()>0)
+    if (m_correspondantsmodel->rowCount()>0)
     {
-        m_model->sort(0);
-        m_model->sort(1);
-        connect(wdg_correspstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_model->itemFromIndex(idx)->hasChildren())
-                                                                                                            QToolTip::showText(cursor().pos(), getCorrespondantFromIndex(idx)->adresseComplete()); } );
+        m_correspondantsmodel->sort(0);
+        m_correspondantsmodel->sort(1);
+        connect(wdg_correspstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
+                                                                                                            {
+                                                                                                                Correspondant * cor = getCorrespondantFromIndex(idx);
+                                                                                                                if (cor)
+                                                                                                                    QToolTip::showText(cursor().pos(), cor->adresseComplete());
+                                                                                                            }
+                                                                                                      } );
         connect(wdg_correspstree,    &QAbstractItemView::pressed,       this,   &dlg_listecorrespondants::Enablebuttons);
-        connect(wdg_correspstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_model->itemFromIndex(idx)->hasChildren())
+        connect(wdg_correspstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifCorresp(getCorrespondantFromIndex(idx)); });
     }
 }

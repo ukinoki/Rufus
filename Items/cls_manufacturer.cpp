@@ -91,6 +91,16 @@ QString Manufacturer::cormail() const       { return m_cormail; }
 QString Manufacturer::cortelephone() const  { return m_cortelephone; }
 bool Manufacturer::isactif() const          { return !m_inactif; }
 
+QString Manufacturer::tooltip() const
+{
+    QString ttip = "";
+    if (telephone() != "")
+        ttip += tr("Telephone:") + " " + telephone();
+    if (cornom() != "")
+        ttip += "\n" + cornom().toUpper() + " " + corprenom() + " " + cortelephone();
+    return ttip;
+}
+
 void Manufacturer::setnom(const QString &nom)                   { m_nom = nom; m_data[CP_NOM_MANUFACTURER] = nom; }
 void Manufacturer::setadresse1(const QString &adresse1)         { m_adresse1 = adresse1; m_data[CP_ADRESSE1_MANUFACTURER] = adresse1; }
 void Manufacturer::setadresse2(const QString &adresse2)         { m_adresse2 = adresse2; m_data[CP_ADRESSE2_MANUFACTURER] = adresse2; }

@@ -159,7 +159,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
         return;
     if (Dlg_IdentIOL->exec()>0)
     {
-        DataBase::I()->UpdateTable(TBL_IOLS, Dlg_IdentIOL->Listbinds(), " where " CP_ID_IOLS " = " + QString::number(iol->id()),tr("Impossible de modifier l'IOL"));
+        DataBase::I()->UpDateIOL(iol->id(), Dlg_IdentIOL->Listbinds());
         if (iol)
         {
             int idiol = iol->id();
@@ -327,6 +327,13 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
     {
         m_IOLsmodel->sort(0);
         m_IOLsmodel->sort(1);
+        connect(wdg_iolstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
+                                                                                                        {
+                                                                                                            IOL*iol = getIOLFromIndex(idx);
+                                                                                                            if (iol)
+                                                                                                                QToolTip::showText(cursor().pos(), iol->tooltip());
+                                                                                                        }
+                                                                                                    } );
         connect(wdg_iolstree,    &QAbstractItemView::pressed,       this,   &dlg_listeiols::Enablebuttons);
         connect(wdg_iolstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });

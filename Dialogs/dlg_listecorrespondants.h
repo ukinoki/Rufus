@@ -31,7 +31,7 @@ public:
 private:
     bool                    m_listemodifiee = false;
 
-    QStandardItemModel      *m_model = Q_NULLPTR;
+    QStandardItemModel      *m_correspondantsmodel = Q_NULLPTR;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_correspstree;
     UpLineEdit              *wdg_chercheuplineedit;

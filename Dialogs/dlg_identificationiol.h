@@ -35,13 +35,18 @@ public:
     bool                        initok() const          { return m_initok; }
 
 private:
-    QRegExp             rgx_csteA = QRegExp("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegExp             rgx_csteA           = QRegExp("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegExp             rgx_diainjecteur    = QRegExp("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegExp             rgx_diaoptique      = QRegExp("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegExp             rgx_diaht           = QRegExp("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegExp             rgx_haigis          = QRegExp("[0]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
     Mode                m_mode;
     Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
     IOL                 *m_currentIOL           = Q_NULLPTR;
-    QHash<QString, QVariant>    m_listbinds;
+    QHash<QString, QVariant>
+                        m_listbinds;
     bool                m_initok = true;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
@@ -51,13 +56,25 @@ private:
     UpLineEdit          *wdg_haigisaline;
     UpLineEdit          *wdg_haigisbline;
     UpLineEdit          *wdg_haigiscline;
+    UpLineEdit          *wdg_diaoptique;
+    UpLineEdit          *wdg_diaht;
+    UpLineEdit          *wdg_diainjecteur;
     UpLabel             *wdg_imgIOL;
     UpLineEdit          *wdg_materiauline;
     UpTextEdit          *wdg_remarquetxt;
+    QCheckBox           *wdg_prechargechk;
+    QCheckBox           *wdg_jaunechk;
+    QCheckBox           *wdg_inactifchk;
+    QCheckBox           *wdg_multifocalchk;
 
     void                AfficheDatasIOL();
+    void                changeImage();
+    void                menuChangeImage();
     void                EnableOKpushButton();
     void                OKpushButtonClicked();
+    void                setimage(QImage img);
+    void                setpdf(QByteArray ba);
+    void                supprimeImage();
 };
 
 #endif // DLG_IDENTIFICATIONIOL_H

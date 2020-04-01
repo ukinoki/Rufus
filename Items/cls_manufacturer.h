@@ -50,6 +50,7 @@ public:
     QString cormail() const;
     QString cortelephone() const;
     bool isactif() const;
+    QString tooltip() const;
 
     void setnom(const QString &nom);
     void setadresse1(const QString &adresse1);

@@ -102,7 +102,7 @@ BEGIN
                     ADD COLUMN `Incident` LONGTEXT NULL DEFAULT NULL AFTER `idLieu`;
                 END IF;
         END IF;
-	SELECT COUNT(*) INTO tot FROM
+     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'DiametreOptique') as chp;
@@ -125,9 +125,13 @@ BEGIN
             ADD COLUMN `Haigisa2` DOUBLE NULL DEFAULT NULL AFTER `Haigisa1`,
             ADD COLUMN `Holladay1sf` DOUBLE NULL DEFAULT NULL AFTER `Haigisa2`,
             ADD COLUMN `DiametreInjecteur` DOUBLE NULL DEFAULT NULL AFTER `Holladay1sf`,
-            ADD COLUMN `Image` BLOB NULL DEFAULT NULL AFTER `DiametreInjecteur`,
-            ADD COLUMN `Materiau` VARCHAR(45) NULL DEFAULT NULL AFTER `Image`,
-            ADD COLUMN `Remarque` VARCHAR(100) NULL DEFAULT NULL AFTER `Materiau`;
+            ADD COLUMN `Image` LONGBLOB NULL DEFAULT NULL AFTER `DiametreInjecteur`,
+            ADD COLUMN `TypeImage` VARCHAR(3) NULL DEFAULT NULL AFTER `Image`,
+            ADD COLUMN `Materiau` VARCHAR(45) NULL DEFAULT NULL AFTER `TypeImage`;
+            ADD COLUMN `Remarque` VARCHAR(100) NULL DEFAULT NULL AFTER `Materiau`,
+            ADD COLUMN `Precharge` INT(1) NULL DEFAULT NULL AFTER `Remarque`,
+            ADD COLUMN `Jaune` INT(1) NULL DEFAULT NULL AFTER `Precharge`,
+            ADD COLUMN `Multifocal` INT(1) NULL DEFAULT NULL AFTER `Jaune`;
             END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY

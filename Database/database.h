@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
 
+#include <QBuffer>
 #include <QJsonObject>
 #include <QHostInfo>
 #include <QObject>
@@ -364,6 +365,7 @@ public:
     QList<IOL*>             loadIOLs();                                             //! charge tous les IOLs
     QList<IOL*>             loadIOLsByManufacturerId(int id);                       //! charge tous les IOLs d'un fabricant
     IOL*                    loadIOLById(int idintervention);                        //! charge les datas d'un IOL défini par son id - utilisé pour renouveler les données en cas de modification
+    void                    UpDateIOL(int id, QHash<QString, QVariant> sets);
 
     /*
      * TypeInterventions

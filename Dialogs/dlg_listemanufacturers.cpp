@@ -237,7 +237,11 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
     if (m_model->rowCount()>0)
     {
         m_model->sort(0);
-        connect(wdg_manufacturerstree,    &QAbstractItemView::entered,          this,   [=] (QModelIndex idx) { QToolTip::showText(cursor().pos(), getmanufacturerFromIndex(idx)->adresseComplete()); } );
+        connect(wdg_manufacturerstree,    &QAbstractItemView::entered,          this,   [=] (QModelIndex idx) {
+                                                                                                                    Manufacturer * man = getmanufacturerFromIndex(idx);
+                                                                                                                    if (man)
+                                                                                                                        QToolTip::showText(cursor().pos(), man->tooltip());
+                                                                                                              } );
         connect(wdg_manufacturerstree,    &QAbstractItemView::pressed,          this,   &dlg_listemanufacturers::Enablebuttons);
         connect(wdg_manufacturerstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifManufacturer(getmanufacturerFromIndex(idx)); });
     }
