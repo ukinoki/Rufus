@@ -233,7 +233,10 @@ bool DataBase::UpdateTable(QString nomtable,
     while (itset.hasNext())
     {
         itset.next();
-        req += " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+        QString clause  = " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+        //qDebug() << "itset.value().toString() = " << itset.value().toString();
+        //qDebug() << "clause = " << clause;
+        req += clause;
     }
     req = req.left(req.size()-1); //retire la virgule de la fin
     req += " " + where;
@@ -2695,6 +2698,10 @@ QMap<QString, QVariant> DataBase::loadIOLData(QVariantList ioldata)             
 
 QList<IOL*> DataBase::loadIOLs()                                            //! charge tous les IOLS
 {
+    QString reqdel = "delete from " TBL_IOLS " where " CP_MODELNAME_IOLS " is null or " CP_MODELNAME_IOLS " = \"\""
+                     " or " CP_IDMANUFACTURER_IOLS " is null or " CP_IDMANUFACTURER_IOLS " not in (select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS ")";
+    //qDebug() << reqdel;
+    StandardSQL(reqdel, "erreu del");
     QList<IOL*> list = QList<IOL*> ();
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
@@ -2743,6 +2750,10 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
 
 IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    QString reqdel = "delete from " TBL_IOLS " where " CP_MODELNAME_IOLS " is null or " CP_MODELNAME_IOLS " = \"\""
+                     " or " CP_IDMANUFACTURER_IOLS " is null or " CP_IDMANUFACTURER_IOLS " not in (select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS ")";
+    //qDebug() << reqdel;
+    StandardSQL(reqdel, "");
     IOL *iol = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9

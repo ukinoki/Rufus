@@ -84,7 +84,9 @@ void dlg_listemanufacturers::Enablebuttons()
 
 void dlg_listemanufacturers::ChoixButtonFrame()
 {
-    Manufacturer *man = getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0));
+    Manufacturer *man = Q_NULLPTR;
+    if (wdg_manufacturerstree->selectionModel()->selectedIndexes().size())
+        man = getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauManufacturer();
@@ -94,7 +96,8 @@ void dlg_listemanufacturers::ChoixButtonFrame()
             ModifManufacturer(man);
         break;
     case WidgetButtonFrame::Moins:
-        SupprManufacturer();
+        if (man)
+            SupprManufacturer(man);
         break;
     }
 }
@@ -146,9 +149,12 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
         DataBase::I()->UpdateTable(TBL_MANUFACTURERS, Dlg_IdentManufacturer->Listbinds(), " where " CP_ID_MANUFACTURER " = " + QString::number(man->id()),tr("Impossible de modifier le dossier"));
         if (man != Q_NULLPTR)
         {
+            int idman = man->id();
             m_listemodifiee = true;
             ReconstruitTreeViewManufacturers(true);
-            scrollToManufacturer(man);
+            man = Datas::I()->manufacturers->getById(idman);
+            if (man)
+                scrollToManufacturer(man);
         }
     }
     delete Dlg_IdentManufacturer;
@@ -169,6 +175,7 @@ void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
                     if (itm->item()->id() == id)
                     {
                         wdg_manufacturerstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
+                        wdg_manufacturerstree->selectionModel()->select(itm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
                         i = m_model->rowCount();
                     }
                 }
@@ -179,12 +186,12 @@ void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
 // ------------------------------------------------------------------------------------------
 // Supprime un fabricant
 // ------------------------------------------------------------------------------------------
-void dlg_listemanufacturers::SupprManufacturer()
+void dlg_listemanufacturers::SupprManufacturer(Manufacturer *man)
 {
-    if (wdg_manufacturerstree->selectionModel()->selectedIndexes().size() == 0) return;
+    if (!man) return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
-            m_model->itemFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0))->text() + "?" +
+            man->nom() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");

@@ -93,17 +93,20 @@ void dlg_listeiols::Enablebuttons()
 
 void dlg_listeiols::ChoixButtonFrame()
 {
+    IOL *iol = Q_NULLPTR;
+    if (wdg_iolstree->selectionModel()->selectedIndexes().size())
+        iol = getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauIOL();
         break;
     case WidgetButtonFrame::Modifier:
-        if (wdg_iolstree->selectionModel()->selectedIndexes().size()==0)
-            return;
-        ModifIOL(getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0)));
+        if (iol)
+            ModifIOL(iol);
         break;
     case WidgetButtonFrame::Moins:
-        SupprIOL();
+        if (iol)
+            SupprIOL(iol);
         break;
     }
 }
@@ -119,11 +122,13 @@ bool dlg_listeiols::listeIOLsmodifiee() const
 void dlg_listeiols::EnregistreNouveauIOL()
 {
     dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(dlg_identificationIOL::Creation);
+    if (!Dlg_IdentIOL->initok())
+        return;
     if (Dlg_IdentIOL->exec()>0)
     {
         IOL *iol = Datas::I()->iols->CreationIOL(Dlg_IdentIOL->Listbinds());
         m_listemodifiee = true;
-        ReconstruitTreeViewIOLs();
+        ReconstruitTreeViewIOLs(true);
         if (iol)
             scrollToIOL(iol);
     }
@@ -150,14 +155,19 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     if (iol == Q_NULLPTR)
         return;
     dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(dlg_identificationIOL::Modification, iol, Q_NULLPTR, this);
+    if (!Dlg_IdentIOL->initok())
+        return;
     if (Dlg_IdentIOL->exec()>0)
     {
         DataBase::I()->UpdateTable(TBL_IOLS, Dlg_IdentIOL->Listbinds(), " where " CP_ID_IOLS " = " + QString::number(iol->id()),tr("Impossible de modifier l'IOL"));
         if (iol)
         {
+            int idiol = iol->id();
             m_listemodifiee = true;
-            ReconstruitTreeViewIOLs();
-            scrollToIOL(iol);
+            ReconstruitTreeViewIOLs(true);
+            iol = Datas::I()->iols->getById(idiol);
+            if (iol)
+                scrollToIOL(iol);
         }
     }
     delete Dlg_IdentIOL;
@@ -167,18 +177,31 @@ void dlg_listeiols::scrollToIOL(IOL *iol)
 {
     if (iol != Q_NULLPTR)
     {
-        int id = iol->id();
         for (int i=0; i < m_IOLsmodel->rowCount(); ++i)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_IOLsmodel->item(i));
             if (itm)
             {
-                if (itm->item() != Q_NULLPTR)
+                if (itm->hasChildren())
                 {
-                    if (itm->item()->id() == id)
+                    for (int j=0; j < itm->rowCount(); ++j)
                     {
-                        wdg_iolstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
-                        i = m_IOLsmodel->rowCount();
+                        UpStandardItem *childitm = dynamic_cast<UpStandardItem *>(itm->child(j));
+                        if (childitm)
+                            if (childitm->item())
+                            {
+                                IOL *siol = dynamic_cast<IOL*>(childitm->item());
+                                if (siol)
+                                {
+                                    if (siol->id() == iol->id())
+                                    {
+                                        wdg_iolstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
+                                        wdg_iolstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                                        j = itm->rowCount();
+                                        i = m_IOLsmodel->rowCount();
+                                    }
+                                }
+                            }
                     }
                 }
             }
@@ -189,12 +212,12 @@ void dlg_listeiols::scrollToIOL(IOL *iol)
 // ------------------------------------------------------------------------------------------
 // Supprime un IOL
 // ------------------------------------------------------------------------------------------
-void dlg_listeiols::SupprIOL()
+void dlg_listeiols::SupprIOL(IOL *iol)
 {
-    if (wdg_iolstree->selectionModel()->selectedIndexes().size() == 0) return;
+    if (!iol) return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
-            m_IOLsmodel->itemFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0))->text() + "?" +
+            iol->modele() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");

@@ -43,7 +43,8 @@ private:
     Correspondant*          getCorrespondantFromIndex(QModelIndex idx);
     QList<UpStandardItem *> ListeMetiers();                // la liste des metiers
     void                    ModifCorresp(Correspondant *cor);
-    void                    SupprCorresp();
+    void                    scrollToCorresp(Correspondant *cor);
+    void                    SupprCorresp(Correspondant *cor);
     void                    ReconstruitTreeViewCorrespondants(bool reconstruirelaliste = false, QString filtre = "");
 };
 

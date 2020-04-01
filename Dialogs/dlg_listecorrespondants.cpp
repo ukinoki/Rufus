@@ -80,17 +80,20 @@ void dlg_listecorrespondants::Enablebuttons()
 
 void dlg_listecorrespondants::ChoixButtonFrame()
 {
+    Correspondant *cor = Q_NULLPTR;
+    if (wdg_correspstree->selectionModel()->selectedIndexes().size())
+        cor = getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauCorresp();
         break;
     case WidgetButtonFrame::Modifier:
-        if (wdg_correspstree->selectionModel()->selectedIndexes().size()==0)
-            return;
-        ModifCorresp(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)));
+        if (cor)
+            ModifCorresp(cor);
         break;
     case WidgetButtonFrame::Moins:
-        SupprCorresp();
+        if (cor)
+        SupprCorresp(cor);
         break;
     }
 }
@@ -109,8 +112,16 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
     dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     if (Dlg_IdentCorresp->exec()>0)
     {
+        int idcor = -1;
+        Correspondant *cor = Dlg_IdentCorresp->correspondantrenvoye();
+        if (cor)
+            idcor = cor->id();
         m_listemodifiee = true;
-        ReconstruitTreeViewCorrespondants();
+        ReconstruitTreeViewCorrespondants(true);
+        if (idcor>0)
+            cor = Datas::I()->correspondants->getById(idcor);
+        if (cor)
+            scrollToCorresp(cor);
     }
     delete Dlg_IdentCorresp;
 }
@@ -139,21 +150,61 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
     dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor);
     if (Dlg_IdentCorresp->exec()>0)
     {
+        int idcor = cor->id();
         m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants(true);
+        cor = Datas::I()->correspondants->getById(idcor);
+        if (cor)
+            scrollToCorresp(cor);
     }
     delete Dlg_IdentCorresp;
+}
+
+void dlg_listecorrespondants::scrollToCorresp(Correspondant *cor)
+{
+    if (cor != Q_NULLPTR)
+    {
+        for (int i=0; i < m_model->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_model->item(i));
+            if (itm)
+            {
+                if (itm->hasChildren())
+                {
+                    for (int j=0; j < itm->rowCount(); ++j)
+                    {
+                        UpStandardItem *childitm = dynamic_cast<UpStandardItem *>(itm->child(j));
+                        if (childitm)
+                            if (childitm->item())
+                            {
+                                Correspondant *scor = dynamic_cast<Correspondant*>(childitm->item());
+                                if (scor)
+                                {
+                                    if (scor->id() == cor->id())
+                                    {
+                                        wdg_correspstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
+                                        wdg_correspstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                                        j = itm->rowCount();
+                                        i = m_model->rowCount();
+                                    }
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------
 // Supprime un correpondant
 // ------------------------------------------------------------------------------------------
-void dlg_listecorrespondants::SupprCorresp()
+void dlg_listecorrespondants::SupprCorresp(Correspondant *cor)
 {
-    if (wdg_correspstree->selectionModel()->selectedIndexes().size() == 0) return;
+    if (!cor) return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
-            m_model->itemFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0))->text() + "?" +
+           cor->nomprenom() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");

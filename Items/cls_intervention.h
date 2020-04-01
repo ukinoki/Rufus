@@ -181,6 +181,7 @@ private: //Données de l'intervention
     double m_haigisa0       = 0;                //! constante Haigis a0
     double m_haigisa1       = 0;                //! constante Haigis a1
     double m_haigisa2       = 0;                //! constante Haigis a2
+    double m_holladay       = 0;                //! constante Holladay
     double m_acd            = 0;                //! ACD
     double m_diainjecteur   = 0;                //! diamètre minimal de l'injecteur
     QByteArray m_imgiol     = QByteArray();     //! le cliché de l'IOL
@@ -202,6 +203,7 @@ public:
     double haigisa0() const                     { return m_haigisa0; }
     double haigisa1() const                     { return m_haigisa1; }
     double haigisa2() const                     { return m_haigisa2; }
+    double holladay() const                     { return m_holladay; }
     double acd() const                          { return m_acd; }
     double diainjecteur() const                 { return m_diainjecteur; }
     QByteArray imgiol() const                   { return m_imgiol; }
@@ -224,6 +226,7 @@ public:
     void setHaigisa0(double haigisa0)           { m_haigisa0 = haigisa0;            m_map[CP_HAIGISA0_IOLS] = haigisa0; }
     void setHaigisa1(double haigisa1)           { m_haigisa1 = haigisa1;            m_map[CP_HAIGISA1_IOLS] = haigisa1; }
     void setHaigisa2(double haigisa2)           { m_haigisa2 = haigisa2;            m_map[CP_HAIGISA2_IOLS] = haigisa2; }
+    void setHolladay(double holladay)           { m_holladay = holladay;            m_map[CP_HOLL1_IOLS] = holladay; }
     void setAcd(double acd)                     { m_acd = acd;                      m_map[CP_ACD_IOLS] = acd; }
     void setDiainjecteur(double diainjecteur)   { m_diainjecteur = diainjecteur;    m_map[CP_DIAINJECTEUR_IOLS] = diainjecteur; }
     void setImgiol(const QByteArray &imgiol)    { m_imgiol = imgiol;                m_map[CP_IMG_IOLS] = imgiol; }

@@ -20,6 +20,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufacturer *man, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentIOL", parent)
 {
+    if (Datas::I()->manufacturers->manufacturers()->size() == 0)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Aucun fabricant enregistré"), tr("Vous devez avoir des fabricants enregistrés dans la base pour pouvoir gérer les implants"));
+        m_initok = false;
+        return;
+    }
     m_mode = mode;
     if (iol != Q_NULLPTR)
         m_currentIOL      = iol;
@@ -41,6 +47,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
             UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
             items << itemman << itemid;
             m_manufacturersmodel->appendRow(items);
+            m_manufacturersmodel->sort(0);
         }
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
@@ -53,6 +60,8 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     }
     if (m_currentmanufacturer)
         wdg_manufacturercombo   ->setEnabled(false);
+    else
+        m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->itemData(0).toInt());
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixManufacturerIOLLay     ->addWidget(wdg_manufacturercombo);
@@ -84,10 +93,10 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     UpLabel* lblACDIOL              = new UpLabel;
     lblACDIOL                       ->setText(tr("ACD"));
     wdg_Aoptline                    = new UpLineEdit();
-    upDoubleValidator *csteA_val    = new upDoubleValidator(0, 121, 1, this);
-    wdg_Aoptline                    ->setValidator(csteA_val);
+    wdg_Aoptline                    ->setValidator(new QRegExpValidator(rgx_csteA, wdg_Aoptline));
     wdg_Aoptline                    ->setFixedSize(QSize(60,28));
     wdg_Aecholine                   = new UpLineEdit();
+    wdg_Aecholine                   ->setValidator(new QRegExpValidator(rgx_csteA, wdg_Aecholine));
     wdg_Aecholine                   ->setFixedSize(QSize(60,28));
     upDoubleValidator *ACD_val      = new upDoubleValidator(1, 8, 2, this);
     wdg_ACDline                     = new UpLineEdit();
@@ -198,7 +207,12 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     AfficheDatasIOL();
 
     connect(OKButton, &QPushButton::clicked, this, &dlg_identificationIOL::OKpushButtonClicked);
-    connect (wdg_manufacturercombo, QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_manufacturercombo, QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&](int id) {
+                                                                                                                    int idman = wdg_manufacturercombo->itemData(id).toInt();
+                                                                                                                    m_currentmanufacturer = Datas::I()->manufacturers->getById(idman);
+                                                                                                                    qDebug() << m_currentmanufacturer->nom();
+                                                                                                                    EnableOKpushButton();
+                                                                                                                });
     connect (wdg_nomiolline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_Aoptline,          &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_Aecholine,         &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
@@ -214,6 +228,8 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     setStageCount(1);
 }
 
+
+
 /*--------------------------------------------------------------------------------------------
 -- Afficher la fiche de l'implant
 --------------------------------------------------------------------------------------------*/
@@ -228,17 +244,17 @@ void dlg_identificationIOL::AfficheDatasIOL()
     {
         wdg_nomiolline      ->setText(m_currentIOL->modele());
         if (m_currentIOL->csteAopt() > 0.0)
-            wdg_Aoptline        ->setText(QString::number(m_currentIOL->csteAopt(), 'f', 1));
+            wdg_Aoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt(), 'f', 1));
         if (m_currentIOL->csteAEcho() > 0.0)
-            wdg_Aecholine       ->setText(QString::number(m_currentIOL->csteAEcho(), 'f', 1));
+            wdg_Aecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho(), 'f', 1));
         if (m_currentIOL->acd() > 0.0)
-            wdg_ACDline         ->setText(QString::number(m_currentIOL->acd(), 'f', 2));
+            wdg_ACDline         ->setText(QLocale().toString(m_currentIOL->acd(), 'f', 2));
         if (m_currentIOL->haigisa0() > 0.0)
-            wdg_haigisaline     ->setText(QString::number(m_currentIOL->haigisa0(), 'f', 4));
+            wdg_haigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0(), 'f', 4));
         if (m_currentIOL->haigisa1() > 0.0)
-            wdg_haigisbline     ->setText(QString::number(m_currentIOL->haigisa1(), 'f', 4));
+            wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1(), 'f', 4));
         if (m_currentIOL->haigisa2() > 0.0)
-            wdg_haigiscline     ->setText(QString::number(m_currentIOL->haigisa2(), 'f', 4));
+            wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2(), 'f', 4));
         wdg_materiauline    ->setText(m_currentIOL->materiau());
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
     }

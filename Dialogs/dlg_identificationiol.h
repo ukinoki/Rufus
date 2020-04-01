@@ -26,20 +26,23 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class dlg_identificationIOL : public UpDialog
 {
 public:
-    enum Mode   {Creation, Modification};    Q_ENUM(Mode)
-    explicit dlg_identificationIOL(enum Mode mode, IOL *iol = Q_NULLPTR, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
+    explicit                    dlg_identificationIOL(enum Mode mode, IOL *iol = Q_NULLPTR, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     dlg_identificationIOL();
-    void    setNomIOL(QString nom) {wdg_nomiolline->setText(nom);}
-    IOL*    currentIOL() const      { return m_currentIOL; }
-    QHash<QString, QVariant> Listbinds() const  { return m_listbinds;  }
+    void                        setNomIOL(QString nom)  {wdg_nomiolline->setText(nom);}
+    IOL*                        currentIOL() const      { return m_currentIOL; }
+    QHash<QString, QVariant>    Listbinds() const       { return m_listbinds;  }
+    bool                        initok() const          { return m_initok; }
 
 private:
+    QRegExp             rgx_csteA = QRegExp("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
     Mode                m_mode;
     Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
     IOL                 *m_currentIOL           = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
+    bool                m_initok = true;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
     UpLineEdit          *wdg_Aoptline;

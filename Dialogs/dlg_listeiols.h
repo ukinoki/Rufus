@@ -53,7 +53,7 @@ private:
     void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
     void                    scrollToIOL(IOL *iol);
-    void                    SupprIOL();
+    void                    SupprIOL(IOL *iol);
     void                    ReconstruitTreeViewIOLs(bool reconstruirelaliste = false, QString filtre = "");
 };
 

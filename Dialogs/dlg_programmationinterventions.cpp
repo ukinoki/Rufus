@@ -1575,6 +1575,8 @@ void dlg_programmationinterventions::CreerIOL(QString nomiol)
 {
     dlg_identificationIOL *dlg_iol = new dlg_identificationIOL(dlg_identificationIOL::Creation, Q_NULLPTR, m_currentmanufacturer, this);
     dlg_iol->setNomIOL(nomiol);
+    if (!dlg_iol->initok())
+        return;
     if (dlg_iol->exec() > 0)
     {
         m_currentIOL = Datas::I()->iols->CreationIOL(dlg_iol->Listbinds());

@@ -92,9 +92,9 @@ void IOL::setData(QMap<QString, QVariant> map)
 {
     if( map.isEmpty() )
         return;
-//    qDebug() << "map[CP_ID_IOLS]" << map[CP_ID_IOLS];
-//    qDebug() << "map[CP_IDMANUFACTURER_IOLS]" << map[CP_IDMANUFACTURER_IOLS];
 //    qDebug() << "map[CP_MODELNAME_IOLS]" << map[CP_MODELNAME_IOLS];
+//    qDebug() << "map[CP_ACD_IOLS]" << map[CP_ACD_IOLS];
+//    qDebug() << "map[CP_IDMANUFACTURER_IOLS]" << map[CP_IDMANUFACTURER_IOLS];
 //    qDebug() << "map[CP_INACTIF_IOLS]" << map[CP_INACTIF_IOLS];
     m_id                = map[CP_ID_IOLS].toInt();
     m_idmanufacturer    = map[CP_IDMANUFACTURER_IOLS].toInt();
@@ -112,7 +112,7 @@ void IOL::setData(QMap<QString, QVariant> map)
     m_haigisa0          = map[CP_HAIGISA0_IOLS].toDouble();
     m_haigisa1          = map[CP_HAIGISA1_IOLS].toDouble();
     m_haigisa2          = map[CP_HAIGISA2_IOLS].toDouble();
-    m_acd               = map[CP_HOLL1_IOLS].toDouble();
+    m_holladay          = map[CP_HOLL1_IOLS].toDouble();
     m_diainjecteur      = map[CP_DIAINJECTEUR_IOLS].toDouble();
     m_imgiol            = map[CP_IMG_IOLS].toByteArray();
     m_materiau          = map[CP_MATERIAU_IOLS].toString();

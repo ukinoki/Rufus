@@ -44,7 +44,7 @@ private:
     Manufacturer*           getmanufacturerFromIndex(QModelIndex idx);
     void                    ModifManufacturer(Manufacturer *man);
     void                    scrollToManufacturer(Manufacturer *man);
-    void                    SupprManufacturer();
+    void                    SupprManufacturer(Manufacturer *man);
     void                    ReconstruitTreeViewManufacturers(bool reconstruirelaliste = false, QString filtre = "");
 };
 
