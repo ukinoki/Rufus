@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updialog.h"
 #include "cls_interventions.h"
 #include "updoublevalidator.h"
+#include "updoublespinbox.h"
 
 class dlg_identificationIOL : public UpDialog
 {
@@ -31,7 +32,6 @@ public:
     dlg_identificationIOL();
     void                        setNomIOL(QString nom)  {wdg_nomiolline->setText(nom);}
     IOL*                        currentIOL() const      { return m_currentIOL; }
-    QHash<QString, QVariant>    Listbinds() const       { return m_listbinds;  }
     bool                        initok() const          { return m_initok; }
 
 private:
@@ -48,10 +48,14 @@ private:
     QHash<QString, QVariant>
                         m_listbinds;
     bool                m_initok = true;
+    QImage              m_nullimage = QImage("://IOL.png");
+    QImage              m_currentimage;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
     UpLineEdit          *wdg_Aoptline;
     UpLineEdit          *wdg_Aecholine;
+    UpDoubleSpinBox     *wdg_puissancemaxspin;
+    UpDoubleSpinBox     *wdg_puissanceminspin;
     UpLineEdit          *wdg_ACDline;
     UpLineEdit          *wdg_haigisaline;
     UpLineEdit          *wdg_haigisbline;
@@ -67,11 +71,13 @@ private:
     QCheckBox           *wdg_inactifchk;
     QCheckBox           *wdg_multifocalchk;
 
+    bool                eventFilter(QObject *obj, QEvent *event);
     void                AfficheDatasIOL();
     void                changeImage();
     void                menuChangeImage();
     void                EnableOKpushButton();
     void                OKpushButtonClicked();
+    void                PrefixePlus(QDoubleSpinBox *spinbox);
     void                setimage(QImage img);
     void                setpdf(QByteArray ba);
     void                supprimeImage();

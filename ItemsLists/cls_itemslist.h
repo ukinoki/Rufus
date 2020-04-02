@@ -309,8 +309,17 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<IOL*>(item) != Q_NULLPTR)
+        {
+            table = TBL_IOLS;
+            idname = CP_ID_IOLS;
+            loop = true;
+            break;
+        }
         loop = true;
     }
+    if (table == "")
+        UpMessageBox::Watch(Q_NULLPTR, tr("Suppression impossible - l'item n'est pas reconnu"));
     if (table != "" && idname != "")
     {
         DataBase::I()->SupprRecordFromTable(item->id(), idname, table);

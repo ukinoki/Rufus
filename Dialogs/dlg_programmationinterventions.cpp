@@ -74,19 +74,6 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     dlglayout()     ->insertLayout(0, programmLay);
     dlglayout()     ->insertLayout(0, choixmedecinLay);
 
-//    QVBoxLayout *lay0but            = new QVBoxLayout;
-//    lay0but                         ->addWidget(incidentbutt);
-//    lay0but                         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-//    lay0but                         ->addWidget(commandeIOLbutt);
-//    buttbox                         ->insertLayout(0, lay0but);
-
-//    QVBoxLayout *lay1but            = new QVBoxLayout;
-//    lay1but                         ->addWidget(manufacturerbutt);
-//    lay1but                         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-//    lay1but                         ->addWidget(IOLbutt);
-//    buttbox                         ->insertLayout(0, lay1but);
-//    buttbox                         ->setSizeConstraint(QLayout::SetFixedSize);
-
     QHBoxLayout *buttbox            = new QHBoxLayout;
     wdg_incidentbutt      = new UpPushButton(tr("Rapport d'incident"));
     wdg_commandeIOLbutt   = new UpPushButton(tr("Commande d'implants"));
@@ -487,6 +474,15 @@ void dlg_programmationinterventions::ImprimeSession()
     double c = CORRECTION_td_width;
 
     QString texte = "";
+    QString lign = "";
+    if (m_currentsession->incident() != "")
+    {
+        QString incident = (m_currentsession->incident() ==""? " : " + tr("NEANT") : "");
+        texte +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + incident + "</b></span></font></td>" ;
+        if (m_currentsession->incident() != "")
+            texte +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + m_currentsession->incident() + "</span></td>" ;
+        texte += HTML_RETOURLIGNE;
+    }
     for (int i=0; i< m_interventionsmodel->rowCount(); ++i)
     {
         QStandardItem *itm = m_interventionsmodel->item(i);
@@ -494,7 +490,7 @@ void dlg_programmationinterventions::ImprimeSession()
         {
              if (itm->hasChildren())
             {
-                QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + itm->text() + "</b></span></font></td>" ;
+                lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + itm->text() + "</b></span></font></td>" ;
                 texte += lign;
                 QTime time = QTime::fromString(itm->text(),"- HH:mm -");
                 foreach (Intervention* interv, *Datas::I()->interventions->interventions())
@@ -747,9 +743,9 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
             itempat     ->setFont(fontitem);
             itempat     ->setForeground(QBrush(QColor(Qt::darkBlue)));
             itempat     ->setEditable(false);
-            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itempat << new QStandardItem(QString::number(a) + "a"));         //! nom du patient
+            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itempat << new QStandardItem(QString::number(a) + "a"));             //! nom du patient
 
-            TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());                              //! type d'intervention et anesthésie
+            TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());                                  //! type d'intervention et anesthésie
             if (typ)
             {
                 QString typinterv = typ->typeintervention().toUpper();
@@ -822,14 +818,14 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                 itemiol ->setEditable(false);
                 listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemiol << new QStandardItem(QString::number(a) + "d"));
             }
-            if (interv->observation() != "")                                                                                            //! observation
+            if (interv->observation() != "")                                                                                                //! observation
             {
                 itemobs = new UpStandardItem("\t" + tr("Remarque") + " : " + interv->observation(), interv);
                 itemobs ->setForeground(QBrush(QColor(Qt::red)));
                 itemobs ->setEditable(false);
                 listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "e"));
             }
-            if (interv->incident() != "")                                                                                               //! incident
+            if (interv->incident() != "")                                                                                                   //! incident
             {
                 incident = true;
                 iteminc = new UpStandardItem("\t" + tr("Incident") + " : " + interv->incident(), interv);
@@ -907,8 +903,8 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     dlg_incident->setAttribute(Qt::WA_DeleteOnClose);
     dlg_incident->setWindowTitle(tr("Rapport d'incident"));
 
-    QTextEdit *incidenttxtedit  = new QTextEdit();
-    incidenttxtedit             ->setFixedSize(QSize(450,150));
+    QLineEdit *incidenttxtedit  = new QLineEdit();
+    incidenttxtedit             ->setFixedSize(QSize(450,30));
     incidenttxtedit             ->setText(incident);
 
     dlg_incident->dlglayout()   ->insertWidget(0, incidenttxtedit);
@@ -916,7 +912,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     dlg_incident->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_incident->OKButton, &QPushButton::clicked, dlg_incident, [&]
     {
-        QString incident = incidenttxtedit->toPlainText();
+        QString incident = incidenttxtedit->text();
         if (mode == "intervention")
         {
             ItemsList::update(m_currentintervention, CP_INCIDENT_LIGNPRGOPERATOIRE, incident);
@@ -1236,6 +1232,12 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             listbinds[CP_IDIOL_LIGNPRGOPERATOIRE] = m_currentIOL->id();
             listbinds[CP_PWRIOL_LIGNPRGOPERATOIRE] = PwrIOLspinbox->value();
             listbinds[CP_CYLIOL_LIGNPRGOPERATOIRE] = CylIOLspinbox->value();
+        }
+        else
+        {
+            listbinds[CP_IDIOL_LIGNPRGOPERATOIRE] = QVariant();
+            listbinds[CP_PWRIOL_LIGNPRGOPERATOIRE] = QVariant();
+            listbinds[CP_CYLIOL_LIGNPRGOPERATOIRE] = QVariant();
         }
         if (interv == Q_NULLPTR)                                                                                        //! il s'agit d'une création parce qu'aucune intervention n'a été passée en paramètre de la fonction
         {
@@ -1579,11 +1581,14 @@ void dlg_programmationinterventions::CreerIOL(QString nomiol)
         return;
     if (dlg_iol->exec() > 0)
     {
-        m_currentIOL = Datas::I()->iols->CreationIOL(dlg_iol->Listbinds());
-        int id = (m_currentIOL != Q_NULLPTR? m_currentIOL->id() : 0);
-        Manufacturer *man = Datas::I()->manufacturers->getById(id);
-        if (man)
-            ReconstruitListeIOLs(man->id(), id);
+        m_currentIOL = dlg_iol->currentIOL();
+        if (m_currentIOL)
+        {
+            int id = (m_currentIOL != Q_NULLPTR? m_currentIOL->idmanufacturer() : 0);
+            Manufacturer *man = Datas::I()->manufacturers->getById(id);
+            if (man)
+                ReconstruitListeIOLs(man->id(), m_currentIOL->id());
+        }
     }
     delete dlg_iol;
 }
@@ -1840,7 +1845,7 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
             wdg_manufacturercombo->setCurrentIndex(0);
             m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->currentData().toInt());
         }
-        else
+        if (m_currentmanufacturer)
             wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
         ReconstruitListeIOLs(wdg_manufacturercombo->currentData().toInt());
         connect(wdg_manufacturercombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { ChoixManufacturer(idx); });
@@ -1869,7 +1874,7 @@ void dlg_programmationinterventions::VerifExistManufacturer(bool &ok)
             Dlg_IdentManufacturer->ui->ActifcheckBox->setEnabled(false);
             Dlg_IdentManufacturer->OKButton->setEnabled(true);
             if (Dlg_IdentManufacturer->exec() >0)
-                m_currentmanufacturer = Datas::I()->manufacturers->CreationManufacturer(Dlg_IdentManufacturer->Listbinds());
+                m_currentmanufacturer = Dlg_IdentManufacturer->currentmanufacturer();
             delete Dlg_IdentManufacturer;
             int id = (m_currentmanufacturer != Q_NULLPTR? m_currentmanufacturer->id() : 0);
             ReconstruitListeManufacturers(id);

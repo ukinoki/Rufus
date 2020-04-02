@@ -59,7 +59,10 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
         wdg_manufacturercombo   ->setItemData(i, m_manufacturersmodel->item(i,1)->text());       //! l'id en data
     }
     if (m_currentmanufacturer)
+    {
         wdg_manufacturercombo   ->setEnabled(false);
+        wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
+    }
     else
         m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->itemData(0).toInt());
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
@@ -118,7 +121,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     QHBoxLayout *ACDLay         = new QHBoxLayout();
     UpLabel* lblACDIOL          = new UpLabel;
     lblACDIOL                   ->setText(tr("ACD"));
-    upDoubleValidator *ACD_val  = new upDoubleValidator(1, 8, 2, this);
+    QDoubleValidator *ACD_val   = new QDoubleValidator(1,8,2, this);
     wdg_ACDline                 = new UpLineEdit();
     wdg_ACDline                 ->setValidator(ACD_val);
     wdg_ACDline                 ->setFixedSize(QSize(50,28));
@@ -171,6 +174,38 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     injecteurLay                ->addWidget(wdg_diainjecteur);
     injecteurLay                ->setSpacing(5);
     injecteurLay                ->setContentsMargins(0,0,0,0);
+
+    //! Plage puissances
+    QHBoxLayout *puissancesLay  = new QHBoxLayout();
+    UpLabel* lplpuissances      = new UpLabel;
+    lplpuissances               ->setText(tr("Puissances"));
+    UpLabel* lblpuissancemax    = new UpLabel;
+    lblpuissancemax             ->setText(tr("Min."));
+    UpLabel* lblpuissancemin    = new UpLabel;
+    lblpuissancemin             ->setText(tr("Max."));
+    wdg_puissancemaxspin        = new UpDoubleSpinBox();
+    wdg_puissanceminspin        = new UpDoubleSpinBox();
+    wdg_puissancemaxspin        ->setFixedSize(QSize(70,28));
+    wdg_puissanceminspin        ->setFixedSize(QSize(70,28));
+    wdg_puissancemaxspin        ->setRange(0.0, 35.0);
+    wdg_puissancemaxspin        ->setSingleStep(0.5);
+    wdg_puissanceminspin        ->setRange(-10.0, 15.0);
+    wdg_puissanceminspin        ->setSingleStep(0.5);
+    puissancesLay               ->addWidget(lplpuissances);
+    puissancesLay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    puissancesLay               ->addWidget(lblpuissancemin);
+    puissancesLay               ->addWidget(wdg_puissanceminspin);
+    puissancesLay               ->addWidget(lblpuissancemax);
+    puissancesLay               ->addWidget(wdg_puissancemaxspin);
+    puissancesLay               ->setSpacing(5);
+    puissancesLay               ->setContentsMargins(0,0,0,0);
+    for (int i=0; i < puissancesLay->count(); ++i)
+    {
+        if (i==1)
+            puissancesLay->setStretch(i,5);
+        else
+            puissancesLay->setStretch(i,1);
+    }
 
     //! Constante precharge jaune multifocal
     QHBoxLayout *checkboxLay    = new QHBoxLayout();
@@ -239,8 +274,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     UpLabel* Materiaulbl        = new UpLabel;
     Materiaulbl                 ->setText(tr("Materiau"));
     wdg_imgIOL                  = new UpLabel;
-    QImage iolimg               = QImage("://IOL.png");
-    setimage(iolimg);
+    setimage(m_nullimage);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
     wdg_materiauline            = new UpLineEdit();
     wdg_materiauline            ->setMaxLength(45);
@@ -270,6 +304,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     UpLabel* lblinactif         = new UpLabel;
     lblinactif                  ->setText(tr("Obsolète"));
     wdg_inactifchk              = new QCheckBox();
+    wdg_inactifchk              ->setFocusPolicy(Qt::NoFocus);
     inactifLay                  ->addWidget(lblinactif);
     inactifLay                  ->addWidget(wdg_inactifchk);
     inactifLay                  ->setSpacing(5);
@@ -282,6 +317,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     dlglayout()   ->insertLayout(0, MateriauImgLay);
     dlglayout()   ->insertLayout(0, checkboxLay);
     dlglayout()   ->insertLayout(0, HaigisLay);
+    dlglayout()   ->insertLayout(0, puissancesLay);
     dlglayout()   ->insertLayout(0, injecteurLay);
     dlglayout()   ->insertLayout(0, diametresLay);
     dlglayout()   ->insertLayout(0, ACDLay);
@@ -290,6 +326,17 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
     dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlglayout()   ->setSpacing(5);
+
+    QList <QWidget*> ListTab;
+    ListTab << wdg_manufacturercombo << wdg_nomiolline << wdg_Aoptline << wdg_Aecholine << wdg_ACDline << wdg_diaht << wdg_diaoptique << wdg_diainjecteur
+            << wdg_puissanceminspin << wdg_puissancemaxspin
+            << wdg_haigisaline << wdg_haigisbline << wdg_haigiscline
+            << wdg_prechargechk << wdg_jaunechk << wdg_multifocalchk << wdg_materiauline << wdg_remarquetxt;
+    for (int i = 0; i<ListTab.size()-1 ; i++ )
+    {
+        setTabOrder(ListTab.at(i), ListTab.at(i+1));
+        ListTab.at(i)->installEventFilter(this);
+    }
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
@@ -335,6 +382,17 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     setStageCount(1);
 }
 
+bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter)
+            return QWidget::focusNextChild();
+    }
+    return QWidget::eventFilter(obj, event);
+}
+
 /*--------------------------------------------------------------------------------------------
 -- Afficher la fiche de l'implant
 --------------------------------------------------------------------------------------------*/
@@ -360,6 +418,16 @@ void dlg_identificationIOL::AfficheDatasIOL()
             wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1(), 'f', 4));
         if (m_currentIOL->haigisa2() > 0.0)
             wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2(), 'f', 4));
+        if (m_currentIOL->pwrmax() > 0.0)
+        {
+            wdg_puissancemaxspin->setValue(m_currentIOL->pwrmax());
+            PrefixePlus(wdg_puissancemaxspin);
+        }
+        if (m_currentIOL->pwrmin() > 0.0)
+        {
+            wdg_puissanceminspin->setValue(m_currentIOL->pwrmin());
+            PrefixePlus(wdg_puissanceminspin);
+        }
         wdg_materiauline    ->setText(m_currentIOL->materiau());
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
         wdg_inactifchk      ->setChecked(!m_currentIOL->isactif());
@@ -388,12 +456,11 @@ void dlg_identificationIOL::menuChangeImage()
     QMenu m_menuContextuel;
     QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Modifier l'image"));
     connect (pAction_ChangeImage,  &QAction::triggered,    this, &dlg_identificationIOL::changeImage);
-    if (wdg_imgIOL->pixmap() != Q_NULLPTR)
+    if (m_currentimage != m_nullimage)
     {
         QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Supprimer l'image"));
         connect (pAction_ChangeImage,  &QAction::triggered,    this, &dlg_identificationIOL::supprimeImage);
     }
-
     m_menuContextuel.exec(cursor().pos());
 }
 
@@ -418,7 +485,7 @@ void dlg_identificationIOL::changeImage()
 
 void dlg_identificationIOL::supprimeImage()
 {
-    wdg_imgIOL->clear();
+    setimage(m_nullimage);
     m_listbinds[CP_IMG_IOLS] = QByteArray();
     m_listbinds[CP_TYPIMG_IOLS] = "";
     EnableOKpushButton();
@@ -480,21 +547,27 @@ void dlg_identificationIOL::OKpushButtonClicked()
 
     m_listbinds[CP_MODELNAME_IOLS]      = wdg_nomiolline->text();
     m_listbinds[CP_IDMANUFACTURER_IOLS] = m_currentmanufacturer->id();
-    m_listbinds[CP_ACD_IOLS]            = (QLocale().toDouble(wdg_ACDline->text()) >0?      QLocale().toDouble(wdg_ACDline->text())     : QVariant());
-    m_listbinds[CP_CSTEAOPT_IOLS]       = (QLocale().toDouble(wdg_Aoptline->text()) >0?     QLocale().toDouble(wdg_Aoptline->text())    : QVariant());
-    m_listbinds[CP_CSTEAECHO_IOLS]      = (QLocale().toDouble(wdg_Aoptline->text()) >0?     QLocale().toDouble(wdg_Aecholine->text())   : QVariant());
-    m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
-    m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) >0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
-    m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) >0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
+    m_listbinds[CP_ACD_IOLS]            = (QLocale().toDouble(wdg_ACDline->text()) >0.0?      QLocale().toDouble(wdg_ACDline->text())     : QVariant());
+    m_listbinds[CP_CSTEAOPT_IOLS]       = (QLocale().toDouble(wdg_Aoptline->text()) >0.0?     QLocale().toDouble(wdg_Aoptline->text())    : QVariant());
+    m_listbinds[CP_CSTEAECHO_IOLS]      = (QLocale().toDouble(wdg_Aecholine->text()) >0.0?    QLocale().toDouble(wdg_Aecholine->text())   : QVariant());
+    m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0.0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
+    m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) >0.0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
+    m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) >0.0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
     m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiauline->text();
     m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
-    m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0?        QLocale().toDouble(wdg_diaht->text())       : QVariant());
-    m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0?   QLocale().toDouble(wdg_diaoptique->text())  : QVariant());
-    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (QLocale().toDouble(wdg_diainjecteur->text()) >0? QLocale().toDouble(wdg_diainjecteur->text()): QVariant());
+    m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?        QLocale().toDouble(wdg_diaht->text())       : QVariant());
+    m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0.0?   QLocale().toDouble(wdg_diaoptique->text())  : QVariant());
+    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (QLocale().toDouble(wdg_diainjecteur->text()) >0.0? QLocale().toDouble(wdg_diainjecteur->text()): QVariant());
     m_listbinds[CP_PRECHARGE_IOLS]      = (wdg_prechargechk->isChecked()?   "1" : QVariant());
+    m_listbinds[CP_MAXPWR_IOLS]         = wdg_puissancemaxspin->value();
+    m_listbinds[CP_MINPWR_IOLS]         = wdg_puissanceminspin->value();
     m_listbinds[CP_JAUNE_IOLS]          = (wdg_jaunechk->isChecked()?       "1" : QVariant());
     m_listbinds[CP_MULTIFOCAL_IOLS]     = (wdg_multifocalchk->isChecked()?  "1" : QVariant());
     m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?     "1" : QVariant());
+    if (m_mode == Creation)
+        m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
+    else if (m_mode == Modification)
+        DataBase::I()->UpDateIOL(m_currentIOL->id(), m_listbinds);
     accept();
 }
 
@@ -509,6 +582,7 @@ void dlg_identificationIOL::setimage(QImage img)
     double height = (max == h? max : min) /prop;
     wdg_imgIOL   ->setFixedSize(QSize(int(width), int(height)));
     wdg_imgIOL   ->setPixmap(QPixmap::fromImage(img.scaled(wdg_imgIOL->width(),wdg_imgIOL->height())));
+    m_currentimage = img;
 }
 
 void dlg_identificationIOL::setpdf(QByteArray ba)
@@ -540,3 +614,13 @@ void dlg_identificationIOL::setpdf(QByteArray ba)
     setimage(image);
     delete document;
 }
+
+//---------------------------------------------------------------------------------------------------------
+// Traitement du prefixe + ou - devant les doubles.
+//---------------------------------------------------------------------------------------------------------
+void dlg_identificationIOL::PrefixePlus(QDoubleSpinBox *spinbox)
+{
+    spinbox->setPrefix("");
+    if (spinbox->value() >= 0)    spinbox->setPrefix("+");
+}
+

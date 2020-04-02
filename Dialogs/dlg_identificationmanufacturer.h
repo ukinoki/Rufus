@@ -35,7 +35,7 @@ public:
     explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
-    QHash<QString, QVariant> Listbinds() const  { return m_listbinds;  }
+    Manufacturer* currentmanufacturer() const { return m_currentmanufacturer; }
 
 private:
     DataBase                    *db                = DataBase::I();

@@ -88,6 +88,8 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->DelCorupPushButton,    &QPushButton::clicked,              this,           [=]
                                                                                             {
+                                                                                                if (UpMessageBox::Question(this, tr("Suppression d'un corresponda"), tr("Êtes vous sûr de vouloir supprimer ce corespondant?")) != UpSmallButton::STARTBUTTON)
+                                                                                                    return;
                                                                                                 ui->CorNomlineEdit      ->clear();
                                                                                                 ui->CorPrenomlineEdit   ->clear();
                                                                                                 ui->CorStatutlineEdit   ->clear();
@@ -222,6 +224,11 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     m_listbinds[CP_CORMAIL_MANUFACTURER]      = ui->CorMaillineEdit->text();
     m_listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
     m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
+    if (m_mode == Creation)
+         m_currentmanufacturer = Datas::I()->manufacturers->CreationManufacturer(m_listbinds);
+    else if (m_mode == Modification)
+        DataBase::I()->UpdateTable(TBL_MANUFACTURERS, m_listbinds, " where " CP_ID_MANUFACTURER " = " + QString::number(m_currentmanufacturer->id()),tr("Impossible de modifier le dossier"));
+
     accept();
 }
 

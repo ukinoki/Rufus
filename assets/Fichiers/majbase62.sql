@@ -127,7 +127,7 @@ BEGIN
             ADD COLUMN `DiametreInjecteur` DOUBLE NULL DEFAULT NULL AFTER `Holladay1sf`,
             ADD COLUMN `Image` LONGBLOB NULL DEFAULT NULL AFTER `DiametreInjecteur`,
             ADD COLUMN `TypeImage` VARCHAR(3) NULL DEFAULT NULL AFTER `Image`,
-            ADD COLUMN `Materiau` VARCHAR(45) NULL DEFAULT NULL AFTER `TypeImage`;
+            ADD COLUMN `Materiau` VARCHAR(45) NULL DEFAULT NULL AFTER `TypeImage`,
             ADD COLUMN `Remarque` VARCHAR(100) NULL DEFAULT NULL AFTER `Materiau`,
             ADD COLUMN `Precharge` INT(1) NULL DEFAULT NULL AFTER `Remarque`,
             ADD COLUMN `Jaune` INT(1) NULL DEFAULT NULL AFTER `Precharge`,

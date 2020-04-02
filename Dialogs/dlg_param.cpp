@@ -1763,6 +1763,7 @@ void dlg_param::DirPosteStockage()
         return;
     }
     ui->PosteStockageupLineEdit->setText(url.path());
+    db->setdirimagerie(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", url.path());
 }
 

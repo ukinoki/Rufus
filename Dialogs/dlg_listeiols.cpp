@@ -126,7 +126,7 @@ void dlg_listeiols::EnregistreNouveauIOL()
         return;
     if (Dlg_IdentIOL->exec()>0)
     {
-        IOL *iol = Datas::I()->iols->CreationIOL(Dlg_IdentIOL->Listbinds());
+        IOL *iol = Dlg_IdentIOL->currentIOL();
         m_listemodifiee = true;
         ReconstruitTreeViewIOLs(true);
         if (iol)
@@ -159,7 +159,6 @@ void dlg_listeiols::ModifIOL(IOL *iol)
         return;
     if (Dlg_IdentIOL->exec()>0)
     {
-        DataBase::I()->UpDateIOL(iol->id(), Dlg_IdentIOL->Listbinds());
         if (iol)
         {
             int idiol = iol->id();
@@ -216,9 +215,9 @@ void dlg_listeiols::SupprIOL(IOL *iol)
 {
     if (!iol) return;
     QString Msg;
-    Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
+    Msg = tr("Etes vous sûr de vouloir supprimer l'implant") + "\n " +
             iol->modele() + "?" +
-            "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
+            "\n" + tr("La suppression est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
@@ -230,7 +229,7 @@ void dlg_listeiols::SupprIOL(IOL *iol)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        Datas::I()->iols->SupprimeIOL(getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0)));
+        Datas::I()->iols->SupprimeIOL(iol);
         m_listemodifiee = true;
         ReconstruitTreeViewIOLs(true);
     }
