@@ -1,4 +1,4 @@
-/* (C) 2018 LAINE SERGE
+/* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -1126,7 +1126,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     ObservLay       ->setSpacing(5);
     ObservLay       ->setContentsMargins(0,0,0,0);
 
-    if (interv != Q_NULLPTR)
+    if (interv != Q_NULLPTR)                        /*! On modidife une intervention */
     {
         timeedit->setTime(interv->heure());
         QString type = "";
@@ -1144,11 +1144,12 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             Manufacturer *man = Q_NULLPTR;
             if (iol != Q_NULLPTR)
             {
+                int idiol = iol->id();
                 man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-                wdg_IOLcombo->setCurrentIndex(wdg_IOLcombo->findData(iol->id()));
+                if (man != Q_NULLPTR)
+                    wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(man->id()));
+                wdg_IOLcombo->setCurrentIndex(wdg_IOLcombo->findData(idiol));
             }
-            if (man != Q_NULLPTR)
-                wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(man->id()));
             PwrIOLspinbox->setValue(interv->puissanceIOL());
             CylIOLspinbox->setValue(interv->cylindreIOL());
         }
@@ -1312,6 +1313,12 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                                                                                                         dlg_intervention->reject();
                                                                                                     });
     connect(wdg_IOLcombo->lineEdit(),           &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIOL(verifencours); });
+//    connect(wdg_IOLcombo,           QOverload<int>::of(&QComboBox::currentIndexChanged),    dlg_intervention,   [&] (int id) {
+//                                                                                                            IOL * iol = Datas::I()->iols->getById(wdg_IOLcombo->itemData(id).toInt());
+//                                                                                                            if (iol)
+//                                                                                                                if (iol->pwrmax() != 0.0 && iol->pwrmin() != 0.0)
+//                                                                                                                    PwrIOLspinbox->setRange(iol->pwrmin(), iol->pwrmax());
+//                                                                                                            });
     timeedit->setFocus();
     dlg_intervention->exec();
 }
@@ -1724,10 +1731,11 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
 void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, int idiol)
 {
     m_currentIOL = Q_NULLPTR;
+    m_completerlist.clear();
     wdg_IOLcombo->disconnect();
     wdg_IOLcombo->clear();
     Datas::I()->iols->initListeByManufacturerId(idmanufacturer);
-    if (m_IOLsmodel == Q_NULLPTR)
+    if (m_IOLsmodel != Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
     foreach (IOL* iol, *Datas::I()->iols->iols())
@@ -1736,20 +1744,34 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
         if (iol->idmanufacturer() == idmanufacturer && iol->isactif())
         {
             UpStandardItem *itemiol = new UpStandardItem(iol->modele(), iol);
-            UpStandardItem *itemid = new UpStandardItem(QString::number(iol->id()), iol);
+            UpStandardItem *itemid  = new UpStandardItem(QString::number(iol->id()), iol);
             items << itemiol << itemid;
             m_IOLsmodel->appendRow(items);
+            m_completerlist << iol->modele();
         }
     }
     if (m_IOLsmodel->rowCount() > 0)
     {
         if (m_IOLsmodel->rowCount() > 1)
+        {
             m_IOLsmodel->sort(0, Qt::AscendingOrder);
+            m_completerlist.sort();
+        }
         for (int i=0; i< m_IOLsmodel->rowCount(); ++i)
         {
             wdg_IOLcombo->addItem(m_IOLsmodel->item(i,0)->text());              //! le modèle de l'IOL
             wdg_IOLcombo->setItemData(i, m_IOLsmodel->item(i,1)->text());       //! l'id en data
         }
+        if (wdg_IOLcombo)
+        {
+            if(wdg_IOLcombo->completer())
+                delete wdg_IOLcombo->completer();
+            QCompleter * m_completer = new QCompleter(m_completerlist);
+            m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+            m_completer->setCompletionMode(QCompleter::InlineCompletion);
+            wdg_IOLcombo->setCompleter(m_completer);
+        }
+
         if (idiol > 0)
             m_currentIOL = Datas::I()->iols->getById(idiol);
         if (m_currentIOL == Q_NULLPTR)
@@ -1840,14 +1862,15 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
         }
         if (idmanufacturer > 0)
             m_currentmanufacturer = Datas::I()->manufacturers->getById(idmanufacturer);
-        if (m_currentmanufacturer == Q_NULLPTR)
-        {
-            wdg_manufacturercombo->setCurrentIndex(0);
-            m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->currentData().toInt());
-        }
         if (m_currentmanufacturer)
             wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
-        ReconstruitListeIOLs(wdg_manufacturercombo->currentData().toInt());
+        else
+        {
+            wdg_manufacturercombo->setCurrentIndex(0);
+            m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->itemData(0).toInt());
+        }
+        if (m_currentmanufacturer)
+            ReconstruitListeIOLs(m_currentmanufacturer->id());
         connect(wdg_manufacturercombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx) { ChoixManufacturer(idx); });
     }
 }

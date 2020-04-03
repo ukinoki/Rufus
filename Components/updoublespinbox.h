@@ -1,4 +1,4 @@
-/* (C) 2018 LAINE SERGE
+/* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ public:
     double                  valeuravant() const;
     void                    setAutorCorrigeDioptr(bool);
     enum gUpDown            {Up,Down,Near};    Q_ENUM(gUpDown)
-    void                    CorrigeDioptrie(int UpDownNear);
+    void                    CorrigeDioptrie(int UpDownNear);            /*! corrige une valeur entrée après la virgule à la valeur de step la plus proche - 21,37 devient 21,50 si le step est réglé à 0,50 */
 
 private:
     bool                    eventFilter(QObject *, QEvent *);

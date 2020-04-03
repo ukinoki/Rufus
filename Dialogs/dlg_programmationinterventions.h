@@ -1,4 +1,4 @@
-/* (C) 2018 LAINE SERGE
+/* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -66,6 +66,7 @@ private:
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
     QMenu               *m_ctxtmenuinterventions;
+    QStringList          m_completerlist;
     QTreeView           *wdg_interventionstreeView  = new QTreeView();
     QTreeView           *wdg_sessionstreeView       = new QTreeView();
     QComboBox           *wdg_listmedecinscombo;

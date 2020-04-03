@@ -1,4 +1,4 @@
-/* (C) 2018 LAINE SERGE
+/* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -180,9 +180,9 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     UpLabel* lplpuissances      = new UpLabel;
     lplpuissances               ->setText(tr("Puissances"));
     UpLabel* lblpuissancemax    = new UpLabel;
-    lblpuissancemax             ->setText(tr("Min."));
+    lblpuissancemax             ->setText(tr("Max."));
     UpLabel* lblpuissancemin    = new UpLabel;
-    lblpuissancemin             ->setText(tr("Max."));
+    lblpuissancemin             ->setText(tr("Min."));
     wdg_puissancemaxspin        = new UpDoubleSpinBox();
     wdg_puissanceminspin        = new UpDoubleSpinBox();
     wdg_puissancemaxspin        ->setFixedSize(QSize(70,28));
@@ -373,9 +373,13 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     connect (wdg_inactifchk,        &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_jaunechk,          &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_multifocalchk,     &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
     connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
 
+    wdg_puissancemaxspin->installEventFilter(this);
+    wdg_puissanceminspin->installEventFilter(this);
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
@@ -384,6 +388,15 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
 
 bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::FocusIn )
+    {
+        UpDoubleSpinBox* objUpdSpin = dynamic_cast<UpDoubleSpinBox*>(obj);
+        if (objUpdSpin != Q_NULLPTR)   {
+            objUpdSpin->setPrefix("");
+            objUpdSpin->selectAll();
+            return false;
+        }
+    }
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);

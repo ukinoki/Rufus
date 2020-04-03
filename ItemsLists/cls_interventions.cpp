@@ -1,4 +1,4 @@
-/* (C) 2018 LAINE SERGE
+/* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -218,7 +218,7 @@ IOL* IOLs::getById(int id)
 void IOLs::initListeByManufacturerId(int id)
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLsByManufacturerId(id);
-//    qDebug() << "listIOLS.size() =  " << listIOLs.size();
+    //qDebug() << "listIOLS.size() =  " << listIOLs.size();
     ItemsList::clearAll(map_all);
     addList(map_all, &listIOLs);
 }
