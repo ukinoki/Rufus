@@ -31,7 +31,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
     qApp->setStyleSheet(Styles::StyleAppli());
-
     proc = Procedures::I();
     db = DataBase::I();
 
