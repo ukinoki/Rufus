@@ -47,12 +47,16 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
             UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
             items << itemman << itemid;
             m_manufacturersmodel->appendRow(items);
-            m_manufacturersmodel->sort(0);
         }
+    m_manufacturersmodel->sort(0);
+
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
     wdg_manufacturercombo = new QComboBox();
+    wdg_manufacturercombo       ->setEditable(true);
+    wdg_manufacturercombo       ->lineEdit()->setAlignment(Qt::AlignCenter);
+    wdg_manufacturercombo       ->lineEdit()->setFocusPolicy(Qt::NoFocus);
     for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
     {
         wdg_manufacturercombo   ->addItem(m_manufacturersmodel->item(i,0)->text());         //! le nom du fabricant
@@ -209,22 +213,13 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
 
     //! Constante precharge jaune multifocal
     QHBoxLayout *checkboxLay    = new QHBoxLayout();
-    UpLabel* lblprecharge       = new UpLabel;
-    lblprecharge                ->setText(tr("Prechargé"));
-    UpLabel* lbljaune           = new UpLabel;
-    lbljaune                    ->setText(tr("Jaune"));
-    UpLabel* lblmf              = new UpLabel;
-    lblmf                       ->setText(tr("Multifocal"));
-    wdg_prechargechk            = new QCheckBox();
-    wdg_jaunechk                = new QCheckBox();
-    wdg_multifocalchk           = new QCheckBox();
-    checkboxLay                 ->addWidget(lblprecharge);
+    wdg_prechargechk            = new QCheckBox(tr("Prechargé"));
+    wdg_jaunechk                = new QCheckBox(tr("Jaune"));
+    wdg_multifocalchk           = new QCheckBox(tr("Multifocal"));
     checkboxLay                 ->addWidget(wdg_prechargechk);
     checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    checkboxLay                 ->addWidget(lbljaune);
     checkboxLay                 ->addWidget(wdg_jaunechk);
     checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    checkboxLay                 ->addWidget(lblmf);
     checkboxLay                 ->addWidget(wdg_multifocalchk);
     checkboxLay                 ->setSpacing(5);
     checkboxLay                 ->setContentsMargins(0,0,0,0);
@@ -299,19 +294,9 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     RemarqueHLay                ->addWidget(wdg_remarquetxt);
     RemarqueHLay                ->setContentsMargins(0,0,0,0);
 
-    QWidget *widginactif        = new QWidget();
-    QHBoxLayout *inactifLay     = new QHBoxLayout();
-    UpLabel* lblinactif         = new UpLabel;
-    lblinactif                  ->setText(tr("Obsolète"));
-    wdg_inactifchk              = new QCheckBox();
+    wdg_inactifchk              = new QCheckBox(tr("Discontinué"));
     wdg_inactifchk              ->setFocusPolicy(Qt::NoFocus);
-    inactifLay                  ->addWidget(lblinactif);
-    inactifLay                  ->addWidget(wdg_inactifchk);
-    inactifLay                  ->setSpacing(5);
-    inactifLay                  ->setContentsMargins(0,0,0,0);
-    inactifLay                  ->setSizeConstraint(QLayout::SetFixedSize);
-    widginactif                 ->setLayout(inactifLay);
-    AjouteWidgetLayButtons(widginactif, false);
+    AjouteWidgetLayButtons(wdg_inactifchk, false);
 
     dlglayout()   ->insertLayout(0, RemarqueHLay);
     dlglayout()   ->insertLayout(0, MateriauImgLay);
@@ -370,8 +355,18 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     connect (wdg_diaht,             &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_diainjecteur,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_prechargechk,      &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_inactifchk,        &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_jaunechk,          &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_jaunechk,          &QCheckBox::stateChanged,                               this,   [&] {
+                                                                                                            EnableOKpushButton();
+                                                                                                            QString style = (wdg_jaunechk->checkState() == Qt::Checked?
+                                                                                                            "background-color: yellow" : "background-color: none" );
+                                                                                                            wdg_jaunechk->setStyleSheet(style);
+                                                                                                        });
+    connect (wdg_inactifchk,        &QCheckBox::stateChanged,                               this,   [&] {
+                                                                                                            foreach (QWidget *wdg, findChildren<QWidget*>())
+                                                                                                                if (wdg != wdg_manufacturercombo && wdg != widgetbuttons() && !widgetbuttons()->isAncestorOf(wdg))
+                                                                                                                    wdg->setEnabled(!wdg_inactifchk->isChecked());
+                                                                                                                EnableOKpushButton();
+                                                                                                        });
     connect (wdg_multifocalchk,     &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
