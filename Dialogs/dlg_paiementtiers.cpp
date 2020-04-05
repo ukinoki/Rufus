@@ -97,7 +97,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->MontantlineEdit,                       &QLineEdit::textEdited,                         this,           &dlg_paiementtiers::EnableOKButton);
     connect (ui->NouvTiersupPushButton,                 &QPushButton::clicked,                          this,           &dlg_paiementtiers::EnregistreNouveauPaiement);
     connect (ui->SupprimupPushButton,                   &QPushButton::clicked,                          this,           &dlg_paiementtiers::SupprimerPaiement);
-    connect (ui->TierscomboBox,                         &QComboBox::editTextChanged,                    this,           &dlg_paiementtiers::RecopieNomTiers);
+    connect (ui->TiersupComboBox,                         &QComboBox::editTextChanged,                    this,           &dlg_paiementtiers::RecopieNomTiers);
     connect (ui->TireurChequelineEdit,                  &QLineEdit::editingFinished,                    this,           &dlg_paiementtiers::MajusculeCreerNom);
     connect (ui->UserscomboBox,                         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                                         this,           &dlg_paiementtiers::ChangeUtilisateur);
@@ -116,8 +116,8 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     ui->CommissionlineEdit->setValidator(val);
     ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
-    ui->TierscomboBox->lineEdit()->setMaxLength(30);
-    ui->TierscomboBox->lineEdit()->setAlignment(Qt::AlignRight);
+    ui->TiersupComboBox->lineEdit()->setMaxLength(30);
+    ui->TiersupComboBox->lineEdit()->setAlignment(Qt::AlignRight);
     ui->BanqueChequecomboBox->lineEdit()->setAlignment(Qt::AlignRight);
     ui->ComptesupComboBox->lineEdit()->setAlignment(Qt::AlignRight);
     ui->Loupelabel->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
@@ -142,6 +142,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
         allUpButtons.at(n)->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Large);
     }
     installEventFilter(this);
+    ui->TiersupComboBox->installEventFilter(this);
     ui->OKupPushButton->setShortcut(QKeySequence("Meta+Return"));
     ui->AnnulupPushButton->setShortcut(QKeySequence("F12"));
     m_modifpaiementencours = false;
@@ -820,7 +821,7 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
     }
     if (event->type() == QEvent::FocusOut)
     {
-        if (obj->inherits("UpLineEdit"))
+        if (dynamic_cast<UpLineEdit*>(obj))
         {
             if (obj->parent()->parent() == ui->DetailupTableWidget  && m_mode == EnregistrePaiementTiers)
             {
@@ -835,6 +836,8 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
                 Line->setText(m_valeuravantchangement);
             }
         }
+        else if (obj == ui->TiersupComboBox)
+            MAJTiers(ui->TiersupComboBox);
     }
     if (event->type() == QMouseEvent::MouseButtonDblClick)
     {
@@ -1160,7 +1163,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             EnregRecetterequete += ",1";                                                                                // TypeRecette
             EnregRecetterequete += ",'O'";                                                                              // Tierspayant
 
-            QString NomTiers = ui->TierscomboBox->currentText();
+            QString NomTiers = ui->TiersupComboBox->currentText();
             EnregRecetterequete += ",'" + Utils::correctquoteSQL(NomTiers);                                             // Nomtiers
             QString commission = (ui->CommissionlineEdit->text() ==""? "null" : QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())));
             EnregRecetterequete += "'," + commission +")";                                                              // Commission
@@ -1187,7 +1190,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             {
                 QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES "(idLigne, idCompte, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
                         + QString::number(db->getIdMaxTableComptesTableArchives()) + "," + idCompte + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
-                        + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "',"
+                        + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TiersupComboBox->currentText()) + "',"
                         + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
                 if (!db->StandardSQL(InsertComptrequete))
                 {
@@ -1215,10 +1218,10 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                 // on va rechercher l'id2035:
                 // si c'est une carte de crédit, l'id2035 correspondra à "frais financiers", sinon, ce sera "honoraires rétrocédés"
                 QString intitule2035 = "Honoraires rétrocédés";
-                if (ui->TierscomboBox->currentText() == "CB")
+                if (ui->TiersupComboBox->currentText() == "CB")
                     intitule2035= "Frais financiers";
                 InsertDeprequete +=  "', '" + Utils::correctquoteSQL(intitule2035);                                            // RefFiscale
-                InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TierscomboBox->currentText());             // Objet
+                InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TiersupComboBox->currentText());             // Objet
                 InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
                 QString chercheFamFiscale = "select Famfiscale from " TBL_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
                 QVariantList famfiscdata = db->getFirstRecordFromStandardSelectSQL(chercheFamFiscale, m_ok);
@@ -1239,7 +1242,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                 if (ui->VirementradioButton->isChecked())
                 {
                     QString Commission = "Commission";
-                    if (ui->TierscomboBox->currentText() == "CB")
+                    if (ui->TiersupComboBox->currentText() == "CB")
                         Commission += " CB";
                     QString InsertComrequete = "INSERT INTO " TBL_LIGNESCOMPTES "(idCompte, idDep, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
                             + idCompte + "," + max + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
@@ -1262,7 +1265,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                  Updaterequete += "TireurCheque = '" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text()) + "', ";                   // Tireur chèque
                  Updaterequete += "BanqueCheque = '" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText()) + "'";              // BanqueCheque
              }
-            QString NomTiers = ui->TierscomboBox->currentText();
+            QString NomTiers = ui->TiersupComboBox->currentText();
             if (updatelignerecettes && NomTiers != "")
                 Updaterequete += ", ";
             if (NomTiers != "")
@@ -1527,7 +1530,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         ui->ComptesupComboBox->clearEditText();
         if (rec->compteid() > 0)
             ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
-        ui->TierscomboBox->setCurrentText(rec->payeur());
+        ui->TiersupComboBox->setCurrentText(rec->payeur());
         if (mp == "C")
         {
             ui->TireurChequelineEdit->setText(rec->tireurcheque());
@@ -1546,6 +1549,59 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
     RegleAffichageTypePaiementframe(true,false);
     ui->DetailupTableWidget->setAllRowHeight(int(fm.height()*1.1));
 }
+
+
+// ------------------------------------------------------------------------------------------
+// Enregistre ou met à jour les coordonnées d'u médecin traitant'un tiers payant
+// ------------------------------------------------------------------------------------------
+void dlg_paiementtiers::MAJTiers(UpComboBox *box)
+{
+    if (!box)
+        return;
+    QLineEdit *Upline = dynamic_cast<QLineEdit*>(box->lineEdit());
+    if (Upline == Q_NULLPTR) return;
+    QString anc = box->valeuravant();
+    QString nou = box->currentText();
+    QString req;
+    box->setCurrentText(nou);
+    int i = box->findText(nou, Qt::MatchFixedString);
+    if (-1 < i && i < box->count())                     //! le tiers existe, on passe à autre chose
+        return;
+    if (nou != "")
+    {
+        if (nou.toUpper() != anc.toUpper())             //! le tiers n'est pas recensé, on propose de l'enregistrer
+        {
+            UpMessageBox msgbox;
+            msgbox.setText("Euuhh... " + currentuser()->login());
+            msgbox.setInformativeText(tr("Tiers payant inconnu! Souhaitez-vous l'enregistrer?"));
+            msgbox.setIcon(UpMessageBox::Warning);
+            UpSmallButton OKBouton(tr("Enregistrer"));
+            UpSmallButton NoBouton(tr("Ne pas enregister"));
+            msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+            msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+            msgbox.exec();
+            if (msgbox.clickedButton() == &OKBouton)
+            {
+                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
+                Dlg_IdentTiers->setnomtiers(nou.toUpper());
+                if (Dlg_IdentTiers->exec()>0)
+                {
+                    Tiers * trs = Dlg_IdentTiers->currentTiers();
+                    if (trs)
+                    {
+                        ReconstruitListeTiers();
+                        qDebug() << "trs = " << trs->nom() << trs->id();
+                        ui->TiersupComboBox->setCurrentIndex(ui->TiersupComboBox->findData(trs->id()));
+                    }
+                }
+                delete Dlg_IdentTiers;
+            }
+            msgbox.close();
+        }
+    }
+}
+
+
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Modifie un paiement par tiers ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1589,7 +1645,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     ui->ComptesupComboBox->clearEditText();
     if (rec->compteid() > 0)
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
-    ui->TierscomboBox->setCurrentText(rec->payeur());
+    ui->TiersupComboBox->setCurrentText(rec->payeur());
     if (mp == "C")
     {
         ui->TireurChequelineEdit    ->setText(rec->tireurcheque());
@@ -1946,9 +2002,17 @@ void dlg_paiementtiers::ReconstruitListeBanques()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::ReconstruitListeTiers()
 {
-    ui->TierscomboBox->clear();
+    ui->TiersupComboBox->clear();
+    QStandardItemModel tiersmodel;
     foreach (Tiers *trs, *Datas::I()->tierspayants->tierspayants())
-        ui->TierscomboBox->addItem(trs->nom(), trs->id());
+    {
+        UpStandardItem* itm     = new UpStandardItem(trs->nom());
+        UpStandardItem* itmid   = new UpStandardItem(QString::number(trs->id()));
+        tiersmodel.appendRow(QList<QStandardItem*>() << itm << itmid);
+    }
+    tiersmodel.sort(0);
+    for (int i=0; i< tiersmodel.rowCount(); ++i)
+        ui->TiersupComboBox->addItem(tiersmodel.item(i,0)->text(), tiersmodel.item(i,1)->text());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1981,7 +2045,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
         {
             ui->TypePaiementframe->setVisible(false);
             ui->MontantlineEdit->setText("0,00");
-            ui->TierscomboBox->clearEditText();
+            ui->TiersupComboBox->clearEditText();
             ui->BanqueChequecomboBox->clearEditText();
             ui->TireurChequelineEdit->clear();
             ui->ComptesupComboBox->clearEditText();
@@ -2027,7 +2091,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
             if (m_mode == EnregistrePaiementTiers)
             {
                 if (AppeleParClicK)
-                    ui->TireurChequelineEdit->setText(ui->TierscomboBox->currentText());
+                    ui->TireurChequelineEdit->setText(ui->TiersupComboBox->currentText());
             }
             ui->CommissionWidget    ->setVisible(false);
 
@@ -2127,7 +2191,7 @@ void dlg_paiementtiers::RemetToutAZero()
     ui->DetailupTableWidget         ->clearContents();
     ui->DetailupTableWidget         ->setRowCount(0);
     ui->MontantlineEdit             ->setText("0,00");
-    ui->TierscomboBox               ->clearEditText();
+    ui->TiersupComboBox               ->clearEditText();
     ui->ComptesupComboBox           ->clearEditText();
     ui->CommissionlineEdit          ->setText("0,00");
     ui->BanqueChequecomboBox        ->clearEditText();
@@ -2719,20 +2783,20 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
         }
         if (m_modiflignerecettepossible
                 && (
-                    ui->TierscomboBox->currentText() == ""
+                    ui->TiersupComboBox->currentText() == ""
                     && m_mode == EnregistrePaiementTiers
                     && (ui->VirementradioButton->isChecked() || ui->ChequeradioButton->isChecked())
                    )
            )
         {
             Msg = tr("Il manque le nom du tiers payant!");
-            ui->TierscomboBox->setFocus();
-            ui->TierscomboBox->showPopup();
+            ui->TiersupComboBox->setFocus();
+            ui->TiersupComboBox->showPopup();
             A = false;
             break;
         }
         // On a coché Virement, le tiers est carte de crédit et on a oublié de renseigner la commission
-        if (m_modiflignerecettepossible && (ui->TierscomboBox->currentText() == "CB" && QLocale().toDouble(ui->CommissionlineEdit->text()) ==  0.0 && ui->VirementradioButton->isChecked()))
+        if (m_modiflignerecettepossible && (ui->TiersupComboBox->currentText() == "CB" && QLocale().toDouble(ui->CommissionlineEdit->text()) ==  0.0 && ui->VirementradioButton->isChecked()))
         {
             Msg = tr("Vous avez oublié de mentionner le montant de la comission bancaire pour ce paiement par carte de crédit!");
             ui->Commissionlabel->setFocus();

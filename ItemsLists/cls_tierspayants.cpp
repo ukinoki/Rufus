@@ -79,7 +79,6 @@ Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
         return tiers;
     }
     QJsonObject  data = QJsonObject{};
-    data[CP_ID_TIERS] = idTiers;
     QString champ;
     QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
@@ -87,6 +86,7 @@ Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
         champ  = itset.key();
         data[champ] = itset.value().toString();
     }
+    data[CP_ID_TIERS] = idTiers;
     tiers = new Tiers(data);
     if (tiers != Q_NULLPTR)
         initListe();

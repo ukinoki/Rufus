@@ -38,12 +38,12 @@ public:
     Ui::dlg_identificationtiers *ui;
     ~dlg_identificationtiers();
     Tiers* currentTiers() const { return m_currenttiers; }
+    void    setnomtiers(QString nom) const;
 
 private:
     DataBase                    *db                = DataBase::I();
     Tiers                       *m_currenttiers    = Q_NULLPTR;
 
-    QString                     m_nomTiers;
     Mode                        m_mode;
     QLineEdit                   *wdg_CPlineedit, *wdg_villelineedit;
     VilleCPWidget               *wdg_villeCP;

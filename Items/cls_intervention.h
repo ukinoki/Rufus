@@ -193,6 +193,8 @@ private: //Données de l'intervention
     bool m_precharge        = false;            //! préchargé
     bool m_jaune            = false;            //! jaune ou clair
     bool m_multifocal       = false;            //! multifocal
+    bool m_edof             = false;            //! edof
+    bool m_toric            = false;            //! toric
     QMap<QString, QVariant> m_map = QMap<QString, QVariant>{};
 
 public:
@@ -222,6 +224,8 @@ public:
     bool isprecharge() const                    { return m_precharge; }
     bool isjaune() const                        { return m_jaune; }
     bool ismultifocal() const                   { return m_multifocal; }
+    bool isedof() const                         { return m_edof; }
+    bool istoric() const                        { return m_toric; }
     QString tooltip() const;
 
 
@@ -250,6 +254,9 @@ public:
     void setRemarque(const QString &remarque)   { m_remarque = remarque;            m_map[CP_REMARQUE_IOLS] = remarque; }
     void setprecharge(bool &precharge)          { m_precharge = precharge;          m_map[CP_PRECHARGE_IOLS] = precharge; }
     void setjaune(bool &jaune)                  { m_jaune = jaune;                  m_map[CP_JAUNE_IOLS] = jaune; }
+    void setMultifocal(bool &multifocal)        { m_multifocal = multifocal;        m_map[CP_MULTIFOCAL_IOLS] = multifocal; }
+    void setToric(bool &toric)                  { m_toric = toric;                  m_map[CP_TORIC_IOLS] = toric; }
+    void setEdof(bool &edof)                    { m_edof = edof;                    m_map[CP_EDOF_IOLS] = edof; }
 
     void resetdatas();
     bool isnull() const                         { return m_id == 0; }

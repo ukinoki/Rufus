@@ -117,12 +117,14 @@ void IOL::setData(QMap<QString, QVariant> map)
     m_diaall            = map[CP_DIAALL_IOLS].toDouble();
     m_diaoptique        = map[CP_DIAOPT_IOLS].toDouble();
     m_imgiol            = map[CP_IMG_IOLS].toByteArray();
-    m_imageformat         = map[CP_TYPIMG_IOLS].toString();
+    m_imageformat       = map[CP_TYPIMG_IOLS].toString();
     m_materiau          = map[CP_MATERIAU_IOLS].toString();
     m_remarque          = map[CP_REMARQUE_IOLS].toString();
     m_precharge         = map[CP_PRECHARGE_IOLS].toBool();
     m_multifocal        = map[CP_MULTIFOCAL_IOLS].toBool();
     m_jaune             = map[CP_JAUNE_IOLS].toBool();
+    m_edof              = map[CP_EDOF_IOLS].toBool();
+    m_toric             = map[CP_TORIC_IOLS].toBool();
     m_map = map;
 }
 
@@ -174,6 +176,8 @@ void IOL::resetdatas()
     map[CP_PRECHARGE_IOLS]          = false;
     map[CP_JAUNE_IOLS]              = false;
     map[CP_MULTIFOCAL_IOLS]         = false;
+    map[CP_EDOF_IOLS]               = false;
+    map[CP_TORIC_IOLS]              = false;
     setData(map);
 }
 

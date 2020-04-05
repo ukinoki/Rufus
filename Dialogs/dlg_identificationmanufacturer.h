@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
 #include "flags.h"
+#include <QDesktopServices>
 
 namespace Ui {
 class dlg_identificationmanufacturer;

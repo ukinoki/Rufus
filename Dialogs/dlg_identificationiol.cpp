@@ -81,7 +81,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     lblIOL                      ->setText(tr("Nom du modèle"));
     wdg_nomiolline              = new UpLineEdit();
     wdg_nomiolline              ->setFixedSize(QSize(150,28));
-    wdg_nomiolline              ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric));
+    wdg_nomiolline              ->setValidator(new QRegExpValidator(Utils::rgx_cotation));
     wdg_nomiolline              ->setMaxLength(40);
     choixIOLLay                 ->addWidget(lblIOL);
     choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -211,14 +211,56 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
             puissancesLay->setStretch(i,1);
     }
 
+    //! Plage cylindres
+    QHBoxLayout *cylindresLay   = new QHBoxLayout();
+    QHBoxLayout *wdgcylindresLay  = new QHBoxLayout();
+    wdg_cylindres               = new QWidget();
+    UpLabel* lblcylindremax     = new UpLabel;
+    lblcylindremax              ->setText(tr("Max."));
+    UpLabel* lblcylindremin     = new UpLabel;
+    lblcylindremin              ->setText(tr("Cylindre Min."));
+    wdg_cylindremaxspin         = new UpDoubleSpinBox();
+    wdg_cylindreminspin         = new UpDoubleSpinBox();
+    wdg_cylindremaxspin         ->setFixedSize(QSize(70,28));
+    wdg_cylindreminspin         ->setFixedSize(QSize(70,28));
+    wdg_cylindremaxspin         ->setRange(-8.0, 8.0);
+    wdg_cylindremaxspin         ->setSingleStep(0.25);
+    wdg_cylindreminspin         ->setRange(-8.0, 8.0);
+    wdg_cylindreminspin         ->setSingleStep(0.25);
+    wdg_toricchk                = new QCheckBox(tr("Torique"));
+    wdg_toricchk                ->setFixedHeight(35);
+    cylindresLay                ->insertWidget(0,wdg_toricchk);
+    cylindresLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    wdgcylindresLay             ->addWidget(lblcylindremin);
+    wdgcylindresLay             ->addWidget(wdg_cylindreminspin);
+    wdgcylindresLay             ->addWidget(lblcylindremax);
+    wdgcylindresLay             ->addWidget(wdg_cylindremaxspin);
+    wdgcylindresLay             ->setContentsMargins(0,0,0,0);
+    wdg_cylindres               ->setLayout(wdgcylindresLay);
+    cylindresLay                ->addWidget(wdg_cylindres);
+
+    cylindresLay                ->setSpacing(5);
+    cylindresLay                ->setContentsMargins(0,0,0,0);
+    for (int i=0; i < cylindresLay->count(); ++i)
+    {
+        if (i==1)
+            cylindresLay->setStretch(i,5);
+        else
+            cylindresLay->setStretch(i,1);
+    }
+
+
     //! Constante precharge jaune multifocal
     QHBoxLayout *checkboxLay    = new QHBoxLayout();
     wdg_prechargechk            = new QCheckBox(tr("Prechargé"));
     wdg_jaunechk                = new QCheckBox(tr("Jaune"));
+    wdg_edofchk                 = new QCheckBox("EDOF");
     wdg_multifocalchk           = new QCheckBox(tr("Multifocal"));
     checkboxLay                 ->addWidget(wdg_prechargechk);
     checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     checkboxLay                 ->addWidget(wdg_jaunechk);
+    checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    checkboxLay                 ->addWidget(wdg_edofchk);
     checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     checkboxLay                 ->addWidget(wdg_multifocalchk);
     checkboxLay                 ->setSpacing(5);
@@ -229,11 +271,11 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     UpLabel* HaigisIOLlbl       = new UpLabel;
     HaigisIOLlbl                ->setText("Haigis");
     UpLabel* Haigisalbl         = new UpLabel;
-    Haigisalbl                  ->setText("a");
+    Haigisalbl                  ->setText("a0");
     UpLabel* Haigisblbl         = new UpLabel;
-    Haigisblbl                  ->setText("b");
+    Haigisblbl                  ->setText("a1");
     UpLabel* Haigisclbl         = new UpLabel;
-    Haigisclbl                  ->setText(tr("c"));
+    Haigisclbl                  ->setText(tr("a2"));
     wdg_haigisaline             = new UpLineEdit();
     wdg_haigisaline             ->setValidator(new QRegExpValidator(rgx_haigis, wdg_haigisaline));
     wdg_haigisaline             ->setFixedSize(QSize(60,28));
@@ -271,8 +313,10 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     wdg_imgIOL                  = new UpLabel;
     setimage(m_nullimage);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
-    wdg_materiauline            = new UpLineEdit();
-    wdg_materiauline            ->setMaxLength(45);
+    wdg_materiauline            = new UpComboBox;
+    wdg_materiauline            ->setEditable(true);
+    wdg_materiauline            ->lineEdit()->setMaxLength(45);
+    wdg_materiauline            ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA"));
     MateriauLay                 ->insertWidget(0,wdg_materiauline);
     MateriauLay                 ->insertWidget(0,Materiaulbl);
     MateriauLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -302,6 +346,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     dlglayout()   ->insertLayout(0, MateriauImgLay);
     dlglayout()   ->insertLayout(0, checkboxLay);
     dlglayout()   ->insertLayout(0, HaigisLay);
+    dlglayout()   ->insertLayout(0, cylindresLay);
     dlglayout()   ->insertLayout(0, puissancesLay);
     dlglayout()   ->insertLayout(0, injecteurLay);
     dlglayout()   ->insertLayout(0, diametresLay);
@@ -315,6 +360,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     QList <QWidget*> ListTab;
     ListTab << wdg_manufacturercombo << wdg_nomiolline << wdg_Aoptline << wdg_Aecholine << wdg_ACDline << wdg_diaht << wdg_diaoptique << wdg_diainjecteur
             << wdg_puissanceminspin << wdg_puissancemaxspin
+            << wdg_toricchk << wdg_cylindreminspin << wdg_cylindremaxspin
             << wdg_haigisaline << wdg_haigisbline << wdg_haigiscline
             << wdg_prechargechk << wdg_jaunechk << wdg_multifocalchk << wdg_materiauline << wdg_remarquetxt;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
@@ -349,12 +395,22 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     connect (wdg_haigisaline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_haigisbline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_haigiscline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_materiauline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_materiauline->lineEdit(),      &QLineEdit::textEdited,                     this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_materiauline,      QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_remarquetxt,       &QTextEdit::textChanged,                                this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_diaoptique,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_diaht,             &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_diainjecteur,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_prechargechk,      &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_edofchk,           &QCheckBox::stateChanged,                               this,   [&] {
+                                                                                                            EnableOKpushButton();
+                                                                                                            if (wdg_edofchk->isChecked())
+                                                                                                                wdg_multifocalchk->setChecked(false);
+                                                                                                        });
+    connect (wdg_toricchk,          &QCheckBox::stateChanged,                               this,   [&] {
+                                                                                                            EnableOKpushButton();
+                                                                                                            wdg_cylindres->setVisible(wdg_toricchk->checkState() == Qt::Checked);
+                                                                                                        });
     connect (wdg_jaunechk,          &QCheckBox::stateChanged,                               this,   [&] {
                                                                                                             EnableOKpushButton();
                                                                                                             QString style = (wdg_jaunechk->checkState() == Qt::Checked?
@@ -367,13 +423,21 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
                                                                                                                     wdg->setEnabled(!wdg_inactifchk->isChecked());
                                                                                                                 EnableOKpushButton();
                                                                                                         });
-    connect (wdg_multifocalchk,     &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_multifocalchk,     &QCheckBox::stateChanged,                               this,   [&] {
+                                                                                                            EnableOKpushButton();
+                                                                                                            if (wdg_multifocalchk->isChecked())
+                                                                                                                wdg_edofchk->setChecked(false);
+                                                                                                        });
     connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_cylindremaxspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+    connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
     connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
 
     wdg_puissancemaxspin->installEventFilter(this);
+    wdg_cylindreminspin->installEventFilter(this);
+    wdg_cylindremaxspin->installEventFilter(this);
     wdg_puissanceminspin->installEventFilter(this);
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
@@ -436,12 +500,28 @@ void dlg_identificationIOL::AfficheDatasIOL()
             wdg_puissanceminspin->setValue(m_currentIOL->pwrmin());
             PrefixePlus(wdg_puissanceminspin);
         }
-        wdg_materiauline    ->setText(m_currentIOL->materiau());
+        wdg_materiauline    ->setCurrentText(m_currentIOL->materiau());
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
         wdg_inactifchk      ->setChecked(!m_currentIOL->isactif());
         wdg_jaunechk        ->setChecked(m_currentIOL->isjaune());
         wdg_multifocalchk   ->setChecked(m_currentIOL->ismultifocal());
         wdg_prechargechk    ->setChecked(m_currentIOL->isprecharge());
+        wdg_edofchk         ->setChecked(m_currentIOL->isedof());
+        wdg_toricchk        ->setChecked(m_currentIOL->istoric());
+        wdg_cylindres       ->setVisible(m_currentIOL->istoric());
+        if (m_currentIOL->istoric())
+        {
+            if (m_currentIOL->cylmax() > 0.0)
+            {
+                wdg_cylindremaxspin->setValue(m_currentIOL->cylmax());
+                PrefixePlus(wdg_cylindremaxspin);
+            }
+            if (m_currentIOL->cylmin() > 0.0)
+            {
+                wdg_cylindreminspin->setValue(m_currentIOL->cylmin());
+                PrefixePlus(wdg_cylindreminspin);
+            }
+        }
         if (m_currentIOL->diaall() > 0.0)
             wdg_diaht       ->setText(QLocale().toString(m_currentIOL->diaall(), 'f', 1));
         if (m_currentIOL->diaoptique() > 0.0)
@@ -479,8 +559,52 @@ void dlg_identificationIOL::changeImage()
     if (fileName != "")
     {
         QFile fileimage(fileName);
-        fileimage.open(QIODevice::ReadWrite);
-        m_listbinds[CP_IMG_IOLS] = fileimage.readAll();
+        QString formatdoc = QFileInfo(fileimage).suffix().toLower();
+        QString m_pathdirstockageprovisoire = Procedures::I()->DefinitDossierImagerie() + NOM_DIR_PROV;
+        // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
+        QByteArray ba;
+        QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + QFileInfo(fileimage).fileName();
+        QString szorigin, szfinal;
+        // on vide le dossier provisoire
+        QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
+        for (int t=0; t<listfichresize.size(); t++)
+        {
+            QString nomdocrz  = listfichresize.at(t);
+            QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
+            QFile(CheminFichierResize).remove();
+        }
+        if (fileimage.open(QIODevice::ReadOnly))
+        {
+            double sz = fileimage.size();
+            if (sz/(1024*1024) > 1)
+                szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
+            else
+                szorigin = QString::number(sz/1024,'f',1) + "Ko";
+            szfinal = szorigin;
+            fileimage.copy(nomfichresize);
+            fileimage.setFileName(nomfichresize);
+            if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
+            {
+                QImage  img(nomfichresize);
+                fileimage.remove();
+                QPixmap pixmap;
+                pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
+                int     tauxcompress = 90;
+                while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
+                {
+                    pixmap.save(nomfichresize, "jpeg",tauxcompress);
+                    sz = fileimage.size();
+                    tauxcompress -= 10;
+                }
+                if (sz/(1024*1024) > 1)
+                    szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
+                else
+                    szfinal = QString::number(sz/1024,'f',0) + "Ko";
+            }
+            fileimage.open(QIODevice::ReadOnly);
+            ba = fileimage.readAll();
+        }
+        m_listbinds[CP_IMG_IOLS] = ba;
         QString suffix = QFileInfo(fileimage).suffix().toLower();
         m_listbinds[CP_TYPIMG_IOLS] = suffix;
         EnableOKpushButton();
@@ -561,7 +685,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0.0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
     m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) >0.0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
     m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) >0.0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
-    m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiauline->text();
+    m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiauline->currentText();
     m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
     m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?        QLocale().toDouble(wdg_diaht->text())       : QVariant());
     m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0.0?   QLocale().toDouble(wdg_diaoptique->text())  : QVariant());
@@ -569,9 +693,13 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_PRECHARGE_IOLS]      = (wdg_prechargechk->isChecked()?   "1" : QVariant());
     m_listbinds[CP_MAXPWR_IOLS]         = wdg_puissancemaxspin->value();
     m_listbinds[CP_MINPWR_IOLS]         = wdg_puissanceminspin->value();
+    m_listbinds[CP_MAXCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked? wdg_cylindremaxspin->value() : QVariant());
+    m_listbinds[CP_MINCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked? wdg_cylindreminspin->value() : QVariant());
     m_listbinds[CP_JAUNE_IOLS]          = (wdg_jaunechk->isChecked()?       "1" : QVariant());
     m_listbinds[CP_MULTIFOCAL_IOLS]     = (wdg_multifocalchk->isChecked()?  "1" : QVariant());
     m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?     "1" : QVariant());
+    m_listbinds[CP_EDOF_IOLS]           = (wdg_edofchk->isChecked()?        "1" : QVariant());
+    m_listbinds[CP_TORIC_IOLS]          = (wdg_toricchk->isChecked()?       "1" : QVariant());
     if (m_mode == Creation)
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)

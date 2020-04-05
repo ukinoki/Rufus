@@ -39,7 +39,7 @@ private:
     QRegExp             rgx_diainjecteur    = QRegExp("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
     QRegExp             rgx_diaoptique      = QRegExp("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
     QRegExp             rgx_diaht           = QRegExp("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegExp             rgx_haigis          = QRegExp("[0]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
+    QRegExp             rgx_haigis          = QRegExp("-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
     Mode                m_mode;
@@ -56,6 +56,8 @@ private:
     UpLineEdit          *wdg_Aecholine;
     UpDoubleSpinBox     *wdg_puissancemaxspin;
     UpDoubleSpinBox     *wdg_puissanceminspin;
+    UpDoubleSpinBox     *wdg_cylindremaxspin;
+    UpDoubleSpinBox     *wdg_cylindreminspin;
     UpLineEdit          *wdg_ACDline;
     UpLineEdit          *wdg_haigisaline;
     UpLineEdit          *wdg_haigisbline;
@@ -64,12 +66,15 @@ private:
     UpLineEdit          *wdg_diaht;
     UpLineEdit          *wdg_diainjecteur;
     UpLabel             *wdg_imgIOL;
-    UpLineEdit          *wdg_materiauline;
+    UpComboBox          *wdg_materiauline;
     UpTextEdit          *wdg_remarquetxt;
     QCheckBox           *wdg_prechargechk;
     QCheckBox           *wdg_jaunechk;
     QCheckBox           *wdg_inactifchk;
     QCheckBox           *wdg_multifocalchk;
+    QCheckBox           *wdg_edofchk;
+    QCheckBox           *wdg_toricchk;
+    QWidget             *wdg_cylindres;
 
     bool                eventFilter(QObject *obj, QEvent *event);
     void                AfficheDatasIOL();

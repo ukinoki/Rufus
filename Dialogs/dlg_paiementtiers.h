@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "dlg_gestionbanques.h"
 #include "ui_dlg_gestionbanques.h"
+#include "dlg_identificationtiers.h"
 #include "flags.h"
 
 namespace Ui {
@@ -86,6 +87,7 @@ private:
     ResultEnregRecette  EnregistreRecette();
     void                FiltreListe(QString filtre);
     void                MajusculeCreerNom();
+    void                MAJTiers(UpComboBox *box);
     void                ModifPaiementTiers(int idRecetteAModifier);
     void                NettoieVerrousListeActesAAfficher();
     void                NettoieVerrousCompta();

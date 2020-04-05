@@ -34,7 +34,6 @@ dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget 
     wdg_CPlineedit              = wdg_villeCP->ui->CPlineEdit;
     wdg_villelineedit           = wdg_villeCP->ui->VillelineEdit;
     wdg_villeCP                 ->move(10,156);
-    m_nomTiers                  = "";
 
     dlglayout()     ->insertWidget(0,ui->Principalframe);
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -57,6 +56,12 @@ dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget 
     ui->Adresse2lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     ui->TellineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+
+    QList <QWidget *> listtab;
+    listtab << ui->NomlineEdit << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
+            << ui->TellineEdit << ui->MaillineEdit << ui->FaxlineEdit << ui->WebsiteineEdit;
+    for (int i = 0; i<listtab.size()-1 ; i++ )
+        setTabOrder(listtab.at(i), listtab.at(i+1));
 
     installEventFilter(this);
     ui->MaillineEdit->installEventFilter(this);
@@ -88,6 +93,11 @@ dlg_identificationtiers::~dlg_identificationtiers()
 {
 }
 
+void dlg_identificationtiers::setnomtiers(QString nom) const
+{
+    ui->NomlineEdit->setText(nom);
+}
+
 void    dlg_identificationtiers:: EnableOKpushButton()
 {
     bool a  = ui->NomlineEdit->text() != ""
@@ -99,39 +109,16 @@ void    dlg_identificationtiers:: EnableOKpushButton()
 
 void dlg_identificationtiers::Majuscule(QLineEdit *ledit)
 {
-    ledit->setText(Utils::trimcapitilize(ledit->text(),false));
+    ledit->setText(ledit->text().toUpper());
     OKButton->setEnabled(true);
 }
 
 void    dlg_identificationtiers::OKpushButtonClicked()
 {
     QString trsom;
-    trsom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
+    trsom      = Utils::correctquoteSQL(ui->NomlineEdit->text().toUpper());
 
-    if (wdg_CPlineedit->text() == "" && wdg_villelineedit->text() == "")
-    {
-        UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
-        wdg_CPlineedit->setFocus();
-        return;
-    }
-
-    if (wdg_CPlineedit->text() == "" || wdg_villelineedit->text() == "")
-    {
-        if (wdg_CPlineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le code postal"));
-            wdg_CPlineedit->setFocus();
-            return;
-        }
-        if (wdg_villelineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
-            wdg_villelineedit->setFocus();
-            return;
-        }
-    }
-    // B - On vérifie ensuite que la saisie est complète
-    if (trsom == "")
+    if (ui->NomlineEdit->text() == "")
     {
         UpMessageBox::Watch(this,tr("Vous devez spécifier un nom!"));
         ui->NomlineEdit->setFocus();
@@ -184,7 +171,7 @@ void    dlg_identificationtiers::OKpushButtonClicked()
         }
     }
 
-    m_listbinds[CP_NOM_TIERS]          = trsom.toUpper();
+    m_listbinds[CP_NOM_TIERS]          = trsom;
     m_listbinds[CP_ADRESSE1_TIERS]     = Utils::trimcapitilize(ui->Adresse1lineEdit->text().toUpper(),true);
     m_listbinds[CP_ADRESSE2_TIERS]     = Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true);
     m_listbinds[CP_ADRESSE3_TIERS]     = Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true);
@@ -239,8 +226,7 @@ void dlg_identificationtiers::AfficheDatasTiers()
 {
     if (m_mode == Modification)
     {
-        m_nomTiers       = m_currenttiers->nom();
-        ui->NomlineEdit         ->setText(m_nomTiers);
+        ui->NomlineEdit         ->setText(m_currenttiers->nom());
         ui->idTierslabel ->setText(tr("Tiers n° ") + QString::number(m_currenttiers->id()));
 
         ui->Adresse1lineEdit    ->setText(m_currenttiers->adresse1());

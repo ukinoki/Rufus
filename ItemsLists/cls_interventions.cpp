@@ -218,7 +218,6 @@ IOL* IOLs::getById(int id)
 void IOLs::initListeByManufacturerId(int id)
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLsByManufacturerId(id);
-    //qDebug() << "listIOLS.size() =  " << listIOLs.size();
     ItemsList::clearAll(map_all);
     addList(map_all, &listIOLs);
 }
@@ -266,39 +265,14 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
-        if (champ == CP_INACTIF_IOLS)
+        if (champ == CP_INACTIF_IOLS || champ == CP_JAUNE_IOLS || champ == CP_TORIC_IOLS || champ == CP_EDOF_IOLS || champ == CP_MULTIFOCAL_IOLS)
             map[champ] = (itset.value().toString() == "1");
         else
             map[champ] = itset.value();
-
-        //        if (champ == CP_IDMANUFACTURER_IOLS)        map[champ] = itset.value();
-        //        else if (champ == CP_MODELNAME_IOLS)        map[champ] = itset.value();
-        //        else if (champ == CP_DIAOPT_IOLS)           map[champ] = itset.value();
-        //        else if (champ == CP_DIAALL_IOLS)           map[champ] = itset.value();
-        //        else if (champ == CP_ACD_IOLS)              map[champ] = itset.value();
-        //        else if (champ == CP_MINPWR_IOLS)           map[champ] = itset.value();
-        //        else if (champ == CP_MAXPWR_IOLS)           map[champ] = itset.value();
-        //        else if (champ == CP_PWRSTEP_IOLS)          map[champ] = itset.value();
-        //        else if (champ == CP_MINCYL_IOLS)           map[champ] = itset.value();
-        //        else if (champ == CP_MAXCYL_IOLS)           map[champ] = itset.value();
-        //        else if (champ == CP_CYLSTEP_IOLS)          map[champ] = itset.value();
-        //        else if (champ == CP_CSTEAOPT_IOLS)         map[champ] = itset.value();
-        //        else if (champ == CP_CSTEAECHO_IOLS)        map[champ] = itset.value();
-        //        else if (champ == CP_HAIGISA0_IOLS)         map[champ] = itset.value();
-        //        else if (champ == CP_HAIGISA1_IOLS)         map[champ] = itset.value();
-        //        else if (champ == CP_HAIGISA2_IOLS)         map[champ] = itset.value();
-        //        else if (champ == CP_HOLL1_IOLS)            map[champ] = itset.value();
-        //        else if (champ == CP_SRKTA_IOLS)            map[champ] = itset.value();
-        //        else if (champ == CP_DIAINJECTEUR_IOLS)     map[champ] = itset.value();
-        //        else if (champ == CP_IMG_IOLS)              map[champ] = itset.value();
-        //        else if (champ == CP_MATERIAU_IOLS)         map[champ] = itset.value();
-        //        else if (champ == CP_REMARQUE_IOLS)         map[champ] = itset.value();
-        //        else if (champ == CP_INACTIF_IOLS)          map[champ] = (itset.value().toString() == "1");
     }
     iol = new IOL(map);
     if (iol != Q_NULLPTR)
         map_all->insert(iol->id(), iol);
-//    qDebug() << iol->id();
     return iol;
 }
 

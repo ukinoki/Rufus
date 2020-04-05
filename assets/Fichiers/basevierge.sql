@@ -285,8 +285,10 @@ CREATE TABLE `IOLs` (
   `Materiau` varchar(45) DEFAULT NULL,
   `Remarque` varchar(200) DEFAULT NULL,
   `Precharge` INT(1) DEFAULT NULL,
-  `Jaune` INT(1) NULL DEFAULT NULL,
-  `Multifocal` INT(1) NULL DEFAULT NULL,
+  `Jaune` INT(1) DEFAULT NULL,
+  `Toric` INT(1) DEFAULT NULL,
+  `EDOF` INT(1) DEFAULT NULL,
+  `Multifocal` INT(1) DEFAULT NULL,
   `IOLInactif` int(1) DEFAULT NULL,
   PRIMARY KEY (`idIOL`)
 ) ENGINE=InnoDB;

@@ -63,10 +63,15 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->CorMaillineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
     ui->CorTelephonelineEdit->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
+    QList <QWidget *> listtab;
+    listtab << ui->NomlineEdit << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
+            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->WebsiteineEdit << ui->FaxlineEdit << ui->CorNomlineEdit << ui->CorPrenomlineEdit << ui->CorMaillineEdit << ui->CorTelephonelineEdit;
+    for (int i = 0; i<listtab.size()-1 ; i++ )
+        setTabOrder(listtab.at(i), listtab.at(i+1));
     installEventFilter(this);
     ui->MaillineEdit->installEventFilter(this);
     ui->NomlineEdit->setFocus();
-
+    ui->Websitelabel->setText("<a href=\"Site Web\">Site Web</a>");
     OKButton->disconnect();
     connect (OKButton,                  &QPushButton::clicked,              this,           &dlg_identificationmanufacturer::OKpushButtonClicked);
     connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->NomlineEdit);});
@@ -81,6 +86,8 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->TellineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->PortablelineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->MaillineEdit,          &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->WebsiteineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->FaxlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorNomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorPrenomlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
@@ -88,7 +95,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->DelCorupPushButton,    &QPushButton::clicked,              this,           [=]
                                                                                             {
-                                                                                                if (UpMessageBox::Question(this, tr("Suppression d'un corresponda"), tr("Êtes vous sûr de vouloir supprimer ce corespondant?")) != UpSmallButton::STARTBUTTON)
+                                                                                                if (UpMessageBox::Question(this, tr("Suppression d'un correspondant"), tr("Êtes vous sûr de vouloir supprimer ce corespondant?")) != UpSmallButton::STARTBUTTON)
                                                                                                     return;
                                                                                                 ui->CorNomlineEdit      ->clear();
                                                                                                 ui->CorPrenomlineEdit   ->clear();
@@ -97,6 +104,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
                                                                                                 ui->CorTelephonelineEdit->clear();
                                                                                                 EnableOKpushButton();
                                                                                             });
+    connect (ui->Websitelabel,          &QLabel::linkActivated,                 this,   [=] {QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
@@ -284,6 +292,8 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
         wdg_villelineedit       ->setText(m_currentmanufacturer->ville());
         ui->TellineEdit         ->setText(m_currentmanufacturer->telephone());
         ui->PortablelineEdit    ->setText(m_currentmanufacturer->portable());
+        ui->FaxlineEdit         ->setText(m_currentmanufacturer->fax());
+        ui->WebsiteineEdit      ->setText(m_currentmanufacturer->website());
         ui->MaillineEdit        ->setText(m_currentmanufacturer->mail());
 
         ui->CorNomlineEdit      ->setText(m_currentmanufacturer->cornom());

@@ -538,6 +538,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_REMARQUE_IOLS                                "Remarque"
 #define CP_PRECHARGE_IOLS                               "Precharge"
 #define CP_JAUNE_IOLS                                   "Jaune"
+#define CP_TORIC_IOLS                                   "Toric"
+#define CP_EDOF_IOLS                                    "EDOF"
 #define CP_MULTIFOCAL_IOLS                              "Multifocal"
 #define CP_INACTIF_IOLS                                 "IOLInactif"
 

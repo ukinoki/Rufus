@@ -23,8 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-04-2020/1");
-
+    qApp->setApplicationVersion("06-04-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -7175,7 +7174,7 @@ void Rufus::CreerMenu()
     actionRechercheCourrier         = new QAction(tr("Afficher les courriers à faire"));
     actionCorrespondants            = new QAction(tr("Liste des correspondants"));
     actionFabricants                = new QAction(tr("Liste des fabricants"));
-    actionTiers                     = new QAction(tr("Liste des tiers payant"));
+    actionTiers                     = new QAction(tr("Liste des tiers payants"));
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
@@ -8067,7 +8066,6 @@ void Rufus::MAJCorrespondant(QObject *obj)
         cbox->setCurrentIndex(-1);
         OKModifierTerrain(currentpatient());
     }
-    //qDebug() << req;
 }
 
 // ------------------------------------------------------------------------------------------

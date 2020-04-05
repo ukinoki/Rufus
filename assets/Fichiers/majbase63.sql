@@ -50,6 +50,16 @@ BEGIN
             ALTER TABLE `ComptaMedicale`.`tiers`
             ADD COLUMN `WebsiteTiers` VARCHAR(120) NULL DEFAULT NULL AFTER `MailTiers`;
         END IF;
+    SELECT COUNT(*) INTO tot FROM
+       (SELECT COLUMN_KEY
+       FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'EDOF') as chp;
+       IF tot=0
+       THEN
+           ALTER TABLE `Ophtalmologie`.`IOLs`
+           ADD COLUMN `Toric` INT(1) NULL DEFAULT NULL AFTER `Jaune`,
+           ADD COLUMN `EDOF` INT(1) NULL DEFAULT NULL AFTER `Toric`;
+           END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 63;
 END|
 

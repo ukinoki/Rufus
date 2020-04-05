@@ -698,7 +698,7 @@ pour</string>
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QComboBox" name="TierscomboBox">
+                  <widget class="UpComboBox" name="TiersupComboBox">
                    <property name="minimumSize">
                     <size>
                      <width>140</width>
@@ -1536,18 +1536,24 @@ tiers payant</string>
    <extends>QLineEdit</extends>
    <header>uplineedit.h</header>
   </customwidget>
+  <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>UserscomboBox</tabstop>
   <tabstop>VirementradioButton</tabstop>
   <tabstop>ChequeradioButton</tabstop>
   <tabstop>EspecesradioButton</tabstop>
   <tabstop>dateEdit</tabstop>
   <tabstop>MontantlineEdit</tabstop>
-  <tabstop>TierscomboBox</tabstop>
-  <tabstop>CommissionlineEdit</tabstop>
+  <tabstop>TiersupComboBox</tabstop>
   <tabstop>BanqueChequecomboBox</tabstop>
+  <tabstop>ComptesupComboBox</tabstop>
   <tabstop>TireurChequelineEdit</tabstop>
+  <tabstop>CommissionlineEdit</tabstop>
+  <tabstop>CherchePatientupLineEdit</tabstop>
   <tabstop>ListeupTableWidget</tabstop>
  </tabstops>
  <resources>
