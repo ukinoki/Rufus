@@ -36,17 +36,46 @@ class Tiers : public Item
 {
 
 private:
-    QString m_nomtiers, m_adressetiers, m_villetiers, m_codepostaltiers, m_telephonetiers, m_faxtiers;
+    QString m_nom = "";
+    QString m_adresse1 = "";
+    QString m_adresse2 = "";
+    QString m_adresse3 = "";
+    QString m_ville = "";
+    QString m_codepostal = "";
+    QString m_telephone = "";
+    QString m_fax = "";
+    QString m_mail = "";
+    QString m_web = "";
+    bool m_utilise;
 public:
     explicit Tiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    QString nomtiers() const;
-    QString codepostaltiers() const;
-    QString villetiers() const;
-    QString telephonetiers() const;
-    QString adressetiers() const;
-    QString faxtiers() const;
+    QString nom() const;
+    QString codepostal() const;
+    QString ville() const;
+    QString telephone() const;
+    QString adresse1() const;
+    QString adresse2() const;
+    QString adresse3() const;
+    QString fax() const;
+    QString mail() const;
+    QString website() const;
+    bool isutilise() const { return m_utilise; }
+    void setNom(const QString &nom)               { m_nom = nom;                m_data[CP_NOM_TIERS]        = nom;}
+    void setAdresse1(const QString &adresse)      { m_adresse1 = adresse;       m_data[CP_ADRESSE1_TIERS]    = adresse;}
+    void setAdresse2(const QString &adresse)      { m_adresse2 = adresse;       m_data[CP_ADRESSE2_TIERS]    = adresse;}
+    void setAdresse3(const QString &adresse)      { m_adresse3 = adresse;       m_data[CP_ADRESSE3_TIERS]    = adresse;}
+    void setVille(const QString &ville)           { m_ville = ville;            m_data[CP_CODEPOSTAL_TIERS] = ville;}
+    void setCodepostal(const QString &codepostal) { m_codepostal = codepostal;  m_data[CP_VILLE_TIERS]      = codepostal;}
+    void setTelephone(const QString &telephone)   { m_telephone = telephone;    m_data[CP_TELEPHONE_TIERS]  = telephone;}
+    void setFax(const QString &fax)               { m_fax = fax;                m_data[CP_FAX_TIERS]  = fax;}
+    void setMail(const QString &mail)             { m_mail = mail;              m_data[CP_MAIL_TIERS]  = mail;}
+    void setWebsite(const QString &web)           { m_web = web;                m_data[CP_WEB_TIERS]  = web;}
+    void setUtilise(const bool isutilise)         { m_utilise = isutilise; }
+    void resetdatas();
+    bool isnull() const                           { return m_id == 0; }
+    QString tooltip() const;
 };
 
 class TypeTiers : public Item

@@ -45,12 +45,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestionlieux.h"
 #include "dlg_identificationcorresp.h"
 #include "ui_dlg_identificationcorresp.h"
-#include "dlg_identificationmanufacturer.h"
 #include "ui_dlg_identificationmanufacturer.h"
 #include "dlg_identificationpatient.h"
 #include "ui_dlg_identificationpatient.h"
 #include "dlg_listecorrespondants.h"
 #include "dlg_listemanufacturers.h"
+#include "dlg_listetiers.h"
 #include "dlg_listemotscles.h"
 #include "dlg_paiementdirect.h"
 #include "dlg_paiementtiers.h"
@@ -96,6 +96,7 @@ public:
 private:
     bool                            UtiliserTcpSocket = false;
     QAction                         *actionFabricants = Q_NULLPTR;  // si on rajoute cette ligne avec les autres variables de menu, le programme plante (???)
+    QAction                         *actionTiers = Q_NULLPTR;  // si on rajoute cette ligne avec les autres variables de menu, le programme plante (???)
 
     Procedures                      *proc;
     DataBase                        *db;
@@ -151,6 +152,7 @@ private:
     void        LireLaCPS();      // CZ001
     void        ListeCorrespondants();
     void        ListeManufacturers();
+    void        ListeTiersPayants();
     void        MajusculeCreerNom();
     void        MajusculeCreerPrenom();
     void        ModifCotationActe();

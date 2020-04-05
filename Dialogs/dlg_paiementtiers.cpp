@@ -1948,7 +1948,7 @@ void dlg_paiementtiers::ReconstruitListeTiers()
 {
     ui->TierscomboBox->clear();
     foreach (Tiers *trs, *Datas::I()->tierspayants->tierspayants())
-        ui->TierscomboBox->addItem(trs->nomtiers());
+        ui->TierscomboBox->addItem(trs->nom(), trs->id());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -40,6 +40,9 @@ public:
 
     Tiers* getById(int id);
     void initListe();
+    void SupprimeTiers(Tiers* tiers);
+    Tiers* CreationTiers(QHash<QString, QVariant> sets);
+    bool isUtilise(QString nom);                 //! détermine si un tiers a été utilisé dans la table recettes  afinde savoi si on oeut le supprimer
 };
 
 #endif // TIERSPAYANTS_H

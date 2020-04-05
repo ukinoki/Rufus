@@ -19,33 +19,64 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Tiers::Tiers(QJsonObject data, QObject *parent) : Item(parent)
 {
+    resetdatas();
     setData(data);
 }
 
-QString Tiers::nomtiers() const         { return m_nomtiers; }
-QString Tiers::adressetiers() const     { return m_adressetiers; }
-QString Tiers::codepostaltiers() const  { return m_codepostaltiers; }
-QString Tiers::villetiers() const       { return m_villetiers; }
-QString Tiers::telephonetiers() const   { return m_telephonetiers; }
-QString Tiers::faxtiers() const         { return m_faxtiers; }
+QString Tiers::nom() const         { return m_nom; }
+QString Tiers::adresse1() const    { return m_adresse1; }
+QString Tiers::adresse2() const    { return m_adresse2; }
+QString Tiers::adresse3() const    { return m_adresse3; }
+QString Tiers::codepostal() const  { return m_codepostal; }
+QString Tiers::ville() const       { return m_ville; }
+QString Tiers::telephone() const   { return m_telephone; }
+QString Tiers::fax() const         { return m_fax; }
+QString Tiers::mail() const        { return m_mail; }
+QString Tiers::website() const     { return m_web; }
 
 void Tiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, "id", m_id);
-    Utils::setDataString(data, "nomtiers", m_nomtiers);
-    Utils::setDataString(data, "adressetiers", m_adressetiers);
-    Utils::setDataString(data, "codepostaltiers", m_codepostaltiers);
-    Utils::setDataString(data, "villetiers", m_villetiers);
-    Utils::setDataString(data, "telephonetiers", m_telephonetiers);
-    Utils::setDataString(data, "faxtiers", m_faxtiers);
+    Utils::setDataInt(data,     CP_ID_TIERS,        m_id);
+    Utils::setDataString(data,  CP_NOM_TIERS,       m_nom);
+    Utils::setDataString(data,  CP_ADRESSE1_TIERS,  m_adresse1);
+    Utils::setDataString(data,  CP_ADRESSE2_TIERS,  m_adresse2);
+    Utils::setDataString(data,  CP_ADRESSE3_TIERS,  m_adresse3);
+    Utils::setDataString(data,  CP_CODEPOSTAL_TIERS,m_codepostal);
+    Utils::setDataString(data,  CP_VILLE_TIERS,     m_ville);
+    Utils::setDataString(data,  CP_TELEPHONE_TIERS, m_telephone);
+    Utils::setDataString(data,  CP_FAX_TIERS,       m_fax);
+    Utils::setDataString(data,  CP_MAIL_TIERS,      m_mail);
+    Utils::setDataString(data,  CP_WEB_TIERS,       m_web);
     m_data = data;
 }
 
+/*! comme son nom l'indique */
+void Tiers::resetdatas()
+{
+    QJsonObject data;
+    data[CP_ID_TIERS]           = "";
+    data[CP_NOM_TIERS]          = "";
+    data[CP_ADRESSE1_TIERS]     = "";
+    data[CP_ADRESSE2_TIERS]     = "";
+    data[CP_ADRESSE3_TIERS]     = "";
+    data[CP_CODEPOSTAL_TIERS]   = "";
+    data[CP_VILLE_TIERS]        = "";
+    data[CP_TELEPHONE_TIERS]    = "";
+    data[CP_FAX_TIERS]          = "";
+    setData(data);
+}
 
-
-
+QString Tiers::tooltip() const
+{
+    QString ttip = "";
+    if (telephone() != "")
+        ttip += tr("Telephone:") + " " + telephone();
+    if (adresse1() != "")
+        ttip += "\n" + adresse1() + " " + codepostal() + " " + ville();
+    return ttip;
+}
 
 TypeTiers::TypeTiers(QJsonObject data, QObject *parent) : Item(parent)
 {

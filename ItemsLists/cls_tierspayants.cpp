@@ -46,3 +46,50 @@ void TiersPayants::initListe()
     epurelist(map_tierspayants, &listtiers);
     addList(map_tierspayants, &listtiers);
 }
+
+bool TiersPayants::isUtilise(QString nom)
+{
+    bool ok;
+    QString req = "select " CP_ID_LIGNRECETTES " from " TBL_RECETTES " where " CP_NOMPAYEUR_LIGNRECETTES " = '" + Utils::correctquoteSQL(nom) + "'";
+    return DataBase::I()->StandardSelectSQL(req, ok).size() >0;
+}
+
+void TiersPayants::SupprimeTiers(Tiers *tiers)
+{
+    Supprime(map_tierspayants, tiers);
+}
+
+Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
+{
+    Tiers *tiers = Q_NULLPTR;
+    int idTiers = 0;
+    DataBase::I()->locktables(QStringList() << TBL_TIERS);
+    idTiers = DataBase::I()->selectMaxFromTable(CP_ID_TIERS, TBL_TIERS, m_ok);
+    bool result = ( m_ok );
+    if (result)
+    {
+        ++ idTiers;
+        sets[CP_ID_TIERS] = idTiers;
+        result = DataBase::I()->InsertSQLByBinds(TBL_TIERS, sets);
+    }
+    DataBase::I()->unlocktables();
+    if (!result)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce tiers payant dans la base!"));
+        return tiers;
+    }
+    QJsonObject  data = QJsonObject{};
+    data[CP_ID_TIERS] = idTiers;
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        data[champ] = itset.value().toString();
+    }
+    tiers = new Tiers(data);
+    if (tiers != Q_NULLPTR)
+        initListe();
+    return tiers;
+}
+

@@ -20,12 +20,14 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_identificationiol.cpp \
     $$PWD/dlg_identificationmanufacturer.cpp \
     $$PWD/dlg_identificationpatient.cpp \
+    $$PWD/dlg_identificationtiers.cpp \
     $$PWD/dlg_identificationuser.cpp \
     $$PWD/dlg_impressions.cpp \
     $$PWD/dlg_listecorrespondants.cpp \
     $$PWD/dlg_listeiols.cpp \
     $$PWD/dlg_listemanufacturers.cpp \
     $$PWD/dlg_listemotscles.cpp \
+    $$PWD/dlg_listetiers.cpp \
     $$PWD/dlg_message.cpp \
     $$PWD/dlg_motifs.cpp \
     $$PWD/dlg_paramconnexion.cpp \
@@ -60,12 +62,14 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_identificationiol.h \
     $$PWD/dlg_identificationmanufacturer.h \
     $$PWD/dlg_identificationpatient.h \
+    $$PWD/dlg_identificationtiers.h \
     $$PWD/dlg_identificationuser.h \
     $$PWD/dlg_impressions.h \
     $$PWD/dlg_listecorrespondants.h \
     $$PWD/dlg_listeiols.h \
     $$PWD/dlg_listemanufacturers.h \
     $$PWD/dlg_listemotscles.h \
+    $$PWD/dlg_listetiers.h \
     $$PWD/dlg_message.h \
     $$PWD/dlg_motifs.h \
     $$PWD/dlg_paramconnexion.h \
@@ -93,6 +97,7 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_identificationcorresp.ui \
     $$PWD/dlg_identificationmanufacturer.ui \
     $$PWD/dlg_identificationpatient.ui \
+    $$PWD/dlg_identificationtiers.ui \
     $$PWD/dlg_identificationuser.ui \
     $$PWD/dlg_impressions.ui \
     $$PWD/dlg_motifs.ui \

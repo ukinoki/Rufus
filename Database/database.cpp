@@ -1503,25 +1503,29 @@ QList<Banque*> DataBase::loadBanques()
 QList<Tiers*> DataBase::loadTiersPayants()
 {
     QList<Tiers*> listetiers;
-    QString req = "SELECT idtIERS, Nomtiers, AdresseTiers, Codepostaltiers, Villetiers, Telephonetiers, FaxTiers from " TBL_TIERS;
+    QString req = "SELECT " CP_ID_TIERS ", " CP_NOM_TIERS ", " CP_ADRESSE1_TIERS ", " CP_ADRESSE2_TIERS ", " CP_ADRESSE3_TIERS ", "
+                            CP_CODEPOSTAL_TIERS ", " CP_VILLE_TIERS ", " CP_TELEPHONE_TIERS ", " CP_FAX_TIERS ", " CP_MAIL_TIERS ", " CP_WEB_TIERS " from " TBL_TIERS;
     QList<QVariantList> tierslist = StandardSelectSQL(req,ok);
     if(!ok || tierslist.size()==0)
         return listetiers;
     for (int i=0; i<tierslist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = tierslist.at(i).at(0).toInt();
-        jData["nomtiers"] = tierslist.at(i).at(1).toString();
-        jData["adressetiers"] = tierslist.at(i).at(2).toString();
-        jData["codepostaltiers"] = tierslist.at(i).at(3).toString();
-        jData["villetiers"] = tierslist.at(i).at(4).toString();
-        jData["telephonetiers"] = tierslist.at(i).at(5).toString();
-        jData["faxtiers"] = tierslist.at(i).at(5).toString();
+        jData[CP_ID_TIERS]          = tierslist.at(i).at(0).toInt();
+        jData[CP_NOM_TIERS]         = tierslist.at(i).at(1).toString();
+        jData[CP_ADRESSE1_TIERS]    = tierslist.at(i).at(2).toString();
+        jData[CP_ADRESSE2_TIERS]    = tierslist.at(i).at(3).toString();
+        jData[CP_ADRESSE3_TIERS]    = tierslist.at(i).at(4).toString();
+        jData[CP_CODEPOSTAL_TIERS]  = tierslist.at(i).at(5).toString();
+        jData[CP_VILLE_TIERS]       = tierslist.at(i).at(6).toString();
+        jData[CP_TELEPHONE_TIERS]   = tierslist.at(i).at(7).toString();
+        jData[CP_FAX_TIERS]         = tierslist.at(i).at(8).toString();
+        jData[CP_MAIL_TIERS]        = tierslist.at(i).at(9).toString();
+        jData[CP_WEB_TIERS]         = tierslist.at(i).at(10).toString();
         Tiers *tiers = new Tiers(jData);
         if (tiers != Q_NULLPTR)
             listetiers << tiers;
     }
-
     return listetiers;
 }
 

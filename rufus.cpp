@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-04-2020/1");
+    qApp->setApplicationVersion("05-04-2020/1");
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2806,6 +2806,21 @@ void Rufus::ListeManufacturers()
     dlg_listemanufacturers *Dlg_ListManufacturers = new dlg_listemanufacturers(this);
     Dlg_ListManufacturers->exec();
     delete Dlg_ListManufacturers;
+}
+
+void Rufus::ListeTiersPayants()
+{
+    if (Datas::I()->tierspayants->tierspayants()->size()==0)
+    {
+        UpMessageBox::Watch(this, tr("pas de tiers payant enregistré") );
+        dlg_identificationtiers *Dlg_IdentManufacturer    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
+        Dlg_IdentManufacturer->exec();
+        delete Dlg_IdentManufacturer;
+        return;
+    }
+    dlg_listetiers *Dlg_ListTiers = new dlg_listetiers(this);
+    Dlg_ListTiers->exec();
+    delete Dlg_ListTiers;
 }
 
 void Rufus::MajusculeCreerNom()
@@ -7160,6 +7175,7 @@ void Rufus::CreerMenu()
     actionRechercheCourrier         = new QAction(tr("Afficher les courriers à faire"));
     actionCorrespondants            = new QAction(tr("Liste des correspondants"));
     actionFabricants                = new QAction(tr("Liste des fabricants"));
+    actionTiers                     = new QAction(tr("Liste des tiers payant"));
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
@@ -7207,6 +7223,7 @@ void Rufus::CreerMenu()
     connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
     connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
     connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
+    connect (actionTiers,                       &QAction::triggered,        this,                   &Rufus::ListeTiersPayants);
     connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
     connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo(currentpatient());});
     connect (actionExportActe,                  &QAction::triggered,        this,                   [=] {ExporteActe(currentacte());});
@@ -7274,6 +7291,7 @@ void Rufus::CreerMenu()
     menuComptabilite->addSeparator();
     menuComptabilite->addAction(actionGestionComptesBancaires);
     menuComptabilite->addAction(actionRemiseCheques);
+    menuComptabilite->addAction(actionTiers);
 
     // Les connect des menus --------------------------------------------------------------------------------------------------
     connect (menuActe,                          &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});

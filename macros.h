@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          62  // version de la base de données
+#define VERSION_BASE                          63  // version de la base de données
 #define VERSION_RESSOURCES                    34  // version des fichiers de ressources
 
 // Les bases
@@ -469,6 +469,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CHQENATTENTE_LIGNRECETTES                   "EnAttente"
 #define CP_IDUSERENREGISTREUR_LIGNRECETTES             "EnregistrePar"
 #define CP_TYPERECETTE_LIGNRECETTES                    "TypeRecette"
+
+
+                            //! Table ComptaMedicale.tiers
+#define CP_ID_TIERS                                     "idTiers"
+#define CP_NOM_TIERS                                    "Nomtiers"
+#define CP_ADRESSE1_TIERS                               "Adresse1Tiers"
+#define CP_ADRESSE2_TIERS                               "Adresse2Tiers"
+#define CP_ADRESSE3_TIERS                               "Adresse3Tiers"
+#define CP_CODEPOSTAL_TIERS                             "Codepostaltiers"
+#define CP_VILLE_TIERS                                  "Villetiers"
+#define CP_TELEPHONE_TIERS                              "Telephonetiers"
+#define CP_FAX_TIERS                                    "FaxTiers"
+#define CP_MAIL_TIERS                                   "MailTiers"
+#define CP_WEB_TIERS                                    "WebsiteTiers"
 
                             //! Table ComptaMedicale.typepaiementactes
 #define CP_IDACTE_TYPEPAIEMENTACTES                    "idActe"

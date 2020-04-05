@@ -316,6 +316,13 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<Tiers*>(item) != Q_NULLPTR)
+        {
+            table = TBL_TIERS;
+            idname = CP_ID_TIERS;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table == "")

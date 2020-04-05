@@ -509,12 +509,16 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `tiers`;
 CREATE TABLE `tiers` (
   `idTiers` int(11) NOT NULL AUTO_INCREMENT,
-  `Nomtiers` varchar(25) NOT NULL,
-  `AdresseTiers` longtext,
+  `Nomtiers` varchar(25) CHARACTER SET latin1 NOT NULL,
+  `Adresse1Tiers` varchar(80) DEFAULT NULL,
+  `Adresse2Tiers` varchar(80) DEFAULT NULL,
+  `Adresse3Tiers` varchar(80) DEFAULT NULL,
   `Codepostaltiers` varchar(5) DEFAULT NULL,
   `Villetiers` varchar(25) DEFAULT NULL,
   `Telephonetiers` varchar(17) DEFAULT NULL,
   `FaxTiers` varchar(17) DEFAULT NULL,
+  `MailTiers` varchar(45) DEFAULT NULL,
+  `WebsiteTiers` varchar(120) DEFAULT NULL,
   `InterlocTiers` varchar(20) DEFAULT NULL,
   `SexeInterlocTiers` varchar(1) DEFAULT NULL,
   `PosteInterlocTiers` varchar(8) DEFAULT NULL,
@@ -523,7 +527,7 @@ CREATE TABLE `tiers` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `tiers` WRITE;
-INSERT INTO `tiers` VALUES (2,'APEAHM',NULL,'','','','','','','',''),(3,'Art 115',NULL,'','','','','','','',''),(4,'CAMAC',NULL,'','','','','','','',''),(5,'CB',NULL,'','','','','','','',''),(7,'CNMSS',NULL,'83090','TOULON CEDEX 9','94 16 36 00','','','','',''),(9,'CPAM BDR',NULL,'','','','','','M','','O'),(12,'CRPCEN',NULL,'','','','','','','',''),(14,'ENIM',NULL,'','','','','','','',''),(15,'Entrain',NULL,'','','','','','','',''),(16,'GIE DEGEMUT',NULL,'','','','','','','',''),(17,'L\'Envol','La Plaine Notre Dame','13700','Marignane','','','','M','',''),(19,'LMDE',NULL,'','','','','','','',''),(21,'MEP','176, boulevard Baille','13005','Marseille','','','','','',''),(22,'MG PTT','18, rue Dieudé','13292','Marseille CEDEX 06','','','','','',''),(23,'MGEN',NULL,'','','','','','','',''),(26,'MSA',NULL,'','','','','','','',''),(28,'RAM',NULL,'','','','','','','',''),(29,'RSI',NULL,'','','','','','','',''),(33,'SNCF','Caisse de prévoyance et de retraite','13347','Marseille CEDEX 20','91 95 06 45','','','','',''),(35,'Tutelle',NULL,'','','','','','','','');
+INSERT INTO `tiers` VALUES (3,'Art 115',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(4,'CAMAC',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(5,'CB',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(7,'CNMSS',NULL,NULL,NULL,'83090','TOULON CEDEX 9','94 16 36 00','',NULL,NULL,'','','',''),(13,'Divers',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(19,'LMDE',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(22,'MG PTT','18, rue Dieudé',NULL,NULL,'13292','Marseille CEDEX 06','','',NULL,NULL,'','','',''),(23,'MGEN',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(24,'MGS',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(25,'MPCA','5/7 rue d\'Italie BP 83',NULL,NULL,'13253','Marseille CEDEX 06','','',NULL,NULL,'','','',''),(26,'MSA',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(28,'RAM',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(29,'RSI',NULL,NULL,NULL,'','','','',NULL,NULL,'','','',''),(33,'SNCF','Caisse de prévoyance et de retraite',NULL,NULL,'13347','Marseille CEDEX 20','91 95 06 45','',NULL,NULL,'','','',''),(35,'Tutelle',NULL,NULL,NULL,'','','','',NULL,NULL,'','','','');
 UNLOCK TABLES;
 
 
@@ -718,7 +722,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,62,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,63,
                                         NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);

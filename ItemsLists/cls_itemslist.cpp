@@ -25,6 +25,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     TypeIntervention *typinterv = Q_NULLPTR;
     IOL *iol                    = Q_NULLPTR;
     Intervention *interv        = Q_NULLPTR;
+    Tiers *tiers                = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -158,6 +159,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (interv != Q_NULLPTR)
         {
             table = TBL_LIGNESPRGOPERATOIRES;
+            loop = true;
+            break;
+        }
+        tiers = dynamic_cast<Tiers*>(item);
+        if (tiers != Q_NULLPTR)
+        {
+            table = TBL_TIERS;
             loop = true;
             break;
         }
@@ -909,6 +917,61 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             interv->setincident(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
+    }
+    else if (table == TBL_TIERS)
+    {
+        ok = true;
+        clause = CP_ID_TIERS " = " + QString::number(item->id());
+        if (field == CP_NOM_TIERS)
+        {
+            tiers->setNom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE1_TIERS)
+        {
+            tiers->setAdresse1(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE2_TIERS)
+        {
+            tiers->setAdresse2(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ADRESSE3_TIERS)
+        {
+            tiers->setAdresse3(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CODEPOSTAL_TIERS)
+        {
+            tiers->setCodepostal(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_VILLE_TIERS)
+        {
+            tiers->setVille(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_TELEPHONE_TIERS)
+        {
+            tiers->setTelephone(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_FAX_TIERS)
+        {
+            tiers->setFax(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+         }
+        else if (field == CP_MAIL_TIERS)
+        {
+            tiers->setMail(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+         }
+        else if (field == CP_WEB_TIERS)
+        {
+            tiers->setWebsite(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+         }
     }
 
     if (ok)
