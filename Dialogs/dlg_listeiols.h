@@ -47,7 +47,7 @@ private:
     WidgetButtonFrame       *wdg_buttonframe;
 
     void                    ChoixButtonFrame();
-    void                    Enablebuttons();
+    void                    Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauIOL();
     IOL*                    getIOLFromIndex(QModelIndex idx);
     void                    ReconstruitListeManufacturers();                // la liste des fabricants

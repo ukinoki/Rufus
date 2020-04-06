@@ -47,10 +47,12 @@ void TiersPayants::initListe()
     addList(map_tierspayants, &listtiers);
 }
 
-bool TiersPayants::isUtilise(QString nom)
+bool TiersPayants::isUtilise(QString nom) // si un tiers n'est plus utilisé depuis plus d'un an, on peut le supprimer
 {
     bool ok;
-    QString req = "select " CP_ID_LIGNRECETTES " from " TBL_RECETTES " where " CP_NOMPAYEUR_LIGNRECETTES " = '" + Utils::correctquoteSQL(nom) + "'";
+
+    QString req = "select " CP_ID_LIGNRECETTES " from " TBL_RECETTES " where " CP_NOMPAYEUR_LIGNRECETTES " = '" + Utils::correctquoteSQL(nom) + "' AND " CP_DATE_LIGNRECETTES " > AddDate(NOW(),-365)";
+    //qDebug() << req;
     return DataBase::I()->StandardSelectSQL(req, ok).size() >0;
 }
 

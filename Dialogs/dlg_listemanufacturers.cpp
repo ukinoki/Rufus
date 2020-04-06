@@ -69,9 +69,9 @@ dlg_listemanufacturers::~dlg_listemanufacturers()
 {
 }
 
-void dlg_listemanufacturers::Enablebuttons()
+void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
 {
-    Manufacturer *man = getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0));
+    Manufacturer *man = getmanufacturerFromIndex(idx);
     wdg_buttonframe->wdg_modifBouton->setEnabled(man != Q_NULLPTR);
     if (man != Q_NULLPTR)
     {
@@ -215,6 +215,7 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
     if (reconstruirelaliste)
         Datas::I()->manufacturers->initListe();
     wdg_manufacturerstree->disconnect();
+    wdg_manufacturerstree->selectionModel()->disconnect();
     if (m_model == Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel(this);
@@ -242,7 +243,7 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
                                                                                                                     if (man)
                                                                                                                         QToolTip::showText(cursor().pos(), man->tooltip());
                                                                                                               } );
-        connect(wdg_manufacturerstree,    &QAbstractItemView::pressed,          this,   &dlg_listemanufacturers::Enablebuttons);
+        connect(wdg_manufacturerstree->selectionModel(),    &QItemSelectionModel::currentChanged,          this,   &dlg_listemanufacturers::Enablebuttons);
         connect(wdg_manufacturerstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifManufacturer(getmanufacturerFromIndex(idx)); });
     }
 }

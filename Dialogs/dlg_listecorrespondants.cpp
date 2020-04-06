@@ -71,10 +71,10 @@ dlg_listecorrespondants::~dlg_listecorrespondants()
 {
 }
 
-void dlg_listecorrespondants::Enablebuttons()
+void dlg_listecorrespondants::Enablebuttons(QModelIndex idx)
 {
-    wdg_buttonframe->wdg_modifBouton->setEnabled(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(getCorrespondantFromIndex(idx) != Q_NULLPTR);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(getCorrespondantFromIndex(idx) != Q_NULLPTR);
 }
 
 
@@ -250,6 +250,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     if (reconstruirelaliste)
         Datas::I()->correspondants->initListe(true);
     wdg_correspstree->disconnect();
+    wdg_correspstree->selectionModel()->disconnect();
     if (m_correspondantsmodel == Q_NULLPTR)
         delete m_correspondantsmodel;
     m_correspondantsmodel = new QStandardItemModel(this);
@@ -288,7 +289,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
                                                                                                                     QToolTip::showText(cursor().pos(), cor->adresseComplete());
                                                                                                             }
                                                                                                       } );
-        connect(wdg_correspstree,    &QAbstractItemView::pressed,       this,   &dlg_listecorrespondants::Enablebuttons);
+        connect(wdg_correspstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listecorrespondants::Enablebuttons);
         connect(wdg_correspstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifCorresp(getCorrespondantFromIndex(idx)); });
     }

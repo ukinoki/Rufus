@@ -67,9 +67,9 @@ dlg_listetiers::~dlg_listetiers()
 {
 }
 
-void dlg_listetiers::Enablebuttons()
+void dlg_listetiers::Enablebuttons(QModelIndex idx)
 {
-    Tiers *trs = getTiersFromIndex(wdg_tierstree->selectionModel()->selectedIndexes().at(0));
+    Tiers *trs = getTiersFromIndex(idx);
     wdg_buttonframe->wdg_modifBouton->setEnabled(trs != Q_NULLPTR);
     if (trs != Q_NULLPTR)
     {
@@ -213,6 +213,7 @@ void dlg_listetiers::ReconstruitTreeViewtiers(bool reconstruirelaliste, QString 
     if (reconstruirelaliste)
         Datas::I()->tierspayants->initListe();
     wdg_tierstree->disconnect();
+    wdg_tierstree->selectionModel()->disconnect();
     if (m_model == Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel(this);
@@ -238,7 +239,7 @@ void dlg_listetiers::ReconstruitTreeViewtiers(bool reconstruirelaliste, QString 
                                                                                                             if (trs)
                                                                                                                 QToolTip::showText(cursor().pos(), trs->tooltip());
                                                                                                         } );
-        connect(wdg_tierstree,    &QAbstractItemView::pressed,          this,   &dlg_listetiers::Enablebuttons);
+        connect(wdg_tierstree->selectionModel(),    &QItemSelectionModel::currentChanged,          this,   &dlg_listetiers::Enablebuttons);
         connect(wdg_tierstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifTiers(getTiersFromIndex(idx)); });
     }
 }

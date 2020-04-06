@@ -49,7 +49,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
 
     m_listidmotsclesdepart << "-1";
 
-    connect(wdg_bigtable,       &QTableView::pressed,       this,   &dlg_listemotscles::Enablebuttons);
+    connect(wdg_bigtable->selectionModel(),       &QItemSelectionModel::currentChanged,       this,   &dlg_listemotscles::Enablebuttons);
     connect(OKButton,           &QPushButton::clicked,      this,   &dlg_listemotscles::Validation);
     connect(wdg_buttonframe,    &WidgetButtonFrame::choix,  this,   &dlg_listemotscles::ChoixButtonFrame);
     wdg_buttonframe->wdg_modifBouton->setEnabled(false);

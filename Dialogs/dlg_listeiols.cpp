@@ -75,9 +75,9 @@ dlg_listeiols::~dlg_listeiols()
 {
 }
 
-void dlg_listeiols::Enablebuttons()
+void dlg_listeiols::Enablebuttons(QModelIndex idx)
 {
-    IOL *iol = getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0));
+    IOL *iol = getIOLFromIndex(idx);
     if (iol != Q_NULLPTR)
     {
         wdg_buttonframe->wdg_modifBouton->setEnabled(true);
@@ -271,6 +271,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
         ReconstruitListeManufacturers();
     }
     wdg_iolstree->disconnect();
+    wdg_iolstree->selectionModel()->disconnect();
     if (m_IOLsmodel == Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
@@ -333,7 +334,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
                                                                                                                 QToolTip::showText(cursor().pos(), iol->tooltip());
                                                                                                         }
                                                                                                     } );
-        connect(wdg_iolstree,    &QAbstractItemView::pressed,       this,   &dlg_listeiols::Enablebuttons);
+        connect(wdg_iolstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listeiols::Enablebuttons);
         connect(wdg_iolstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });
     }

@@ -39,7 +39,7 @@ private:
     QList<int>              m_listidmanufacturersutilises;
 
     void                    ChoixButtonFrame();
-    void                    Enablebuttons();
+    void                    Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauManufacturer();
     Manufacturer*           getmanufacturerFromIndex(QModelIndex idx);
     void                    ModifManufacturer(Manufacturer *man);

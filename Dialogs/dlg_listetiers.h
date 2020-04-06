@@ -39,7 +39,7 @@ private:
     QList<int>              m_listidtiersutilises;
 
     void                    ChoixButtonFrame();
-    void                    Enablebuttons();
+    void                    Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauTiers();
     Tiers*                  getTiersFromIndex(QModelIndex idx);
     void                    ModifTiers(Tiers *man);

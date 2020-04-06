@@ -38,7 +38,7 @@ private:
     WidgetButtonFrame       *wdg_buttonframe;
 
     void                    ChoixButtonFrame();
-    void                    Enablebuttons();
+    void                    Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauCorresp();
     Correspondant*          getCorrespondantFromIndex(QModelIndex idx);
     QList<UpStandardItem *> ListeMetiers();                // la liste des metiers
