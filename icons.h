@@ -222,6 +222,7 @@ public:
     static QIcon icHelp() { return foundIC("icHelp", "://help.png", QSize(30,30)); }
 
     static QIcon icImportant() { return foundIC("icImportant", "://redbutton.png", QSize(25,25)); }
+    static QIcon icImport() { return foundIC("icImport", "://082498-green-metallic-orb-icon-business-diskette-save.png", QSize(25,25)); }
     static QIcon icImprimer(QSize size = QSize(30,30)) { return foundIC("icImprimer", pxImprimer(), size); }
     static QIcon icInformation() { return foundIC("icInformation", pxInformation(), QSize(25,25)); }
     static QIcon icInternet() { return foundIC("icInternet", "://internet.png", QSize(25,25)); }

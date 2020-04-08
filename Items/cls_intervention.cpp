@@ -130,19 +130,55 @@ void IOL::setData(QMap<QString, QVariant> map)
 
 QString IOL::tooltip() const
 {
-    QString ttip = modele();
-    if (csteAopt() != 0.0)
-        ttip += "\ncsteA opt. " + QString::number(csteAopt(), 'f', 1);
+    int scale = 90;
+    QString message = modele();
     if (csteAEcho() != 0.0)
-        ttip += "\ncsteA echo " + QString::number(csteAEcho(), 'f', 1);
-    if (acd() != 0.0)
-        ttip += "\nACD " + QString::number(acd(), 'f', 2);
-    if (haigisa0() != 0.0 && haigisa1() != 0.0 && haigisa2() != 0.0)
-        ttip += "\n Haigis a: " + QString::number(haigisa0(), 'f', 4) + " - b: "  + QString::number(haigisa1(), 'f', 4) + " - c: "  + QString::number(haigisa2(), 'f', 4);
+        message += "<br>" + tr("csteA echo") + " " + QString::number(csteAEcho(), 'f', 1);
+    if (diaall() != 0.0)
+        message += "<br>" + tr("diamètre hors tout") + " " + QString::number(diaall(), 'f', 1) + " mm";
+    if (diainjecteur() != 0.0)
+        message += "<br>" + tr("incision") + " " + QString::number(diainjecteur(), 'f', 1) + " mm";
+    if (isedof())
+        message += "<br>" + tr("EDOF");
+    if (ismultifocal())
+        message += "<br>" + tr("Multifocal");
+    if (isprecharge())
+        message += "<br>" + tr("Préchargé");
+    if (isjaune())
+        message += "<br>" + tr("Jaune");
     if (materiau() != "")
-        ttip += "\n" + tr("materiau") + " " + materiau();
+        message += "<br>" + materiau();
     if (remarque() != "")
-        ttip += "\n" + tr("remarque") + " " + remarque();
+        message += "<br>" + remarque().replace("\n","<br>");
+
+    QString ttip = "";
+    if(imgiol() == QByteArray())
+        return message;
+    QImage image= QImage();
+    if (imageformat() == PDF)
+    {    Poppler::Document* document = Poppler::Document::loadFromData(imgiol());
+        if (!document || document->isLocked())
+            delete document;
+        else if (document != Q_NULLPTR)
+        {
+            document->setRenderHint(Poppler::Document::TextAntialiasing);
+            Poppler::Page* pdfPage = document->page(0);  // Document starts at page 0
+            if (pdfPage != Q_NULLPTR)
+            {
+                image = pdfPage->renderToImage(300,300);
+                delete document;
+            }
+        }
+    }
+    else image.loadFromData(imgiol());
+    if (image == QImage())
+        return message;
+    image = image.scaled(scale,scale, Qt::KeepAspectRatio);
+    QByteArray data;
+    QBuffer buffer(&data);
+    image.save(&buffer, "PNG", 100);
+    ttip = QString("<img src='data:image/png;base64, %0'><br>" + message).arg(QString(data.toBase64()));
+
     return ttip;
 }
 

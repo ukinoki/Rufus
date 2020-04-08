@@ -187,7 +187,7 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
 //    msgbox->infolayout  ->insertWidget(0,msgbox->lblIcon);
 //    movie.start ();
     msgbox  ->setText(Text);
-    UpTextEdit text(InfoText);
+    UpTextEdit text(InfoText.replace("\n","<br>"));
     msgbox  ->setInformativeText(text.toHtml());
     msgbox  ->setIcon(UpMessageBox::Quest);
     msgbox  ->AjouteLayButtons(Butts);

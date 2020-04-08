@@ -66,9 +66,11 @@ private:
 /*! les widgets */
     QMenu               *m_ctxtmenusessions;
     QMenu               *m_ctxtmenuinterventions;
-    QStringList          m_completerlist;
+    QStringList          m_IOLcompleterlist;
+    QStringList          m_manufacturercompleterlist;
     QTreeView           *wdg_interventionstreeView  = new QTreeView();
     QTreeView           *wdg_sessionstreeView       = new QTreeView();
+    QCheckBox           *wdg_IOLchk;
     QComboBox           *wdg_listmedecinscombo;
     QComboBox           *wdg_manufacturercombo;
     QComboBox           *wdg_IOLcombo;
@@ -79,6 +81,9 @@ private:
     UpPushButton        *wdg_IOLbutt;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
+    UpDoubleSpinBox     *wdg_pwrIOLspinbox;
+    UpDoubleSpinBox     *wdg_cylIOLspinbox;
+    QWidget             *wdg_choixcylwdg;
 
 /*! les médecins */
     void                ChoixMedecin(int iduser);
@@ -118,6 +123,7 @@ private:
     void                ReconstruitListeManufacturers(int idmanufacturer = 0);
     void                VerifExistManufacturer(bool &ok);
 /*! les IOLs */
+    void                CalcRangeBox(IOL* iol = Q_NULLPTR);
     void                CreerIOL(QString nomiol);
     void                ListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant

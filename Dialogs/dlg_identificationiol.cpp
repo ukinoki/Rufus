@@ -314,12 +314,17 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     setimage(m_nullimage);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
     wdg_materiauline            = new UpComboBox;
+    wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
+    wdg_toolbar                 = new UpToolBar;
     wdg_materiauline            ->setEditable(true);
     wdg_materiauline            ->lineEdit()->setMaxLength(45);
-    wdg_materiauline            ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA"));
+    wdg_materiauline            ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA") << tr("copolymère"));
     MateriauLay                 ->insertWidget(0,wdg_materiauline);
     MateriauLay                 ->insertWidget(0,Materiaulbl);
     MateriauLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    MateriauLay                 ->addWidget(wdg_recopiebutton);
+    MateriauLay                 ->addWidget(wdg_toolbar);
+    MateriauLay                 ->setContentsMargins(0,0,0,0);
     MateriauImgLay              ->addLayout(MateriauLay);
     MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     MateriauImgLay              ->addWidget(wdg_imgIOL);
@@ -434,11 +439,13 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
     connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
+    connect (wdg_recopiebutton,     &QPushButton::click,                                    this,   &dlg_identificationIOL::creeCopieIOL);
 
     wdg_puissancemaxspin->installEventFilter(this);
     wdg_cylindreminspin->installEventFilter(this);
     wdg_cylindremaxspin->installEventFilter(this);
     wdg_puissanceminspin->installEventFilter(this);
+    wdg_recopiebutton->setVisible(m_mode == Modification);
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
@@ -504,6 +511,8 @@ void dlg_identificationIOL::AfficheDatasIOL()
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
         wdg_inactifchk      ->setChecked(!m_currentIOL->isactif());
         wdg_jaunechk        ->setChecked(m_currentIOL->isjaune());
+        if (m_currentIOL->isjaune())
+            wdg_jaunechk->setStyleSheet("background-color: yellow");
         wdg_multifocalchk   ->setChecked(m_currentIOL->ismultifocal());
         wdg_prechargechk    ->setChecked(m_currentIOL->isprecharge());
         wdg_edofchk         ->setChecked(m_currentIOL->isedof());
@@ -558,12 +567,24 @@ void dlg_identificationIOL::changeImage()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images (*.pdf *.png *.jpg)"));
     if (fileName != "")
     {
-        QFile fileimage(fileName);
-        QString formatdoc = QFileInfo(fileimage).suffix().toLower();
-        QString m_pathdirstockageprovisoire = Procedures::I()->DefinitDossierImagerie() + NOM_DIR_PROV;
+        QFile file_origine;
+        file_origine.setFileName(fileName);
+        QFile file_image;
+        QString formatdoc = QFileInfo(file_origine).suffix().toLower();
+        QString m_pathdirstockageprovisoire = Procedures::I()->DefinitDossierImagerie();
+        if (!QDir(m_pathdirstockageprovisoire).exists())
+        {
+            UpMessageBox::Watch(this, tr("Impossible d'enregistrer cette image"), tr("Le dossier d'imagerie") + "\n" + m_pathdirstockageprovisoire +"\n" + tr("n'existe pas") + "\n"
+                                + tr("Revoyez le réglage de l'emplacement de ce dossier dans la fiche Paramètres"));
+            return;
+        }
+        m_pathdirstockageprovisoire += NOM_DIR_PROV;
+        if (!QDir(m_pathdirstockageprovisoire).exists())
+            Utils::mkpath(m_pathdirstockageprovisoire);
+
         // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
         QByteArray ba;
-        QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + QFileInfo(fileimage).fileName();
+        QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + QFileInfo(file_origine).fileName();
         QString szorigin, szfinal;
         // on vide le dossier provisoire
         QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
@@ -573,27 +594,27 @@ void dlg_identificationIOL::changeImage()
             QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
             QFile(CheminFichierResize).remove();
         }
-        if (fileimage.open(QIODevice::ReadOnly))
+        if (file_origine.open(QIODevice::ReadOnly))
         {
-            double sz = fileimage.size();
+            double sz = file_origine.size();
             if (sz/(1024*1024) > 1)
                 szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
             else
                 szorigin = QString::number(sz/1024,'f',1) + "Ko";
             szfinal = szorigin;
-            fileimage.copy(nomfichresize);
-            fileimage.setFileName(nomfichresize);
+            file_origine.copy(nomfichresize);
+            file_image.setFileName(nomfichresize);
             if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
             {
                 QImage  img(nomfichresize);
-                fileimage.remove();
+                file_image.remove();
                 QPixmap pixmap;
                 pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
                 int     tauxcompress = 90;
                 while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
                 {
                     pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                    sz = fileimage.size();
+                    sz = file_image.size();
                     tauxcompress -= 10;
                 }
                 if (sz/(1024*1024) > 1)
@@ -601,11 +622,11 @@ void dlg_identificationIOL::changeImage()
                 else
                     szfinal = QString::number(sz/1024,'f',0) + "Ko";
             }
-            fileimage.open(QIODevice::ReadOnly);
-            ba = fileimage.readAll();
+            file_image.open(QIODevice::ReadOnly);
+            ba = file_image.readAll();
         }
         m_listbinds[CP_IMG_IOLS] = ba;
-        QString suffix = QFileInfo(fileimage).suffix().toLower();
+        QString suffix = QFileInfo(file_origine).suffix().toLower();
         m_listbinds[CP_TYPIMG_IOLS] = suffix;
         EnableOKpushButton();
         if (suffix == PDF)
@@ -613,6 +634,11 @@ void dlg_identificationIOL::changeImage()
         else
             setimage(QImage(fileName));
     }
+}
+
+void dlg_identificationIOL::creeCopieIOL()
+{
+
 }
 
 void dlg_identificationIOL::supprimeImage()

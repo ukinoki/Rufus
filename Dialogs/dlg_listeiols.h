@@ -47,6 +47,7 @@ private:
     WidgetButtonFrame       *wdg_buttonframe;
 
     void                    ChoixButtonFrame();
+    void                    ImportListeIOLS();
     void                    Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauIOL();
     IOL*                    getIOLFromIndex(QModelIndex idx);

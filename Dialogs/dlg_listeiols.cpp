@@ -51,6 +51,10 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     wdg_buttonframe->layButtons()->insertWidget(0,wdg_label);
     wdg_buttonframe->layButtons()->insertWidget(0,wdg_chercheuplineedit);
     AjouteLayButtons(UpDialog::ButtonOK);
+    UpPushButton *importbutt =   new UpPushButton(tr("Mettre à jour"));
+    importbutt->setIcon(Icons::icImport());
+    AjouteWidgetLayButtons(importbutt, false);
+    connect(importbutt, &QPushButton::clicked, this, &dlg_listeiols::ImportListeIOLS);
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
 
@@ -146,6 +150,253 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
         return Q_NULLPTR;
 }
 
+/*-----------------------------------------------------------------------------------------------------------------
+-- // mise à jour de la liste des implants  --------------------------
+-----------------------------------------------------------------------------------------------------------------*/
+void dlg_listeiols::ImportListeIOLS()
+{
+    UpMessageBox::Watch(this,tr("Mise à jour de la liste des implants"), tr("Pour mettre à jour la liste des implants") + "\n"
+                        + tr("Téléchargez la liste des implants - fichier IOLexport.xml - sur le site https://iolcon.org/") + "\n"
+                        + tr("Sélectionnez ce fichier une fois téléchargé dans la boîte de dialogue qui suit") + "\n"
+                        + tr("Aucun implant de votre base actuelle ne sera modifié"));
+
+    /*! Choix du fichier xml contenant la liste des implants */
+    QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  "*.xml");
+    if (fileName == "")
+        return;
+    QFile xmldoc(fileName);
+    int nbimplants = 0;
+    if (xmldoc.open(QIODevice::ReadOnly))
+    {
+        QDomDocument *docxml = new QDomDocument();
+        docxml->setContent(&xmldoc);
+        QDomElement xml = docxml->documentElement();
+        /*! Mise à jour de la liste des fabricants */
+        Datas::I()->manufacturers->initListe();
+        Datas::I()->iols->initListe();
+        QStringList listmanufacturers;
+        for (int i=0; i<xml.childNodes().size(); i++)
+        {
+            QDomElement lensnode = xml.childNodes().at(i).toElement();
+            QString lens = lensnode.tagName();
+            for (int i=0; i<lensnode.childNodes().size(); i++)
+            {
+                QDomElement node = lensnode.childNodes().at(i).toElement();
+                if (node.tagName() == "Manufacturer")
+                    if (!listmanufacturers.contains(node.text()))
+                        listmanufacturers << node.text();
+            }
+        }
+        listmanufacturers.sort();
+        QStringList listmanofficiel;
+        foreach(Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
+            listmanofficiel << man->nom().toUpper();
+        foreach (QString nommanufacturer, listmanufacturers)
+            if (!listmanofficiel.contains(nommanufacturer.toUpper()))
+            {
+                QHash<QString,QVariant> listbinds;
+                listbinds[CP_NOM_MANUFACTURER] = nommanufacturer.toUpper();
+                Datas::I()->manufacturers->CreationManufacturer(listbinds);
+            }
+        /*! fin mise à jour de la liste des fabricants */
+
+        /*! Mise à jour de la liste des IOLs */
+        for (int i=0; i<xml.childNodes().size(); i++)     // on reprend chaque IOL un par un
+        {
+            int idiol;
+            QString fabricant  = "";
+            QString modele = "";
+            QString materiau = "";
+            bool precharge = false;
+            double incision= 0.0;
+            double diaoptique = 0.0;
+            double diaall = 0.0;
+            bool multifocal = false;
+            bool toric = false;
+            bool jaune = false;
+            bool edof = false;
+            double pwrmin = 100.0;
+            double pwrmax = -100.0;
+            double cylmin = 100.0;
+            double cylmax = -100.0;
+            double add = 0.0;
+            double srkt = 0.0;
+            double haigis0 = 0.0;
+            double haigis1 = 0.0;
+            double haigis2 = 0.0;
+            double hofferQ = 0.0;
+            double holladay = 0.0;
+            double barettdf = 0.0;
+            double barettlf = 0.0;
+            double olsen = 0.0;
+            QDomElement lensnode = xml.childNodes().at(i).toElement();
+            idiol = lensnode.attributeNode("id").value().toInt();
+            QString lens = lensnode.tagName();
+            for (int i=0; i<lensnode.childNodes().size(); i++)
+            {
+                QDomElement node = lensnode.childNodes().at(i).toElement();
+                if (node.tagName() == "Manufacturer")
+                    fabricant = node.text();
+                else if (node.tagName() == "Name")
+                    modele = node.text();
+                else if (node.tagName() == "Specifications")
+                    for (int i=0; i<node.childNodes().size(); i++)
+                    {
+                        QDomElement nodespec = node.childNodes().at(i).toElement();
+                        if (nodespec.tagName() == "OpticMaterial")
+                            materiau = nodespec.text();
+                        else if (nodespec.tagName() == "Hydro")
+                        {
+                            if (nodespec.text() != "")
+                                materiau += " " + nodespec.text();
+                        }
+                        else if (nodespec.tagName() == "Preloaded")
+                            precharge = (nodespec.text() != "no");
+                        else if (nodespec.tagName() == "Filter")
+                            jaune = (nodespec.text() == "yellow");
+                        else if (nodespec.tagName() == "IncisionWidth")
+                            incision = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "OpticDiameter")
+                            diaoptique = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "HapticDiameter")
+                            diaall = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "OpticConcept")
+                        {
+                            multifocal = (nodespec.text() == "multifocal");
+                            edof = (nodespec.text() == "EDoF");
+                        }
+                        else if (nodespec.tagName() == "Toric")
+                            toric = (nodespec.text() != "no");
+                    }
+                else if (node.tagName() == "Availability")
+                    for (int i=0; i<node.childNodes().size(); i++)
+                    {
+                        QDomElement nodespec = node.childNodes().at(i).toElement();
+                        if (nodespec.tagName() == "Sphere")
+                            for (int i=0; i<nodespec.childNodes().size(); i++)
+                            {
+                                QDomElement nodepwr = nodespec.childNodes().at(i).toElement();
+                                if (nodepwr.tagName() == "From")
+                                    if (pwrmin > 99.0 || pwrmin > nodepwr.text().toDouble())
+                                        pwrmin = nodepwr.text().toDouble();
+                                if (nodepwr.tagName() == "To")
+                                    if (pwrmax < -99.0 || pwrmax < nodepwr.text().toDouble())
+                                        pwrmax = nodepwr.text().toDouble();
+                            }
+                        else if (nodespec.tagName() == "Cylinder")
+                            for (int i=0; i<nodespec.childNodes().size(); i++)
+                            {
+                                QDomElement nodecyl = nodespec.childNodes().at(i).toElement();
+                                if (nodecyl.tagName() == "From")
+                                    if (cylmin > 99.0 || cylmin > nodecyl.text().toDouble())
+                                    cylmin = nodecyl.text().toDouble();
+                                if (nodecyl.tagName() == "To")
+                                    if (cylmax < -99.0 || cylmax < nodecyl.text().toDouble())
+                                        cylmax = nodecyl.text().toDouble();
+                            }
+                        else if (nodespec.tagName() == "Addition")
+                            add = nodespec.text().toDouble();
+                    }
+                else if (node.tagName() == "Constants" && node.attributeNode("type").value() == "nominal")
+                    for (int i=0; i<node.childNodes().size(); i++)
+                    {
+                        QDomElement nodespec = node.childNodes().at(i).toElement();
+                        if (nodespec.tagName() == "SRKt")
+                            srkt = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "Haigis")
+                            for (int i=0; i<nodespec.childNodes().size(); i++)
+                            {
+                                QDomElement nodehaigis = nodespec.childNodes().at(i).toElement();
+                                if (nodehaigis.tagName() == "a0")
+                                    haigis0 = nodehaigis.text().toDouble();
+                                else if (nodehaigis.tagName() == "a1")
+                                    haigis1 = nodehaigis.text().toDouble();
+                                else if (nodehaigis.tagName() == "a2")
+                                    haigis2 = nodehaigis.text().toDouble();
+                            }
+                        else if (nodespec.tagName() == "HofferQ")
+                            hofferQ = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "Holladay1")
+                            holladay = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "Barrett")
+                            for (int i=0; i<nodespec.childNodes().size(); i++)
+                            {
+                                QDomElement nodebarrett = nodespec.childNodes().at(i).toElement();
+                                if (nodebarrett.tagName() == "DF")
+                                    barettdf = nodebarrett.text().toDouble();
+                                if (nodebarrett.tagName() == "LF")
+                                    barettlf = nodebarrett.text().toDouble();
+                            }
+                        else if (nodespec.tagName() == "Olsen")
+                            olsen = nodespec.text().toDouble();
+                    }
+            }
+            bool foundiol = false;
+            if (pwrmin > 99.0) pwrmin= 0.0;
+            if (pwrmax < -99.0) pwrmax= 0.0;
+            if (cylmin > 99.0) cylmin= 0.0;
+            if (cylmax < -99.0) cylmax= 0.0;
+            Manufacturer *man = Q_NULLPTR;
+            foreach (Manufacturer *manf, Datas::I()->manufacturers->manufacturers()->values())
+            {
+                if (manf)
+                    if (manf->nom().toUpper() == fabricant.toUpper())
+                    {
+                        man = manf;
+                        break;
+                    }
+            }
+            if (!man)
+                continue;
+            foreach (IOL *iol, *Datas::I()->iols->iols())
+                if (iol->modele().toUpper() == modele.toUpper() && man->nom().toUpper() == fabricant.toUpper())
+                {
+                    foundiol = true;
+                    break;
+                }
+            if (!foundiol && man != Q_NULLPTR)
+            {
+                QHash<QString, QVariant> m_listbinds;
+                m_listbinds[CP_MODELNAME_IOLS]      = modele;
+                m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
+                m_listbinds[CP_CSTEAECHO_IOLS]      = (srkt >0.0?    srkt   : QVariant());
+                m_listbinds[CP_HAIGISA0_IOLS]       = (haigis0 >0.0?  haigis0 : QVariant());
+                m_listbinds[CP_HAIGISA1_IOLS]       = (haigis1 >0.0?  haigis1 : QVariant());
+                m_listbinds[CP_HAIGISA2_IOLS]       = (haigis2 >0.0?  haigis2 : QVariant());
+                m_listbinds[CP_MATERIAU_IOLS]       = materiau;
+                m_listbinds[CP_DIAALL_IOLS]         = (diaall >0.0?  diaall : QVariant());
+                m_listbinds[CP_DIAOPT_IOLS]         = (diaoptique >0.0? diaoptique  : QVariant());
+                m_listbinds[CP_DIAINJECTEUR_IOLS]   = (incision >0.0? incision : QVariant());
+                m_listbinds[CP_PRECHARGE_IOLS]      = (precharge?   "1" : QVariant());
+                m_listbinds[CP_MAXPWR_IOLS]         = pwrmax;
+                m_listbinds[CP_MINPWR_IOLS]         = pwrmin;
+                m_listbinds[CP_MAXCYL_IOLS]         = (toric? cylmax : QVariant());
+                m_listbinds[CP_MINCYL_IOLS]         = (toric? cylmin : QVariant());
+                m_listbinds[CP_JAUNE_IOLS]          = (jaune?       "1" : QVariant());
+                m_listbinds[CP_MULTIFOCAL_IOLS]     = (multifocal?  "1" : QVariant());
+                m_listbinds[CP_EDOF_IOLS]           = (edof?        "1" : QVariant());
+                m_listbinds[CP_TORIC_IOLS]          = (toric?       "1" : QVariant());
+                Datas::I()->iols->CreationIOL(m_listbinds);
+                ++nbimplants;
+            }
+        }
+    }
+    /*! fin mise à jour de la liste des IOLs */
+    QString msg = "Aucun implant n'a été rajouté à la base";
+    switch (nbimplants) {
+    case 0:
+        break;
+    case 1:
+        msg = "Un implant a été rajouté à la base";
+        break;
+    default:
+        msg = QString::number(nbimplants) + " implants ont été rajoutés à la base";
+    }
+    UpMessageBox::Watch(this, msg);
+    ReconstruitListeManufacturers();
+    ReconstruitTreeViewIOLs();
+}
 
 // ------------------------------------------------------------------------------------------
 // Modifie un IOL

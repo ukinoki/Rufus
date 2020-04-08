@@ -4396,7 +4396,7 @@ color : gray;
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Bilan orthoptique</string>
+           <string>Ajouter au programme opératoire</string>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton
@@ -4703,16 +4703,6 @@ color : gray;
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
@@ -4726,6 +4716,16 @@ color : gray;
    <class>UpTextEdit</class>
    <extends>QTextEdit</extends>
    <header>uptextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

@@ -23,6 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_interventions.h"
 #include "updoublevalidator.h"
 #include "updoublespinbox.h"
+#include "uptoolbar.h"
+#include "uppushbutton.h"
 
 class dlg_identificationIOL : public UpDialog
 {
@@ -68,6 +70,8 @@ private:
     UpLabel             *wdg_imgIOL;
     UpComboBox          *wdg_materiauline;
     UpTextEdit          *wdg_remarquetxt;
+    UpToolBar           *wdg_toolbar;
+    UpPushButton        *wdg_recopiebutton;
     QCheckBox           *wdg_prechargechk;
     QCheckBox           *wdg_jaunechk;
     QCheckBox           *wdg_inactifchk;
@@ -79,6 +83,7 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event);
     void                AfficheDatasIOL();
     void                changeImage();
+    void                creeCopieIOL();
     void                menuChangeImage();
     void                EnableOKpushButton();
     void                OKpushButtonClicked();
