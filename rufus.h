@@ -109,7 +109,6 @@ private:
 
     pyxinterf                       *m_pyxi;     // CZ001
 
-
 private:
     void        ActeGratuit();
     void        ActeMontantModifie();

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("08-04-2020/1");
+    qApp->setApplicationVersion("09-04-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -6331,7 +6331,6 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         setcurrentpatient(pat);
     else
         Datas::I()->patients->loadAll(currentpatient(), Item::Update);
-
     QString     Msg;
 
     //qDebug() << "AfficheDossier() " +  currentpatient()->nom() + " " + currentpatient()->prenom() + " - id = " + QString::number(currentpatient()->id());
@@ -6523,7 +6522,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
     UpMessageBox    msgbox;
     bool            AutorDepart = true;
      // 1. On se repositionne sur le tab dossier
-    //! qDebug() << "AutorDepartConsult() " << currentpatient()->nom()  << currentpatient()->prenom() << currentpatient()->id();
+    //qDebug() << "AutorDepartConsult() " << currentpatient() << currentpatient()->nom()  << currentpatient()->prenom() << currentpatient()->id();
     if (ui->tabWidget->indexOf(ui->tabDossier) < 0)
         return true;
     ui->tabWidget->setCurrentWidget(ui->tabDossier);
@@ -6890,6 +6889,7 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
 {
     if (pat == Q_NULLPTR)
         return;
+
     if (currentuser()->isSecretaire())    // si l'utilisateur est une secrétaire, on propose de mettre le patient en salle d'attente
         InscritEnSalDat(pat);
     else if (currentuser()->isSoignant())
@@ -6903,7 +6903,6 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
             }
             else
             {
-                //qDebug() << "ChoixDossier() " << currentpatient()->nom()  << currentpatient()->prenom() << currentpatient()->id();
                 if (!AutorDepartConsult(true))
                     return;
             }
@@ -7464,7 +7463,7 @@ bool Rufus::FermeDossier(Patient *patient)
 {
     if (patient == Q_NULLPTR)
         return false;
-    //! qDebug() << "FermeDossier() " << pat->nom()  << pat->prenom() << pat->id();
+    //qDebug() << "FermeDossier() " << patient << patient->nom()  << patient->prenom() << patient->id();
     bool a = true;
     UpMessageBox msgbox;
     msgbox.setInformativeText(tr("Garder le dossier en salle d'attente?"));
@@ -7479,7 +7478,7 @@ bool Rufus::FermeDossier(Patient *patient)
     msgbox.addButton(&SalDatBouton, UpSmallButton::STARTBUTTON);
     msgbox.addButton(&CloseBouton,  UpSmallButton::CLOSEBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier
+    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le rtire de la liste despatients en cours
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(patient->id()));
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
@@ -8719,13 +8718,13 @@ void Rufus::Remplir_SalDat()
     // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
 
     QStandardItemModel      *m_listepatientsencoursmodel    = new QStandardItemModel();
-    foreach (PatientEnCours *pat, Datas::I()->patientsencours->patientsencours()->values())
+    foreach (PatientEnCours *patencrs, Datas::I()->patientsencours->patientsencours()->values())
     {
         QList<QStandardItem *> items;
-        listidpat << pat->id();
-        UpStandardItem *itempat = new UpStandardItem(QString::number(pat->id()));
-        itempat->setitem(pat);
-        items << new UpStandardItem(pat->heurerdv().toString("HHmm"))
+        listidpat << patencrs->id();
+        UpStandardItem *itempat = new UpStandardItem(QString::number(patencrs->id()));
+        itempat->setitem(patencrs);
+        items << new UpStandardItem(patencrs->heurerdv().toString("HHmm"))
               << itempat;
         m_listepatientsencoursmodel->appendRow(items);
     }

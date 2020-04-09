@@ -218,7 +218,7 @@ IOL* IOLs::getById(int id)
 void IOLs::initListeByManufacturerId(int id)
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLsByManufacturerId(id);
-    ItemsList::clearAll(map_all);
+    clearAll(map_all);
     addList(map_all, &listIOLs);
 }
 
@@ -230,7 +230,7 @@ void IOLs::initListeByManufacturerId(int id)
 void IOLs::initListe()
 {
     QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
-    ItemsList::clearAll(map_all);
+    clearAll(map_all);
     addList(map_all, &listIOLs);
 }
 

@@ -2867,6 +2867,7 @@ QJsonObject DataBase::loadManufacturerData(QVariantList Mandata)         //! att
     data[CP_CORMAIL_MANUFACTURER]       = Mandata.at(15).toString();
     data[CP_CORTELEPHONE_MANUFACTURER]  = Mandata.at(16).toString();
     data[CP_INACTIF_MANUFACTURER]       = (Mandata.at(17).toInt() == 1);
+    data[CP_DISTRIBUEPAR_MANUFACTURER]  = Mandata.at(18).toInt();
     return data;
 }
 
@@ -2876,7 +2877,7 @@ QList<Manufacturer*> DataBase::loadManufacturers()                       //! cha
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
                               CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
-                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER
+                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER
                     " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER;
     QList<QVariantList> Manufacturerlist = StandardSelectSQL(req,ok);
     //qDebug() << req;
@@ -2898,7 +2899,7 @@ Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
                               CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
-                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER
+                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER
                     " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER
                     " WHERE " CP_ID_MANUFACTURER " = " + QString::number(idManufacturer) ;
     QVariantList Manufacturerdata = getFirstRecordFromStandardSelectSQL(req,ok);

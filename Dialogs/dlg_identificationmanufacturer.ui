@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>646</height>
+    <height>698</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -107,19 +107,19 @@
      <x>0</x>
      <y>0</y>
      <width>550</width>
-     <height>400</height>
+     <height>430</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>550</width>
-     <height>400</height>
+     <height>430</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>550</width>
-     <height>400</height>
+     <height>430</height>
     </size>
    </property>
    <property name="frameShape">
@@ -443,12 +443,35 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QLabel" name="Distributeurlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>400</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Distribué par</string>
+    </property>
+   </widget>
+   <widget class="UpComboBox" name="DistrbuteurupComboBox">
+    <property name="geometry">
+     <rect>
+      <x>165</x>
+      <y>392</y>
+      <width>250</width>
+      <height>32</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QLabel" name="idManufacturerlabel">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>620</y>
+     <y>660</y>
      <width>111</width>
      <height>16</height>
     </rect>
@@ -464,7 +487,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>410</y>
+     <y>450</y>
      <width>550</width>
      <height>190</height>
     </rect>
@@ -697,6 +720,11 @@ correspondant</string>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

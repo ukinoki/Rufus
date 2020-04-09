@@ -651,6 +651,7 @@ CREATE TABLE `Manufacturers` (
   `CorMail` varchar(45) DEFAULT NULL,
   `CorTelephone` varchar(17) DEFAULT NULL,
   `ManInactif` INT(1) DEFAULT NULL,
+  `DistribuePar` INT(11) DEFAULT NULL,
   PRIMARY KEY (`idManufacturer`)
 ) ENGINE=InnoDB;
 

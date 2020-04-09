@@ -63,6 +63,9 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->CorMaillineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
     ui->CorTelephonelineEdit->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
+    ui->Distributeurlabel->setEnabled(false);
+    ui->DistrbuteurupComboBox->setEnabled(false);
+
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
             << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->WebsiteineEdit << ui->FaxlineEdit << ui->CorNomlineEdit << ui->CorPrenomlineEdit << ui->CorMaillineEdit << ui->CorTelephonelineEdit;
@@ -104,7 +107,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
                                                                                                 ui->CorTelephonelineEdit->clear();
                                                                                                 EnableOKpushButton();
                                                                                             });
-    connect (ui->Websitelabel,          &QLabel::linkActivated,                 this,   [=] {QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
+    connect (ui->Websitelabel,          &QLabel::linkActivated,                 this,   [=] {if (ui->WebsiteineEdit->text() != "") QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
