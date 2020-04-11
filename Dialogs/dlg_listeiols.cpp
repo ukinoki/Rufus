@@ -24,6 +24,7 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
 
     setModal(true);
     setWindowTitle(tr("Liste des IOLs"));
+    wdg_manufacturerscbox = new UpComboBox();
 
     wdg_iolstree = new QTreeView(this);
     wdg_iolstree ->setFixedWidth(320);
@@ -34,8 +35,29 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     wdg_iolstree ->setIndentation(10);
     wdg_iolstree ->setMouseTracking(true);
     wdg_iolstree ->header()->setVisible(false);
+    bool reconstruirelaliste = true;
+    ReconstruitTreeViewIOLs(reconstruirelaliste);
 
-    ReconstruitTreeViewIOLs(true);
+    wdg_manufacturerscbox = new UpComboBox();
+    wdg_manufacturerscbox->setEditable(false);
+    wdg_manufacturerscbox->addItem(tr("Tous"), 0);
+    wdg_manufacturerscbox->setFixedWidth(250);
+    QHBoxLayout *manufacturerlay = new QHBoxLayout();
+    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    manufacturerlay     ->addWidget(wdg_manufacturerscbox);
+    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    manufacturerlay     ->setContentsMargins(0,0,0,5);
+
+    for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+        if (itm)
+        {
+            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            if (man)
+                wdg_manufacturerscbox->addItem(man->nom(), man->id());
+        }
+    }
 
     wdg_buttonframe         = new WidgetButtonFrame(wdg_iolstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -57,12 +79,15 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     connect(importbutt, &QPushButton::clicked, this, &dlg_listeiols::ImportListeIOLS);
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
+    dlglayout()->insertLayout(0,manufacturerlay);
 
     connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
-    connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
-                                                                                                    wdg_chercheuplineedit->setText(txt);
-                                                                                                    ReconstruitTreeViewIOLs(false, txt);});
+    connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) {
+                                                                                            wdg_chercheuplineedit->setText(txt);
+                                                                                            ReconstruitTreeViewIOLs(false, txt);
+                                                                                           });
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listeiols::ChoixButtonFrame);
+    connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
@@ -132,6 +157,9 @@ void dlg_listeiols::EnregistreNouveauIOL()
     {
         IOL *iol = Dlg_IdentIOL->currentIOL();
         m_listemodifiee = true;
+        wdg_manufacturerscbox->disconnect();
+        wdg_manufacturerscbox->setCurrentIndex(0);
+        connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
         ReconstruitTreeViewIOLs(true);
         if (iol)
             scrollToIOL(iol);
@@ -414,6 +442,9 @@ void dlg_listeiols::ModifIOL(IOL *iol)
         {
             int idiol = iol->id();
             m_listemodifiee = true;
+            wdg_manufacturerscbox->disconnect();
+            wdg_manufacturerscbox->setCurrentIndex(0);
+            connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
             ReconstruitTreeViewIOLs(true);
             iol = Datas::I()->iols->getById(idiol);
             if (iol)
@@ -422,6 +453,74 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     }
     delete Dlg_IdentIOL;
 }
+
+void dlg_listeiols::resizeiolimage(int size)
+{
+    QString szorigin, szfinal;
+    QString m_pathdirstockageprovisoire = Procedures::I()->DefinitDossierImagerie() + NOM_DIR_PROV ;
+    QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
+    for (int t=0; t<listfichresize.size(); t++)
+    {
+        QString nomdocrz  = listfichresize.at(t);
+        QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
+        QFile(CheminFichierResize).remove();
+    }
+    bool ok;
+    QString req = "select " CP_ID_IOLS ", " CP_IMG_IOLS " from " TBL_IOLS
+                " where " CP_IMG_IOLS " is not null and " CP_TYPIMG_IOLS " <> '" PDF "'";
+    qDebug() << req;
+    QList<QVariantList> listimg  = DataBase::I()->StandardSelectSQL(req, ok);
+    for (int i=0; i<listimg.size(); ++i)
+    {
+        QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + listimg.at(i).at(0).toString() + "." JPG;
+        QByteArray ba = QByteArray();
+        int id = listimg.at(i).at(0).toInt();
+        ba = listimg.at(i).at(1).toByteArray();
+        QFile file_image;
+        QImage img;
+        img.loadFromData(ba);
+        double sz = ba.size();
+        if (sz/(1024*1024) > 1)
+            szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
+        else
+            szorigin = QString::number(sz/1024,'f',1) + "Ko";
+        szfinal = szorigin;
+        file_image.setFileName(nomfichresize);
+        int tauxcompress = 90;
+        bool resized = false;
+        if (sz > size)
+        {
+            resized = true;
+            file_image.remove();
+            QPixmap pixmap;
+            pixmap = pixmap.fromImage(img.scaledToWidth(256,Qt::SmoothTransformation));
+            tauxcompress = 90;
+            while (sz > size && tauxcompress > 1)
+            {
+                pixmap.save(nomfichresize, "jpeg",tauxcompress);
+                sz = file_image.size();
+                if (tauxcompress > 19)
+                    tauxcompress -= 10;
+                else tauxcompress -= 1;
+            }
+            if (sz/(1024*1024) > 1)
+                szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
+            else
+                szfinal = QString::number(sz/1024,'f',0) + "Ko";
+        }
+        if (resized)
+        {
+            file_image.open(QIODevice::ReadOnly);
+            ba = file_image.readAll();
+            QHash<QString, QVariant> m_listbinds;
+            m_listbinds[CP_IMG_IOLS] = ba;
+            m_listbinds[CP_TYPIMG_IOLS] = JPG;
+            DataBase::I()->UpDateIOL(id, m_listbinds);
+            file_image.remove();
+        }
+    }
+}
+
 
 void dlg_listeiols::scrollToIOL(IOL *iol)
 {
@@ -482,6 +581,9 @@ void dlg_listeiols::SupprIOL(IOL *iol)
     {
         Datas::I()->iols->SupprimeIOL(iol);
         m_listemodifiee = true;
+        wdg_manufacturerscbox->disconnect();
+        wdg_manufacturerscbox->setCurrentIndex(0);
+        connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
         ReconstruitTreeViewIOLs(true);
     }
 }
@@ -526,7 +628,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
     if (m_IOLsmodel == Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
-
+    int idman = wdg_manufacturerscbox->currentData().toInt();
     UpStandardItem *pitem;
     for (int i=0; i<  m_manufacturersmodel->rowCount(); ++i)
     {
@@ -536,18 +638,29 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
             if (man != Q_NULLPTR)
             {
-                UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
-                manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
-                manufactureritem  ->setEditable(false);
-                manufactureritem  ->setEnabled(false);
-                m_IOLsmodel->appendRow(manufactureritem);
+                if (idman == 0)
+                {
+                    UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
+                    manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
+                    manufactureritem  ->setEditable(false);
+                    manufactureritem  ->setEnabled(false);
+                    m_IOLsmodel->appendRow(manufactureritem);
+                }
+                else if (man->id() == idman)
+                {
+                    UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
+                    manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
+                    manufactureritem  ->setEditable(false);
+                    manufactureritem  ->setEnabled(false);
+                    m_IOLsmodel->appendRow(manufactureritem);
+                }
             }
         }
         m_IOLsmodel->sort(0);
     }
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
-        if (iol->modele().startsWith(filtre))
+        if (iol->modele().startsWith(filtre, Qt::CaseInsensitive))
         {
             pitem   = new UpStandardItem(iol->modele(), iol);
             if (!iol->isactif())

@@ -41,6 +41,7 @@ private:
     QList<int>              m_listidiolsutilises;
     QStandardItemModel      *m_IOLsmodel = Q_NULLPTR;
     QStandardItemModel      *m_manufacturersmodel = Q_NULLPTR;
+    UpComboBox              *wdg_manufacturerscbox;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_iolstree;
     UpLineEdit              *wdg_chercheuplineedit;
@@ -53,6 +54,7 @@ private:
     IOL*                    getIOLFromIndex(QModelIndex idx);
     void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
+    void                    resizeiolimage(int size = 8192);                               //! reprend toute la liste des images d'IOL pour les redimensionner au dessous du seuil
     void                    scrollToIOL(IOL *iol);
     void                    SupprIOL(IOL *iol);
     void                    ReconstruitTreeViewIOLs(bool reconstruirelaliste = false, QString filtre = "");

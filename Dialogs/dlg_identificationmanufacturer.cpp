@@ -50,7 +50,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     if (m_mode == Creation)
         ui->idManufacturerlabel  ->setVisible(false);
 
-    ui->NomlineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->NomlineEdit         ->setValidator(new QRegExpValidator(rgx_nom,this));
     ui->MaillineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
     ui->Adresse1lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     ui->Adresse2lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));

@@ -596,6 +596,7 @@ void dlg_identificationIOL::changeImage()
         }
         if (file_origine.open(QIODevice::ReadOnly))
         {
+            int sizemaxi = 8192;
             double sz = file_origine.size();
             if (sz/(1024*1024) > 1)
                 szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
@@ -604,18 +605,21 @@ void dlg_identificationIOL::changeImage()
             szfinal = szorigin;
             file_origine.copy(nomfichresize);
             file_image.setFileName(nomfichresize);
-            if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
+            if (formatdoc == "jpg" && sz > sizemaxi)
             {
                 QImage  img(nomfichresize);
                 file_image.remove();
                 QPixmap pixmap;
-                pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
+                pixmap = pixmap.fromImage(img.scaledToWidth(256,Qt::SmoothTransformation));
                 int     tauxcompress = 90;
-                while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
+                while (sz > sizemaxi && tauxcompress > 1)
                 {
                     pixmap.save(nomfichresize, "jpeg",tauxcompress);
                     sz = file_image.size();
-                    tauxcompress -= 10;
+                    if (tauxcompress > 19)
+                        tauxcompress -= 10;
+                    else
+                        tauxcompress -= 1;
                 }
                 if (sz/(1024*1024) > 1)
                     szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
@@ -624,15 +628,18 @@ void dlg_identificationIOL::changeImage()
             }
             file_image.open(QIODevice::ReadOnly);
             ba = file_image.readAll();
+            file_image.remove();
         }
         m_listbinds[CP_IMG_IOLS] = ba;
         QString suffix = QFileInfo(file_origine).suffix().toLower();
+        suffix = (suffix == PDF? PDF : JPG);
         m_listbinds[CP_TYPIMG_IOLS] = suffix;
         EnableOKpushButton();
         if (suffix == PDF)
             setpdf(m_listbinds[CP_IMG_IOLS].toByteArray());
         else
             setimage(QImage(fileName));
+        file_origine.remove();
     }
 }
 
