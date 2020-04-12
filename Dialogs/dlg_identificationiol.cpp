@@ -17,6 +17,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_identificationiol.h"
 
+/*!
+ * \brief dlg_identificationIOL::dlg_identificationIOL
+ * la fiche peut-être appelée de 3 façons
+        * Mode Cération avec un fabricant déjà enregistré, depuis le mode de moficication d'une intervention
+            * on veut rajouter un implant à une intervention dans la ficheIntervention() depuis dlg_programmationinterventions
+            * on a saisi un fabricant mais pn saisi un implant qui n'existe pas. Le programme propose donc de créer cet implant pour lequle un fabricant est déjà choisi
+            * la fiche s'ouvre alors en mode Creation avec un Manufacturer en parametre et Q_NULLPTR en paramètre pour l'IOL
+        * Mode Creation totale depuis dlg_listeiols
+            * la fiche est lancée en mode Creation, tous les champs sont vierges et les paramètres IOL et Manufacturer sont nullptr
+        * Mode Modification
+            * la fiche est lancée depuis dlg_listeiols pour modifier les paramètres dun IOL existant
+            * le paramètre IOL est donc celui de l'implant à modifier
+            * la paramètre Manufacturer peut-être laissé à Q_NULLPTR
+            * toutes les zones de saisie sont renseignées avec las paramètres déjà connus de l'implant
+ * \param mode
+ * \param iol
+ * \param man
+ * \param parent
+ */
 dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufacturer *man, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentIOL", parent)
 {
@@ -27,12 +46,30 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
         return;
     }
     m_mode = mode;
-    if (iol != Q_NULLPTR)
-        m_currentIOL      = iol;
+    m_currentIOL = iol;
     m_currentmanufacturer = man;
-    if ((m_mode == Creation && man == Q_NULLPTR) || m_mode == Modification)
+    switch (m_mode) {
+    case Creation:
+        if (m_currentmanufacturer)
+            reconstruitListeIOLs(m_currentmanufacturer);
+        m_currentIOL = Q_NULLPTR;
+        break;
+    case Modification:
+        int id = 0;
         if (m_currentIOL)
+            id = m_currentIOL->id();
+        if ( m_currentIOL )
             m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
+        if (m_currentmanufacturer)
+            reconstruitListeIOLs(m_currentmanufacturer);
+        m_currentIOL = m_iols->getById(id);
+    }
+    if (!m_currentIOL)
+    {
+        m_mode = Creation;
+        m_currentIOL = Q_NULLPTR;
+        m_currentmanufacturer = Q_NULLPTR;
+    }
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
@@ -53,7 +90,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
-    wdg_manufacturercombo = new QComboBox();
+    wdg_manufacturercombo       = new QComboBox();
     wdg_manufacturercombo       ->setEditable(true);
     wdg_manufacturercombo       ->lineEdit()->setAlignment(Qt::AlignCenter);
     wdg_manufacturercombo       ->lineEdit()->setFocusPolicy(Qt::NoFocus);
@@ -63,10 +100,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
         wdg_manufacturercombo   ->setItemData(i, m_manufacturersmodel->item(i,1)->text());       //! l'id en data
     }
     if (m_currentmanufacturer)
-    {
-        wdg_manufacturercombo   ->setEnabled(false);
         wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
-    }
     else
         m_currentmanufacturer = Datas::I()->manufacturers->getById(wdg_manufacturercombo->itemData(0).toInt());
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
@@ -227,7 +261,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     wdg_cylindremaxspin         ->setSingleStep(0.25);
     wdg_cylindreminspin         ->setRange(-8.0, 8.0);
     wdg_cylindreminspin         ->setSingleStep(0.25);
-    wdg_toricchk                = new QCheckBox(tr("Torique"));
+    wdg_toricchk                = new UpCheckBox(tr("Torique"));
     wdg_toricchk                ->setFixedHeight(35);
     cylindresLay                ->insertWidget(0,wdg_toricchk);
     cylindresLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -252,10 +286,10 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
 
     //! Constante precharge jaune multifocal
     QHBoxLayout *checkboxLay    = new QHBoxLayout();
-    wdg_prechargechk            = new QCheckBox(tr("Prechargé"));
-    wdg_jaunechk                = new QCheckBox(tr("Jaune"));
-    wdg_edofchk                 = new QCheckBox("EDOF");
-    wdg_multifocalchk           = new QCheckBox(tr("Multifocal"));
+    wdg_prechargechk            = new UpCheckBox(tr("Prechargé"));
+    wdg_jaunechk                = new UpCheckBox(tr("Jaune"));
+    wdg_edofchk                 = new UpCheckBox("EDOF");
+    wdg_multifocalchk           = new UpCheckBox(tr("Multifocal"));
     checkboxLay                 ->addWidget(wdg_prechargechk);
     checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     checkboxLay                 ->addWidget(wdg_jaunechk);
@@ -305,12 +339,13 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
             HaigisLay->setStretch(i,1);
     }
 
-    //! Materiau - Image
+    //! Materiau - Image - Navigation - recopie
     QVBoxLayout *MateriauLay    = new QVBoxLayout();
     QHBoxLayout *MateriauImgLay = new QHBoxLayout();
     UpLabel* Materiaulbl        = new UpLabel;
     Materiaulbl                 ->setText(tr("Materiau"));
     wdg_imgIOL                  = new UpLabel;
+    wdg_imgIOL                  ->setFixedSize(180,180);
     setimage(m_nullimage);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
     wdg_materiauline            = new UpComboBox;
@@ -329,6 +364,9 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     MateriauImgLay              ->addWidget(wdg_imgIOL);
     MateriauImgLay              ->setContentsMargins(0,0,0,0);
+    wdg_toolbar                 ->setVisible(m_mode == Modification);
+    wdg_recopiebutton           ->setVisible(m_mode == Modification);
+    wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
 
     //! Remarque
     QHBoxLayout *remarqueLay    = new QHBoxLayout();
@@ -343,7 +381,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     RemarqueHLay                ->addWidget(wdg_remarquetxt);
     RemarqueHLay                ->setContentsMargins(0,0,0,0);
 
-    wdg_inactifchk              = new QCheckBox(tr("Discontinué"));
+    wdg_inactifchk              = new UpCheckBox(tr("Discontinué"));
     wdg_inactifchk              ->setFocusPolicy(Qt::NoFocus);
     AjouteWidgetLayButtons(wdg_inactifchk, false);
 
@@ -384,62 +422,15 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
         lbl->setFont(font);
     foreach (UpLineEdit *line, findChildren<UpLineEdit*>())
         line->setAlignment(Qt::AlignCenter);
+    AfficheDatasIOL(m_currentIOL);
+    foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'ile coché/décoché par le programme
+    {
+        UpCheckBox *chk = dynamic_cast<UpCheckBox*>(wdg);
+        if (chk)
+            chk->installEventFilter(this);
+    }
 
-    AfficheDatasIOL();
-
-    connect(OKButton, &QPushButton::clicked, this, &dlg_identificationIOL::OKpushButtonClicked);
-    connect (wdg_manufacturercombo, QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&](int id) {
-                                                                                                                    int idman = wdg_manufacturercombo->itemData(id).toInt();
-                                                                                                                    m_currentmanufacturer = Datas::I()->manufacturers->getById(idman);
-                                                                                                                    EnableOKpushButton();
-                                                                                                                });
-    connect (wdg_nomiolline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_Aoptline,          &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_Aecholine,         &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_ACDline,           &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_haigisaline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_haigisbline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_haigiscline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_materiauline->lineEdit(),      &QLineEdit::textEdited,                     this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_materiauline,      QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_remarquetxt,       &QTextEdit::textChanged,                                this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_diaoptique,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_diaht,             &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_diainjecteur,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_prechargechk,      &QCheckBox::stateChanged,                               this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_edofchk,           &QCheckBox::stateChanged,                               this,   [&] {
-                                                                                                            EnableOKpushButton();
-                                                                                                            if (wdg_edofchk->isChecked())
-                                                                                                                wdg_multifocalchk->setChecked(false);
-                                                                                                        });
-    connect (wdg_toricchk,          &QCheckBox::stateChanged,                               this,   [&] {
-                                                                                                            EnableOKpushButton();
-                                                                                                            wdg_cylindres->setVisible(wdg_toricchk->checkState() == Qt::Checked);
-                                                                                                        });
-    connect (wdg_jaunechk,          &QCheckBox::stateChanged,                               this,   [&] {
-                                                                                                            EnableOKpushButton();
-                                                                                                            QString style = (wdg_jaunechk->checkState() == Qt::Checked?
-                                                                                                            "background-color: yellow" : "background-color: none" );
-                                                                                                            wdg_jaunechk->setStyleSheet(style);
-                                                                                                        });
-    connect (wdg_inactifchk,        &QCheckBox::stateChanged,                               this,   [&] {
-                                                                                                            foreach (QWidget *wdg, findChildren<QWidget*>())
-                                                                                                                if (wdg != wdg_manufacturercombo && wdg != widgetbuttons() && !widgetbuttons()->isAncestorOf(wdg))
-                                                                                                                    wdg->setEnabled(!wdg_inactifchk->isChecked());
-                                                                                                                EnableOKpushButton();
-                                                                                                        });
-    connect (wdg_multifocalchk,     &QCheckBox::stateChanged,                               this,   [&] {
-                                                                                                            EnableOKpushButton();
-                                                                                                            if (wdg_multifocalchk->isChecked())
-                                                                                                                wdg_edofchk->setChecked(false);
-                                                                                                        });
-    connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_cylindremaxspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
-    connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
-    connect (wdg_recopiebutton,     &QPushButton::click,                                    this,   &dlg_identificationIOL::creeCopieIOL);
+    connectSignals();
 
     wdg_puissancemaxspin->installEventFilter(this);
     wdg_cylindreminspin->installEventFilter(this);
@@ -468,17 +459,129 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter)
             return QWidget::focusNextChild();
+        if (keyEvent->key()==Qt::Key_Space)
+            if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            {
+                UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+                if (chk)
+                    emit chk->uptoggled(chk->isChecked());
+            }
     }
+    if(event->type()==QEvent::MouseButtonPress ||  event->type()==QEvent::MouseButtonDblClick)
+        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+        {
+            UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+            if (chk)
+                emit chk->uptoggled(chk->isChecked());
+        }
     return QWidget::eventFilter(obj, event);
 }
+
+void dlg_identificationIOL::connectSignals()
+{
+     connect(OKButton, &QPushButton::clicked, this, &dlg_identificationIOL::OKpushButtonClicked);
+     connect (wdg_manufacturercombo, QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&](int id) {
+                                                                                                                     int idman = wdg_manufacturercombo->itemData(id).toInt();
+                                                                                                                     m_currentmanufacturer = Datas::I()->manufacturers->getById(idman);
+                                                                                                                     if (m_currentmanufacturer)
+                                                                                                                         reconstruitListeIOLs(m_currentmanufacturer);
+                                                                                                                     wdg_toolbar->setEnabled(m_listeidIOLs.size()>1);
+                                                                                                                     EnableOKpushButton();
+                                                                                                                 });
+     connect (wdg_nomiolline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_Aoptline,          &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_Aecholine,         &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_ACDline,           &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_haigisaline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_haigisbline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_haigiscline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_materiauline->lineEdit(),      &QLineEdit::textEdited,                     this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_materiauline,      QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_remarquetxt,       &UpTextEdit::textEdited,                                this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_diaoptique,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_diaht,             &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_diainjecteur,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_prechargechk,      &UpCheckBox::uptoggled,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_edofchk,           &UpCheckBox::uptoggled,                                 this,   [&] {
+                                                                                                             EnableOKpushButton();
+                                                                                                             if (wdg_edofchk->isChecked())
+                                                                                                                 wdg_multifocalchk->setChecked(false);
+                                                                                                         });
+     connect (wdg_toricchk,          &UpCheckBox::uptoggled,                                    this,   [&] {
+                                                                                                             EnableOKpushButton();
+                                                                                                             wdg_cylindres->setVisible(wdg_toricchk->checkState() == Qt::Checked);
+                                                                                                         });
+     connect (wdg_jaunechk,          &UpCheckBox::uptoggled,                                    this,   [&] {
+                                                                                                             EnableOKpushButton();
+                                                                                                             QString style = (wdg_jaunechk->checkState() == Qt::Checked?
+                                                                                                             "background-color: yellow" : "background-color: none" );
+                                                                                                             wdg_jaunechk->setStyleSheet(style);
+                                                                                                         });
+     connect (wdg_inactifchk,        &UpCheckBox::uptoggled,                                    this,   [&] {
+                                                                                                             foreach (QWidget *wdg, findChildren<QWidget*>())
+                                                                                                                 if (wdg != wdg_manufacturercombo
+                                                                                                                         && wdg != widgetbuttons()
+                                                                                                                         && !widgetbuttons()->isAncestorOf(wdg))
+                                                                                                                     wdg->setEnabled(!wdg_inactifchk->isChecked());
+                                                                                                                 EnableOKpushButton();
+                                                                                                         });
+     connect (wdg_multifocalchk,     &UpCheckBox::uptoggled,                                    this,   [&] {
+                                                                                                             EnableOKpushButton();
+                                                                                                             if (wdg_multifocalchk->isChecked())
+                                                                                                                 wdg_edofchk->setChecked(false);
+                                                                                                         });
+     connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_cylindremaxspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
+     connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
+     connect (wdg_recopiebutton,     &QPushButton::click,                                    this,   &dlg_identificationIOL::creeCopieIOL);
+     connect(wdg_toolbar,            &UpToolBar::TBSignal,                                   this, [=] {NavigueVers(wdg_toolbar->choix());});
+}
+
+void dlg_identificationIOL::disconnectSignals()
+{
+     OKButton->disconnect();
+     wdg_manufacturercombo->disconnect();
+     wdg_nomiolline->disconnect();
+     wdg_Aoptline->disconnect();
+     wdg_Aecholine->disconnect();
+     wdg_ACDline->disconnect();
+     wdg_haigisaline->disconnect();
+     wdg_haigisbline->disconnect();
+     wdg_haigiscline->disconnect();
+     wdg_materiauline->lineEdit()->disconnect();
+     wdg_materiauline->disconnect();
+     wdg_remarquetxt->disconnect();
+     wdg_diaoptique->disconnect();
+     wdg_diaht->disconnect();
+     wdg_diainjecteur->disconnect();
+     wdg_prechargechk->disconnect();
+     wdg_edofchk->disconnect();
+     wdg_toricchk->disconnect();
+     wdg_jaunechk->disconnect();
+     wdg_inactifchk->disconnect();
+     wdg_multifocalchk->disconnect();
+     wdg_puissancemaxspin->disconnect();
+     wdg_puissanceminspin->disconnect();
+     wdg_cylindremaxspin->disconnect();
+     wdg_cylindreminspin->disconnect();
+     wdg_imgIOL->disconnect();
+     wdg_recopiebutton->disconnect();
+     wdg_toolbar->disconnect();
+}
+
 
 /*--------------------------------------------------------------------------------------------
 -- Afficher la fiche de l'implant
 --------------------------------------------------------------------------------------------*/
-void dlg_identificationIOL::AfficheDatasIOL()
+void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 {
-    if (!m_currentIOL)
+    if (iol == Q_NULLPTR)
         return;
+    disconnectSignals();
+    m_currentIOL = iol;
     if (m_currentmanufacturer)
         wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
 
@@ -546,6 +649,17 @@ void dlg_identificationIOL::AfficheDatasIOL()
                 setimage(image);
         }
     }
+    wdg_toolbar         ->setEnabled(true);
+    wdg_recopiebutton   ->setEnabled(true);
+    if( wdg_toolbar->isEnabled())
+    {
+        int idx = m_listeidIOLs.indexOf(m_currentIOL->id());
+        wdg_toolbar->First()    ->setEnabled(idx>0);
+        wdg_toolbar->Prec()     ->setEnabled(idx>0);
+        wdg_toolbar->Next()     ->setEnabled(idx < m_listeidIOLs.size()-1);
+        wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
+    }
+    connectSignals();
 }
 
 void dlg_identificationIOL::menuChangeImage()
@@ -656,12 +770,36 @@ void dlg_identificationIOL::supprimeImage()
     EnableOKpushButton();
 }
 
-void    dlg_identificationIOL:: EnableOKpushButton()
+void dlg_identificationIOL:: EnableOKpushButton()
 {
     bool a  = wdg_nomiolline->text() != ""
            && wdg_manufacturercombo->currentData().toInt()>0;
-    OKButton->setEnabled(a);
+    OKButton            ->setEnabled(a);
+    wdg_toolbar         ->setEnabled(!a);
+    wdg_recopiebutton   ->setEnabled(!a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
+}
+
+void dlg_identificationIOL::NavigueVers(QString but)
+{
+    int idx = m_listeidIOLs.indexOf(m_currentIOL->id());
+    if (but == "Fin")
+        idx = m_listeidIOLs.size()-1;
+    else if (but == "Début")
+        idx = 0;
+    else if (but == "Suivant")
+        idx += 1;
+    else if (but == "Précédent")
+        idx -= 1;
+    wdg_toolbar->First()    ->setEnabled(idx>0);
+    wdg_toolbar->Prec()     ->setEnabled(idx>0);
+    wdg_toolbar->Next()     ->setEnabled(idx < m_listeidIOLs.size()-1);
+    wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
+    if (idx>-1)
+    {
+        m_currentIOL = m_iols->getById(m_listeidIOLs.at(idx));
+        AfficheDatasIOL(m_currentIOL);
+    }
 }
 
 void dlg_identificationIOL::OKpushButtonClicked()
@@ -690,9 +828,11 @@ void dlg_identificationIOL::OKpushButtonClicked()
             {
                 UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
                 delete m_currentIOL;
-                m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
+                m_currentIOL = m_iols->getById(ioldata.at(0).toInt());
                 OKButton->setEnabled(false);
-                AfficheDatasIOL();
+                wdg_toolbar         ->setEnabled(true);
+                wdg_recopiebutton   ->setEnabled(true);
+                AfficheDatasIOL(m_currentIOL);
                 disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
                 connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);
                 return;
@@ -700,10 +840,12 @@ void dlg_identificationIOL::OKpushButtonClicked()
             break;
         case Creation:
             UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
-            m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
+            m_currentIOL = m_iols->getById(ioldata.at(0).toInt());
             OKButton->setEnabled(false);
+            wdg_toolbar         ->setEnabled(true);
+            wdg_recopiebutton   ->setEnabled(true);
             m_mode = Modification;
-            AfficheDatasIOL();
+            AfficheDatasIOL(m_currentIOL);
             disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
             connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);
             return;
@@ -740,17 +882,40 @@ void dlg_identificationIOL::OKpushButtonClicked()
     accept();
 }
 
+void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
+{
+    m_currentmanufacturer = man;
+    m_listeidIOLs.clear();
+    if (!m_IOLsmodel)
+        m_IOLsmodel = new QStandardItemModel(this);
+    else
+        m_IOLsmodel->clear();
+    if (!m_currentmanufacturer)
+        return;
+    m_iols->initListeByManufacturerId(m_currentmanufacturer->id());
+    UpStandardItem *pitem;
+    foreach(IOL *iol, m_iols->iols()->values())
+    {
+        pitem   = new UpStandardItem(iol->modele(), iol);
+        m_IOLsmodel->appendRow(pitem);
+    }
+    m_IOLsmodel->sort(0);
+    for (int i=0; i<m_IOLsmodel->rowCount(); ++i)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
+        if (itm)
+        {
+            IOL* iol = dynamic_cast<IOL*>(itm->item());
+            if (iol)
+                m_listeidIOLs << iol->id();
+        }
+    }
+}
+
+
 void dlg_identificationIOL::setimage(QImage img)
 {
-    int l = img.width();
-    int h = img.height();
-    int max = (l>h? l : h);
-    int min = (max==l? h : l);
-    double prop = max/170;
-    double width  = (max == l? max : min) /prop;
-    double height = (max == h? max : min) /prop;
-    wdg_imgIOL   ->setFixedSize(QSize(int(width), int(height)));
-    wdg_imgIOL   ->setPixmap(QPixmap::fromImage(img.scaled(wdg_imgIOL->width(),wdg_imgIOL->height())));
+    wdg_imgIOL   ->setPixmap(QPixmap::fromImage(img.scaled(wdg_imgIOL->width(),wdg_imgIOL->height(), Qt::KeepAspectRatio)));
     m_currentimage = img;
 }
 

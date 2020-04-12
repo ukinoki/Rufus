@@ -24,7 +24,7 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
 
     setModal(true);
     setWindowTitle(tr("Liste des IOLs"));
-    wdg_manufacturerscbox = new UpComboBox();
+    wdg_manufacturerscombo = new UpComboBox();
 
     wdg_iolstree = new QTreeView(this);
     wdg_iolstree ->setFixedWidth(320);
@@ -38,13 +38,13 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     bool reconstruirelaliste = true;
     ReconstruitTreeViewIOLs(reconstruirelaliste);
 
-    wdg_manufacturerscbox = new UpComboBox();
-    wdg_manufacturerscbox->setEditable(false);
-    wdg_manufacturerscbox->addItem(tr("Tous"), 0);
-    wdg_manufacturerscbox->setFixedWidth(250);
+    wdg_manufacturerscombo = new UpComboBox();
+    wdg_manufacturerscombo->setEditable(false);
+    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
+    wdg_manufacturerscombo->setFixedWidth(250);
     QHBoxLayout *manufacturerlay = new QHBoxLayout();
     manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    manufacturerlay     ->addWidget(wdg_manufacturerscbox);
+    manufacturerlay     ->addWidget(wdg_manufacturerscombo);
     manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     manufacturerlay     ->setContentsMargins(0,0,0,5);
 
@@ -55,7 +55,7 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
         {
             Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
             if (man)
-                wdg_manufacturerscbox->addItem(man->nom(), man->id());
+                wdg_manufacturerscombo->addItem(man->nom(), man->id());
         }
     }
 
@@ -87,7 +87,7 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
                                                                                             ReconstruitTreeViewIOLs(false, txt);
                                                                                            });
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listeiols::ChoixButtonFrame);
-    connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+    connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
@@ -157,9 +157,9 @@ void dlg_listeiols::EnregistreNouveauIOL()
     {
         IOL *iol = Dlg_IdentIOL->currentIOL();
         m_listemodifiee = true;
-        wdg_manufacturerscbox->disconnect();
-        wdg_manufacturerscbox->setCurrentIndex(0);
-        connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+        wdg_manufacturerscombo->disconnect();
+        wdg_manufacturerscombo->setCurrentIndex(0);
+        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
         ReconstruitTreeViewIOLs(true);
         if (iol)
             scrollToIOL(iol);
@@ -442,9 +442,9 @@ void dlg_listeiols::ModifIOL(IOL *iol)
         {
             int idiol = iol->id();
             m_listemodifiee = true;
-            wdg_manufacturerscbox->disconnect();
-            wdg_manufacturerscbox->setCurrentIndex(0);
-            connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+            wdg_manufacturerscombo->disconnect();
+            wdg_manufacturerscombo->setCurrentIndex(0);
+            connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
             ReconstruitTreeViewIOLs(true);
             iol = Datas::I()->iols->getById(idiol);
             if (iol)
@@ -581,9 +581,9 @@ void dlg_listeiols::SupprIOL(IOL *iol)
     {
         Datas::I()->iols->SupprimeIOL(iol);
         m_listemodifiee = true;
-        wdg_manufacturerscbox->disconnect();
-        wdg_manufacturerscbox->setCurrentIndex(0);
-        connect(wdg_manufacturerscbox,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+        wdg_manufacturerscombo->disconnect();
+        wdg_manufacturerscombo->setCurrentIndex(0);
+        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
         ReconstruitTreeViewIOLs(true);
     }
 }
@@ -628,7 +628,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
     if (m_IOLsmodel == Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
-    int idman = wdg_manufacturerscbox->currentData().toInt();
+    int idman = wdg_manufacturerscombo->currentData().toInt();
     UpStandardItem *pitem;
     for (int i=0; i<  m_manufacturersmodel->rowCount(); ++i)
     {

@@ -213,6 +213,8 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
                 }
             }
         }
+        if (toHtml() != valeuravant())
+            emit textEdited(toHtml());
     }
     return QWidget::eventFilter(obj, event);
 }

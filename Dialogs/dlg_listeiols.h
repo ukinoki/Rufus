@@ -41,7 +41,7 @@ private:
     QList<int>              m_listidiolsutilises;
     QStandardItemModel      *m_IOLsmodel = Q_NULLPTR;
     QStandardItemModel      *m_manufacturersmodel = Q_NULLPTR;
-    UpComboBox              *wdg_manufacturerscbox;
+    UpComboBox              *wdg_manufacturerscombo;
     UpLabel                 *wdg_label;
     QTreeView               *wdg_iolstree;
     UpLineEdit              *wdg_chercheuplineedit;

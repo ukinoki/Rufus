@@ -78,6 +78,7 @@ private:
 
 signals:
     void        dblclick(int a);
+    void        textEdited(const QString);
 };
 
 #endif // UPTEXTEDIT_H
