@@ -170,6 +170,7 @@ public:
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
     int m_idmanufacturer    = 0;                //! id du fabricant
+    int m_iddistributeur    = 0;                //! id du distributeur du fabricant - non stocké en base parce que redondant
     QString m_modele        = "";               //! modèle de l'implant
     bool m_inactif          = false;
     double m_pwrmax         = 0;                //! puissance maximale de l'implant
@@ -201,6 +202,7 @@ private: //Données de l'intervention
 
 public:
     int idmanufacturer() const                  { return m_idmanufacturer; }
+    int iddistributeur() const                  { return m_iddistributeur; }
     QString modele() const                      { return m_modele; }
     double pwrmax() const                       { return m_pwrmax; }
     double pwrmin() const                       { return m_pwrmin; }
@@ -232,6 +234,7 @@ public:
 
 
     void setidmanufacturer(int &id)             { m_idmanufacturer = id;            m_map[CP_IDMANUFACTURER_IOLS] = id; }
+    void setidistributeur(int id)               { m_iddistributeur = id;}
     void setmodele(const QString &txt)          { m_modele = txt;                   m_map[CP_MODELNAME_IOLS] = txt; }
     void setactif(bool &actif)                  { m_inactif = !actif;               m_map[CP_INACTIF_IOLS] = !actif; }
     void setPwrmax(double pwrmax)               { m_pwrmax = pwrmax;                m_map[CP_MAXPWR_IOLS] = pwrmax; }

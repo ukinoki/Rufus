@@ -647,6 +647,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // Divers
 #define PDF                                         "pdf"
 #define JPG                                         "jpg"
+#define PNG                                         "png"
 
 #define BILANORTHOPTIQUE                            "BO"
 #define CORRECTION                                  "Correction"

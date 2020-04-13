@@ -112,9 +112,9 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     //! MODELE
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
     UpLabel* lblIOL             = new UpLabel;
-    lblIOL                      ->setText(tr("Nom du modèle"));
+    lblIOL                      ->setText(tr("Modèle"));
     wdg_nomiolline              = new UpLineEdit();
-    wdg_nomiolline              ->setFixedSize(QSize(150,28));
+    wdg_nomiolline              ->setFixedSize(QSize(250,28));
     wdg_nomiolline              ->setValidator(new QRegExpValidator(Utils::rgx_cotation));
     wdg_nomiolline              ->setMaxLength(40);
     choixIOLLay                 ->addWidget(lblIOL);
@@ -159,15 +159,32 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     QHBoxLayout *ACDLay         = new QHBoxLayout();
     UpLabel* lblACDIOL          = new UpLabel;
     lblACDIOL                   ->setText(tr("ACD"));
+    lblACDIOL                   ->setFixedSize(QSize(50,28));
     QDoubleValidator *ACD_val   = new QDoubleValidator(1,8,2, this);
     wdg_ACDline                 = new UpLineEdit();
     wdg_ACDline                 ->setValidator(ACD_val);
     wdg_ACDline                 ->setFixedSize(QSize(50,28));
-    ACDLay                      ->addWidget(lblACDIOL);
+    UpLabel* lblHolIOL          = new UpLabel;
+    lblHolIOL                   ->setText("Holladay1sf");
+    QDoubleValidator *HOL_val   = new QDoubleValidator(0,8,2, this);
+    wdg_holladayline            = new UpLineEdit();
+    wdg_holladayline            ->setValidator(HOL_val);
+    wdg_holladayline            ->setFixedSize(QSize(50,28));
     ACDLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    ACDLay                      ->addWidget(lblHolIOL);
+    ACDLay                      ->addWidget(wdg_holladayline);
+    ACDLay                      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    ACDLay                      ->addWidget(lblACDIOL);
     ACDLay                      ->addWidget(wdg_ACDline);
     ACDLay                      ->setSpacing(5);
     ACDLay                      ->setContentsMargins(0,0,0,0);
+    for (int i=0; i < ACDLay->count(); ++i)
+    {
+        if (i==0)
+            ACDLay->setStretch(i,8);
+        else
+            ACDLay->setStretch(i,1);
+    }
 
     //! Diametres optique et ht
     QHBoxLayout *diametresLay   = new QHBoxLayout();
@@ -401,7 +418,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     dlglayout()   ->setSpacing(5);
 
     QList <QWidget*> ListTab;
-    ListTab << wdg_manufacturercombo << wdg_nomiolline << wdg_Aoptline << wdg_Aecholine << wdg_ACDline << wdg_diaht << wdg_diaoptique << wdg_diainjecteur
+    ListTab << wdg_manufacturercombo << wdg_nomiolline << wdg_Aoptline << wdg_Aecholine << wdg_holladayline << wdg_ACDline << wdg_diaht << wdg_diaoptique << wdg_diainjecteur
             << wdg_puissanceminspin << wdg_puissancemaxspin
             << wdg_toricchk << wdg_cylindreminspin << wdg_cylindremaxspin
             << wdg_haigisaline << wdg_haigisbline << wdg_haigiscline
@@ -422,6 +439,8 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
         lbl->setFont(font);
     foreach (UpLineEdit *line, findChildren<UpLineEdit*>())
         line->setAlignment(Qt::AlignCenter);
+
+    connectSignals();
     AfficheDatasIOL(m_currentIOL);
     foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'ile coché/décoché par le programme
     {
@@ -429,8 +448,6 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
         if (chk)
             chk->installEventFilter(this);
     }
-
-    connectSignals();
 
     wdg_puissancemaxspin->installEventFilter(this);
     wdg_cylindreminspin->installEventFilter(this);
@@ -492,6 +509,7 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_Aoptline,          &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_Aecholine,         &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_ACDline,           &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_holladayline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_haigisaline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_haigisbline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_haigiscline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
@@ -548,6 +566,7 @@ void dlg_identificationIOL::disconnectSignals()
      wdg_Aoptline->disconnect();
      wdg_Aecholine->disconnect();
      wdg_ACDline->disconnect();
+     wdg_holladayline->disconnect();
      wdg_haigisaline->disconnect();
      wdg_haigisbline->disconnect();
      wdg_haigiscline->disconnect();
@@ -594,6 +613,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_Aecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho(), 'f', 1));
         if (m_currentIOL->acd() > 0.0)
             wdg_ACDline         ->setText(QLocale().toString(m_currentIOL->acd(), 'f', 2));
+        if (m_currentIOL->holladay() > 0.0)
+            wdg_holladayline    ->setText(QLocale().toString(m_currentIOL->holladay(), 'f', 2));
         if (m_currentIOL->haigisa0() > 0.0)
             wdg_haigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0(), 'f', 4));
         if (m_currentIOL->haigisa1() > 0.0)
@@ -648,6 +669,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             else if (image.loadFromData(m_currentIOL->imgiol()))
                 setimage(image);
         }
+        else setimage(m_nullimage);
     }
     wdg_toolbar         ->setEnabled(true);
     wdg_recopiebutton   ->setEnabled(true);
@@ -677,8 +699,9 @@ void dlg_identificationIOL::menuChangeImage()
 
 void dlg_identificationIOL::changeImage()
 {
+    int sizemaxi = 8192;
     QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images (*.pdf *.png *.jpg)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop + "/ImagesIOL" ,  tr("Images (*.pdf *.png *.jpg)"));
     if (fileName != "")
     {
         QFile file_origine;
@@ -710,7 +733,6 @@ void dlg_identificationIOL::changeImage()
         }
         if (file_origine.open(QIODevice::ReadOnly))
         {
-            int sizemaxi = 8192;
             double sz = file_origine.size();
             if (sz/(1024*1024) > 1)
                 szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
@@ -719,12 +741,14 @@ void dlg_identificationIOL::changeImage()
             szfinal = szorigin;
             file_origine.copy(nomfichresize);
             file_image.setFileName(nomfichresize);
-            if (formatdoc == "jpg" && sz > sizemaxi)
+            if ((formatdoc == JPG ||formatdoc == PNG) && sz > sizemaxi)
             {
                 QImage  img(nomfichresize);
                 file_image.remove();
                 QPixmap pixmap;
-                pixmap = pixmap.fromImage(img.scaledToWidth(256,Qt::SmoothTransformation));
+                pixmap = pixmap.fromImage(img);
+                pixmap.save(nomfichresize, "jpeg");
+                pixmap = pixmap.fromImage(img.scaledToWidth(256));
                 int     tauxcompress = 90;
                 while (sz > sizemaxi && tauxcompress > 1)
                 {
@@ -855,6 +879,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_MODELNAME_IOLS]      = wdg_nomiolline->text();
     m_listbinds[CP_IDMANUFACTURER_IOLS] = m_currentmanufacturer->id();
     m_listbinds[CP_ACD_IOLS]            = (QLocale().toDouble(wdg_ACDline->text()) >0.0?      QLocale().toDouble(wdg_ACDline->text())     : QVariant());
+    m_listbinds[CP_HOLL1_IOLS]          = (QLocale().toDouble(wdg_holladayline->text()) >0.0? QLocale().toDouble(wdg_holladayline->text()): QVariant());
     m_listbinds[CP_CSTEAOPT_IOLS]       = (QLocale().toDouble(wdg_Aoptline->text()) >0.0?     QLocale().toDouble(wdg_Aoptline->text())    : QVariant());
     m_listbinds[CP_CSTEAECHO_IOLS]      = (QLocale().toDouble(wdg_Aecholine->text()) >0.0?    QLocale().toDouble(wdg_Aecholine->text())   : QVariant());
     m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0.0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());

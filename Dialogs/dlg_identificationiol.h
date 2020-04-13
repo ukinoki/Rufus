@@ -63,6 +63,7 @@ private:
     UpDoubleSpinBox     *wdg_cylindremaxspin;
     UpDoubleSpinBox     *wdg_cylindreminspin;
     UpLineEdit          *wdg_ACDline;
+    UpLineEdit          *wdg_holladayline;
     UpLineEdit          *wdg_haigisaline;
     UpLineEdit          *wdg_haigisbline;
     UpLineEdit          *wdg_haigiscline;

@@ -26,7 +26,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     if (man != Q_NULLPTR)
-        m_currentmanufacturer          = man;
+        m_currentmanufacturer   = man;
     m_mode                      = mode;
     wdg_villeCP                 = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
     wdg_CPlineedit              = wdg_villeCP->ui->CPlineEdit;
@@ -46,7 +46,6 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     setWindowIcon(Icons::icDoctor());
     connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationmanufacturer::EnableOKpushButton);
 
-    AfficheDatasManufacturer();
     if (m_mode == Creation)
         ui->idManufacturerlabel  ->setVisible(false);
 
@@ -63,12 +62,25 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->CorMaillineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
     ui->CorTelephonelineEdit->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
-    ui->Distributeurlabel->setEnabled(false);
-    ui->DistrbuteurupComboBox->setEnabled(false);
+    QStandardItemModel m_manufacturermodel;
+    int idcurrenmtmanufacturer = (m_currentmanufacturer? m_currentmanufacturer->id() : 0);
+    foreach (Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
+        if (man->id() != idcurrenmtmanufacturer)
+        {
+            QList<QStandardItem *> items;
+            items << new QStandardItem(man->nom()) << new QStandardItem(QString::number(man->id()));
+            m_manufacturermodel.appendRow(items);
+        }
+    m_manufacturermodel.sort(0);
+    for (int i=0; i <m_manufacturermodel.rowCount(); ++i)
+        ui->DistributeurupComboBox->addItem(m_manufacturermodel.item(i)->text(), m_manufacturermodel.item(i,1)->text());
+
+    AfficheDatasManufacturer();
 
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
-            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->WebsiteineEdit << ui->FaxlineEdit << ui->CorNomlineEdit << ui->CorPrenomlineEdit << ui->CorMaillineEdit << ui->CorTelephonelineEdit;
+            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->WebsiteineEdit << ui->FaxlineEdit << ui->CorNomlineEdit
+            << ui->CorPrenomlineEdit << ui->CorMaillineEdit << ui->CorTelephonelineEdit << ui->DistributeurupComboBox;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
     installEventFilter(this);
@@ -96,6 +108,8 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorMaillineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->DistributeurupComboBox->lineEdit(),      &QLineEdit::textEdited,                     this,   &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->DistributeurupComboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->DelCorupPushButton,    &QPushButton::clicked,              this,           [=]
                                                                                             {
                                                                                                 if (UpMessageBox::Question(this, tr("Suppression d'un correspondant"), tr("Êtes vous sûr de vouloir supprimer ce corespondant?")) != UpSmallButton::STARTBUTTON)
@@ -124,9 +138,7 @@ dlg_identificationmanufacturer::~dlg_identificationmanufacturer()
 
 void    dlg_identificationmanufacturer:: EnableOKpushButton()
 {
-    bool a  = ui->NomlineEdit->text() != ""
-           && wdg_CPlineedit->text() != ""
-           && wdg_villelineedit->text() != "";
+    bool a  = ui->NomlineEdit->text() != "";
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
@@ -142,28 +154,6 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     QString ManNom;
     ManNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
 
-    if (wdg_CPlineedit->text() == "" && wdg_villelineedit->text() == "")
-    {
-        UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
-        wdg_CPlineedit->setFocus();
-        return;
-    }
-
-    if (wdg_CPlineedit->text() == "" || wdg_villelineedit->text() == "")
-    {
-        if (wdg_CPlineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le code postal"));
-            wdg_CPlineedit->setFocus();
-            return;
-        }
-        if (wdg_villelineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
-            wdg_villelineedit->setFocus();
-            return;
-        }
-    }
     // B - On vérifie ensuite que la saisie est complète
     if (ManNom == "")
     {
@@ -218,6 +208,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
         }
     }
 
+
     m_listbinds[CP_NOM_MANUFACTURER]          = ManNom.toUpper();
     m_listbinds[CP_ADRESSE1_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse1lineEdit->text().toUpper(),true);
     m_listbinds[CP_ADRESSE2_MANUFACTURER]     = Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true);
@@ -235,6 +226,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     m_listbinds[CP_CORMAIL_MANUFACTURER]      = ui->CorMaillineEdit->text();
     m_listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
     m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
+    m_listbinds[CP_DISTRIBUEPAR_MANUFACTURER] = (ui->DistributeurupComboBox->currentData().toInt()>0? ui->DistributeurupComboBox->currentData().toInt() : QVariant());
     if (m_mode == Creation)
          m_currentmanufacturer = Datas::I()->manufacturers->CreationManufacturer(m_listbinds);
     else if (m_mode == Modification)
@@ -304,10 +296,12 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
         ui->CorStatutlineEdit   ->setText(m_currentmanufacturer->corstatut());
         ui->CorMaillineEdit     ->setText(m_currentmanufacturer->cormail());
         ui->CorTelephonelineEdit->setText(m_currentmanufacturer->cortelephone());
+        ui->DistributeurupComboBox->setCurrentIndex(ui->DistributeurupComboBox->findData(m_currentmanufacturer->iddistributeur()));
     }
     else if (m_mode == Creation)
     {
         wdg_CPlineedit              ->setText(Procedures::CodePostalParDefaut());
         wdg_villelineedit           ->setText(Procedures::VilleParDefaut());
+        ui->DistributeurupComboBox->setCurrentIndex(-1);
     }
 }

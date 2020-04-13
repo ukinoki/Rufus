@@ -51,7 +51,7 @@ public:
     QString cortelephone() const;
     bool isactif() const;
     QString tooltip() const;
-    int distributeur() const;
+    int iddistributeur() const;
 
     void setnom(const QString &nom);
     void setadresse1(const QString &adresse1);
@@ -70,7 +70,7 @@ public:
     void setcormail(const QString &corstatut);
     void setcortelephone(const QString &cortelephone);
     void setactif(const bool &actif);
-    void setdistributeur(const int id);
+    void setiddistributeur(const int id);
     void resetdatas();
 
     bool isnull() const                     { return m_id == 0; }

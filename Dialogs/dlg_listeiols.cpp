@@ -77,6 +77,11 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     importbutt->setIcon(Icons::icImport());
     AjouteWidgetLayButtons(importbutt, false);
     connect(importbutt, &QPushButton::clicked, this, &dlg_listeiols::ImportListeIOLS);
+    UpPushButton *resizebutt =   new UpPushButton(tr("Comprimer"));
+    resizebutt->setIcon(Icons::icComputer());
+    AjouteWidgetLayButtons(resizebutt, false);
+    resizebutt->setVisible(false);
+    connect(resizebutt, &QPushButton::clicked, this, [&] {resizeiolimage();});
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
     dlglayout()->insertLayout(0,manufacturerlay);
@@ -250,6 +255,7 @@ void dlg_listeiols::ImportListeIOLS()
             double cylmax = -100.0;
             double add = 0.0;
             double srkt = 0.0;
+            double csteA = 0.0;
             double haigis0 = 0.0;
             double haigis1 = 0.0;
             double haigis2 = 0.0;
@@ -330,7 +336,9 @@ void dlg_listeiols::ImportListeIOLS()
                     for (int i=0; i<node.childNodes().size(); i++)
                     {
                         QDomElement nodespec = node.childNodes().at(i).toElement();
-                        if (nodespec.tagName() == "SRKt")
+                        if (nodespec.tagName() == "Ultrasound")
+                            csteA = nodespec.text().toDouble();
+                        else if (nodespec.tagName() == "SRKt")
                             srkt = nodespec.text().toDouble();
                         else if (nodespec.tagName() == "Haigis")
                             for (int i=0; i<nodespec.childNodes().size(); i++)
@@ -388,10 +396,13 @@ void dlg_listeiols::ImportListeIOLS()
                 QHash<QString, QVariant> m_listbinds;
                 m_listbinds[CP_MODELNAME_IOLS]      = modele;
                 m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
-                m_listbinds[CP_CSTEAECHO_IOLS]      = (srkt >0.0?    srkt   : QVariant());
-                m_listbinds[CP_HAIGISA0_IOLS]       = (haigis0 >0.0?  haigis0 : QVariant());
-                m_listbinds[CP_HAIGISA1_IOLS]       = (haigis1 >0.0?  haigis1 : QVariant());
-                m_listbinds[CP_HAIGISA2_IOLS]       = (haigis2 >0.0?  haigis2 : QVariant());
+                m_listbinds[CP_CSTEAOPT_IOLS]       = (csteA >0.0?    csteA    : QVariant());
+                m_listbinds[CP_CSTEAECHO_IOLS]      = (srkt >0.0?     srkt     : QVariant());
+                m_listbinds[CP_HAIGISA0_IOLS]       = (haigis0 >0.0?  haigis0  : QVariant());
+                m_listbinds[CP_HAIGISA1_IOLS]       = (haigis1 >0.0?  haigis1  : QVariant());
+                m_listbinds[CP_HAIGISA2_IOLS]       = (haigis2 >0.0?  haigis2  : QVariant());
+                m_listbinds[CP_ACD_IOLS]            = (hofferQ>0.0?   hofferQ  : QVariant());
+                m_listbinds[CP_HOLL1_IOLS]          = (holladay>0.0?  holladay : QVariant());
                 m_listbinds[CP_MATERIAU_IOLS]       = materiau;
                 m_listbinds[CP_DIAALL_IOLS]         = (diaall >0.0?  diaall : QVariant());
                 m_listbinds[CP_DIAOPT_IOLS]         = (diaoptique >0.0? diaoptique  : QVariant());
@@ -422,8 +433,20 @@ void dlg_listeiols::ImportListeIOLS()
         msg = QString::number(nbimplants) + " implants ont été rajoutés à la base";
     }
     UpMessageBox::Watch(this, msg);
-    ReconstruitListeManufacturers();
-    ReconstruitTreeViewIOLs();
+    bool reconstruirelaliste = true;
+    ReconstruitTreeViewIOLs(reconstruirelaliste);
+    wdg_manufacturerscombo->clear();
+    for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+        if (itm)
+        {
+            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            if (man)
+                wdg_manufacturerscombo->addItem(man->nom(), man->id());
+        }
+    }
+
 }
 
 // ------------------------------------------------------------------------------------------
@@ -498,7 +521,8 @@ void dlg_listeiols::resizeiolimage(int size)
             while (sz > size && tauxcompress > 1)
             {
                 pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                sz = file_image.size();
+                ba = file_image.readAll();
+                sz = ba.size();
                 if (tauxcompress > 19)
                     tauxcompress -= 10;
                 else tauxcompress -= 1;
@@ -644,7 +668,11 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
                     manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
                     manufactureritem  ->setEditable(false);
                     manufactureritem  ->setEnabled(false);
-                    m_IOLsmodel->appendRow(manufactureritem);
+                    UpStandardItem *manufacturer2item = new UpStandardItem();
+                    manufacturer2item  ->setForeground(QBrush(QColor(Qt::red)));
+                    manufacturer2item  ->setEditable(false);
+                    manufacturer2item  ->setEnabled(false);
+                    m_IOLsmodel->appendRow(QList<QStandardItem*>() << manufactureritem << manufacturer2item);
                 }
                 else if (man->id() == idman)
                 {
@@ -652,7 +680,11 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
                     manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
                     manufactureritem  ->setEditable(false);
                     manufactureritem  ->setEnabled(false);
-                    m_IOLsmodel->appendRow(manufactureritem);
+                    UpStandardItem *manufacturer2item = new UpStandardItem();
+                    manufacturer2item  ->setForeground(QBrush(QColor(Qt::red)));
+                    manufacturer2item  ->setEditable(false);
+                    manufacturer2item  ->setEnabled(false);
+                    m_IOLsmodel->appendRow(QList<QStandardItem*>() << manufactureritem << manufacturer2item);
                 }
             }
         }
@@ -685,8 +717,10 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
                 i--;
             }
     }
-    wdg_iolstree     ->setModel(m_IOLsmodel);
-    wdg_iolstree     ->expandAll();
+    wdg_iolstree    ->setModel(m_IOLsmodel);
+    wdg_iolstree    ->setColumnWidth(0,280);
+    wdg_iolstree    ->setColumnWidth(1,10);
+    wdg_iolstree    ->expandAll();
     if (m_IOLsmodel->rowCount()>0)
     {
         m_IOLsmodel->sort(0);

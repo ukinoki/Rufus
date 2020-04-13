@@ -92,7 +92,7 @@ QString Manufacturer::corstatut() const     { return m_corstatut; }
 QString Manufacturer::cormail() const       { return m_cormail; }
 QString Manufacturer::cortelephone() const  { return m_cortelephone; }
 bool Manufacturer::isactif() const          { return !m_inactif; }
-int Manufacturer::distributeur() const      { return m_distributeur; }
+int Manufacturer::iddistributeur() const    { return m_distributeur; }
 
 QString Manufacturer::tooltip() const
 {
@@ -121,7 +121,7 @@ void Manufacturer::setcorstatut(const QString &corstatut)       { m_corstatut = 
 void Manufacturer::setcormail(const QString &cormail)           { m_cormail = cormail; m_data[CP_CORMAIL_MANUFACTURER] = cormail; }
 void Manufacturer::setcortelephone(const QString &cortelephone) { m_cortelephone = cortelephone; m_data[CP_CORTELEPHONE_MANUFACTURER] = cortelephone; }
 void Manufacturer::setactif(const bool &actif)                  { m_inactif = !actif; m_data[CP_INACTIF_MANUFACTURER] = !actif; }
-void Manufacturer::setdistributeur(const int id)                { m_distributeur = id; m_data[CP_DISTRIBUEPAR_MANUFACTURER] = id; }
+void Manufacturer::setiddistributeur(int id)                    { m_distributeur = id; m_data[CP_DISTRIBUEPAR_MANUFACTURER] = id; }
 
 QString Manufacturer::adresseComplete() const
 {

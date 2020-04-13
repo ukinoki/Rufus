@@ -1053,7 +1053,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     QHBoxLayout *choixManufacturerIOLLay    = new QHBoxLayout();
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
-    wdg_manufacturercombo       ->setFixedSize(QSize(150,28));
+    wdg_manufacturercombo       ->setFixedSize(QSize(200,28));
     wdg_manufacturercombo       ->setEditable(true);
     wdg_manufacturercombo       ->setInsertPolicy(QComboBox::NoInsert);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
@@ -1068,7 +1068,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
     UpLabel* lblIOL             = new UpLabel;
     lblIOL                      ->setText(tr("Implant"));
-    wdg_IOLcombo                ->setFixedSize(QSize(150,28));
+    wdg_IOLcombo                ->setFixedSize(QSize(200,28));
     wdg_IOLcombo                ->setEditable(true);
     wdg_IOLcombo                ->setInsertPolicy(QComboBox::NoInsert);
     choixIOLLay                 ->addWidget(lblIOL);
@@ -1635,6 +1635,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
     if (Datas::I()->interventions->interventions()->size() == 0)
         return;
     QList<Manufacturer*> listmanufacturers;
+    QList<Manufacturer*> listdistributeurs;
     double c = CORRECTION_td_width;
     bool AvecDupli   = false;
     bool AvecPrevisu = proc->ApercuAvantImpression();
@@ -1649,12 +1650,22 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
             {
                 man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
                 if (man != Q_NULLPTR)
+                {
                     if (listmanufacturers.indexOf(man) == -1)
                         listmanufacturers << man;
+                    Manufacturer *mandistri = Q_NULLPTR;
+                    mandistri = Datas::I()->manufacturers->getById(man->iddistributeur());
+                    if (mandistri)
+                    {
+                        iol->setidistributeur(mandistri->id());
+                        if (listdistributeurs.indexOf(mandistri) == -1)
+                            listdistributeurs << mandistri;
+                    }
+                }
             }
         }
     }
-    foreach (Manufacturer *man, listmanufacturers)
+    foreach (Manufacturer *man, listdistributeurs)
     {
         //--------------------------------------------------------------------
         // Préparation de l'état "liste des implants pour un fabriacant" dans un QplainTextEdit
@@ -1721,23 +1732,22 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                 {
                     maniol = Datas::I()->manufacturers->getById(iol->idmanufacturer());
                     if (maniol != Q_NULLPTR)
-                        if (man->id() == maniol->id())
+                    {
+                        QString ioltxt = maniol->nom().toUpper() + " - " + iol->modele() + " ";
+                        QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
+                        if (interv->puissanceIOL() > 0)
+                            pwriol = "+" + pwriol;
+                        ioltxt += pwriol;
+                        if (interv->cylindreIOL() != 0.0)
                         {
-                            QString ioltxt = iol->modele() + " ";
-                            QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
-                            if (interv->puissanceIOL() > 0)
-                                pwriol = "+" + pwriol;
-                            ioltxt += pwriol;
-                            if (interv->cylindreIOL() != 0.0)
-                            {
-                                QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
-                                if (interv->cylindreIOL() > 0)
-                                    cyliol = "+" + cyliol;
-                                ioltxt += " Cyl. " + cyliol;
-                            }
-                            QString lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
-                            texte += lign;
+                            QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
+                            if (interv->cylindreIOL() > 0)
+                                cyliol = "+" + cyliol;
+                            ioltxt += " Cyl. " + cyliol;
                         }
+                        QString lign = HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
+                        texte += lign;
+                    }
                 }
             }
         }
