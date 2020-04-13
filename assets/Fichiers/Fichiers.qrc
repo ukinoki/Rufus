@@ -12,12 +12,16 @@
         <file>majbase56.sql</file>
         <file>majbase57.sql</file>
         <file>majbase58.sql</file>
-        <file>basevierge.sql</file>
         <file>majbase59.sql</file>
         <file>majbase60.sql</file>
         <file>majbase61.sql</file>
         <file>majbase62.sql</file>
         <file>majbase63.sql</file>
         <file>majbase64.sql</file>
+        <file>majbase65.sql</file>
+        <file>ComptaMedicale.sql</file>
+        <file>Images.sql</file>
+        <file>Ophtalmologie.sql</file>
+        <file>rufus.sql</file>
     </qresource>
 </RCC>

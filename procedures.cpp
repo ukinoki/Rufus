@@ -2301,47 +2301,96 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
-        QFile BaseViergeFile(QStringLiteral("://basevierge.sql"));
-        BaseViergeFile.copy(PATH_DIR_RESSOURCES "/basevierge.sql");
-        QFile DumpFile(PATH_DIR_RESSOURCES "/basevierge.sql");
-        if (!DumpFile.open(QIODevice::ReadOnly))
+        QDir dirtorestore(PATH_DIR_RESSOURCES);
+        qDebug() << dirtorestore.absolutePath();
+        QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.sql");
+        for (int t=0; t<listfichiers.size(); t++)
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le fichier ") + "basevierge.sql" + tr(" n'a pas été trouvé!"));
+            QString nomdocrz  = listfichiers.at(t);
+            QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
+            QFile(CheminFichierResize).remove();
+        }
+        QFile rufusViergeFile(QStringLiteral("://rufus.sql"));
+        rufusViergeFile.copy(PATH_DIR_RESSOURCES "/rufus.sql");
+        QFile OphtalmologieViergeFile(QStringLiteral("://Ophtalmologie.sql"));
+        OphtalmologieViergeFile.copy(PATH_DIR_RESSOURCES "/Ophtalmologie.sql");
+        QFile ImagerieViergeFile(QStringLiteral("://Images.sql"));
+        ImagerieViergeFile.copy(PATH_DIR_RESSOURCES "/Images.sql");
+        QFile ComptaMedicaleViergeFile(QStringLiteral("://ComptaMedicale.sql"));
+        ComptaMedicaleViergeFile.copy(PATH_DIR_RESSOURCES "/ComptaMedicale.sql");
+
+        QStringList listnomsfilestorestore;
+        QString msg = "";
+        listfichiers = dirtorestore.entryList(QStringList() << "*.sql");
+        for (int j=0; j<listfichiers.size(); j++)
+            listnomsfilestorestore << dirtorestore.absolutePath() + "/" + listfichiers.at(j);
+        for (int i=0; i<listnomsfilestorestore.size(); i++)
+        {
+            if (!QFile(listnomsfilestorestore.at(i)).open(QIODevice::ReadOnly))
+                msg = tr("Echec de la restauration") + "\n" + tr("Le fichier ") + listnomsfilestorestore.at(i) + tr(" n'a pas été trouvé!");
+            else if (QFile(listnomsfilestorestore.at(i)).size() == 0)
+                msg = tr("Echec de la restauration") + "\n" + tr("Le fichier ") + listnomsfilestorestore.at(i) + tr(" est vide!");
+            else echecfile = false;
+            if (echecfile)
+            {
+                msg += tr("Base non restaurée") + "\n" + msg;
+                break;
+            }
+        }
+        if (msg != "")
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'éxécuter la restauration!"), msg);
+            for (int t=0; t<listfichiers.size(); t++)
+            {
+                QString nomdocrz  = listfichiers.at(t);
+                QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
+                QFile(CheminFichierResize).remove();
+            }
             return false;
         }
-        else if (DumpFile.size() == 0)
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le fichier ") + "basevierge.sql" + tr(" est vide!"));
-            return false;
-        }
-        else echecfile = false;
         if (!echecfile)
         {
             emit ConnectTimers(false);
+            //! Suppression de toutes les tables
+            QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+            db->VideDatabases();
             int a = 99;
-            // +++ la fonction DefinitScriptRestore() qu'on pourrait vouloir utiliser dans ce cas là avec le fichier basevierge.sql ne fonctionne pas avec ce fichier
-            // et je ne sais pas pourquoi
-            // et j'en ai marre de chercher pourquoi
-            QStringList listinstruct = Utils::DecomposeScriptSQL(PATH_DIR_RESSOURCES "/basevierge.sql");
-            bool e = true;
-            foreach(const QString &s, listinstruct)
-                if (!db->StandardSQL(s))
+
+            //! Restauration à partir du dossier sélectionné
+            DefinitScriptRestore(listnomsfilestorestore);
+            QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
+            QProcess dumpProcess(parent());
+            dumpProcess.start(task);
+            dumpProcess.waitForFinished();
+             if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                a = dumpProcess.exitCode();
+            if (a != 0)
+            {
+                UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
+                for (int t=0; t<listfichiers.size(); t++)
                 {
-                    e = false;
-                    break;
+                    QString nomdocrz  = listfichiers.at(t);
+                    QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
+                    QFile(CheminFichierResize).remove();
                 }
-            a = (e? 0:99);
-            DumpFile.remove();
+                QFile::remove(PATH_FILE_SCRIPTRESTORE);
+                return false;
+            }
             if (a==0)
             {
                 UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
+                for (int t=0; t<listfichiers.size(); t++)
+                {
+                    QString nomdocrz  = listfichiers.at(t);
+                    QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
+                    QFile(CheminFichierResize).remove();
+                }
+                QFile::remove(PATH_FILE_SCRIPTRESTORE);
                 emit ConnectTimers(true);
                 return true;
             }
         }
-        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'éxécuter la restauration!") + "\n" + tr("Le fichier ") + "basevierge.sql" + tr(" ne semble pas conforme!"));
-        DumpFile.remove();
-        return false;
     }
     else
     {
@@ -2719,19 +2768,19 @@ bool Procedures::VerifBaseEtRessources()
                 QString NomDumpFile = PATH_DIR_RESSOURCES "/majbase" + QString::number(Version) + ".sql";
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
-                QFile base(NomDumpFile);
-                QStringList listinstruct = Utils::DecomposeScriptSQL(NomDumpFile);
-                bool a = true;
-                foreach(const QString &s, listinstruct)
+                emit ConnectTimers(false);
+                int a = 99;
+                DefinitScriptRestore(QStringList() << NomDumpFile);
+                QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
+                QProcess dumpProcess(parent());
+                dumpProcess.start(task);
+                dumpProcess.waitForFinished();
+                if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                    a = dumpProcess.exitCode();
+                QFile::remove(PATH_FILE_SCRIPTRESTORE);
+                QFile::remove(NomDumpFile);
+                if (a == 0)
                 {
-                    if (!db->StandardSQL(s))
-                        a = false;
-                }
-                int result=0;
-                base.remove();
-                if (a)
-                {
-                    result = 1;
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
                     db->initParametresSysteme();
                 }
@@ -2739,9 +2788,8 @@ bool Procedures::VerifBaseEtRessources()
                 {
                     QSound::play(NOM_ALARME);
                     UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
-                }
-                if (result!=1)
                     erreur();
+                }
             }
             if (Version == 53)
             {
