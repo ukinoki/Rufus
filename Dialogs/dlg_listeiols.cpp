@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listeiols.h"
 
 dlg_listeiols::dlg_listeiols(QWidget *parent) :
-    UpDialog(parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/ListeIOLs",parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
@@ -26,26 +26,27 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     setWindowTitle(tr("Liste des IOLs"));
     wdg_manufacturerscombo = new UpComboBox();
 
-    wdg_iolstree = new QTreeView(this);
-    wdg_iolstree ->setFixedWidth(320);
-    wdg_iolstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    wdg_iolstree ->setFocusPolicy(Qt::StrongFocus);
-    wdg_iolstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_iolstree ->setAnimated(true);
-    wdg_iolstree ->setIndentation(10);
-    wdg_iolstree ->setMouseTracking(true);
-    wdg_iolstree ->header()->setVisible(false);
+    wdg_itemstree = new QTreeView(this);
+    wdg_itemstree ->setFixedWidth(320);
+    wdg_itemstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_itemstree ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    wdg_itemstree ->setFocusPolicy(Qt::StrongFocus);
+    wdg_itemstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_itemstree ->setAnimated(true);
+    wdg_itemstree ->setIndentation(10);
+    wdg_itemstree ->setMouseTracking(true);
+    wdg_itemstree ->header()->setVisible(false);
     bool reconstruirelaliste = true;
     ReconstruitTreeViewIOLs(reconstruirelaliste);
 
     wdg_manufacturerscombo = new UpComboBox();
     wdg_manufacturerscombo->setEditable(false);
     wdg_manufacturerscombo->addItem(tr("Tous"), 0);
-    wdg_manufacturerscombo->setFixedWidth(250);
+    wdg_manufacturerscombo->setFixedSize(250,30);
     QHBoxLayout *manufacturerlay = new QHBoxLayout();
-    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     manufacturerlay     ->addWidget(wdg_manufacturerscombo);
-    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     manufacturerlay     ->setContentsMargins(0,0,0,5);
 
     for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
@@ -59,7 +60,7 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
         }
     }
 
-    wdg_buttonframe         = new WidgetButtonFrame(wdg_iolstree);
+    wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
     wdg_label               = new UpLabel();
@@ -73,19 +74,25 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     wdg_buttonframe->layButtons()->insertWidget(0,wdg_label);
     wdg_buttonframe->layButtons()->insertWidget(0,wdg_chercheuplineedit);
     AjouteLayButtons(UpDialog::ButtonOK);
+
     UpPushButton *importbutt =   new UpPushButton(tr("Mettre à jour"));
     importbutt->setIcon(Icons::icImport());
     AjouteWidgetLayButtons(importbutt, false);
-    connect(importbutt, &QPushButton::clicked, this, &dlg_listeiols::ImportListeIOLS);
+
     UpPushButton *resizebutt =   new UpPushButton(tr("Comprimer"));
     resizebutt->setIcon(Icons::icComputer());
     AjouteWidgetLayButtons(resizebutt, false);
     resizebutt->setVisible(false);
-    connect(resizebutt, &QPushButton::clicked, this, [&] {resizeiolimage();});
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
     dlglayout()->insertLayout(0,manufacturerlay);
+    setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
+
+
+
+    connect(importbutt,             &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
+    connect(resizebutt,             &QPushButton::clicked,      this,   [&] {resizeiolimage();});
     connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) {
                                                                                             wdg_chercheuplineedit->setText(txt);
@@ -107,6 +114,7 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
 
 dlg_listeiols::~dlg_listeiols()
 {
+    EnregistrePosition();
 }
 
 void dlg_listeiols::Enablebuttons(QModelIndex idx)
@@ -128,8 +136,8 @@ void dlg_listeiols::Enablebuttons(QModelIndex idx)
 void dlg_listeiols::ChoixButtonFrame()
 {
     IOL *iol = Q_NULLPTR;
-    if (wdg_iolstree->selectionModel()->selectedIndexes().size())
-        iol = getIOLFromIndex(wdg_iolstree->selectionModel()->selectedIndexes().at(0));
+    if (wdg_itemstree->selectionModel()->selectedIndexes().size())
+        iol = getIOLFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauIOL();
@@ -568,8 +576,8 @@ void dlg_listeiols::scrollToIOL(IOL *iol)
                                 {
                                     if (siol->id() == iol->id())
                                     {
-                                        wdg_iolstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
-                                        wdg_iolstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                                        wdg_itemstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
+                                        wdg_itemstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
                                         j = itm->rowCount();
                                         i = m_IOLsmodel->rowCount();
                                     }
@@ -647,8 +655,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
         Datas::I()->iols->initListe();
         ReconstruitListeManufacturers();
     }
-    wdg_iolstree->disconnect();
-    wdg_iolstree->selectionModel()->disconnect();
+    wdg_itemstree->disconnect();
+    wdg_itemstree->selectionModel()->disconnect();
     if (m_IOLsmodel == Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
@@ -698,6 +706,34 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             if (!iol->isactif())
                 pitem ->setForeground(QBrush(QColor(Qt::darkGray)));
             pitem   ->setEditable(false);
+            QImage image= m_nullimage;
+            if(iol->imgiol() != QByteArray())
+            {
+                if (iol->imageformat() == PDF)
+                {    Poppler::Document* document = Poppler::Document::loadFromData(iol->imgiol());
+                    if (!document || document->isLocked())
+                        delete document;
+                    else if (document != Q_NULLPTR)
+                    {
+                        document->setRenderHint(Poppler::Document::TextAntialiasing);
+                        Poppler::Page* pdfPage = document->page(0);  // Document starts at page 0
+                        if (pdfPage != Q_NULLPTR)
+                        {
+                            image = pdfPage->renderToImage(300,300);
+                            delete document;
+                        }
+                    }
+                }
+                else image.loadFromData(iol->imgiol());
+            }
+            QPixmap pix;
+            QImage img2 = image;
+            img2.scaledToWidth(50);
+            if (img2.height()>50)
+                pix = QPixmap::fromImage(image.scaledToHeight(50));
+            else
+                pix = QPixmap::fromImage(img2);
+            pitem->setData(pix,Qt::DecorationRole);
             Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
             if (man != Q_NULLPTR)
             {
@@ -717,23 +753,25 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
                 i--;
             }
     }
-    wdg_iolstree    ->setModel(m_IOLsmodel);
-    wdg_iolstree    ->setColumnWidth(0,280);
-    wdg_iolstree    ->setColumnWidth(1,10);
-    wdg_iolstree    ->expandAll();
+    wdg_itemstree   ->setModel(m_IOLsmodel);
+    wdg_itemstree   ->setColumnWidth(0,280);
+    wdg_itemstree   ->setColumnWidth(1,30);
+    wdg_itemstree   ->expandAll();
+    m_treedelegate  .setHeight(45);
+    wdg_itemstree   ->setItemDelegate(&m_treedelegate);
     if (m_IOLsmodel->rowCount()>0)
     {
         m_IOLsmodel->sort(0);
         m_IOLsmodel->sort(1);
-        connect(wdg_iolstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                         {
                                                                                                             IOL*iol = getIOLFromIndex(idx);
                                                                                                             if (iol)
                                                                                                                 QToolTip::showText(cursor().pos(), iol->tooltip());
                                                                                                         }
                                                                                                     } );
-        connect(wdg_iolstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listeiols::Enablebuttons);
-        connect(wdg_iolstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listeiols::Enablebuttons);
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });
     }
 }

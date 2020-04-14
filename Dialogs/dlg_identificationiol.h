@@ -71,7 +71,8 @@ private:
     UpLineEdit          *wdg_diaht;
     UpLineEdit          *wdg_diainjecteur;
     UpLabel             *wdg_imgIOL;
-    UpComboBox          *wdg_materiauline;
+    UpComboBox          *wdg_materiaubox;
+    UpComboBox          *wdg_typebox;
     UpTextEdit          *wdg_remarquetxt;
     UpToolBar           *wdg_toolbar;
     UpPushButton        *wdg_recopiebutton;

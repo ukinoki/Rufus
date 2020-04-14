@@ -198,6 +198,7 @@ private: //Données de l'intervention
     bool m_multifocal       = false;            //! multifocal
     bool m_edof             = false;            //! edof
     bool m_toric            = false;            //! toric
+    QString m_type          = "";               //! le type de l'IOL : CP, CA, addon, support irien, refractif ca
     QMap<QString, QVariant> m_map = QMap<QString, QVariant>{};
 
 public:
@@ -230,7 +231,8 @@ public:
     bool ismultifocal() const                   { return m_multifocal; }
     bool isedof() const                         { return m_edof; }
     bool istoric() const                        { return m_toric; }
-    QString tooltip() const;
+    QString type() const                        { return m_type; }
+    QString tooltip(bool avecimage = false) const;
 
 
     void setidmanufacturer(int &id)             { m_idmanufacturer = id;            m_map[CP_IDMANUFACTURER_IOLS] = id; }
@@ -262,6 +264,17 @@ public:
     void setMultifocal(bool &multifocal)        { m_multifocal = multifocal;        m_map[CP_MULTIFOCAL_IOLS] = multifocal; }
     void setToric(bool &toric)                  { m_toric = toric;                  m_map[CP_TORIC_IOLS] = toric; }
     void setEdof(bool &edof)                    { m_edof = edof;                    m_map[CP_EDOF_IOLS] = edof; }
+    void setType(QString &type)
+    {
+        m_type = type;
+        if (type ==IOL_CP) m_map[CP_TYP_IOLS] = 1;
+        else if (type ==IOL_CA) m_map[CP_TYP_IOLS] = 2;
+        else if (type ==IOL_ADDON) m_map[CP_TYP_IOLS] = 3;
+        else if (type ==IOL_IRIEN) m_map[CP_TYP_IOLS] = 4;
+        else if (type ==IOL_CAREFRACTIF) m_map[CP_TYP_IOLS] = 5;
+        else if (type ==IOL_AUTRE) m_map[CP_TYP_IOLS] = 6;
+        else m_map[CP_TYP_IOLS] = 0;
+    }
 
     void resetdatas();
     bool isnull() const                         { return m_id == 0; }

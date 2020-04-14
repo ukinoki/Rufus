@@ -183,10 +183,15 @@ UpDialog::Mode UpDialog::mode() const
     return m_mode;
 }
 
-void UpDialog::closeEvent(QCloseEvent *event)
+void UpDialog::EnregistrePosition()
 {
     if (m_enregistreposition)
         m_settings->setValue(m_position, saveGeometry());
+}
+
+void UpDialog::closeEvent(QCloseEvent *event)
+{
+    EnregistrePosition();
     event->accept();
 }
 

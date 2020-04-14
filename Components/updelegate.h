@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define UPDELEGATE_H
 
 #include <QStyledItemDelegate>
+#include <QItemDelegate>
 #include "uplabel.h"
 #include "uplineedit.h"
 #include "utils.h"
@@ -52,6 +53,16 @@ public:
 signals:
     void        focusitem(int a);
     void        editingFinished();
+};
+
+class TreeViewDelegate : public QItemDelegate
+{
+private:
+    int m_iHeight;
+public:
+    TreeViewDelegate(QObject *poParent = Q_NULLPTR, int iHeight = -1) : QItemDelegate(poParent), m_iHeight(iHeight) {}
+    void setHeight(int iHeight) { m_iHeight = iHeight; }
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 #endif // UPDELEGATE_H

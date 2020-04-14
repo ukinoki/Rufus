@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QTreeView>
 #include "gbl_datas.h"
+#include "updelegate.h"
 #include "updoublespinbox.h"
 #include "widgetbuttonframe.h"
 #include "dlg_identificationiol.h"
@@ -43,9 +44,11 @@ private:
     QStandardItemModel      *m_manufacturersmodel = Q_NULLPTR;
     UpComboBox              *wdg_manufacturerscombo;
     UpLabel                 *wdg_label;
-    QTreeView               *wdg_iolstree;
+    QTreeView               *wdg_itemstree;
     UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
+    TreeViewDelegate        m_treedelegate;
+    QImage                  m_nullimage = QImage("://IOL.png");
 
     void                    ChoixButtonFrame();
     void                    ImportListeIOLS();

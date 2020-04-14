@@ -543,6 +543,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_EDOF_IOLS                                    "EDOF"
 #define CP_MULTIFOCAL_IOLS                              "Multifocal"
 #define CP_INACTIF_IOLS                                 "IOLInactif"
+#define CP_TYP_IOLS                                     "TypeImplant"
 
                             //! Table Ophtalmologie.TypeInterventions
 #define CP_ID_TYPINTERVENTION                           "idTypeIntervention"
@@ -661,6 +662,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define VIDEO                                       "Video"
 #define FACTURE                                     "Facture"
 #define ECHEANCIER                                  "Echéancier"
+
+                        //! les types d'IOLS
+#define IOL_CP                                      "Chambre postérieure"
+#define IOL_CA                                      "Chambre antérieure"
+#define IOL_ADDON                                   "Add-on"
+#define IOL_IRIEN                                   "Support irien"
+#define IOL_CAREFRACTIF                             "Refractif CA"
+#define IOL_AUTRE                                   "Autre"
 
 #define NOM_APPLI                                   "Rufus"
 

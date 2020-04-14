@@ -125,12 +125,20 @@ void IOL::setData(QMap<QString, QVariant> map)
     m_jaune             = map[CP_JAUNE_IOLS].toBool();
     m_edof              = map[CP_EDOF_IOLS].toBool();
     m_toric             = map[CP_TORIC_IOLS].toBool();
+    switch (map[CP_TYP_IOLS].toInt()) {
+    case 1: m_type = IOL_CP; break;
+    case 2: m_type = IOL_CA; break;
+    case 3: m_type = IOL_ADDON; break;
+    case 4: m_type = IOL_IRIEN; break;
+    case 5: m_type = IOL_CAREFRACTIF; break;
+    case 6: m_type = IOL_AUTRE; break;
+    default: m_type = "";
+    }
     m_map = map;
 }
 
-QString IOL::tooltip() const
+QString IOL::tooltip(bool avecimage) const
 {
-    int scale = 90;
     QString message = modele();
     if (csteAEcho() != 0.0)
         message += "<br>" + tr("csteA echo") + " " + QString::number(csteAEcho(), 'f', 1);
@@ -150,7 +158,11 @@ QString IOL::tooltip() const
         message += "<br>" + materiau();
     if (remarque() != "")
         message += "<br>" + remarque().replace("\n","<br>");
+    if (!avecimage)
+        return message;
 
+    /*! si on veut intégrer l'image de l'IOL dans le tooltip */
+    int scale = 90;
     QString ttip = "";
     if(imgiol() == QByteArray())
         return message;
@@ -178,7 +190,6 @@ QString IOL::tooltip() const
     QBuffer buffer(&data);
     image.save(&buffer, "PNG", 100);
     ttip = QString("<img src='data:image/png;base64, %0'><br>" + message).arg(QString(data.toBase64()));
-
     return ttip;
 }
 
@@ -214,6 +225,7 @@ void IOL::resetdatas()
     map[CP_MULTIFOCAL_IOLS]         = false;
     map[CP_EDOF_IOLS]               = false;
     map[CP_TORIC_IOLS]              = false;
+    map[CP_TYP_IOLS]                = 0;
     setData(map);
 }
 

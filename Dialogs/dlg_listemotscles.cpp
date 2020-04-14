@@ -58,6 +58,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
 
 dlg_listemotscles::~dlg_listemotscles()
 {
+    EnregistrePosition();
 }
 
 void dlg_listemotscles::ChoixButtonFrame()

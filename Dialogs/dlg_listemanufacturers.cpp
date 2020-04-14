@@ -20,24 +20,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
-    UpDialog(parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/ListeManufacturers",parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     setModal(true);
     setWindowTitle(tr("Liste des fabricants"));
 
-    wdg_manufacturerstree = new QTreeView(this);
-    wdg_manufacturerstree ->setFixedWidth(240);
-    wdg_manufacturerstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    wdg_manufacturerstree ->setFocusPolicy(Qt::StrongFocus);
-    wdg_manufacturerstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_manufacturerstree ->setMouseTracking(true);
-    wdg_manufacturerstree ->header()->setVisible(false);
+    wdg_itemstree = new QTreeView(this);
+    wdg_itemstree ->setFixedWidth(280);
+    wdg_itemstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_itemstree ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    wdg_itemstree ->setFocusPolicy(Qt::StrongFocus);
+    wdg_itemstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_itemstree ->setMouseTracking(true);
+    wdg_itemstree ->header()->setVisible(false);
 
     ReconstruitTreeViewManufacturers(true);
 
-    wdg_buttonframe         = new WidgetButtonFrame(wdg_manufacturerstree);
+    wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
     wdg_label               = new UpLabel();
@@ -53,6 +54,7 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
     AjouteLayButtons(UpDialog::ButtonOK);
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
+    setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
     connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
@@ -67,6 +69,7 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
 
 dlg_listemanufacturers::~dlg_listemanufacturers()
 {
+    EnregistrePosition();
 }
 
 void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
@@ -85,8 +88,8 @@ void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
 void dlg_listemanufacturers::ChoixButtonFrame()
 {
     Manufacturer *man = Q_NULLPTR;
-    if (wdg_manufacturerstree->selectionModel()->selectedIndexes().size())
-        man = getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0));
+    if (wdg_itemstree->selectionModel()->selectedIndexes().size())
+        man = getmanufacturerFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauManufacturer();
@@ -174,8 +177,8 @@ void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
                 {
                     if (itm->item()->id() == id)
                     {
-                        wdg_manufacturerstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
-                        wdg_manufacturerstree->selectionModel()->select(itm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                        wdg_itemstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
+                        wdg_itemstree->selectionModel()->select(itm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
                         i = m_model->rowCount();
                     }
                 }
@@ -204,7 +207,7 @@ void dlg_listemanufacturers::SupprManufacturer(Manufacturer *man)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        Datas::I()->manufacturers->SupprimeManufacturer(getmanufacturerFromIndex(wdg_manufacturerstree->selectionModel()->selectedIndexes().at(0)));
+        Datas::I()->manufacturers->SupprimeManufacturer(getmanufacturerFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0)));
         m_listemodifiee = true;
         ReconstruitTreeViewManufacturers();
     }
@@ -214,8 +217,8 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
 {
     if (reconstruirelaliste)
         Datas::I()->manufacturers->initListe();
-    wdg_manufacturerstree->disconnect();
-    wdg_manufacturerstree->selectionModel()->disconnect();
+    wdg_itemstree->disconnect();
+    wdg_itemstree->selectionModel()->disconnect();
     if (m_model == Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel(this);
@@ -234,16 +237,16 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirel
         }
     }
     m_model->sort(0, Qt::AscendingOrder);
-    wdg_manufacturerstree     ->setModel(m_model);
+    wdg_itemstree     ->setModel(m_model);
     if (m_model->rowCount()>0)
     {
         m_model->sort(0);
-        connect(wdg_manufacturerstree,    &QAbstractItemView::entered,          this,   [=] (QModelIndex idx) {
+        connect(wdg_itemstree,    &QAbstractItemView::entered,          this,   [=] (QModelIndex idx) {
                                                                                                                     Manufacturer * man = getmanufacturerFromIndex(idx);
                                                                                                                     if (man)
                                                                                                                         QToolTip::showText(cursor().pos(), man->tooltip());
                                                                                                               } );
-        connect(wdg_manufacturerstree->selectionModel(),    &QItemSelectionModel::currentChanged,          this,   &dlg_listemanufacturers::Enablebuttons);
-        connect(wdg_manufacturerstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifManufacturer(getmanufacturerFromIndex(idx)); });
+        connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,          this,   &dlg_listemanufacturers::Enablebuttons);
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifManufacturer(getmanufacturerFromIndex(idx)); });
     }
 }

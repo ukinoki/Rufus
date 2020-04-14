@@ -1661,6 +1661,12 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                         if (listdistributeurs.indexOf(mandistri) == -1)
                             listdistributeurs << mandistri;
                     }
+                    else
+                    {
+                        iol->setidistributeur(man->id());
+                        if (listdistributeurs.indexOf(man) == -1)
+                            listdistributeurs << man;
+                    }
                 }
             }
         }
@@ -1730,23 +1736,26 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                 Manufacturer *maniol = Q_NULLPTR;
                 if (iol != Q_NULLPTR)
                 {
-                    maniol = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-                    if (maniol != Q_NULLPTR)
+                    if (iol->iddistributeur() == man->id())
                     {
-                        QString ioltxt = maniol->nom().toUpper() + " - " + iol->modele() + " ";
-                        QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
-                        if (interv->puissanceIOL() > 0)
-                            pwriol = "+" + pwriol;
-                        ioltxt += pwriol;
-                        if (interv->cylindreIOL() != 0.0)
+                        maniol = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                        if (maniol != Q_NULLPTR)
                         {
-                            QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
-                            if (interv->cylindreIOL() > 0)
-                                cyliol = "+" + cyliol;
-                            ioltxt += " Cyl. " + cyliol;
+                            QString ioltxt = maniol->nom().toUpper() + " - " + iol->modele() + " ";
+                            QString pwriol = QString::number(interv->puissanceIOL(), 'f', 2);
+                            if (interv->puissanceIOL() > 0)
+                                pwriol = "+" + pwriol;
+                            ioltxt += pwriol;
+                            if (interv->cylindreIOL() != 0.0)
+                            {
+                                QString cyliol = QString::number(interv->cylindreIOL(), 'f', 2);
+                                if (interv->cylindreIOL() > 0)
+                                    cyliol = "+" + cyliol;
+                                ioltxt += " Cyl. " + cyliol;
+                            }
+                            QString lign = HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
+                            texte += lign;
                         }
-                        QString lign = HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
-                        texte += lign;
                     }
                 }
             }
@@ -1819,7 +1828,7 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
         connect(wdg_IOLcombo,           QOverload<int>::of(&QComboBox::highlighted),    this,   [&] (int id) { qDebug() << id;
                                                                                                                 IOL * iol = Datas::I()->iols->getById(wdg_IOLcombo->itemData(id).toInt());
                                                                                                                 if (iol)
-                                                                                                                    QToolTip::showText(cursor().pos(),iol->tooltip());
+                                                                                                                    QToolTip::showText(cursor().pos(),iol->tooltip(true));
                                                                                                                 });
     }
 }
@@ -1875,16 +1884,27 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
     if (m_manufacturersmodel == Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
+    IOLs *listeiols = new IOLs;
+    listeiols->initListe();
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
         if (man->isactif()) {
-            QList<QStandardItem *> items;
-            //qDebug() << man->nom() << man->id();
-            UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
-            UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
-            items << itemman << itemid;
-            m_manufacturersmodel->appendRow(items);
-            m_manufacturercompleterlist << man->nom();
+            foreach (IOL *iol, listeiols->iols()->values())
+            {
+                if (iol->idmanufacturer() == man->id())
+                {
+                    QList<QStandardItem *> items;
+                    //qDebug() << man->nom() << man->id();
+                    UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
+                    UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
+                    items << itemman << itemid;
+                    m_manufacturersmodel->appendRow(items);
+                    m_manufacturercompleterlist << man->nom();
+                    break;
+                }
+            }
         }
+    listeiols->clearAll(listeiols->iols());
+    delete listeiols;
 
     if (m_manufacturersmodel->rowCount() > 0)
     {

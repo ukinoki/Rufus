@@ -69,3 +69,14 @@ bool UpLineDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const 
          emit focusitem(index.row());
     return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
+
+QSize TreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QSize oSize = QItemDelegate::sizeHint(option, index);
+    if (m_iHeight != -1)
+    {
+        // Set tree item height.
+        oSize.setHeight(m_iHeight);
+    }
+    return oSize;
+}

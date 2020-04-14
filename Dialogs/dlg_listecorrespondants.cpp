@@ -20,26 +20,27 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
-    UpDialog(parent)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/ListeCorrespondants",parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
 
-    wdg_correspstree = new QTreeView(this);
-    wdg_correspstree ->setFixedWidth(320);
-    wdg_correspstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    wdg_correspstree ->setFocusPolicy(Qt::StrongFocus);
-    wdg_correspstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_correspstree ->setAnimated(true);
-    wdg_correspstree ->setIndentation(10);
-    wdg_correspstree ->setMouseTracking(true);
-    wdg_correspstree ->header()->setVisible(false);
+    wdg_itemstree = new QTreeView(this);
+    wdg_itemstree ->setFixedWidth(320);
+    wdg_itemstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_itemstree ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    wdg_itemstree ->setFocusPolicy(Qt::StrongFocus);
+    wdg_itemstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_itemstree ->setAnimated(true);
+    wdg_itemstree ->setIndentation(10);
+    wdg_itemstree ->setMouseTracking(true);
+    wdg_itemstree ->header()->setVisible(false);
 
     ReconstruitTreeViewCorrespondants(true);
 
-    wdg_buttonframe         = new WidgetButtonFrame(wdg_correspstree);
+    wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
     wdg_label               = new UpLabel();
@@ -55,6 +56,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     AjouteLayButtons(UpDialog::ButtonOK);
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
+    setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
     connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
@@ -69,6 +71,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 
 dlg_listecorrespondants::~dlg_listecorrespondants()
 {
+    EnregistrePosition();
 }
 
 void dlg_listecorrespondants::Enablebuttons(QModelIndex idx)
@@ -81,8 +84,8 @@ void dlg_listecorrespondants::Enablebuttons(QModelIndex idx)
 void dlg_listecorrespondants::ChoixButtonFrame()
 {
     Correspondant *cor = Q_NULLPTR;
-    if (wdg_correspstree->selectionModel()->selectedIndexes().size())
-        cor = getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0));
+    if (wdg_itemstree->selectionModel()->selectedIndexes().size())
+        cor = getCorrespondantFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauCorresp();
@@ -182,8 +185,8 @@ void dlg_listecorrespondants::scrollToCorresp(Correspondant *cor)
                                 {
                                     if (scor->id() == cor->id())
                                     {
-                                        wdg_correspstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
-                                        wdg_correspstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                                        wdg_itemstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
+                                        wdg_itemstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
                                         j = itm->rowCount();
                                         i = m_correspondantsmodel->rowCount();
                                     }
@@ -217,7 +220,7 @@ void dlg_listecorrespondants::SupprCorresp(Correspondant *cor)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        Datas::I()->correspondants->SupprimeCorrespondant(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)));
+        Datas::I()->correspondants->SupprimeCorrespondant(getCorrespondantFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0)));
         m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants(true);
     }
@@ -249,8 +252,8 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
 {
     if (reconstruirelaliste)
         Datas::I()->correspondants->initListe(true);
-    wdg_correspstree->disconnect();
-    wdg_correspstree->selectionModel()->disconnect();
+    wdg_itemstree->disconnect();
+    wdg_itemstree->selectionModel()->disconnect();
     if (m_correspondantsmodel == Q_NULLPTR)
         delete m_correspondantsmodel;
     m_correspondantsmodel = new QStandardItemModel(this);
@@ -276,21 +279,21 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
             m_correspondantsmodel->removeRow(i);
             i--;
         }
-    wdg_correspstree     ->setModel(m_correspondantsmodel);
-    wdg_correspstree     ->expandAll();
+    wdg_itemstree     ->setModel(m_correspondantsmodel);
+    wdg_itemstree     ->expandAll();
     if (m_correspondantsmodel->rowCount()>0)
     {
         m_correspondantsmodel->sort(0);
         m_correspondantsmodel->sort(1);
-        connect(wdg_correspstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             {
                                                                                                                 Correspondant * cor = getCorrespondantFromIndex(idx);
                                                                                                                 if (cor)
                                                                                                                     QToolTip::showText(cursor().pos(), cor->adresseComplete());
                                                                                                             }
                                                                                                       } );
-        connect(wdg_correspstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listecorrespondants::Enablebuttons);
-        connect(wdg_correspstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listecorrespondants::Enablebuttons);
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifCorresp(getCorrespondantFromIndex(idx)); });
     }
 }

@@ -360,19 +360,30 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     QVBoxLayout *MateriauLay    = new QVBoxLayout();
     QHBoxLayout *MateriauImgLay = new QHBoxLayout();
     UpLabel* Materiaulbl        = new UpLabel;
+    UpLabel* Typelbl            = new UpLabel;
     Materiaulbl                 ->setText(tr("Materiau"));
+    Typelbl                     ->setText(tr("Type"));
     wdg_imgIOL                  = new UpLabel;
     wdg_imgIOL                  ->setFixedSize(180,180);
     setimage(m_nullimage);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
-    wdg_materiauline            = new UpComboBox;
+    wdg_materiaubox             = new UpComboBox;
+    wdg_typebox                 = new UpComboBox;
     wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
     wdg_toolbar                 = new UpToolBar;
-    wdg_materiauline            ->setEditable(true);
-    wdg_materiauline            ->lineEdit()->setMaxLength(45);
-    wdg_materiauline            ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA") << tr("copolymère"));
-    MateriauLay                 ->insertWidget(0,wdg_materiauline);
+    wdg_materiaubox             ->setEditable(true);
+    wdg_materiaubox             ->lineEdit()->setMaxLength(45);
+    wdg_materiaubox             ->setFixedWidth(180);
+    wdg_materiaubox             ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA") << tr("copolymère"));
+    wdg_typebox                 ->setEditable(false);
+    wdg_typebox                 ->addItems(QStringList() << IOL_CP << IOL_CA << IOL_ADDON << IOL_IRIEN << IOL_CAREFRACTIF << IOL_AUTRE);
+    wdg_typebox                 ->setFixedWidth(180);
+    wdg_typebox                 ->setCurrentIndex(-1);
+    wdg_materiaubox             ->setCurrentIndex(-1);
+    MateriauLay                 ->insertWidget(0,wdg_materiaubox);
     MateriauLay                 ->insertWidget(0,Materiaulbl);
+    MateriauLay                 ->insertWidget(0,wdg_typebox);
+    MateriauLay                 ->insertWidget(0,Typelbl);
     MateriauLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     MateriauLay                 ->addWidget(wdg_recopiebutton);
     MateriauLay                 ->addWidget(wdg_toolbar);
@@ -422,7 +433,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
             << wdg_puissanceminspin << wdg_puissancemaxspin
             << wdg_toricchk << wdg_cylindreminspin << wdg_cylindremaxspin
             << wdg_haigisaline << wdg_haigisbline << wdg_haigiscline
-            << wdg_prechargechk << wdg_jaunechk << wdg_multifocalchk << wdg_materiauline << wdg_remarquetxt;
+            << wdg_prechargechk << wdg_jaunechk << wdg_multifocalchk << wdg_typebox << wdg_materiaubox << wdg_remarquetxt;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
     {
         setTabOrder(ListTab.at(i), ListTab.at(i+1));
@@ -513,8 +524,9 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_haigisaline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_haigisbline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_haigiscline,       &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-     connect (wdg_materiauline->lineEdit(),      &QLineEdit::textEdited,                     this,   &dlg_identificationIOL::EnableOKpushButton);
-     connect (wdg_materiauline,      QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_materiaubox->lineEdit(),      &QLineEdit::textEdited,                      this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_materiaubox,       QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
+     connect (wdg_typebox,           QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_remarquetxt,       &UpTextEdit::textEdited,                                this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_diaoptique,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_diaht,             &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
@@ -555,7 +567,7 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
      connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
      connect (wdg_recopiebutton,     &QPushButton::click,                                    this,   &dlg_identificationIOL::creeCopieIOL);
-     connect(wdg_toolbar,            &UpToolBar::TBSignal,                                   this, [=] {NavigueVers(wdg_toolbar->choix());});
+     connect (wdg_toolbar,           &UpToolBar::TBSignal,                                   this, [=] {NavigueVers(wdg_toolbar->choix());});
 }
 
 void dlg_identificationIOL::disconnectSignals()
@@ -570,8 +582,9 @@ void dlg_identificationIOL::disconnectSignals()
      wdg_haigisaline->disconnect();
      wdg_haigisbline->disconnect();
      wdg_haigiscline->disconnect();
-     wdg_materiauline->lineEdit()->disconnect();
-     wdg_materiauline->disconnect();
+     wdg_materiaubox->lineEdit()->disconnect();
+     wdg_materiaubox->disconnect();
+     wdg_typebox->disconnect();
      wdg_remarquetxt->disconnect();
      wdg_diaoptique->disconnect();
      wdg_diaht->disconnect();
@@ -597,6 +610,8 @@ void dlg_identificationIOL::disconnectSignals()
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 {
+    m_listbinds[CP_IMG_IOLS] = QVariant();
+    m_listbinds[CP_TYPIMG_IOLS] = "";
     if (iol == Q_NULLPTR)
         return;
     disconnectSignals();
@@ -631,7 +646,14 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_puissanceminspin->setValue(m_currentIOL->pwrmin());
             PrefixePlus(wdg_puissanceminspin);
         }
-        wdg_materiauline    ->setCurrentText(m_currentIOL->materiau());
+        if (m_currentIOL->materiau() != "")
+            wdg_materiaubox ->setCurrentText(m_currentIOL->materiau());
+        else
+            wdg_materiaubox ->setCurrentIndex(-1);
+        if (m_currentIOL->type() != "")
+            wdg_typebox     ->setCurrentText(m_currentIOL->type());
+        else
+            wdg_typebox     ->setCurrentIndex(-1);
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
         wdg_inactifchk      ->setChecked(!m_currentIOL->isactif());
         wdg_jaunechk        ->setChecked(m_currentIOL->isjaune());
@@ -668,6 +690,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
                 setpdf(m_currentIOL->imgiol());
             else if (image.loadFromData(m_currentIOL->imgiol()))
                 setimage(image);
+            m_listbinds[CP_IMG_IOLS] = m_currentIOL->imgiol();
+            m_listbinds[CP_TYPIMG_IOLS] = m_currentIOL->imageformat();
         }
         else setimage(m_nullimage);
     }
@@ -885,7 +909,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0.0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
     m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) >0.0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
     m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) >0.0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
-    m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiauline->currentText();
+    m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiaubox->currentText();
     m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
     m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?        QLocale().toDouble(wdg_diaht->text())       : QVariant());
     m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0.0?   QLocale().toDouble(wdg_diaoptique->text())  : QVariant());
@@ -900,6 +924,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?     "1" : QVariant());
     m_listbinds[CP_EDOF_IOLS]           = (wdg_edofchk->isChecked()?        "1" : QVariant());
     m_listbinds[CP_TORIC_IOLS]          = (wdg_toricchk->isChecked()?       "1" : QVariant());
+    m_listbinds[CP_TYP_IOLS]            = (wdg_typebox->currentIndex()>-1?   QString::number(wdg_typebox->currentIndex()+1) : QVariant());
     if (m_mode == Creation)
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)

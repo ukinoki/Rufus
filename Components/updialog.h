@@ -66,6 +66,7 @@ public:
     void            setEnregPosition(bool);
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
+    void            EnregistrePosition();
     void            setMode(Mode mode);
     void            TuneSize(bool fix = true);
     Mode            mode() const;

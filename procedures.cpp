@@ -2391,6 +2391,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 return true;
             }
         }
+        else return false;
     }
     else
     {
@@ -2790,33 +2791,6 @@ bool Procedures::VerifBaseEtRessources()
                     UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
                     erreur();
                 }
-            }
-            if (Version == 53)
-            {
-                /*! dans les anciennes versions du programme antérieures à la 53, pour des raisons d'économie d'espace disque,
-                 * la création d'un dossier n'entraînait pas systématiquement
-                 * la création d'une ligne corresondante dans la table renseignementsmedicauxpatients
-                 * à partir de la version 53, cette ligen est créée systématiquement pour ne pas avoir à on vérifier sa présence
-                 *  à chaque fois qu'on veut enregistrer un renseignement
-                 * il n'y a donc plus à faire cette vérification
-                 * cette MAJ crée une ligne pour tous les dossiers n'ayant pas la correspondance dans la table renseignementsmedicauxpatients
-                 */
-                QList<QVariantList> listid =
-                        db->StandardSelectSQL("SELECT idpat FROM " TBL_PATIENTS " pat"
-                                              " where  pat.idpat not in (select rmp.idpat from " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp)", m_ok);
-                if (listid.size()>0)
-                {
-                    for (int i=0; i<listid.size(); i++)
-                    {
-                        QString req =   "INSERT INTO " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS
-                                " (idPat) VALUES (" + listid.at(i).at(0).toString() + ")";
-                        db->StandardSQL(req);
-                    }
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version), QString::number(listid.size()) + tr(" enregistrements modifiés"));
-                }
-                else
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
-                db->setversionbase(53);
             }
         }
     }

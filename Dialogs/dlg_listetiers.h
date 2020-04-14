@@ -33,7 +33,7 @@ private:
 
     QStandardItemModel      *m_model = Q_NULLPTR;
     UpLabel                 *wdg_label;
-    QTreeView               *wdg_tierstree;
+    QTreeView               *wdg_itemstree;
     UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
     QList<int>              m_listidtiersutilises;
