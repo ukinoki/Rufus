@@ -20,7 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listeiols::dlg_listeiols(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeIOLs",parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint
+                   | Qt::WindowStaysOnTopHint);//|Qt::X11BypassWindowManagerHint);
 
     setModal(true);
     setWindowTitle(tr("Liste des IOLs"));

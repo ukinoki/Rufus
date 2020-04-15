@@ -64,44 +64,7 @@ void dlg_GestionLieux::AfficheDetails(QModelIndex idx, QModelIndex)
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
         return;
     }
-    QString data;
-    if (sit->adresse1() != "")
-        data = sit->adresse1();
-    if (sit->adresse2() != "")
-    {
-        if (data !="")
-            data += "\n";
-        data += sit->adresse2();
-    }
-    if (sit->adresse3() != "")
-    {
-        if (data !="")
-            data += "\n";
-        data += sit->adresse3();
-    }
-    if( sit->codePostal()>0 || sit->ville() != "")
-    {
-        if (data !="")
-            data += "\n";
-        if( sit->codePostal()>0)
-            data += QString::number(sit->codePostal());
-        if (sit->ville() != "" && sit->codePostal()>0)
-            data += " ";
-        data += sit->ville();
-    }
-    if (sit->telephone() != "")
-    {
-        if (data !="")
-            data += "\n";
-        data += "Tel: " + sit->telephone();
-    }
-    if (sit->fax() != "")
-    {
-        if (data !="")
-            data += "\n";
-        data += "Tel: " + sit->fax();
-    }
-    wdg_adressuplbl->setText(data);
+    wdg_adressuplbl->setText(sit->coordonnees());
     wdg_adressuplbl->setStyleSheet("color:#" + (sit->couleur() != ""? sit->couleur() : "000000b"));
     QString ttip = "";
     int nlieux = db->StandardSelectSQL("select iduser from " TBL_JOINTURESLIEUX " where idlieu = " + QString::number(sit->id()), m_ok).size();

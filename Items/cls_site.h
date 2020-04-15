@@ -49,7 +49,7 @@ public:
     QString telephone() const;
     QString fax() const;
     QString couleur() const;
-    QString adresseComplete() const;
+    QString coordonnees() const;
     void setnom(const QString &nom);
     void setadresse1(const QString &adresse1);
     void setadresse2(const QString &adresse2);

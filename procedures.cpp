@@ -1172,8 +1172,11 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         baPied.resize(filePied_len + 1);
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
-        if( user->isAGA() )
-            baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté");
+        if (user)
+        {
+            if( user->isAGA() )
+                baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté");
+        }
         else
             baPied.replace("{{AGA}}","");
         Pied = baPied;
@@ -2929,22 +2932,7 @@ void Procedures::CalcLieuExercice()
         UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
         pradiobutt->setText(etab->nom());
         pradiobutt->setitem(etab);
-        QString data("");
-        if( etab->nom().size() )
-            data += etab->nom();
-        if( etab->adresse1().size() )
-            data += (data.size() ? "\n" : "") + etab->adresse1();
-        if( etab->adresse2().size() )
-            data += (data.size() ? "\n" : "") + etab->adresse2();
-        if( etab->adresse3().size() )
-            data += (data.size() ? "\n" : "") + etab->adresse3();
-        if( etab->codePostal() )
-            data += (data.size() ? "\n" : "") + QString::number(etab->codePostal());
-        if( etab->ville().size() )
-            data += (data.size() ? "\n" : "") + etab->ville();
-        if( etab->telephone().size() )
-            data += (data != ""? "\nTel: " : "Tel: ") + etab->telephone();
-        pradiobutt->setImmediateToolTip(data);
+        pradiobutt->setImmediateToolTip(etab->coordonnees());
         pradiobutt->setChecked(isFirst);
         vbox      ->addWidget(pradiobutt);
         isFirst = false;
@@ -3534,9 +3522,15 @@ void Procedures::MAJComptesBancaires(User *usr)
         return;
     usr->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
     if (usr->isSalarie())
-        usr->setidcompteencaissementhonoraires(Datas::I()->users->getById(usr->idemployeur())->idcompteencaissementhonoraires());
+    {
+        User *employer = Datas::I()->users->getById(usr->idemployeur());
+        usr->setidcompteencaissementhonoraires(employer? employer->idcompteencaissementhonoraires() : 0);
+    }
     else if (usr->idcomptable() > 0)
-        usr->setidcompteencaissementhonoraires(Datas::I()->users->getById(usr->idcomptable())->idcompteencaissementhonoraires());
+    {
+        User *cptble = Datas::I()->users->getById(usr->idcomptable());
+        usr->setidcompteencaissementhonoraires(cptble? cptble->idcompteencaissementhonoraires() : 0);
+    }
 }
 
 /*!

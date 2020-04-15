@@ -62,7 +62,7 @@ void Site::settelephone(const QString &telephone)   { m_telephone = telephone; }
 void Site::setfax(const QString &fax)               { m_fax = fax; }
 void Site::setcouleur(const QString &couleur)       { m_couleur = couleur; }
 
-QString Site::adresseComplete() const
+QString Site::coordonnees() const
 {
     QString ttip;
     if (m_adresse1!= "") ttip += m_adresse1;
@@ -87,7 +87,13 @@ QString Site::adresseComplete() const
     if (m_telephone != "")
     {
         if (ttip != "") ttip += "\n";
-        ttip += m_telephone;
+        ttip += "Tel: " + m_telephone;
+    }
+    if (m_fax != "")
+    {
+        if (ttip !="")
+            ttip += "\n";
+        ttip += "Fax: " + m_fax;
     }
     return ttip;
 }

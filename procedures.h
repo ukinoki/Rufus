@@ -191,7 +191,6 @@ public:
 
     int                     idCentre();
     void                    MAJComptesBancaires(User *usr);             //! actualise la liste des comptes bancaires utilisés par un user
-    void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
 
 /*! fin definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta) -------------------------------------------------------------------------------------------------------- */
 

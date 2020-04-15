@@ -97,11 +97,65 @@ int Manufacturer::iddistributeur() const    { return m_distributeur; }
 QString Manufacturer::tooltip() const
 {
     QString ttip = "";
-    if (telephone() != "")
-        ttip += tr("Telephone:") + " " + telephone();
+    if (m_telephone != "")
+        ttip += tr("Telephone:") + " " + m_telephone;
     if (cornom() != "")
-        ttip += "\n" + cornom().toUpper() + " " + corprenom() + " " + cortelephone();
+        ttip += "\n" + m_cornom.toUpper() + " " + m_corprenom + " " + m_cortelephone;
     return ttip;
+}
+
+QString Manufacturer::coordonnees() const
+{
+    QString cord = m_nom.toUpper();
+    if (m_adresse1 != "" || m_adresse2 != "" || m_adresse3 != "")
+    {
+        cord += "\n";
+        QString adr = "";
+        if (m_adresse1 != "")
+        {
+            adr += m_adresse1;
+            if (m_adresse2 != "" || m_adresse3 != "")
+                adr += " - ";
+        }
+        if (m_adresse2 != "")
+        {
+            adr += m_adresse2;
+            if (m_adresse3 != "")
+                adr += " - ";
+        }
+        if (m_adresse3 != "")
+            adr += " - " + m_adresse3;
+        cord += adr;
+    }
+    if (m_codepostal!= "" || m_ville != "")
+    {
+        cord += "\n";
+        QString cpville = "";
+        if (m_codepostal != "")
+        {
+            cpville += m_codepostal;
+            if (m_ville != "")
+                cpville += " - ";
+        }
+        if (m_ville != "")
+            cpville += m_ville.toUpper();
+        cord += cpville;
+    }
+    if (m_telephone != ""|| m_fax != "")
+    {
+        cord += "\n";
+        QString telfax = "";
+        if (m_telephone != "")
+        {
+            telfax += tr("Tel:") + " " + m_telephone;
+            if (m_fax != "")
+                telfax += " - ";
+        }
+        if (m_fax != "")
+            telfax += tr("Fax:") + " " + m_fax;
+        cord += telfax;
+    }
+    return cord;
 }
 
 void Manufacturer::setnom(const QString &nom)                   { m_nom = nom; m_data[CP_NOM_MANUFACTURER] = nom; }

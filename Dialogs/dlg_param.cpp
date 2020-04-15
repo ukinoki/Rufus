@@ -1010,22 +1010,6 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     int i = 0;
     foreach (Site *sit, listsites)
     {
-        QString data ("");
-        if (sit->nom() != "")
-            data += sit->nom();
-        if (sit->adresse1() != "")
-            data += (data != ""? "\n" : "") + sit->adresse1();
-        if (sit->adresse2() != "")
-            data += (data != ""? "\n" : "") + sit->adresse2();
-        if (sit->adresse3() != "")
-            data += (data != ""? "\n" : "") + sit->adresse3() ;
-        if (sit->codePostal() > 0)
-            data += (data != ""? "\n" : "") + QString::number(sit->codePostal());
-        if (sit->ville() != "")
-            data += (data != ""? " " : "") + sit->ville();
-        if (sit->telephone() != "")
-            data += (data != ""? "\nTel: " : "Tel: ") + sit->telephone();
-
         QTableWidgetItem *pitem1, *pitem2, *pitem3;
         pitem1 = new QTableWidgetItem();
         pitem2 = new QTableWidgetItem();
@@ -1036,9 +1020,9 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
         ui->AdressupTableWidget->setItem(i,0,pitem1);
         ui->AdressupTableWidget->setItem(i,1,pitem2);
         ui->AdressupTableWidget->setItem(i,2,pitem3);
-        pitem1->setToolTip(data);
-        pitem2->setToolTip(data);
-        pitem3->setToolTip(data);
+        pitem1->setToolTip(sit->coordonnees());
+        pitem2->setToolTip(sit->coordonnees());
+        pitem3->setToolTip(sit->coordonnees());
         if (sit->couleur() != "")
         {
             pitem1->setTextColor(QColor("#" + sit->couleur()));

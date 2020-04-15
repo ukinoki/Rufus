@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-04-2020/1");
+    qApp->setApplicationVersion("16-04-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -6343,7 +6343,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabDossier));
     }
 
-    ui->IdCreateurDossierlineEdit   ->setText(Datas::I()->users->getById(currentpatient()->idcreateur()) != Q_NULLPTR? Datas::I()->users->getById(currentpatient()->idcreateur())->login() : "");
+    ui->IdCreateurDossierlineEdit   ->setText(Datas::I()->users->getById(currentpatient()->idcreateur())? Datas::I()->users->getById(currentpatient()->idcreateur())->login() : "");
 
     ui->IdentPatienttextEdit        ->setHtml(CalcHtmlIdentificationPatient(currentpatient()));
     ui->tabWidget                   ->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(currentpatient()));
@@ -7490,6 +7490,7 @@ bool Rufus::FermeDossier(Patient *patient)
         {
             Motif = pat->motif();
             Message = pat->message();
+            idUser = QString::number(pat->iduser());
             if (Motif=="")
             {
                 mapRDV = MotifRDV(Motif, Message);
