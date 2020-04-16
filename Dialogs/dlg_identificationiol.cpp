@@ -492,15 +492,15 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
             {
                 UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
                 if (chk)
-                    emit chk->uptoggled(chk->isChecked());
+                    emit chk->uptoggled(!chk->isChecked());  //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
             }
     }
-    if(event->type()==QEvent::MouseButtonPress ||  event->type()==QEvent::MouseButtonDblClick)
+    if(event->type()==QEvent::MouseButtonPress)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
         {
             UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
             if (chk)
-                emit chk->uptoggled(chk->isChecked());
+                emit chk->uptoggled(!chk->isChecked()); //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
         }
     return QWidget::eventFilter(obj, event);
 }
@@ -532,41 +532,34 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_diaht,             &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_diainjecteur,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_prechargechk,      &UpCheckBox::uptoggled,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-     connect (wdg_edofchk,           &UpCheckBox::uptoggled,                                 this,   [&] {
-                                                                                                             EnableOKpushButton();
-                                                                                                             if (wdg_edofchk->isChecked())
-                                                                                                                 wdg_multifocalchk->setChecked(false);
-                                                                                                         });
-     connect (wdg_toricchk,          &UpCheckBox::uptoggled,                                    this,   [&] {
-                                                                                                             EnableOKpushButton();
-                                                                                                             wdg_cylindres->setVisible(wdg_toricchk->checkState() == Qt::Checked);
-                                                                                                         });
-     connect (wdg_jaunechk,          &UpCheckBox::uptoggled,                                    this,   [&] {
-                                                                                                             EnableOKpushButton();
-                                                                                                             QString style = (wdg_jaunechk->checkState() == Qt::Checked?
-                                                                                                             "background-color: yellow" : "background-color: none" );
-                                                                                                             wdg_jaunechk->setStyleSheet(style);
-                                                                                                         });
-     connect (wdg_inactifchk,        &UpCheckBox::uptoggled,                                    this,   [&] {
-                                                                                                             foreach (QWidget *wdg, findChildren<QWidget*>())
-                                                                                                                 if (wdg != wdg_manufacturercombo
-                                                                                                                         && wdg != widgetbuttons()
-                                                                                                                         && !widgetbuttons()->isAncestorOf(wdg))
-                                                                                                                     wdg->setEnabled(!wdg_inactifchk->isChecked());
-                                                                                                                 EnableOKpushButton();
-                                                                                                         });
-     connect (wdg_multifocalchk,     &UpCheckBox::uptoggled,                                    this,   [&] {
-                                                                                                             EnableOKpushButton();
-                                                                                                             if (wdg_multifocalchk->isChecked())
-                                                                                                                 wdg_edofchk->setChecked(false);
-                                                                                                         });
+     connect (wdg_edofchk,           &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+                                                                                                                    EnableOKpushButton();
+                                                                                                                    if (a) wdg_multifocalchk->setChecked(!a);
+                                                                                                                 });
+     connect (wdg_toricchk,          &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+                                                                                                                    EnableOKpushButton();
+                                                                                                                    wdg_cylindres->setVisible(a);
+                                                                                                                 });
+     connect (wdg_jaunechk,          &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+                                                                                                                    EnableOKpushButton();
+                                                                                                                    QString style = (a? "background-color: yellow" : "background-color: none" );
+                                                                                                                    wdg_jaunechk->setStyleSheet(style);
+                                                                                                                 });
+     connect (wdg_inactifchk,        &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+                                                                                                                    EnableWidget(!a);
+                                                                                                                    EnableOKpushButton();
+                                                                                                                  });
+     connect (wdg_multifocalchk,     &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+                                                                                                                    EnableOKpushButton();
+                                                                                                                    if (a) wdg_edofchk->setChecked(!a);
+                                                                                                                 });
      connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_cylindremaxspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
      connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
-     connect (wdg_recopiebutton,     &QPushButton::click,                                    this,   &dlg_identificationIOL::creeCopieIOL);
+     connect (wdg_recopiebutton,     &UpPushButton::click,                                   this,   &dlg_identificationIOL::creeCopieIOL);
      connect (wdg_toolbar,           &UpToolBar::TBSignal,                                   this, [=] {NavigueVers(wdg_toolbar->choix());});
 }
 
@@ -618,6 +611,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
     m_currentIOL = iol;
     if (m_currentmanufacturer)
         wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
+    wdg_toolbar         ->setEnabled(m_mode == Modification);
+    wdg_recopiebutton   ->setEnabled(m_mode == Modification);
 
     if (m_mode == Modification)
     {
@@ -659,6 +654,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_jaunechk        ->setChecked(m_currentIOL->isjaune());
         if (m_currentIOL->isjaune())
             wdg_jaunechk->setStyleSheet("background-color: yellow");
+        else
+            wdg_jaunechk->setStyleSheet("");
         wdg_multifocalchk   ->setChecked(m_currentIOL->ismultifocal());
         wdg_prechargechk    ->setChecked(m_currentIOL->isprecharge());
         wdg_edofchk         ->setChecked(m_currentIOL->isedof());
@@ -694,18 +691,14 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             m_listbinds[CP_TYPIMG_IOLS] = m_currentIOL->imageformat();
         }
         else setimage(m_nullimage);
-    }
-    wdg_toolbar         ->setEnabled(true);
-    wdg_recopiebutton   ->setEnabled(true);
-    if( wdg_toolbar->isEnabled())
-    {
+        EnableWidget(m_currentIOL->isactif());
         int idx = m_listeidIOLs.indexOf(m_currentIOL->id());
         wdg_toolbar->First()    ->setEnabled(idx>0);
         wdg_toolbar->Prec()     ->setEnabled(idx>0);
         wdg_toolbar->Next()     ->setEnabled(idx < m_listeidIOLs.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
     }
-    connectSignals();
+     connectSignals();
 }
 
 void dlg_identificationIOL::menuChangeImage()
@@ -824,8 +817,17 @@ void dlg_identificationIOL:: EnableOKpushButton()
            && wdg_manufacturercombo->currentData().toInt()>0;
     OKButton            ->setEnabled(a);
     wdg_toolbar         ->setEnabled(!a);
+    qDebug() << "wdg_toolbar enableOK";
     wdg_recopiebutton   ->setEnabled(!a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
+}
+
+void dlg_identificationIOL::EnableWidget(bool a)
+{
+    foreach (QWidget *wdg, findChildren<QWidget*>())
+        if (wdg != wdg_manufacturercombo && wdg != widgetbuttons()
+            && wdg != wdg_toolbar  && !wdg_toolbar->isAncestorOf(wdg) && !widgetbuttons()->isAncestorOf(wdg))
+                wdg->setEnabled(a);
 }
 
 void dlg_identificationIOL::NavigueVers(QString but)

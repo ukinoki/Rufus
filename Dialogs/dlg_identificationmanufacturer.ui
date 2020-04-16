@@ -679,7 +679,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="UpPushButton" name="DelCorupPushButton">
+      <widget class="UpPushButton" name="killCorupPushButton">
        <property name="text">
         <string>Supprimer ce
 correspondant</string>

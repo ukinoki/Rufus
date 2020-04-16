@@ -92,6 +92,7 @@ private:
     void                creeCopieIOL();
     void                menuChangeImage();
     void                EnableOKpushButton();
+    void                EnableWidget(bool a);
     void                NavigueVers(QString but);
     void                OKpushButtonClicked();
     void                PrefixePlus(QDoubleSpinBox *spinbox);

@@ -108,9 +108,16 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorMaillineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->DistributeurupComboBox->lineEdit(),      &QLineEdit::textEdited,                     this,   &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->DistributeurupComboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->DelCorupPushButton,    &QPushButton::clicked,              this,           [=]
+    connect (ui->CorNomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
+    connect (ui->CorPrenomlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
+    connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
+    connect (ui->CorMaillineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
+    connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
+    connect (ui->DistributeurupComboBox->lineEdit(),    &QLineEdit::textEdited,
+                                                                            this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->DistributeurupComboBox,                QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                            this,           &dlg_identificationmanufacturer::EnableOKpushButton);
+    connect (ui->killCorupPushButton,   &QPushButton::clicked,              this,           [=]
                                                                                             {
                                                                                                 if (UpMessageBox::Question(this, tr("Suppression d'un correspondant"), tr("Êtes vous sûr de vouloir supprimer ce corespondant?")) != UpSmallButton::STARTBUTTON)
                                                                                                     return;
@@ -141,6 +148,16 @@ void    dlg_identificationmanufacturer:: EnableOKpushButton()
     bool a  = ui->NomlineEdit->text() != "";
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
+}
+
+void    dlg_identificationmanufacturer:: EnablekillCorpushButton()
+{
+    bool a  = ui->CorNomlineEdit->text() != ""
+            && ui->CorPrenomlineEdit->text() != ""
+            && ui->CorMaillineEdit->text() != ""
+            && ui->CorTelephonelineEdit->text() != ""
+            && ui->CorStatutlineEdit->text() != "";
+    ui->killCorupPushButton->setEnabled(a);
 }
 
 void dlg_identificationmanufacturer::Majuscule(QLineEdit *ledit)
@@ -296,6 +313,7 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
         ui->CorStatutlineEdit   ->setText(m_currentmanufacturer->corstatut());
         ui->CorMaillineEdit     ->setText(m_currentmanufacturer->cormail());
         ui->CorTelephonelineEdit->setText(m_currentmanufacturer->cortelephone());
+        EnablekillCorpushButton();
         ui->DistributeurupComboBox->setCurrentIndex(ui->DistributeurupComboBox->findData(m_currentmanufacturer->iddistributeur()));
     }
     else if (m_mode == Creation)

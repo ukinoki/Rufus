@@ -53,6 +53,7 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDatasManufacturer();
     void                EnableOKpushButton();
+    void                EnablekillCorpushButton();
     void                Majuscule(QLineEdit *ledit);
     void                OKpushButtonClicked();
 };

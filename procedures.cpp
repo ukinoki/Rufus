@@ -2380,7 +2380,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 QFile::remove(PATH_FILE_SCRIPTRESTORE);
                 return false;
             }
-            if (a==0)
+            else
             {
                 UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 for (int t=0; t<listfichiers.size(); t++)
@@ -2394,7 +2394,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 return true;
             }
         }
-        else return false;
+        return false;
     }
     else
     {
