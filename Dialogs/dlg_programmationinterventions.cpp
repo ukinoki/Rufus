@@ -1044,7 +1044,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
     wdg_manufacturercombo       ->setFixedSize(QSize(200,28));
-    wdg_manufacturercombo       ->setEditable(true);
+    wdg_manufacturercombo       ->setEditable(false);
     wdg_manufacturercombo       ->setInsertPolicy(QComboBox::NoInsert);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -1059,7 +1059,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     UpLabel* lblIOL             = new UpLabel;
     lblIOL                      ->setText(tr("Implant"));
     wdg_IOLcombo                ->setFixedSize(QSize(200,28));
-    wdg_IOLcombo                ->setEditable(true);
+    wdg_IOLcombo                ->setEditable(false);
     wdg_IOLcombo                ->setInsertPolicy(QComboBox::NoInsert);
     choixIOLLay                 ->addWidget(lblIOL);
     choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
