@@ -1044,7 +1044,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
     wdg_manufacturercombo       ->setFixedSize(QSize(200,28));
-    wdg_manufacturercombo       ->setEditable(false);
+    wdg_manufacturercombo       ->setEditable(true);
     wdg_manufacturercombo       ->setInsertPolicy(QComboBox::NoInsert);
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -1929,10 +1929,7 @@ void dlg_programmationinterventions::VerifExistManufacturer(bool &ok)
         else
         {
             if (m_currentmanufacturer != Q_NULLPTR)
-            {
-                delete m_currentmanufacturer;
                 m_currentmanufacturer = Q_NULLPTR;
-            }
             dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
             Dlg_IdentManufacturer->ui->NomlineEdit->setText(txt.toUpper());
             Dlg_IdentManufacturer->ui->ActifcheckBox->setChecked(true);
