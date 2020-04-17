@@ -8197,7 +8197,7 @@ void    Rufus::FicheImpressions(Patient *pat)
     }
     delete Dlg_Imprs;
     if (currentpatient())
-        if (aa && currentpatient()->id() != pat->id())
+        if (aa && currentpatient()->id() == pat->id())
             MAJDocsExternes();              // depuis dlg_impressions
 }
 
