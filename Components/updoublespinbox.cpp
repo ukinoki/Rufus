@@ -93,7 +93,7 @@ void UpDoubleSpinBox::CorrigeDioptrie(int UpDownNear)
                     || singleStep() == 0.50)
                 {
                     QSound::play("://goutte.wav");
-                    UpMessageBox::Watch(this,tr("Valeur non conforme"),tr("La valeur sera arrondie à la\nvaleur conforme la plus proche!"));
+                    Message::I()->SplashMessage(tr("Valeur non conforme arrondie à la\nvaleur conforme la plus proche!"), 500);
                 }
             setValue(round(c/10)*singleStep());
         }
@@ -119,5 +119,19 @@ void UpDoubleSpinBox::setvaleuravant(double valprec)
 double UpDoubleSpinBox::valeuravant() const
 {
     return m_valeuravant;
+}
+
+void UpDoubleSpinBox::PrefixePlus()
+{
+    setPrefix(value() > 0? "+" : "");
+}
+
+//-----------------------------------------------------------------------------------------
+// Intialise la valeur du SpinBox et ajoute le préfixe + ou -
+//-----------------------------------------------------------------------------------------
+void UpDoubleSpinBox::setValuewithPrefix(double ValeurDouble)
+{
+    setValue(ValeurDouble);
+    PrefixePlus();
 }
 

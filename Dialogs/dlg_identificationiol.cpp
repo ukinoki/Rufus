@@ -19,11 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 /*!
  * \brief dlg_identificationIOL::dlg_identificationIOL
- * la fiche peut-être appelée de 3 façons
-        * Mode Cération avec un fabricant déjà enregistré, depuis le mode de moficication d'une intervention
-            * on veut rajouter un implant à une intervention dans la ficheIntervention() depuis dlg_programmationinterventions
-            * on a saisi un fabricant mais pn saisi un implant qui n'existe pas. Le programme propose donc de créer cet implant pour lequle un fabricant est déjà choisi
-            * la fiche s'ouvre alors en mode Creation avec un Manufacturer en parametre et Q_NULLPTR en paramètre pour l'IOL
+ * la fiche peut-être appelée de 2 façons
         * Mode Creation totale depuis dlg_listeiols
             * la fiche est lancée en mode Creation, tous les champs sont vierges et les paramètres IOL et Manufacturer sont nullptr
         * Mode Modification
@@ -36,7 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \param man
  * \param parent
  */
-dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufacturer *man, QWidget *parent) :
+dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentIOL", parent)
 {
     if (Datas::I()->manufacturers->manufacturers()->size() == 0)
@@ -47,11 +43,11 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     }
     m_mode = mode;
     m_currentIOL = iol;
-    m_currentmanufacturer = man;
+    if (!m_currentIOL)
+        m_mode = Creation;
     switch (m_mode) {
     case Creation:
-        if (m_currentmanufacturer)
-            reconstruitListeIOLs(m_currentmanufacturer);
+        m_currentmanufacturer = Q_NULLPTR;
         m_currentIOL = Q_NULLPTR;
         break;
     case Modification:
@@ -64,12 +60,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
             reconstruitListeIOLs(m_currentmanufacturer);
         m_currentIOL = m_iols->getById(id);
     }
-    if (!m_currentIOL)
-    {
-        m_mode = Creation;
-        m_currentIOL = Q_NULLPTR;
-        m_currentmanufacturer = Q_NULLPTR;
-    }
+
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
@@ -189,7 +180,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     //! Diametres optique et ht
     QHBoxLayout *diametresLay   = new QHBoxLayout();
     UpLabel* lbldiametres       = new UpLabel;
-    lbldiametres                ->setText(tr("Diamètre"));
+    lbldiametres                ->setText(tr("Diamètre (mm)"));
     UpLabel* lbldiaht           = new UpLabel;
     lbldiaht                    ->setText(tr("Hors-tout"));
     UpLabel* lbldiaopt          = new UpLabel;
@@ -220,7 +211,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, Manufactu
     //! Diametres injecteur
     QHBoxLayout *injecteurLay   = new QHBoxLayout();
     UpLabel* lbldiainjecteur    = new UpLabel;
-    lbldiainjecteur             ->setText(tr("Injecteur"));
+    lbldiainjecteur             ->setText(tr("Injecteur (mm)"));
     wdg_diainjecteur            = new UpLineEdit();
     wdg_diainjecteur            ->setValidator(new QRegExpValidator(rgx_diainjecteur, wdg_diaoptique));
     wdg_diainjecteur            ->setFixedSize(QSize(50,28));
@@ -632,15 +623,9 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         if (m_currentIOL->haigisa2() > 0.0)
             wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2(), 'f', 4));
         if (m_currentIOL->pwrmax() > 0.0)
-        {
-            wdg_puissancemaxspin->setValue(m_currentIOL->pwrmax());
-            PrefixePlus(wdg_puissancemaxspin);
-        }
+            wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         if (m_currentIOL->pwrmin() > 0.0)
-        {
-            wdg_puissanceminspin->setValue(m_currentIOL->pwrmin());
-            PrefixePlus(wdg_puissanceminspin);
-        }
+            wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
         if (m_currentIOL->materiau() != "")
             wdg_materiaubox ->setCurrentText(m_currentIOL->materiau());
         else
@@ -664,15 +649,9 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         if (m_currentIOL->istoric())
         {
             if (m_currentIOL->cylmax() > 0.0)
-            {
-                wdg_cylindremaxspin->setValue(m_currentIOL->cylmax());
-                PrefixePlus(wdg_cylindremaxspin);
-            }
+                wdg_cylindremaxspin->setValuewithPrefix(m_currentIOL->cylmax());
             if (m_currentIOL->cylmin() > 0.0)
-            {
-                wdg_cylindreminspin->setValue(m_currentIOL->cylmin());
-                PrefixePlus(wdg_cylindreminspin);
-            }
+                wdg_cylindreminspin->setValuewithPrefix(m_currentIOL->cylmin());
         }
         if (m_currentIOL->diaall() > 0.0)
             wdg_diaht       ->setText(QLocale().toString(m_currentIOL->diaall(), 'f', 1));
@@ -1000,13 +979,3 @@ void dlg_identificationIOL::setpdf(QByteArray ba)
     setimage(image);
     delete document;
 }
-
-//---------------------------------------------------------------------------------------------------------
-// Traitement du prefixe + ou - devant les doubles.
-//---------------------------------------------------------------------------------------------------------
-void dlg_identificationIOL::PrefixePlus(QDoubleSpinBox *spinbox)
-{
-    spinbox->setPrefix("");
-    if (spinbox->value() >= 0)    spinbox->setPrefix("+");
-}
-

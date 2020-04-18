@@ -140,35 +140,40 @@ void IOL::setData(QMap<QString, QVariant> map)
 QString IOL::tooltip(bool avecimage) const
 {
     QString message = modele();
-    if (csteAEcho() != 0.0)
-        message += "<br>" + tr("csteA echo") + " " + QString::number(csteAEcho(), 'f', 1);
-    if (diaall() != 0.0)
-        message += "<br>" + tr("diamètre hors tout") + " " + QString::number(diaall(), 'f', 1) + " mm";
-    if (diainjecteur() != 0.0)
-        message += "<br>" + tr("incision") + " " + QString::number(diainjecteur(), 'f', 1) + " mm";
-    if (isedof())
+    if (m_type != "")
+        message += "<br>" + m_type;
+    if (m_toric)
+        message += "<br>" + tr("Torique");
+    if (m_edof)
         message += "<br>" + tr("EDOF");
-    if (ismultifocal())
+    else if (m_multifocal)
         message += "<br>" + tr("Multifocal");
-    if (isprecharge())
+    else
+        message += "<br>" + tr("Monofocal");
+    if (m_precharge)
         message += "<br>" + tr("Préchargé");
-    if (isjaune())
+    if (m_jaune)
         message += "<br>" + tr("Jaune");
-    if (materiau() != "")
-        message += "<br>" + materiau();
-    if (remarque() != "")
+    if (m_diaall != 0.0)
+        message += "<br>" + tr("diamètre hors tout") + " " + QString::number(m_diaall, 'f', 1) + " mm";
+    if (m_diainjecteur != 0.0)
+        message += "<br>" + tr("incision") + " " + QString::number(m_diainjecteur, 'f', 1) + " mm";
+    if (m_csteAEcho != 0.0)
+        message += "<br>" + tr("csteA echo") + " " + QString::number(m_csteAEcho, 'f', 1);
+    if (m_materiau != "")
+        message += "<br>" + m_materiau;
+    if (m_remarque != "")
         message += "<br>" + remarque().replace("\n","<br>");
     if (!avecimage)
         return message;
-
     /*! si on veut intégrer l'image de l'IOL dans le tooltip */
+    if(m_imgiol == QByteArray())
+        return message;
     int scale = 90;
     QString ttip = "";
-    if(imgiol() == QByteArray())
-        return message;
     QImage image= QImage();
-    if (imageformat() == PDF)
-    {    Poppler::Document* document = Poppler::Document::loadFromData(imgiol());
+    if (m_imageformat == PDF)
+    {    Poppler::Document* document = Poppler::Document::loadFromData(m_imgiol);
         if (!document || document->isLocked())
             delete document;
         else if (document != Q_NULLPTR)
@@ -182,7 +187,7 @@ QString IOL::tooltip(bool avecimage) const
             }
         }
     }
-    else image.loadFromData(imgiol());
+    else image.loadFromData(m_imgiol);
     if (image == QImage())
         return message;
     image = image.scaled(scale,scale, Qt::KeepAspectRatio);

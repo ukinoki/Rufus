@@ -134,7 +134,6 @@ private:
     void                    FermeFiche(enum ModeSortie);
     void                    InitDivers();
     void                    InitEventFilters();
-    void                    Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double ValeurDouble);
     void                    Init_variables();
     void                    InscriptRefraction();
     void                    InsertDonneesOphtaPatient();
@@ -148,7 +147,6 @@ private:
     QString                 QuelsYeux();
     QString                 QuelsVerres();
     void                    QuitteAddVP(UpDoubleSpinBox *obj);
-    void                    PrefixePlus(QDoubleSpinBox *DoubleSpinBox);
     void                    RechercheMesureEnCours();
     QString                 RechercheResultat(Refraction::Mesure mesure, Refraction::Cycloplegie dilatation, Refraction::Distance typlun = Refraction::Inconnu);
     QString                 RechercheVerres();

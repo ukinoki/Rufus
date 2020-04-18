@@ -30,7 +30,7 @@ class dlg_identificationIOL : public UpDialog
 {
 public:
     enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
-    explicit                    dlg_identificationIOL(enum Mode mode, IOL *iol = Q_NULLPTR, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_identificationIOL(enum Mode mode, IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     dlg_identificationIOL();
     void                        setNomIOL(QString nom)  {wdg_nomiolline->setText(nom);}
     IOL*                        currentIOL() const      { return m_currentIOL; }
@@ -95,7 +95,6 @@ private:
     void                EnableWidget(bool a);
     void                NavigueVers(QString but);
     void                OKpushButtonClicked();
-    void                PrefixePlus(QDoubleSpinBox *spinbox);
     void                reconstruitListeIOLs(Manufacturer *man);
     void                setimage(QImage img);
     void                setpdf(QByteArray ba);

@@ -484,8 +484,8 @@ void dlg_refraction::ConvODPushButton_Clicked()
         {UpMessageBox::Watch(this,tr("Réfraction"), tr("Conversion refusée !"));
          return;
         }
-    Init_Value_DoubleSpin( ui->SphereOD, ui->SphereOD->value() + ui->CylindreOD->value());
-    Init_Value_DoubleSpin( ui->CylindreOD, ui->CylindreOD->value() * -1);
+    ui->SphereOD->setValuewithPrefix(ui->SphereOD->value() + ui->CylindreOD->value());
+    ui->CylindreOD->setValuewithPrefix(ui->CylindreOD->value() * -1);
     if (ui->AxeCylindreOD->value() >= 90)
          ui->AxeCylindreOD->setValue(ui->AxeCylindreOD->value() - 90);
     else
@@ -498,8 +498,8 @@ void dlg_refraction::ConvOGPushButton_Clicked()
         {UpMessageBox::Watch(this,tr("Réfraction"), tr("Conversion refusée !"));
          return;
         }
-    Init_Value_DoubleSpin(ui->SphereOG, ui->SphereOG->value() + ui->CylindreOG->value());
-    Init_Value_DoubleSpin(ui->CylindreOG, ui->CylindreOG->value() * -1);
+    ui->SphereOG->setValuewithPrefix(ui->SphereOG->value() + ui->CylindreOG->value());
+    ui->CylindreOG->setValuewithPrefix(ui->CylindreOG->value() * -1);
     if (ui->AxeCylindreOG->value() >= 90)
         ui->AxeCylindreOG->setValue(ui->AxeCylindreOG->value() - 90);
     else
@@ -1060,8 +1060,8 @@ QString dlg_refraction::CalculCommentaire()
 //---------------------------------------------------------------------------------
 QString dlg_refraction::CalculFormule_OG()
 {
-    PrefixePlus(ui->SphereOG);
-    PrefixePlus(ui->CylindreOG);
+    ui->SphereOG->PrefixePlus();
+    ui->CylindreOG->PrefixePlus();
     QString OGPrisme    = "";
     QString ResultatOGVL  = "";
     QString ResultatOGVP  = "";
@@ -1143,8 +1143,8 @@ QString dlg_refraction::CalculFormule_OG()
 //---------------------------------------------------------------------------------
 QString dlg_refraction::CalculFormule_OD()
 {
-    PrefixePlus(ui->SphereOD);
-    PrefixePlus(ui->CylindreOD);
+    ui->SphereOD->PrefixePlus();
+    ui->CylindreOD->PrefixePlus();
     QString ODPrisme    = "";
     QString ResultatODVL  = "";
     QString ResultatODVP  = "";
@@ -1588,21 +1588,12 @@ void dlg_refraction::InitDivers()
     ui->frame_Detail->setVisible(false);
     ui->frame_Prescription->setVisible(false);
 
-    PrefixePlus(ui->SphereOD);
-    PrefixePlus(ui->SphereOG);
-    PrefixePlus(ui->CylindreOD);
-    PrefixePlus(ui->CylindreOG);
-    PrefixePlus(ui->AddVPOD);
-    PrefixePlus(ui->AddVPOG);
-}
-
-//-----------------------------------------------------------------------------------------
-// Intialise la valeur du SpinBox et ajoute le préfixe + ou -
-//-----------------------------------------------------------------------------------------
-void dlg_refraction::Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double ValeurDouble)
-{
-    DoubleSpinBox->setValue(ValeurDouble);
-    PrefixePlus(DoubleSpinBox);
+    ui->SphereOD->PrefixePlus();
+    ui->SphereOG->PrefixePlus();
+    ui->CylindreOD->PrefixePlus();
+    ui->CylindreOG->PrefixePlus();
+    ui->AddVPOD->PrefixePlus();
+    ui->AddVPOG->PrefixePlus();
 }
 
 //---------------------------------------------------------------------------------
@@ -1922,9 +1913,9 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
     ui->ODCheckBox->setChecked(ref->isODmesure());
     if (ref->isODmesure())
     {
-        Init_Value_DoubleSpin(ui->SphereOD,     ref->sphereOD());
-        Init_Value_DoubleSpin(ui->CylindreOD,   ref->cylindreOD());
-        Init_Value_DoubleSpin(ui->AddVPOD,      ref->addVPOD());
+        ui->SphereOD->setValuewithPrefix(ref->sphereOD());
+        ui->CylindreOD->setValuewithPrefix(ref->cylindreOD());
+        ui->AddVPOD->setValuewithPrefix(ref->addVPOD());
         ui->AxeCylindreOD->setValue(            ref->axecylindreOD());
         if (ref->avlOD() != "")
             wdg_AVLOD->setText(                 ref->avlOD());
@@ -1947,9 +1938,9 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
     ui->OGCheckBox->setChecked(ref->isOGmesure());
     if (ref->isOGmesure())
     {
-        Init_Value_DoubleSpin(ui->SphereOG,     ref->sphereOG());
-        Init_Value_DoubleSpin(ui->CylindreOG,   ref->cylindreOG());
-        Init_Value_DoubleSpin(ui->AddVPOG,      ref->addVPOG());
+        ui->SphereOG->setValuewithPrefix(ref->sphereOG());
+        ui->CylindreOG->setValuewithPrefix(ref->cylindreOG());
+        ui->AddVPOG->setValuewithPrefix( ref->addVPOG());
         ui->AxeCylindreOG->setValue(            ref->axecylindreOG());
         if (ref->avlOG() != "")
             wdg_AVLOG->setText(                 ref->avlOG());
@@ -2048,15 +2039,6 @@ void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
     RegleAffichageFiche();
 }
 
-//---------------------------------------------------------------------------------------------------------
-// Traitement du prefixe + ou - devant les doubles.
-//---------------------------------------------------------------------------------------------------------
-void dlg_refraction::PrefixePlus(QDoubleSpinBox *leDouble)
-{
-    leDouble->setPrefix("");
-    if (leDouble->value() >= 0)    leDouble->setPrefix("+");
-}
-
 // -------------------------------------------------------------------------------------
 // Retourne les valeurs des CheckBox
 //--------------------------------------------------------------------------------------
@@ -2110,7 +2092,7 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
             {
                 ui->AddVPOD->setValue(ui->AddVPOG->value());
                 ui->AddVPOD->CorrigeDioptrie(UpDoubleSpinBox::Near);
-                PrefixePlus(ui->AddVPOD);
+                ui->AddVPOD->PrefixePlus();
             }
     }
     if (obj == ui->AddVPOD)
@@ -2121,7 +2103,7 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
             {
                 ui->AddVPOG->setValue(ui->AddVPOD->value());
                 ui->AddVPOG->CorrigeDioptrie(UpDoubleSpinBox::Near);
-                PrefixePlus(ui->AddVPOG);
+                ui->AddVPOG->PrefixePlus();
             }
     }
 }
@@ -2371,12 +2353,12 @@ void dlg_refraction::ResumeObservation()
     // Génération du code html pour TAG Ancre avec ID refraction            // 07-07-2014 // 08-08-2014
     //numIDref = QString::number(gListeRefractionID.at(gListeRefractionID.size()-1));
     //TagAncre = "<a name=\"" + numIDref + "\"></a>" "<span ><a href=\""+ numIDref + "\" style=\"text-decoration:none\" style=\"color:#000000\"> ";
-    if (ui->SphereOD->hasFocus())       PrefixePlus(ui->SphereOD);
-    if (ui->SphereOG->hasFocus())       PrefixePlus(ui->SphereOG);
-    if (ui->CylindreOD->hasFocus())     PrefixePlus(ui->CylindreOD);
-    if (ui->CylindreOG->hasFocus())     PrefixePlus(ui->CylindreOG);
-    if (ui->AddVPOD->hasFocus())        PrefixePlus(ui->AddVPOD);
-    if (ui->AddVPOG->hasFocus())        PrefixePlus(ui->AddVPOG);
+    if (ui->SphereOD->hasFocus())       ui->SphereOD->PrefixePlus();
+    if (ui->SphereOG->hasFocus())       ui->SphereOG->PrefixePlus();
+    if (ui->CylindreOD->hasFocus())     ui->CylindreOD->PrefixePlus();
+    if (ui->CylindreOG->hasFocus())     ui->CylindreOG->PrefixePlus();
+    if (ui->AddVPOD->hasFocus())        ui->AddVPOD->PrefixePlus();
+    if (ui->AddVPOG->hasFocus())        ui->AddVPOG->PrefixePlus();
 
     if (m_mode == Refraction::Prescription)
     {
@@ -3919,13 +3901,13 @@ void dlg_refraction::AfficheMesureFronto()
         }
     }
     // OEIL DROIT -----------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOD, Datas::I()->mesurefronto->sphereOD());
-    Init_Value_DoubleSpin(ui->CylindreOD, Datas::I()->mesurefronto->cylindreOD());
+    ui->SphereOD->setValuewithPrefix(Datas::I()->mesurefronto->sphereOD());
+    ui->CylindreOD->setValuewithPrefix(Datas::I()->mesurefronto->cylindreOD());
     ui->AxeCylindreOD   ->setValue(Datas::I()->mesurefronto->axecylindreOD());
     ui->AddVPOD         ->setValue(Datas::I()->mesurefronto->addVPOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, Datas::I()->mesurefronto->sphereOG());
-    Init_Value_DoubleSpin(ui->CylindreOG, Datas::I()->mesurefronto->cylindreOG());
+    ui->SphereOG->setValuewithPrefix(Datas::I()->mesurefronto->sphereOG());
+    ui->CylindreOG->setValuewithPrefix(Datas::I()->mesurefronto->cylindreOG());
     ui->AxeCylindreOG   ->setValue(Datas::I()->mesurefronto->axecylindreOG());
     ui->AddVPOG         ->setValue(Datas::I()->mesurefronto->addVPOG());
 }
@@ -3943,12 +3925,12 @@ void dlg_refraction::AfficheMesureAutoref()
     RadioButtonAutoref_Clicked();
 
     // OEIL DROIT -----------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOD, Datas::I()->mesureautoref->sphereOD());
-    Init_Value_DoubleSpin(ui->CylindreOD, Datas::I()->mesureautoref->cylindreOD());
+    ui->SphereOD->setValuewithPrefix(Datas::I()->mesureautoref->sphereOD());
+    ui->CylindreOD->setValuewithPrefix(Datas::I()->mesureautoref->cylindreOD());
     ui->AxeCylindreOD       ->setValue(Datas::I()->mesureautoref->axecylindreOD());
     // OEIL GAUCHE ---------------------------------------------------------------------------
-    Init_Value_DoubleSpin(ui->SphereOG, Datas::I()->mesureautoref->sphereOG());
-    Init_Value_DoubleSpin(ui->CylindreOG, Datas::I()->mesureautoref->cylindreOG());
+    ui->SphereOG->setValuewithPrefix(Datas::I()->mesureautoref->sphereOG());
+    ui->CylindreOG->setValuewithPrefix(Datas::I()->mesureautoref->cylindreOG());
     ui->AxeCylindreOG       ->setValue(Datas::I()->mesureautoref->axecylindreOG());
     AfficheKerato();
 }
@@ -4017,8 +3999,8 @@ void dlg_refraction::AfficheMesureRefracteur()
     // OEIL DROIT ---------------------------------------------------------------------------
     if (!MesureRefracteur->isnullLOD())
     {
-        Init_Value_DoubleSpin(ui->SphereOD, MesureRefracteur->sphereOD());
-        Init_Value_DoubleSpin(ui->CylindreOD, MesureRefracteur->cylindreOD());
+        ui->SphereOD->setValuewithPrefix(MesureRefracteur->sphereOD());
+        ui->CylindreOD->setValuewithPrefix(MesureRefracteur->cylindreOD());
         ui->AxeCylindreOD   ->setValue(MesureRefracteur->axecylindreOD());
         ui->AddVPOD->setValue(MesureRefracteur->addVPOD());
         AVLOD = QString::number(MesureRefracteur->avlOD().toDouble()*10) + "/10";
@@ -4026,8 +4008,8 @@ void dlg_refraction::AfficheMesureRefracteur()
     // OEIL GAUCHE ---------------------------------------------------------------------------
     if (!MesureRefracteur->isnullLOG())
     {
-        Init_Value_DoubleSpin(ui->SphereOG, MesureRefracteur->sphereOG());
-        Init_Value_DoubleSpin(ui->CylindreOG, MesureRefracteur->cylindreOG());
+        ui->SphereOG->setValuewithPrefix(MesureRefracteur->sphereOG());
+        ui->CylindreOG->setValuewithPrefix(MesureRefracteur->cylindreOG());
         ui->AxeCylindreOG   ->setValue(MesureRefracteur->axecylindreOG());
         ui->AddVPOG->setValue(MesureRefracteur->addVPOG());
         AVLOG = QString::number(MesureRefracteur->avlOG().toDouble()*10) + "/10";

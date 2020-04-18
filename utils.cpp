@@ -651,7 +651,7 @@ QString Utils::PrefixePlus(double Dioptr)                          // convertit 
 {
     if  (Dioptr == 0.0)
         return "";
-    return (Dioptr > 0 ? "+" : "") + QLocale().toString(Dioptr,'f',2);
+    return (Dioptr > 0.0 ? "+" : "") + QLocale().toString(Dioptr,'f',2);
 }
 
 /*!

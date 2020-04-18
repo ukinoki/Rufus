@@ -50,6 +50,7 @@ private:
     QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
     QFont                           m_font = QApplication::font();
 
+    bool                eventFilter(QObject *obj, QEvent *event);
     void                EnregistreIncident(Item *itm);
     void                ModifStatutActeCorrespondant(int idacte);                       /*! va rechercher s'il existe un acte correspondant à cette intervention (même patient, même date)
                                                                                         * dans la liste des actes en cours et va modifier sa propriété m_intervention
@@ -119,15 +120,13 @@ private:
 
 /*! les fabricants */
     void                ChoixManufacturer(int idx);
-    void                ListeManufacturers();
+    void                FicheListeManufacturers();
     void                ReconstruitListeManufacturers(int idmanufacturer = 0);
-    void                VerifExistManufacturer(bool &ok);
+
 /*! les IOLs */
     void                CalcRangeBox(IOL* iol = Q_NULLPTR);
-    void                CreerIOL(QString nomiol);
     void                ListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant
-    void                VerifExistIOL(bool &ok);
 
 /*! les impressions */
     void                ImprimeSession();                                                                               //! imprime le programme pératoire

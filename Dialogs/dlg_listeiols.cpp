@@ -465,7 +465,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 {
     if (iol == Q_NULLPTR)
         return;
-    dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(dlg_identificationIOL::Modification, iol, Q_NULLPTR, this);
+    dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(dlg_identificationIOL::Modification, iol, this);
     if (!Dlg_IdentIOL->initok())
         return;
     if (Dlg_IdentIOL->exec()>0)

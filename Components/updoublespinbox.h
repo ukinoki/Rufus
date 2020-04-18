@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QSound>
 #include <cmath>            // sert à introduire la fonction floor()
-#include "upmessagebox.h"
+#include "dlg_message.h"
 
 class UpDoubleSpinBox : public QDoubleSpinBox
 {
@@ -34,6 +34,8 @@ public:
     void                    setAutorCorrigeDioptr(bool);
     enum gUpDown            {Up,Down,Near};    Q_ENUM(gUpDown)
     void                    CorrigeDioptrie(int UpDownNear);            /*! corrige une valeur entrée après la virgule à la valeur de step la plus proche - 21,37 devient 21,50 si le step est réglé à 0,50 */
+    void                    PrefixePlus();                              //! convertit en QString signé + ou - la valeur
+    void                    setValuewithPrefix(double ValeurDouble);
 
 private:
     bool                    eventFilter(QObject *, QEvent *);

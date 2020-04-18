@@ -36,7 +36,7 @@ public:
     explicit dlg_identificationmanufacturer(enum Mode mode, Manufacturer *man = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationmanufacturer *ui;
     ~dlg_identificationmanufacturer();
-    Manufacturer* currentmanufacturer() const { return m_currentmanufacturer; }
+    int idcurrentmanufacturer() const { return (m_currentmanufacturer? m_currentmanufacturer->id() : 0); }
 
 private:
     DataBase                    *db                = DataBase::I();
