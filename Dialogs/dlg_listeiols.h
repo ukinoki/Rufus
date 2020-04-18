@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QCheckBox>
 #include <QHeaderView>
+#include "rangeslider.h"
 #include <QTreeView>
 #include "gbl_datas.h"
 #include "updelegate.h"
@@ -33,24 +34,44 @@ class dlg_listeiols : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit                dlg_listeiols(QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listeiols(bool onlyactifs = false, QWidget *parent = Q_NULLPTR);
     ~dlg_listeiols();
+    int                     idcurrentIOL() const;
     bool                    listeIOLsmodifiee() const;
 
 private:
     bool                    m_listemodifiee = false;
+    bool                    m_onlyactifs;
     QList<int>              m_listidiolsutilises;
     QStandardItemModel      *m_IOLsmodel = Q_NULLPTR;
     QStandardItemModel      *m_manufacturersmodel = Q_NULLPTR;
     UpComboBox              *wdg_manufacturerscombo;
+    UpComboBox              *wdg_typebox;
+    UpCheckBox              *wdg_prechargechk;
+    UpCheckBox              *wdg_jaunechk;
+    UpCheckBox              *wdg_clairchk;
+    UpCheckBox              *wdg_toricchk;
+    UpCheckBox              *wdg_edofchk;
+    UpCheckBox              *wdg_multifocalchk;
     UpLabel                 *wdg_label;
+    UpLabel                 *wdg_minpwrlbl;
+    UpLabel                 *wdg_maxpwrlbl;
+    RangeSlider             *wdg_pwrslider;
+    double                  m_minpwr = -10.00;
+    double                  m_maxpwr = 40.00;
+    UpPushButton            *wdg_annulfiltresbut;
     QTreeView               *wdg_itemstree;
     UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
     TreeViewDelegate        m_treedelegate;
+    IOL                     *m_currentIOL = Q_NULLPTR;
     QImage                  m_nullimage = QImage("://IOL.png");
 
+    bool                    eventFilter(QObject *obj, QEvent *event);
+    void                    Annulerlesfiltres();
     void                    ChoixButtonFrame();
+    void                    connectFiltersSignals();
+    void                    disconnectFiltersSignals();
     void                    ImportListeIOLS();
     void                    Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauIOL();

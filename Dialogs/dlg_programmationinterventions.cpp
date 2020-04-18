@@ -104,7 +104,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     buttonslayout()                 ->insertLayout(0, buttbox);
 
     connect(wdg_manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeManufacturers);
-    connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::ListeIOLs);
+    connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeIOLs);
     connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeRapportIncident);
     connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeListeIOLsSession);
 
@@ -1035,8 +1035,11 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     QHBoxLayout *checkIOLLay    = new QHBoxLayout();   
     wdg_IOLchk                  = new QCheckBox(tr("Utiliser un implant"));
     wdg_IOLchk                  ->setCheckState(Qt::Unchecked);
+    wdg_choixIOLbutt            = new UpPushButton(tr("Choisir un implant"));
     checkIOLLay                 ->addWidget(wdg_IOLchk);
     checkIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    checkIOLLay                 ->addWidget(wdg_choixIOLbutt);
+    wdg_choixIOLbutt            ->setVisible(false);
     checkIOLLay                 ->setSpacing(5);
     checkIOLLay                 ->setContentsMargins(0,0,0,0);
 
@@ -1057,7 +1060,29 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     choixManufacturerIOLLay     ->setSpacing(5);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
-    connect(wdg_IOLchk, &QCheckBox::stateChanged, dlg_intervention, [&](int state) {if (state == Qt::Checked) ReconstruitListeManufacturers();});
+    connect(wdg_IOLchk, &QCheckBox::stateChanged,       dlg_intervention,   [&](int state) {if (state == Qt::Checked) ReconstruitListeManufacturers();});
+    connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [&]{
+                int idiol = 0;
+                dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, this);
+                if (Dlg_ListIOLs->exec() == 0)
+                {
+                    idiol = Dlg_ListIOLs->idcurrentIOL();
+                    if (Dlg_ListIOLs->listeIOLsmodifiee())
+                        RemplirTreeInterventions();
+                }
+                if (idiol > 0)
+                {
+                    IOL *iol = Datas::I()->iols->getById(idiol);
+                    if (iol)
+                    {
+                        Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                        if (man != Q_NULLPTR)
+                            wdg_manufacturercombo->setCurrentIndex(wdg_manufacturercombo->findData(man->id()));
+                        wdg_IOLcombo->setCurrentIndex(wdg_IOLcombo->findData(idiol));
+                    }
+                }
+                delete Dlg_ListIOLs;
+            });
 
             //! MODELE
     QHBoxLayout *choixIOLLay    = new QHBoxLayout();
@@ -1105,7 +1130,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     wdg_choixcylwdg                 ->setLayout(choixCylIOLLay);
 
 
-    connect(wdg_IOLchk, &QCheckBox::stateChanged, dlg_intervention, [&] { wdg_IOL->setVisible(wdg_IOLchk->isChecked()); });
+    connect(wdg_IOLchk, &QCheckBox::stateChanged, dlg_intervention, [&] { wdg_IOL->setVisible(wdg_IOLchk->isChecked()); wdg_choixIOLbutt->setVisible(wdg_IOLchk->isChecked());});
     CalcRangeBox(m_currentIOL);
 
     box_IOLlay      ->insertWidget(0, wdg_choixcylwdg);
@@ -1156,6 +1181,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             }
             wdg_pwrIOLspinbox->setValuewithPrefix(interv->puissanceIOL());
             wdg_cylIOLspinbox->setValuewithPrefix(interv->cylindreIOL());
+            wdg_choixIOLbutt->setVisible(true);
         }
     }
 
@@ -1600,9 +1626,10 @@ void dlg_programmationinterventions::CalcRangeBox(IOL *iol)
     wdg_cylIOLspinbox->setValue(0.00);
 }
 
-void dlg_programmationinterventions::ListeIOLs()
+void dlg_programmationinterventions::FicheListeIOLs()
 {
-    dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(this);
+    bool quelesactifs = false;
+    dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(quelesactifs, this);
     Dlg_ListIOLs->exec();
     if (Dlg_ListIOLs->listeIOLsmodifiee())
         RemplirTreeInterventions();

@@ -17,11 +17,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_listeiols.h"
 
-dlg_listeiols::dlg_listeiols(QWidget *parent) :
+dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeIOLs",parent)
 {
+    m_onlyactifs = onlyactifs;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint
-                   | Qt::WindowStaysOnTopHint);//|Qt::X11BypassWindowManagerHint);
+                   | Qt::WindowMinMaxButtonsHint);//|Qt::X11BypassWindowManagerHint);
 
     setModal(true);
     setWindowTitle(tr("Liste des IOLs"));
@@ -37,29 +38,6 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     wdg_itemstree ->setIndentation(10);
     wdg_itemstree ->setMouseTracking(true);
     wdg_itemstree ->header()->setVisible(false);
-    bool reconstruirelaliste = true;
-    ReconstruitTreeViewIOLs(reconstruirelaliste);
-
-    wdg_manufacturerscombo = new UpComboBox();
-    wdg_manufacturerscombo->setEditable(false);
-    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
-    wdg_manufacturerscombo->setFixedSize(250,30);
-    QHBoxLayout *manufacturerlay = new QHBoxLayout();
-    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
-    manufacturerlay     ->addWidget(wdg_manufacturerscombo);
-    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
-    manufacturerlay     ->setContentsMargins(0,0,0,5);
-
-    for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
-        if (itm)
-        {
-            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
-            if (man)
-                wdg_manufacturerscombo->addItem(man->nom(), man->id());
-        }
-    }
 
     wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -72,8 +50,8 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     wdg_chercheuplineedit   ->setStyleSheet(
     "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
     "UpLineEdit:focus {border: 2px solid rgb(164, 205, 255);border-radius: 10px;}");
-    wdg_buttonframe->layButtons()->insertWidget(0,wdg_label);
-    wdg_buttonframe->layButtons()->insertWidget(0,wdg_chercheuplineedit);
+    wdg_buttonframe->layButtons()   ->insertWidget(0,wdg_label);
+    wdg_buttonframe->layButtons()   ->insertWidget(0,wdg_chercheuplineedit);
     AjouteLayButtons(UpDialog::ButtonOK);
 
     UpPushButton *importbutt =   new UpPushButton(tr("Mettre à jour"));
@@ -85,12 +63,96 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
     AjouteWidgetLayButtons(resizebutt, false);
     resizebutt->setVisible(false);
 
-    dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
-    dlglayout()->insertLayout(0,manufacturerlay);
-    setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
+    wdg_manufacturerscombo = new UpComboBox();
+    wdg_manufacturerscombo->setEditable(false);
+    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
+    wdg_manufacturerscombo->setFixedSize(250,30);
+    QHBoxLayout *manufacturerlay = new QHBoxLayout();
+    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    manufacturerlay     ->addWidget(wdg_manufacturerscombo);
+    manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    manufacturerlay     ->setContentsMargins(0,0,0,0);
+    UpLabel* Typelbl            = new UpLabel;
+    Typelbl                     ->setText(tr("Type"));
+    wdg_typebox                 = new UpComboBox;
+    wdg_typebox                 ->setEditable(false);
+    wdg_typebox                 ->addItems(QStringList() << tr("Tous") << IOL_CP << IOL_CA << IOL_ADDON << IOL_IRIEN << IOL_CAREFRACTIF << IOL_AUTRE);
+    wdg_typebox                 ->setFixedWidth(180);
+    wdg_prechargechk            = new UpCheckBox(tr("Prechargé"));
+    wdg_jaunechk                = new UpCheckBox(tr("Jaune"));
+    wdg_clairchk                = new UpCheckBox(tr("Clair"));
+    wdg_toricchk                = new UpCheckBox(tr("Torique"));
+    QHBoxLayout *colorlay       = new QHBoxLayout();
+    colorlay                    ->addWidget(wdg_jaunechk);
+    colorlay                    ->addWidget(wdg_clairchk);
+    colorlay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    colorlay                    ->setContentsMargins(0,0,0,0);
+    colorlay                    ->setSpacing(20);
+    wdg_edofchk                 = new UpCheckBox("EDOF");
+    wdg_multifocalchk           = new UpCheckBox(tr("Multifocal"));
+    UpLabel* pwrlbl             = new UpLabel;
+    pwrlbl                      ->setText(tr("Puissance"));
+    QVBoxLayout *pwrlay         = new QVBoxLayout();
+    wdg_pwrslider               = new RangeSlider(Qt::Horizontal);
+    wdg_pwrslider               ->SetRange(-150,400);
+    QHBoxLayout *rangelay       = new QHBoxLayout();
+    wdg_minpwrlbl               = new UpLabel;
+    wdg_maxpwrlbl               = new UpLabel;
+    wdg_minpwrlbl               ->setFixedSize(50,28);
+    wdg_maxpwrlbl               ->setFixedSize(50,28);
+    wdg_minpwrlbl               ->setText("-10.00");
+    wdg_maxpwrlbl               ->setText("+40.00");
+    rangelay                    ->addWidget(wdg_minpwrlbl);
+    rangelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    rangelay                    ->addWidget(wdg_maxpwrlbl);
+    rangelay                    ->setContentsMargins(0,0,0,0);
+    pwrlay                      ->addWidget(pwrlbl);
+    pwrlay                      ->addWidget(wdg_pwrslider);
+    pwrlay                      ->addLayout(rangelay);
+    pwrlay                      ->setContentsMargins(0,0,0,0);
+    pwrlay                      ->setSpacing(0);
+    wdg_annulfiltresbut         = new UpPushButton(tr("Annuler les filtres"));
 
 
+    QHBoxLayout *globallay  = new QHBoxLayout();
+    QVBoxLayout *searchLay  = new QVBoxLayout();
+    searchLay               ->addLayout(manufacturerlay);
+    searchLay               ->addWidget(Typelbl);
+    searchLay               ->addWidget(wdg_typebox);
+    searchLay               ->addWidget(wdg_prechargechk);
+    searchLay               ->addLayout(colorlay);
+    searchLay               ->addWidget(wdg_toricchk);
+    searchLay               ->addWidget(wdg_edofchk);
+    searchLay               ->addWidget(wdg_multifocalchk);
+    searchLay               ->addLayout(pwrlay);
+    searchLay               ->addWidget(wdg_annulfiltresbut);
+    searchLay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Fixed,QSizePolicy::Expanding));
+    searchLay               ->setSpacing(10);
+    globallay               ->addLayout(searchLay);
+    globallay               ->addWidget(wdg_buttonframe->widgButtonParent());
 
+    dlglayout()->insertLayout(0,globallay);
+    setFixedWidth(wdg_manufacturerscombo->width() + globallay->spacing() + wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
+
+    bool reconstruirelaliste = true;
+    ReconstruitTreeViewIOLs(reconstruirelaliste);
+
+    for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+        if (itm)
+        {
+            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            if (man)
+                wdg_manufacturerscombo->addItem(man->nom(), man->id());
+        }
+    }
+    wdg_annulfiltresbut->setEnabled(false);
+
+    wdg_edofchk         ->installEventFilter(this);
+    wdg_multifocalchk   ->installEventFilter(this);
+    wdg_jaunechk        ->installEventFilter(this);
+    wdg_clairchk        ->installEventFilter(this);
 
     connect(importbutt,             &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
     connect(resizebutt,             &QPushButton::clicked,      this,   [&] {resizeiolimage();});
@@ -100,7 +162,12 @@ dlg_listeiols::dlg_listeiols(QWidget *parent) :
                                                                                             ReconstruitTreeViewIOLs(false, txt);
                                                                                            });
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listeiols::ChoixButtonFrame);
-    connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+    connect(wdg_annulfiltresbut,    &QPushButton::clicked,      this,   [&] {
+                                                                                Annulerlesfiltres();
+                                                                                ReconstruitTreeViewIOLs(false);
+                                                                                wdg_annulfiltresbut->setEnabled(false);
+                                                                            });
+    connectFiltersSignals();
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
@@ -118,9 +185,46 @@ dlg_listeiols::~dlg_listeiols()
     EnregistrePosition();
 }
 
+int dlg_listeiols::idcurrentIOL() const
+{
+    int idiol = (m_currentIOL? m_currentIOL->id() : 0);
+    return idiol;
+}
+
+bool dlg_listeiols::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key()==Qt::Key_Space)
+            if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            {
+                UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+                if (chk)
+                {
+                    chk->setChecked(!chk->isChecked());
+                    emit chk->uptoggled(chk->isChecked());  //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
+                    return true;
+                }
+            }
+    }
+    if(event->type()==QEvent::MouseButtonPress)
+        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+        {
+            UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+            if (chk)
+            {
+                chk->setChecked(!chk->isChecked());
+                emit chk->uptoggled(chk->isChecked());  //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
+                return true;
+            }
+        }
+    return QWidget::eventFilter(obj, event);
+}
 void dlg_listeiols::Enablebuttons(QModelIndex idx)
 {
     IOL *iol = getIOLFromIndex(idx);
+    m_currentIOL = iol;
     if (iol != Q_NULLPTR)
     {
         wdg_buttonframe->wdg_modifBouton->setEnabled(true);
@@ -133,6 +237,75 @@ void dlg_listeiols::Enablebuttons(QModelIndex idx)
     }
 }
 
+void dlg_listeiols::Annulerlesfiltres()
+{
+    disconnectFiltersSignals();
+    wdg_manufacturerscombo  ->setCurrentIndex(0);
+    wdg_typebox             ->setCurrentIndex(0);
+    wdg_prechargechk        ->setChecked(false);
+    wdg_jaunechk            ->setChecked(false);
+    wdg_clairchk            ->setChecked(false);
+    wdg_toricchk            ->setChecked(false);
+    wdg_edofchk             ->setChecked(false);
+    wdg_multifocalchk       ->setChecked(false);
+    wdg_pwrslider           ->SetLowerValue(wdg_pwrslider->Minimun());
+    wdg_pwrslider           ->SetUpperValue(wdg_pwrslider->Maximun());
+    wdg_minpwrlbl           ->setText(Utils::PrefixePlus(double(wdg_pwrslider->Minimun())/10));
+    wdg_maxpwrlbl           ->setText(Utils::PrefixePlus(double(wdg_pwrslider->Maximun())/10));
+    connectFiltersSignals();
+}
+
+void dlg_listeiols::connectFiltersSignals()
+{
+    connect(wdg_manufacturerscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_typebox,            QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_prechargechk,       &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_toricchk,           &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_edofchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                        wdg_multifocalchk->setChecked(false);
+                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      wdg_annulfiltresbut->setEnabled(true);
+                                                                                    } );
+    connect(wdg_clairchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                        wdg_jaunechk->setChecked(false);
+                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      wdg_annulfiltresbut->setEnabled(true);
+                                                                                    } );
+    connect(wdg_jaunechk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                        wdg_clairchk->setChecked(false);
+                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      wdg_annulfiltresbut->setEnabled(true);
+                                                                                    } );
+    connect(wdg_multifocalchk,      &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                        wdg_edofchk->setChecked(false);
+                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      wdg_annulfiltresbut->setEnabled(true);
+                                                                                    } );
+    connect(wdg_pwrslider,          &RangeSlider::lowerValueChanged,    this, [&](int a) {
+                                                                                            m_minpwr = double(Utils::roundToNearestFive(a))/10;
+                                                                                            wdg_minpwrlbl->setText(Utils::PrefixePlus(m_minpwr));
+                                                                                            ReconstruitTreeViewIOLs(false);
+                                                                                            wdg_annulfiltresbut->setEnabled(true);
+                                                                                         } );
+    connect(wdg_pwrslider,          &RangeSlider::upperValueChanged,    this, [&](int a) {
+                                                                                            m_maxpwr = double(Utils::roundToNearestFive(a))/10;
+                                                                                            wdg_maxpwrlbl->setText(Utils::PrefixePlus(m_maxpwr));
+                                                                                            ReconstruitTreeViewIOLs(false);
+                                                                                            wdg_annulfiltresbut->setEnabled(true);
+                                                                                         } );
+}
+void dlg_listeiols::disconnectFiltersSignals()
+{
+    wdg_manufacturerscombo  ->disconnect();
+    wdg_typebox             ->disconnect();
+    wdg_prechargechk        ->disconnect();
+    wdg_jaunechk            ->disconnect();
+    wdg_clairchk            ->disconnect();
+    wdg_toricchk            ->disconnect();
+    wdg_edofchk             ->disconnect();
+    wdg_multifocalchk       ->disconnect();
+    wdg_pwrslider           ->disconnect();
+}
 
 void dlg_listeiols::ChoixButtonFrame()
 {
@@ -171,9 +344,9 @@ void dlg_listeiols::EnregistreNouveauIOL()
     {
         IOL *iol = Dlg_IdentIOL->currentIOL();
         m_listemodifiee = true;
-        wdg_manufacturerscombo->disconnect();
+        disconnectFiltersSignals();
         wdg_manufacturerscombo->setCurrentIndex(0);
-        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+        Annulerlesfiltres();
         ReconstruitTreeViewIOLs(true);
         if (iol)
             scrollToIOL(iol);
@@ -635,6 +808,8 @@ void dlg_listeiols::ReconstruitListeManufacturers()
         if (man != Q_NULLPTR)
         {
             QString fabricant  = man->nom();
+            if (m_onlyactifs && !iol->isactif())
+                continue;
             if (!list.contains(fabricant))
             {
                 list << fabricant;
@@ -661,7 +836,9 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
     if (m_IOLsmodel == Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
-    int idman = wdg_manufacturerscombo->currentData().toInt();
+
+    /*! filtrage du fabricant */
+    int idman   = wdg_manufacturerscombo->currentData().toInt();
     UpStandardItem *pitem;
     for (int i=0; i<  m_manufacturersmodel->rowCount(); ++i)
     {
@@ -671,7 +848,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
             if (man != Q_NULLPTR)
             {
-                if (idman == 0)
+                if (idman == 0)                                                                 //! tous les fabricants
                 {
                     UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
                     manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
@@ -683,7 +860,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
                     manufacturer2item  ->setEnabled(false);
                     m_IOLsmodel->appendRow(QList<QStandardItem*>() << manufactureritem << manufacturer2item);
                 }
-                else if (man->id() == idman)
+                else if (man->id() == idman)                                                    //! un seul fabricant
                 {
                     UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
                     manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
@@ -699,10 +876,47 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
         }
         m_IOLsmodel->sort(0);
     }
+
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
+        if (m_onlyactifs && !iol->isactif())
+            continue;
         if (iol->modele().startsWith(filtre, Qt::CaseInsensitive))
         {
+            /*! filtrage des types */
+            if (wdg_typebox->currentIndex() != 0)
+            {
+                QString type  = wdg_typebox->currentText();
+                if (iol->type() != wdg_typebox->currentText())
+                    continue;
+            }
+            /*! filtrage des precharge */
+            if (wdg_prechargechk->isChecked())
+                if (!iol->isprecharge())
+                    continue;
+            /*! filtrage des jaunes */
+            if (wdg_jaunechk->isChecked())
+                if (!iol->isjaune())
+                    continue;
+            /*! filtrage des clairs */
+            if (wdg_clairchk->isChecked())
+                if (iol->isjaune())
+                    continue;
+            /*! filtrage des toric */
+            if (wdg_toricchk->isChecked())
+                if (!iol->istoric())
+                    continue;
+            /*! filtrage des edof */
+            if (wdg_edofchk->isChecked())
+                if (!iol->isedof())
+                    continue;
+            /*! filtrage des multifocaux */
+            if (wdg_multifocalchk->isChecked())
+                if (!iol->ismultifocal())
+                    continue;
+            /*! filtrage des puissances */
+            if (iol->pwrmin() > m_maxpwr || iol->pwrmax() < m_minpwr)
+                continue;
             pitem   = new UpStandardItem(iol->modele(), iol);
             if (!iol->isactif())
                 pitem ->setForeground(QBrush(QColor(Qt::darkGray)));
@@ -745,6 +959,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             }
         }
     }
+
     for (int i=0; i<m_IOLsmodel->rowCount();i++)
     {
         if (m_IOLsmodel->item(i) != Q_NULLPTR)

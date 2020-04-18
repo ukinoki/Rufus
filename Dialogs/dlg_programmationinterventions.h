@@ -80,6 +80,7 @@ private:
     UpPushButton        *wdg_commandeIOLbutt;
     UpPushButton        *wdg_manufacturerbutt;
     UpPushButton        *wdg_IOLbutt;
+    UpPushButton        *wdg_choixIOLbutt;
     WidgetButtonFrame   *wdg_buttonsessionsframe;
     WidgetButtonFrame   *wdg_buttoninterventionframe;
     UpDoubleSpinBox     *wdg_pwrIOLspinbox;
@@ -125,7 +126,7 @@ private:
 
 /*! les IOLs */
     void                CalcRangeBox(IOL* iol = Q_NULLPTR);
-    void                ListeIOLs();
+    void                FicheListeIOLs();
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant
 
 /*! les impressions */

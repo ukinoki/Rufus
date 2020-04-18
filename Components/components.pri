@@ -3,6 +3,7 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/upcheckbox.cpp \
+    $$PWD/rangeslider.cpp \
         $$PWD/upcombobox.cpp \
     $$PWD/updelegate.cpp \
         $$PWD/updialog.cpp \
@@ -26,6 +27,7 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/uptableview.cpp
 
 HEADERS += $$PWD/upcheckbox.h \
+    $$PWD/rangeslider.h \
         $$PWD/upcombobox.h \
     $$PWD/updelegate.h \
         $$PWD/updialog.h \
