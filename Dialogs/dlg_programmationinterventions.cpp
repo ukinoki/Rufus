@@ -1064,7 +1064,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [&]{
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, this);
-                if (Dlg_ListIOLs->exec() == 0)
+                if (Dlg_ListIOLs->exec() > 0)
                 {
                     idiol = Dlg_ListIOLs->idcurrentIOL();
                     if (Dlg_ListIOLs->listeIOLsmodifiee())
@@ -1230,8 +1230,12 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         }
         if (pat != Q_NULLPTR)
             if (pat->telephone() == "" && pat->portable() == "")
+            {
                 if (!Patients::veriftelephone(pat))
                     return;
+                else
+                    emit updateHtml(pat);
+            }
         QTime heure = timeedit->time();
         QStandardItem *itm = m_sessionsmodel->itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
         UpStandardItem *upitm = dynamic_cast<UpStandardItem*>(itm);

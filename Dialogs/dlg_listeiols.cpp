@@ -52,7 +52,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     "UpLineEdit:focus {border: 2px solid rgb(164, 205, 255);border-radius: 10px;}");
     wdg_buttonframe->layButtons()   ->insertWidget(0,wdg_label);
     wdg_buttonframe->layButtons()   ->insertWidget(0,wdg_chercheuplineedit);
-    AjouteLayButtons(UpDialog::ButtonOK);
+    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
     UpPushButton *importbutt =   new UpPushButton(tr("Mettre à jour"));
     importbutt->setIcon(Icons::icImport());
@@ -156,7 +156,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 
     connect(importbutt,             &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
     connect(resizebutt,             &QPushButton::clicked,      this,   [&] {resizeiolimage();});
-    connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
+    connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::accept);
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) {
                                                                                             wdg_chercheuplineedit->setText(txt);
                                                                                             ReconstruitTreeViewIOLs(false, txt);

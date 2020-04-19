@@ -135,6 +135,10 @@ private:
     void                ImprimeListeIOLsSession();                                                                      //! imprime la liste des IOLS nécessaires pour une session, classés par fabricant
     void                FicheImpressions(Patient *pat, Intervention *interv);                                           //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     bool                m_docimprime = false;
+
+signals:
+    void                updateHtml(Patient *pat);
+
 };
 
 #endif // DLG_PROGRAMMATIONINTERVENTIONS_H

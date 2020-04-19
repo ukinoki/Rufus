@@ -446,7 +446,7 @@ void Rufus::Moulinette()
 {
 
     //! MODIFICATION DES TABLES CCAM ============================================================================================================================================================
-    bool ok;
+    /*!bool ok;
     QString req = "select codeccam from rufus.ccam";
     QList<QVariantList> listcodes = db->StandardSelectSQL(req, ok);
     for (int i=0; i< listcodes.size(); i++)
@@ -466,7 +466,8 @@ void Rufus::Moulinette()
               " where codeccam = '" + code + "'";
         //qDebug() << req;
         db->StandardSQL(req);
-     }
+     */
+    //! FIN MODIFICATION DES TABLES CCAM ============================================================================================================================================================
     /*    QString req= "select codeCCAM, modificateur, montant from ccam.ccamd";
     QSqlQuery quer(req, db->getDataBase() );
     for (int i=0; i< quer.size(); i++)
@@ -653,11 +654,12 @@ void Rufus::Moulinette()
     proc->Edit("OK pour villes");*/
 
 
-/*    // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
-    //Mélange les noms, et 1ère ligne d'adresse dans la base
+/*!    // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
+    //Mélange les noms, et 1ère ligne d'adresse dans la base */
     if (UpMessageBox::Question(this,tr("ATTENTION"),tr("Cette fonction sert à générer une base factice pour la démonstration du logiciel") + "<br />"
                                + tr("Si vous cliquez sur OK, tous les enregistrements de la base seront mélangés et les données seront donc irrémédiablement perdues")) != UpSmallButton::STARTBUTTON)
         return;
+    bool ok;
     int idauhasard;
     QString copierequete = "drop table if exists rufus.patients2;\n";
     copierequete += "create table rufus.patients2 like rufus.patients;\n";
@@ -760,9 +762,9 @@ void Rufus::Moulinette()
 
     UpMessageBox::Watch(this,"OK pour nom");
 
-    copierequete = "drop table if exists rufus.donneessocialespatients2;\n";
-    copierequete += "create table rufus.donneessocialespatients2 like rufus.donneessocialespatients;\n";
-    copierequete += "insert into rufus.donneessocialespatients2 (select * from rufus.donneessocialespatients);";
+    copierequete = "drop table if exists  rufus.donneessocialespatients2;\n";
+    copierequete += "create table rufus.donneessocialespatients2 like " TBL_DONNEESSOCIALESPATIENTS ";";
+    copierequete += "insert into rufus.donneessocialespatients2 (select * from " TBL_DONNEESSOCIALESPATIENTS ");";
     db->StandardSQL(copierequete);
 
     QStringList listAdresses;
@@ -800,7 +802,7 @@ void Rufus::Moulinette()
     copierequete += "drop table if exists rufus.donneessocialespatients2;\n";
     db->StandardSQL(copierequete);
     UpMessageBox::Watch(this,"OK pour adresse1 et 2");
-    Remplir_ListePatients_TableView(grequeteListe,"","");       // Moulinette()
+    FiltreTable();
 
     //Melange des noms des correspondants
     db->StandardSQL("update " TBL_CORRESPONDANTS " set CorNom = 'Porteix' where CorNom = 'Porte'");
@@ -858,7 +860,7 @@ void Rufus::Moulinette()
         db->StandardSQL(Corcopierequete);
     }
     UpMessageBox::Watch(this,"OK pour Correspondants");
-    */
+
 }
 
 void Rufus::ActeGratuit()
@@ -8276,10 +8278,16 @@ void Rufus::ModeCreationDossier()
 
 void Rufus::ProgrammationIntervention(Patient *pat)
 {
+    qDebug() << pat;
     dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, this);
+    connect(dlg_progr, &dlg_programmationinterventions::updateHtml, this, [&](Patient *chirpat) {
+        if (chirpat->id() == pat->id())
+            ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(pat));
+    });
     dlg_progr->exec();
     if (dlg_progr->docimprime())
         MAJDocsExternes();
+    dlg_progr->disconnect();
     delete dlg_progr;
 }
 
