@@ -649,12 +649,12 @@ double Utils::mmToInches(double mm )  { return mm * 0.039370147; }
 
 QString Utils::PrefixePlus(double Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
 {
-    if  (Dioptr == 0.0)
-        return "";
+//    if  (Dioptr == 0.0)
+//        return "0" + QString(QLocale().decimalPoint()) + "00";
     return (Dioptr > 0.0 ? "+" : "") + QLocale().toString(Dioptr,'f',2);
 }
 
-/*!
+/*! ++++ PLUS UTILISE - trop sensible aux choix de jeu de caractère et marche mal avec les blobs
  * \brief Procedures::DecomposeScriptSQL(QString nomficscript)
  * Cette fonction va décomposer un script SQL en une suite d'instructions SQL utilisables par Qt
  * \param l'emplacement du fichier à traiter
