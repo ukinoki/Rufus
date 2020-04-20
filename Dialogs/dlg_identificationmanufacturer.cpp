@@ -153,10 +153,10 @@ void    dlg_identificationmanufacturer:: EnableOKpushButton()
 void    dlg_identificationmanufacturer:: EnablekillCorpushButton()
 {
     bool a  = ui->CorNomlineEdit->text() != ""
-            && ui->CorPrenomlineEdit->text() != ""
-            && ui->CorMaillineEdit->text() != ""
-            && ui->CorTelephonelineEdit->text() != ""
-            && ui->CorStatutlineEdit->text() != "";
+            || ui->CorPrenomlineEdit->text() != ""
+            || ui->CorMaillineEdit->text() != ""
+            || ui->CorTelephonelineEdit->text() != ""
+            || ui->CorStatutlineEdit->text() != "";
     ui->killCorupPushButton->setEnabled(a);
 }
 

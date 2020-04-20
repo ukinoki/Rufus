@@ -53,6 +53,7 @@ private:
     UpCheckBox              *wdg_toricchk;
     UpCheckBox              *wdg_edofchk;
     UpCheckBox              *wdg_multifocalchk;
+    UpCheckBox              *wdg_monofocalchk;
     UpLabel                 *wdg_label;
     UpLabel                 *wdg_minpwrlbl;
     UpLabel                 *wdg_maxpwrlbl;

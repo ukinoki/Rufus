@@ -63,6 +63,12 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     AjouteWidgetLayButtons(resizebutt, false);
     resizebutt->setVisible(false);
 
+    UpLabel* searchlbl          = new UpLabel;
+    searchlbl                   ->setText(tr("Recherche d'implant"));
+    QHBoxLayout *titrelay       = new QHBoxLayout();
+    titrelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    titrelay                    ->addWidget(searchlbl);
+    titrelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     wdg_manufacturerscombo = new UpComboBox();
     wdg_manufacturerscombo->setEditable(false);
     wdg_manufacturerscombo->addItem(tr("Tous"), 0);
@@ -88,9 +94,17 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     colorlay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     colorlay                    ->setContentsMargins(0,0,0,0);
     colorlay                    ->setSpacing(20);
+    QHBoxLayout *typelay        = new QHBoxLayout();
     wdg_edofchk                 = new UpCheckBox("EDOF");
     wdg_multifocalchk           = new UpCheckBox(tr("Multifocal"));
+    wdg_monofocalchk            = new UpCheckBox(tr("Monofocal"));
     UpLabel* pwrlbl             = new UpLabel;
+    typelay                     ->addWidget(wdg_edofchk);
+    typelay                     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    typelay                     ->addWidget(wdg_multifocalchk);
+    typelay                     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    typelay                     ->addWidget(wdg_monofocalchk);
+    typelay                     ->setContentsMargins(0,0,0,0);
     pwrlbl                      ->setText(tr("Puissance"));
     QVBoxLayout *pwrlay         = new QVBoxLayout();
     wdg_pwrslider               = new RangeSlider(Qt::Horizontal);
@@ -116,14 +130,14 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 
     QHBoxLayout *globallay  = new QHBoxLayout();
     QVBoxLayout *searchLay  = new QVBoxLayout();
+    searchLay               ->addLayout(titrelay);
     searchLay               ->addLayout(manufacturerlay);
     searchLay               ->addWidget(Typelbl);
     searchLay               ->addWidget(wdg_typebox);
     searchLay               ->addWidget(wdg_prechargechk);
     searchLay               ->addLayout(colorlay);
     searchLay               ->addWidget(wdg_toricchk);
-    searchLay               ->addWidget(wdg_edofchk);
-    searchLay               ->addWidget(wdg_multifocalchk);
+    searchLay               ->addLayout(typelay);
     searchLay               ->addLayout(pwrlay);
     searchLay               ->addWidget(wdg_annulfiltresbut);
     searchLay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Fixed,QSizePolicy::Expanding));
@@ -151,6 +165,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 
     wdg_edofchk         ->installEventFilter(this);
     wdg_multifocalchk   ->installEventFilter(this);
+    wdg_monofocalchk    ->installEventFilter(this);
     wdg_jaunechk        ->installEventFilter(this);
     wdg_clairchk        ->installEventFilter(this);
 
@@ -262,7 +277,10 @@ void dlg_listeiols::connectFiltersSignals()
     connect(wdg_prechargechk,       &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
     connect(wdg_toricchk,           &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
     connect(wdg_edofchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                      {
                                                                                         wdg_multifocalchk->setChecked(false);
+                                                                                        wdg_monofocalchk->setChecked(false);
+                                                                                      }
                                                                                       ReconstruitTreeViewIOLs(false);
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
@@ -277,7 +295,18 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
     connect(wdg_multifocalchk,      &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                      {
                                                                                         wdg_edofchk->setChecked(false);
+                                                                                        wdg_monofocalchk->setChecked(false);
+                                                                                      }
+                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      wdg_annulfiltresbut->setEnabled(true);
+                                                                                    } );
+    connect(wdg_monofocalchk,       &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                      {
+                                                                                        wdg_multifocalchk->setChecked(false);
+                                                                                        wdg_edofchk->setChecked(false);
+                                                                                      }
                                                                                       ReconstruitTreeViewIOLs(false);
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
@@ -303,6 +332,7 @@ void dlg_listeiols::disconnectFiltersSignals()
     wdg_clairchk            ->disconnect();
     wdg_toricchk            ->disconnect();
     wdg_edofchk             ->disconnect();
+    wdg_monofocalchk        ->disconnect();
     wdg_multifocalchk       ->disconnect();
     wdg_pwrslider           ->disconnect();
 }
@@ -628,7 +658,6 @@ void dlg_listeiols::ImportListeIOLS()
                 wdg_manufacturerscombo->addItem(man->nom(), man->id());
         }
     }
-
 }
 
 // ------------------------------------------------------------------------------------------
@@ -876,7 +905,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
         }
         m_IOLsmodel->sort(0);
     }
-
+    int dim = 45;
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         if (m_onlyactifs && !iol->isactif())
@@ -914,6 +943,10 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             if (wdg_multifocalchk->isChecked())
                 if (!iol->ismultifocal())
                     continue;
+            /*! filtrage des monfoocaux */
+            if (wdg_monofocalchk->isChecked())
+                if (iol->ismultifocal() || iol->isedof())
+                    continue;
             /*! filtrage des puissances */
             if (iol->pwrmin() > m_maxpwr || iol->pwrmax() < m_minpwr)
                 continue;
@@ -943,8 +976,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             }
             QPixmap pix;
             QImage img2 = image;
-            img2.scaledToWidth(50);
-            if (img2.height()>50)
+            img2.scaledToWidth(dim);
+            if (img2.height()>dim)
                 pix = QPixmap::fromImage(image.scaledToHeight(50));
             else
                 pix = QPixmap::fromImage(img2);
@@ -973,7 +1006,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
     wdg_itemstree   ->setColumnWidth(0,280);
     wdg_itemstree   ->setColumnWidth(1,30);
     wdg_itemstree   ->expandAll();
-    m_treedelegate  .setHeight(45);
+    m_treedelegate  .setHeight(dim + 5);
     wdg_itemstree   ->setItemDelegate(&m_treedelegate);
     if (m_IOLsmodel->rowCount()>0)
     {

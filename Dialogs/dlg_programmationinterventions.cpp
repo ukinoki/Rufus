@@ -148,6 +148,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
     Datas::I()->typesinterventions->initListe();
+    Datas::I()->iols->initListe();
     ReconstruitListeTypeInterventions();
 }
 
@@ -1767,7 +1768,6 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
     m_IOLcompleterlist.clear();
     wdg_IOLcombo->disconnect();
     wdg_IOLcombo->clear();
-    Datas::I()->iols->initListeByManufacturerId(idmanufacturer);
     if (m_IOLsmodel != Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
@@ -1864,10 +1864,8 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
     if (m_manufacturersmodel == Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
-    IOLs *listeiols = new IOLs(this);
-    listeiols->initListe();
     QList<int> listidmanufacturer;
-    foreach (IOL *iol, listeiols->iols()->values())
+    foreach (IOL *iol, Datas::I()->iols->iols()->values())
     {
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
         if (man != Q_NULLPTR)
@@ -1885,8 +1883,6 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
                 }
         }
     }
-    listeiols->clearAll(listeiols->iols());
-    delete listeiols;
 
     if (m_manufacturersmodel->rowCount() > 0)
     {

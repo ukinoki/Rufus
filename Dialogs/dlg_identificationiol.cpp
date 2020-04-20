@@ -923,12 +923,14 @@ void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
         m_IOLsmodel->clear();
     if (!m_currentmanufacturer)
         return;
-    m_iols->initListeByManufacturerId(m_currentmanufacturer->id());
     UpStandardItem *pitem;
-    foreach(IOL *iol, m_iols->iols()->values())
+    foreach (IOL* iol, *Datas::I()->iols->iols())
     {
-        pitem   = new UpStandardItem(iol->modele(), iol);
-        m_IOLsmodel->appendRow(pitem);
+        if (iol->idmanufacturer() == man->id())
+        {
+            pitem = new UpStandardItem(iol->modele(), iol);
+            m_IOLsmodel->appendRow(pitem);
+        }
     }
     m_IOLsmodel->sort(0);
     for (int i=0; i<m_IOLsmodel->rowCount(); ++i)

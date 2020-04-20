@@ -78,8 +78,16 @@ void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
     wdg_buttonframe->wdg_modifBouton->setEnabled(man != Q_NULLPTR);
     if (man != Q_NULLPTR)
     {
-        Datas::I()->iols->initListeByManufacturerId(man->id());
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(Datas::I()->iols->iols()->size() == 0);
+        bool existmaufacturer = false;
+        foreach (IOL* iol, *Datas::I()->iols->iols())
+        {
+            if (iol->idmanufacturer() == man->id())
+            {
+                existmaufacturer = true;
+                break;
+            }
+        }
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(!existmaufacturer);
     }
     else
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);

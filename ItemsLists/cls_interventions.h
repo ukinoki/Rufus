@@ -73,7 +73,6 @@ public:
     QMap<int, IOL*> *iols() const;
 
     IOL*    getById(int id);
-    void    initListeByManufacturerId(int id);  //! la liste de tous les IOLs d'un fabricant
     void    initListe();                        //! la liste de tous les IOLs
 
     //!> actions sur les enregistrements

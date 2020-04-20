@@ -212,18 +212,6 @@ IOL* IOLs::getById(int id)
 
 /*!
  * \brief IOLs::initListe
- * Charge l'ensemble des IOLs d'un fabricant
- * et les ajoute à la classe IOLS
- */
-void IOLs::initListeByManufacturerId(int id)
-{
-    QList<IOL*> listIOLs = DataBase::I()->loadIOLsByManufacturerId(id);
-    clearAll(map_all);
-    addList(map_all, &listIOLs);
-}
-
-/*!
- * \brief IOLs::initListe
  * Charge l'ensemble des IOLs
  * et les ajoute à la classe IOLS
  */
