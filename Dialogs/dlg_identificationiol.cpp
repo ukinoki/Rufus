@@ -41,6 +41,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
         m_initok = false;
         return;
     }
+    setWindowModality(Qt::WindowModal);
     m_mode = mode;
     m_currentIOL = iol;
     if (!m_currentIOL)
@@ -796,7 +797,6 @@ void dlg_identificationIOL:: EnableOKpushButton()
            && wdg_manufacturercombo->currentData().toInt()>0;
     OKButton            ->setEnabled(a);
     wdg_toolbar         ->setEnabled(!a);
-    qDebug() << "wdg_toolbar enableOK";
     wdg_recopiebutton   ->setEnabled(!a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }

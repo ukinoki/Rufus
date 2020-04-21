@@ -36,6 +36,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     wdg_interventionstreeView   ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
     wdg_interventionstreeView   ->setContextMenuPolicy(Qt::CustomContextMenu);
     wdg_interventionstreeView   ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    wdg_interventionstreeView   ->setMouseTracking(true);
 
     wdg_sessionstreeView    ->setMaximumWidth(340);
     wdg_sessionstreeView    ->setColumnWidth(0,340);
@@ -815,6 +816,8 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                     ioltxt += " Cyl. " + Utils::PrefixePlus(interv->cylindreIOL());
                 itemiol = new UpStandardItem("\t" + tr("Implant") + " : " + ioltxt, interv);
                 itemiol ->setEditable(false);
+                QString ttip = iol->tooltip(true);
+                itemiol->setData(ttip);
                 listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemiol << new QStandardItem(QString::number(a) + "d"));
             }
             if (interv->observation() != "")                                                                                                //! observation
@@ -866,6 +869,12 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         wdg_interventionstreeView->setCurrentIndex(idx);
     }
     connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+//    connect(wdg_interventionstreeView,  &QAbstractItemView::entered,    this,   [&](QModelIndex idx)
+//    {
+//        QStandardItem *itm = dynamic_cast<QStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
+//        if (itm)
+//            QToolTip::showText(cursor().pos(), itm->data().toString());
+//    });
     ChoixIntervention(idx);
 }
 
@@ -1064,7 +1073,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     connect(wdg_IOLchk, &QCheckBox::stateChanged,       dlg_intervention,   [&](int state) {if (state == Qt::Checked) ReconstruitListeManufacturers();});
     connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [&]{
                 int idiol = 0;
-                dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, this);
+                dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
                 if (Dlg_ListIOLs->exec() > 0)
                 {
                     idiol = Dlg_ListIOLs->idcurrentIOL();
@@ -1347,6 +1356,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                                                                                                         dlg_intervention->reject();
                                                                                                     });
     timeedit->setFocus();
+    dlg_intervention->setWindowModality(Qt::WindowModal);
     dlg_intervention->exec();
 }
 
@@ -1354,7 +1364,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
 {
     if (pat == Q_NULLPTR || interv == Q_NULLPTR)
         return;
-    dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv);
+    dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv, this);
     m_docimprime = false;
     if (Dlg_Imprs->exec() > 0)
     {
@@ -1843,12 +1853,13 @@ void dlg_programmationinterventions::FicheListeManufacturers()
     if (Datas::I()->manufacturers->manufacturers()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
-        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
         Dlg_IdentManufacturer->exec();
         delete Dlg_IdentManufacturer;
         return;
     }
     dlg_listemanufacturers *Dlg_ListManufacturers = new dlg_listemanufacturers(this);
+    Dlg_ListManufacturers->setWindowModality(Qt::WindowModal);
     Dlg_ListManufacturers->exec();
     if (Dlg_ListManufacturers->listemanufacturersmodifiee())
         AfficheInterventionsSession(wdg_sessionstreeView->currentIndex());

@@ -24,7 +24,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint
                    | Qt::WindowMinMaxButtonsHint);//|Qt::X11BypassWindowManagerHint);
 
-    setModal(true);
+    setWindowModality(Qt::WindowModal);
     setWindowTitle(tr("Liste des IOLs"));
     wdg_manufacturerscombo = new UpComboBox();
 
@@ -367,7 +367,7 @@ bool dlg_listeiols::listeIOLsmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::EnregistreNouveauIOL()
 {
-    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(dlg_identificationIOL::Creation);
+    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(dlg_identificationIOL::Creation, Q_NULLPTR, this);
     if (!Dlg_IdentIOL->initok())
         return;
     if (Dlg_IdentIOL->exec()>0)
@@ -702,7 +702,6 @@ void dlg_listeiols::resizeiolimage(int size)
     bool ok;
     QString req = "select " CP_ID_IOLS ", " CP_IMG_IOLS " from " TBL_IOLS
                 " where " CP_IMG_IOLS " is not null and " CP_TYPIMG_IOLS " <> '" PDF "'";
-    qDebug() << req;
     QList<QVariantList> listimg  = DataBase::I()->StandardSelectSQL(req, ok);
     for (int i=0; i<listimg.size(); ++i)
     {

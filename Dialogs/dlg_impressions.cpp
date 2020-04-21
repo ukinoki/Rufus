@@ -24,7 +24,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-
+    setWindowModality(Qt::WindowModal);
     m_currentpatient     = pat;
     if (intervention != Q_NULLPTR)
         m_currentintervention = intervention;
@@ -1370,7 +1370,7 @@ void dlg_impressions::Validation()
         {
             dlg_ask = new UpDialog(this);
             dlg_ask->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-            dlg_ask->setModal(true);
+            dlg_ask->setWindowModality(Qt::WindowModal);
             dlg_ask->setSizeGripEnabled(false);
             dlg_ask->move(QPoint(x()+width()/2,y()+height()/2));
             dlg_ask->setWindowTitle(tr("Complétez la fiche"));

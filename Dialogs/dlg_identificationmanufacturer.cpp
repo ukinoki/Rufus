@@ -25,6 +25,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowModality(Qt::WindowModal);
     if (man != Q_NULLPTR)
         m_currentmanufacturer   = man;
     m_mode                      = mode;

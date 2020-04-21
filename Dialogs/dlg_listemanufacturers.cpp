@@ -123,7 +123,7 @@ bool dlg_listemanufacturers::listemanufacturersmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listemanufacturers::EnregistreNouveauManufacturer()
 {
-    dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+    dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
     if (Dlg_IdentManufacturer->exec()>0)
     {
         Manufacturer * man = Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer());
@@ -154,7 +154,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
 {
     if (man == Q_NULLPTR)
         return;
-    dlg_identificationmanufacturer *Dlg_IdentManufacturer = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man);
+    dlg_identificationmanufacturer *Dlg_IdentManufacturer = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man, this);
     if (Dlg_IdentManufacturer->exec()>0)
     {
         man =  Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer());

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("20-04-2020/1");
+    qApp->setApplicationVersion("21-04-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2801,7 +2801,7 @@ void Rufus::ListeManufacturers()
     if (Datas::I()->manufacturers->manufacturers()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
-        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation);
+        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
         Dlg_IdentManufacturer->exec();
         delete Dlg_IdentManufacturer;
         return;
@@ -8278,7 +8278,6 @@ void Rufus::ModeCreationDossier()
 
 void Rufus::ProgrammationIntervention(Patient *pat)
 {
-    qDebug() << pat;
     dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, this);
     connect(dlg_progr, &dlg_programmationinterventions::updateHtml, this, [&](Patient *chirpat) {
         if (chirpat->id() == pat->id())
