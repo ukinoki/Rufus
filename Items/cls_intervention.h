@@ -264,7 +264,7 @@ public:
     void setMultifocal(bool &multifocal)        { m_multifocal = multifocal;        m_map[CP_MULTIFOCAL_IOLS] = multifocal; }
     void setToric(bool &toric)                  { m_toric = toric;                  m_map[CP_TORIC_IOLS] = toric; }
     void setEdof(bool &edof)                    { m_edof = edof;                    m_map[CP_EDOF_IOLS] = edof; }
-    void setType(QString &type)
+    void setType(const QString &type)
     {
         m_type = type;
         if (type ==IOL_CP) m_map[CP_TYP_IOLS] = 1;

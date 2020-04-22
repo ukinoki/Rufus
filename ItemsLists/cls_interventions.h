@@ -72,7 +72,7 @@ public:
 
     QMap<int, IOL*> *iols() const;
 
-    IOL*    getById(int id);
+    IOL*    getById(int id, bool reload = false);
     void    initListe();                        //! la liste de tous les IOLs
 
     //!> actions sur les enregistrements

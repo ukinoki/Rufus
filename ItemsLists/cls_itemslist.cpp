@@ -852,6 +852,141 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             iol->setactif(a);
             newvalue = (a? "null" : "1");
         }
+        else if (field == CP_DIAOPT_IOLS)
+        {
+            iol->setDiaoptique(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_DIAALL_IOLS)
+        {
+            iol->setDiaall(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_ACD_IOLS)
+        {
+            iol->setAcd(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_MINPWR_IOLS)
+        {
+            iol->setPwrmin(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_MAXPWR_IOLS)
+        {
+            iol->setPwrmax(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_PWRSTEP_IOLS)
+        {
+            iol->setPwrstp(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_MINCYL_IOLS)
+        {
+            iol->setCylmin(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_MAXCYL_IOLS)
+        {
+            iol->setCylmax(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_CYLSTEP_IOLS)
+        {
+            iol->setCylstp(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_CSTEAOPT_IOLS)
+        {
+            iol->setCsteAopt(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_CSTEAECHO_IOLS)
+        {
+            iol->setCsteAEcho(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_HAIGISA0_IOLS)
+        {
+            iol->setHaigisa0(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_HAIGISA1_IOLS)
+        {
+            iol->setHaigisa1(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_HAIGISA2_IOLS)
+        {
+            iol->setHaigisa2(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_HOLL1_IOLS)
+        {
+            iol->setHolladay(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_DIAINJECTEUR_IOLS)
+        {
+            iol->setDiainjecteur(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
+        }
+        else if (field == CP_IMG_IOLS)
+        {
+            iol->setImgiol(newvalue.toByteArray());
+            Utils::CalcBlobValueSQL(newvalue);
+        }
+        else if (field == CP_TYPIMG_IOLS)
+        {
+            iol->setTypeImage(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_MATERIAU_IOLS)
+        {
+            iol->setMateriau(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_REMARQUE_IOLS)
+        {
+            iol->setRemarque(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_PRECHARGE_IOLS)
+        {
+            bool a = newvalue.toBool();
+            iol->setprecharge(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_JAUNE_IOLS)
+        {
+            bool a = newvalue.toBool();
+            iol->setjaune(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_TORIC_IOLS)
+        {
+            bool a = newvalue.toBool();
+            iol->setToric(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_EDOF_IOLS)
+        {
+            bool a = newvalue.toBool();
+            iol->setEdof(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_MULTIFOCAL_IOLS)
+        {
+            bool a = newvalue.toBool();
+            iol->setMultifocal(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_TYP_IOLS)
+        {
+            iol->setType(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
     }
     else if (table == TBL_LIGNESPRGOPERATOIRES)
     {

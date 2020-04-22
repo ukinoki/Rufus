@@ -24,7 +24,6 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowModality(Qt::WindowModal);
     m_currentpatient     = pat;
     if (intervention != Q_NULLPTR)
         m_currentintervention = intervention;

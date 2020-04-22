@@ -679,8 +679,8 @@ void dlg_listeiols::ModifIOL(IOL *iol)
             wdg_manufacturerscombo->disconnect();
             wdg_manufacturerscombo->setCurrentIndex(0);
             connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
-            ReconstruitTreeViewIOLs(true);
-            iol = Datas::I()->iols->getById(idiol);
+            iol = Datas::I()->iols->getById(idiol, true);
+            ReconstruitTreeViewIOLs(false);
             if (iol)
                 scrollToIOL(iol);
         }

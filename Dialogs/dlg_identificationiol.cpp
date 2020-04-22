@@ -357,8 +357,8 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
     Typelbl                     ->setText(tr("Type"));
     wdg_imgIOL                  = new UpLabel;
     wdg_imgIOL                  ->setFixedSize(180,180);
-    setimage(m_nullimage);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
+    setimage(m_nullimage);
     wdg_materiaubox             = new UpComboBox;
     wdg_typebox                 = new UpComboBox;
     wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
@@ -550,9 +550,9 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_cylindremaxspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
-     connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   &dlg_identificationIOL::changeImage);
+     connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   [&] {if (wdg_imgIOL->isEnabled()) changeImage();});
      connect (wdg_recopiebutton,     &UpPushButton::click,                                   this,   &dlg_identificationIOL::creeCopieIOL);
-     connect (wdg_toolbar,           &UpToolBar::TBSignal,                                   this, [=] {NavigueVers(wdg_toolbar->choix());});
+     connect (wdg_toolbar,           &UpToolBar::TBSignal,                                   this,  [=] {NavigueVers(wdg_toolbar->choix());});
 }
 
 void dlg_identificationIOL::disconnectSignals()

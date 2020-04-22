@@ -125,6 +125,7 @@ public:
     static QString                  correctquoteSQL(QString text);
     static QStringList              DecomposeScriptSQL(QString nomficscript);       //! plus utilisé - imparfait - on passe par les QProcess pour éxécuter un script SQL - voir Procedures:: DefinitScriptRestore(QStringList ListNomFiles);
     static QString                  ConvertitModePaiement(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
+    static void                     CalcBlobValueSQL(QVariant &newvalue);           // convertit un Qvariant en valeur blob SQL équivalente
     static void                     CalcStringValueSQL(QVariant &newvalue);         // convertit un Qvariant en valeur string SQL équivalente
     static void                     CalcintValueSQL(QVariant &newvalue);            // convertit un Qvariant en valeur int SQL équivalente
     static void                     CalcdoubleValueSQL(QVariant &newvalue);         // convertit un Qvariant en valeur decimal SQL équivalente

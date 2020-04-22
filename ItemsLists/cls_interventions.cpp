@@ -197,7 +197,7 @@ QMap<int, IOL*>* IOLs::iols() const
     return map_all;
 }
 
-IOL* IOLs::getById(int id)
+IOL* IOLs::getById(int id, bool reload)
 {
     QMap<int, IOL*>::const_iterator itref = map_all->find(id);
     if( itref == map_all->constEnd() )
@@ -206,6 +206,12 @@ IOL* IOLs::getById(int id)
         if (ref != Q_NULLPTR)
             add( map_all, ref, Item::Update );
         return ref;
+    }
+    else if (reload)
+    {
+        IOL* ref = DataBase::I()->loadIOLById(id);
+        itref.value()->setData(ref->datas());
+        delete ref;
     }
     return itref.value();
 }

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-04-2020/1");
+    qApp->setApplicationVersion("22-04-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1092,6 +1092,8 @@ void Rufus::AfficheMenu(QMenu *menu)
         menuDocuments->addAction(actionRechercheCourrier);
         menuDocuments->addAction(actionCorrespondants);
         menuDocuments->addAction(actionFabricants);
+        if (currentuser()->isMedecin())
+            menuDocuments->addAction(actionIOLs);
     }
 }
 
@@ -2794,6 +2796,14 @@ void Rufus::ListeCorrespondants()
     dlg_listecorrespondants *Dlg_ListCor = new dlg_listecorrespondants(this);
     Dlg_ListCor->exec();
     delete Dlg_ListCor;
+}
+
+void Rufus::ListeIOLs()
+{
+    bool quelesactifs = false;
+    dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(quelesactifs, this);
+    Dlg_ListIOLs->exec();
+    delete Dlg_ListIOLs;
 }
 
 void Rufus::ListeManufacturers()
@@ -7177,6 +7187,7 @@ void Rufus::CreerMenu()
     actionRechercheCourrier         = new QAction(tr("Afficher les courriers à faire"));
     actionCorrespondants            = new QAction(tr("Liste des correspondants"));
     actionFabricants                = new QAction(tr("Liste des fabricants"));
+    actionIOLs                      = new QAction(tr("Liste des implants"));
     actionTiers                     = new QAction(tr("Liste des tiers payants"));
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
@@ -7225,6 +7236,7 @@ void Rufus::CreerMenu()
     connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
     connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
     connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
+    connect (actionIOLs,                        &QAction::triggered,        this,                   &Rufus::ListeIOLs);
     connect (actionTiers,                       &QAction::triggered,        this,                   &Rufus::ListeTiersPayants);
     connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
     connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo(currentpatient());});

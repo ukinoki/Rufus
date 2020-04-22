@@ -49,6 +49,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_identificationpatient.h"
 #include "ui_dlg_identificationpatient.h"
 #include "dlg_listecorrespondants.h"
+#include "dlg_listeiols.h"
 #include "dlg_listemanufacturers.h"
 #include "dlg_listetiers.h"
 #include "dlg_listemotscles.h"
@@ -95,8 +96,6 @@ public:
 
 private:
     bool                            UtiliserTcpSocket = false;
-    QAction                         *actionFabricants = Q_NULLPTR;  // si on rajoute cette ligne avec les autres variables de menu, le programme plante (???)
-    QAction                         *actionTiers = Q_NULLPTR;  // si on rajoute cette ligne avec les autres variables de menu, le programme plante (???)
 
     Procedures                      *proc;
     DataBase                        *db;
@@ -106,6 +105,9 @@ private:
     UpLineEdit                      *wdg_autresCorresp1LineEdit, *wdg_autresCorresp2LineEdit;
     bool                            m_ok;
     upDoubleValidator               *m_val;
+    QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
+    QAction         *actionIOLs                     = Q_NULLPTR;
+    QAction         *actionTiers                    = Q_NULLPTR;
 
     pyxinterf                       *m_pyxi;     // CZ001
 
@@ -150,6 +152,7 @@ private:
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        ListeCorrespondants();
+    void        ListeIOLs();
     void        ListeManufacturers();
     void        ListeTiersPayants();
     void        MajusculeCreerNom();

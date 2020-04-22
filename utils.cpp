@@ -747,6 +747,11 @@ QString Utils::ConvertitModePaiement(QString mode)
     return mode;
 }
 
+void Utils::CalcBlobValueSQL(QVariant &newvalue)
+{
+    newvalue = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : QVariant(newvalue));
+}
+
 void Utils::CalcStringValueSQL(QVariant &newvalue)
 {
     newvalue = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + correctquoteSQL(newvalue.toString()) + "'");
