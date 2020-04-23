@@ -148,8 +148,9 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     dlglayout()->insertLayout(0,globallay);
     setFixedWidth(wdg_manufacturerscombo->width() + globallay->spacing() + wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
-    bool reconstruirelaliste = true;
-    ReconstruitTreeViewIOLs(reconstruirelaliste);
+    if (Datas::I()->iols->iols()->size() == 0)
+        Datas::I()->iols->initListe();
+    ReconstruitTreeViewIOLs();
 
     for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
     {
@@ -174,12 +175,12 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::accept);
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) {
                                                                                             wdg_chercheuplineedit->setText(txt);
-                                                                                            ReconstruitTreeViewIOLs(false, txt);
+                                                                                            ReconstruitTreeViewIOLs(txt);
                                                                                            });
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listeiols::ChoixButtonFrame);
     connect(wdg_annulfiltresbut,    &QPushButton::clicked,      this,   [&] {
                                                                                 Annulerlesfiltres();
-                                                                                ReconstruitTreeViewIOLs(false);
+                                                                                ReconstruitTreeViewIOLs();
                                                                                 wdg_annulfiltresbut->setEnabled(false);
                                                                             });
     connectFiltersSignals();
@@ -272,26 +273,26 @@ void dlg_listeiols::Annulerlesfiltres()
 
 void dlg_listeiols::connectFiltersSignals()
 {
-    connect(wdg_manufacturerscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_typebox,            QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_prechargechk,       &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_toricchk,           &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(false); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_manufacturerscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_typebox,            QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_prechargechk,       &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_toricchk,           &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
     connect(wdg_edofchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
                                                                                       {
                                                                                         wdg_multifocalchk->setChecked(false);
                                                                                         wdg_monofocalchk->setChecked(false);
                                                                                       }
-                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
     connect(wdg_clairchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
                                                                                         wdg_jaunechk->setChecked(false);
-                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
     connect(wdg_jaunechk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
                                                                                         wdg_clairchk->setChecked(false);
-                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
     connect(wdg_multifocalchk,      &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
@@ -299,7 +300,7 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                         wdg_edofchk->setChecked(false);
                                                                                         wdg_monofocalchk->setChecked(false);
                                                                                       }
-                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
     connect(wdg_monofocalchk,       &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
@@ -307,19 +308,19 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                         wdg_multifocalchk->setChecked(false);
                                                                                         wdg_edofchk->setChecked(false);
                                                                                       }
-                                                                                      ReconstruitTreeViewIOLs(false);
+                                                                                      ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
     connect(wdg_pwrslider,          &RangeSlider::lowerValueChanged,    this, [&](int a) {
                                                                                             m_minpwr = double(Utils::roundToNearestFive(a))/10;
                                                                                             wdg_minpwrlbl->setText(Utils::PrefixePlus(m_minpwr));
-                                                                                            ReconstruitTreeViewIOLs(false);
+                                                                                            ReconstruitTreeViewIOLs();
                                                                                             wdg_annulfiltresbut->setEnabled(true);
                                                                                          } );
     connect(wdg_pwrslider,          &RangeSlider::upperValueChanged,    this, [&](int a) {
                                                                                             m_maxpwr = double(Utils::roundToNearestFive(a))/10;
                                                                                             wdg_maxpwrlbl->setText(Utils::PrefixePlus(m_maxpwr));
-                                                                                            ReconstruitTreeViewIOLs(false);
+                                                                                            ReconstruitTreeViewIOLs();
                                                                                             wdg_annulfiltresbut->setEnabled(true);
                                                                                          } );
 }
@@ -377,7 +378,7 @@ void dlg_listeiols::EnregistreNouveauIOL()
         disconnectFiltersSignals();
         wdg_manufacturerscombo->setCurrentIndex(0);
         Annulerlesfiltres();
-        ReconstruitTreeViewIOLs(true);
+        ReconstruitTreeViewIOLs();
         if (iol)
             scrollToIOL(iol);
     }
@@ -418,8 +419,6 @@ void dlg_listeiols::ImportListeIOLS()
         docxml->setContent(&xmldoc);
         QDomElement xml = docxml->documentElement();
         /*! Mise à jour de la liste des fabricants */
-        Datas::I()->manufacturers->initListe();
-        Datas::I()->iols->initListe();
         QStringList listmanufacturers;
         for (int i=0; i<xml.childNodes().size(); i++)
         {
@@ -645,8 +644,8 @@ void dlg_listeiols::ImportListeIOLS()
         msg = QString::number(nbimplants) + " implants ont été rajoutés à la base";
     }
     UpMessageBox::Watch(this, msg);
-    bool reconstruirelaliste = true;
-    ReconstruitTreeViewIOLs(reconstruirelaliste);
+    Datas::I()->iols->initListe();
+    ReconstruitTreeViewIOLs();
     wdg_manufacturerscombo->clear();
     for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
     {
@@ -678,9 +677,9 @@ void dlg_listeiols::ModifIOL(IOL *iol)
             m_listemodifiee = true;
             wdg_manufacturerscombo->disconnect();
             wdg_manufacturerscombo->setCurrentIndex(0);
-            connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
+            connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
             iol = Datas::I()->iols->getById(idiol, true);
-            ReconstruitTreeViewIOLs(false);
+            ReconstruitTreeViewIOLs();
             if (iol)
                 scrollToIOL(iol);
         }
@@ -700,8 +699,8 @@ void dlg_listeiols::resizeiolimage(int size)
         QFile(CheminFichierResize).remove();
     }
     bool ok;
-    QString req = "select " CP_ID_IOLS ", " CP_IMG_IOLS " from " TBL_IOLS
-                " where " CP_IMG_IOLS " is not null and " CP_TYPIMG_IOLS " <> '" PDF "'";
+    QString req = "select " CP_ID_IOLS ", " CP_ARRAYIMG_IOLS " from " TBL_IOLS
+                " where " CP_ARRAYIMG_IOLS " is not null and " CP_TYPIMG_IOLS " <> '" PDF "'";
     QList<QVariantList> listimg  = DataBase::I()->StandardSelectSQL(req, ok);
     for (int i=0; i<listimg.size(); ++i)
     {
@@ -747,7 +746,7 @@ void dlg_listeiols::resizeiolimage(int size)
             file_image.open(QIODevice::ReadOnly);
             ba = file_image.readAll();
             QHash<QString, QVariant> m_listbinds;
-            m_listbinds[CP_IMG_IOLS] = ba;
+            m_listbinds[CP_ARRAYIMG_IOLS] = ba;
             m_listbinds[CP_TYPIMG_IOLS] = JPG;
             DataBase::I()->UpDateIOL(id, m_listbinds);
             file_image.remove();
@@ -817,8 +816,8 @@ void dlg_listeiols::SupprIOL(IOL *iol)
         m_listemodifiee = true;
         wdg_manufacturerscombo->disconnect();
         wdg_manufacturerscombo->setCurrentIndex(0);
-        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(false); } );
-        ReconstruitTreeViewIOLs(true);
+        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
+        ReconstruitTreeViewIOLs();
     }
 }
 
@@ -852,13 +851,9 @@ void dlg_listeiols::ReconstruitListeManufacturers()
     m_manufacturersmodel->sort(0);
 }
 
-void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString filtre)
+void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
 {
-    if (reconstruirelaliste)
-    {
-        Datas::I()->iols->initListe();
-        ReconstruitListeManufacturers();
-    }
+    ReconstruitListeManufacturers();
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
     if (m_IOLsmodel == Q_NULLPTR)
@@ -953,26 +948,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(bool reconstruirelaliste, QString fi
             if (!iol->isactif())
                 pitem ->setForeground(QBrush(QColor(Qt::darkGray)));
             pitem   ->setEditable(false);
-            QImage image= m_nullimage;
-            if(iol->imgiol() != QByteArray())
-            {
-                if (iol->imageformat() == PDF)
-                {    Poppler::Document* document = Poppler::Document::loadFromData(iol->imgiol());
-                    if (!document || document->isLocked())
-                        delete document;
-                    else if (document != Q_NULLPTR)
-                    {
-                        document->setRenderHint(Poppler::Document::TextAntialiasing);
-                        Poppler::Page* pdfPage = document->page(0);  // Document starts at page 0
-                        if (pdfPage != Q_NULLPTR)
-                        {
-                            image = pdfPage->renderToImage(300,300);
-                            delete document;
-                        }
-                    }
-                }
-                else image.loadFromData(iol->imgiol());
-            }
+            QImage image= iol->image();
             QPixmap pix;
             QImage img2 = image;
             img2.scaledToWidth(dim);

@@ -1631,76 +1631,44 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
     QByteArray ba = doc.value("ba").toByteArray();
     if (doc.value("type").toString() == PDF)     // le document est un pdf
     {
-        Poppler::Document* document = Poppler::Document::loadFromData(ba);
-        if (!document || document->isLocked() || document == Q_NULLPTR)
+        QList<QImage> listimg = Utils::calcImagefromPdf(ba);
+        if (listimg.size())
         {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-            delete document;
-            return false;
-        }
-        document->setRenderHint(Poppler::Document::TextAntialiasing);
-//        if (AvecPrevisu)
-//        {
-//            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
-//            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {PrintPdf(printer, document, ok);});
-//            dialog->exec();
-//            delete dialog;
-//            delete document;
-//            return ok;
-//        }
-//        else
-        for (int i=0; i<document->numPages() ;i++)
-        {
-            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-            if (pdfPage == Q_NULLPTR) {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return false;
-            }
-            QImage image = pdfPage->renderToImage(600,600);
-            if (image.isNull()) {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return false;
-            }
-            // ... use image ...
-            if (i==0)
+            for (int i=0; i<listimg.size();++i)
             {
-                if (AvecPrevisu)
+                QImage image = listimg.at(i);
+                if (i==0)
                 {
-                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
-                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
-                    if (dialog->exec() != QDialog::Rejected)
-                        delete dialog;
-                    else {
-                        delete dialog;
-                        delete pdfPage;
-                        delete document;
-                        return false;
+                    if (AvecPrevisu)
+                    {
+                        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
+                        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
+                        if (dialog->exec() != QDialog::Rejected)
+                            delete dialog;
+                        else {
+                            delete dialog;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        QPrintDialog *dialog = new QPrintDialog(p_printer);
+                        if (dialog->exec() != QDialog::Rejected)
+                        {
+                            p_printer = dialog->printer();
+                            Print(p_printer, image);
+                            delete dialog;
+                        }
+                        else {
+                            delete dialog;
+                            return false;
+                        }
                     }
                 }
                 else
-                {
-                    QPrintDialog *dialog = new QPrintDialog(p_printer);
-                    if (dialog->exec() != QDialog::Rejected)
-                    {
-                        p_printer = dialog->printer();
-                        Print(p_printer, image);
-                        delete dialog;
-                    }
-                    else {
-                        delete dialog;
-                        delete pdfPage;
-                        delete document;
-                        return false;
-                    }
-                }
+                    Print(p_printer, image);
             }
-            else
-                Print(p_printer, image);
-            delete pdfPage;
         }
-        delete document;
     }
     else if (doc.value("type").toString() == JPG)     // le document est un jpg
     {
@@ -1793,29 +1761,6 @@ void Procedures::Print(QPrinter *Imprimante, QImage image)
     QPainter PrintingPreView(Imprimante);
     QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
-}
-
-void Procedures::PrintPdf(QPrinter *Imprimante, Poppler::Document* document, bool &printok)
-{
-    for (int i=0; i<document->numPages() ;i++)
-    {
-        Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-        if (pdfPage == Q_NULLPTR) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-            printok = false;
-            break;
-        }
-        QImage image = pdfPage->renderToImage(600,600);
-        if (image.isNull()) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-            printok = false;
-            break;
-        }
-        // ... use image ...
-        Print(Imprimante, image);
-        delete pdfPage;
-    }
-    printok = true;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

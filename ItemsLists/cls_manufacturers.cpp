@@ -115,7 +115,7 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_CORSTATUT_MANUFACTURER)                data[champ] = itset.value().toString();
         else if (champ == CP_CORMAIL_MANUFACTURER)                  data[champ] = itset.value().toString();
         else if (champ == CP_CORTELEPHONE_MANUFACTURER)             data[champ] = itset.value().toString();
-        else if (champ == CP_INACTIF_MANUFACTURER)                  data[champ] = (itset.value().toString() == 1);
+        else if (champ == CP_INACTIF_MANUFACTURER)                  data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_DISTRIBUEPAR_MANUFACTURER)             data[champ] = itset.value().toInt();
     }
     man = new Manufacturer(data);

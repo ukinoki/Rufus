@@ -24,7 +24,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDropEvent>
 #include <QMimeData>
 #include "upmessagebox.h"
-#include "poppler-qt5.h"
 
 
 class UpTableWidget : public QTableWidget

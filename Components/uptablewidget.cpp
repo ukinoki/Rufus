@@ -72,48 +72,24 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
     QString suffixe;
     if (doc.value("type").toString() == PDF)
     {
-        Poppler::Document* document = Poppler::Document::loadFromData(ba);
-        if (!document || document->isLocked()) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-            delete document;
-            return listimage;
-        }
-        if (document == Q_NULLPTR) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-            delete document;
-            return listimage;
-        }
-
-        document->setRenderHint(Poppler::Document::TextAntialiasing);
-        int numpages = document->numPages();
-        setRowCount(numpages);
-        for (int i=0; i<numpages ;i++)
+        QList<QImage> listimg = Utils::calcImagefromPdf(ba);
+        if (listimg.size())
         {
-            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-            if (pdfPage == Q_NULLPTR) {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return listimage;
+            setRowCount(listimg.size());
+            for (int i=0; i<listimg.size();++i)
+            {
+                QImage image = listimg.at(i);
+                pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+                listimage << image;
+                setRowHeight(i,pix.height());
+                UpLabel *lab = new UpLabel(this);
+                lab->resize(pix.width(),pix.height());
+                lab->setPixmap(pix);
+                if (aveczoom)
+                    connect(lab, &UpLabel::clicked, this, &UpTableWidget::zoom);
+                setCellWidget(i,0,lab);
             }
-            QImage image = pdfPage->renderToImage(150,150);
-            if (image.isNull()) {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return listimage;
-            }
-            // ... use image ...
-            pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-            listimage << image;
-            setRowHeight(i,pix.height());
-            UpLabel *lab = new UpLabel(this);
-            lab->resize(pix.width(),pix.height());
-            lab->setPixmap(pix);
-            if (aveczoom)
-                connect(lab, &UpLabel::clicked, this, &UpTableWidget::zoom);
-            delete pdfPage;
-            setCellWidget(i,0,lab);
         }
-        delete document;
     }
     else if (doc.value("type").toString() == JPG)
     {

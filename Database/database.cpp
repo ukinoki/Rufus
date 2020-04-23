@@ -2671,36 +2671,36 @@ Intervention* DataBase::loadInterventionByDateIdPatient(QDate date, int idpatien
  * IOLs
 */
 
-QMap<QString, QVariant> DataBase::loadIOLData(QVariantList ioldata)                     //! attribue la liste des datas à un IOL
+QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! attribue la liste des datas à un IOL
 {
-    QMap<QString, QVariant> data{};
-    data[CP_ID_IOLS]                = ioldata.at(0);
-    data[CP_IDMANUFACTURER_IOLS]    = ioldata.at(1);
-    data[CP_MODELNAME_IOLS]         = ioldata.at(2);
-    data[CP_DIAOPT_IOLS]            = ioldata.at(3);
-    data[CP_DIAALL_IOLS]            = ioldata.at(4);
-    data[CP_ACD_IOLS]               = ioldata.at(5);
-    data[CP_MINPWR_IOLS]            = ioldata.at(6);
-    data[CP_MAXPWR_IOLS]            = ioldata.at(7);
-    data[CP_PWRSTEP_IOLS]           = ioldata.at(8);
-    data[CP_MINCYL_IOLS]            = ioldata.at(9);
-    data[CP_MAXCYL_IOLS]            = ioldata.at(10);
-    data[CP_CYLSTEP_IOLS]           = ioldata.at(11);
-    data[CP_CSTEAOPT_IOLS]          = ioldata.at(12);
-    data[CP_CSTEAECHO_IOLS]         = ioldata.at(13);
-    data[CP_HAIGISA0_IOLS]          = ioldata.at(14);
-    data[CP_HAIGISA1_IOLS]          = ioldata.at(15);
-    data[CP_HAIGISA2_IOLS]          = ioldata.at(16);
-    data[CP_HOLL1_IOLS]             = ioldata.at(17);
-    data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(18);
-    data[CP_IMG_IOLS]               = ioldata.at(19);
-    data[CP_MATERIAU_IOLS]          = ioldata.at(20);
-    data[CP_REMARQUE_IOLS]          = ioldata.at(21);
+    QJsonObject data{};
+    data[CP_ID_IOLS]                = ioldata.at(0).toInt();
+    data[CP_IDMANUFACTURER_IOLS]    = ioldata.at(1).toInt();
+    data[CP_MODELNAME_IOLS]         = ioldata.at(2).toString();
+    data[CP_DIAOPT_IOLS]            = ioldata.at(3).toDouble();
+    data[CP_DIAALL_IOLS]            = ioldata.at(4).toDouble();
+    data[CP_ACD_IOLS]               = ioldata.at(5).toDouble();
+    data[CP_MINPWR_IOLS]            = ioldata.at(6).toDouble();
+    data[CP_MAXPWR_IOLS]            = ioldata.at(7).toDouble();
+    data[CP_PWRSTEP_IOLS]           = ioldata.at(8).toDouble();
+    data[CP_MINCYL_IOLS]            = ioldata.at(9).toDouble();
+    data[CP_MAXCYL_IOLS]            = ioldata.at(10).toDouble();
+    data[CP_CYLSTEP_IOLS]           = ioldata.at(11).toDouble();
+    data[CP_CSTEAOPT_IOLS]          = ioldata.at(12).toDouble();
+    data[CP_CSTEAECHO_IOLS]         = ioldata.at(13).toDouble();
+    data[CP_HAIGISA0_IOLS]          = ioldata.at(14).toDouble();
+    data[CP_HAIGISA1_IOLS]          = ioldata.at(15).toDouble();
+    data[CP_HAIGISA2_IOLS]          = ioldata.at(16).toDouble();
+    data[CP_HOLL1_IOLS]             = ioldata.at(17).toDouble();
+    data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(18).toDouble();
+    data[CP_ARRAYIMG_IOLS]          = QLatin1String(ioldata.at(19).toByteArray().toBase64());
+    data[CP_MATERIAU_IOLS]          = ioldata.at(20).toString();
+    data[CP_REMARQUE_IOLS]          = ioldata.at(21).toString();
     data[CP_INACTIF_IOLS]           = (ioldata.at(22) == 1);
     data[CP_PRECHARGE_IOLS]         = (ioldata.at(23) == 1);
     data[CP_JAUNE_IOLS]             = (ioldata.at(24) == 1);
     data[CP_MULTIFOCAL_IOLS]        = (ioldata.at(25) == 1);
-    data[CP_TYPIMG_IOLS]            = ioldata.at(26);
+    data[CP_TYPIMG_IOLS]            = ioldata.at(26).toString();
     data[CP_EDOF_IOLS]              = (ioldata.at(27) == 1);
     data[CP_TORIC_IOLS]             = (ioldata.at(28) == 1);
     data[CP_TYP_IOLS]               = ioldata.at(29).toInt();
@@ -2717,7 +2717,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
-                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
+                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", "                   // 15-16-17-18-19
                     CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
                     CP_MULTIFOCAL_IOLS ", " CP_TYPIMG_IOLS ", " CP_EDOF_IOLS ", " CP_TORIC_IOLS ", " CP_TYP_IOLS                                // 25-26-27-28-29
                     " FROM " TBL_IOLS
@@ -2727,8 +2727,8 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
         return list;
     for (int i=0; i<iollist.size(); ++i)
     {
-        QMap<QString, QVariant> map = loadIOLData(iollist.at(i));
-        IOL *iol = new IOL(map);
+        QJsonObject data = loadIOLData(iollist.at(i));
+        IOL *iol = new IOL(data);
         if (iol != Q_NULLPTR)
             list << iol;
     }
@@ -2741,7 +2741,7 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
-                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
+                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", "                   // 15-16-17-18-19
                     CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
                     CP_MULTIFOCAL_IOLS ", " CP_TYPIMG_IOLS ", " CP_EDOF_IOLS ", " CP_TORIC_IOLS ", " CP_TYP_IOLS                                // 25-26-27-28-29
                     " FROM " TBL_IOLS
@@ -2753,8 +2753,8 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
         return list;
     for (int i=0; i<iollist.size(); ++i)
     {
-        QMap<QString, QVariant> map = loadIOLData(iollist.at(i));
-        IOL *iol = new IOL(map);
+        QJsonObject data = loadIOLData(iollist.at(i));
+        IOL *iol = new IOL(data);
         if (iol != Q_NULLPTR)
             list << iol;
     }
@@ -2771,7 +2771,7 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", " CP_DIAALL_IOLS", "         // 0-1-2-3-4
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
-                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_IMG_IOLS ", "                   // 15-16-17-18-19
+                    CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", "              // 15-16-17-18-19
                     CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
                     CP_MULTIFOCAL_IOLS ", " CP_TYPIMG_IOLS ", " CP_EDOF_IOLS ", " CP_TORIC_IOLS ", " CP_TYP_IOLS                                // 25-26-27-28-29
                     " FROM " TBL_IOLS
@@ -2787,11 +2787,11 @@ void DataBase::UpDateIOL(int id, QHash<QString, QVariant> sets)
 {
     UpdateTable(TBL_IOLS, sets, " where " CP_ID_IOLS " = " + QString::number(id),tr("Impossible de modifier l'IOL"));
 
-    QByteArray ba = sets[CP_IMG_IOLS].toByteArray();
+    QByteArray ba = sets[CP_ARRAYIMG_IOLS].toByteArray();
     QSqlQuery query = QSqlQuery(m_db);
-    QString prepare = "update " TBL_IOLS " set " CP_IMG_IOLS " = :" CP_IMG_IOLS " where " CP_ID_IOLS " = " + QString::number(id);
+    QString prepare = "update " TBL_IOLS " set " CP_ARRAYIMG_IOLS " = :" CP_ARRAYIMG_IOLS " where " CP_ID_IOLS " = " + QString::number(id);
     query.prepare(prepare);
-    query.bindValue(":" CP_IMG_IOLS, ba);
+    query.bindValue(":" CP_ARRAYIMG_IOLS, ba);
     query.exec();
     if (query.lastError().type() != QSqlError::NoError)
         Logs::ERROR("erreur", tr("\nErreur\n") + query.lastError().text());

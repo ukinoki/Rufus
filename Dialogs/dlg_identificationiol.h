@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "updialog.h"
-#include "cls_interventions.h"
+#include "cls_iols.h"
 #include "updoublevalidator.h"
 #include "updoublespinbox.h"
 #include "uptoolbar.h"
@@ -97,7 +97,6 @@ private:
     void                OKpushButtonClicked();
     void                reconstruitListeIOLs(Manufacturer *man);
     void                setimage(QImage img);
-    void                setpdf(QByteArray ba);
     void                supprimeImage();
 };
 

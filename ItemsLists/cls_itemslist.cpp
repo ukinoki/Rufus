@@ -932,9 +932,9 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             iol->setDiainjecteur(newvalue.toDouble());
             Utils::CalcdoubleValueSQL(newvalue);
         }
-        else if (field == CP_IMG_IOLS)
+        else if (field == CP_ARRAYIMG_IOLS)
         {
-            iol->setImgiol(newvalue.toByteArray());
+            iol->setArrayImgiol(newvalue.toByteArray());
             Utils::CalcBlobValueSQL(newvalue);
         }
         else if (field == CP_TYPIMG_IOLS)

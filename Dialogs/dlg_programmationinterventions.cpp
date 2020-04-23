@@ -149,7 +149,8 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
     Datas::I()->typesinterventions->initListe();
-    Datas::I()->iols->initListe();
+    if (Datas::I()->iols->iols()->size() == 0)
+        Datas::I()->iols->initListe();
     ReconstruitListeTypeInterventions();
 }
 

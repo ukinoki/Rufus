@@ -18,8 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSEXTERNES_H
 #define DLG_DOCSEXTERNES_H
 
-#include <QtXml>
-#include <poppler-qt5.h>
 #include "procedures.h"
 #include "upswitch.h"
 #include <QGraphicsVideoItem>

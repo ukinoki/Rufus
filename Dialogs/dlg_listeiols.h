@@ -82,7 +82,7 @@ private:
     void                    resizeiolimage(int size = 8192);                               //! reprend toute la liste des images d'IOL pour les redimensionner au dessous du seuil
     void                    scrollToIOL(IOL *iol);
     void                    SupprIOL(IOL *iol);
-    void                    ReconstruitTreeViewIOLs(bool reconstruirelaliste = false, QString filtre = "");
+    void                    ReconstruitTreeViewIOLs(QString filtre = "");
 };
 
 #endif // DLG_LISTEIOLS_H

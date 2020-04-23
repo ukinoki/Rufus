@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef UTILS_H
 #define UTILS_H
+#include <QBuffer>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QJsonDocument>
@@ -35,6 +36,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "upmessagebox.h"
 #include "dlg_message.h"
+#include "poppler-qt5.h"
 
 #include <QInputDialog>
 #include <QCoreApplication>
@@ -164,7 +166,7 @@ public:
     static void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
     static void setDataDate(QJsonObject data, QString key, QDate &prop);
     static void setDataTime(QJsonObject data, QString key, QTime &prop);
-    static void setDataVariant(QJsonObject data, QString key, QVariant &prop);
+    static void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     static void setDataLogic(QJsonObject data, QString key, Logic &prop);
 
 
@@ -173,6 +175,14 @@ public:
 
     //! affiche la fiche enchantier
     static void EnChantier(bool avecMsg = false);
+
+    //! renvoie chaqque page d'un padf comme une image
+    static QList<QImage> calcImagefromPdf(QByteArray pdf);
+
+    //! gestion des images en QJsonValue
+    static QJsonValue jsonValFromImage(const QImage &p);
+    static QImage imagemapFrom(const QJsonValue &val);
+
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)

@@ -135,11 +135,15 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         itemadded = (it == m_map->cend());
         if (!itemadded)
         {
-            T* fitem = const_cast<T*>(it.value());
-            if (upd == Item::Update)
-                fitem->setData(item->datas());
-            if (fitem != item)
-                delete item;
+            if (it.value())
+            {
+                if (upd == Item::Update)
+                    it.value()->setData(item->datas());
+                if (it.value() != item)
+                    delete item;
+            }
+            else
+                m_map->insert(item->id(), item);
         }
         else
             m_map->insert(item->id(), item);
@@ -158,11 +162,15 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         itemadded = (it == m_map->cend());
         if (!itemadded)
         {
-            T* fitem = const_cast<T*>(it.value());
-            if (upd == Item::Update)
-                fitem->setData(item->datas());
-            if (fitem != item)
-                delete item;
+            if (it.value())
+            {
+                if (upd == Item::Update)
+                    it.value()->setData(item->datas());
+                if (it.value() != item)
+                    delete item;
+            }
+            else
+                m_map->insert(item->stringid(), item);
         }
         else
             m_map->insert(item->stringid(), item);

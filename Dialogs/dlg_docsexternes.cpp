@@ -435,63 +435,40 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            Poppler::Document* document = Poppler::Document::loadFromData(docmt->imageblob());
-            if (!document || document->isLocked()) {
-                UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                delete document;
-                return;
-            }
-            if (document == Q_NULLPTR) {
-                UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                delete document;
-                return;
-            }
-            wdg_inflabel->setParent(wdg_scrolltablewidget);
-            m_typedoc    = PDF;
-            wdg_scrolltablewidget ->setVisible(true);
-            wdg_scrolltablewidget ->setColumnCount(1);
-            wdg_scrolltablewidget ->setColumnWidth(0,wdg_scrolltablewidget->width()-2);
-            document->setRenderHint(Poppler::Document::TextAntialiasing);
-            int numpages = document->numPages();
-            for (int i=0; i<numpages ;i++)
+            QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());
+            if (listimg.size())
             {
-                wdg_scrolltablewidget->setRowCount(numpages);
-                Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-                if (pdfPage == Q_NULLPTR) {
-                    UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                    delete document;
-                    return;
-                }
-                QImage image = pdfPage->renderToImage(300,300);
-                if (image.isNull()) {
-                    UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                    delete document;
-                    return;
-                }
-                // ... use image ...
-                pix = QPixmap::fromImage(image).scaled(QSize(QGuiApplication::screens().first()->geometry().width(),
-                                                             QGuiApplication::screens().first()->geometry().height()),
-                                                       Qt::KeepAspectRatioByExpanding,
-                                                       Qt::SmoothTransformation);
-                if (i==0)
+                wdg_inflabel->setParent(wdg_scrolltablewidget);
+                m_typedoc    = PDF;
+                wdg_scrolltablewidget ->setVisible(true);
+                wdg_scrolltablewidget ->setColumnCount(1);
+                wdg_scrolltablewidget ->setColumnWidth(0,wdg_scrolltablewidget->width()-2);
+                wdg_scrolltablewidget->setRowCount(listimg.size());
+                for (int i=0; i<listimg.size();++i)
                 {
-                    x = pix.size().width();
-                    y = pix.size().height();
-                    m_idealproportion = x/y;
+                    QImage image = listimg.at(i);
+                    pix = QPixmap::fromImage(image).scaled(QSize(QGuiApplication::screens().first()->geometry().width(),
+                                                                 QGuiApplication::screens().first()->geometry().height()),
+                                                           Qt::KeepAspectRatioByExpanding,
+                                                           Qt::SmoothTransformation);
+                    if (i==0)
+                    {
+                        x = pix.size().width();
+                        y = pix.size().height();
+                        m_idealproportion = x/y;
+                    }
+                    m_listpixmp << pix;
+                    pix = QPixmap::fromImage(image).scaled(QSize(wdg_scrolltablewidget->width()-2,wdg_scrolltablewidget->height()-2),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+                    wdg_scrolltablewidget->setRowHeight(i,pix.height());
+                    UpLabel *lab = new UpLabel(wdg_scrolltablewidget);
+                    lab->resize(pix.width(),pix.height());
+                    lab->setPixmap(pix);
+                    lab->setContextMenuPolicy(Qt::CustomContextMenu);
+                    connect(lab,    &UpLabel::clicked,                      this, &dlg_docsexternes::ZoomDoc);
+                    connect(lab,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
+                    wdg_scrolltablewidget->setCellWidget(i,0,lab);
                 }
-                m_listpixmp << pix;
-                pix = QPixmap::fromImage(image).scaled(QSize(wdg_scrolltablewidget->width()-2,wdg_scrolltablewidget->height()-2),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-                wdg_scrolltablewidget->setRowHeight(i,pix.height());
-                UpLabel *lab = new UpLabel(wdg_scrolltablewidget);
-                lab->resize(pix.width(),pix.height());
-                lab->setPixmap(pix);
-                lab->setContextMenuPolicy(Qt::CustomContextMenu);
-                connect(lab,    &UpLabel::clicked,                      this, &dlg_docsexternes::ZoomDoc);
-                connect(lab,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
-                delete pdfPage;
-                wdg_scrolltablewidget->setCellWidget(i,0,lab);
             }
-            delete document;
         }
         else return;
     }
@@ -844,57 +821,33 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         proc->CalcImage(docmt, pict, false);
     if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
     {
-        Poppler::Document* document = Poppler::Document::loadFromData(docmt->imageblob());
-        if (!document || document->isLocked()) {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            delete document;
-            return false;
-        }
-        if (document == Q_NULLPTR) {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            delete document;
-            return false;
-        }
-
-        document->setRenderHint(Poppler::Document::TextAntialiasing);
-        int numpages = document->numPages();
-        for (int i=0; i<numpages ;i++)
+        QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());
+        if (listimg.size())
         {
-            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-            if (pdfPage == Q_NULLPTR) {
-                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return false;
-            }
-            img_image = pdfPage->renderToImage(600,600);
-            if (img_image.isNull()) {
-                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return false;
-            }
-            // ... use image ...
-            if (i == 0)
+            for (int i=0; i<listimg.size();++i)
             {
-                if (m_avecprevisu)
+                QImage image = listimg.at(i);
+                if (i == 0)
                 {
-                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(m_printer);});
-                    dialog->exec();
-                    delete dialog;
+                    if (m_avecprevisu)
+                    {
+                        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
+                        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(m_printer);});
+                        dialog->exec();
+                        delete dialog;
+                    }
+                    else
+                    {
+                        QPrintDialog *dialog = new QPrintDialog(m_printer, this);
+                        if (dialog->exec() != QDialog::Rejected)
+                            Print(m_printer);
+                        delete dialog;
+                    }
                 }
                 else
-                {
-                    QPrintDialog *dialog = new QPrintDialog(m_printer, this);
-                    if (dialog->exec() != QDialog::Rejected)
-                        Print(m_printer);
-                    delete dialog;
-                }
+                    Print(m_printer);
             }
-            else
-                Print(m_printer);
-            delete pdfPage;
         }
-        delete document;
     }
     else if (docmt->imageformat() == JPG)     // le document est un jpg
     {

@@ -385,7 +385,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
     MateriauImgLay              ->addWidget(wdg_imgIOL);
     MateriauImgLay              ->setContentsMargins(0,0,0,0);
     wdg_toolbar                 ->setVisible(m_mode == Modification);
-    wdg_recopiebutton           ->setVisible(m_mode == Modification);
+    wdg_recopiebutton           ->setVisible(false);
     wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
 
     //! Remarque
@@ -456,7 +456,6 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
     wdg_cylindreminspin->installEventFilter(this);
     wdg_cylindremaxspin->installEventFilter(this);
     wdg_puissanceminspin->installEventFilter(this);
-    wdg_recopiebutton->setVisible(m_mode == Modification);
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
@@ -595,7 +594,7 @@ void dlg_identificationIOL::disconnectSignals()
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 {
-    m_listbinds[CP_IMG_IOLS] = QVariant();
+    m_listbinds[CP_ARRAYIMG_IOLS] = QVariant();
     m_listbinds[CP_TYPIMG_IOLS] = "";
     if (iol == Q_NULLPTR)
         return;
@@ -660,14 +659,10 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_diaoptique   ->setText(QLocale().toString(m_currentIOL->diaoptique(), 'f', 1));
         if (m_currentIOL->diainjecteur() > 0.0)
             wdg_diainjecteur ->setText(QLocale().toString(m_currentIOL->diainjecteur(), 'f', 1));
-        if (m_currentIOL->imgiol() != QByteArray())
+        if (m_currentIOL->arrayimgiol() != QByteArray())
         {
-            QImage image;
-            if (m_currentIOL->imageformat() == PDF)
-                setpdf(m_currentIOL->imgiol());
-            else if (image.loadFromData(m_currentIOL->imgiol()))
-                setimage(image);
-            m_listbinds[CP_IMG_IOLS] = m_currentIOL->imgiol();
+            setimage(m_currentIOL->image());
+            m_listbinds[CP_ARRAYIMG_IOLS] = m_currentIOL->arrayimgiol();
             m_listbinds[CP_TYPIMG_IOLS] = m_currentIOL->imageformat();
         }
         else setimage(m_nullimage);
@@ -765,15 +760,17 @@ void dlg_identificationIOL::changeImage()
             ba = file_image.readAll();
             file_image.remove();
         }
-        m_listbinds[CP_IMG_IOLS] = ba;
+        m_listbinds[CP_ARRAYIMG_IOLS] = ba;
         QString suffix = QFileInfo(file_origine).suffix().toLower();
         suffix = (suffix == PDF? PDF : JPG);
         m_listbinds[CP_TYPIMG_IOLS] = suffix;
         EnableOKpushButton();
+        QImage img;
         if (suffix == PDF)
-            setpdf(m_listbinds[CP_IMG_IOLS].toByteArray());
+            img = Utils::calcImagefromPdf(ba).at(0);
         else
-            setimage(QImage(fileName));
+            img = QImage(fileName);
+        setimage(img);
         file_origine.remove();
     }
 }
@@ -786,7 +783,7 @@ void dlg_identificationIOL::creeCopieIOL()
 void dlg_identificationIOL::supprimeImage()
 {
     setimage(m_nullimage);
-    m_listbinds[CP_IMG_IOLS] = QByteArray();
+    m_listbinds[CP_ARRAYIMG_IOLS] = QByteArray();
     m_listbinds[CP_TYPIMG_IOLS] = "";
     EnableOKpushButton();
 }
@@ -950,34 +947,4 @@ void dlg_identificationIOL::setimage(QImage img)
 {
     wdg_imgIOL   ->setPixmap(QPixmap::fromImage(img.scaled(wdg_imgIOL->width(),wdg_imgIOL->height(), Qt::KeepAspectRatio)));
     m_currentimage = img;
-}
-
-void dlg_identificationIOL::setpdf(QByteArray ba)
-{
-    Poppler::Document* document = Poppler::Document::loadFromData(ba);
-    if (!document || document->isLocked()) {
-        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-        delete document;
-        return;
-    }
-    if (document == Q_NULLPTR) {
-        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-        delete document;
-        return;
-    }
-    document->setRenderHint(Poppler::Document::TextAntialiasing);
-    Poppler::Page* pdfPage = document->page(0);  // Document starts at page 0
-    if (pdfPage == Q_NULLPTR) {
-        UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-        delete document;
-        return;
-    }
-    QImage image = pdfPage->renderToImage(300,300);
-    if (image.isNull()) {
-        UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-        delete document;
-        return;
-    }
-    setimage(image);
-    delete document;
 }

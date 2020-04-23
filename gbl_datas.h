@@ -28,6 +28,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_lignespaiements.h"
 #include "cls_docsexternes.h"
 #include "cls_interventions.h"
+#include "cls_interventions.h"
+#include "cls_iols.h"
 #include "cls_manufacturers.h"
 #include "cls_motifs.h"
 #include "cls_paiementstiers.h"

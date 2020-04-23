@@ -533,7 +533,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_HAIGISA2_IOLS                                "Haigisa2"
 #define CP_HOLL1_IOLS                                   "Holladay1sf"
 #define CP_DIAINJECTEUR_IOLS                            "DiametreInjecteur"
-#define CP_IMG_IOLS                                     "Image"
+#define CP_ARRAYIMG_IOLS                                     "Image"
 #define CP_TYPIMG_IOLS                                  "TypeImage"
 #define CP_MATERIAU_IOLS                                "Materiau"
 #define CP_REMARQUE_IOLS                                "Remarque"

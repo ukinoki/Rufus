@@ -205,7 +205,6 @@ private:
     QPrinter                *p_printer;
     QRectF                  m_rect;
     void                    Print(QPrinter*, QImage image);
-    void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
 
 public:
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */

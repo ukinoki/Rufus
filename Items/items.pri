@@ -8,6 +8,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_donneesophtapatient.cpp \
     $$PWD/cls_impression.cpp \
     $$PWD/cls_intervention.cpp \
+    $$PWD/cls_iol.cpp \
     $$PWD/cls_lignecompte.cpp \
     $$PWD/cls_manufacturer.cpp \
     $$PWD/cls_patient.cpp \
@@ -36,6 +37,7 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_donneesophtapatient.h \
     $$PWD/cls_impression.h \
     $$PWD/cls_intervention.h \
+    $$PWD/cls_iol.h \
     $$PWD/cls_item.h \
     $$PWD/cls_lignecompte.h \
     $$PWD/cls_manufacturer.h \
