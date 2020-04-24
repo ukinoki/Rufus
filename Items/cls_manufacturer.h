@@ -44,14 +44,10 @@ public:
     QString portable() const;
     QString website() const;
     QString mail() const;
-    QString cornom() const;
-    QString corprenom() const;
-    QString corstatut() const;
-    QString cormail() const;
-    QString cortelephone() const;
     bool isactif() const;
     QString tooltip() const;
     int iddistributeur() const;
+    int idrufus() const;
 
     QString coordonnees() const;
 
@@ -66,16 +62,13 @@ public:
     void setportable(const QString &portable);
     void setwebsite(const QString &website);
     void setmail(const QString &mail);
-    void setcornom(const QString &cornom);
-    void setcorprenom(const QString &corprenom);
-    void setcorstatut(const QString &corstatut);
-    void setcormail(const QString &corstatut);
-    void setcortelephone(const QString &cortelephone);
     void setactif(const bool &actif);
-    void setiddistributeur(const int id);
+    void setiddistributeur(int id);
+    void setidrufus(int idrufus);
     void resetdatas();
 
     bool isnull() const                     { return m_id == 0; }
+
 
 private:
     QString m_nom           = "";
@@ -89,13 +82,9 @@ private:
     QString m_portable      = "";
     QString m_website       = "";
     QString m_mail          = "";
-    QString m_cornom        = "";
-    QString m_corprenom     = "";
-    QString m_corstatut     = "";
-    QString m_cormail       = "";
-    QString m_cortelephone  = "";
     bool m_inactif          = false;
-    int     m_distributeur  = 0;
+    int m_distributeur      = 0;
+    int m_idrufus           = 0;
 };
 
 #endif // MANUFACTURER_H

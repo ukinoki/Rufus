@@ -37,6 +37,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_acte.h"
 #include "cls_archivebanque.h"
 #include "cls_banque.h"
+#include "cls_commercial.h"
 #include "cls_correspondant.h"
 #include "cls_cotation.h"
 #include "cls_depense.h"
@@ -385,6 +386,16 @@ private:
 public:
     QList<Manufacturer*>    loadManufacturers();                                    //! charge toutes les fabricants
     Manufacturer*           loadManufacturerById(int idManufacturer);               //! charge un fabricant défini par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
+     * Commerciaux
+    */
+private:
+    QJsonObject             loadCommercialData(QVariantList Mandata);               //! attribue le liste des datas à un commercial
+public:
+    QList<Commercial*>      loadCommercials();                                      //! charge tous les commerciaux
+    Commercial*             loadCommercialById(int idCommercial);                   //! charge un commercial défini par son id - utilisé pour renouveler les données en cas de modification
+    QList<Commercial*>      loadCommercialsByIdManufacturer(int idmanufacturer);     //! charge tous les commerciaux d'un fabricant
 
 };
 

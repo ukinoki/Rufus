@@ -2862,13 +2862,9 @@ QJsonObject DataBase::loadManufacturerData(QVariantList Mandata)         //! att
     data[CP_PORTABLE_MANUFACTURER]      = Mandata.at(9).toString();
     data[CP_WEBSITE_MANUFACTURER]       = Mandata.at(10).toString();
     data[CP_MAIL_MANUFACTURER]          = Mandata.at(11).toString();
-    data[CP_CORNOM_MANUFACTURER]        = Mandata.at(12).toString();
-    data[CP_CORPRENOM_MANUFACTURER]     = Mandata.at(13).toString();
-    data[CP_CORSTATUT_MANUFACTURER]     = Mandata.at(14).toString();
-    data[CP_CORMAIL_MANUFACTURER]       = Mandata.at(15).toString();
-    data[CP_CORTELEPHONE_MANUFACTURER]  = Mandata.at(16).toString();
-    data[CP_INACTIF_MANUFACTURER]       = (Mandata.at(17).toInt() == 1);
-    data[CP_DISTRIBUEPAR_MANUFACTURER]  = Mandata.at(18).toInt();
+    data[CP_INACTIF_MANUFACTURER]       = (Mandata.at(12).toInt() == 1);
+    data[CP_DISTRIBUEPAR_MANUFACTURER]  = Mandata.at(13).toInt();
+    data[CP_IDRUFUS_MANUFACTURER]       = Mandata.at(14).toInt();
     return data;
 }
 
@@ -2877,8 +2873,7 @@ QList<Manufacturer*> DataBase::loadManufacturers()                       //! cha
     QList<Manufacturer*> list = QList<Manufacturer*> ();
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
-                              CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
-                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER
+                              CP_MAIL_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER ", " CP_IDRUFUS_MANUFACTURER
                     " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER;
     QList<QVariantList> Manufacturerlist = StandardSelectSQL(req,ok);
     //qDebug() << req;
@@ -2899,8 +2894,7 @@ Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                
     Manufacturer *Man = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
-                              CP_MAIL_MANUFACTURER ", " CP_CORNOM_MANUFACTURER ", " CP_CORPRENOM_MANUFACTURER ", " CP_CORSTATUT_MANUFACTURER ", " CP_CORMAIL_MANUFACTURER ", "
-                              CP_CORTELEPHONE_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER
+                              CP_MAIL_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER ", " CP_IDRUFUS_MANUFACTURER
                     " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER
                     " WHERE " CP_ID_MANUFACTURER " = " + QString::number(idManufacturer) ;
     QVariantList Manufacturerdata = getFirstRecordFromStandardSelectSQL(req,ok);
@@ -2909,4 +2903,79 @@ Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                
     QJsonObject data = loadManufacturerData(Manufacturerdata);
     Man = new Manufacturer(data);
     return Man;
+}
+
+/*
+ * Commerciaux
+*/
+
+QJsonObject DataBase::loadCommercialData(QVariantList comdata)         //! attribue la liste des datas à un fabricant
+{
+    QJsonObject data{};
+    data[CP_ID_COM]             = comdata.at(0).toInt();
+    data[CP_NOM_COM]            = comdata.at(1).toString();
+    data[CP_PRENOM_COM]         = comdata.at(2).toString();
+    data[CP_STATUT_COM]         = comdata.at(3).toString();
+    data[CP_MAIL_COM]           = comdata.at(4).toString();
+    data[CP_TELEPHONE_COM]      = comdata.at(5).toString();
+    data[CP_IDMANUFACTURER_COM] = comdata.at(6).toInt();
+    return data;
+}
+
+QList<Commercial*> DataBase::loadCommercials()                       //! charge tous les fabricants
+{
+    QList<Commercial*> list = QList<Commercial*> ();
+    QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
+                              CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
+                    " FROM " TBL_COMMERCIALS " order by " CP_NOM_COM ", " CP_PRENOM_COM;
+    QList<QVariantList> commerciallist = StandardSelectSQL(req,ok);
+    //qDebug() << req;
+    if(!ok || commerciallist.size()==0)
+        return list;
+    for (int i=0; i<commerciallist.size(); ++i)
+    {
+        QJsonObject data = loadCommercialData(commerciallist.at(i));
+        Commercial *Com = new Commercial(data);
+        if (Com != Q_NULLPTR)
+            list << Com;
+    }
+    return list;
+}
+
+Commercial* DataBase::loadCommercialById(int idcommercial)                   //! charge un commercial défini par son id - utilisé pour renouveler les données en cas de modification
+{
+    Commercial *Com = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
+                              CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
+                    " FROM " TBL_COMMERCIALS
+                    " WHERE " CP_ID_COM " = " + QString::number(idcommercial) +
+                    " order by " CP_NOM_COM ", " CP_PRENOM_COM;
+    QVariantList Commercialdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || Commercialdata.size()==0)
+        return Com;
+    QJsonObject data = loadCommercialData(Commercialdata);
+    Com = new Commercial(data);
+    return Com;
+}
+
+QList<Commercial *> DataBase::loadCommercialsByIdManufacturer(int idmanufacturer)
+{
+    QList<Commercial*> list = QList<Commercial*> ();
+    QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
+                              CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
+                    " FROM " TBL_COMMERCIALS
+                    " WHERE " CP_IDMANUFACTURER_COM " = " + QString::number(idmanufacturer)
+                    +  " order by " CP_NOM_COM ", " CP_PRENOM_COM;
+    QList<QVariantList> commerciallist = StandardSelectSQL(req,ok);
+    //qDebug() << req;
+    if(!ok || commerciallist.size()==0)
+        return list;
+    for (int i=0; i<commerciallist.size(); ++i)
+    {
+        QJsonObject data = loadCommercialData(commerciallist.at(i));
+        Commercial *Com = new Commercial(data);
+        if (Com != Q_NULLPTR)
+            list << Com;
+    }
+    return list;
 }

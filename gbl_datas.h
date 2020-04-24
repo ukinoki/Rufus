@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "cls_actes.h"
 #include "cls_banques.h"
+#include "cls_commercials.h"
 #include "cls_comptes.h"
 #include "cls_correspondants.h"
 #include "cls_cotations.h"
@@ -64,6 +65,7 @@ public:
     Banques *banques;                       //!< toutes les banques
     Impressions *impressions;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     Comptes *comptes;                       //!< tous les comptes bancaires d'un utilisateur
+    Commercials *commercials;               //!< tous les commerciaux
     Correspondants *correspondants;         //!< Les correspondants
     Cotations *cotations;                   //!< Les cotations
     Depenses *depenses;                     //!< les depenses pour un user et une  année donnée

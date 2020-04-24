@@ -36,7 +36,7 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
     wdg_itemstree ->setMouseTracking(true);
     wdg_itemstree ->header()->setVisible(false);
 
-    ReconstruitTreeViewManufacturers(true);
+    ReconstruitTreeViewManufacturers();
 
     wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -59,7 +59,7 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
     connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
     connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_chercheuplineedit->setText(txt);
-                                                                                                    ReconstruitTreeViewManufacturers(false, txt);});
+                                                                                                    ReconstruitTreeViewManufacturers(txt);});
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listemanufacturers::ChoixButtonFrame);
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
@@ -162,7 +162,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
         {
             int idman = man->id();
             m_listemodifiee = true;
-            ReconstruitTreeViewManufacturers(true);
+            ReconstruitTreeViewManufacturers();
             man = Datas::I()->manufacturers->getById(idman);
             if (man)
                 scrollToManufacturer(man);
@@ -221,10 +221,8 @@ void dlg_listemanufacturers::SupprManufacturer(Manufacturer *man)
     }
 }
 
-void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(bool reconstruirelaliste, QString filtre)
+void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(QString filtre)
 {
-    if (reconstruirelaliste)
-        Datas::I()->manufacturers->initListe();
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
     if (m_model == Q_NULLPTR)

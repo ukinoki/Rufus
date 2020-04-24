@@ -23,5 +23,6 @@
         <file>Images.sql</file>
         <file>Ophtalmologie.sql</file>
         <file>rufus.sql</file>
+        <file>majbase66.sql</file>
     </qresource>
 </RCC>

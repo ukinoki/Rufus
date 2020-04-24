@@ -3,6 +3,7 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_acte.cpp \
+    $$PWD/cls_commercial.cpp \
     $$PWD/cls_compte.cpp \
     $$PWD/cls_correspondant.cpp \
     $$PWD/cls_donneesophtapatient.cpp \
@@ -32,6 +33,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_lignepaiement.cpp
 
 HEADERS += $$PWD/cls_acte.h \
+    $$PWD/cls_commercial.h \
     $$PWD/cls_compte.h \
     $$PWD/cls_correspondant.h \
     $$PWD/cls_donneesophtapatient.h \

@@ -29,6 +29,7 @@ Datas::Datas()
 {
     actes               = new Actes();
     banques             = new Banques();
+    commercials         = new Commercials;
     comptes             = new Comptes();
     correspondants      = new Correspondants();
     cotations           = new Cotations();

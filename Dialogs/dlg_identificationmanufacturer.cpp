@@ -34,12 +34,15 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     wdg_villelineedit           = wdg_villeCP->ui->VillelineEdit;
     wdg_villeCP                 ->move(10,156);
     m_nommanufacturer           = "";
+    wdg_buttonframe         = new WidgetButtonFrame(ui->commercialsupTableView);
+    wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    dlglayout()     ->insertWidget(0,ui->CorgroupBox);
+    dlglayout()     ->insertWidget(0,wdg_buttonframe->widgButtonParent());
     dlglayout()     ->insertWidget(0,ui->Principalframe);
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     AjouteWidgetLayButtons(ui->idManufacturerlabel, false);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()     ->setSpacing(5);
     QFont font = qApp->font();
     font.setBold(true);
     ui->NomlineEdit->setFont(font);
@@ -57,11 +60,18 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     ui->TellineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
     ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->CorNomlineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CorPrenomlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CorStatutlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CorMaillineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
-    ui->CorTelephonelineEdit->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+
+    setModal(true);
+    setSizeGripEnabled(false);
+    setWindowTitle(tr("Liste des fabricants"));
+
+    ui->commercialsupTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->commercialsupTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->commercialsupTableView->verticalHeader()->setVisible(false);
+    ui->commercialsupTableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->commercialsupTableView->setFocusPolicy(Qt::StrongFocus);
+    ui->commercialsupTableView->setGridStyle(Qt::NoPen);
+    ui->commercialsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     QStandardItemModel m_manufacturermodel;
     int idcurrenmtmanufacturer = (m_currentmanufacturer? m_currentmanufacturer->id() : 0);
@@ -80,8 +90,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
 
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
-            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->WebsiteineEdit << ui->FaxlineEdit << ui->CorNomlineEdit
-            << ui->CorPrenomlineEdit << ui->CorMaillineEdit << ui->CorTelephonelineEdit << ui->DistributeurupComboBox;
+            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->WebsiteineEdit << ui->FaxlineEdit << ui->DistributeurupComboBox;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
     installEventFilter(this);
@@ -104,35 +113,18 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     connect (ui->MaillineEdit,          &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->WebsiteineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->FaxlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->CorNomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->CorPrenomlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->CorMaillineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->CorNomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
-    connect (ui->CorPrenomlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
-    connect (ui->CorStatutlineEdit,     &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
-    connect (ui->CorMaillineEdit,       &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
-    connect (ui->CorTelephonelineEdit,  &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnablekillCorpushButton);
     connect (ui->DistributeurupComboBox->lineEdit(),    &QLineEdit::textEdited,
                                                                             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->DistributeurupComboBox,                QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->killCorupPushButton,   &QPushButton::clicked,              this,           [=]
-                                                                                            {
-                                                                                                if (UpMessageBox::Question(this, tr("Suppression d'un correspondant"), tr("Êtes vous sûr de vouloir supprimer ce corespondant?")) != UpSmallButton::STARTBUTTON)
-                                                                                                    return;
-                                                                                                ui->CorNomlineEdit      ->clear();
-                                                                                                ui->CorPrenomlineEdit   ->clear();
-                                                                                                ui->CorStatutlineEdit   ->clear();
-                                                                                                ui->CorMaillineEdit     ->clear();
-                                                                                                ui->CorTelephonelineEdit->clear();
-                                                                                                EnableOKpushButton();
-                                                                                            });
-    connect (ui->Websitelabel,          &QLabel::linkActivated,                 this,   [=] {if (ui->WebsiteineEdit->text() != "") QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
+    connect (ui->Websitelabel,          &QLabel::linkActivated,             this,           [=] {if (ui->WebsiteineEdit->text() != "") QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
+    connect(wdg_buttonframe,            &WidgetButtonFrame::choix,          this,           &dlg_identificationmanufacturer::ChoixButtonFrame);
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
+    wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+
     setStageCount(1);
 
     QCompleter *profcpl = new QCompleter(Datas::I()->correspondants->autresprofessions(), this);
@@ -151,14 +143,13 @@ void    dlg_identificationmanufacturer:: EnableOKpushButton()
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
-void    dlg_identificationmanufacturer:: EnablekillCorpushButton()
+Commercial* dlg_identificationmanufacturer::getCommercialFromIndex(QModelIndex idx)
 {
-    bool a  = ui->CorNomlineEdit->text() != ""
-            || ui->CorPrenomlineEdit->text() != ""
-            || ui->CorMaillineEdit->text() != ""
-            || ui->CorTelephonelineEdit->text() != ""
-            || ui->CorStatutlineEdit->text() != "";
-    ui->killCorupPushButton->setEnabled(a);
+    Commercial *com = Q_NULLPTR;
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_commodel->itemFromIndex(idx));
+    if(itm)
+        com = dynamic_cast<Commercial*>(itm->item());
+    return com;
 }
 
 void dlg_identificationmanufacturer::Majuscule(QLineEdit *ledit)
@@ -238,11 +229,6 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
     m_listbinds[CP_PORTABLE_MANUFACTURER]     = ui->PortablelineEdit->text();
     m_listbinds[CP_WEBSITE_MANUFACTURER]      = ui->WebsiteineEdit->text();
     m_listbinds[CP_MAIL_MANUFACTURER]         = ui->MaillineEdit->text();
-    m_listbinds[CP_CORNOM_MANUFACTURER]       = Utils::trimcapitilize(ui->CorNomlineEdit->text(), true);
-    m_listbinds[CP_CORPRENOM_MANUFACTURER]    = Utils::trimcapitilize(ui->CorPrenomlineEdit->text(), true);
-    m_listbinds[CP_CORSTATUT_MANUFACTURER]    = Utils::trimcapitilize(ui->CorStatutlineEdit->text(), true);
-    m_listbinds[CP_CORMAIL_MANUFACTURER]      = ui->CorMaillineEdit->text();
-    m_listbinds[CP_CORTELEPHONE_MANUFACTURER] = ui->CorTelephonelineEdit->text();
     m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
     m_listbinds[CP_DISTRIBUEPAR_MANUFACTURER] = (ui->DistributeurupComboBox->currentData().toInt()>0? ui->DistributeurupComboBox->currentData().toInt() : QVariant());
     if (m_mode == Creation)
@@ -283,6 +269,33 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
 }
 
 
+void dlg_identificationmanufacturer::ChoixButtonFrame()
+{
+    Commercial *com = Q_NULLPTR;
+    if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size())
+        com = getCommercialFromIndex(ui->commercialsupTableView->selectionModel()->selectedIndexes().at(0));
+    switch (wdg_buttonframe->Choix()) {
+    case WidgetButtonFrame::Plus:
+        //EnregistreNouveauIOL();
+        break;
+    case WidgetButtonFrame::Modifier:
+        //if (iol)
+          //  ModifIOL(iol);
+        break;
+    case WidgetButtonFrame::Moins:
+        //if (iol)
+          //  SupprIOL(iol);
+        break;
+    }
+}
+
+void dlg_identificationmanufacturer::Enablebuttons(QModelIndex idx)
+{
+    Commercial *com = getCommercialFromIndex(idx);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(com != Q_NULLPTR);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(com != Q_NULLPTR);
+}
+
 /*--------------------------------------------------------------------------------------------
 -- Afficher la fiche du fabricant
 --------------------------------------------------------------------------------------------*/
@@ -309,13 +322,8 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
         ui->WebsiteineEdit      ->setText(m_currentmanufacturer->website());
         ui->MaillineEdit        ->setText(m_currentmanufacturer->mail());
 
-        ui->CorNomlineEdit      ->setText(m_currentmanufacturer->cornom());
-        ui->CorPrenomlineEdit   ->setText(m_currentmanufacturer->corprenom());
-        ui->CorStatutlineEdit   ->setText(m_currentmanufacturer->corstatut());
-        ui->CorMaillineEdit     ->setText(m_currentmanufacturer->cormail());
-        ui->CorTelephonelineEdit->setText(m_currentmanufacturer->cortelephone());
-        EnablekillCorpushButton();
         ui->DistributeurupComboBox->setCurrentIndex(ui->DistributeurupComboBox->findData(m_currentmanufacturer->iddistributeur()));
+        reconstruitCommercialsModel();
     }
     else if (m_mode == Creation)
     {
@@ -323,4 +331,51 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
         wdg_villelineedit           ->setText(Procedures::VilleParDefaut());
         ui->DistributeurupComboBox->setCurrentIndex(-1);
     }
+}
+
+void dlg_identificationmanufacturer::reconstruitCommercialsModel()
+{
+    ui->commercialsupTableView->selectionModel()->disconnect();
+    Datas::I()->commercials->initListebyidManufacturer(m_currentmanufacturer->id());
+    if (m_commodel == Q_NULLPTR)
+        delete m_commodel;
+    m_commodel = new QStandardItemModel(this);
+    foreach (Commercial*com, Datas::I()->commercials->commercials()->values())
+    {
+        UpStandardItem *itmnom      = new UpStandardItem(com->nom().toUpper() + " " + com->prenom(), com);
+        UpStandardItem *itmstatut   = new UpStandardItem(com->statut(), com);
+        UpStandardItem *itmtel      = new UpStandardItem(com->telephone(), com);
+        UpStandardItem *itmmail     = new UpStandardItem(com->mail(), com);
+        m_commodel->appendRow(QList<QStandardItem*>() << itmnom << itmstatut << itmtel << itmmail);
+    }
+    QStandardItem *itnom = new QStandardItem();
+    itnom->setText(tr("Nom"));
+    itnom->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_commodel->setHorizontalHeaderItem(0,itnom);
+    QStandardItem *itstatut = new QStandardItem();
+    itstatut->setText(tr("Statut"));
+    itstatut->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_commodel->setHorizontalHeaderItem(1,itstatut);
+    QStandardItem *ittelephone = new QStandardItem();
+    ittelephone->setText(tr("Telephone"));
+    ittelephone->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_commodel->setHorizontalHeaderItem(2,ittelephone);
+    QStandardItem *itmail = new QStandardItem();
+    itmail->setText(tr("Mail"));
+    itmail->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_commodel->setHorizontalHeaderItem(3,itmail);
+    ui->commercialsupTableView->setModel(m_commodel);
+
+    ui->commercialsupTableView->setColumnWidth(0,180);     // NomPrenom
+    ui->commercialsupTableView->setColumnWidth(1,150);     // statut
+    ui->commercialsupTableView->setColumnWidth(2,120);     // telephone
+    ui->commercialsupTableView->setColumnWidth(3,180);     // mail
+    ui->commercialsupTableView->setMouseTracking(true);
+    ui->commercialsupTableView->FixLargeurTotale();
+    wdg_buttonframe->widgButtonParent()->setFixedWidth(ui->commercialsupTableView->width());
+    QFontMetrics fm(qApp->font());
+    for (int j=0; j<Datas::I()->recettes->recettes()->size(); j++)
+        ui->commercialsupTableView->setRowHeight(j,int(fm.height()*1.3));
+    ui->commercialsupTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    connect(ui->commercialsupTableView->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_identificationmanufacturer::Enablebuttons);
 }

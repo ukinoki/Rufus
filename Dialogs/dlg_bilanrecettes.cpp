@@ -697,7 +697,6 @@ void dlg_bilanrecettes::RemplitLaTable()
     m_recettesmodel->setHorizontalHeaderItem(7,itapports);
 
     wdg_bigtable->horizontalHeader()->setVisible(true);
-    wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
     wdg_bigtable->setColumnWidth(li,100);                                              // 0 - Date affichage européen
     li++;

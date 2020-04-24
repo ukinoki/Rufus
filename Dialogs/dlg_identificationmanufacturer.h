@@ -48,13 +48,17 @@ private:
     QLineEdit                   *wdg_CPlineedit, *wdg_villelineedit;
     VilleCPWidget               *wdg_villeCP;
     QHash<QString, QVariant>    m_listbinds;
-
+    QStandardItemModel          *m_commodel = Q_NULLPTR;
+    WidgetButtonFrame           *wdg_buttonframe;
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDatasManufacturer();
+    void                ChoixButtonFrame();
+    void                Enablebuttons(QModelIndex idx);
     void                EnableOKpushButton();
-    void                EnablekillCorpushButton();
+    Commercial*         getCommercialFromIndex(QModelIndex idx);
     void                Majuscule(QLineEdit *ledit);
     void                OKpushButtonClicked();
+    void                reconstruitCommercialsModel();
 };
 #endif // DLG_IDENTIFICATIONMANUFACTURER_H

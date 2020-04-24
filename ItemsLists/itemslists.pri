@@ -3,6 +3,7 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_correspondants.cpp \
+    $$PWD/cls_commercials.cpp \
     $$PWD/cls_impressions.cpp \
     $$PWD/cls_interventions.cpp \
     $$PWD/cls_iols.cpp \
@@ -30,6 +31,7 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_lignespaiements.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
+    $$PWD/cls_commercials.h \
     $$PWD/cls_impressions.h \
     $$PWD/cls_interventions.h \
     $$PWD/cls_iols.h \

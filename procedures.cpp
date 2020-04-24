@@ -2740,6 +2740,30 @@ bool Procedures::VerifBaseEtRessources()
                     erreur();
                 }
             }
+            if (Version == 66)
+            {
+                QString req = " select " CP_ID_MANUFACTURER ", CorNom, CorPrenom, CorStatut, CorMail, CorTelephone from " TBL_MANUFACTURERS
+                                " where CorNom is not null and CorNom <> ''";
+                bool ok;
+                QList<QVariantList> listcom = DataBase::I()->StandardSelectSQL(req,ok);
+                if (ok && listcom.size()>0)
+                    for (int i= 0; i<listcom.size(); ++i)
+                    {
+                        req = "insert into " TBL_COMMERCIALS "(" CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", " CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM ")"
+                              " VALUES ( '" + listcom.at(i).at(1).toString() + "', '"  + listcom.at(i).at(2).toString() + "', '"
+                                + listcom.at(i).at(3).toString() + "', '"  + listcom.at(i).at(4).toString()
+                                + "', '"  + listcom.at(i).at(5).toString() + "', '"  + listcom.at(i).at(0).toString() + "')";
+                        DataBase::I()->StandardSQL(req);
+                    }
+                req = "update " TBL_MANUFACTURERS " set CorNom = null, CorPrenom = null, CorStatut = null, CorMail = null, CorTelephone = null";
+                DataBase::I()->StandardSQL(req);
+//                DataBase::I()->StandardSQL("ALTER TABLE `rufus`.`Manufacturers` "
+//                "DROP COLUMN `CorTelephone`,"
+//                "DROP COLUMN `CorMail`,"
+//                "DROP COLUMN `CorStatut`,"
+//                "DROP COLUMN `CorPrenom`,"
+//                "DROP COLUMN `CorNom`;");
+            }
         }
     }
     //verification des fichiers ressources

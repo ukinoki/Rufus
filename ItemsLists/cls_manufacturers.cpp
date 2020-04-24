@@ -48,23 +48,9 @@ Manufacturer* Manufacturers::getById(int id)
 void Manufacturers::initListe()
 {
     QList<Manufacturer*> listManufacturers = DataBase::I()->loadManufacturers();
-    //! le code qui suit provoque un plantage quand on met à jour la liste et je ne comprends pas pourquoi
-//    epurelist(map_all, &listManufacturers);
-//    addList(map_all, &listManufacturers);
-    //! et celui là aussi
-//    for (auto it = map_all->constBegin(); it != map_all->constEnd(); ++it)
-//        if (it.value())
-//        {
-//            Manufacturer * man = const_cast<Manufacturer*>(it.value());
-//            if (man)
-//            {
-//              qDebug() << man->id() << man->nom();
-//              delete man;
-//            }
-//        }
-    map_all->clear();
+    clearAll(map_all);
     foreach (Manufacturer *man, listManufacturers)
-        if( man != Q_NULLPTR)
+        if( man )
             map_all->insert(man->id(), man);
 }
 
@@ -110,17 +96,13 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
         else if (champ == CP_PORTABLE_MANUFACTURER)                 data[champ] = itset.value().toString();
         else if (champ == CP_WEBSITE_MANUFACTURER)                  data[champ] = itset.value().toString();
         else if (champ == CP_MAIL_MANUFACTURER)                     data[champ] = itset.value().toString();
-        else if (champ == CP_CORNOM_MANUFACTURER)                   data[champ] = itset.value().toString();
-        else if (champ == CP_CORPRENOM_MANUFACTURER)                data[champ] = itset.value().toString();
-        else if (champ == CP_CORSTATUT_MANUFACTURER)                data[champ] = itset.value().toString();
-        else if (champ == CP_CORMAIL_MANUFACTURER)                  data[champ] = itset.value().toString();
-        else if (champ == CP_CORTELEPHONE_MANUFACTURER)             data[champ] = itset.value().toString();
         else if (champ == CP_INACTIF_MANUFACTURER)                  data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_DISTRIBUEPAR_MANUFACTURER)             data[champ] = itset.value().toInt();
+        else if (champ == CP_IDRUFUS_MANUFACTURER)                  data[champ] = itset.value().toInt();
     }
     man = new Manufacturer(data);
     if (man != Q_NULLPTR)
-        initListe();
+        map_all->insert(man->id(), man);
     return man;
 }
 

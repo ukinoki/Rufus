@@ -26,6 +26,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     IOL *iol                    = Q_NULLPTR;
     Intervention *interv        = Q_NULLPTR;
     Tiers *tiers                = Q_NULLPTR;
+    Commercial *com             = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -166,6 +167,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (tiers != Q_NULLPTR)
         {
             table = TBL_TIERS;
+            loop = true;
+            break;
+        }
+        com = dynamic_cast<Commercial*>(item);
+        if (com != Q_NULLPTR)
+        {
+            table = TBL_COMMERCIALS;
             loop = true;
             break;
         }
@@ -785,31 +793,6 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             man->setmail(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
         }
-        else if (field == CP_CORNOM_MANUFACTURER)
-        {
-            man->setcornom(newvalue.toString());
-            Utils::CalcStringValueSQL(newvalue);
-        }
-        else if (field == CP_CORPRENOM_MANUFACTURER )
-        {
-            man->setcorprenom(newvalue.toString());
-            Utils::CalcStringValueSQL(newvalue);
-        }
-        else if (field == CP_CORSTATUT_MANUFACTURER)
-        {
-            man->setcorstatut(newvalue.toString());
-            Utils::CalcStringValueSQL(newvalue);
-        }
-        else if (field == CP_CORTELEPHONE_MANUFACTURER)
-        {
-            man->setcortelephone(newvalue.toString());
-            Utils::CalcStringValueSQL(newvalue);
-        }
-        else if (field == CP_CORMAIL_MANUFACTURER)
-        {
-            man->setcormail(newvalue.toString());
-            Utils::CalcStringValueSQL(newvalue);
-        }
     }
     else if (table == TBL_TYPESINTERVENTIONS)
     {
@@ -1107,6 +1090,41 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             tiers->setWebsite(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
          }
+    }
+    else if (table == TBL_COMMERCIALS)
+    {
+        ok = true;
+        clause = CP_ID_COM " = " + QString::number(item->id());
+        if (field == CP_NOM_COM)
+        {
+            com->setnom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_PRENOM_COM)
+        {
+            com->setprenom(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_TELEPHONE_COM)
+        {
+            com->settelephone(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_STATUT_COM)
+        {
+            com->setstatut(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_MAIL_COM)
+        {
+            com->setmail(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDMANUFACTURER_COM)
+        {
+            com->setidmanufactureur(newvalue.toInt());
+            Utils::CalcintValueSQL(newvalue);
+        }
     }
 
     if (ok)

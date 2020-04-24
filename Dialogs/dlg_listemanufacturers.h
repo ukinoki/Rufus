@@ -45,7 +45,7 @@ private:
     void                    ModifManufacturer(Manufacturer *man);
     void                    scrollToManufacturer(Manufacturer *man);
     void                    SupprManufacturer(Manufacturer *man);
-    void                    ReconstruitTreeViewManufacturers(bool reconstruirelaliste = false, QString filtre = "");
+    void                    ReconstruitTreeViewManufacturers(QString filtre = "");
 };
 
 #endif // dlg_listemanufacturers_H
