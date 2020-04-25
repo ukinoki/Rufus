@@ -724,10 +724,29 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     scriptrestore += "MYSQL=" + cheminmysql;
     scriptrestore += "/mysql";
     scriptrestore += "\n";
+    QString host;
+    if( db->ModeAccesDataBase() == Utils::Poste )
+        host = "localhost";
+    else
+        host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
+    bool useSSL = (db->ModeAccesDataBase() == Utils::Distant);
+    QString login = LOGIN_SQL;
+    if (useSSL)
+        login += "SSL";
+    QString dirkey = "/etc/mysql";
+    QString keys = "";
+    if (useSSL)
+    {
+        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString() != "")
+            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+        else
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL",dirkey);
+        keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
+    }
     for (int i=0; i<ListNomFiles.size(); i++)
         if (QFile(ListNomFiles.at(i)).exists())
         {
-            scriptrestore += "$MYSQL -u " LOGIN_SQL  " -p" MDP_SQL " -h localhost -P " + QString::number(db->port()) + " < " + ListNomFiles.at(i);
+            scriptrestore += "$MYSQL -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys + " < " + ListNomFiles.at(i);
             scriptrestore += "\n";
         }
     if (QFile::exists(PATH_FILE_SCRIPTRESTORE))
@@ -2712,13 +2731,13 @@ bool Procedures::VerifBaseEtRessources()
             Message::I()->SplashMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
+            int a = 99;
             if (DumpFile.exists())
             {
                 QString NomDumpFile = PATH_DIR_RESSOURCES "/majbase" + QString::number(Version) + ".sql";
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 emit ConnectTimers(false);
-                int a = 99;
                 DefinitScriptRestore(QStringList() << NomDumpFile);
                 QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
                 QProcess dumpProcess(parent());
@@ -2740,7 +2759,7 @@ bool Procedures::VerifBaseEtRessources()
                     erreur();
                 }
             }
-            if (Version == 66)
+            if (Version == 66 && a == 0)
             {
                 QString req = " select " CP_ID_MANUFACTURER ", CorNom, CorPrenom, CorStatut, CorMail, CorTelephone from " TBL_MANUFACTURERS
                                 " where CorNom is not null and CorNom <> ''";
