@@ -373,7 +373,7 @@ void dlg_listeiols::EnregistreNouveauIOL()
         return;
     if (Dlg_IdentIOL->exec()>0)
     {
-        IOL *iol = Dlg_IdentIOL->currentIOL();
+        IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL());
         m_listemodifiee = true;
         disconnectFiltersSignals();
         wdg_manufacturerscombo->setCurrentIndex(0);

@@ -59,7 +59,7 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
             m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
         if (m_currentmanufacturer)
             reconstruitListeIOLs(m_currentmanufacturer);
-        m_currentIOL = m_iols->getById(id);
+        m_currentIOL = Datas::I()->iols->getById(id);
     }
 
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
@@ -823,7 +823,7 @@ void dlg_identificationIOL::NavigueVers(QString but)
     wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
     if (idx>-1)
     {
-        m_currentIOL = m_iols->getById(m_listeidIOLs.at(idx));
+        m_currentIOL = Datas::I()->iols->getById(m_listeidIOLs.at(idx));
         AfficheDatasIOL(m_currentIOL);
     }
 }
@@ -854,7 +854,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
             {
                 UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
                 delete m_currentIOL;
-                m_currentIOL = m_iols->getById(ioldata.at(0).toInt());
+                m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
                 OKButton->setEnabled(false);
                 wdg_toolbar         ->setEnabled(true);
                 wdg_recopiebutton   ->setEnabled(true);
@@ -866,7 +866,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
             break;
         case Creation:
             UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
-            m_currentIOL = m_iols->getById(ioldata.at(0).toInt());
+            m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
             OKButton->setEnabled(false);
             wdg_toolbar         ->setEnabled(true);
             wdg_recopiebutton   ->setEnabled(true);

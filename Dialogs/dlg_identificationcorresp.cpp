@@ -320,11 +320,6 @@ bool dlg_identificationcorresp::identcorrespondantmodifiee() const
     return m_modifdatascor;
 }
 
-Correspondant* dlg_identificationcorresp::correspondantrenvoye() const
-{
-    return m_currentcorrespondant;
-}
-
 void dlg_identificationcorresp::RegleAffichage()
 {
     ui->SpecomboBox->setVisible(ui->SperadioButton->isChecked());

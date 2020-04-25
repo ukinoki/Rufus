@@ -1586,7 +1586,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
                 Dlg_IdentTiers->setnomtiers(nou.toUpper());
                 if (Dlg_IdentTiers->exec()>0)
                 {
-                    Tiers * trs = Dlg_IdentTiers->currentTiers();
+                    Tiers * trs = Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
                     if (trs)
                     {
                         ReconstruitListeTiers();

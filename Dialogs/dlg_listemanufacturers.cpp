@@ -233,7 +233,7 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(QString filtre)
 
     foreach(Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
     {
-        if (man->nom().startsWith(filtre))
+        if (man->nom().toUpper().startsWith(filtre.toUpper()))
         {
             pitem   = new UpStandardItem(man->nom(), man);
             pitem   ->setEditable(false);

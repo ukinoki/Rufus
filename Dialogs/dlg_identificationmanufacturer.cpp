@@ -126,10 +126,6 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 
     setStageCount(1);
-
-    QCompleter *profcpl = new QCompleter(Datas::I()->correspondants->autresprofessions(), this);
-    profcpl             ->setCaseSensitivity(Qt::CaseInsensitive);
-    profcpl             ->setCompletionMode(QCompleter::InlineCompletion);
 }
 
 dlg_identificationmanufacturer::~dlg_identificationmanufacturer()
@@ -276,16 +272,113 @@ void dlg_identificationmanufacturer::ChoixButtonFrame()
         com = getCommercialFromIndex(ui->commercialsupTableView->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
-        //EnregistreNouveauIOL();
+        EnregistreNouveauCommercial();
         break;
     case WidgetButtonFrame::Modifier:
-        //if (iol)
-          //  ModifIOL(iol);
+        if (com)
+          ModifieCommercial(com);
         break;
     case WidgetButtonFrame::Moins:
-        //if (iol)
-          //  SupprIOL(iol);
+        if (com)
+          SupprimeCommercial(com);
         break;
+    }
+}
+
+void dlg_identificationmanufacturer::EnregistreNouveauCommercial()
+{
+    dlg_identificationcommercial *Dlg_Identcommercial    = new dlg_identificationcommercial(dlg_identificationcommercial::Creation, m_currentmanufacturer, this);
+    if (Dlg_Identcommercial->exec()>0)
+    {
+        int id = Dlg_Identcommercial->idcurrentcommercial();
+        reconstruitCommercialsModel();
+        for (int i=0; i<m_commodel->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_commodel->item(i));
+            if (itm)
+                if (itm->item())
+                {
+                    Commercial *scom = dynamic_cast<Commercial*>(itm->item());
+                    if (scom)
+                        if (scom->id() == id)
+                        {
+                            ui->commercialsupTableView->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
+                            ui->commercialsupTableView->selectionModel()->select(itm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                            i = m_commodel->rowCount();
+                        }
+                }
+        }
+        if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size()>0)
+        {
+            QModelIndex idx = ui->commercialsupTableView->selectionModel()->currentIndex();
+            Enablebuttons(idx);
+        }
+    }
+    delete Dlg_Identcommercial;
+}
+
+void dlg_identificationmanufacturer::ModifieCommercial(Commercial *com)
+{
+    if (!com)
+        return;
+    dlg_identificationcommercial *Dlg_Identcommercial    = new dlg_identificationcommercial(dlg_identificationcommercial::Modification, com, this);
+    if (Dlg_Identcommercial->exec()>0)
+    {
+        int id = Dlg_Identcommercial->idcurrentcommercial();
+        reconstruitCommercialsModel();
+        for (int i=0; i<m_commodel->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_commodel->item(i));
+            if (itm)
+                if (itm->item())
+                {
+                    Commercial *scom = dynamic_cast<Commercial*>(itm->item());
+                    if (scom)
+                    {
+                        if (scom->id() == id)
+                        {
+                            ui->commercialsupTableView->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
+                            ui->commercialsupTableView->selectionModel()->select(itm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                            i = m_commodel->rowCount();
+                        }
+                    }
+                }
+        }
+        if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size()>0)
+        {
+            QModelIndex idx = ui->commercialsupTableView->selectionModel()->currentIndex();
+            Enablebuttons(idx);
+        }
+    }
+    delete Dlg_Identcommercial;
+
+}
+
+void dlg_identificationmanufacturer::SupprimeCommercial(Commercial *com)
+{
+    if (!com) return;
+    QString Msg;
+    Msg = tr("Etes vous sûr de vouloir supprimer") + "\n " +
+            com->nom().toUpper() + " " + com->prenom() + "?" +
+            "\n" + tr("La suppression est IRRÉVERSIBLE.");
+    UpMessageBox msgbox;
+    msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
+    msgbox.setInformativeText(Msg);
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton NoBouton(tr("Annuler"));
+    UpSmallButton OKBouton(tr("Supprimer la fiche"));
+    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(&OKBouton, UpSmallButton::SUPPRBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() == &OKBouton)
+    {
+        Datas::I()->commercials->SupprimeCommercial(com);
+        reconstruitCommercialsModel();
+    }
+    if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size()>0)
+    {
+        QModelIndex idx = ui->commercialsupTableView->selectionModel()->currentIndex();
+        Enablebuttons(idx);
     }
 }
 
@@ -335,8 +428,10 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
 
 void dlg_identificationmanufacturer::reconstruitCommercialsModel()
 {
-    ui->commercialsupTableView->selectionModel()->disconnect();
+    ui->commercialsupTableView->selectionModel()->disconnect();   
     Datas::I()->commercials->initListebyidManufacturer(m_currentmanufacturer->id());
+    QItemSelectionModel *m = ui->commercialsupTableView->selectionModel();
+    delete m;
     if (m_commodel == Q_NULLPTR)
         delete m_commodel;
     m_commodel = new QStandardItemModel(this);
@@ -364,6 +459,7 @@ void dlg_identificationmanufacturer::reconstruitCommercialsModel()
     itmail->setText(tr("Mail"));
     itmail->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     m_commodel->setHorizontalHeaderItem(3,itmail);
+
     ui->commercialsupTableView->setModel(m_commodel);
 
     ui->commercialsupTableView->setColumnWidth(0,180);     // NomPrenom
@@ -377,5 +473,7 @@ void dlg_identificationmanufacturer::reconstruitCommercialsModel()
     for (int j=0; j<Datas::I()->recettes->recettes()->size(); j++)
         ui->commercialsupTableView->setRowHeight(j,int(fm.height()*1.3));
     ui->commercialsupTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    connect(ui->commercialsupTableView->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_identificationmanufacturer::Enablebuttons);
+    connect(ui->commercialsupTableView->selectionModel(),   &QItemSelectionModel::currentChanged,   this,   &dlg_identificationmanufacturer::Enablebuttons);
+    connect(ui->commercialsupTableView,                     &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) { if (!m_commodel->itemFromIndex(idx))
+                                                                                                                                        ModifieCommercial(getCommercialFromIndex(idx)); });
 }

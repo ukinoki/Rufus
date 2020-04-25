@@ -38,7 +38,7 @@ public:
     explicit                        dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
-    Patient*                        currentpatient() const;
+    Patient*                        currentpatient() const {return m_currentpatient;}
 
 private:
     DataBase                        *db = DataBase::I();

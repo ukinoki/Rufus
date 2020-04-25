@@ -33,7 +33,7 @@ public:
     explicit                    dlg_identificationIOL(enum Mode mode, IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     dlg_identificationIOL();
     void                        setNomIOL(QString nom)  {wdg_nomiolline->setText(nom);}
-    IOL*                        currentIOL() const      { return m_currentIOL; }
+    int                         idcurrentIOL() const    { return (m_currentIOL? m_currentIOL->id() : 0); }
     bool                        initok() const          { return m_initok; }
 
 private:
@@ -44,7 +44,6 @@ private:
     QRegExp             rgx_haigis          = QRegExp("-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
-    IOLs                *m_iols = new IOLs(this);
     QList<int>          m_listeidIOLs;
     Mode                m_mode;
     Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;

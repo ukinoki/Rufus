@@ -590,16 +590,11 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
-        idcor = Dlg_IdentCorresp->correspondantrenvoye()->id();
+        idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
     delete Dlg_IdentCorresp;
     return idcor;
 }
 
-
-Patient* dlg_identificationpatient::currentpatient() const
-{
-    return m_currentpatient;
-}
 
 // ------------------------------------------------------------------------------------------
 // Enregistre ou met à jour les coordonnées du médecin traitant

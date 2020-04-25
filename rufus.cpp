@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-04-2020/1");
+    qApp->setApplicationVersion("25-04-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -3428,7 +3428,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
     if (Dlg_IdentCorresp->exec()>0)
     {
-        int idCor = Dlg_IdentCorresp->correspondantrenvoye()->id();
+        int idCor = Dlg_IdentCorresp->idcurrentcorrespondant();
         if (choix == "Modifier1")
             ui->AutresCorresp1upComboBox->setCurrentIndex(ui->AutresCorresp1upComboBox->findData(idCor));
         else if (choix == "Modifier2")
@@ -7356,7 +7356,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
     if (Cor == "MG")
         Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
-        idcor = Dlg_IdentCorresp->correspondantrenvoye()->id();
+        idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
     delete Dlg_IdentCorresp;
     return idcor;
 }
@@ -7591,6 +7591,8 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         else if (mode == dlg_identificationpatient::Copie)
         {
             pat = Dlg_IdentPatient->currentpatient();
+            if (!pat)
+                return false;
             FiltreTable(pat->nom(), pat->prenom());
             // Si le User est un soignant, on propose d'afficher le dossier et si oui, n crée une consutation d'emblée
             if( currentuser()->isSoignant() )
@@ -7643,7 +7645,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
             FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
         }
     }
-    if (unpatientaetecreeoumodifie)
+    if (unpatientaetecreeoumodifie && Dlg_IdentPatient->currentpatient() != Q_NULLPTR)
         envoieTCPMessage(QString::number(Dlg_IdentPatient->currentpatient()->id()) + TCPMSG_MAJPatient);
     delete Dlg_IdentPatient;
     return unpatientaetecreeoumodifie;

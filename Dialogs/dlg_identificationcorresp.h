@@ -36,7 +36,7 @@ public:
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();
     bool                identcorrespondantmodifiee() const;
-    Correspondant*      correspondantrenvoye() const;
+    int                 idcurrentcorrespondant() const { return (m_currentcorrespondant? m_currentcorrespondant->id(): 0); }
 
 private:
     DataBase            *db                 = DataBase::I();

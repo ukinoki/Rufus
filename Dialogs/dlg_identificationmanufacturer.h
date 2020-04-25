@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_villecpwidget.h"
 #include "flags.h"
 #include <QDesktopServices>
+#include "dlg_identificationcommercial.h"
 
 namespace Ui {
 class dlg_identificationmanufacturer;
@@ -60,5 +61,8 @@ private:
     void                Majuscule(QLineEdit *ledit);
     void                OKpushButtonClicked();
     void                reconstruitCommercialsModel();
+    void                EnregistreNouveauCommercial();
+    void                ModifieCommercial(Commercial *com);
+    void                SupprimeCommercial(Commercial *com);
 };
 #endif // DLG_IDENTIFICATIONMANUFACTURER_H

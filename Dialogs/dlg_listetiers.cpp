@@ -116,7 +116,7 @@ void dlg_listetiers::EnregistreNouveauTiers()
     dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
     if (Dlg_IdentTiers->exec()>0)
     {
-        Tiers * trs = Dlg_IdentTiers->currentTiers();
+        Tiers * trs = Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
         m_listemodifiee = true;
         ReconstruitTreeViewtiers();
         if (trs)
@@ -147,7 +147,7 @@ void dlg_listetiers::ModifTiers(Tiers *trs)
     dlg_identificationtiers *Dlg_IdentTiers = new dlg_identificationtiers(dlg_identificationtiers::Modification, trs);
     if (Dlg_IdentTiers->exec()>0)
     {
-        trs =  Dlg_IdentTiers->currentTiers();
+        trs =  Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
         if (trs != Q_NULLPTR)
         {
             int idtrs = trs->id();

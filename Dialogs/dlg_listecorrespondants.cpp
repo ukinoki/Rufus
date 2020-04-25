@@ -115,12 +115,10 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
     dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        int idcor = -1;
-        Correspondant *cor = Dlg_IdentCorresp->correspondantrenvoye();
-        if (cor)
-            idcor = cor->id();
-        m_listemodifiee = true;
+        int idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
+         m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants(true);
+        Correspondant *cor = Q_NULLPTR;
         if (idcor>0)
             cor = Datas::I()->correspondants->getById(idcor);
         if (cor)

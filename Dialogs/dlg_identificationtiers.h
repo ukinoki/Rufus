@@ -34,11 +34,11 @@ class dlg_identificationtiers : public UpDialog
     Q_OBJECT
 public:
     enum Mode   {Creation, Modification};    Q_ENUM(Mode)
-    explicit dlg_identificationtiers(enum Mode mode, Tiers *trs = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit    dlg_identificationtiers(enum Mode mode, Tiers *trs = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationtiers *ui;
     ~dlg_identificationtiers();
-    Tiers* currentTiers() const { return m_currenttiers; }
-    void    setnomtiers(QString nom) const;
+    int         idcurrentTiers() const { return (m_currenttiers? m_currenttiers->id() : 0); }
+    void        setnomtiers(QString nom) const;
 
 private:
     DataBase                    *db                = DataBase::I();
