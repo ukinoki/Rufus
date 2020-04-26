@@ -3011,10 +3011,10 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
         }
 
         txt = "((" + TITRESITEINTERVENTION + "//" + SITEINTERVENTION + "))";
-        texte.replace(txt, (sit != Q_NULLPTR? sit->nom() : "null"));
+        texte.replace(txt, (sit? sit->nom() : "null"));
 
         txt = "((" + TITRETYPEINTERVENTION + "//" + TYPEINTERVENTION + "))";
-        texte.replace(txt, (typ != Q_NULLPTR? typ->typeintervention() : "null"));
+        texte.replace(txt, (typ? typ->typeintervention() : "null"));
     }
     int pos = 0;
     QRegExp reg;

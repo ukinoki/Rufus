@@ -240,21 +240,24 @@ void dlg_identificationcommercial::disconnectSignals()
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationcommercial::AfficheDatascommercial(Commercial *commercial)
 {
-    if (commercial == Q_NULLPTR)
-        return;
-    disconnectSignals();
-    m_currentcommercial = commercial;
-    if (m_currentmanufacturer)
-        wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
     if (m_mode == Modification)
     {
-        wdg_nomcommercialline       ->setText(m_currentcommercial->nom());
-        wdg_prenomcommercialline    ->setText(m_currentcommercial->prenom());
-        wdg_statutcommercialline    ->setText(m_currentcommercial->statut());
-        wdg_telephonecommercialline ->setText(m_currentcommercial->telephone());
-        wdg_mailcommercialline      ->setText(m_currentcommercial->mail());
+        if (commercial == Q_NULLPTR)
+            return;
+        disconnectSignals();
+        m_currentcommercial = commercial;
+        if (m_currentmanufacturer)
+            wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
+        if (m_mode == Modification)
+        {
+            wdg_nomcommercialline       ->setText(m_currentcommercial->nom());
+            wdg_prenomcommercialline    ->setText(m_currentcommercial->prenom());
+            wdg_statutcommercialline    ->setText(m_currentcommercial->statut());
+            wdg_telephonecommercialline ->setText(m_currentcommercial->telephone());
+            wdg_mailcommercialline      ->setText(m_currentcommercial->mail());
+        }
     }
-     connectSignals();
+    connectSignals();
 }
 
 void dlg_identificationcommercial:: EnableOKpushButton()

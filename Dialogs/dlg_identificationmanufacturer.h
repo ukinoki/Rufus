@@ -59,7 +59,7 @@ private:
     void                EnableOKpushButton();
     Commercial*         getCommercialFromIndex(QModelIndex idx);
     void                Majuscule(QLineEdit *ledit);
-    void                OKpushButtonClicked();
+    void                OKpushButtonClicked(bool acceptalafin = true);
     void                reconstruitCommercialsModel();
     void                EnregistreNouveauCommercial();
     void                ModifieCommercial(Commercial *com);

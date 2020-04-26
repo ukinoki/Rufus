@@ -31,7 +31,7 @@ public:
 
     QMap<int, Manufacturer*> *manufacturers() const;
 
-    Manufacturer* getById(int id);
+    Manufacturer* getById(int id, bool reload = false);
     void initListe();
 
     //!> actions sur les enregistrements

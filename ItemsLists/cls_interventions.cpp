@@ -27,15 +27,24 @@ QMap<int, Intervention*>* Interventions::interventions() const
     return map_interventions;
 }
 
-Intervention* Interventions::getById(int id)
+Intervention* Interventions::getById(int id, bool reload)
 {
     QMap<int, Intervention*>::const_iterator itref = map_interventions->find(id);
     if( itref == map_interventions->constEnd() )
     {
-        Intervention * ref = DataBase::I()->loadInterventionById(id);
-        if (ref != Q_NULLPTR)
-            add( map_interventions, ref );
-        return ref;
+        Intervention * itm = DataBase::I()->loadInterventionById(id);
+        if (itm != Q_NULLPTR)
+            add( map_interventions, itm );
+        return itm;
+    }
+    else if (reload)
+    {
+        Intervention* itm = DataBase::I()->loadInterventionById(id);
+        if (itm)
+        {
+            itref.value()->setData(itm->datas());
+            delete itm;
+        }
     }
     return itref.value();
 }
@@ -118,15 +127,24 @@ QMap<int, SessionOperatoire*>* SessionsOperatoires::sessions() const
     return map_sessions;
 }
 
-SessionOperatoire* SessionsOperatoires::getById(int id)
+SessionOperatoire* SessionsOperatoires::getById(int id, bool reload)
 {
     QMap<int, SessionOperatoire*>::const_iterator itref = map_sessions->find(id);
     if( itref == map_sessions->constEnd() )
     {
-        SessionOperatoire * ref = DataBase::I()->loadSessionOpById(id);
-        if (ref != Q_NULLPTR)
-            add( map_sessions, ref );
-        return ref;
+        SessionOperatoire * itm = DataBase::I()->loadSessionOpById(id);
+        if (itm != Q_NULLPTR)
+            add( map_sessions, itm );
+        return itm;
+    }
+    else if (reload)
+    {
+        SessionOperatoire* itm = DataBase::I()->loadSessionOpById(id);
+        if (itm)
+        {
+            itref.value()->setData(itm->datas());
+            delete itm;
+        }
     }
     return itref.value();
 }
@@ -197,15 +215,24 @@ QMap<int, TypeIntervention*>* TypesInterventions::typeinterventions() const
     return map_typeinterventions;
 }
 
-TypeIntervention* TypesInterventions::getById(int id)
+TypeIntervention* TypesInterventions::getById(int id, bool reload)
 {
     QMap<int, TypeIntervention*>::const_iterator itref = map_typeinterventions->find(id);
     if( itref == map_typeinterventions->constEnd() )
     {
-        TypeIntervention* ref = DataBase::I()->loadTypeInterventionById(id);
-        if (ref != Q_NULLPTR)
-            add( map_typeinterventions, ref );
-        return ref;
+        TypeIntervention* itm = DataBase::I()->loadTypeInterventionById(id);
+        if (itm != Q_NULLPTR)
+            add( map_typeinterventions, itm );
+        return itm;
+    }
+    else if (reload)
+    {
+        TypeIntervention* itm = DataBase::I()->loadTypeInterventionById(id);
+        if (itm)
+        {
+            itref.value()->setData(itm->datas());
+            delete itm;
+        }
     }
     return itref.value();
 }

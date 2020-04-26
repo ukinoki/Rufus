@@ -117,7 +117,7 @@ private slots:
 /*! les types d'interventions */
 private:
     void                ReconstruitListeTypeInterventions();
-    void                CreerTypeIntervention(QString txt);
+    void                FicheTypeIntervention(QString txt);
 
 /*! les fabricants */
     void                ChoixManufacturer(int idx);

@@ -27,7 +27,7 @@ QMap<int, Manufacturer*>* Manufacturers::manufacturers() const
     return map_all;
 }
 
-Manufacturer* Manufacturers::getById(int id)
+Manufacturer* Manufacturers::getById(int id, bool reload)
 {
     QMap<int, Manufacturer*>::const_iterator itman = map_all->find(id);
     if( itman == map_all->constEnd() )
@@ -36,6 +36,15 @@ Manufacturer* Manufacturers::getById(int id)
         if (man != Q_NULLPTR)
             add( map_all, man, Item::Update );
         return man;
+    }
+    else if (reload)
+    {
+        Manufacturer* man = DataBase::I()->loadManufacturerById(id);
+        if (man)
+        {
+            itman.value()->setData(man->datas());
+            delete man;
+        }
     }
     return itman.value();
 }

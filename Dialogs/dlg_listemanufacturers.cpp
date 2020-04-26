@@ -126,7 +126,7 @@ void dlg_listemanufacturers::EnregistreNouveauManufacturer()
     dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
     if (Dlg_IdentManufacturer->exec()>0)
     {
-        Manufacturer * man = Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer());
+        Manufacturer * man = Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer(), true);
         m_listemodifiee = true;
         ReconstruitTreeViewManufacturers();
         if (man)
@@ -163,7 +163,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
             int idman = man->id();
             m_listemodifiee = true;
             ReconstruitTreeViewManufacturers();
-            man = Datas::I()->manufacturers->getById(idman);
+            man = Datas::I()->manufacturers->getById(idman, true);
             if (man)
                 scrollToManufacturer(man);
         }

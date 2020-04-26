@@ -2269,7 +2269,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return false;
 
         QDir dirtorestore(PATH_DIR_RESSOURCES);
-        qDebug() << dirtorestore.absolutePath();
+        //qDebug() << dirtorestore.absolutePath();
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.sql");
         for (int t=0; t<listfichiers.size(); t++)
         {
@@ -2322,6 +2322,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
             db->VideDatabases();
+            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "'");
+            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "' WITH GRANT OPTION");
+            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' REQUIRE SSL");
+            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' WITH GRANT OPTION");
+
             int a = 99;
 
             //! Restauration à partir du dossier sélectionné
@@ -2958,8 +2963,10 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     }
 
     // Création du compte administrateur dans la table utilisateurs
-    db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "', '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "')");
+    QString req = "insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "', '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "')";
+    db->StandardSQL (req);
     // Création du permier utilisateur dans la table utilisateurs
+    qDebug() << req;
     m_idcentre               = 1;
     m_usecotation            = true;
     Datas::I()->banques->initListe();

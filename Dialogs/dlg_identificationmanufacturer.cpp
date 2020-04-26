@@ -98,8 +98,8 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->NomlineEdit->setFocus();
     ui->Websitelabel->setText("<a href=\"Site Web\">Site Web</a>");
     OKButton->disconnect();
-    connect (OKButton,                  &QPushButton::clicked,              this,           &dlg_identificationmanufacturer::OKpushButtonClicked);
-    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->NomlineEdit);});
+    connect (OKButton,                  &QPushButton::clicked,              this,           [=] {OKpushButtonClicked();});
+    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=] {ui->NomlineEdit->setText(ui->NomlineEdit->text().toUpper()); EnableOKpushButton();});
     connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse1lineEdit);});
     connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse2lineEdit);});
     connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse3lineEdit);});
@@ -154,7 +154,7 @@ void dlg_identificationmanufacturer::Majuscule(QLineEdit *ledit)
     OKButton->setEnabled(true);
 }
 
-void    dlg_identificationmanufacturer::OKpushButtonClicked()
+void    dlg_identificationmanufacturer::OKpushButtonClicked(bool acceptalafin)
 {
     QString ManNom;
     ManNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
@@ -231,8 +231,8 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked()
          m_currentmanufacturer = Datas::I()->manufacturers->CreationManufacturer(m_listbinds);
     else if (m_mode == Modification)
         DataBase::I()->UpdateTable(TBL_MANUFACTURERS, m_listbinds, " where " CP_ID_MANUFACTURER " = " + QString::number(m_currentmanufacturer->id()),tr("Impossible de modifier le dossier"));
-
-    accept();
+    if (acceptalafin)
+        accept();
 }
 
 /*-------------------------------------------------------------------------------------
@@ -268,8 +268,9 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
 void dlg_identificationmanufacturer::ChoixButtonFrame()
 {
     Commercial *com = Q_NULLPTR;
-    if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size())
-        com = getCommercialFromIndex(ui->commercialsupTableView->selectionModel()->selectedIndexes().at(0));
+    if (ui->commercialsupTableView->selectionModel())
+        if (ui->commercialsupTableView->selectionModel()->selectedIndexes().size()>0)
+            com = getCommercialFromIndex(ui->commercialsupTableView->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauCommercial();
@@ -287,6 +288,20 @@ void dlg_identificationmanufacturer::ChoixButtonFrame()
 
 void dlg_identificationmanufacturer::EnregistreNouveauCommercial()
 {
+    if (m_mode == Creation)
+    {
+        if (UpMessageBox::Question(this, tr("Vous devez d'abord enregistrer ce fabricant avant d'enregistrer des personnels"),
+                                   tr("Voulez-vous enregistrer ce fabricant?")) != UpSmallButton::STARTBUTTON)
+            return;
+        else
+        {
+            OKpushButtonClicked(false);
+            if (m_currentmanufacturer)
+                m_mode = Modification;
+        }
+    }
+    if (!m_currentmanufacturer)
+        return;
     dlg_identificationcommercial *Dlg_Identcommercial    = new dlg_identificationcommercial(dlg_identificationcommercial::Creation, m_currentmanufacturer, this);
     if (Dlg_Identcommercial->exec()>0)
     {

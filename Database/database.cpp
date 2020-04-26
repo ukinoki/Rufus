@@ -2895,8 +2895,8 @@ Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
                               CP_MAIL_MANUFACTURER ", " CP_INACTIF_MANUFACTURER ", " CP_DISTRIBUEPAR_MANUFACTURER ", " CP_IDRUFUS_MANUFACTURER
-                    " FROM " TBL_MANUFACTURERS " order by " CP_NOM_MANUFACTURER
-                    " WHERE " CP_ID_MANUFACTURER " = " + QString::number(idManufacturer) ;
+                    " FROM " TBL_MANUFACTURERS
+                    " WHERE " CP_ID_MANUFACTURER " = " + QString::number(idManufacturer);
     QVariantList Manufacturerdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || Manufacturerdata.size()==0)
         return Man;
@@ -2948,8 +2948,7 @@ Commercial* DataBase::loadCommercialById(int idcommercial)                   //!
     QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
                               CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
                     " FROM " TBL_COMMERCIALS
-                    " WHERE " CP_ID_COM " = " + QString::number(idcommercial) +
-                    " order by " CP_NOM_COM ", " CP_PRENOM_COM;
+                    " WHERE " CP_ID_COM " = " + QString::number(idcommercial);
     QVariantList Commercialdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || Commercialdata.size()==0)
         return Com;
@@ -2964,8 +2963,8 @@ QList<Commercial *> DataBase::loadCommercialsByIdManufacturer(int idmanufacturer
     QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
                               CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
                     " FROM " TBL_COMMERCIALS
-                    " WHERE " CP_IDMANUFACTURER_COM " = " + QString::number(idmanufacturer)
-                    +  " order by " CP_NOM_COM ", " CP_PRENOM_COM;
+                    " WHERE " CP_IDMANUFACTURER_COM " = " + QString::number(idmanufacturer) +
+                    " order by " CP_NOM_COM ", " CP_PRENOM_COM;
     QList<QVariantList> commerciallist = StandardSelectSQL(req,ok);
     //qDebug() << req;
     if(!ok || commerciallist.size()==0)

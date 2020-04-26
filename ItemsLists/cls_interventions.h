@@ -33,7 +33,7 @@ public:
     QMap<int, Intervention*> *interventions() const;
     int idsession() const { return m_idsession ; }
 
-    Intervention* getById(int id);
+    Intervention* getById(int id, bool reload = false);
     Intervention* getInterventionByDateIdPatient(QDate date, int idpatient);
     void initListebySessionId(int id);
 
@@ -54,7 +54,7 @@ public:
     QMap<int, SessionOperatoire*> *sessions() const;
     int iduser() const { return m_iduser ; }
 
-    SessionOperatoire* getById(int id);
+    SessionOperatoire* getById(int id, bool reload = false);
     void initListebyUserId(int id);
 
     //!> actions sur les enregistrements
@@ -72,7 +72,7 @@ public:
 
     QMap<int, TypeIntervention*> *typeinterventions() const;
 
-    TypeIntervention*   getById(int id);
+    TypeIntervention*   getById(int id, bool reload = false);
     void                initListe();
 
     //!> actions sur les enregistrements

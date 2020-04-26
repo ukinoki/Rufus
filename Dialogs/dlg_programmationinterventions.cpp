@@ -1462,7 +1462,7 @@ void dlg_programmationinterventions::VerifExistIntervention(bool &ok, QComboBox 
                 delete m_currenttypeintervention;
                 m_currenttypeintervention = Q_NULLPTR;
             }
-            CreerTypeIntervention(Utils::trimcapitilize(txt));
+            FicheTypeIntervention(Utils::trimcapitilize(txt));
             box->setModel(m_typeinterventionsmodel);
             if (m_currenttypeintervention != Q_NULLPTR)
             {
@@ -1556,7 +1556,7 @@ void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
     m_typeinterventionsmodel->sort(0, Qt::AscendingOrder);
 }
 
-void dlg_programmationinterventions::CreerTypeIntervention(QString txt)
+void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
 {
     UpDialog            *dlg_typintervention = new UpDialog(this);
     dlg_typintervention->setAttribute(Qt::WA_DeleteOnClose);
