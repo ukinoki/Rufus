@@ -85,22 +85,30 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
     bool useSSL = (m_modeacces == Utils::Distant);
-    QString dirkey = "/etc/mysql";
+    QString connectSSLoptions = "";
     if (useSSL)
     {
+        QString dirkey = "/etc/mysql";
         QSettings *m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString() != "")
             dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
         else
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL",dirkey);
+        QDir dirtorestore(dirkey);
+        //qDebug() << dirtorestore.absolutePath();
+        QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
+        for (int t=0; t<listfichiers.size(); t++)
+        {
+            QString nomfich  = listfichiers.at(t);
+            if (nomfich == "client-key.pem")
+                connectSSLoptions += "SSL_KEY=" + dirkey + "/client-key.pem;";
+            if (nomfich == "client-cert.pem")
+                connectSSLoptions += "SSL_CERT=" + dirkey + "/client-cert.pem;";
+            if (nomfich == "ca-cert.pem")
+                connectSSLoptions += "SSL_CA=" + dirkey + "/ca-cert.pem;";
+        }
     }
-    QString connectOptions = (useSSL?
-                              "SSL_KEY=" + dirkey + "/client-key.pem;"
-                              "SSL_CERT=" + dirkey + "/client-cert.pem;"
-                              "SSL_CA=" + dirkey + "/ca-cert.pem;"
-                              "MYSQL_OPT_RECONNECT=1"
-                                 :
-                              "MYSQL_OPT_RECONNECT=1");
+    QString connectOptions = connectSSLoptions + "MYSQL_OPT_RECONNECT=1";
     m_db.setConnectOptions(connectOptions);
 
     m_db.setUserName(login + (useSSL ? "SSL" : ""));
