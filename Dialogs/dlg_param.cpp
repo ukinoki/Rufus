@@ -167,22 +167,24 @@ dlg_param::dlg_param(QWidget *parent) :
         listcheck.at(i)->setToggleable(false);
      QStringList ListPortsCOM;
     ListPortsCOM << "-" << "COM1" << "COM2" << "COM3" << "COM4";
-    ui->PortFrontoupComboBox->insertItems(0,ListPortsCOM);
-    ui->PortFrontoupComboBox->addItem("Box");
-    ui->PortAutorefupComboBox->insertItems(0,ListPortsCOM);
-    ui->PortAutorefupComboBox->addItem("Box");
+    ui->PortFrontoupComboBox    ->insertItems(0,ListPortsCOM);
+    ui->PortFrontoupComboBox    ->addItem("Box");
+    ui->PortAutorefupComboBox   ->insertItems(0,ListPortsCOM);
+    ui->PortAutorefupComboBox   ->addItem("Box");
     ui->PortRefracteurupComboBox->insertItems(0,ListPortsCOM);
-    ui->PortTonometreupComboBox->insertItems(0,ListPortsCOM);
+    ui->PortTonometreupComboBox ->insertItems(0,ListPortsCOM);
 
     QString tip = tr("Indiquez ici l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
     ui->PosteStockageupLabel        ->setImmediateToolTip(tip);
     ui->PosteStockageupLineEdit     ->setImmediateToolTip(tip);
     tip = tr("Indiquez ici <br /><font color=\"green\"><b>LE LIEN</b></font><br /> vers l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
-    ui->LocalStockageupLabel        ->setImmediateToolTip(tip);
-    ui->LocalStockageupLineEdit     ->setImmediateToolTip(tip);
+    ui->LocalPathStockageupLabel    ->setImmediateToolTip(tip);
+    ui->LocalPathStockageupLineEdit ->setImmediateToolTip(tip);
     tip = tr("Indiquez ici l'emplacement du dossier de sauvegarde des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE</b></font>");
     ui->DistantStockageupLabel      ->setImmediateToolTip(tip);
-    ui->DistantStockageupLineEdit   ->setImmediateToolTip(tip);
+    tip = tr("Indiquez ici l'emplacement du dossier de sauvegarde des documents d'imagerie <br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
+    ui->ServeurStockageupLabel      ->setImmediateToolTip(tip);
+    ui->ServeurStockageupLineEdit   ->setImmediateToolTip(tip);
 
     QStringList Listapp;
     Listapp << "-";
@@ -299,29 +301,34 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->MonoConnexionupLabel        ->setVisible(a);
     ui->MonoDocsExtupLabel          ->setVisible(a);
     ui->MonoDocupTableWidget        ->setVisible(a);
-    ui->PosteStockageupLabel        ->setVisible(a);
-    ui->PosteStockageupLineEdit     ->setVisible(a);
-    ui->PosteStockageupPushButton   ->setVisible(a);
     if (a)
     {
-        ui->SQLPortPostecomboBox    ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        ui->PosteStockageupLineEdit->setText(m_parametres->dirimagerieserveur());
+        bool poste = DataBase::I()->ModeAccesDataBase() == Utils::Poste;
+        ui->PosteStockageupLabel        ->setVisible(poste);
+        ui->PosteStockageupLineEdit     ->setVisible(poste);
+        ui->PosteStockageupPushButton   ->setVisible(poste);
+        ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
+        ui->PosteStockageupLineEdit     ->setText(m_parametres->dirimagerieserveur());
     }
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);
     b = (proc->settings()->value(Base + "/Active").toString() == "YES");
-    ui->LocalServcheckBox           ->setChecked(b);
-    ui->Localframe                  ->setVisible(b);
-    ui->LocalConnexionupLabel       ->setVisible(b);
-    ui->LocalDocsExtupLabel         ->setVisible(b);
-    ui->LocalDocupTableWidget       ->setVisible(b);
-    ui->LocalStockageupLabel        ->setVisible(b);
-    ui->LocalStockageupLineEdit     ->setVisible(b);
-    ui->LocalStockageupPushButton   ->setVisible(b);
+    ui->LocalServcheckBox               ->setChecked(b);
+    ui->Localframe                      ->setVisible(b);
+    ui->LocalConnexionupLabel           ->setVisible(b);
+    ui->LocalDocsExtupLabel             ->setVisible(b);
+    ui->LocalDocupTableWidget           ->setVisible(b);
+    ui->LocalPathStockageupLabel        ->setVisible(b);
+    ui->LocalPathStockageupLineEdit     ->setVisible(b);
+    ui->LocalPathStockageupPushButton   ->setVisible(b);
     if (b)
     {
         ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + "/Serveur").toString());
         ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        ui->LocalStockageupLineEdit     ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString());
+        ui->LocalPathStockageupLineEdit ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString());
+        bool local = DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal;
+        ui->ServeurLocalStockageupLabel      ->setVisible(local);
+        ui->ServeurLocalStockageupLineEdit   ->setVisible(local);
+        ui->ServeurLocalStockageupLineEdit   ->setText(m_parametres->dirimagerieserveur());
     }
     Base = Utils::getBaseFromMode(Utils::Distant);
     c = (proc->settings()->value(Base + "/Active").toString() == "YES");
@@ -332,6 +339,8 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DistantDocupTableWidget     ->setVisible(c);
     ui->DistantStockageupLabel      ->setVisible(c);
     ui->DistantStockageupLineEdit   ->setVisible(c);
+    ui->ServeurStockageupLabel      ->setVisible(c);
+    ui->ServeurStockageupLineEdit   ->setVisible(c);
     ui->DistantStockageupPushButton ->setVisible(c);
     if (c)
     {
@@ -345,6 +354,10 @@ dlg_param::dlg_param(QWidget *parent) :
         }
         ui->DossierClesSSLupLineEdit    ->setText(proc->settings()->value(Base + "/DossierClesSSL").toString());
         ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
+        bool distant = DataBase::I()->ModeAccesDataBase() == Utils::Distant;
+        ui->ServeurStockageupLabel      ->setVisible(distant);
+        ui->ServeurStockageupLineEdit   ->setVisible(distant);
+        ui->ServeurStockageupLineEdit   ->setText(m_parametres->dirimagerieserveur());
     }
 
     if (db->ModeAccesDataBase() == (Utils::Poste))
@@ -854,33 +867,32 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->MonoConnexionupLabel        ->setVisible(a);
         ui->MonoDocsExtupLabel          ->setVisible(a);
         ui->MonoDocupTableWidget        ->setVisible(a);
-        ui->PosteStockageupLabel        ->setVisible(a);
-        ui->PosteStockageupLineEdit     ->setVisible(a);
-        ui->PosteStockageupPushButton   ->setVisible(a);
         ui->Posteframe                  ->setEnabled(a);
         ui->MonoConnexionupLabel        ->setEnabled(a);
         ui->MonoDocsExtupLabel          ->setEnabled(a);
         ui->MonoDocupTableWidget        ->setEnabled(a);
-        ui->PosteStockageupLabel        ->setEnabled(a);
-        ui->PosteStockageupLineEdit     ->setEnabled(a);
-        ui->PosteStockageupPushButton   ->setEnabled(a);
+        ui->PosteStockageupLabel        ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
+        ui->PosteStockageupLineEdit     ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
+        ui->PosteStockageupPushButton   ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
     }
     else if (box == ui->LocalServcheckBox)
     {
-        ui->Localframe                  ->setVisible(a);
-        ui->LocalConnexionupLabel       ->setVisible(a);
-        ui->LocalDocsExtupLabel         ->setVisible(a);
-        ui->LocalDocupTableWidget       ->setVisible(a);
-        ui->LocalStockageupLabel        ->setVisible(a);
-        ui->LocalStockageupLineEdit     ->setVisible(a);
-        ui->LocalStockageupPushButton   ->setVisible(a);
-        ui->Localframe                  ->setEnabled(a);
-        ui->LocalConnexionupLabel       ->setEnabled(a);
-        ui->LocalDocsExtupLabel         ->setEnabled(a);
-        ui->LocalDocupTableWidget       ->setEnabled(a);
-        ui->LocalStockageupLabel        ->setEnabled(a);
-        ui->LocalStockageupLineEdit     ->setEnabled(a);
-        ui->LocalStockageupPushButton   ->setEnabled(a);
+        ui->Localframe                      ->setVisible(a);
+        ui->LocalConnexionupLabel           ->setVisible(a);
+        ui->LocalDocsExtupLabel             ->setVisible(a);
+        ui->LocalDocupTableWidget           ->setVisible(a);
+        ui->LocalPathStockageupLabel        ->setVisible(a);
+        ui->LocalPathStockageupLineEdit     ->setVisible(a);
+        ui->LocalPathStockageupPushButton   ->setVisible(a);
+        ui->Localframe                      ->setEnabled(a);
+        ui->LocalConnexionupLabel           ->setEnabled(a);
+        ui->LocalDocsExtupLabel             ->setEnabled(a);
+        ui->LocalDocupTableWidget           ->setEnabled(a);
+        ui->LocalPathStockageupLabel        ->setEnabled(a);
+        ui->LocalPathStockageupLineEdit     ->setEnabled(a);
+        ui->LocalPathStockageupPushButton   ->setEnabled(a);
+        ui->ServeurLocalStockageupLabel     ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal);
+        ui->ServeurLocalStockageupLineEdit  ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal);
     }
     else if (box == ui->DistantServcheckBox)
     {
@@ -902,9 +914,8 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->DistantStockageupLineEdit   ->setVisible(a);
         ui->DistantStockageupPushButton ->setVisible(a);
         ui->DistantConnexionupLabel     ->setEnabled(a);
-        ui->DistantStockageupLabel      ->setEnabled(a);
-        ui->DistantStockageupLineEdit   ->setEnabled(a);
-        ui->DistantStockageupPushButton ->setEnabled(a);
+        ui->ServeurStockageupLabel      ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Distant);
+        ui->ServeurStockageupLineEdit   ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Distant);
      }
 }
 
@@ -1710,7 +1721,7 @@ void dlg_param::DirLocalStockage()
     if (dir == "")
         dir = PATH_DIR_RUFUS;
     QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
-    ui->LocalStockageupLineEdit->setText(url.path());
+    ui->LocalPathStockageupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", url.path());
 }
 
@@ -1831,12 +1842,23 @@ bool dlg_param::VerifDirStockageImagerie()
         }
         if (DirStockageAVerifier)
         {
-            if (!QDir(ui->LocalStockageupLineEdit->text()).exists() || ui->LocalStockageupLineEdit->text() == "")
+            if (!QDir(ui->LocalPathStockageupLineEdit->text()).exists() || ui->LocalPathStockageupLineEdit->text() == "")
             {
                 UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier de stockage valide pour les documents d'imagerie !"));
+                ui->ParamtabWidget              ->setCurrentWidget(ui->PosteParamtab);
+                ui->ParamConnexiontabWidget     ->setCurrentWidget(ui->tabLocal);
+                ui->LocalPathStockageupLineEdit ->setFocus();
+                return false;
+            }
+        }
+        if (DirStockageAVerifier)
+        {
+            if (ui->ServeurLocalStockageupLineEdit->text() == "")
+            {
+                UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier de stockage sur le serveur pour les documents d'imagerie !"));
                 ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
-                ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabLocal);
-                ui->LocalStockageupLineEdit->setFocus();
+                ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabDistant);
+                ui->ServeurLocalStockageupLineEdit->setFocus();
                 return false;
             }
         }
@@ -1865,6 +1887,17 @@ bool dlg_param::VerifDirStockageImagerie()
                 ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
                 ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabDistant);
                 ui->DistantStockageupLineEdit->setFocus();
+                return false;
+            }
+        }
+        if (DirStockageAVerifier)
+        {
+            if (ui->ServeurStockageupLineEdit->text() == "")
+            {
+                UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier de stockage sur le serveur pour les documents d'imagerie !"));
+                ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+                ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabDistant);
+                ui->ServeurStockageupLineEdit->setFocus();
                 return false;
             }
         }
@@ -2020,7 +2053,7 @@ void dlg_param::ConnectSignals()
     connect(ui->ModifDataUserpushButton,            &QPushButton::clicked,                  this,   &dlg_param::GestionDatasCurrentUser);
     connect(ui->GestionBanquespushButton,           &QPushButton::clicked,                  this,   &dlg_param::GestionBanques);
     connect(ui->OupspushButton,                     &QPushButton::clicked,                  this,   &dlg_param::ResetImprimante);
-    connect(ui->LocalStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirLocalStockage);
+    connect(ui->LocalPathStockageupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::DirLocalStockage);
     connect(ui->DistantStockageupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DirDistantStockage);
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->PosteStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirPosteStockage);
@@ -2830,6 +2863,8 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + "/Active","YES");
         else
             proc->settings()->setValue(Base + "/Active","NO");
+        if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+            db->setdirimagerie(ui->ServeurLocalStockageupLineEdit->text());
         proc->settings()->setValue(Base + "/Serveur",Utils::calcIP(ui->EmplacementLocaluplineEdit->text(), false));
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->settings()->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
@@ -2843,6 +2878,8 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + "/Serveur", Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));
         else
             proc->settings()->setValue(Base + "/Serveur", ui->EmplacementDistantuplineEdit->text());
+        if (db->ModeAccesDataBase() == Utils::Distant)
+            db->setdirimagerie(ui->ServeurStockageupLineEdit->text());
         db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());
         proc->settings()->setValue(Base + "/Port",ui->SQLPortDistantcomboBox->currentText());
         proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->value());

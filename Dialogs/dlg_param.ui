@@ -1009,7 +1009,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>true</bool>
@@ -1251,7 +1251,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>70</y>
+              <y>130</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1264,9 +1264,9 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>100</y>
+              <y>160</y>
               <width>550</width>
-              <height>200</height>
+              <height>150</height>
              </rect>
             </property>
             <property name="selectionMode">
@@ -1286,7 +1286,7 @@ un serveur hébergé sur le réseau local</string>
              <string>Paramètres de la connexion au serveur</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="LocalStockageupPushButton">
+           <widget class="QPushButton" name="LocalPathStockageupPushButton">
             <property name="geometry">
              <rect>
               <x>855</x>
@@ -1302,7 +1302,7 @@ un serveur hébergé sur le réseau local</string>
              <string>...</string>
             </property>
            </widget>
-           <widget class="UpLineEdit" name="LocalStockageupLineEdit">
+           <widget class="UpLineEdit" name="LocalPathStockageupLineEdit">
             <property name="geometry">
              <rect>
               <x>360</x>
@@ -1324,7 +1324,7 @@ un serveur hébergé sur le réseau local</string>
              <bool>true</bool>
             </property>
            </widget>
-           <widget class="UpLabel" name="LocalStockageupLabel">
+           <widget class="UpLabel" name="LocalPathStockageupLabel">
             <property name="geometry">
              <rect>
               <x>360</x>
@@ -1338,6 +1338,44 @@ un serveur hébergé sur le réseau local</string>
             </property>
             <property name="text">
              <string>Chemin depuis ce poste du dossier d'imagerie sur le serveur</string>
+            </property>
+           </widget>
+           <widget class="UpLineEdit" name="ServeurLocalStockageupLineEdit">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>95</y>
+              <width>491</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="maxLength">
+             <number>150</number>
+            </property>
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="ServeurLocalStockageupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>70</y>
+              <width>311</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Emplacement du dossier d'imagerie sur le serveur</string>
             </property>
            </widget>
           </widget>
@@ -1505,7 +1543,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>70</y>
+              <y>130</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1521,9 +1559,9 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>100</y>
+              <y>160</y>
               <width>550</width>
-              <height>161</height>
+              <height>150</height>
              </rect>
             </property>
             <property name="contextMenuPolicy">
@@ -1583,6 +1621,44 @@ un serveur hébergé sur le réseau local</string>
              <rect>
               <x>360</x>
               <y>40</y>
+              <width>491</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="maxLength">
+             <number>150</number>
+            </property>
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="ServeurStockageupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>70</y>
+              <width>311</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Emplacement du dossier d'imagerie sur le serveur</string>
+            </property>
+           </widget>
+           <widget class="UpLineEdit" name="ServeurStockageupLineEdit">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>95</y>
               <width>491</width>
               <height>21</height>
              </rect>
