@@ -149,6 +149,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
 
     if (mode == Selection)
     {
+        EnableLines();
         wdg_buttonframe->setEnabled(true);
         wdg_tblview->setEnabled(true);
         wdg_tblview->setFocus();
@@ -522,6 +523,7 @@ void dlg_listemotscles::Validation()
     {
         wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
         EnregistreMotCle(m_currentmotcle);
+        ConfigMode(Selection, m_currentmotcle);
     }
     else if (m_mode == Selection)
     {

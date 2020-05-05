@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updoublespinbox.h"
 #include "updoublevalidator.h"
 
-#include "dlg_commentaires.h"
+#include "dlg_listecommentaires.h"
 #include "dlg_refractionlistemesures.h"
 
 

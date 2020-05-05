@@ -467,7 +467,7 @@ void dlg_refraction::AnnulPushButton_Clicked()
 
 void dlg_refraction::Commentaires()
 {
-    dlg_commentaires *Dlg_Comments    = new dlg_commentaires();
+    dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires();
     if (Dlg_Comments->exec() > 0)
     {
         m_commentaire =  Dlg_Comments->Commentaire();

@@ -36,8 +36,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
         wdg_buttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
         wdg_buttonframe     ->layButtons()->insertWidget(0, ui->label);
         this->dlglayout()   ->insertWidget(0,wdg_buttonframe->widgButtonParent());
-        connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
-        void dlg_commentaires::ChoixButtonFrame()
+        connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_listecommentaires::ChoixButtonFrame);
+        void dlg_listecommentaires::ChoixButtonFrame()
         {
             switch (wdg_buttonframe->Choix()) {
                 case WidgetButtonFrame::Plus:

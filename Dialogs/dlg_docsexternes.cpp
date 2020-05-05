@@ -826,7 +826,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         {
             for (int i=0; i<listimg.size();++i)
             {
-                QImage image = listimg.at(i);
+                img_image = listimg.at(i);
                 if (i == 0)
                 {
                     if (m_avecprevisu)

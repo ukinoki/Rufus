@@ -15,24 +15,20 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_COMMENTAIRES_H
-#define DLG_COMMENTAIRES_H
+#ifndef DLG_LISTECOMMENTAIRES_H
+#define DLG_LISTECOMMENTAIRES_H
 
 #include "uptableview.h"
 #include "updelegate.h"
 #include "procedures.h"
 
-namespace Ui {
-class dlg_commentaires;
-}
-
-class dlg_commentaires : public UpDialog
+class dlg_listecommentaires : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_commentaires(QWidget *parent = Q_NULLPTR);
-    ~dlg_commentaires();
-    Ui::dlg_commentaires                *ui;
+    dlg_listecommentaires(QWidget *parent = Q_NULLPTR);
+    ~dlg_listecommentaires();
+
     QString Commentaire() const         { return m_commentaire; }
     QString CommentaireResume() const   { return m_commentaireresume; }
     enum Mode                           {Selection, Modification, Creation};     Q_ENUM(Mode)
@@ -51,7 +47,6 @@ private:
     QString                     m_commentaire = "";
     QString                     m_commentaireresume = "";
 
-    void                        changeEvent(QEvent *e);
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
     void                        Annulation();
@@ -74,4 +69,4 @@ private:
     void                        Validation();
 };
 
-#endif // DLG_COMMENTAIRES_H
+#endif // DLG_LISTECOMMENTAIRES_H

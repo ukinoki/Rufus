@@ -4608,14 +4608,14 @@ alternée</source>
     </message>
 </context>
 <context>
-    <name>dlg_commentaires</name>
+    <name>dlg_listecommentaires</name>
     <message>
-        <location filename="dlg_commentaires.ui" line="32"/>
+        <location filename="dlg_listecommentaires.ui" line="32"/>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.ui" line="71"/>
+        <location filename="dlg_listecommentaires.ui" line="71"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -4624,181 +4624,181 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.ui" line="88"/>
+        <location filename="dlg_listecommentaires.ui" line="88"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.ui" line="101"/>
+        <location filename="dlg_listecommentaires.ui" line="101"/>
         <source>Par Defaut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.ui" line="120"/>
-        <location filename="dlg_commentaires.cpp" line="397"/>
-        <location filename="dlg_commentaires.cpp" line="399"/>
+        <location filename="dlg_listecommentaires.ui" line="120"/>
+        <location filename="dlg_listecommentaires.cpp" line="397"/>
+        <location filename="dlg_listecommentaires.cpp" line="399"/>
         <source>Public</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="69"/>
+        <location filename="dlg_listecommentaires.cpp" line="69"/>
         <source>TITRES DES COMMENTAIRES</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="392"/>
+        <location filename="dlg_listecommentaires.cpp" line="392"/>
         <source>Modifier ce commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="393"/>
+        <location filename="dlg_listecommentaires.cpp" line="393"/>
         <source>Supprimer ce commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="394"/>
+        <location filename="dlg_listecommentaires.cpp" line="394"/>
         <source>Créer un commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="401"/>
+        <location filename="dlg_listecommentaires.cpp" line="401"/>
         <source>Par défaut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="404"/>
+        <location filename="dlg_listecommentaires.cpp" line="404"/>
         <source>si cette option est cochée
 le commentaire sera systématiquement imprimé</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="435"/>
+        <location filename="dlg_listecommentaires.cpp" line="435"/>
         <source>Modifier ce commntaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="448"/>
+        <location filename="dlg_listecommentaires.cpp" line="448"/>
         <source>Copier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="449"/>
+        <location filename="dlg_listecommentaires.cpp" line="449"/>
         <source>Couper</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="454"/>
+        <location filename="dlg_listecommentaires.cpp" line="454"/>
         <source>Coller</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="803"/>
+        <location filename="dlg_listecommentaires.cpp" line="803"/>
         <source>Il existe déjà un commentaire portant ce nom créé par </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="845"/>
+        <location filename="dlg_listecommentaires.cpp" line="845"/>
         <source>SELECTION -</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="845"/>
+        <location filename="dlg_listecommentaires.cpp" line="845"/>
         <source>Cochez les commmentaires</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="845"/>
+        <location filename="dlg_listecommentaires.cpp" line="845"/>
         <source>que vous voulez imprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="856"/>
+        <location filename="dlg_listecommentaires.cpp" line="856"/>
         <source>Annuler et fermer la fiche</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="857"/>
+        <location filename="dlg_listecommentaires.cpp" line="857"/>
         <source>Imprimer
 la sélection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="888"/>
-        <location filename="dlg_commentaires.cpp" line="958"/>
+        <location filename="dlg_listecommentaires.cpp" line="888"/>
+        <location filename="dlg_listecommentaires.cpp" line="958"/>
         <source>Cochez cette case si vous souhaitez
 que ce commentaire soit visible par tous les utilisateurs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="892"/>
+        <location filename="dlg_listecommentaires.cpp" line="892"/>
         <source>COMMENTAIRES - MODIFICATION</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="893"/>
+        <location filename="dlg_listecommentaires.cpp" line="893"/>
         <source>Médecin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="899"/>
-        <location filename="dlg_commentaires.cpp" line="972"/>
+        <location filename="dlg_listecommentaires.cpp" line="899"/>
+        <location filename="dlg_listecommentaires.cpp" line="972"/>
         <source>Revenir au mode
 sélection de commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="900"/>
+        <location filename="dlg_listecommentaires.cpp" line="900"/>
         <source>Enregistrer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="959"/>
+        <location filename="dlg_listecommentaires.cpp" line="959"/>
         <source>COMMENTAIRES - CREATION - Remplissez les champs définissant le commentaire que vous voulez créer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="974"/>
+        <location filename="dlg_listecommentaires.cpp" line="974"/>
         <source>Enregistrer
 le commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1119"/>
+        <location filename="dlg_listecommentaires.cpp" line="1119"/>
         <source>Erreur d&apos;enregistrement du commentaire dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1325"/>
+        <location filename="dlg_listecommentaires.cpp" line="1325"/>
         <source>Etes vous sûr de vouloir supprimer le commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1331"/>
+        <location filename="dlg_listecommentaires.cpp" line="1331"/>
         <source>Supprimer le commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1333"/>
+        <location filename="dlg_listecommentaires.cpp" line="1333"/>
         <source>Annuler</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1342"/>
+        <location filename="dlg_listecommentaires.cpp" line="1342"/>
         <source>Impossible de supprimer le commentaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1342"/>
+        <location filename="dlg_listecommentaires.cpp" line="1342"/>
         <source>et je ne sais pas pourquoi...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="1388"/>
+        <location filename="dlg_listecommentaires.cpp" line="1388"/>
         <source>Erreur de mise à jour du document dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="dlg_commentaires.cpp" line="41"/>
+        <location filename="dlg_listecommentaires.cpp" line="41"/>
         <source>Liste des commentaires prédéfinis de </source>
         <translation type="unfinished"></translation>
     </message>

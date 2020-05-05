@@ -6,7 +6,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_autresmesures.cpp \
     $$PWD/dlg_bilanortho.cpp \
     $$PWD/dlg_choixdate.cpp \
-    $$PWD/dlg_commentaires.cpp \
     $$PWD/dlg_comptes.cpp \
     $$PWD/dlg_depenses.cpp \
     $$PWD/dlg_docsexternes.cpp \
@@ -24,6 +23,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_identificationtiers.cpp \
     $$PWD/dlg_identificationuser.cpp \
     $$PWD/dlg_impressions.cpp \
+    $$PWD/dlg_listecommentaires.cpp \
     $$PWD/dlg_listecorrespondants.cpp \
     $$PWD/dlg_listeiols.cpp \
     $$PWD/dlg_listemanufacturers.cpp \
@@ -49,7 +49,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_autresmesures.h \
     $$PWD/dlg_bilanortho.h \
     $$PWD/dlg_choixdate.h \
-    $$PWD/dlg_commentaires.h \
     $$PWD/dlg_comptes.h \
     $$PWD/dlg_depenses.h \
     $$PWD/dlg_docsexternes.h \
@@ -67,6 +66,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_identificationtiers.h \
     $$PWD/dlg_identificationuser.h \
     $$PWD/dlg_impressions.h \
+    $$PWD/dlg_listecommentaires.h \
     $$PWD/dlg_listecorrespondants.h \
     $$PWD/dlg_listeiols.h \
     $$PWD/dlg_listemanufacturers.h \
@@ -91,7 +91,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
 FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_bilanortho.ui \
     $$PWD/dlg_choixdate.ui \
-    $$PWD/dlg_commentaires.ui \
     $$PWD/dlg_comptes.ui \
     $$PWD/dlg_depenses.ui \
     $$PWD/dlg_gestioncomptes.ui \
