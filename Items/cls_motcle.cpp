@@ -15,28 +15,30 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMMENTSLUNETS_H
-#define COMMENTSLUNETS_H
+#include "cls_motcle.h"
 
-#include "cls_commentlunet.h"
-#include "cls_itemslist.h"
-
-class CommentsLunets : public ItemsList
+MotCle::MotCle(QJsonObject data, QObject *parent) : Item(parent)
 {
-private:
-    QMap<int, CommentLunet*> *map_comments = Q_NULLPTR;    //!< la liste des comments
+    setData(data);
+}
 
-public:
-    explicit CommentsLunets(QObject *parent = Q_NULLPTR);
+void MotCle::setData(QJsonObject data)
+{
+    if( data.isEmpty() )
+        return;
 
-    QMap<int, CommentLunet*> *commentaires() const;
+    Utils::setDataInt(data, CP_ID_MOTCLE, m_id);
+    Utils::setDataString(data, CP_TEXT_MOTCLE, m_motcle);
+    m_data = data;
+}
 
-    CommentLunet* getById(int id, bool reload = false);
-    void initListeByListUsers(QList<int> listid);
+/*! comme son nom l'indique */
+void MotCle::resetdatas()
+{
+    QJsonObject data;
+    data[CP_ID_MOTCLE]          = 0;
+    data[CP_TEXT_MOTCLE]        = "";
+    setData(data);
+}
 
-    //!> actions sur les enregistrements
-    void                SupprimeCommentLunet(CommentLunet *comment);
-    CommentLunet*       CreationCommentLunet(QHash<QString, QVariant> sets);
-};
 
-#endif // COMMENTSLUNETS_H

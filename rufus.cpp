@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("01-05-2020/1");
+    qApp->setApplicationVersion("05-05-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2883,14 +2883,14 @@ void Rufus::ChoixMenuContextuelMotsCles()
     dlg_listemotscles *ListMCDialog = new dlg_listemotscles();
     if (ListMCDialog->exec()==0)
     {
-        QStringList listMC = ListMCDialog->listMCDepart();
+        QList<int> listMC = ListMCDialog->listMCDepart();
         if (listMC.size()>0)
         {
             db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(currentpatient()->id()));
             QString req = "insert into " TBL_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
-            req += "(" + QString::number(currentpatient()->id()) + ", " + listMC.at(0) + ")";
+            req += "(" + QString::number(currentpatient()->id()) + ", " + QString::number(listMC.at(0)) + ")";
             for (int j=1; j<listMC.size(); j++)
-                req += ", (" + QString::number(currentpatient()->id()) + ", " + listMC.at(j) + ")";
+                req += ", (" + QString::number(currentpatient()->id()) + ", " + QString::number(listMC.at(j)) + ")";
             db->StandardSQL(req);
             db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idMotCle not in (select idmotcle from " TBL_MOTSCLES ")");
         }

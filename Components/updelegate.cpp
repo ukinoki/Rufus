@@ -48,18 +48,21 @@ bool UpLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const
 
 QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
-    UpLineEdit *line = new UpLineEdit(parent);
-    line->setValidator(new QRegExpValidator(Utils::rgx_recherche));
+    UpLineEdit *line;
+    line = new UpLineEdit(parent);
     line->setRow(index.row());
-    connect(line, &QLineEdit::editingFinished, this, &UpLineDelegate::editingFinished);
+    connect(line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
+    connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
+    connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);
+//    connect(line, &QLineEdit::textEdited,       this, [=] { emit commitData(line); });
     return line;
 }
 
 void UpLineDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
     QString value = index.model()->data(index).toString();
-    UpLineEdit *line = dynamic_cast<UpLineEdit*>(editor);
-    if (line != Q_NULLPTR)
+    UpLineEdit *line = static_cast<UpLineEdit*>(editor);
+    if (line)
         line->setText(value);
 }
 
@@ -68,6 +71,25 @@ bool UpLineDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const 
     if(event->type() == QEvent::MouseButtonRelease)
          emit focusitem(index.row());
     return QAbstractItemDelegate::editorEvent(event, model, option, index);
+}
+
+void UpLineDelegate::commitEditor(){
+    UpLineEdit *editor = qobject_cast<UpLineEdit *>(sender());
+    emit commitData(editor);
+}
+
+void UpLineDelegate::updateEditorGeometry(QWidget *editor,
+                                          const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
+{
+    editor->setGeometry(option.rect);
+}
+
+void UpLineDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                   const QModelIndex &index) const
+{
+    UpLineEdit *line = static_cast<UpLineEdit*>(editor);
+    QString txt = line->text();
+    model->setData(index, txt, Qt::EditRole);
 }
 
 QSize TreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

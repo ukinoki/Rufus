@@ -37,6 +37,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_acte.h"
 #include "cls_archivebanque.h"
 #include "cls_banque.h"
+#include "cls_commentlunet.h"
 #include "cls_commercial.h"
 #include "cls_correspondant.h"
 #include "cls_cotation.h"
@@ -47,6 +48,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_iol.h"
 #include "cls_lignepaiement.h"
 #include "cls_manufacturer.h"
+#include "cls_motcle.h"
 #include "cls_motif.h"
 #include "cls_paiementtiers.h"
 #include "cls_patient.h"
@@ -340,6 +342,15 @@ public:
     Refraction*             loadRefractionById(int idref);                      //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 
     /*
+     * Commentaires lunettes
+    */
+private:
+    QJsonObject             loadCommentLunetData(QVariantList refdata);         //! attribue le liste des datas à un commentaire lunette
+public:
+    QList<CommentLunet*>    loadCommentsLunetsByListidUser(QList<int> listid);  //! charge tous les commentaires lunettes
+    CommentLunet*           loadCommentLunetById(int idref);                    //! charge un commentaire défini par son id - utilisé pour renouveler les données en cas de modification
+
+    /*
      * Sessions
     */
 private:
@@ -397,6 +408,15 @@ public:
     Commercial*             loadCommercialById(int idCommercial);                   //! charge un commercial défini par son id - utilisé pour renouveler les données en cas de modification
     QList<Commercial*>      loadCommercialsByIdManufacturer(int idmanufacturer);     //! charge tous les commerciaux d'un fabricant
 
+    /*
+     * MotsClés
+    */
+private:
+    QJsonObject             loadMotCleData(QVariantList Motcledata);                //! attribue le liste des datas à un motcle
+public:
+    QList<MotCle*>          loadMotsCles();                                         //! charge tous les mots clés
+    MotCle*                 loadMotCleById(int idMotcle);                           //! charge un motclé défini par son id - utilisé pour renouveler les données en cas de modification
+    QList<int>              loadListIdMotsClesByPat(int idpat);                     //! chagre les id des mots clés utilisés par un patient
 };
 
 #endif // DataBase_H

@@ -2542,6 +2542,64 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
 }
 
 /*
+ * Commentaires lunettes
+*/
+
+QJsonObject DataBase::loadCommentLunetData(QVariantList comdata)           //! attribue la liste des datas à un commentaire lunette
+{
+    QJsonObject data{};
+    data[CP_ID_COMLUN]                  = comdata.at(0).toInt();
+    data[CP_TEXT_COMLUN]                = comdata.at(1).toString();
+    data[CP_RESUME_COMLUN]              = comdata.at(2).toString();
+    data[CP_IDUSER_COMLUN]              = comdata.at(3).toInt();
+    data[CP_PARDEFAUT_COMLUN]           = (comdata.at(4).toInt() == 1);
+    data[CP_PUBLIC_COMLUN]              = (comdata.at(5).toInt() == 1);
+    return data;
+}
+
+CommentLunet* DataBase::loadCommentLunetById(int id)                 //! charge un commentaire lunette
+{
+    bool ok;
+    CommentLunet* com = Q_NULLPTR;
+    QString req = "SELECT " CP_ID_COMLUN ", " CP_TEXT_COMLUN ", " CP_RESUME_COMLUN ", " CP_IDUSER_COMLUN ", " CP_PARDEFAUT_COMLUN ", " CP_PUBLIC_COMLUN " FROM " TBL_COMMENTAIRESLUNETTES
+            " WHERE " CP_ID_COMLUN " = " + QString::number(id)
+            + " order by " CP_RESUME_COMLUN;
+    QVariantList comdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || comdata.size()==0)
+        return com;
+    QJsonObject data = loadCommentLunetData(comdata);
+    com = new CommentLunet(data);
+    return com;
+}
+
+QList<CommentLunet*> DataBase::loadCommentsLunetsByListidUser(QList<int> listid)        //! charge les commentaires utilisés par un groupe d'utilisateurs
+{
+    QList<CommentLunet*> listcom = QList<CommentLunet*>();
+    if (listid.size() == 0)
+        return listcom;
+    QString req = "SELECT " CP_ID_COMLUN ", " CP_TEXT_COMLUN ", " CP_RESUME_COMLUN ", " CP_IDUSER_COMLUN ", " CP_PARDEFAUT_COMLUN ", " CP_PUBLIC_COMLUN " FROM " TBL_COMMENTAIRESLUNETTES
+            " WHERE " CP_IDUSER_COMLUN " = " + QString::number(listid.at(0));
+    if (listid.size()>1)
+    {
+        for (int i=1; i<listid.size(); ++i)
+            req += " OR " CP_IDUSER_COMLUN " = " + QString::number(listid.at(i));
+        req += " order by " CP_RESUME_COMLUN;
+    }
+    //qDebug() << req;
+    QList<QVariantList> listdata = StandardSelectSQL(req,ok);
+    if(!ok || listdata.size()==0)
+        return listcom;
+    for (int i=0; i<listdata.size(); ++i)
+    {
+        QJsonObject data = loadCommentLunetData(listdata.at(i));
+        CommentLunet *com = new CommentLunet(data);
+        if (com)
+            listcom << com;
+    }
+    return listcom;
+}
+
+/*
  * Sessions opératoires
 */
 
@@ -2985,4 +3043,64 @@ QList<Commercial *> DataBase::loadCommercialsByIdManufacturer(int idmanufacturer
             list << Com;
     }
     return list;
+}
+
+/*
+ * Manufacturers
+*/
+
+QJsonObject DataBase::loadMotCleData(QVariantList Motcledata)         //! attribue la liste des datas à un mot clé
+{
+    QJsonObject data{};
+    data[CP_ID_MOTCLE]      = Motcledata.at(0).toInt();
+    data[CP_TEXT_MOTCLE]    = Motcledata.at(1).toString();
+    return data;
+}
+
+QList<MotCle*> DataBase::loadMotsCles()                       //! charge tous les mots clés
+{
+    QList<MotCle*> list = QList<MotCle*> ();
+    QString req =   "SELECT " CP_ID_MOTCLE ", " CP_TEXT_MOTCLE
+                    " FROM " TBL_MOTSCLES " order by " CP_TEXT_MOTCLE;
+    QList<QVariantList> MotClelist = StandardSelectSQL(req,ok);
+    //qDebug() << req;
+    if(!ok || MotClelist.size()==0)
+        return list;
+    for (int i=0; i<MotClelist.size(); ++i)
+    {
+        QJsonObject data = loadMotCleData(MotClelist.at(i));
+        MotCle *Motcle = new MotCle(data);
+        if (Motcle)
+            list << Motcle;
+    }
+    return list;
+}
+
+MotCle* DataBase::loadMotCleById(int idMotcle)                   //! charge un mot clé défini par son id - utilisé pour renouveler les données en cas de modification
+{
+    MotCle *Motcle = Q_NULLPTR;
+    QString req =   "SELECT " CP_ID_MOTCLE ", " CP_TEXT_MOTCLE
+                    " FROM " TBL_MOTSCLES
+                    " WHERE " CP_ID_MOTCLE " = " + QString::number(idMotcle);
+    QVariantList MotCledata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || MotCledata.size()==0)
+        return Motcle;
+    QJsonObject data = loadMotCleData(MotCledata);
+    Motcle = new MotCle(data);
+    return Motcle;
+}
+
+QList<int> DataBase::loadListIdMotsClesByPat(int idpat)                              //! chagre les id des mots clés utilisés par un patient
+{
+    QList<int> listid = QList<int> ();
+    QString req =   "SELECT " CP_IDMOTCLE_JOINTURESMOTSCLES
+                    " FROM " TBL_MOTSCLESJOINTURES
+                    " WHERE " CP_IDPATIENT_JOINTURESMOTSCLES " = " + QString::number(idpat);
+    QList<QVariantList> idslist = StandardSelectSQL(req,ok);
+    //qDebug() << req;
+    if(!ok || idslist.size()==0)
+        return listid;
+    for (int i=0; i<idslist.size(); ++i)
+        listid << idslist.at(i).at(0).toInt();
+    return listid;
 }

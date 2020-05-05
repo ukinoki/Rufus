@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "cls_actes.h"
 #include "cls_banques.h"
+#include "cls_commentslunets.h"
 #include "cls_commercials.h"
 #include "cls_comptes.h"
 #include "cls_correspondants.h"
@@ -32,6 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_interventions.h"
 #include "cls_iols.h"
 #include "cls_manufacturers.h"
+#include "cls_motscles.h"
 #include "cls_motifs.h"
 #include "cls_paiementstiers.h"
 #include "cls_patients.h"
@@ -65,6 +67,7 @@ public:
     Banques *banques;                       //!< toutes les banques
     Impressions *impressions;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     Comptes *comptes;                       //!< tous les comptes bancaires d'un utilisateur
+    CommentsLunets *commentslunets;         //! tous les commentaires lunettes
     Commercials *commercials;               //!< tous les commerciaux
     Correspondants *correspondants;         //!< Les correspondants
     Cotations *cotations;                   //!< Les cotations
@@ -77,6 +80,7 @@ public:
     DossiersImpressions *metadocuments;     //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
     Manufacturers *manufacturers;           //!< tous les fabricants
     Motifs *motifs;                         //!< tous les motifs d'actes
+    MotsCles *motscles;                     //!< tous les mots clés
     PaiementsTiers *paiementstiers;         //!< tous les paiements par tiers payants
     Patients *patients;                     //!> tous les patients en mémoire
     PatientsEnCours *patientsencours;       //!> les patients en cours : patients dont les dossiers sont ouverts (en cours d'examen), ou présents en salle d'attente ou à l'accueil

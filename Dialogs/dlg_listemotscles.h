@@ -19,6 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_LISTEMOTSCLES_H
 
 #include "procedures.h"
+#include "updelegate.h"
+#include "uptableview.h"
 
 class dlg_listemotscles : public UpDialog
 {
@@ -26,27 +28,38 @@ class dlg_listemotscles : public UpDialog
 public:
     explicit dlg_listemotscles(QWidget *parent = Q_NULLPTR);
     ~dlg_listemotscles();
-    QStringList         listMCDepart() const;
-    enum Mode {Creation, Modif};    Q_ENUM(Mode)
+    QList<int>          listMCDepart() const;
+    enum Mode           {Selection, Modification, Creation};     Q_ENUM(Mode)
 
 private:
     DataBase            *db = DataBase::I();
     Patient             *m_currentpatient = Datas::I()->patients->currentpatient();
-    QStringList         m_listemotscles, m_listidmotsclesdepart;
-
-    QTableView          *wdg_bigtable;
+    Mode                        m_mode;
+    QList<int>          m_listidmotsclesdepart;
+    UpTableView         *wdg_tblview;
     WidgetButtonFrame   *wdg_buttonframe;
     QHBoxLayout         *wdg_editlayout;
     UpDialog            *dlg_ask;
     QStandardItemModel  *m_model = Q_NULLPTR;
-    QItemSelectionModel *m_selectionmodel;
+    QHash<QString, QVariant>    m_listbinds;
+    MotCle              *m_currentmotcle;
 
+    void                Annulation();
+    bool                ChercheDoublon(QString str, int row);
     void                ChoixButtonFrame();
+    void                ChoixMenuContextuel(QString);
+    void                ConfigMode(Mode mode, MotCle *mc = Q_NULLPTR);
     void                DisableLines();
-    void                Enablebuttons();
+    void                Enablebuttons(QModelIndex idx);
+    void                EnableLines();
+    void                EnregistreMotCle(MotCle *mc);
+    MotCle*             getMotCleFromIndex(QModelIndex idx);
+    int                 getRowFromMotCle(MotCle *mc);
+    void                MenuContextuel();
     void                RemplirTableView();
-    void                CreationModifMC(enum Mode);
-    void                SupprMC();
+    void                selectcurrentMotCle(MotCle *mc);
+    void                setMotCleToRow(MotCle *mc, int row);
+    void                SupprimeMotCle(MotCle *mc);
     void                Validation();
     void                VerifMC();
 

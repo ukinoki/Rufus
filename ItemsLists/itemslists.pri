@@ -3,12 +3,14 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_correspondants.cpp \
+    $$PWD/cls_commentslunets.cpp \
     $$PWD/cls_commercials.cpp \
     $$PWD/cls_impressions.cpp \
     $$PWD/cls_interventions.cpp \
     $$PWD/cls_iols.cpp \
     $$PWD/cls_lignescomptes.cpp \
     $$PWD/cls_manufacturers.cpp \
+    $$PWD/cls_motscles.cpp \
         $$PWD/cls_patients.cpp \
     $$PWD/cls_postesconnectes.cpp \
     $$PWD/cls_refractions.cpp \
@@ -31,12 +33,14 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_lignespaiements.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
+    $$PWD/cls_commentslunets.h \
     $$PWD/cls_commercials.h \
     $$PWD/cls_impressions.h \
     $$PWD/cls_interventions.h \
     $$PWD/cls_iols.h \
     $$PWD/cls_lignescomptes.h \
     $$PWD/cls_manufacturers.h \
+    $$PWD/cls_motscles.h \
         $$PWD/cls_patients.h \
     $$PWD/cls_postesconnectes.h \
     $$PWD/cls_refractions.h \

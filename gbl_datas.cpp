@@ -29,6 +29,7 @@ Datas::Datas()
 {
     actes               = new Actes();
     banques             = new Banques();
+    commentslunets      = new CommentsLunets();
     commercials         = new Commercials;
     comptes             = new Comptes();
     correspondants      = new Correspondants();
@@ -42,6 +43,7 @@ Datas::Datas()
     lignespaiements     = new LignesPaiements();
     manufacturers       = new Manufacturers();
     metadocuments       = new DossiersImpressions();
+    motscles            = new MotsCles();
     motifs              = new Motifs();
     paiementstiers      = new PaiementsTiers();
     patients            = new Patients();

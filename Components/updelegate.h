@@ -47,11 +47,18 @@ public:
 
     QWidget*    createEditor    (QWidget* parent, const QStyleOptionViewItem&, const QModelIndex &index) const  Q_DECL_OVERRIDE;
     void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
+    void        setModelData(QWidget *editor, QAbstractItemModel *model,
+                            const QModelIndex &index) const override;
+    void        updateEditorGeometry(QWidget *editor,
+                                    const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     bool        editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)  Q_DECL_OVERRIDE;
+private:
+    void        commitEditor();
 
 signals:
     void        focusitem(int a);
     void        editingFinished();
+    void        textEdited();
 };
 
 class TreeViewDelegate : public QStyledItemDelegate

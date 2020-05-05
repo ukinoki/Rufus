@@ -27,6 +27,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Intervention *interv        = Q_NULLPTR;
     Tiers *tiers                = Q_NULLPTR;
     Commercial *com             = Q_NULLPTR;
+    CommentLunet *comment       = Q_NULLPTR;
+    MotCle *motcle              = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -164,16 +166,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             break;
         }
         tiers = dynamic_cast<Tiers*>(item);
-        if (tiers != Q_NULLPTR)
+        if (tiers)
         {
-            table = TBL_TIERS;
             loop = true;
             break;
         }
         com = dynamic_cast<Commercial*>(item);
-        if (com != Q_NULLPTR)
+        if (com)
         {
-            table = TBL_COMMERCIALS;
+            loop = true;
+            break;
+        }
+        comment = dynamic_cast<CommentLunet*>(item);
+        if (comment)
+        {
+            loop = true;
+            break;
+        }
+        motcle = dynamic_cast<MotCle*>(item);
+        if (motcle)
+        {
             loop = true;
             break;
         }
@@ -1036,9 +1048,10 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             Utils::CalcStringValueSQL(newvalue);
         }
     }
-    else if (table == TBL_TIERS)
+    else if (tiers)
     {
         ok = true;
+        table = TBL_TIERS;
         clause = CP_ID_TIERS " = " + QString::number(item->id());
         if (field == CP_NOM_TIERS)
         {
@@ -1091,9 +1104,10 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             Utils::CalcStringValueSQL(newvalue);
          }
     }
-    else if (table == TBL_COMMERCIALS)
+    else if (com)
     {
         ok = true;
+        table = TBL_COMMERCIALS;
         clause = CP_ID_COM " = " + QString::number(item->id());
         if (field == CP_NOM_COM)
         {
@@ -1124,6 +1138,50 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             com->setidmanufactureur(newvalue.toInt());
             Utils::CalcintValueSQL(newvalue);
+        }
+    }
+    else if (comment)
+    {
+        ok = true;
+        table = TBL_COMMENTAIRESLUNETTES;
+        clause = CP_ID_COMLUN " = " + QString::number(item->id());
+        if (field == CP_TEXT_COMLUN)
+        {
+            comment->settexte(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_RESUME_COMLUN)
+        {
+            comment->setresume(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDUSER_COMLUN)
+        {
+            comment->setiduser(newvalue.toInt());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_PARDEFAUT_COMLUN)
+        {
+            bool a = newvalue.toBool();
+            comment->setdefaut(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_PUBLIC_COMLUN)
+        {
+            bool a = newvalue.toBool();
+            comment->setpublic(a);
+            newvalue = (a? "1" : "null");
+        }
+    }
+    else if (motcle)
+    {
+        ok = true;
+        table = TBL_MOTSCLES;
+        clause = CP_ID_MOTCLE " = " + QString::number(item->id());
+        if (field == CP_TEXT_MOTCLE)
+        {
+            motcle->setmotcle(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
         }
     }
 

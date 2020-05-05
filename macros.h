@@ -180,7 +180,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_EDITABLE_IMPRESSIONS                         "Editable"
 #define CP_MEDICAL_IMPRESSIONS                          "Medical"
 
-                            //! Table Rufus.flagss
+                            //! Table Rufus.flags
 #define CP_MAJFLAGSALDAT_FLAGS                          "MAJflagSalDat"
 #define CP_MAJFLAGCORRESPONDANTS_FLAGS                  "MAJflagMG"
 #define CP_MAJFLAGMESSAGES_FLAGS                        "MAJflagMessages"
@@ -267,6 +267,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FORMATDOC_DOCSEXTERNES                       "FormatDoc"
 #define CP_IDLIEU_DOCSEXTERNES                          "idLieu"
 #define CP_IMPORTANCE_DOCSEXTERNES                      "Importance"
+
+                            //! Table rufus.MotsCles
+#define CP_ID_MOTCLE                                    "idMotCle"
+#define CP_TEXT_MOTCLE                                  "MotCle"
+
+                            //! Table rufus.MotsClesJointures
+#define CP_ID_JOINTURESMOTSCLES                         "idJointure"
+#define CP_IDPATIENT_JOINTURESMOTSCLES                  "idPat"
+#define CP_IDMOTCLE_JOINTURESMOTSCLES                   "idMotCle"
 
                             //! Table Rufus.ParametresSysteme
 #define CP_MDPADMIN_PARAMSYSTEME                        "MDPAdmin"
@@ -601,6 +610,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MONTURE_REFRACTIONS                         "Monture"
 #define CP_VERRETEINTE_REFRACTIONS                     "VerreTeinte"
 #define CP_PD_REFRACTIONS                              "PD"
+
+                            //! Table Ophtalmologie.commentaireslunettes
+#define CP_ID_COMLUN                                    "idCommentLunet"
+#define CP_TEXT_COMLUN                                  "TextComment"
+#define CP_RESUME_COMLUN                                "ResumeComment"
+#define CP_PARDEFAUT_COMLUN                             "ParDefautComment"
+#define CP_IDUSER_COMLUN                                "idUser"
+#define CP_PUBLIC_COMLUN                                "ComPublic"
 
                         //! Table Ophtalmologie.tonometries
 #define CP_ID_TONO                                      "idTono"

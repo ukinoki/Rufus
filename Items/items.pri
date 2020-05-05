@@ -3,6 +3,7 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_acte.cpp \
+    $$PWD/cls_commentlunet.cpp \
     $$PWD/cls_commercial.cpp \
     $$PWD/cls_compte.cpp \
     $$PWD/cls_correspondant.cpp \
@@ -12,6 +13,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_iol.cpp \
     $$PWD/cls_lignecompte.cpp \
     $$PWD/cls_manufacturer.cpp \
+    $$PWD/cls_motcle.cpp \
     $$PWD/cls_patient.cpp \
     $$PWD/cls_posteconnecte.cpp \
     $$PWD/cls_recettecomptable.cpp \
@@ -33,6 +35,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_lignepaiement.cpp
 
 HEADERS += $$PWD/cls_acte.h \
+    $$PWD/cls_commentlunet.h \
     $$PWD/cls_commercial.h \
     $$PWD/cls_compte.h \
     $$PWD/cls_correspondant.h \
@@ -43,6 +46,7 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_item.h \
     $$PWD/cls_lignecompte.h \
     $$PWD/cls_manufacturer.h \
+    $$PWD/cls_motcle.h \
     $$PWD/cls_patient.h \
     $$PWD/cls_posteconnecte.h \
     $$PWD/cls_recettecomptable.h \

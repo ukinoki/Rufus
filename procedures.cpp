@@ -3136,6 +3136,7 @@ bool Procedures::IdentificationUser()
         Datas::I()->motifs          ->initListe();
         Datas::I()->users           ->initListe();
         Datas::I()->manufacturers   ->initListe();
+        Datas::I()->motscles        ->initListe();
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);

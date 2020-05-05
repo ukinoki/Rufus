@@ -21,65 +21,57 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_commentaires::dlg_commentaires(QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionCommentaires", parent),
-    ui(new Ui::dlg_commentaires)
+    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionCommentaires", parent)
 {
-    ui->setupUi(this);
+    //ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-
-    wdg_buttonframe = new WidgetButtonFrame(ui->ComupTableWidget);
+    wdg_tblview = new UpTableView();
+    wdg_comtxt = new UpTextEdit();
+    wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    dlglayout()     ->insertWidget(0,ui->upTextEdit);
-    dlglayout()     ->insertWidget(0,wdg_buttonframe->widgButtonParent());
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     CancelButton    ->disconnect();
-
+    dlglayout()     ->insertWidget(0,wdg_comtxt);
+    dlglayout()     ->insertWidget(0,wdg_buttonframe->widgButtonParent());
+    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     setWindowTitle(tr("Liste des commentaires prédéfinis de ") + currentuser()->login());
+
+    // Mise en forme de la table
+    wdg_tblview->setPalette(QPalette(Qt::white));
+    wdg_tblview->setGridStyle(Qt::NoPen);
+    wdg_tblview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_tblview->setSelectionMode(QAbstractItemView::SingleSelection);
+    //wdg_comtbl->setSelectionBehavior(QAbstractItemView::SelectRows);
+    wdg_tblview->setMouseTracking(true);
+    wdg_tblview->setContextMenuPolicy(Qt::CustomContextMenu);
+    wdg_tblview->horizontalHeader()->setVisible(true);
+    wdg_tblview->horizontalHeader()->setIconSize(QSize(30,30));
+    wdg_tblview->setFixedHeight(435);
+
+    wdg_comtxt->installEventFilter(this);
+    wdg_comtxt->setFixedHeight(80);
+    wdg_tblview->installEventFilter(this);
 
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_commentaires::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_commentaires::Annulation);
-    connect (ui->upTextEdit,    &QTextEdit::textChanged,    this,   &dlg_commentaires::EnableOKPushbutton);
-    connect (ui->upTextEdit,    &UpTextEdit::dblclick,      this,   &dlg_commentaires::dblClicktextEdit);
+    connect (wdg_comtxt,        &QTextEdit::textChanged,    this,   [&] { OKButton->setEnabled(true);});
+    connect (wdg_comtxt,        &UpTextEdit::dblclick,      this,   &dlg_commentaires::dblClicktextEdit);
     connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
 
-
-    // Mise en forme du formulaire
-    ui->ComupTableWidget->setColumnCount(5);
-    ui->ComupTableWidget->setColumnWidth(0,30);      // Check
-    ui->ComupTableWidget->setColumnWidth(1,380);     // Resume
-    ui->ComupTableWidget->setColumnHidden(2,true);   // idComment
-    ui->ComupTableWidget->setColumnHidden(3,true);   // idUser
-    ui->ComupTableWidget->setColumnWidth(4,30);      // DefautIcon
-    ui->ComupTableWidget->setPalette(QPalette(Qt::white));
-    ui->ComupTableWidget->setGridStyle(Qt::NoPen);
-    ui->ComupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    ui->ComupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->ComupTableWidget->verticalHeader()->setVisible(false);
-    ui->ComupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->ComupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
-    ui->ComupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("TITRES DES COMMENTAIRES")));
-    ui->ComupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
-    ui->ComupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
-    ui->ComupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(Icons::icCheckOblig(),""));
-    ui->ComupTableWidget->horizontalHeader()->setVisible(true);
-    ui->ComupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
-    ui->ComupTableWidget->horizontalHeader()->setIconSize(QSize(30,30));
-
-    ui->upTextEdit  ->installEventFilter(this);
-    ui->ComupTableWidget->installEventFilter(this);
-
-    Remplir_TableView();
-    if (ui->ComupTableWidget->rowCount() > 0)
-        ConfigMode(Selection);
-    else
-        ConfigMode(Creation);
+    QList<int> listiduser;
+    listiduser << currentuser()->id();
+    if (currentuser()->idsuperviseur() != currentuser()->id())
+        listiduser << currentuser()->idsuperviseur();
+    if ((currentuser()->idparent() != currentuser()->idsuperviseur()) && (currentuser()->idparent() != currentuser()->id()))
+        listiduser << currentuser()->idparent();
+    Datas::I()->commentslunets->initListeByListUsers(listiduser);
+    RemplirTableView();
 }
 
 dlg_commentaires::~dlg_commentaires()
 {
-    delete ui;
 }
 
 void dlg_commentaires::changeEvent(QEvent *e)
@@ -96,15 +88,18 @@ void dlg_commentaires::changeEvent(QEvent *e)
 
 void dlg_commentaires::ChoixButtonFrame()
 {
+    CommentLunet *com = Q_NULLPTR;
+    if (wdg_tblview->selectionModel()->selectedIndexes().size())
+        com = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
-        ConfigMode(Creation);
+        ConfigMode(Creation, m_currentcomment);
         break;
     case WidgetButtonFrame::Modifier:
-        Modif_Com();
+        ConfigMode(Modification,com);
         break;
     case WidgetButtonFrame::Moins:
-        Del_Com();
+        SupprimmCommentaire(com);
         break;
     }
 }
@@ -117,194 +112,56 @@ void dlg_commentaires::Annulation()
 {
     if (m_mode == Creation || m_mode == Modification)
     {
-        int     row = -1;
-        UpLineEdit *line;
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(i,1));
-            if (line->focusPolicy() == Qt::WheelFocus)
-            {
-                row = line->Row();
-                break;
-            }
-        }
-        Remplir_TableView();
-        if (ui->ComupTableWidget->rowCount() == 0)
-            ConfigMode(Creation);
-        else
-        {
-            ConfigMode(Selection);
-            LineSelect(row);
-        }
+        wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        m_currentcomment = Q_NULLPTR;
+        if (wdg_tblview->selectionModel()->hasSelection())
+            m_currentcomment = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
+        RemplirTableView();
     }
     else
         reject();
-}
-
-// ----------------------------------------------------------------------------------
-// On a survole une ligne de comm. On affice le détail
-// ----------------------------------------------------------------------------------
-QString dlg_commentaires::CalcToolTip(QString ab)
-{
-    ab.replace(QRegExp("\n\n[\n]*"),"\n");
-    if (ab.size()>300)
-    {
-        ab = ab.left(300);
-        if (ab.endsWith("\n"))
-            ab = ab.left(ab.size()-1);
-        else if (!ab.endsWith("."))
-        {
-            if (ab.endsWith(" "))
-                ab = ab.left(ab.size()-1) + "...";
-            else
-            {
-                int a = ab.lastIndexOf(" ");
-                int b = ab.lastIndexOf(".");
-                int c = b;
-                if (a>b) c = a;
-                ab = ab.left(c) + "...";
-            }
-        }
-    }
-    int cassure = 50;
-    QStringList listhash1;
-    listhash1 = ab.split("\n");
-    QString ResumeItem = "";
-    for (int i=0; i<listhash1.size(); i++)
-    {
-        QString abc = listhash1.at(i);
-        if (listhash1.at(i).size() > cassure)
-        {
-            QStringList listhash;
-            listhash = listhash1.at(i).split(" ");
-            abc = listhash.at(0);
-            int count = abc.size() + 1;
-            for (int j=1; j<listhash.size(); j++)
-            {
-                count += listhash.at(j).size();
-                if (count>cassure)
-                {
-                    abc += "\n";
-                    count = listhash.at(j).size() + 1;
-                }
-                else
-                {
-                    abc += " ";
-                    count += 1;
-                }
-                abc += listhash.at(j);
-            }
-        }
-        ResumeItem += abc;
-        if (i <(listhash1.size()-1)) ResumeItem += "\n";
-    }
-    return ResumeItem;
-}
-
-// ----------------------------------------------------------------------------------
-// Annulation du commentaire selectionne
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::Del_Com()
-{
-    bool a = false;
-    UpLineEdit *line = new UpLineEdit(this);
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-    {
-        line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line->hasSelectedText()) {a= true; break;}
-    }
-    if (a)
-    {
-        DisableLines();
-        SupprimmCommentaire(line->Row());
-    }
 }
 
 void dlg_commentaires::dblClicktextEdit()
 {
     if (m_mode == Selection)
     {
-        bool a = false;
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a)
-        {
-            int idUser = ui->ComupTableWidget->item(line->Row(),4)->text().toInt();
-            if (idUser == currentuser()->id())
-                ConfigMode(Modification,line->Row());
-        }
+        CommentLunet *com = Q_NULLPTR;
+        if (wdg_tblview->selectionModel()->selectedIndexes().size())
+            com = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
+        if (com)
+            if (com->iduser() == currentuser()->id())
+                ConfigMode(Modification,com);
     }
 }
 
-// ----------------------------------------------------------------------------------
-// On a clique sur une ligne de comm. On active ou desactive les icones Modif, Annul, ...
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::EnableOKPushbutton()
+void dlg_commentaires::MenuContextuel()
 {
-    if (m_mode != Selection)
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        bool a = false;
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) {a = true; break;}
-        }
-        if (a == false)
-            OKButton->setEnabled(false);
-        else
-        {
-            if (line->text().size() == 0)
-                OKButton->setEnabled(false);
-            else if (ui->upTextEdit->toPlainText().size() == 0)
-                OKButton->setEnabled(false);
-            else
-                OKButton->setEnabled(true);
-        }
-    }
-    else
-        OKButton->setEnabled(true);
-}
+    QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
+    CommentLunet *com = getCommentFromIndex(idx);
+    QMenu *menuContextuel = new QMenu(this);
+    QAction *pAction_Modif;
+    QAction *pAction_Suppr;
+    QAction *pAction_Creer;
+    QAction *pAction_ParDefaut;
 
-void dlg_commentaires::MenuContextuel(UpLineEdit *line)
-{
-    QMenu *menuContextuel               = new QMenu(this);
-    QAction *pAction_ModifCommentaire   = new QAction();
-    QAction *pAction_SupprCommentaire   = new QAction();
-    QAction *pAction_CreerCommentaire   = new QAction();
-    QAction *pAction_ParDefautCom       = new QAction();
+    pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
+    connect (pAction_Creer,      &QAction::triggered,    [=] {ChoixMenuContextuel("Creer");});
 
-    LineSelect(line->Row());
-    pAction_CreerCommentaire                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
-    connect (pAction_CreerCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerCom");});
-    bool a = false;
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
+    if (com && com->iduser() == currentuser()->id())
     {
-        line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line->hasSelectedText())
-            if (ui->ComupTableWidget->item(line->Row(),3)->text().toInt() == currentuser()->id())
-            {a =true; break;}
-    }
-    if (a)
-    {
-        pAction_ModifCommentaire                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce commentaire"));
-        pAction_SupprCommentaire                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce commentaire"));
+        selectcurrentComment(com);
+        pAction_Modif                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce commentaire"));
+        pAction_Suppr                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce commentaire"));
         menuContextuel->addSeparator();
-        UpLabel *lbldef                         = static_cast<UpLabel*>(ui->ComupTableWidget->cellWidget(line->Row(),4));
-        if (lbldef->pixmap()!=Q_NULLPTR)
-            pAction_ParDefautCom                = menuContextuel->addAction(Icons::icBlackCheck(), tr("Par défaut"));
+        if (!com->isdefaut())
+            pAction_ParDefaut                = menuContextuel->addAction(Icons::icBlackCheck(), tr("Par défaut"));
         else
-            pAction_ParDefautCom                = menuContextuel->addAction("Par défaut") ;
-        pAction_ParDefautCom->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
-
-        connect (pAction_ModifCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierCom");});
-        connect (pAction_SupprCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("SupprimerCom");});
-        connect (pAction_CreerCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerCom");});
-        connect (pAction_ParDefautCom,          &QAction::triggered,    [=] {ChoixMenuContextuel("ParDefautCom");});
+            pAction_ParDefaut                = menuContextuel->addAction("Par défaut") ;
+        pAction_ParDefaut->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
+        connect (pAction_ParDefaut,          &QAction::triggered,    [=] {ChoixMenuContextuel("ParDefaut");});
+        connect (pAction_Modif,      &QAction::triggered,    [=] {ChoixMenuContextuel("Modifier");});
+        connect (pAction_Suppr,      &QAction::triggered,    [=] {ChoixMenuContextuel("Supprimer");});
     }
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -312,68 +169,20 @@ void dlg_commentaires::MenuContextuel(UpLineEdit *line)
 
 void dlg_commentaires::ChoixMenuContextuel(QString choix)
 {
-    QPoint pos = ui->ComupTableWidget->viewport()->mapFromGlobal(findChildren<QMenu*>().at(0)->pos());
-    int row (-1);
-    UpLineEdit *line = new UpLineEdit();
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
+    if (choix  == "Modifier")
+        ConfigMode(Modification,m_currentcomment);
+    else if (choix  == "Supprimer")
+        SupprimmCommentaire(m_currentcomment);
+    else if (choix  == "ParDefaut")
     {
-        line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line->hasSelectedText())
-        {
-            row = line->Row();
-            break;
-        }
+        ItemsList::update(m_currentcomment, CP_PARDEFAUT_COMLUN,!m_currentcomment->isdefaut());
+        int row = getRowFromComment(m_currentcomment);
+        setCommentToRow(m_currentcomment, row);
     }
-    row = line->Row();
-    if (choix  == "ModifierCom")
+    else if (choix  == "Creer")
     {
-        if (row > -1)
-            ConfigMode(Modification,row);
+        ConfigMode(Creation,m_currentcomment);
     }
-    else if (choix  == "SupprimerCom")
-    {
-        if (row > -1)
-        SupprimmCommentaire(row);
-    }
-    else if (choix  == "ParDefautCom")
-    {
-        if (row > -1)
-        {
-            UpLabel *lbldef = static_cast<UpLabel*>(ui->ComupTableWidget->cellWidget(row,4));
-            QString b = "null";
-            if (lbldef->pixmap()!=Q_NULLPTR)
-                lbldef->clear();
-            else
-            {
-                b = "1";
-                lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
-            }
-            db->StandardSQL ("update " TBL_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
-                             " where idCommentLunet = " + ui->ComupTableWidget->item(row,2)->text());
-        }
-    }
-    else if (choix  == "CreerCom")
-    {
-        row = ui->ComupTableWidget->rowAt(pos.y());
-        ConfigMode(Creation,row);
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// Modification du commentaire dans la base.
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::Modif_Com()
-{
-    UpLineEdit *line = new UpLineEdit();
-    bool a = false;
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-    {
-        line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line->hasSelectedText()) {a= true; break;}
-    }
-    int row = line->Row();
-    if (a)
-        ConfigMode(Modification,row);
 }
 
 // ----------------------------------------------------------------------------------
@@ -382,51 +191,29 @@ void dlg_commentaires::Modif_Com()
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::Validation()
 {
-    bool a              = false;
-    UpLineEdit *line    = Q_NULLPTR;
-
-    if (m_mode == Creation)
+    if (m_mode == Modification || m_mode == Creation)
     {
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) {a = true; break;}
-        }
-        int row = line->Row();
-        if (a)
-            InsertCommentaire(row);
-    }
-    else if (m_mode == Modification)
-    {
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) {a = true; break;}
-        }
-        int row = line->Row();
-        if (a)
-            UpdateCommentaire(row);
+        wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        EnregistreCommentaire(m_currentcomment);
     }
     else if (m_mode == Selection)
     {
-        UpCheckBox *Check   = Q_NULLPTR;
-        QWidget *Widg       = Q_NULLPTR;
-        m_commentaire = "";
-        for (int i =0 ; i < ui->ComupTableWidget->rowCount(); i++)
+        for (int i =0 ; i < m_model->rowCount(); i++)
         {
-            Widg =  dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
-            if (Widg)
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
+            if (itm)
+                if (itm->checkState() == Qt::Checked)
             {
-                Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if (Check->isChecked())
+                CommentLunet *com = dynamic_cast<CommentLunet*>(itm->item());
+                if (com)
                 {
-                    if (m_commentaire != "") m_commentaire += "\n";
-                    line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(Check->rowTable(),1));
-                    m_commentaire       += line->datas().toString();
-                    m_commentaireresume += " - " + line->text();
+                    m_commentaire       += com->texte() + "\n";
+                    m_commentaireresume += " - " + com->resume();
                 }
             }
         }
+        if (m_commentaireresume != "")
+            m_commentaireresume = "\n" + m_commentaireresume;
         accept();
     }
 }
@@ -438,66 +225,12 @@ bool dlg_commentaires::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress)
     {
-        if (obj == ui->upTextEdit)
+        if (obj == wdg_comtxt)
         {
-            if (ui->upTextEdit->toPlainText() != "")
+            if (wdg_comtxt->toPlainText() != "")
                 OKButton->setEnabled(true);
         }
     }
-    if(event->type() == QEvent::MouseMove)
-    {
-        if (obj == ui->upTextEdit)
-            if (m_mode == Selection)
-            {
-                QRect rect = QRect(ui->upTextEdit->pos(),ui->upTextEdit->size());
-                QPoint pos = mapFromParent(cursor().pos());
-                if (rect.contains(pos) && ui->upTextEdit->toPlainText() != "")
-                    EffaceWidget(ui->upTextEdit, false);
-            }
-    }
-    if (event->type() == QEvent::KeyPress)
-        if (obj->inherits("UpTableWidget"))
-        {
-            QKeyEvent       *keyEvent = static_cast<QKeyEvent*>(event);
-            UpTableWidget   *table    = static_cast<UpTableWidget *>(obj);
-            UpLineEdit      *line     = Q_NULLPTR;
-            if (keyEvent->key() == Qt::Key_Up)
-            {
-                for (int i=0; i<table->rowCount(); i++)
-                {
-                    line = static_cast<UpLineEdit *>(table->cellWidget(i,1));
-                    if (line->selectedText() != "")
-                    {
-                        if (line->Row() > 0){
-                            LineSelect(line->Row()-1);
-                            QPoint posdebut = mapFrom(this, table->cellWidget(0,0)->pos());
-                            QPoint poscell  = mapFrom(this, table->cellWidget(line->Row(),0)->pos());
-                            if (posdebut.y() < -1 && poscell.y() < table->height()-(line->height()*7))
-                                table->viewport()->scroll(0,line->height());
-                        }
-                        break;
-                    }
-                }
-            }
-            if (keyEvent->key() == Qt::Key_Down)
-            {
-                for (int i=0; i<table->rowCount(); i++)
-                {
-                    line = static_cast<UpLineEdit *>(table->cellWidget(i,1));
-                    if (line->selectedText() != "")
-                    {
-                        if (line->Row() < table->rowCount()-1){
-                            LineSelect(line->Row()+1);
-                            QPoint poscell = mapFrom(this, table->cellWidget(line->Row(),0)->pos());
-                            QPoint posfin = mapFrom(this, table->cellWidget(table->rowCount()-1,0)->pos());
-                            if (posfin.y() > table->height()-(line->height()*2) && poscell.y() > line->height()*5)
-                                table->viewport()->scroll(0,-line->height());
-                        }
-                        break;
-                    }
-                }
-            }
-        }
     return QWidget::eventFilter(obj, event);
 }
 
@@ -523,26 +256,32 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
     switch (m_mode) {
     case Creation:
     case Modification:
-        for (int i=0;  i<ui->ComupTableWidget->rowCount(); i++)
+        for (int i=0;  i<m_model->rowCount(); i++)
         {
-            UpLineEdit *line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(i,1));
-            if  (line != Q_NULLPTR)
-                if (line->text().toUpper() == str.toUpper() && line->Row()!=row)
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
+            if (itm)
+            {
+                CommentLunet *com = dynamic_cast<CommentLunet*>(itm->item());
+                if (com)
                 {
-                    a = true;
-                    QString b = " " + tr(" créé par vous");
-                    int iduser = ui->ComupTableWidget->item(i,3)->text().toInt();
-                    QString comment = tr("Il existe déjà un commentaire portant ce nom");
-                    if (iduser != currentuser()->id())
+                    if (com->texte().toUpper() == str.toUpper() && i != row)
                     {
-                        if (Datas::I()->users->getById(iduser) != Q_NULLPTR)
-                            b = " " + tr("créé par") + " " + Datas::I()->users->getById(iduser)->login();
-                        else
-                            b = "";
+                        a = true;
+                        QString b = " " + tr(" créé par vous");
+                        int iduser = com->iduser();
+                        QString comment = tr("Il existe déjà un commentaire portant ce nom");
+                        if (iduser != currentuser()->id())
+                        {
+                            if (Datas::I()->users->getById(iduser) != Q_NULLPTR)
+                                b = " " + tr("créé par") + " " + Datas::I()->users->getById(iduser)->login();
+                            else
+                                b = "";
+                        }
+                        UpMessageBox::Watch(this, comment + b);
+                        break;
                     }
-                    UpMessageBox::Watch(this, comment + b);
-                    break;
                 }
+            }
         }
         break;
     default:
@@ -554,123 +293,111 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
 // ----------------------------------------------------------------------------------
 // Configuration de la fiche en fonction du mode de fonctionnement
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::ConfigMode(Mode mode, int row)
+void dlg_commentaires::ConfigMode(Mode mode, CommentLunet *com)
 {
     m_mode = mode;
-
-    if (m_mode != Selection)
-        m_timerefface->disconnect();
-    m_opacityeffect.setOpacity(1);
-    ui->upTextEdit->setGraphicsEffect(&m_opacityeffect);
-    ui->upTextEdit->setVisible               (m_mode != Selection);
+    wdg_comtxt->setVisible               (m_mode != Selection);
 
     if (mode == Selection)
     {
-        EnableLines();
         wdg_buttonframe->setEnabled(true);
-        ui->ComupTableWidget->setEnabled(true);
-        ui->ComupTableWidget->setFocus();
-        ui->ComupTableWidget->setStyleSheet("");
+        wdg_tblview->setEnabled(true);
+        wdg_tblview->setFocus();
+        wdg_tblview->setStyleSheet("");
         wdg_buttonframe->wdg_modifBouton->setEnabled(false);
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
-        ui->upTextEdit->setEnabled(true);
-        ui->upTextEdit->clear();
-        ui->upTextEdit->setFocusPolicy(Qt::NoFocus);
-        ui->upTextEdit->setStyleSheet("");
+        wdg_comtxt->setEnabled(true);
+        wdg_comtxt->clear();
+        wdg_comtxt->setFocusPolicy(Qt::NoFocus);
+        wdg_comtxt->setStyleSheet("");
 
         CancelButton->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
         CancelButton->setImmediateToolTip(tr("Annuler et fermer la fiche"));
         OKButton->setImmediateToolTip(tr("Imprimer\nla sélection"));
 
         int nbCheck = 0;
-        for (int i =0 ; i < ui->ComupTableWidget->rowCount(); i++)
+        for (int i =0 ; i < m_model->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setEnabled(true);
-                if (Check->isChecked()) nbCheck ++;
-            }
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
+            if (itm)
+                if (itm->checkState() == Qt::Checked)
+                    nbCheck ++;
         }
-        OKButton->setEnabled(true);
+        OKButton->setEnabled(nbCheck);
     }
 
     if (mode == Modification)
     {
+        if (!com)
+            return;
         DisableLines();
-        UpLineEdit *line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1));
-        line->setEnabled(true);
-        line->setFocusPolicy(Qt::WheelFocus);
-        line->setFocus();
-        line->selectAll();
-        connect(line,   &QLineEdit::textEdited, [=] {EnableOKPushbutton();});
-
-        ui->upTextEdit->setText(line->datas().toString());
-        ui->ComupTableWidget->setEnabled(true);
-        ui->ComupTableWidget->setStyleSheet("");
+        for (int i=0; i<m_model->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i,0));
+            if (itm)
+            {
+                CommentLunet *coms = dynamic_cast<CommentLunet*>(itm->item());
+                if (coms)
+                    if (coms == com)
+                    {
+                        m_model->item(i,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+                        wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+                        wdg_comtxt->setText(com->texte());
+                        i = m_model->rowCount();
+                    }
+            }
+        }
+        wdg_tblview->setEnabled(true);
+        wdg_tblview->setStyleSheet("");
         wdg_buttonframe->setEnabled(false);
-        ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
-        ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
+        wdg_comtxt->setFocusPolicy(Qt::WheelFocus);
+        wdg_comtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
 
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
         CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de commentaire"));
         OKButton->setImmediateToolTip(tr("Enregistrer"));
+        OKButton->setEnabled(false);
     }
     else if (mode == Creation)
     {
-        if (ui->ComupTableWidget->rowCount() > 0)
+        if (m_model->rowCount() > 0)
             DisableLines();
-        ui->ComupTableWidget->insertRow(row);
-        QWidget * w = new QWidget(ui->ComupTableWidget);
-        UpCheckBox *Check = new UpCheckBox(w);
-        Check->setCheckState(Qt::Unchecked);
-        Check->setRowTable(row);
-        Check->setFocusPolicy(Qt::NoFocus);
-        Check->setEnabled(false);
-        QHBoxLayout *l = new QHBoxLayout();
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
-        l->setContentsMargins(0,0,0,0);
-        w->setLayout(l);
-        ui->ComupTableWidget->setCellWidget(row,0,w);
-        UpLineEdit *upLine0 = new UpLineEdit;
-        upLine0->setText("Nouveau Commentaire");                          // resume
-        upLine0->setRow(row);
-        upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        upLine0->setFocusPolicy(Qt::WheelFocus);
-        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-        upLine0->selectAll();
-        ui->ComupTableWidget->setCellWidget(row,1,upLine0);
-        QTableWidgetItem    *pItem1 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem2 = new QTableWidgetItem;
-        int col = 2;
-        pItem1->setText("0");                               // idComment
-        ui->ComupTableWidget->setItem(row,col,pItem1);
-        col++; //3
-        pItem2->setText(QString::number(currentuser()->id()));     // idUser
-        ui->ComupTableWidget->setItem(row,col,pItem2);
-        col++; //4
-        UpLabel*lbl = new UpLabel(ui->ComupTableWidget);
-        lbl->setAlignment(Qt::AlignCenter);
-        ui->ComupTableWidget->setCellWidget(row,col,lbl);
-        connect(upLine0,   &QLineEdit::textEdited, this, &dlg_commentaires::EnableOKPushbutton);
-        ui->ComupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
+        int row = 0;
+        if (com)
+            row = getRowFromComment(com);
+        m_model->insertRow(row);
+        CommentLunet *com = new CommentLunet();
+        com->setresume(tr("Nouveau Commentaire"));
+        com->setiduser(currentuser()->id());
+        setCommentToRow(com, row);
+        m_model->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
-        ui->upTextEdit->clear();
-        ui->upTextEdit->setEnabled(true);
-        ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
-        ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
+        wdg_comtxt->clear();
+        wdg_comtxt->setEnabled(true);
+        wdg_comtxt->setFocusPolicy(Qt::WheelFocus);
+        wdg_comtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
 
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
         CancelButton->setEnabled(true);
         CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de commentaire"));
         OKButton->setEnabled(false);
         OKButton->setImmediateToolTip(tr("Enregistrer\nle commentaire"));
-        upLine0->setFocus();
     }
+}
+
+void dlg_commentaires::Enablebuttons(QModelIndex idx)
+{
+    if (wdg_tblview->selectionModel()->hasSelection())
+        m_currentcomment = getCommentFromIndex(idx);
+    else
+        m_currentcomment = Q_NULLPTR;
+    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentcomment);
+    if (m_currentcomment)
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentcomment->iduser() == currentuser()->id());
+    else
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -678,25 +405,17 @@ void dlg_commentaires::ConfigMode(Mode mode, int row)
 // --------------------------------------------------------------------------------------------------
 void dlg_commentaires::DisableLines()
 {
-    QWidget *Widg       = Q_NULLPTR;
-    UpCheckBox *Check   = Q_NULLPTR;
-    UpLineEdit *line    = Q_NULLPTR;
-    wdg_buttonframe->setEnabled(false);
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
+    for (int i=0; i<m_model->rowCount(); i++)
     {
-        Widg = dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
-        if (Widg)
-        {
-            Check = Widg->findChildren<UpCheckBox*>().at(0);
-            Check->setEnabled(false);
-        }
-        line = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line != Q_NULLPTR) {
-            line->deselect();
-            line->setEnabled(false);
-            line->setFocusPolicy(Qt::NoFocus);
-            line->disconnect();
-        }
+        QStandardItem *itm = m_model->item(i,0);
+        if (itm)
+            itm->setFlags(Qt::ItemIsUserCheckable);
+        QStandardItem *itm1 = m_model->item(i,1);
+        if (itm1)
+            itm1->setFlags(Qt::NoItemFlags);
+        QStandardItem *itm2 = m_model->item(i,2);
+        if (itm2)
+            itm2->setFlags(Qt::NoItemFlags);
     }
 }
 
@@ -705,249 +424,208 @@ void dlg_commentaires::DisableLines()
 // -------------------------------------------------------------------------------------------
 void dlg_commentaires::EnableLines()
 {
-    QWidget    *Widg    = Q_NULLPTR;
-    UpCheckBox *Check   = Q_NULLPTR;
-    UpLineEdit *line    = Q_NULLPTR;
-    wdg_buttonframe->setEnabled(true);
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
+    for (int i=0; i<m_model->rowCount(); i++)
     {
-        Widg =  dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
-        if (Widg)
-        {
-            Check = Widg->findChildren<UpCheckBox*>().at(0);
-            Check->setEnabled(true);
-        }
-        line = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line != Q_NULLPTR) {
-            line->deselect();
-            line->setEnabled(true);
-            line->setFocusPolicy(Qt::NoFocus);
-            connect(line,       &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line);});
-            connect(line,       &QLineEdit::textEdited,                 [=] {EnableOKPushbutton();});
-            if (ui->ComupTableWidget->item(i,3)->text().toInt() == currentuser()->id())
-                connect(line,   &UpLineEdit::mouseDoubleClick,          [=] {if (m_mode == Selection) ConfigMode(Modification, line->Row());});
-            connect(line,       &UpLineEdit::mouseRelease,              [=] {LineSelect(line->Row());});
-        }
+        QStandardItem *itm = m_model->item(i,0);
+        if (itm)
+            itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+        QStandardItem *itm1 = m_model->item(i,1);
+        if (itm1)
+            itm1->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        QStandardItem *itm2 = m_model->item(i,2);
+        if (itm2)
+            itm2->setFlags(Qt::ItemIsEnabled);
     }
 }
 
-// ----------------------------------------------------------------------------------
-// Effacement progressif d'un Widget.
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
+// ------------------------------------------------------------------------------------------
+// renvoie le commentaire correspondant à l'index
+// ------------------------------------------------------------------------------------------
+CommentLunet* dlg_commentaires::getCommentFromIndex(QModelIndex idx )
 {
-    QTime DebutTimer     = QTime::currentTime();
-    m_opacityeffect.setOpacity(1);
-    widg->setGraphicsEffect(&m_opacityeffect);
-    widg->setVisible(true);
-    widg->setAutoFillBackground(true);
-    m_timerefface->disconnect();
-    m_timerefface->start(70);
-    connect(m_timerefface, &QTimer::timeout, this, [=]
-    {
-        QRect rect = QRect(widg->pos(),widg->size());
-        QPoint pos = mapFromParent(cursor().pos());
-        int Pause = (AvecOuSansPause? 4000: 0);
-        if (DebutTimer.msecsTo(QTime::currentTime()) > Pause)
-        {
-            if (!rect.contains(pos))
-            {
-                m_opacityeffect.setOpacity(m_opacityeffect.opacity()*0.9);
-                widg->setGraphicsEffect(&m_opacityeffect);
-                if (m_opacityeffect.opacity() < 0.10)
-                {
-                    m_timerefface->stop();
-                    widg->setVisible(false);
-                }
-            }
-            else
-            {
-                m_opacityeffect.setOpacity(1);
-                widg->setGraphicsEffect(&m_opacityeffect);
-            }
-        }
-    });
-}
-
-// ----------------------------------------------------------------------------------
-// Creation du commentaire dans la base.
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::InsertCommentaire(int row)
-{
-    // controle validate des champs
-    UpLineEdit *line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(row,1));
-    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
-
-    // Creation du commentaire dans la table
-    if (ChercheDoublon(line->text(),row))
-    {
-        LineSelect(row);
-        return;
-    }
-
-    QString requete = "INSERT INTO " TBL_COMMENTAIRESLUNETTES
-            " (TextComment, ResumeComment, idUser, Pardefautcomment ) "
-            " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->toPlainText()) +
-            "','" + Utils::correctquoteSQL(line->text().left(100)) +
-            "'," + QString::number(currentuser()->id()) + ", null)";
-    db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + TBL_COMMENTAIRESLUNETTES);
-    Remplir_TableView();
-
-    if (ui->ComupTableWidget->rowCount() == 0)
-        ConfigMode(Creation);
+    int row = idx.row();
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
+    if (itm)
+        return dynamic_cast<CommentLunet*>(itm->item());
     else
-    {
-        ConfigMode(Selection);
-        QString resume = line->text();
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-             line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(i,1));
-             if (line->text() == resume)
-             {
-                LineSelect(line->Row());
-                QModelIndex index = ui->ComupTableWidget->model()->index(line->Row(),1);
-                ui->ComupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-                break;
-             }
-         }
-    }
- }
+        return Q_NULLPTR;
+}
 
-// ----------------------------------------------------------------------------------
-// On sélectionne une ligne. On affiche le détail et on met en édition
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::LineSelect(int row)
+// ------------------------------------------------------------------------------------------
+// renvoie le row correspondant au commentaire
+// ------------------------------------------------------------------------------------------
+int dlg_commentaires::getRowFromComment(CommentLunet *com)
 {
-    if (ui->ComupTableWidget->rowCount() == 0) return;
-    if (row < 0) row = 0;
-    if (row > ui->ComupTableWidget->rowCount()-1) row = ui->ComupTableWidget->rowCount()-1;
-
-    UpLineEdit *line = Q_NULLPTR;
-    line = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1));
-    if (line == Q_NULLPTR)
-        return;
-
-    for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
+    int row = -1;
+    if (!com)
+        return row;
+    for (int i=0; i<m_model->rowCount(); i++)
     {
-        UpLineEdit *line0 = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line0!= Q_NULLPTR)
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
+        if (itm)
         {
-            line0->deselect();
-            line0 = Q_NULLPTR;
+            CommentLunet *coms = dynamic_cast<CommentLunet*>(itm->item());
+            if (coms == com)
+            {
+                row = i;
+                i = m_model->rowCount();
+            }
         }
     }
-    if (m_mode == Selection)
+    return row;
+}
+
+void dlg_commentaires::selectcurrentComment(CommentLunet *com)
+{
+    if (!com)
     {
-        ui->upTextEdit->setVisible(true);
-        ui->upTextEdit->setText(line->datas().toString());
-        EffaceWidget(ui->upTextEdit);
-        wdg_buttonframe->wdg_modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == currentuser()->id());
-        wdg_buttonframe->wdg_moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == currentuser()->id());
+        m_currentcomment = Q_NULLPTR;
+        wdg_tblview->selectionModel()->clearSelection();
+        Enablebuttons(QModelIndex());
     }
-    line->selectAll();
+    else for (int i=0; i<m_model->rowCount(); i++)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
+        if (itm)
+        {
+            CommentLunet *coms = dynamic_cast<CommentLunet*>(itm->item());
+            if (coms)
+                if (com == coms)
+                {
+                    wdg_tblview->selectionModel()->setCurrentIndex(m_model->index(i,1),QItemSelectionModel::Select);
+                    OKButton->setEnabled(true);
+                    Enablebuttons(wdg_tblview->selectionModel()->currentIndex());
+                    break;
+                }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------------
-// Remplissage de tree view avec les commentaires de la base.
+// Remplissage de la tablewidgetavec les commentaires de la base.
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::Remplir_TableView()
+void dlg_commentaires::RemplirTableView()
 {
-    UpLineEdit          *upLine0;
-    QTableWidgetItem    *pItem1;
-    QTableWidgetItem    *pItem2;
-    QWidget * w;
-    QHBoxLayout *l;
-    UpCheckBox *Check;
-    UpLabel*lbl2;
-    int i;
+    wdg_tblview->disconnect();
+    wdg_tblview->selectionModel()->disconnect();
+    if (m_model == Q_NULLPTR)
+        delete m_model;
+    m_model = new QStandardItemModel();
+    QStandardItem *pitem0   = new QStandardItem(Icons::icImprimer(),"");
+    pitem0->setEditable(false);
+    pitem0->setTextAlignment(Qt::AlignCenter);
+    m_model->setHorizontalHeaderItem(0,pitem0);
+    QStandardItem *pitem1   = new QStandardItem(tr("TITRES DES COMMENTAIRES"));
+    pitem0->setEditable(false);
+    pitem0->setTextAlignment(Qt::AlignLeft);
+    m_model->setHorizontalHeaderItem(1,pitem1);
+    QStandardItem *pitem2   = new QStandardItem();
+    pitem1->setEditable(false);
+    m_model->setHorizontalHeaderItem(2,pitem2);
+    m_model->setRowCount(Datas::I()->commentslunets->commentaires()->size());
+    m_model->setColumnCount(3);
+    for (int i=0; i<Datas::I()->commentslunets->commentaires()->size(); i++)
+    {
+        CommentLunet *com = Datas::I()->commentslunets->commentaires()->values().at(i);
+        setCommentToRow(com, i);
+    }
+    if (m_model->rowCount()>0)
+    {
+        for (int i=0; i<Datas::I()->commentslunets->commentaires()->size(); i++)
+        {
+            CommentLunet *com = Datas::I()->commentslunets->commentaires()->values().at(i);
+            setCommentToRow(com, i);
+        }
+        m_model->sort(1);
+        QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
+        wdg_tblview->setModel(m_model);
+        delete m;
+        UpLineDelegate *line = new UpLineDelegate();
+        connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
+        wdg_tblview->setItemDelegateForColumn(1,line);
+        wdg_tblview->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+        QHeaderView *verticalHeader = wdg_tblview->verticalHeader();
+        verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+        verticalHeader->setDefaultSectionSize(int(QFontMetrics(qApp->font()).height()*1.6));
+        verticalHeader->setVisible(false);
+        wdg_tblview->setColumnWidth(0,30);      // Check
+        wdg_tblview->setColumnWidth(1,380);     // Resumé
+        wdg_tblview->setColumnWidth(2,30);      // DefautIcon
+        wdg_tblview->FixLargeurTotale();
+        wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
+        ConfigMode(Selection);
+        connect(wdg_tblview,     &QAbstractItemView::entered,                this,   [=] (QModelIndex idx) {
+                                                                                                            CommentLunet *com = getCommentFromIndex(idx);
+                                                                                                            if (com)
+                                                                                                                QToolTip::showText(cursor().pos(),com->tooltip());
+                                                                                                            } );
+        connect(wdg_tblview,     &QAbstractItemView::doubleClicked,          this,   [=] (QModelIndex idx) {
+                                                                                                            CommentLunet *com = getCommentFromIndex(idx);
+                                                                                                            if (com)
+                                                                                                                if(com->iduser() == currentuser()->id())
+                                                                                                                    ConfigMode(Modification,com);
+                                                                                                          });
+        connect (wdg_tblview,    &QWidget::customContextMenuRequested,       this,   &dlg_commentaires::MenuContextuel);
+        connect (wdg_tblview->selectionModel(),
+                                 &QItemSelectionModel::currentRowChanged,    this,   &dlg_commentaires::Enablebuttons);
+        connect(wdg_tblview,     &QAbstractItemView::clicked,                this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
+                                                                                                            QStandardItem *itm = m_model->itemFromIndex(idx);
+                                                                                                            if(itm->isCheckable() && itm->checkState() == Qt::Checked)
+                                                                                                                OKButton->setEnabled(true);
+                                                                                                            else
+                                                                                                            {
+                                                                                                                bool ok = false;
+                                                                                                                for (int i=0; i<m_model->rowCount(); ++i)
+                                                                                                                {
+                                                                                                                    QStandardItem *itmc = m_model->item(i);
+                                                                                                                    if (itmc)
+                                                                                                                        if(itmc->checkState() == Qt::Checked)
+                                                                                                                        {
+                                                                                                                            ok = true;
+                                                                                                                            i = m_model->rowCount();
+                                                                                                                        }
+                                                                                                                }
+                                                                                                                OKButton->setEnabled(ok);
+                                                                                                            }
+                                                                                                           });
+    }
+    else
+        ConfigMode(Creation);
+}
+
+void dlg_commentaires::setCommentToRow(CommentLunet *com, int row)
+{
+    if(!com)
+        return;
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
-    QPalette palette;
-    palette.setColor(QPalette::Text,Qt::black);
-
-    //Remplissage Table Documents
-    for (int i = 0; i<ui->ComupTableWidget->rowCount(); i++)
-    {
-        upLine0 = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (upLine0 != Q_NULLPTR)
-            upLine0->disconnect();
-    }
-
-    ui->ComupTableWidget->clearContents();
-    QString req = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser FROM " TBL_COMMENTAIRESLUNETTES " WHERE idUser = " + QString::number(currentuser()->id());
-    if (currentuser()->idsuperviseur() != currentuser()->id())
-        req += " Or idUser = " + QString::number(currentuser()->idsuperviseur());
-    if ((currentuser()->idparent() != currentuser()->idsuperviseur()) && (currentuser()->idparent() != currentuser()->id()))
-        req += " Or idUser = " + QString::number(currentuser()->idparent());
-        req += " ORDER BY ResumeComment";
-    bool ok;
-    QList<QVariantList> listcom = db->StandardSelectSQL(req, ok);
-    if (!ok)
-        return;
-    ui->ComupTableWidget->setRowCount(listcom.size());
-    for (i = 0; i < listcom.size(); i++)
-    {
-        pItem1  = new QTableWidgetItem() ;
-        upLine0 = new UpLineEdit() ;
-        pItem2  = new QTableWidgetItem() ;
-
-        int col = 0;
-        w = new QWidget(ui->ComupTableWidget);
-        Check = new UpCheckBox(w);
-        Check->setChecked(listcom.at(i).at(1).toInt() == 1);
-        Check->setRowTable(i);
-        Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check,   &QCheckBox::clicked,   this,   &dlg_commentaires::EnableOKPushbutton);
-        l = new QHBoxLayout();
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
-        l->setContentsMargins(0,0,0,0);
-        w->setLayout(l);
-        ui->ComupTableWidget->setCellWidget(i,col,w);
-
-        col++; //1
-        upLine0->setText(listcom.at(i).at(0).toString());                          // resume
-        upLine0->setRow(i);
-        upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        upLine0->setFocusPolicy(Qt::NoFocus);
-        upLine0->setImmediateToolTip(CalcToolTip(listcom.at(i).at(2).toString()));
-        upLine0->setdatas(listcom.at(i).at(2).toString());
-        if (listcom.at(i).at(4).toInt() != currentuser()->id())
-        {
-            upLine0->setFont(disabledFont);
-            upLine0->setPalette(palette);
-        }
-        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-        ui->ComupTableWidget->setCellWidget(i,col,upLine0);
-
-        col++; //2
-        pItem1->setText(listcom.at(i).at(3).toString());                           // idCommentaire
-        ui->ComupTableWidget->setItem(i,col,pItem1);
-        col++; //3
-        pItem2->setText(listcom.at(i).at(4).toString());                           // idUser
-        ui->ComupTableWidget->setItem(i,col,pItem2);
-        col++; //4                                                                 // DefautCheck
-        lbl2 = new UpLabel(ui->ComupTableWidget);
-        lbl2->setAlignment(Qt::AlignCenter);
-        if (listcom.at(i).at(1).toInt()==1)
-            lbl2->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
-        ui->ComupTableWidget->setCellWidget(i,col,lbl2);
-        ui->ComupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.3));
-    }
+    UpStandardItem *pitem0 = new UpStandardItem("", com);
+    pitem0->setCheckable(true);
+    if (com->isdefaut())
+        pitem0->setCheckState(Qt::Checked);
+    m_model->setItem(row,0,pitem0);
+    QModelIndex index = m_model->index(row, 1, QModelIndex());
+    m_model->setData(index, com->resume());
+    if (com->iduser() != currentuser()->id())
+        m_model->itemFromIndex(index)->setFont(disabledFont);
+    UpStandardItem *pitem1 = new UpStandardItem("", com);
+    if (com->isdefaut())
+        pitem1->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+    else
+        pitem1->setData(QPixmap(),Qt::DecorationRole);
+    m_model->setItem(row,2, pitem1);
 }
 
 // ----------------------------------------------------------------------------------
 // Supprime commentaire
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::SupprimmCommentaire(int row)
+void dlg_commentaires::SupprimmCommentaire(CommentLunet* com)
 {
-    if (row == -1)
+    if (!com)
         return;
-    DisableLines();
 
     QString Msg;
-    Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "?";
+    Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + com->resume() + "?";
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + currentuser()->login() + "?");
     msgbox.setInformativeText(Msg);
@@ -962,66 +640,65 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     msgbox.exec();
     if (msgbox.clickedButton()  == &OKBouton)
     {
-        int idCom = ui->ComupTableWidget->item(row,2)->text().toInt();
-        Msg = tr("Impossible de supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "\n ... " + tr("et je ne sais pas pourquoi...");
-        db->SupprRecordFromTable(idCom, "idcommentlunet", TBL_COMMENTAIRESLUNETTES, Msg);
-        Remplir_TableView();
-    }
-    if (ui->ComupTableWidget->rowCount() == 0)
-        ConfigMode(Creation);
-    else
-    {
-        ConfigMode(Selection);
-        LineSelect(row);
+        int row = getRowFromComment(com);
+        if (row > -1 && row < m_model->rowCount())
+        {
+            m_model->takeRow(getRowFromComment(com));
+            Datas::I()->commentslunets->SupprimeCommentLunet(com);
+        }
     }
 }
 
 // ----------------------------------------------------------------------------------
 // Modification du commentaire dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::UpdateCommentaire(int row)
+void dlg_commentaires::EnregistreCommentaire(CommentLunet *com)
 {
-    // recherche de l'enregistrement modifié
-    // controle validate des champs
-    UpLineEdit *line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(row,1));
-    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
-
-    if (ChercheDoublon(line->text(),row))
+    int row = getRowFromComment(com);
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
+    if (!itm)
     {
-        LineSelect(row);
+        selectcurrentComment(com);
         return;
     }
-
-    QString idAmodifier = ui->ComupTableWidget->item(row,2)->text();
-    QString req = "UPDATE " TBL_COMMENTAIRESLUNETTES
-            " SET TextComment = '" + Utils::correctquoteSQL(ui->upTextEdit->toPlainText()) +
-            "', ResumeComment = '" + Utils::correctquoteSQL(line->text().left(100)) +
-            "' WHERE  idCommentLunet = " + idAmodifier;
-    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") +  TBL_COMMENTAIRESLUNETTES);
-    Remplir_TableView();
-
-    if (ui->ComupTableWidget->rowCount() == 0)
-        ConfigMode(Creation);
-    else
+    UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_model->item(row,2));
+    if (!itmdef)
     {
-        ConfigMode(Selection);
-        QString resume = line->text();
-        for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(i,1));
-            if (line->text() == resume)
-            {
-                LineSelect(line->Row());
-                QModelIndex index = ui->ComupTableWidget->model()->index(line->Row(),1);
-                ui->ComupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-                QWidget *Widg =  dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
-                if (Widg)
-                {
-                    Widg->findChildren<UpCheckBox*>().at(0)->setChecked(true);
-                    OKButton->setEnabled(true);
-                }
-                break;
-            }
-        }
+        selectcurrentComment(com);
+        return;
     }
+    bool pardefaut = (itmdef->data(Qt::DecorationRole) != QPixmap());
+
+    QString resume = itm->text();
+    // recherche de l'enregistrement modifié
+    // controle validate des champs
+    if (ChercheDoublon(resume,row))
+    {
+        selectcurrentComment(com);
+        return;
+    }
+    m_listbinds[CP_TEXT_COMLUN]     = wdg_comtxt->toPlainText();
+    m_listbinds[CP_RESUME_COMLUN]   = m_model->item(row,1)->data(Qt::EditRole).toString();
+    m_listbinds[CP_IDUSER_COMLUN]   = com->iduser();
+    m_listbinds[CP_PARDEFAUT_COMLUN]= (pardefaut?  "1" : QVariant());
+    m_listbinds[CP_PUBLIC_COMLUN]   = QVariant();
+    if (m_mode == Creation)
+    {
+        delete  com;
+        m_currentcomment = Datas::I()->commentslunets->CreationCommentLunet(m_listbinds);
+        RemplirTableView();
+        selectcurrentComment(m_currentcomment);
+    }
+    else if (m_mode == Modification)
+    {
+        DataBase::I()->UpdateTable(TBL_COMMENTAIRESLUNETTES, m_listbinds, "where " CP_ID_COMLUN " = " + QString::number(com->id()));
+        m_currentcomment = Datas::I()->commentslunets->getById(com->id(), true);
+        QModelIndex idx = m_model->index(row, 1, QModelIndex());
+        m_model->setData(idx, m_currentcomment->resume());
+        m_model->sort(1);
+        wdg_tblview->scrollTo(idx, QAbstractItemView::EnsureVisible);
+    }
+
+    if (m_model->rowCount() > 0)
+        selectcurrentComment(com);
 }

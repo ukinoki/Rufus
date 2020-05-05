@@ -18,8 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_COMMENTAIRES_H
 #define DLG_COMMENTAIRES_H
 
-#include <QGraphicsOpacityEffect>
-
+#include "uptableview.h"
+#include "updelegate.h"
 #include "procedures.h"
 
 namespace Ui {
@@ -40,37 +40,37 @@ public:
 private:
     DataBase                    *db              = DataBase::I();
     User*                       currentuser() { return Datas::I()->users->userconnected(); }
-    QTimer                      *m_timerefface    = new QTimer(this);
 
     Mode                        m_mode;
+    UpTableView                 *wdg_tblview;
+    UpTextEdit                  *wdg_comtxt;
     WidgetButtonFrame           *wdg_buttonframe;
-
-    QGraphicsOpacityEffect      m_opacityeffect;
-    QString                     m_commentaire, m_commentaireresume;
+    QStandardItemModel          *m_model;
+    CommentLunet                *m_currentcomment = Q_NULLPTR;
+    QHash<QString, QVariant>    m_listbinds;
+    QString                     m_commentaire = "";
+    QString                     m_commentaireresume = "";
 
     void                        changeEvent(QEvent *e);
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
-    void                        ChoixMenuContextuel(QString);
-    void                        Del_Com();
-    void                        Modif_Com();
-    QString                     CalcToolTip(QString ab);
-    bool                        ChercheDoublon(QString str, int row);
-    void                        ConfigMode(Mode mode, int row = 0);
-    void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
-    void                        DisableLines();
-    void                        EnableLines();
-    void                        InsertCommentaire(int row);
-    void                        LineSelect(int row);
-    void                        UpdateCommentaire(int row);
-    void                        SupprimmCommentaire(int row);
-    void                        Remplir_TableView();
-
     void                        Annulation();
+    bool                        ChercheDoublon(QString str, int row);
     void                        ChoixButtonFrame();
-    void                        MenuContextuel(UpLineEdit *line);
+    void                        ChoixMenuContextuel(QString);
+    void                        ConfigMode(Mode mode, CommentLunet *com = Q_NULLPTR);
     void                        dblClicktextEdit();
-    void                        EnableOKPushbutton();
+    void                        DisableLines();
+    void                        Enablebuttons(QModelIndex idx);
+    void                        EnableLines();
+    void                        EnregistreCommentaire(CommentLunet *com);
+    CommentLunet*               getCommentFromIndex(QModelIndex idx);
+    int                         getRowFromComment(CommentLunet *com);
+    void                        MenuContextuel();
+    void                        RemplirTableView();
+    void                        selectcurrentComment(CommentLunet *com);
+    void                        setCommentToRow(CommentLunet *com, int row);
+    void                        SupprimmCommentaire(CommentLunet *com);
     void                        Validation();
 };
 
