@@ -35,7 +35,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     wdg_villeCP                 ->move(10,156);
     m_nommanufacturer           = "";
     wdg_buttonframe         = new WidgetButtonFrame(ui->commercialsupTableView);
-    wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe         ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     dlglayout()     ->insertWidget(0,wdg_buttonframe->widgButtonParent());
     dlglayout()     ->insertWidget(0,ui->Principalframe);

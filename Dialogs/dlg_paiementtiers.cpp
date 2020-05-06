@@ -1590,7 +1590,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
                     if (trs)
                     {
                         ReconstruitListeTiers();
-                        qDebug() << "trs = " << trs->nom() << trs->id();
+                        //qDebug() << "trs = " << trs->nom() << trs->id();
                         ui->TiersupComboBox->setCurrentIndex(ui->TiersupComboBox->findData(trs->id()));
                     }
                 }

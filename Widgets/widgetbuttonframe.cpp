@@ -26,7 +26,7 @@ WidgetButtonFrame::WidgetButtonFrame(QAbstractItemView *proprio)
     setStyleSheet("border-style: none;");
 }
 
-void WidgetButtonFrame::AddButtons(Buttons Butt)
+void WidgetButtonFrame::AddButtons(Buttons butt)
 {
     wdg_plusBouton  = new UpSmallButton("", this);
     wdg_moinsBouton = new UpSmallButton("", this);
@@ -73,25 +73,32 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
     widg_parent  ->setLayout(vlay);
 
     int a = 0;
-    if (Butt.testFlag(WidgetButtonFrame::PlusButton))
+    if (butt.testFlag(Plus))
     {
         wdg_plusBouton->setVisible(true);
         ilay->addWidget(wdg_plusBouton);
         a++;
     }
-    if (Butt.testFlag(WidgetButtonFrame::ModifButton))
+    if (butt.testFlag(Modifier))
     {
         wdg_modifBouton->setVisible(true);
         ilay->addWidget(wdg_modifBouton);
         a++;
     }
-    if (Butt.testFlag(WidgetButtonFrame::MoinsButton))
+    if (butt.testFlag(Moins))
     {
         wdg_moinsBouton->setVisible(true);
         ilay->addWidget(wdg_moinsBouton);
         a++;
     }
     setFixedSize(larg*a, larg);
+}
+
+void WidgetButtonFrame::enableButtons(Buttons butt)
+{
+    wdg_plusBouton->setEnabled(butt.testFlag(Plus));
+    wdg_moinsBouton->setEnabled(butt.testFlag(Moins));
+    wdg_modifBouton->setEnabled(butt.testFlag(Modifier));
 }
 
 void WidgetButtonFrame::replace()

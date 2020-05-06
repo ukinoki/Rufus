@@ -27,7 +27,7 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     wdg_tblview = new UpTableView();
     wdg_comtxt = new UpTextEdit();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
-    wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     CancelButton    ->disconnect();
@@ -111,10 +111,24 @@ void dlg_listecommentaires::Annulation()
     if (m_mode == Creation || m_mode == Modification)
     {
         wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        m_currentcomment = Q_NULLPTR;
-        if (wdg_tblview->selectionModel()->hasSelection())
-            m_currentcomment = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
-        RemplirTableView();
+        int row = getRowFromComment(m_currentcomment);
+        if (m_mode == Modification && row < m_model->rowCount())
+        {
+            m_model->setData(m_model->index(row,1), m_currentcomment->resume());
+            ConfigMode(Selection, m_currentcomment);
+        }
+        else if (m_mode == Creation && m_currentcomment)
+        {
+            RemplirTableView();
+            delete m_currentcomment;
+            if(m_model->rowCount() > 0 && row < m_model->rowCount())
+            {
+                wdg_tblview->setCurrentIndex(m_model->index(row,1));
+                m_currentcomment = getCommentFromIndex(m_model->index(row,1));
+            }
+        }
+        else
+            RemplirTableView();
     }
     else
         reject();
@@ -166,7 +180,7 @@ bool dlg_listecommentaires::ChercheDoublon(QString str, int row)
 void dlg_listecommentaires::ChoixButtonFrame()
 {
     CommentLunet *com = Q_NULLPTR;
-    if (wdg_tblview->selectionModel()->selectedIndexes().size())
+    if (wdg_tblview->selectionModel()->hasSelection())
         com = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
@@ -205,12 +219,12 @@ void dlg_listecommentaires::ChoixMenuContextuel(QString choix)
 void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
 {
     m_mode = mode;
-    wdg_comtxt->setVisible               (m_mode != Selection);
+    wdg_comtxt->setVisible (m_mode != Selection);
+    wdg_buttonframe->setEnabled(m_mode == Selection);
 
     if (mode == Selection)
     {
         EnableLines();
-        wdg_buttonframe->setEnabled(true);
         wdg_tblview->setEnabled(true);
         wdg_tblview->setFocus();
         wdg_tblview->setStyleSheet("");
@@ -224,6 +238,8 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
         CancelButton->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
         CancelButton->setImmediateToolTip(tr("Annuler et fermer la fiche"));
         OKButton->setImmediateToolTip(tr("Imprimer\nla sélection"));
+        if (com)
+            selectcurrentComment(com);
 
         int nbCheck = 0;
         for (int i =0 ; i < m_model->rowCount(); i++)
@@ -251,7 +267,10 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
                     if (coms == com)
                     {
                         m_model->item(i,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+                        wdg_tblview->setFocus();
                         wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+                        wdg_tblview->setCurrentIndex(m_model->index(i,1));
+                        wdg_tblview->openPersistentEditor(m_model->index(i,1));
                         wdg_comtxt->setText(com->texte());
                         i = m_model->rowCount();
                     }
@@ -259,7 +278,6 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
         }
         wdg_tblview->setEnabled(true);
         wdg_tblview->setStyleSheet("");
-        wdg_buttonframe->setEnabled(false);
         wdg_comtxt->setFocusPolicy(Qt::WheelFocus);
         wdg_comtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
 
@@ -276,14 +294,16 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
         if (com)
             row = getRowFromComment(com);
         m_model->insertRow(row);
-        CommentLunet *com = new CommentLunet();
-        com->setresume(tr("Nouveau Commentaire"));
-        com->setiduser(currentuser()->id());
-        setCommentToRow(com, row);
+        m_currentcomment = new CommentLunet();
+        m_currentcomment->setresume(tr("Nouveau Commentaire"));
+        m_currentcomment->setiduser(currentuser()->id());
+        setCommentToRow(m_currentcomment, row);
         m_model->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        wdg_tblview->scrollTo(m_model->index(row,1), QAbstractItemView::EnsureVisible);
         wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+        wdg_tblview->setCurrentIndex(m_model->index(row,1));
+        wdg_tblview->openPersistentEditor(m_model->index(row,1));
 
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
         wdg_comtxt->clear();
         wdg_comtxt->setEnabled(true);
         wdg_comtxt->setFocusPolicy(Qt::WheelFocus);
@@ -398,19 +418,13 @@ void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
     {
         delete  com;
         m_currentcomment = Datas::I()->commentslunets->CreationCommentLunet(m_listbinds);
-        RemplirTableView();
-        selectcurrentComment(m_currentcomment);
     }
     else if (m_mode == Modification)
     {
         DataBase::I()->UpdateTable(TBL_COMMENTAIRESLUNETTES, m_listbinds, "where " CP_ID_COMLUN " = " + QString::number(com->id()));
         m_currentcomment = Datas::I()->commentslunets->getById(com->id(), true);
-        QModelIndex idx = m_model->index(row, 1, QModelIndex());
-        m_model->setData(idx, m_currentcomment->resume());
-        m_model->sort(1);
-        wdg_tblview->scrollTo(idx, QAbstractItemView::EnsureVisible);
     }
-
+    RemplirTableView();
     if (m_model->rowCount() > 0)
         selectcurrentComment(com);
 }
@@ -537,24 +551,25 @@ void dlg_listecommentaires::RemplirTableView()
         wdg_tblview->FixLargeurTotale();
         wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
         ConfigMode(Selection);
-        connect(wdg_tblview,     &QAbstractItemView::entered,                this,   [=] (QModelIndex idx) {
+        connect(wdg_tblview,     &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
                                                                                                             CommentLunet *com = getCommentFromIndex(idx);
                                                                                                             if (com)
                                                                                                                 QToolTip::showText(cursor().pos(),com->tooltip());
                                                                                                             } );
-        connect(wdg_tblview,     &QAbstractItemView::doubleClicked,          this,   [=] (QModelIndex idx) {
+        connect(wdg_tblview,     &QAbstractItemView::doubleClicked,         this,   [=] (QModelIndex idx) {
                                                                                                             CommentLunet *com = getCommentFromIndex(idx);
                                                                                                             if (com)
                                                                                                             {
                                                                                                                 m_currentcomment = com;
-                                                                                                                if(com->iduser() == currentuser()->id())
+                                                                                                                if(com->iduser() == currentuser()->id() && m_mode == Selection)
                                                                                                                     ConfigMode(Modification,m_currentcomment);
                                                                                                             }
                                                                                                           });
-        connect (wdg_tblview,    &QWidget::customContextMenuRequested,       this,   &dlg_listecommentaires::MenuContextuel);
+        connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listecommentaires::MenuContextuel);
+        //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la tabnle n'a pas le focus et qu'elle n'a aucun item sélectionné
         connect (wdg_tblview->selectionModel(),
-                                 &QItemSelectionModel::currentRowChanged,    this,   &dlg_listecommentaires::Enablebuttons);
-        connect(wdg_tblview,     &QAbstractItemView::clicked,                this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
+                                 &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {Enablebuttons(select.indexes().at(0));});
+        connect(wdg_tblview,     &QAbstractItemView::clicked,               this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
                                                                                                             QStandardItem *itm = m_model->itemFromIndex(idx);
                                                                                                             if(itm->isCheckable() && itm->checkState() == Qt::Checked)
                                                                                                                 OKButton->setEnabled(true);
@@ -574,6 +589,8 @@ void dlg_listecommentaires::RemplirTableView()
                                                                                                                 OKButton->setEnabled(ok);
                                                                                                             }
                                                                                                            });
+        m_currentcomment = Q_NULLPTR;
+        wdg_tblview->selectionModel()->clearCurrentIndex();
     }
     else
         ConfigMode(Creation);
@@ -596,9 +613,11 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com)
             if (coms)
                 if (com == coms)
                 {
-                    wdg_tblview->selectionModel()->setCurrentIndex(m_model->index(i,1),QItemSelectionModel::Select);
+                    QModelIndex idx = m_model->index(i,1);
+                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    wdg_tblview->scrollTo(idx, QAbstractItemView::PositionAtCenter);
                     OKButton->setEnabled(true);
-                    Enablebuttons(wdg_tblview->selectionModel()->currentIndex());
+                    Enablebuttons(idx);
                     break;
                 }
         }

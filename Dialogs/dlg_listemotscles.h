@@ -34,7 +34,7 @@ public:
 private:
     DataBase            *db = DataBase::I();
     Patient             *m_currentpatient = Datas::I()->patients->currentpatient();
-    Mode                        m_mode;
+    Mode                m_mode;
     QList<int>          m_listidmotsclesdepart;
     UpTableView         *wdg_tblview;
     WidgetButtonFrame   *wdg_buttonframe;
@@ -42,8 +42,9 @@ private:
     UpDialog            *dlg_ask;
     QStandardItemModel  *m_model = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
-    MotCle              *m_currentmotcle;
+    MotCle              *m_currentmotcle = Q_NULLPTR;
 
+    void                keyPressEvent   (QKeyEvent * event );
     void                Annulation();
     bool                ChercheDoublon(QString str, int row);
     void                ChoixButtonFrame();
@@ -51,7 +52,7 @@ private:
     void                ConfigMode(Mode mode, MotCle *mc = Q_NULLPTR);
     void                DisableLines();
     void                Enablebuttons(QModelIndex idx);
-    void                EnableLines();
+    void                EnableLines(int row = -1);
     void                EnregistreMotCle(MotCle *mc);
     MotCle*             getMotCleFromIndex(QModelIndex idx);
     int                 getRowFromMotCle(MotCle *mc);

@@ -56,13 +56,13 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     choixmedecinLay     ->setContentsMargins(0,0,0,0);
 
     wdg_buttonsessionsframe     = new WidgetButtonFrame(wdg_sessionstreeView);
-    wdg_buttonsessionsframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonsessionsframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect (wdg_buttonsessionsframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixSessionFrame);
     wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(false);
     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(false);
 
     wdg_buttoninterventionframe     = new WidgetButtonFrame(wdg_interventionstreeView);
-    wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttoninterventionframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_lblinterventions = new UpLabel();
     wdg_buttoninterventionframe->layButtons()->insertWidget(0, wdg_lblinterventions);
     connect (wdg_buttoninterventionframe,   &WidgetButtonFrame::choix,  this,   &dlg_programmationinterventions::ChoixInterventionFrame);

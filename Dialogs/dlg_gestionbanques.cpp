@@ -68,7 +68,7 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
         wdg_bigtable->horizontalHeader()->setFixedHeight(hautrow);
 
         wdg_buttonframe = new WidgetButtonFrame(wdg_bigtable);
-        wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+        wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
         /*
         widgButtons->widgButtonParent()->setGeometry(10,10,larg, haut + widgButtons->height());
         widgButtons->widgButtonParent()->sizePolicy().setVerticalStretch(10);

@@ -24,7 +24,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
 
     wdg_tblview = new UpTableView();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
-    wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
@@ -62,6 +62,19 @@ dlg_listemotscles::~dlg_listemotscles()
     EnregistrePosition();
 }
 
+void dlg_listemotscles::keyPressEvent(QKeyEvent * event )
+{
+    switch (event->key()) {
+    case Qt::Key_Escape:
+    {
+        Annulation();
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 // ----------------------------------------------------------------------------------
 // Clic sur le bouton ANNULER.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
@@ -71,10 +84,26 @@ void dlg_listemotscles::Annulation()
     if (m_mode == Creation || m_mode == Modification)
     {
         wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        m_currentmotcle = Q_NULLPTR;
-        if (wdg_tblview->selectionModel()->hasSelection())
-            m_currentmotcle = getMotCleFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
-        RemplirTableView();
+        int row = getRowFromMotCle(m_currentmotcle);
+        if (m_mode == Modification && row < m_model->rowCount())
+        {
+            RemplirTableView();
+//            m_model->setData(m_model->index(row,1),m_currentmotcle->motcle());
+//            wdg_tblview->closePersistentEditor(m_model->index(row,1));
+            ConfigMode(Selection, m_currentmotcle);
+        }
+        else if (m_mode == Creation && m_currentmotcle)
+        {
+            RemplirTableView();
+            delete m_currentmotcle;
+            if(m_model->rowCount() > 0 && row < m_model->rowCount())
+            {
+                wdg_tblview->setCurrentIndex(m_model->index(row,1));
+                m_currentmotcle = getMotCleFromIndex(m_model->index(row,1));
+            }
+        }
+        else
+            RemplirTableView();
     }
     else
         reject();
@@ -100,8 +129,7 @@ bool dlg_listemotscles::ChercheDoublon(QString str, int row)
                     if (com->motcle().toUpper() == str.toUpper() && i != row)
                     {
                         a = true;
-                        QString comment = tr("Il existe déjà un mot-clé portant ce nom");
-                        UpMessageBox::Watch(this, comment);
+                        UpMessageBox::Watch(this, tr("Il existe déjà un mot-clé portant ce nom"));
                         break;
                     }
                 }
@@ -117,6 +145,9 @@ bool dlg_listemotscles::ChercheDoublon(QString str, int row)
 
 void dlg_listemotscles::ChoixButtonFrame()
 {
+    MotCle *mc = Q_NULLPTR;
+    if (wdg_tblview->selectionModel()->hasSelection())
+        mc = getMotCleFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         ConfigMode(Creation, m_currentmotcle);
@@ -146,12 +177,11 @@ void dlg_listemotscles::ChoixMenuContextuel(QString choix)
 void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
 {
     m_mode = mode;
+    wdg_buttonframe->setEnabled(m_mode == Selection);
 
     if (mode == Selection)
     {
         EnableLines();
-        wdg_buttonframe->setEnabled(true);
-        wdg_tblview->setEnabled(true);
         wdg_tblview->setFocus();
         wdg_tblview->setStyleSheet("");
         wdg_buttonframe->wdg_modifBouton->setEnabled(false);
@@ -160,6 +190,8 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
         CancelButton->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
         CancelButton->setImmediateToolTip(tr("Annuler et fermer la fiche"));
         OKButton->setImmediateToolTip(tr("Imprimer\nla sélection"));
+        if (mc)
+            selectcurrentMotCle(mc);
 
         int nbCheck = 0;
         for (int i =0 ; i < m_model->rowCount(); i++)
@@ -187,15 +219,14 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
                     if (mcs == mc)
                     {
                         m_model->item(i,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+                        wdg_tblview->setFocus();
                         wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+                        wdg_tblview->setCurrentIndex(m_model->index(i,1));
+                        wdg_tblview->openPersistentEditor(m_model->index(i,1));
                         i = m_model->rowCount();
                     }
             }
         }
-        wdg_tblview->setEnabled(true);
-        wdg_tblview->setStyleSheet("");
-        wdg_buttonframe->setEnabled(false);
-
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
         CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de commentaire"));
         OKButton->setImmediateToolTip(tr("Enregistrer"));
@@ -209,14 +240,14 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
         if (mc)
             row = getRowFromMotCle(mc);
         m_model->insertRow(row);
-        MotCle *nmc = new MotCle();
-        nmc->setmotcle(tr("Nouveau mot-clé"));
-        setMotCleToRow(nmc, row);
+        m_currentmotcle = new MotCle();
+        m_currentmotcle->setmotcle(tr("Nouveau mot-clé"));
+        setMotCleToRow(m_currentmotcle, row);
         m_model->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         wdg_tblview->scrollTo(m_model->index(row,1), QAbstractItemView::EnsureVisible);
         wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
-
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+        wdg_tblview->setCurrentIndex(m_model->index(row,1));
+        wdg_tblview->openPersistentEditor(m_model->index(row,1));
 
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
         CancelButton->setEnabled(true);
@@ -249,12 +280,12 @@ void dlg_listemotscles::Enablebuttons(QModelIndex idx)
     bool isused = false;
     if (m_currentmotcle && m_currentpatient)
         isused = Datas::I()->motscles->isThisMCusedForOtherPatients(m_currentmotcle, m_currentpatient->id());
-    wdg_buttonframe->wdg_moinsBouton->setEnabled(isused);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(!isused);
 }
 
-void dlg_listemotscles::EnableLines()
+void dlg_listemotscles::EnableLines(int row)
 {
-    for (int i=0; i<m_model->rowCount(); i++)
+    auto enableline = [=] (int i)
     {
         QStandardItem *itm = m_model->item(i,0);
         if (itm)
@@ -262,7 +293,12 @@ void dlg_listemotscles::EnableLines()
         QStandardItem *itm1 = m_model->item(i,1);
         if (itm1)
             itm1->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    }
+    };
+    if (row == -1)
+        for (int i=0; i<m_model->rowCount(); i++)
+            enableline(i);
+    else
+        enableline(row);
 }
 
 // ----------------------------------------------------------------------------------
@@ -278,7 +314,7 @@ void dlg_listemotscles::EnregistreMotCle(MotCle *mc)
         return;
     }
 
-    QString motcle = m_model->item(row,1)->data(Qt::EditRole).toString();
+    QString motcle = Utils::trimcapitilize(m_model->item(row,1)->data(Qt::EditRole).toString());
     // recherche de l'enregistrement modifié
     // controle validate des champs
     if (ChercheDoublon(motcle,row))
@@ -291,21 +327,15 @@ void dlg_listemotscles::EnregistreMotCle(MotCle *mc)
     {
         delete mc;
         m_currentmotcle = Datas::I()->motscles->CreationMotCle(m_listbinds);
-        RemplirTableView();
-        selectcurrentMotCle(m_currentmotcle);
     }
     else if (m_mode == Modification)
     {
         DataBase::I()->UpdateTable(TBL_MOTSCLES, m_listbinds, "where " CP_ID_MOTCLE " = " + QString::number(mc->id()));
         m_currentmotcle = Datas::I()->motscles->getById(mc->id(), true);
-        QModelIndex idx = m_model->index(row, 1, QModelIndex());
-        m_model->setData(idx, m_currentmotcle->motcle());
-        m_model->sort(1);
-        wdg_tblview->scrollTo(idx, QAbstractItemView::EnsureVisible);
     }
-
+    RemplirTableView();
     if (m_model->rowCount() > 0)
-        selectcurrentMotCle(mc);
+        selectcurrentMotCle(m_currentmotcle);
 }
 
 MotCle* dlg_listemotscles::getMotCleFromIndex(QModelIndex idx)
@@ -415,22 +445,10 @@ void dlg_listemotscles::RemplirTableView()
         wdg_tblview->FixLargeurTotale();
         wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
         ConfigMode(Selection);
-        connect(wdg_tblview,     &QAbstractItemView::doubleClicked,        this,
-        [=] (QModelIndex idx)
-        {
-            MotCle *mc = getMotCleFromIndex(idx);
-            if (mc)
-            {
-                m_currentmotcle = mc;
-                ConfigMode(Modification, m_currentmotcle);
-            }
-        });
-        connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listemotscles::MenuContextuel);
-        connect(wdg_tblview->selectionModel(),
-                &QItemSelectionModel::currentChanged,       this,   &dlg_listemotscles::Enablebuttons);
-        connect(wdg_tblview,    &QAbstractItemView::clicked,                this,
-        [=] (QModelIndex idx)
-        {// le bouton OK est enabled quand une case est cochée
+        connect (wdg_tblview,                   &QWidget::customContextMenuRequested,   this,   &dlg_listemotscles::MenuContextuel);
+        //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la tabnle n'a pas le focus et qu'elle n'a aucun item sélectionné
+        connect (wdg_tblview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] (QItemSelection select) {Enablebuttons(select.indexes().at(0));});
+        connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
             QStandardItem *itm = m_model->itemFromIndex(idx);
             if(itm->isCheckable() && itm->checkState() == Qt::Checked)
                 OKButton->setEnabled(true);
@@ -450,6 +468,16 @@ void dlg_listemotscles::RemplirTableView()
                 OKButton->setEnabled(ok);
             }
         });
+        connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) {
+            MotCle *mc = getMotCleFromIndex(idx);
+            if (mc)
+            {
+                m_currentmotcle = mc;
+                if (m_mode == Selection)
+                    ConfigMode(Modification, m_currentmotcle);
+            }
+        });
+        wdg_tblview->selectionModel()->clearSelection();
     }
     else
         ConfigMode(Creation);
@@ -472,9 +500,11 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc)
             if (mcs)
                 if (mcs == mc)
                 {
-                    wdg_tblview->selectionModel()->setCurrentIndex(m_model->index(i,1),QItemSelectionModel::Select);
+                    QModelIndex idx = m_model->index(i,1);
+                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    wdg_tblview->scrollTo(idx, QAbstractItemView::PositionAtCenter);
                     OKButton->setEnabled(true);
-                    Enablebuttons(wdg_tblview->selectionModel()->currentIndex());
+                    Enablebuttons(idx);
                     break;
                 }
         }

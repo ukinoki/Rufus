@@ -48,7 +48,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     setAttribute(Qt::WA_DeleteOnClose);
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->ComptesuptableWidget);
-    wdg_buttonframe             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe             ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_nouvbanqupsmallbutton    = new UpSmallButton();
     wdg_nouvbanqupsmallbutton    ->setText(tr("Gestion des organismes bancaires"));
     wdg_nouvbanqupsmallbutton    ->setIcon(Icons::icEuroCount());

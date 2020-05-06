@@ -40,7 +40,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     AjouteLayButtons(UpDialog::ButtonClose);
 
     wdg_buttonframe = new WidgetButtonFrame(ui->ListUserstableWidget);
-    wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     QVBoxLayout *usrLayout = new QVBoxLayout;
     usrLayout        ->addWidget(wdg_buttonframe->widgButtonParent());

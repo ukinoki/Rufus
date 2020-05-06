@@ -27,7 +27,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     map_motifs = Datas::I()->motifs->motifs();
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
-    wdg_buttonframe             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe             ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Moins);
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                ->setText(tr("Enregistrer\nles modifications"));

@@ -34,7 +34,7 @@ dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)
     Datas::I()->sites->initListe();
     ReconstruitModel();
     wdg_buttonframe = new WidgetButtonFrame(wdg_bigtable);
-    wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_bigtable->selectionModel(), &QItemSelectionModel::currentRowChanged,    this,   &dlg_GestionLieux::AfficheDetails);
     wdg_bigtable->selectRow(0);
 

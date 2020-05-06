@@ -34,15 +34,15 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->SQLPortPostecomboBox    ->addItems(ports);
 
     wdg_appareilswdgbuttonframe                     = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
-    wdg_appareilswdgbuttonframe                     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    wdg_appareilswdgbuttonframe                     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Moins);
     connect(wdg_appareilswdgbuttonframe,            &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_appareilswdgbuttonframe);});
 
     wdg_HNcotationswdgbuttonframe                   = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
-    wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_HNcotationswdgbuttonframe,          &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_HNcotationswdgbuttonframe);});
 
     wdg_assocCCAMcotationswdgbuttonframe            = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
-    wdg_assocCCAMcotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_assocCCAMcotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_assocCCAMcotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_assocCCAMcotationswdgbuttonframe);});
 
     wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);

@@ -40,7 +40,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_itemstree ->header()->setVisible(false);
 
     wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
-    wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe         ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     wdg_label               = new UpLabel();
     wdg_label               ->setFixedSize(21,21);

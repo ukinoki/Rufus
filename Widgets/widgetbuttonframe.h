@@ -32,7 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * on peut rajouter des QWidget dans ce layout qui est accessible par la fonction laybuttons()
  * Elle s'utilise comme ça
         wdg_buttonframe     = new WidgetButtonFrame(ui->ComupTableWidget);
-        wdg_buttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+        wdg_buttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
         wdg_buttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
         wdg_buttonframe     ->layButtons()->insertWidget(0, ui->label);
         this->dlglayout()   ->insertWidget(0,wdg_buttonframe->widgButtonParent());
@@ -59,16 +59,15 @@ class WidgetButtonFrame : public QFrame
     Q_OBJECT
 public:
     WidgetButtonFrame(QAbstractItemView *proprio=Q_NULLPTR);
-    enum Button {
-                NoButton                = 0x0,
-                PlusButton              = 0x1,
-                MoinsButton             = 0x2,
-                ModifButton             = 0x4
+    enum Bouton {
+                Plus             = 0x1,
+                Moins            = 0x2,
+                Modifier         = 0x4
                 };
-    Q_ENUM(Button)
-    Q_DECLARE_FLAGS(Buttons, Button)
-    enum Bouton {Plus, Modifier, Moins}; Q_ENUM(Bouton)
-    void            AddButtons(Buttons);
+    Q_ENUM(Bouton)
+    Q_DECLARE_FLAGS(Buttons, Bouton)
+    void            AddButtons(Buttons butt);
+    void            enableButtons(Buttons Butt);
     void            replace();
     UpSmallButton   *wdg_plusBouton;
     UpSmallButton   *wdg_moinsBouton;

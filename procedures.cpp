@@ -2966,7 +2966,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     QString req = "insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "', '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "')";
     db->StandardSQL (req);
     // Création du permier utilisateur dans la table utilisateurs
-    qDebug() << req;
+    //qDebug() << req;
     m_idcentre               = 1;
     m_usecotation            = true;
     Datas::I()->banques->initListe();

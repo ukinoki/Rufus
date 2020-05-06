@@ -40,11 +40,11 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
-    wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
     wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->label);
     wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableWidget);
-    wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
