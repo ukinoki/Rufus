@@ -32,9 +32,7 @@ private:
     bool                    m_listemodifiee = false;
 
     QStandardItemModel      *m_correspondantsmodel = Q_NULLPTR;
-    UpLabel                 *wdg_label;
     QTreeView               *wdg_itemstree;
-    UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
 
     void                    ChoixButtonFrame();

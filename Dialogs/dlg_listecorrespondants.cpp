@@ -43,30 +43,22 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     wdg_buttonframe         = new WidgetButtonFrame(wdg_itemstree);
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
-    wdg_label               = new UpLabel();
-    wdg_label               ->setFixedSize(21,21);
-    wdg_label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
-    wdg_chercheuplineedit   = new UpLineEdit();
-    wdg_chercheuplineedit   ->setFixedSize(140,25);
-    wdg_chercheuplineedit   ->setStyleSheet(
-    "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
-    "UpLineEdit:focus {border: 2px solid rgb(164, 205, 255);border-radius: 10px;}");
-    wdg_buttonframe->layButtons()->insertWidget(0,wdg_label);
-    wdg_buttonframe->layButtons()->insertWidget(0,wdg_chercheuplineedit);
+    wdg_buttonframe->addSearchLine();
     AjouteLayButtons(UpDialog::ButtonOK);
+
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
     setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
-    connect(OKButton,               &QPushButton::clicked,      this,   &QDialog::reject);
-    connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
-                                                                                                    wdg_chercheuplineedit->setText(txt);
+    connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::reject);
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+                                                                                                    wdg_buttonframe->searchline()->setText(txt);
                                                                                                     ReconstruitTreeViewCorrespondants(false, txt);});
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listecorrespondants::ChoixButtonFrame);
 
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
-    wdg_chercheuplineedit               ->setFocus();
+    wdg_buttonframe->searchline()       ->setFocus();
 }
 
 dlg_listecorrespondants::~dlg_listecorrespondants()

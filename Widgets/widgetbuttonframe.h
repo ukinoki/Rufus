@@ -22,6 +22,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upsmallbutton.h"
 #include <QAbstractItemView>
 #include <QLayout>
+#include "uplabel.h"
+#include "uplineedit.h"
 
 
 /*!
@@ -75,12 +77,16 @@ public:
     QWidget*        widgButtonParent() const;
     QHBoxLayout*    layButtons() const;
     Bouton          Choix() const;
+    void            addSearchLine();
+    UpLineEdit*     searchline() const { return wdg_chercheuplineedit; }
 
 private:
     Bouton           m_reponse;
     QWidget         *wdg_proprio, *widg_parent;
     QHBoxLayout     *wdg_buttonwidglayout;
     void            Choix(int id);
+    UpLabel         *wdg_label;
+    UpLineEdit      *wdg_chercheuplineedit;
 
 signals:
     void            choix();

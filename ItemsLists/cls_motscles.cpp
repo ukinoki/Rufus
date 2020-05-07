@@ -61,6 +61,18 @@ void MotsCles::initListe()
     addList(map_motscles, &listMotsCles, Item::Update);
 }
 
+QCompleter* MotsCles::completer()
+{
+    QStandardItemModel *model = new QStandardItemModel();
+    foreach (MotCle *mc, map_motscles->values())
+        model->appendRow(new QStandardItem(mc->motcle()));
+    model->sort(0);
+    m_completer->setModel(model);
+    m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+    m_completer->setCompletionMode(QCompleter::InlineCompletion);
+    return m_completer;
+}
+
 void MotsCles::SupprimeMotCle(MotCle* motcle)
 {
     Supprime(map_motscles, motcle);

@@ -20,11 +20,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_motcle.h"
 #include "cls_itemslist.h"
+#include <QCompleter>
 
 class MotsCles : ItemsList
 {
 private:
     QMap<int, MotCle*> *map_motscles = Q_NULLPTR;    //!< la liste des motcles
+    QCompleter *m_completer= new QCompleter();
 
 public:
     explicit MotsCles(QObject *parent = Q_NULLPTR);
@@ -33,6 +35,7 @@ public:
 
     MotCle* getById(int id, bool reload = false);
     void initListe();
+    QCompleter* completer();
 
     //!> actions sur les enregistrements
     void          SupprimeMotCle(MotCle *motcle);

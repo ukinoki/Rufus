@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("06-05-2020/1");
+    qApp->setApplicationVersion("07-05-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2922,9 +2922,7 @@ void Rufus::RechercheParID()
 
 void Rufus::RechercheParMotCle()
 {
-    QString req = "select idmotcle, motcle from " TBL_MOTSCLES " order by motcle";
-    QList<QVariantList> listmotscle = db->StandardSelectSQL(req, m_ok);
-    if (!m_ok || listmotscle.size()==0)
+    if (Datas::I()->motscles->motscles()->size() == 0)
     {
         UpMessageBox::Watch(this, tr("Aucun mot clé défini dans la base"), tr("Recherche impossible"));
         return;
@@ -2933,8 +2931,27 @@ void Rufus::RechercheParMotCle()
     dlg_rechParMotCle                 = new UpDialog();
     QTableView      *tabMC            = new QTableView(dlg_rechParMotCle);
     dlg_rechParMotCle->dlglayout()    ->insertWidget(0,tabMC);
-    dlg_rechParMotCle                 ->AjouteLayButtons();
-    connect(dlg_rechParMotCle->OKButton,  &QPushButton::clicked,  this, &Rufus::AfficheDossiersRechercheParMotCle);
+    dlg_rechParMotCle                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_rechParMotCle                 ->addSearchLine();
+    connect(dlg_rechParMotCle->OKButton,        &QPushButton::clicked,  this, &Rufus::AfficheDossiersRechercheParMotCle);
+    connect(dlg_rechParMotCle->CancelButton,    &QPushButton::clicked,  dlg_rechParMotCle, &QDialog::reject);
+    connect(dlg_rechParMotCle->searchline(),    &QLineEdit::textEdited, this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+                                                                                                    dlg_rechParMotCle->searchline()->setText(txt);
+                                                                                                    QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(tabMC->model());
+                                                                                                    if (model)
+                                                                                                    for (int i=0; i<model->rowCount();++i)
+                                                                                                    {
+                                                                                                        QStandardItem *itm = model->item(i);
+                                                                                                        if (itm->text().startsWith(txt))
+                                                                                                        {
+                                                                                                            QModelIndex idx = itm->index();
+                                                                                                            tabMC->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+                                                                                                            tabMC->setCurrentIndex(idx);
+                                                                                                            tabMC->selectRow(i);
+                                                                                                            break;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    });
 
     dlg_rechParMotCle ->setModal(true);
     dlg_rechParMotCle ->setWindowTitle(tr("Recherche de patients par mots clés"));
@@ -2951,35 +2968,45 @@ void Rufus::RechercheParMotCle()
     tabMC                   ->setSizeIncrement(0,hauteurligne);
     tabMC                   ->setMouseTracking(true);
 
-    QStandardItem      *pitem;
-    QStandardItemModel *modele =  new QStandardItemModel;
-    for (int i=0; i<listmotscle.size(); i++)
+    UpStandardItem      *pitem;
+    QStandardItemModel *model =  new QStandardItemModel;
+    foreach (MotCle *mc, Datas::I()->motscles->motscles()->values())
     {
-        pitem   = new QStandardItem(listmotscle.at(i).at(1).toString());
-        pitem   ->setAccessibleDescription(listmotscle.at(i).at(0).toString());
+        pitem   = new UpStandardItem(mc->motcle(), mc);
+        pitem   ->setEditable(false);
         pitem   ->setCheckable(true);
-        modele  ->appendRow(pitem);
+        model  ->appendRow(pitem);
     }
-    tabMC       ->setModel(modele);
-    for (int i=0; i<modele->rowCount(); i++)
+    model->sort(0);
+    tabMC       ->setModel(model);
+    for (int i=0; i<model->rowCount(); i++)
         tabMC   ->setRowHeight(i,hauteurligne);
     tabMC       ->setColumnWidth(0,300);
     tabMC       ->setFixedWidth(tabMC->columnWidth(0)+2);
     dlg_rechParMotCle->setFixedWidth(tabMC->width()
                         + dlg_rechParMotCle->dlglayout()->contentsMargins().left()*2);
+    dlg_rechParMotCle->searchline()->setFocus();
     dlg_rechParMotCle->exec();
     delete dlg_rechParMotCle;
 }
 
 void Rufus::AfficheDossiersRechercheParMotCle()
 {
-    QStringList listidMc;
+    QList<QVariant> listidMc;
     QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(dlg_rechParMotCle->findChildren<QTableView *>().at(0)->model());
     if (model==Q_NULLPTR)
         return;
     for (int i=0; i< model->rowCount(); i++)
         if(model->item(i,0)->checkState() == Qt::Checked)
-            listidMc << model->item(i,0)->accessibleDescription();
+        {
+            UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(model->item(i,0));
+            if (pitem)
+            {
+                MotCle *mc = dynamic_cast<MotCle*>(pitem->item());
+                if (mc)
+                    listidMc << mc->id();
+            }
+        }
     if (listidMc.size()==0)
     {
         UpMessageBox::Watch(this, tr("Vous n'avez sélectionné aucun mot clé"));
@@ -2992,9 +3019,9 @@ void Rufus::AfficheDossiersRechercheParMotCle()
                   " left outer join " TBL_MOTSCLES " msc"
                   " on mcjoin.idmotcle = msc.idmotcle"
                   " where mcjoin.idmotcle in (";
-    req += listidMc.at(0);
+    req += listidMc.at(0).toString();
     for (int i=1; i<listidMc.size(); i++)
-        req += ", " +listidMc.at(i);
+        req += ", " + listidMc.at(i).toString();
     req += ") order by patnom, patprenom";
     QList<QVariantList> listpats = db->StandardSelectSQL(req, m_ok);
     if (!m_ok || listpats.size()==0)
@@ -3153,7 +3180,7 @@ void Rufus::AfficheCourriersAFaire()
 
 void Rufus::ImprimeListPatients(QVariant var)
 {
-    QStringList listidMc = var.toStringList();
+    QVariantList listidMc = var.toList();
     if (listidMc.size()==0)
         return;
     bool AvecDupli   = false;
@@ -3164,9 +3191,9 @@ void Rufus::ImprimeListPatients(QVariant var)
     // Préparation de l'état "liste patients" dans un QplainTextEdit
     //--------------------------------------------------------------------
     QString req1 = "select motcle from " TBL_MOTSCLES " where idmotcle in(";
-    req1 += listidMc.at(0);
+    req1 += listidMc.at(0).toString();
     for (int i=1; i<listidMc.size(); i++)
-        req1 += ", " +listidMc.at(i);
+        req1 += ", " +listidMc.at(i).toString();
     req1 += ")";
     QList<QVariantList> titrlist = db->StandardSelectSQL(req1,m_ok);
     QString titre = tr("recherche de patients sur ");
@@ -3180,9 +3207,9 @@ void Rufus::ImprimeListPatients(QVariant var)
                   " left outer join " TBL_MOTSCLES " msc"
                   " on mcjoin.idmotcle = msc.idmotcle"
                   " where mcjoin.idmotcle in (";
-    req += listidMc.at(0);
+    req += listidMc.at(0).toString();
     for (int i=1; i<listidMc.size(); i++)
-        req += ", " +listidMc.at(i);
+        req += ", " +listidMc.at(i).toString();
     req += ") order by patnom, patprenom";
     QList<QVariantList> patlist = db->StandardSelectSQL(req,m_ok);
     int     gtotalNbreDossiers    = patlist.size();

@@ -23,7 +23,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include "upsmallbutton.h"
 #include "uppushbutton.h"
+#include "uplabel.h"
+#include "uplineedit.h"
 #include "macros.h"
+#include "icons.h"
 
 class UpDialog : public QDialog
 {
@@ -60,10 +63,13 @@ private:
     void            UpdateTabOrder();
     double          m_stageheight = 35;
     QObject*        obj_data;
+    UpLabel         *wdg_label;
+    UpLineEdit      *wdg_chercheuplineedit;
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton;
     void            setEnregPosition(bool);
+    void            addSearchLine();
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
     void            EnregistrePosition();
@@ -73,6 +79,7 @@ public:
     QVBoxLayout*    dlglayout();
     QHBoxLayout*    buttonslayout() const;
     QWidget*        widgetbuttons() const;
+    UpLineEdit*     searchline() const { return wdg_chercheuplineedit; }
     void            setStageCount(double stage =  0);
     QObject*        data() const { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }

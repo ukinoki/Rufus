@@ -622,7 +622,7 @@ void dlg_impressions::FiltreListe()
         if (!selectall && txt.toUpper().left(lgth) == txtachercher.toUpper())
         {
             dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(j,1))->selectAll();
-            selectall= true;
+            selectall = true;
         }
     }
 }

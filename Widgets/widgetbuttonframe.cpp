@@ -94,6 +94,20 @@ void WidgetButtonFrame::AddButtons(Buttons butt)
     setFixedSize(larg*a, larg);
 }
 
+void WidgetButtonFrame::addSearchLine()
+{
+    wdg_label               = new UpLabel();
+    wdg_label               ->setFixedSize(21,21);
+    wdg_label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
+    wdg_chercheuplineedit   = new UpLineEdit();
+    wdg_chercheuplineedit   ->setFixedSize(180,25);
+    wdg_chercheuplineedit   ->setStyleSheet(
+    "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
+    "UpLineEdit:focus {border: 2px solid rgb(164, 205, 255);border-radius: 10px;}");
+    wdg_buttonwidglayout->insertWidget(0,wdg_label);
+    wdg_buttonwidglayout->insertWidget(0,wdg_chercheuplineedit);
+}
+
 void WidgetButtonFrame::enableButtons(Buttons butt)
 {
     wdg_plusBouton->setEnabled(butt.testFlag(Plus));

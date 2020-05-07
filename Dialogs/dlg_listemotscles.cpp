@@ -25,6 +25,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     wdg_tblview = new UpTableView();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
+    wdg_buttonframe->addSearchLine();
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
@@ -51,10 +52,24 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_listemotscles::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_listemotscles::Annulation);
     connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_listemotscles::ChoixButtonFrame);
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+                                                                                                    wdg_buttonframe->searchline()->setText(txt);
+                                                                                                    for (auto it = Datas::I()->motscles->motscles()->constBegin(); it != Datas::I()->motscles->motscles()->constEnd(); ++it)
+                                                                                                    {
+                                                                                                        MotCle *mc = const_cast<MotCle*>(it.value());
+                                                                                                        if (mc->motcle().startsWith(txt))
+                                                                                                        {
+                                                                                                            selectcurrentMotCle(mc);
+                                                                                                            break;
+                                                                                                        }
+                                                                                                    }
+                                                                                                    });
 
     RemplirTableView();
+    wdg_buttonframe->searchline()->setCompleter(Datas::I()->motscles->completer());
     wdg_buttonframe->wdg_modifBouton->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+    wdg_buttonframe->searchline()->setFocus();
 }
 
 dlg_listemotscles::~dlg_listemotscles()
