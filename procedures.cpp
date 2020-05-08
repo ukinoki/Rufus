@@ -3100,7 +3100,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             "23260, "
             "'La Mazière', "
             "'O4 56 78 90 12', "
-            "'FFFFEE')";
+            "'000000')";
     //qDebug() << req;
     db->StandardSQL(req);
     req = "select " CP_ID_SITE " from " TBL_LIEUXEXERCICE;
