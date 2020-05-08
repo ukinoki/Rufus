@@ -270,10 +270,11 @@ public:
      * Sites
     */
 private:
-    QList<Site*>            loadSites(QString req);                     //! charge les sites de travail à partir de la requete req
+    QJsonObject             loadSiteData(QVariantList sitdata);
 public:
+    QList<Site*>            loadSites();                                //! charge tous les sites de travail
+    Site*                   loadSiteById(int id);                       //! charge un sites de travail à partir son id
     QList<int>              loadidSitesByUser(int idUser);              //! élabore la requête qui charge tous les sites de travail utilisés par un user
-    QList<Site*>            loadSitesAll();                             //! élabore la requête qui charge tous les sites de travail sans exception
 
 public:
     /*

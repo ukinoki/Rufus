@@ -98,13 +98,11 @@ void dlg_listemotscles::Annulation()
 {
     if (m_mode == Creation || m_mode == Modification)
     {
-        wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
         int row = getRowFromMotCle(m_currentmotcle);
+        wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
         if (m_mode == Modification && row < m_model->rowCount())
         {
             RemplirTableView();
-//            m_model->setData(m_model->index(row,1),m_currentmotcle->motcle());
-//            wdg_tblview->closePersistentEditor(m_model->index(row,1));
             ConfigMode(Selection, m_currentmotcle);
         }
         else if (m_mode == Creation && m_currentmotcle)
@@ -160,9 +158,6 @@ bool dlg_listemotscles::ChercheDoublon(QString str, int row)
 
 void dlg_listemotscles::ChoixButtonFrame()
 {
-    MotCle *mc = Q_NULLPTR;
-    if (wdg_tblview->selectionModel()->hasSelection())
-        mc = getMotCleFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         ConfigMode(Creation, m_currentmotcle);

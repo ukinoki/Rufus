@@ -25,20 +25,21 @@ class Site : public Item
     Q_OBJECT
 private:
     //Adresse de travail
-    QString m_nom;
-    QString m_adresse1;
-    QString m_adresse2;
-    QString m_adresse3;
-    int m_codePostal;
-    QString m_ville;
-    QString m_telephone;
-    QString m_fax;
-    QString m_couleur;
+    QString m_nom = "";
+    QString m_adresse1 = "";
+    QString m_adresse2 = "";
+    QString m_adresse3 = "";
+    int m_codePostal = 0;
+    QString m_ville = "";
+    QString m_telephone = "";
+    QString m_fax = "";
+    QString m_couleur = "";
 
 public:
     explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
+    void resetdatas();
 
     QString nom() const;
     QString adresse1() const;

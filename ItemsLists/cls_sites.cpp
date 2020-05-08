@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, Site *> *Sites::sites() const
 {
-    return map_sites;
+    return map_all;
 }
 
 /*!
@@ -31,7 +31,7 @@ QMap<int, Site *> *Sites::sites() const
  */
 Sites::Sites(QObject *parent) : ItemsList(parent)
 {
-    map_sites = new QMap<int, Site*>();
+    map_all = new QMap<int, Site*>();
 }
 
 /*!
@@ -40,13 +40,26 @@ Sites::Sites(QObject *parent) : ItemsList(parent)
  * \return Q_NULLPTR si aucun site trouvé
  * \return Site* le site correspondant à l'id
  */
-Site* Sites::getById(int id)
+Site* Sites::getById(int id, bool reload)
 {
-    QMap<int, Site*>::const_iterator itsit = map_sites->find(id);
-    Site *result = Q_NULLPTR;
-    if( itsit!= map_sites->constEnd() )
-        result = itsit.value();
-    return result;
+    QMap<int, Site*>::const_iterator itsit = map_all->find(id);
+    if(  itsit ==  map_all->constEnd() )
+    {
+        Site* sit = DataBase::I()->loadSiteById(id);
+        if (sit)
+            add(  map_all, sit, Item::Update );
+        return sit;
+    }
+    else if (reload)
+    {
+        Site* sit = DataBase::I()->loadSiteById(id);
+        if (sit)
+        {
+            itsit.value()->setData(sit->datas());
+            delete sit;
+        }
+    }
+    return  itsit.value();
 }
 
 
@@ -60,9 +73,9 @@ void Sites::initListe()
     int id = 0;
     if (m_currentsite != Q_NULLPTR)
         id = m_currentsite->id();
-    QList<Site*> listsites = DataBase::I()->loadSitesAll();
-    epurelist(map_sites, &listsites);
-    addList(map_sites, &listsites);
+    QList<Site*> listsites = DataBase::I()->loadSites();
+    epurelist(map_all, &listsites);
+    addList(map_all, &listsites);
     m_currentsite = (id>0? getById(id) : Q_NULLPTR);
 }
 
@@ -79,3 +92,51 @@ QList<Site*> Sites::initListeByUser(int idusr)
             listsites << getById(id);
     return listsites;
 }
+
+void Sites::SupprimeSite(Site* man)
+{
+    Supprime(map_all, man);
+}
+
+Site* Sites::CreationSite(QHash<QString, QVariant> sets)
+{
+    Site *sit = Q_NULLPTR;
+    int idSite = 0;
+    DataBase::I()->locktables(QStringList() << TBL_LIEUXEXERCICE);
+    idSite = DataBase::I()->selectMaxFromTable(CP_ID_SITE, TBL_LIEUXEXERCICE, m_ok);
+    bool result = ( m_ok );
+    if (result)
+    {
+        ++ idSite;
+        sets[CP_ID_SITE] = idSite;
+        result = DataBase::I()->InsertSQLByBinds(TBL_LIEUXEXERCICE, sets);
+    }
+    DataBase::I()->unlocktables();
+    if (!result)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce fabricant dans la base!"));
+        return sit;
+    }
+    QJsonObject  data = QJsonObject{};
+    data[CP_ID_SITE] = idSite;
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        if (champ == CP_NOM_SITE)                           data[champ] = itset.value().toString();
+        else if (champ == CP_ADRESSE1_SITE)                 data[champ] = itset.value().toString();
+        else if (champ == CP_ADRESSE2_SITE)                 data[champ] = itset.value().toString();
+        else if (champ == CP_ADRESSE3_SITE)                 data[champ] = itset.value().toString();
+        else if (champ == CP_CODEPOSTAL_SITE)               data[champ] = itset.value().toInt();
+        else if (champ == CP_VILLE_SITE)                    data[champ] = itset.value().toString();
+        else if (champ == CP_TELEPHONE_SITE)                data[champ] = itset.value().toString();
+        else if (champ == CP_FAX_SITE)                      data[champ] = itset.value().toString();
+        else if (champ == CP_COULEUR_SITE)                  data[champ] = itset.value().toString();
+    }
+    sit = new Site(data);
+    if (sit != Q_NULLPTR)
+        map_all->insert(sit->id(), sit);
+    return sit;
+}
+

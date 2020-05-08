@@ -42,7 +42,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsvideo.h"
 #include "dlg_impressions.h"
 #include "ui_dlg_impressions.h"
-#include "dlg_gestionlieux.h"
+#include "dlg_listelieux.h"
 #include "dlg_identificationcorresp.h"
 #include "ui_dlg_identificationcorresp.h"
 #include "ui_dlg_identificationmanufacturer.h"

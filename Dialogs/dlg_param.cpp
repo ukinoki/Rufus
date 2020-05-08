@@ -983,7 +983,7 @@ void dlg_param::GestionUsers()
 
 void dlg_param::GestionLieux()
 {
-    dlg_GestionLieux *gestLieux = new dlg_GestionLieux();
+    dlg_listelieux *gestLieux = new dlg_listelieux();
     gestLieux->exec();
     ReconstruitListeLieuxExerciceAllusers();
     delete gestLieux;

@@ -59,6 +59,7 @@ void IOLs::initListe()
     QList<IOL*> listIOLs = DataBase::I()->loadIOLs();
     clearAll(map_all);
     addList(map_all, &listIOLs);
+    m_isfull     = true;
 }
 
 void IOLs::SupprimeIOL(IOL *iol)

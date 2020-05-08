@@ -41,6 +41,22 @@ void Site::setData(QJsonObject data)
     m_data = data;
 }
 
+void Site::resetdatas()
+{
+    QJsonObject data;
+    data[CP_ID_SITE]        = 0;
+    data[CP_NOM_SITE]       = "";
+    data[CP_ADRESSE1_SITE]  = "";
+    data[CP_ADRESSE2_SITE]  = "";
+    data[CP_ADRESSE3_SITE]  = "";
+    data[CP_CODEPOSTAL_SITE] = 0;
+    data[CP_VILLE_SITE]     = "";
+    data[CP_TELEPHONE_SITE] = "";
+    data[CP_FAX_SITE]       = "";
+    data[CP_COULEUR_SITE]   = "";
+    setData(data);
+}
+
 
 QString Site::nom() const       { return m_nom; }
 QString Site::adresse1() const  { return m_adresse1; }
@@ -52,15 +68,15 @@ QString Site::telephone() const { return m_telephone; }
 QString Site::fax() const       { return m_fax; }
 QString Site::couleur() const   { return m_couleur; }
 
-void Site::setnom(const QString &nom)               { m_nom = nom; }
-void Site::setadresse1(const QString &adresse1)     { m_adresse1 = adresse1; }
-void Site::setadresse2(const QString &adresse2)     { m_adresse2 = adresse2; }
-void Site::setadresse3(const QString &adresse3)     { m_adresse3 = adresse3; }
-void Site::setcodepostal(int codePostal)            { m_codePostal = codePostal; }
-void Site::setville(const QString &ville)           { m_ville = ville; }
-void Site::settelephone(const QString &telephone)   { m_telephone = telephone; }
-void Site::setfax(const QString &fax)               { m_fax = fax; }
-void Site::setcouleur(const QString &couleur)       { m_couleur = couleur; }
+void Site::setnom(const QString &nom)               { m_nom = nom;              m_data[CP_NOM_SITE] = nom; }
+void Site::setadresse1(const QString &adresse1)     { m_adresse1 = adresse1;    m_data[CP_ADRESSE1_SITE] = adresse1; }
+void Site::setadresse2(const QString &adresse2)     { m_adresse2 = adresse2;    m_data[CP_ADRESSE2_SITE] = adresse2; }
+void Site::setadresse3(const QString &adresse3)     { m_adresse3 = adresse3;    m_data[CP_ADRESSE3_SITE] = adresse3; }
+void Site::setcodepostal(int codePostal)            { m_codePostal = codePostal; m_data[CP_CODEPOSTAL_SITE] = codePostal; }
+void Site::setville(const QString &ville)           { m_ville = ville;          m_data[CP_VILLE_SITE] = ville; }
+void Site::settelephone(const QString &telephone)   { m_telephone = telephone;  m_data[CP_TELEPHONE_SITE] = telephone; }
+void Site::setfax(const QString &fax)               { m_fax = fax;              m_data[CP_FAX_SITE] = fax; }
+void Site::setcouleur(const QString &couleur)       { m_couleur = couleur;      m_data[CP_COULEUR_SITE] = couleur; }
 
 QString Site::coordonnees() const
 {

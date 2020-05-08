@@ -57,6 +57,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     UpPushButton *importbutt =   new UpPushButton(tr("Mettre à jour"));
     importbutt->setIcon(Icons::icImport());
     AjouteWidgetLayButtons(importbutt, false);
+    importbutt->setVisible(false);
 
     UpPushButton *resizebutt =   new UpPushButton(tr("Comprimer"));
     resizebutt->setIcon(Icons::icComputer());
@@ -148,7 +149,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     dlglayout()->insertLayout(0,globallay);
     setFixedWidth(wdg_manufacturerscombo->width() + globallay->spacing() + wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
-    if (Datas::I()->iols->iols()->size() == 0)
+    if (!Datas::I()->iols->isfull())
         Datas::I()->iols->initListe();
     ReconstruitTreeViewIOLs();
 
@@ -341,8 +342,8 @@ void dlg_listeiols::disconnectFiltersSignals()
 void dlg_listeiols::ChoixButtonFrame()
 {
     IOL *iol = Q_NULLPTR;
-    if (wdg_itemstree->selectionModel()->selectedIndexes().size())
-        iol = getIOLFromIndex(wdg_itemstree->selectionModel()->selectedIndexes().at(0));
+    if (wdg_itemstree->selectionModel()->hasSelection())
+        iol = getIOLFromIndex(wdg_itemstree->currentIndex());
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         EnregistreNouveauIOL();
@@ -900,6 +901,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
         m_IOLsmodel->sort(0);
     }
     int dim = 45;
+    qDebug() << Datas::I()->iols->iols()->size();
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         if (m_onlyactifs && !iol->isactif())
@@ -967,7 +969,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             }
         }
     }
-
+    qDebug() << m_IOLsmodel->rowCount();
     for (int i=0; i<m_IOLsmodel->rowCount();i++)
     {
         if (m_IOLsmodel->item(i) != Q_NULLPTR)

@@ -26,7 +26,7 @@ class IOLs : public ItemsList
 {
 private:
     QMap<int, IOL*> *map_all = Q_NULLPTR;       //!< la liste de tous les IOLs, y compris ceux qui nes ont plus fabriqués
-
+    bool m_isfull = false;                      //! la liste des IOL a été complètement initialisée
 public:
     explicit IOLs(QObject *parent = Q_NULLPTR);
 
@@ -34,6 +34,7 @@ public:
 
     IOL*    getById(int id, bool reload = false);
     void    initListe();                        //! la liste de tous les IOLs
+    bool    isfull() const  { return m_isfull; }
 
     //!> actions sur les enregistrements
     void    SupprimeIOL(IOL *iol);

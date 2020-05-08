@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_GESTIONLIEUX_H
-#define DLG_GESTIONLIEUX_H
+#ifndef DLG_LISTELIEUX_H
+#define DLG_LISTELIEUX_H
 
 #include <QColorDialog>
 #include <QHeaderView>
@@ -29,17 +29,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 /* sert à gérer les lieux d'exercice
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
 
-class dlg_GestionLieux : public UpDialog
+class dlg_listelieux : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_GestionLieux(QWidget *parent = Q_NULLPTR);
-    ~dlg_GestionLieux();
+    explicit dlg_listelieux(QWidget *parent = Q_NULLPTR);
+    ~dlg_listelieux();
     enum Mode               {Modif, Nouv, Suppr}; Q_ENUM(Mode)
 
 private:
     DataBase                *db;
-    QTableView              *wdg_bigtable;
+    QTableView              *wdg_tblview;
     UpDialog                *dlg_lieu;
     UpLabel                 *wdg_adressuplbl;
     UpPushButton            *wdg_couleurpushbutt;
@@ -53,8 +53,9 @@ private:
     UpLineEdit              *wdg_tellineedit;
     UpLineEdit              *wdg_faxlineedit;
     QString                 str_nouvcolor;
+    QHash<QString, QVariant>    m_listbinds;
 
-    QStandardItemModel      *m_tabmodel = Q_NULLPTR;
+    QStandardItemModel      *m_model = Q_NULLPTR;
     WidgetButtonFrame       *wdg_buttonframe;
     int                     m_idlieuserveur;
     bool                    m_ok;
@@ -63,6 +64,7 @@ private:
     void                    CreerLieu();
     void                    enregNouvLieu();
     void                    enregModifLieu();
+    int                     getRowFromSite(Site* sit);
     Site*                   getSiteFromIndex(QModelIndex idx);
     void                    ModifCouleur();
     void                    ModifLieu();
@@ -72,4 +74,4 @@ private:
     bool                    ValidationFiche();
 };
 
-#endif // DLG_GESTIONLIEUX_H
+#endif // DLG_LISTELIEUX_H

@@ -179,18 +179,15 @@ bool dlg_listecommentaires::ChercheDoublon(QString str, int row)
 
 void dlg_listecommentaires::ChoixButtonFrame()
 {
-    CommentLunet *com = Q_NULLPTR;
-    if (wdg_tblview->selectionModel()->hasSelection())
-        com = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
     switch (wdg_buttonframe->Choix()) {
     case WidgetButtonFrame::Plus:
         ConfigMode(Creation, m_currentcomment);
         break;
     case WidgetButtonFrame::Modifier:
-        ConfigMode(Modification,com);
+        ConfigMode(Modification,m_currentcomment);
         break;
     case WidgetButtonFrame::Moins:
-        SupprimmCommentaire(com);
+        SupprimmCommentaire(m_currentcomment);
         break;
     }
 }
@@ -322,8 +319,8 @@ void dlg_listecommentaires::dblClicktextEdit()
     if (m_mode == Selection)
     {
         CommentLunet *com = Q_NULLPTR;
-        if (wdg_tblview->selectionModel()->selectedIndexes().size())
-            com = getCommentFromIndex(wdg_tblview->selectionModel()->selectedIndexes().at(0));
+        if (wdg_tblview->selectionModel()->hasSelection())
+            com = getCommentFromIndex(wdg_tblview->currentIndex());
         if (com)
             if (com->iduser() == currentuser()->id())
                 ConfigMode(Modification,com);
@@ -566,7 +563,7 @@ void dlg_listecommentaires::RemplirTableView()
                                                                                                             }
                                                                                                           });
         connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listecommentaires::MenuContextuel);
-        //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la tabnle n'a pas le focus et qu'elle n'a aucun item sélectionné
+        //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la table n'a pas le focus et qu'elle n'a aucun item sélectionné
         connect (wdg_tblview->selectionModel(),
                                  &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {Enablebuttons(select.indexes().at(0));});
         connect(wdg_tblview,     &QAbstractItemView::clicked,               this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée

@@ -118,6 +118,8 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
     setFixedWidth(1000);
+    if (!Datas::I()->iols->isfull())
+        Datas::I()->iols->initListe();
 
     m_medecinsmodel = new QStandardItemModel(this);
 
@@ -149,8 +151,6 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWi
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
     Datas::I()->typesinterventions->initListe();
-    if (Datas::I()->iols->iols()->size() == 0)
-        Datas::I()->iols->initListe();
     ReconstruitListeTypeInterventions();
 }
 

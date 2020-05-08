@@ -308,22 +308,25 @@ void dlg_gestionbanques::RemplirTableWidget()
 {
     QTableWidgetItem    *pitem0;
     UpLabel             *label1;
-    int rowcount = Datas::I()->banques->banques()->size();
-    int i = 0;
-    if (rowcount > 0)
+    if (Datas::I()->banques->banques()->size() > 0)
     {
-        wdg_bigtable->setRowCount(rowcount);
+        if (m_model)
+            delete m_model;
+        m_model = new QStandardItemModel;
         foreach (Banque* bq, Datas::I()->banques->banques()->values())
+            m_model->appendRow(QList<QStandardItem*>() << new QStandardItem(bq->nom()) << new QStandardItem(QString::number(bq->id())));
+        m_model->sort(0);
+        wdg_bigtable->setRowCount(m_model->rowCount());
+        for (int i=0; i < m_model->rowCount(); ++i)
         {
             pitem0 = new QTableWidgetItem;
             label1 = new UpLabel;
-            pitem0->setText(QString::number(bq->id()));
-            label1->setText(bq->nom());
+            pitem0->setText(m_model->item(i,1)->text());
+            label1->setText(m_model->item(i,0)->text());
             label1->setRow(i);
             wdg_bigtable->setItem(i,0,pitem0);
             wdg_bigtable->setCellWidget(i,1,label1);
             wdg_bigtable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
-            ++i;
         }
     }
 }

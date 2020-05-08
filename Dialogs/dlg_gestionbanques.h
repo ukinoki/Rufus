@@ -48,6 +48,7 @@ private:
     DataBase            *db = DataBase::I();
     UpTableWidget       *wdg_bigtable;
     WidgetButtonFrame   *wdg_buttonframe;
+    QStandardItemModel  *m_model = Q_NULLPTR;
     bool                m_fermeapresvalidation;
     Mode                m_mode;
 

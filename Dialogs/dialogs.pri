@@ -13,7 +13,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_docsvideo.cpp \
     $$PWD/dlg_fontdialog.cpp \
     $$PWD/dlg_gestioncomptes.cpp \
-    $$PWD/dlg_gestionlieux.cpp \
     $$PWD/dlg_gestionusers.cpp \
     $$PWD/dlg_identificationcommercial.cpp \
     $$PWD/dlg_identificationcorresp.cpp \
@@ -26,6 +25,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_listecommentaires.cpp \
     $$PWD/dlg_listecorrespondants.cpp \
     $$PWD/dlg_listeiols.cpp \
+    $$PWD/dlg_listelieux.cpp \
     $$PWD/dlg_listemanufacturers.cpp \
     $$PWD/dlg_listemotscles.cpp \
     $$PWD/dlg_listetiers.cpp \
@@ -56,7 +56,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_docsvideo.h \
     $$PWD/dlg_fontdialog.h \
     $$PWD/dlg_gestioncomptes.h \
-    $$PWD/dlg_gestionlieux.h \
     $$PWD/dlg_gestionusers.h \
     $$PWD/dlg_identificationcommercial.h \
     $$PWD/dlg_identificationcorresp.h \
@@ -69,6 +68,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_listecommentaires.h \
     $$PWD/dlg_listecorrespondants.h \
     $$PWD/dlg_listeiols.h \
+    $$PWD/dlg_listelieux.h \
     $$PWD/dlg_listemanufacturers.h \
     $$PWD/dlg_listemotscles.h \
     $$PWD/dlg_listetiers.h \
