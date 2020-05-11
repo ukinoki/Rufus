@@ -41,14 +41,13 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
     wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
-    wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
-    wdg_docsbuttonframe     ->layButtons()->insertWidget(0, ui->label);
+    wdg_docsbuttonframe     ->addSearchLine();
     wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableWidget);
     wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
-    connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe();});
+    connect (wdg_docsbuttonframe->searchline(), &QLineEdit::textEdited,                 this,   &dlg_impressions::FiltreListe);
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::Validation);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);
     connect (ui->dateImpressiondateEdit,        &QDateEdit::dateChanged,                this,   [=] {
@@ -147,10 +146,6 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->dateImpressiondateEdit->setMaximumDate(QDate::currentDate());
 
     ui->DupliOrdocheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
-    ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
-    ui->ChercheupLineEdit->setStyleSheet(
-    "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
-    "UpLineEdit:focus {border: 3px solid rgb(164, 205, 255);border-radius: 10px;}");
 
 
     ui->textFrame->installEventFilter(this);
@@ -169,7 +164,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
         ConfigMode(CreationDOC);
     else
         ConfigMode(Selection);
-    ui->ChercheupLineEdit->setFocus();
+    wdg_docsbuttonframe->searchline()->setFocus();
 
     map_champs[TITRUSER]        = tr("Titre, nom et prénom de l'utilisateur");
     map_champs[NOMPAT]          = tr("Nom du patient");
@@ -571,7 +566,7 @@ void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
                     ui->DocupTableWidget->item(Check->rowTable(),6)->setText("0" + nomdoc);
             }
         }
-        if (ui->ChercheupLineEdit->text() == "")
+        if (wdg_docsbuttonframe->searchline()->text() == "")
             m_listid.clear();
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
@@ -616,7 +611,7 @@ void dlg_impressions::FiltreListe()
     {
         UpLineEdit *line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(j,1));
         QString txt = line->text();
-        QString txtachercher = ui->ChercheupLineEdit->text();
+        QString txtachercher = wdg_docsbuttonframe->searchline()->text();
         int lgth = txtachercher.length();
         ui->DocupTableWidget->setRowHidden(j, txt.toUpper().left(lgth) != txtachercher.toUpper());
         if (!selectall && txt.toUpper().left(lgth) == txtachercher.toUpper())
@@ -2117,13 +2112,13 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
 void dlg_impressions::ConfigMode(Mode mode, int row)
 {
     m_mode = mode;
-    ui->ChercheupLineEdit->setEnabled       (m_mode == Selection);
-    ui->dateImpressiondateEdit->setEnabled                (m_mode == Selection);
-    ui->ALDcheckBox->setVisible             (m_mode == Selection);
-    wdg_dossiersbuttonframe->setEnabled         (m_mode == Selection);
-    ui->DossiersupTableWidget->setEnabled   (m_mode == Selection);
-    ui->OKupPushButton->setEnabled          (false);
-    ui->textFrame->setVisible               (m_mode != CreationDOSS && m_mode!= ModificationDOSS && m_mode != Selection);
+    wdg_docsbuttonframe->searchline()   ->setEnabled(m_mode == Selection);
+    ui->dateImpressiondateEdit          ->setEnabled(m_mode == Selection);
+    ui->ALDcheckBox                     ->setVisible(m_mode == Selection);
+    wdg_dossiersbuttonframe             ->setEnabled(m_mode == Selection);
+    ui->DossiersupTableWidget           ->setEnabled(m_mode == Selection);
+    ui->OKupPushButton                  ->setEnabled(false);
+    ui->textFrame                       ->setVisible(m_mode != CreationDOSS && m_mode!= ModificationDOSS && m_mode != Selection);
 
     if (m_mode != Selection) {
         t_timerefface->disconnect();
@@ -2139,14 +2134,14 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
     if (mode == Selection)
     {
         EnableLines();
-        wdg_docsbuttonframe                 ->setEnabled(true);
+        wdg_docsbuttonframe             ->setEnabled(true);
         ui->DocPubliccheckBox           ->setChecked(false);
         ui->DocPubliccheckBox           ->setEnabled(false);
         ui->DocPubliccheckBox           ->setToolTip("");
         ui->DocupTableWidget            ->setEnabled(true);
         ui->DocupTableWidget            ->setFocus();
         ui->DocupTableWidget            ->setStyleSheet("");
-        wdg_dossiersbuttonframe             ->setEnabled(true);
+        wdg_dossiersbuttonframe         ->setEnabled(true);
         ui->DossiersupTableWidget       ->setEnabled(true);
         ui->DocEditcheckBox             ->setChecked(false);
         ui->DocEditcheckBox             ->setEnabled(false);
@@ -2279,7 +2274,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
-        ui->ChercheupLineEdit->clear();
+        wdg_docsbuttonframe->searchline()->clear();
     }
     else if (mode == CreationDOC)
     {
@@ -2366,7 +2361,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
 
     else if (mode == CreationDOSS)
     {
-        ui->ChercheupLineEdit->clear();
+        wdg_docsbuttonframe->searchline()->clear();
         FiltreListe();
         DisableLines();
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
@@ -2456,7 +2451,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
 // --------------------------------------------------------------------------------------------------
 void dlg_impressions::DisableLines()
 {
-    ui->ChercheupLineEdit->clear();
+    wdg_docsbuttonframe->searchline()->clear();
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         ui->DocupTableWidget->setRowHidden(i,false);
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)

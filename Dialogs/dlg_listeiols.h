@@ -54,7 +54,6 @@ private:
     UpCheckBox              *wdg_edofchk;
     UpCheckBox              *wdg_multifocalchk;
     UpCheckBox              *wdg_monofocalchk;
-    UpLabel                 *wdg_label;
     UpLabel                 *wdg_minpwrlbl;
     UpLabel                 *wdg_maxpwrlbl;
     RangeSlider             *wdg_pwrslider;
@@ -62,7 +61,6 @@ private:
     double                  m_maxpwr = 40.00;
     UpPushButton            *wdg_annulfiltresbut;
     QTreeView               *wdg_itemstree;
-    UpLineEdit              *wdg_chercheuplineedit;
     WidgetButtonFrame       *wdg_buttonframe;
     TreeViewDelegate        m_treedelegate;
     IOL                     *m_currentIOL = Q_NULLPTR;

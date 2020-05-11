@@ -465,32 +465,6 @@ la sélection</string>
      <enum>Qt::NoPen</enum>
     </property>
    </widget>
-   <widget class="UpLineEdit" name="ChercheupLineEdit">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>260</y>
-      <width>113</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>262</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="scaledContents">
-     <bool>false</bool>
-    </property>
-   </widget>
   </widget>
  </widget>
  <customwidgets>
@@ -508,11 +482,6 @@ la sélection</string>
    <class>UpTextEdit</class>
    <extends>QTextEdit</extends>
    <header>uptextedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

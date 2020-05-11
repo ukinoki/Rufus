@@ -744,7 +744,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
             QString nompatient = "";
             Patient * pat = Datas::I()->patients->getById(interv->idpatient(), Item::LoadDetails);
             if (!pat)
-                return;
+                continue;
             nompatient  = pat->nom().toUpper() + " " + pat->prenom();
             itempat     = new UpStandardItem(nompatient, interv);
             QFont fontitem = m_font;

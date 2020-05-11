@@ -1122,6 +1122,21 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
 /*
  * Impressions
 */
+QJsonObject DataBase::loadImpressionData(QVariantList impressionlist)
+{
+    QJsonObject data{};
+    data[CP_ID_IMPRESSIONS]            = impressionlist.at(0).toInt();
+    data[CP_TEXTE_IMPRESSIONS]         = impressionlist.at(1).toString();
+    data[CP_RESUME_IMPRESSIONS]        = impressionlist.at(2).toString();
+    data[CP_CONCLUSION_IMPRESSIONS]    = impressionlist.at(3).toString();
+    data[CP_IDUSER_IMPRESSIONS]        = impressionlist.at(4).toInt();
+    data[CP_DOCPUBLIC_IMPRESSIONS]     = (impressionlist.at(5).toInt()==1);
+    data[CP_PRESCRIPTION_IMPRESSIONS]  = (impressionlist.at(6).toInt()==1);
+    data[CP_EDITABLE_IMPRESSIONS ]     = (impressionlist.at(7).toInt()==1);
+    data[CP_MEDICAL_IMPRESSIONS]       = (impressionlist.at(8).toInt()==1);
+    return data;
+}
+
 QList<Impression*> DataBase::loadImpressions()
 {
     QList<Impression*> impressions;
@@ -1134,16 +1149,7 @@ QList<Impression*> DataBase::loadImpressions()
         return impressions;
     for (int i=0; i<doclist.size(); ++i)
     {
-        QJsonObject jData{};
-        jData[CP_ID_IMPRESSIONS]            = doclist.at(i).at(0).toInt();
-        jData[CP_TEXTE_IMPRESSIONS]         = doclist.at(i).at(1).toString();
-        jData[CP_RESUME_IMPRESSIONS]        = doclist.at(i).at(2).toString();
-        jData[CP_CONCLUSION_IMPRESSIONS]    = doclist.at(i).at(3).toString();
-        jData[CP_IDUSER_IMPRESSIONS]        = doclist.at(i).at(4).toInt();
-        jData[CP_DOCPUBLIC_IMPRESSIONS]     = (doclist.at(i).at(5).toInt()==1);
-        jData[CP_PRESCRIPTION_IMPRESSIONS]  = (doclist.at(i).at(6).toInt()==1);
-        jData[CP_EDITABLE_IMPRESSIONS ]     = (doclist.at(i).at(7).toInt()==1);
-        jData[CP_MEDICAL_IMPRESSIONS]       = (doclist.at(i).at(8).toInt()==1);
+        QJsonObject jData = loadImpressionData(doclist.at(i));
         Impression *doc = new Impression(jData);
         if (doc != Q_NULLPTR)
             impressions << doc;
@@ -1151,9 +1157,34 @@ QList<Impression*> DataBase::loadImpressions()
     return impressions;
 }
 
+Impression* DataBase::loadImpressionById(int id)
+{
+    Impression* impression = Q_NULLPTR;
+    QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
+                  CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
+                  " WHERE " CP_ID_IMPRESSIONS " = " + QString::number(id);
+    QVariantList doclist = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || doclist.size()==0)
+        return impression;
+    QJsonObject jData = loadImpressionData(doclist);
+    impression = new Impression(jData);
+    return impression;
+}
+
 /*
  * Dossiers impression
 */
+QJsonObject DataBase::loadDossierImpressionData(QVariantList dossierdata)
+{
+    QJsonObject data{};
+    data[CP_ID_DOSSIERIMPRESSIONS]     = dossierdata.at(1).toInt();
+    data[CP_TEXTE_DOSSIERIMPRESSIONS]  = dossierdata.at(4).toString();
+    data[CP_RESUME_DOSSIERIMPRESSIONS] = dossierdata.at(0).toString();
+    data[CP_IDUSER_DOSSIERIMPRESSIONS] = dossierdata.at(2).toInt();
+    data[CP_PUBLIC_DOSSIERIMPRESSIONS] = (dossierdata.at(3).toInt()==1);
+    return data;
+}
+
 QList<DossierImpression*> DataBase::loadDossiersImpressions()
 {
     QList<DossierImpression*> dossiers;
@@ -1176,17 +1207,27 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
         return dossiers;
     for (int i=0; i<doclist.size(); ++i)
     {
-        QJsonObject jData{};
-        jData[CP_ID_DOSSIERIMPRESSIONS]     = doclist.at(i).at(1).toInt();
-        jData[CP_TEXTE_DOSSIERIMPRESSIONS]  = doclist.at(i).at(4).toString();
-        jData[CP_RESUME_DOSSIERIMPRESSIONS] = doclist.at(i).at(0).toString();
-        jData[CP_IDUSER_DOSSIERIMPRESSIONS] = doclist.at(i).at(2).toInt();
-        jData[CP_PUBLIC_DOSSIERIMPRESSIONS] = (doclist.at(i).at(3).toInt()==1);
+        QJsonObject jData = loadDossierImpressionData(doclist.at(i));
         DossierImpression *metadoc = new DossierImpression(jData);
         if (metadoc != Q_NULLPTR)
             dossiers << metadoc;
     }
     return dossiers;
+}
+
+DossierImpression* DataBase::loadDossierImpressionById(int id)
+{
+    DossierImpression* dossier = Q_NULLPTR;
+    QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS
+                       " FROM "  TBL_DOSSIERSIMPRESSIONS
+                       " WHERE " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(id);
+//    qDebug() << req;
+    QVariantList doclist = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || doclist.size()==0)
+        return dossier;
+    QJsonObject jData = loadDossierImpressionData(doclist);
+    dossier = new DossierImpression(jData);
+    return dossier;
 }
 
 

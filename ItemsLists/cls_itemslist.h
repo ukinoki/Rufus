@@ -359,6 +359,20 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<Impression*>(item) != Q_NULLPTR)
+        {
+            table = TBL_IMPRESSIONS;
+            idname = CP_ID_IMPRESSIONS;
+            loop = true;
+            break;
+        }
+        if (dynamic_cast<DossierImpression*>(item) != Q_NULLPTR)
+        {
+            table = TBL_DOSSIERSIMPRESSIONS;
+            idname = CP_ID_DOSSIERIMPRESSIONS;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table == "")

@@ -26,8 +26,8 @@ ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    m_listeactes        = actes;
-    m_idpatient         = m_listeactes->actes()->last()->idPatient();
+    m_actes             = actes;
+    m_idpatient         = m_actes->actes()->last()->idPatient();
     m_currentpatient    = Datas::I()->patients->getById(m_idpatient);
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
@@ -55,7 +55,7 @@ ui(new Ui::dlg_actesprecedents)
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
 
-    Actualise(m_listeactes->actes());
+    Actualise(m_actes->actes());
 }
 
 dlg_actesprecedents::~dlg_actesprecedents()
@@ -396,7 +396,7 @@ Acte* dlg_actesprecedents::currentacte() const
 ------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
 {
-    if( m_listeactes->actes()->size() == 1 )
+    if( m_actes->actes()->size() == 1 )
         return true;
 
     int idActe = -1;

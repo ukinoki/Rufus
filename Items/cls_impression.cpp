@@ -17,6 +17,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_impression.h"
 
+/*
+ * Impressions
+*/
 Impression::Impression(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
@@ -39,6 +42,8 @@ void Impression::setconclusion(QString conclusion)    { m_conclusion = conclusio
                                                         m_data[CP_CONCLUSION_IMPRESSIONS] = conclusion; }
 void Impression::setpublic(bool pblic)                { m_public = pblic;
                                                         m_data[CP_DOCPUBLIC_IMPRESSIONS] = pblic; }
+void Impression::setiduser(int id)                    { m_iduser = id;
+                                                        m_data[CP_IDUSER_IMPRESSIONS] = id; }
 void Impression::setprescription(bool prescription)   { m_prescription = prescription;
                                                         m_data[CP_PRESCRIPTION_IMPRESSIONS] = prescription; }
 void Impression::seteditable(bool editable)           { m_editable = editable;
@@ -65,6 +70,22 @@ void Impression::setData(QJsonObject data)
 }
 
 
+
+
+
+/*
+ * Dossiers impression
+*/
+
+void DossierImpression::settexte(const QString &textedossier)   { m_textedossier = textedossier;
+                                                                  m_data[CP_TEXTE_DOSSIERIMPRESSIONS] = textedossier; }
+void DossierImpression::setresume(const QString &resumedossier) { m_resumedossier = resumedossier;
+                                                                  m_data[CP_RESUME_DOSSIERIMPRESSIONS] = resumedossier; }
+void DossierImpression::setpublic(bool pblic)                   { m_public = pblic;
+                                                                  m_data[CP_PUBLIC_DOSSIERIMPRESSIONS] = pblic; }
+void DossierImpression::setiduser(int id)                       { m_iduser = id;
+                                                                  m_data[CP_IDUSER_DOSSIERIMPRESSIONS] = id; }
+
 DossierImpression::DossierImpression(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
@@ -86,5 +107,6 @@ void DossierImpression::setData(QJsonObject data)
     Utils::setDataString(data, CP_TEXTE_DOSSIERIMPRESSIONS, m_textedossier);
     Utils::setDataString(data, CP_RESUME_DOSSIERIMPRESSIONS, m_resumedossier);
     Utils::setDataBool(data, CP_PUBLIC_DOSSIERIMPRESSIONS, m_public);
+    m_data = data;
 }
 

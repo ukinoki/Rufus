@@ -57,7 +57,7 @@ private:
     LignesPaiements                     *m_listepaiements = Datas::I()->lignespaiements;
     Patient                             *m_currentpatient;
     QMap<int, Acte*>::const_iterator    it_currentacte;
-    Actes                               *m_listeactes;
+    Actes                               *m_actes;
     QMap<int, Acte*>                    *map_actes = Q_NULLPTR;
     bool                                m_avantdernieracte;
     int                                 m_idpatient;

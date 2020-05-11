@@ -29,6 +29,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Commercial *com             = Q_NULLPTR;
     CommentLunet *comment       = Q_NULLPTR;
     MotCle *motcle              = Q_NULLPTR;
+    Impression *impr            = Q_NULLPTR;
+    DossierImpression *dossier  = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -185,6 +187,18 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         motcle = dynamic_cast<MotCle*>(item);
         if (motcle)
+        {
+            loop = true;
+            break;
+        }
+        impr = dynamic_cast<Impression*>(item);
+        if (impr)
+        {
+            loop = true;
+            break;
+        }
+        dossier = dynamic_cast<DossierImpression*>(item);
+        if (dossier)
         {
             loop = true;
             break;
@@ -1182,6 +1196,83 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             motcle->setmotcle(newvalue.toString());
             Utils::CalcStringValueSQL(newvalue);
+        }
+    }
+    else if (impr)
+    {
+        ok = true;
+        table = TBL_IMPRESSIONS;
+        clause = CP_ID_IMPRESSIONS " = " + QString::number(impr->id());
+        if (field == CP_TEXTE_IMPRESSIONS)
+        {
+            impr->settext(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_RESUME_IMPRESSIONS)
+        {
+            impr->setresume(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_CONCLUSION_IMPRESSIONS)
+        {
+            impr->setconclusion(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDUSER_IMPRESSIONS)
+        {
+            impr->setiduser(newvalue.toInt());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_DOCPUBLIC_IMPRESSIONS)
+        {
+            bool a = newvalue.toBool();
+            impr->setpublic(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_PRESCRIPTION_IMPRESSIONS)
+        {
+            bool a = newvalue.toBool();
+            impr->setprescription(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_EDITABLE_IMPRESSIONS)
+        {
+            bool a = newvalue.toBool();
+            impr->seteditable(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_MEDICAL_IMPRESSIONS)
+        {
+            bool a = newvalue.toBool();
+            impr->setmedical(a);
+            newvalue = (a? "1" : "null");
+        }
+    }
+    else if (dossier)
+    {
+        ok = true;
+        table = TBL_DOSSIERSIMPRESSIONS;
+        clause = CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(dossier->id());
+        if (field == CP_TEXTE_DOSSIERIMPRESSIONS)
+        {
+            dossier->settexte(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_RESUME_DOSSIERIMPRESSIONS)
+        {
+            dossier->setresume(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDUSER_DOSSIERIMPRESSIONS)
+        {
+            dossier->setiduser(newvalue.toInt());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_PUBLIC_DOSSIERIMPRESSIONS)
+        {
+            bool a = newvalue.toBool();
+            dossier->setpublic(a);
+            newvalue = (a? "1" : "null");
         }
     }
 

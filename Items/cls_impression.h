@@ -47,6 +47,7 @@ public:
     void settext(QString txt);
     void setresume(QString resume);
     void setconclusion(QString conclusion);
+    void setiduser(int id);
     void setpublic(bool pblic);
     void setprescription(bool prescription);
     void setmedical(bool medical);
@@ -69,6 +70,10 @@ public:
     QString texte() const;
     QString resume() const;
     bool ispublic() const;
+    void settexte(const QString &textedossier);
+    void setresume(const QString &resumedossier);
+    void setiduser(int id);
+    void setpublic(bool pblic);
 };
 
 #endif // CLS_IMPRESSION_H
