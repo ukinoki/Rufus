@@ -63,6 +63,7 @@ void Impressions::initListe()
     QList<Impression *> listimpressions = DataBase::I()->loadImpressions();
     epurelist(map_all, &listimpressions);
     addList(map_all, &listimpressions, Item::Update);
+    m_isfull = true;
 }
 
 void Impressions::SupprimeImpression(Impression* impr)

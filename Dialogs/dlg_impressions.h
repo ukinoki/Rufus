@@ -74,6 +74,10 @@ private:
     UpDialog                    *dlg_askcorrespondant;
     WidgetButtonFrame           *wdg_docsbuttonframe, *wdg_dossiersbuttonframe;
 
+    QHash<QString, QVariant>    m_dossierlistbinds;
+    QStandardItemModel          *m_dossiersmodel = Q_NULLPTR;
+    QHash<QString, QVariant>    m_docslistbinds;
+    QStandardItemModel          *m_docsmodel = Q_NULLPTR;
 
     bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);

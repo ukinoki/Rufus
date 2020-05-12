@@ -25,6 +25,7 @@ class Impressions : public ItemsList
 {
 private:
     QMap<int, Impression*> *map_all = Q_NULLPTR;      //!< la liste des impressions
+    bool m_isfull = false;
 
 public:
     explicit Impressions(QObject *parent = Q_NULLPTR);
@@ -33,6 +34,7 @@ public:
 
     Impression* getById(int id, bool reload = false);
     void initListe();
+    bool isfull() const { return  m_isfull; }
 
     //!> actions sur les enregistrements
     void          SupprimeImpression(Impression *impr);

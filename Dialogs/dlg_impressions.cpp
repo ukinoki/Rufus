@@ -2625,21 +2625,14 @@ void dlg_impressions::InsertDocument(int row)
         return;
     }
 
-    QString requete = "INSERT INTO " TBL_IMPRESSIONS
-            " (" CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ", " CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS ") "
-            " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toHtml()) +
-            "', '" + Utils::correctquoteSQL(line->text().left(100)) +
-            "', " + QString::number(currentuser()->id());
-    QString Public          = (ui->DocPubliccheckBox->isChecked()?          "1" : "null");
-    QString Prescription    = (ui->PrescriptioncheckBox->isChecked()?       "1" : "null");
-    QString Editable        = (ui->DocEditcheckBox->isChecked()?            "1" : "null");
-    QString Admin           = (ui->DocAdministratifcheckBox->isChecked()?   "null" : "1");
-    requete += ", " + Public;
-    requete += ", " + Prescription;
-    requete += ", " + Editable;
-    requete += ", " + Admin;
-    requete += ")";
-    db->StandardSQL(requete,tr("Erreur d'enregistrement du document dans ") + TBL_IMPRESSIONS);
+    m_docslistbinds[CP_TEXTE_IMPRESSIONS]           = ui->upTextEdit->document()->toHtml();
+    m_docslistbinds[CP_RESUME_IMPRESSIONS]          = line->text().left(100);
+    m_docslistbinds[CP_IDUSER_IMPRESSIONS]          = currentuser()->id();
+    m_docslistbinds[CP_DOCPUBLIC_IMPRESSIONS]       = (ui->DocPubliccheckBox->isChecked()?          "1" : QVariant());
+    m_docslistbinds[CP_PRESCRIPTION_IMPRESSIONS]    = (ui->PrescriptioncheckBox->isChecked()?       "1" : QVariant());
+    m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (ui->DocEditcheckBox->isChecked()?            "1" : QVariant());
+    m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
+    m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
 
     Remplir_TableWidget();
 
@@ -3212,7 +3205,8 @@ void dlg_impressions::Remplir_TableWidget()
     int         i = 0;
 
     //Remplissage Table Documents
-    Datas::I()->impressions->initListe();
+    if (!Datas::I()->impressions->isfull())
+        Datas::I()->impressions->initListe();
     for (int i = 0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
@@ -3394,6 +3388,9 @@ void dlg_impressions::SetMetaDocumentToRow(DossierImpression*dossier, int row)
 // ----------------------------------------------------------------------------------
 void dlg_impressions::SupprimmDocument(int row)
 {
+    m_currentdocument = getDocumentFromRow(row);
+    if (!m_currentdocument)
+        return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + getDocumentFromRow(row)->resume() + "?";
     UpMessageBox msgbox;
@@ -3407,10 +3404,7 @@ void dlg_impressions::SupprimmDocument(int row)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        db->SupprRecordFromTable(getDocumentFromRow(row)->id(),
-                                 CP_ID_IMPRESSIONS,
-                                 TBL_IMPRESSIONS,
-                                 tr("Impossible de supprimer le document\n") + getDocumentFromRow(row)->resume() + tr("\n ... et je ne sais pas pourquoi..."));
+        Datas::I()->impressions->SupprimeImpression(m_currentdocument);
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3514,19 +3508,17 @@ void dlg_impressions::UpdateDocument(int row)
         return;
     }
 
-    QString req =   "UPDATE " TBL_IMPRESSIONS
-            " SET " CP_TEXTE_IMPRESSIONS " = '" + Utils::correctquoteSQL(ui->upTextEdit->toHtml())     + "'"
-            ", " CP_RESUME_IMPRESSIONS " = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'";
-    req += ", " CP_DOCPUBLIC_IMPRESSIONS " = ";
-    req += (ui->DocPubliccheckBox->isChecked()?  "1" : "null");
-    req += ", " CP_PRESCRIPTION_IMPRESSIONS " = ";
-    req += (ui->PrescriptioncheckBox->isChecked()?  "1" : "null");
-    req += ", " CP_EDITABLE_IMPRESSIONS " = ";
-    req += (ui->DocEditcheckBox->isChecked()?  "1" : "null");
-    req += ", " CP_MEDICAL_IMPRESSIONS " = ";
-    req += (ui->DocAdministratifcheckBox->isChecked()?  "null" : "1");
-    req += " WHERE  " CP_ID_IMPRESSIONS " = " + QString::number(getDocumentFromRow(line->Row())->id());
-    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") + TBL_IMPRESSIONS);
+    m_currentdocument = getDocumentFromRow(line->Row());
+    m_docslistbinds[CP_TEXTE_IMPRESSIONS]           = ui->upTextEdit->document()->toHtml();
+    m_docslistbinds[CP_RESUME_IMPRESSIONS]          = line->text().left(100);
+    m_docslistbinds[CP_IDUSER_IMPRESSIONS]          = currentuser()->id();
+    m_docslistbinds[CP_DOCPUBLIC_IMPRESSIONS]       = (ui->DocPubliccheckBox->isChecked()?          "1" : QVariant());
+    m_docslistbinds[CP_PRESCRIPTION_IMPRESSIONS]    = (ui->PrescriptioncheckBox->isChecked()?       "1" : QVariant());
+    m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (ui->DocEditcheckBox->isChecked()?            "1" : QVariant());
+    m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
+
+    DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
+    m_currentdocument = Datas::I()->impressions->getById(m_currentdocument->id(), true);
 
     Remplir_TableWidget();
 
