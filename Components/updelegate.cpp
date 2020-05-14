@@ -51,10 +51,10 @@ QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
     UpLineEdit *line;
     line = new UpLineEdit(parent);
     line->setRow(index.row());
+    line->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
     connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
-    connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);
-//    connect(line, &QLineEdit::textEdited,       this, [=] { emit commitData(line); });
+    //connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);
     return line;
 }
 
@@ -89,7 +89,7 @@ void UpLineDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 {
     UpLineEdit *line = static_cast<UpLineEdit*>(editor);
     QString txt = line->text();
-    model->setData(index, txt, Qt::EditRole);
+    model->setData(index, txt, Qt::EditRole | Qt::DisplayRole);
 }
 
 QSize TreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

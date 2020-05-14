@@ -139,7 +139,7 @@ DossierImpression* DossiersImpressions::getById(int id, bool reload)
     }
     else if (reload)
     {
-        Impression* dossier = DataBase::I()->loadImpressionById(id);
+        DossierImpression* dossier = DataBase::I()->loadDossierImpressionById(id);
         if (dossier)
         {
             itdoc.value()->setData(dossier->datas());
@@ -159,6 +159,7 @@ void DossiersImpressions::initListe()
     QList<DossierImpression *> listdossiers = DataBase::I()->loadDossiersImpressions();
     epurelist(map_all, &listdossiers);
     addList(map_all, &listdossiers);
+    m_isfull = true;
 }
 
 void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr)

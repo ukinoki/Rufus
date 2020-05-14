@@ -51,14 +51,14 @@ private:
     void                ChoixMenuContextuel(QString);
     void                ConfigMode(Mode mode, MotCle *mc = Q_NULLPTR);
     void                DisableLines();
-    void                Enablebuttons(QModelIndex idx);
+    void                EnableButtons(QItemSelection select);
     void                EnableLines(int row = -1);
     void                EnregistreMotCle(MotCle *mc);
     MotCle*             getMotCleFromIndex(QModelIndex idx);
     int                 getRowFromMotCle(MotCle *mc);
     void                MenuContextuel();
     void                RemplirTableView();
-    void                selectcurrentMotCle(MotCle *mc);
+    void                selectcurrentMotCle(MotCle *mc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                setMotCleToRow(MotCle *mc, int row);
     void                SupprimeMotCle(MotCle *mc);
     void                Validation();

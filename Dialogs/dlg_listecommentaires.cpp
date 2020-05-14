@@ -114,18 +114,19 @@ void dlg_listecommentaires::Annulation()
         int row = getRowFromComment(m_currentcomment);
         if (m_mode == Modification && row < m_model->rowCount())
         {
-            m_model->setData(m_model->index(row,1), m_currentcomment->resume());
-            ConfigMode(Selection, m_currentcomment);
+            QModelIndex idx = m_model->index(row,1);
+            wdg_tblview->closePersistentEditor(idx);
+            m_model->setData(idx, m_currentcomment->resume());
+            ConfigMode(Selection);
+            wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+            EnableButtons(wdg_tblview->selectionModel()->selection());
         }
         else if (m_mode == Creation && m_currentcomment)
         {
             RemplirTableView();
             delete m_currentcomment;
             if(m_model->rowCount() > 0 && row < m_model->rowCount())
-            {
-                wdg_tblview->setCurrentIndex(m_model->index(row,1));
-                m_currentcomment = getCommentFromIndex(m_model->index(row,1));
-            }
+                selectcurrentComment(getCommentFromIndex(m_model->index(row,1)));
         }
         else
             RemplirTableView();
@@ -236,7 +237,7 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
         CancelButton->setImmediateToolTip(tr("Annuler et fermer la fiche"));
         OKButton->setImmediateToolTip(tr("Imprimer\nla sélection"));
         if (com)
-            selectcurrentComment(com);
+            selectcurrentComment(com, QAbstractItemView::PositionAtCenter);
 
         int nbCheck = 0;
         for (int i =0 ; i < m_model->rowCount(); i++)
@@ -346,12 +347,23 @@ void dlg_listecommentaires::DisableLines()
     }
 }
 
-void dlg_listecommentaires::Enablebuttons(QModelIndex idx)
+void dlg_listecommentaires::EnableButtons(QItemSelection selection)
 {
-    if (wdg_tblview->selectionModel()->hasSelection())
-        m_currentcomment = getCommentFromIndex(idx);
-    else
+    if (selection.size() == 0)
+    {
+        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
         m_currentcomment = Q_NULLPTR;
+        return;
+    }
+    if (selection.at(0).indexes().size() == 0)
+    {
+        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+        m_currentcomment = Q_NULLPTR;
+        return;
+    }
+    m_currentcomment = getCommentFromIndex(selection.at(0).indexes().at(0));
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentcomment);
     if (m_currentcomment)
         wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentcomment->iduser() == currentuser()->id());
@@ -384,6 +396,7 @@ void dlg_listecommentaires::EnableLines()
 void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
 {
     int row = getRowFromComment(com);
+    wdg_tblview->closePersistentEditor(m_model->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (!itm)
     {
@@ -398,7 +411,7 @@ void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
     }
     bool pardefaut = (itmdef->data(Qt::DecorationRole) != QPixmap());
 
-    QString resume = itm->text();
+    QString resume = Utils::trimcapitilize(m_model->item(row,1)->data(Qt::DisplayRole).toString()).left(50);
     // recherche de l'enregistrement modifié
     // controle validate des champs
     if (ChercheDoublon(resume,row))
@@ -407,21 +420,25 @@ void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
         return;
     }
     m_listbinds[CP_TEXT_COMLUN]     = wdg_comtxt->toPlainText();
-    m_listbinds[CP_RESUME_COMLUN]   = m_model->item(row,1)->data(Qt::EditRole).toString();
+    m_listbinds[CP_RESUME_COMLUN]   = resume;
     m_listbinds[CP_IDUSER_COMLUN]   = com->iduser();
     m_listbinds[CP_PARDEFAUT_COMLUN]= (pardefaut?  "1" : QVariant());
     m_listbinds[CP_PUBLIC_COMLUN]   = QVariant();
+    int idcom = com->id();
     if (m_mode == Creation)
     {
         delete  com;
         m_currentcomment = Datas::I()->commentslunets->CreationCommentLunet(m_listbinds);
+        if (m_currentcomment)
+            idcom = m_currentcomment->id();
     }
     else if (m_mode == Modification)
     {
-        DataBase::I()->UpdateTable(TBL_COMMENTAIRESLUNETTES, m_listbinds, "where " CP_ID_COMLUN " = " + QString::number(com->id()));
-        m_currentcomment = Datas::I()->commentslunets->getById(com->id(), true);
+        DataBase::I()->UpdateTable(TBL_COMMENTAIRESLUNETTES, m_listbinds, "where " CP_ID_COMLUN " = " + QString::number(idcom));
+        Datas::I()->commentslunets->getById(idcom, true);
     }
     RemplirTableView();
+    m_currentcomment = Datas::I()->commentslunets->getById(idcom);
     if (m_model->rowCount() > 0)
         selectcurrentComment(com);
 }
@@ -429,7 +446,7 @@ void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
 // ------------------------------------------------------------------------------------------
 // renvoie le commentaire correspondant à l'index
 // ------------------------------------------------------------------------------------------
-CommentLunet* dlg_listecommentaires::getCommentFromIndex(QModelIndex idx )
+CommentLunet* dlg_listecommentaires::getCommentFromIndex(QModelIndex idx)
 {
     int row = idx.row();
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
@@ -465,8 +482,6 @@ int dlg_listecommentaires::getRowFromComment(CommentLunet *com)
 
 void dlg_listecommentaires::MenuContextuel()
 {
-    QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
-    CommentLunet *com = getCommentFromIndex(idx);
     QMenu *menuContextuel = new QMenu(this);
     QAction *pAction_Modif;
     QAction *pAction_Suppr;
@@ -476,13 +491,15 @@ void dlg_listecommentaires::MenuContextuel()
     pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
     connect (pAction_Creer,      &QAction::triggered,    [=] {ChoixMenuContextuel("Creer");});
 
-    if (com && com->iduser() == currentuser()->id())
+    QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
+    m_currentcomment = getCommentFromIndex(idx);
+    if (m_currentcomment)
+        if (m_currentcomment->iduser() == currentuser()->id())
     {
-        selectcurrentComment(com);
         pAction_Modif                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce commentaire"));
         pAction_Suppr                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce commentaire"));
         menuContextuel->addSeparator();
-        if (!com->isdefaut())
+        if (!m_currentcomment->isdefaut())
             pAction_ParDefaut                = menuContextuel->addAction(Icons::icBlackCheck(), tr("Par défaut"));
         else
             pAction_ParDefaut                = menuContextuel->addAction("Par défaut") ;
@@ -493,6 +510,7 @@ void dlg_listecommentaires::MenuContextuel()
     }
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
+    delete menuContextuel;
 }
 
 // ----------------------------------------------------------------------------------
@@ -505,6 +523,9 @@ void dlg_listecommentaires::RemplirTableView()
     if (m_model == Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel();
+    UpLineDelegate *line = new UpLineDelegate();
+    connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
+    wdg_tblview->setItemDelegateForColumn(1,line);
     QStandardItem *pitem0   = new QStandardItem(Icons::icImprimer(),"");
     pitem0->setEditable(false);
     pitem0->setTextAlignment(Qt::AlignCenter);
@@ -525,18 +546,10 @@ void dlg_listecommentaires::RemplirTableView()
     }
     if (m_model->rowCount()>0)
     {
-        for (int i=0; i<Datas::I()->commentslunets->commentaires()->size(); i++)
-        {
-            CommentLunet *com = Datas::I()->commentslunets->commentaires()->values().at(i);
-            setCommentToRow(com, i);
-        }
         m_model->sort(1);
         QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
         wdg_tblview->setModel(m_model);
         delete m;
-        UpLineDelegate *line = new UpLineDelegate();
-        connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
-        wdg_tblview->setItemDelegateForColumn(1,line);
         wdg_tblview->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
         QHeaderView *verticalHeader = wdg_tblview->verticalHeader();
         verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
@@ -565,25 +578,28 @@ void dlg_listecommentaires::RemplirTableView()
         connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listecommentaires::MenuContextuel);
         //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la table n'a pas le focus et qu'elle n'a aucun item sélectionné
         connect (wdg_tblview->selectionModel(),
-                                 &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {Enablebuttons(select.indexes().at(0));});
+                                 &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {EnableButtons(select);});
         connect(wdg_tblview,     &QAbstractItemView::clicked,               this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
                                                                                                             QStandardItem *itm = m_model->itemFromIndex(idx);
-                                                                                                            if(itm->isCheckable() && itm->checkState() == Qt::Checked)
-                                                                                                                OKButton->setEnabled(true);
-                                                                                                            else
+                                                                                                            if (itm)
                                                                                                             {
-                                                                                                                bool ok = false;
-                                                                                                                for (int i=0; i<m_model->rowCount(); ++i)
+                                                                                                                if(itm->isCheckable() && itm->checkState() == Qt::Checked)
+                                                                                                                    OKButton->setEnabled(true);
+                                                                                                                else
                                                                                                                 {
-                                                                                                                    QStandardItem *itmc = m_model->item(i);
-                                                                                                                    if (itmc)
-                                                                                                                        if(itmc->checkState() == Qt::Checked)
-                                                                                                                        {
-                                                                                                                            ok = true;
-                                                                                                                            i = m_model->rowCount();
-                                                                                                                        }
+                                                                                                                    bool ok = false;
+                                                                                                                    for (int i=0; i<m_model->rowCount(); ++i)
+                                                                                                                    {
+                                                                                                                        QStandardItem *itmc = m_model->item(i);
+                                                                                                                        if (itmc)
+                                                                                                                            if(itmc->checkState() == Qt::Checked)
+                                                                                                                            {
+                                                                                                                                ok = true;
+                                                                                                                                i = m_model->rowCount();
+                                                                                                                            }
+                                                                                                                    }
+                                                                                                                    OKButton->setEnabled(ok);
                                                                                                                 }
-                                                                                                                OKButton->setEnabled(ok);
                                                                                                             }
                                                                                                            });
         m_currentcomment = Q_NULLPTR;
@@ -593,13 +609,13 @@ void dlg_listecommentaires::RemplirTableView()
         ConfigMode(Creation);
 }
 
-void dlg_listecommentaires::selectcurrentComment(CommentLunet *com)
+void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractItemView::ScrollHint hint)
 {
     if (!com)
     {
         m_currentcomment = Q_NULLPTR;
         wdg_tblview->selectionModel()->clearSelection();
-        Enablebuttons(QModelIndex());
+        EnableButtons(QItemSelection());
     }
     else for (int i=0; i<m_model->rowCount(); i++)
     {
@@ -612,9 +628,9 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com)
                 {
                     QModelIndex idx = m_model->index(i,1);
                     wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
-                    wdg_tblview->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+                    wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);
-                    Enablebuttons(idx);
+                    EnableButtons(wdg_tblview->selectionModel()->selection());
                     break;
                 }
         }

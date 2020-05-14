@@ -45,11 +45,13 @@ class DossiersImpressions : public ItemsList
 {
 private:
     QMap<int, DossierImpression*> *map_all = Q_NULLPTR;      //!< la liste des dossiers d'impressions
+    bool m_isfull = false;
 
 public:
     explicit DossiersImpressions();
 
     QMap<int, DossierImpression *> *dossiersimpressions() const;
+    bool isfull() const { return  m_isfull; }
 
     DossierImpression* getById(int id, bool reload = false);
     void initListe();

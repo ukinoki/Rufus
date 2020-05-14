@@ -56,14 +56,14 @@ private:
     void                        ConfigMode(Mode mode, CommentLunet *com = Q_NULLPTR);
     void                        dblClicktextEdit();
     void                        DisableLines();
-    void                        Enablebuttons(QModelIndex idx);
+    void                        EnableButtons(QItemSelection selection);
     void                        EnableLines();
     void                        EnregistreCommentaire(CommentLunet *com);
     CommentLunet*               getCommentFromIndex(QModelIndex idx);
     int                         getRowFromComment(CommentLunet *com);
     void                        MenuContextuel();
     void                        RemplirTableView();
-    void                        selectcurrentComment(CommentLunet *com);
+    void                        selectcurrentComment(CommentLunet *com, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        setCommentToRow(CommentLunet *com, int row);
     void                        SupprimmCommentaire(CommentLunet *com);
     void                        Validation();

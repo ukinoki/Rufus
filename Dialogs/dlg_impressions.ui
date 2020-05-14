@@ -337,7 +337,7 @@ la sélection</string>
      <height>301</height>
     </rect>
    </property>
-   <widget class="UpTableWidget" name="DossiersupTableWidget">
+   <widget class="UpTableView" name="DossiersupTableView">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -380,10 +380,10 @@ la sélection</string>
      <bool>false</bool>
     </property>
     <property name="selectionMode">
-     <enum>QAbstractItemView::NoSelection</enum>
+     <enum>QAbstractItemView::SingleSelection</enum>
     </property>
     <property name="selectionBehavior">
-     <enum>QAbstractItemView::SelectRows</enum>
+     <enum>QAbstractItemView::SelectItems</enum>
     </property>
     <property name="iconSize">
      <size>
@@ -482,6 +482,11 @@ la sélection</string>
    <class>UpTextEdit</class>
    <extends>QTextEdit</extends>
    <header>uptextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableView</class>
+   <extends>QTableView</extends>
+   <header>uptableview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

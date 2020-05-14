@@ -42,7 +42,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
     wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_docsbuttonframe     ->addSearchLine();
-    wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableWidget);
+    wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableView);
     wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
@@ -51,9 +51,9 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::Validation);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);
     connect (ui->dateImpressiondateEdit,        &QDateEdit::dateChanged,                this,   [=] {
-        if (currentdocument() != Q_NULLPTR)
+        if (m_currentdocument)
         {
-            MetAJour(currentdocument()->texte(),false);
+            MetAJour(m_currentdocument->texte(),false);
             ui->upTextEdit                  ->setText(m_listtexts.at(0));
         }
     });
@@ -103,27 +103,15 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->DocupTableWidget->FixLargeurTotale();
 
     // Mise en forme de la table Dossiers
-    ui->DossiersupTableWidget->setPalette(QPalette(Qt::white));
-    ui->DossiersupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->DossiersupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->DossiersupTableWidget->verticalHeader()->setVisible(false);
-    ui->DossiersupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->DossiersupTableWidget->setColumnCount(5);
-    ui->DossiersupTableWidget->setColumnWidth(0,30);        // checkbox
-    ui->DossiersupTableWidget->setColumnWidth(1,259);       // Resume
-    ui->DossiersupTableWidget->setColumnWidth(2,30);        // Public
-    ui->DossiersupTableWidget->setColumnHidden(3,true);     // idDocument
-    ui->DossiersupTableWidget->setColumnHidden(4,true);     // Resume dans un QtableWidgetItem
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("DOSSIERS")));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(Icons::icFamily(),""));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(""));
-    ui->DossiersupTableWidget->horizontalHeader()->setVisible(true);
-    ui->DossiersupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
-    ui->DossiersupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-    ui->DossiersupTableWidget->horizontalHeader()->setIconSize(QSize(25,25));
-    ui->DossiersupTableWidget->FixLargeurTotale();
+    ui->DossiersupTableView->setPalette(QPalette(Qt::white));
+    ui->DossiersupTableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->DossiersupTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    //wdg_comtbl->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->DossiersupTableView->setMouseTracking(true);
+    ui->DossiersupTableView->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->DossiersupTableView->horizontalHeader()->setVisible(true);
+    ui->DossiersupTableView->horizontalHeader()->setIconSize(QSize(30,30));
 
     QHBoxLayout *doclay = new QHBoxLayout();
     doclay      ->addWidget(wdg_dossiersbuttonframe->widgButtonParent());
@@ -150,7 +138,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
     ui->textFrame->installEventFilter(this);
     ui->DocupTableWidget->installEventFilter(this);
-    ui->DossiersupTableWidget->installEventFilter(this);
+    ui->DossiersupTableView->installEventFilter(this);
     m_opacityeffect             = new QGraphicsOpacityEffect();
     t_timerefface    = new QTimer(this);
 
@@ -203,10 +191,36 @@ QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString> > dlg_impressions::mapd
 // ----------------------------------------------------------------------------------
 void dlg_impressions::Annulation()
 {
-    if (m_mode == CreationDOC || m_mode == ModificationDOC || m_mode == ModificationDOSS || m_mode == CreationDOSS)
-    {
-        QString TableAmodifier = "";
-        int     row = -1;
+    switch (m_mode) {
+    case CreationDOSS:
+    case ModificationDOSS:{
+        ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        int row = getRowFromDossier(m_currentdossier);
+        if (m_mode == ModificationDOSS && row < m_dossiersmodel->rowCount())
+        {
+            QModelIndex idx = m_dossiersmodel->index(row,1);
+            ui->DossiersupTableView->closePersistentEditor(idx);
+            m_dossiersmodel->setData(idx, m_currentdossier->resume());
+            ConfigMode(Selection);
+            ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+            EnableDossiersButtons(ui->DossiersupTableView->selectionModel()->selection());
+        }
+        else if (m_mode == CreationDOSS && m_currentdossier)
+        {
+            Remplir_TableWidget();
+            delete m_currentdossier;
+            if(m_dossiersmodel->rowCount() > 0 && row < m_dossiersmodel->rowCount())
+                selectcurrentDossier(getDossierFromIndex(m_dossiersmodel->index(row,1)));
+        }
+        else
+            Remplir_TableWidget();
+        break;
+    }
+    case Selection:
+        reject();
+        break;
+    default:
+        int row = -1;
         UpLineEdit *line;
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
@@ -214,38 +228,19 @@ void dlg_impressions::Annulation()
             if (line->focusPolicy() == Qt::WheelFocus)
             {
                 row = line->Row();
-                TableAmodifier = "Docs";
                 break;
             }
         }
-        if (row == -1)
-        {
-            for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-            {
-                line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(i,1));
-                if (line->focusPolicy() == Qt::WheelFocus)
-                {
-                    row = line->Row();
-                    TableAmodifier = "Dossiers";
-                    break;
-                }
-            }
-        }
-        if (m_mode == CreationDOC || m_mode == CreationDOSS)
+        if (m_mode == CreationDOC)
             Remplir_TableWidget();
         if (ui->DocupTableWidget->rowCount() == 0)
             ConfigMode(CreationDOC);
         else
         {
             ConfigMode(Selection);
-            if (TableAmodifier == "Docs")
-                LineSelect(ui->DocupTableWidget,row);
-            else if (TableAmodifier == "Dossiers")
-                LineSelect(ui->DossiersupTableWidget, row);
+            LineSelect(ui->DocupTableWidget,row);
         }
     }
-    else
-        reject();
 }
 
 void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
@@ -286,28 +281,17 @@ void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
     {
         switch (wdg_dossiersbuttonframe->Choix()) {
         case WidgetButtonFrame::Plus:
-            for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-            {
-                line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-                if (line->hasSelectedText()) {row = line->Row(); break;}
-            }
+            if (m_currentdossier)
+                row = getRowFromDossier(m_currentdossier);
             ConfigMode(CreationDOSS, row);
             break;
         case WidgetButtonFrame::Modifier:
-            for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-            {
-                line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-                if (line->hasSelectedText()) break;
-            }
-            ConfigMode(ModificationDOSS,line->Row());
+            if (m_currentdossier)
+                row = getRowFromDossier(m_currentdossier);
+            ConfigMode(ModificationDOSS,row);
             break;
         case WidgetButtonFrame::Moins:
-            for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-            {
-                line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-                if (line->hasSelectedText()) break;
-            }
-            SupprimmDossier(line->Row());
+            SupprimmeDossier(m_currentdossier);
             break;
         }
     }
@@ -452,23 +436,26 @@ void dlg_impressions::DocCellEnter(UpLineEdit *line)
         delete text;
         QToolTip::showText(QPoint(pos.x()+50,pos.y()), ResumeItem, ui->DocupTableWidget, rect, 2000);
     }
-    else if (ui->DossiersupTableWidget->isAncestorOf(line))
+}
+
+QString dlg_impressions::DossierToolTip(DossierImpression *dossier)
+{
+    if (!dossier)
+        return "";
+    QString resume = "";
+    bool ok;
+    QString req = "select " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
+            " where " CP_ID_IMPRESSIONS " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
+            " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id()) + ")";
+    //UpMessageBox::Watch(this,req);
+    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
+    if (listdocs.size()>0)
     {
-        bool ok;
-        QString req = "select " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
-                " where " CP_ID_IMPRESSIONS " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-                " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(getMetaDocumentFromRow(row)->id()) + ")";
-        //UpMessageBox::Watch(this,req);
-        QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-        QString resume = "";
-        if (listdocs.size()>0)
-        {
-            resume += listdocs.at(0).at(0).toString();
-            for (int i = 1; i< listdocs.size(); i++)
-                resume += "\n" + listdocs.at(i).at(0).toString();
-            QToolTip::showText(QPoint(pos.x()+50,pos.y()), resume, ui->DossiersupTableWidget, rect, 2000);
-        }
+        resume += listdocs.at(0).at(0).toString();
+        for (int i = 1; i< listdocs.size(); i++)
+            resume += "\n" + listdocs.at(i).at(0).toString();
     }
+    return resume;
 }
 
 // ----------------------------------------------------------------------------------
@@ -478,8 +465,32 @@ void dlg_impressions::DocCellDblClick(UpLineEdit *line)
 {
     if (ui->DocupTableWidget->isAncestorOf(line))
         ConfigMode(ModificationDOC, line->Row());
-    else if (ui->DossiersupTableWidget->isAncestorOf(line))
+    else if (ui->DossiersupTableView->isAncestorOf(line))
         ConfigMode(ModificationDOSS, line->Row());
+}
+
+void dlg_impressions::EnableDossiersButtons(QItemSelection select)
+{
+    if (select.size() == 0)
+    {
+        wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
+        m_currentdossier = Q_NULLPTR;
+        return;
+    }
+    if (select.at(0).indexes().size() == 0)
+    {
+        wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
+        m_currentdossier = Q_NULLPTR;
+        return;
+    }
+    m_currentdossier = getDossierFromIndex(select.at(0).indexes().at(0));
+    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(m_currentdossier);
+    if (m_currentdossier)
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(m_currentdossier->iduser() == currentuser()->id());
+    else
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
 }
 
 // ----------------------------------------------------------------------------------
@@ -516,19 +527,12 @@ void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
     }
     else if (m_mode == CreationDOSS || m_mode == ModificationDOSS)
     {
-        UpLineEdit *line= new UpLineEdit(this);
         bool a = false;
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) {a = true; break;}
-        }
-        if (a == false)
-        {
-            ui->OKupPushButton->setEnabled(false);
-            return;
-        }
-        if (line->text().size() == 0)
+        QString resume = "";
+        int row = getRowFromDossier(m_currentdossier);
+        QStandardItem *itm = m_dossiersmodel->item(row,1);
+        resume = itm->text();
+        if (resume.size() == 0)
         {
             ui->OKupPushButton->setEnabled(false);
             return;
@@ -549,22 +553,14 @@ void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
     {
         if (Check != Q_NULLPTR)
         {
-            if (ui->DossiersupTableWidget->isAncestorOf(Check))
+            QString nomdoc = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(Check->rowTable(),1))->text();
+            if (!Check->isChecked())
             {
-                bool A = Check->isChecked();
-               CocheLesDocs(getMetaDocumentFromRow(Check->rowTable())->id(),A);
+                VerifDossiers();
+                ui->DocupTableWidget->item(Check->rowTable(),6)->setText("1" + nomdoc);
             }
-            if (ui->DocupTableWidget->isAncestorOf(Check))
-            {
-                QString nomdoc = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(Check->rowTable(),1))->text();
-                if (!Check->isChecked())
-                {
-                    VerifDossiers();
-                    ui->DocupTableWidget->item(Check->rowTable(),6)->setText("1" + nomdoc);
-                }
-                else
-                    ui->DocupTableWidget->item(Check->rowTable(),6)->setText("0" + nomdoc);
-            }
+            else
+                ui->DocupTableWidget->item(Check->rowTable(),6)->setText("0" + nomdoc);
         }
         if (wdg_docsbuttonframe->searchline()->text() == "")
             m_listid.clear();
@@ -624,11 +620,9 @@ void dlg_impressions::FiltreListe()
 
 void dlg_impressions::MenuContextuel(QWidget *widg)
 {
+    if(m_menucontextuel)
+        delete m_menucontextuel;
     m_menucontextuel = new QMenu(this);
-    QAction *pAction_ModifDossier;
-    QAction *pAction_SupprDossier;
-    QAction *pAction_CreerDossier;
-    QAction *pAction_PublicDossier;
     QAction *pAction_ModifDoc;
     QAction *pAction_SupprDoc;
     QAction *pAction_CreerDoc;
@@ -670,26 +664,7 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
     if (line)
     {
         int row = line->Row();
-        if (ui->DossiersupTableWidget->isAncestorOf(line))
-        {
-            LineSelect(ui->DossiersupTableWidget,row);
-
-            pAction_CreerDossier            = m_menucontextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
-            pAction_ModifDossier            = m_menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
-            pAction_SupprDossier            = m_menucontextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
-            m_menucontextuel->addSeparator();
-            UpLabel *lbl                    = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->Row(),4));
-            if (lbl->pixmap() != Q_NULLPTR)
-                pAction_PublicDossier       = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
-            else
-                pAction_PublicDossier       = m_menucontextuel->addAction(tr("Public")) ;
-
-            connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDossier");});
-            connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("SupprimerDossier");});
-            connect (pAction_CreerDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("CreerDossier");});
-            connect (pAction_PublicDossier, &QAction::triggered,    this, [=] {ChoixMenuContextuel("PublicDossier");});
-        }
-        else if (ui->DocupTableWidget->isAncestorOf(line))
+        if (ui->DocupTableWidget->isAncestorOf(line))
         {
             LineSelect(ui->DocupTableWidget,line->Row());
 
@@ -830,6 +805,38 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
     // ouvrir le menu
     m_menucontextuel->exec(cursor().pos());
     delete m_menucontextuel;
+    m_menucontextuel = Q_NULLPTR;
+}
+
+void dlg_impressions::MenuContextuelDossiers()
+{
+    QModelIndex idx   = ui->DossiersupTableView->indexAt(ui->DossiersupTableView->viewport()->mapFromGlobal(cursor().pos()));
+    m_currentdossier = getDossierFromIndex(idx);
+    if (!m_currentdossier)
+        return;
+    QMenu *menucontextuel = new QMenu(this);
+    QAction *pAction_ModifDossier;
+    QAction *pAction_SupprDossier;
+    QAction *pAction_CreerDossier;
+    QAction *pAction_PublicDossier;
+
+    pAction_CreerDossier            = menucontextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
+    pAction_ModifDossier            = menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
+    pAction_SupprDossier            = menucontextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
+    menucontextuel->addSeparator();
+    if (!m_currentdossier->ispublic())
+        pAction_PublicDossier       = menucontextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
+    else
+        pAction_PublicDossier       = menucontextuel->addAction(tr("Privé")) ;
+
+    connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Modifier");});
+    connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Supprimer");});
+    connect (pAction_CreerDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Creer");});
+    connect (pAction_PublicDossier, &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Public");});
+
+    // ouvrir le menu
+    menucontextuel->exec(cursor().pos());
+    delete menucontextuel;
 }
 
 void dlg_impressions::ChoixMenuContextuel(QString choix)
@@ -863,17 +870,6 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
         }
         if (a == false) return;
         SupprimmDocument(line->Row());
-    }
-    else if (choix  == "ModifierDossier")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a = true; break;}
-        }
-        if (a == false) return;
-        ConfigMode(ModificationDOSS,line->Row());
     }
     else if (choix  == "PublicDoc")
     {
@@ -959,29 +955,6 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
             ui->PrescriptioncheckBox->setChecked(false);
         }
     }
-    else if (choix  == "PublicDossier")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->Row(),2));
-        QString b = "null";
-        if (lbl->pixmap() == Q_NULLPTR)
-        {
-            if (!VerifDossierPublic(line->Row())) return;
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-            b = "1";
-        }
-        else
-            lbl->clear();
-        if (m_mode == Selection)
-            db->StandardSQL("update " TBL_DOSSIERSIMPRESSIONS " set " CP_PUBLIC_DOSSIERIMPRESSIONS " = " + b + " where idMetaDocument = " +
-                       QString::number(getMetaDocumentFromRow(line->Row())->id()));
-    }
     else if (choix  == "PrescripDoc")
     {
         UpLineEdit *line = new UpLineEdit(this);
@@ -1015,22 +988,6 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
     {
         int row = ui->DocupTableWidget->rowAt(pos.y());
         ConfigMode(CreationDOC,row);
-    }
-    else if (choix  == "CreerDossier")
-    {
-        int row = ui->DossiersupTableWidget->rowAt(pos.y());
-        ConfigMode(CreationDOSS,row);
-    }
-    else if (choix  == "SupprimerDossier")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a == false) return;
-        SupprimmDossier(line->Row());
     }
     else if (choix  == "Police")    {
         bool ok = false;
@@ -1238,6 +1195,27 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
     }
 }
 
+void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
+{
+    int row = getRowFromDossier(m_currentdossier);
+    if (choix  == "Modifier")
+        ConfigMode(ModificationDOSS,row);
+    else if (choix  == "Supprimer")
+        SupprimmeDossier(m_currentdossier);
+    else if (choix  == "Public")
+    {
+        if (!m_currentdossier->ispublic() && hasDocumentPrive(m_currentdossier))
+            return;
+        ItemsList::update(m_currentdossier, CP_PUBLIC_DOSSIERIMPRESSIONS,!m_currentdossier->ispublic());
+        SetDossierToRow(m_currentdossier, row);
+    }
+    else if (choix  == "Creer")
+    {
+        ConfigMode(CreationDOSS);
+    }
+}
+
+
 
 // ----------------------------------------------------------------------------------
 // Clic sur le bouton OK.
@@ -1275,12 +1253,9 @@ void dlg_impressions::Validation()
         InsertDocument(line->Row());
         break;
     case CreationDOSS:
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) break;
-        }
-        InsertDossier(line->Row());
+    case ModificationDOSS:
+        ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        EnregistreDossier(m_currentdossier);
         break;
     case ModificationDOC:
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
@@ -1289,14 +1264,6 @@ void dlg_impressions::Validation()
             if (line->isEnabled()) break;
         }
         UpdateDocument(line->Row());
-        break;
-    case ModificationDOSS:
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) break;
-        }
-        UpdateDossier(line->Row());
         break;
     case Selection:                                                         // -> On imprime le
         for (int i =0 ; i < ui->DocupTableWidget->rowCount(); i++)
@@ -1979,6 +1946,7 @@ int dlg_impressions::AskDialog(QString titre)
 // ----------------------------------------------------------------------------------
 bool dlg_impressions::ChercheDoublon(QString str, int row)
 {
+    DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
     QString req, nom;
     switch (m_mode) {
     case CreationDOC:
@@ -1994,8 +1962,12 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
         nom = tr("dossier");
         break;
     case ModificationDOSS:
-        req = "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
-        nom = tr("dossier");
+        if (dossier)
+        {
+            req = "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " where idmetadocument <> " + QString::number(dossier->id());
+            nom = tr("dossier");
+        }
+        else return false;
         break;
     default:
         return false;
@@ -2053,18 +2025,19 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
                     else                 // on vérifie qu'on peut décocher un doc et qu'il n'est pas nécessité par un autre dossier coché
                     {
                         bool a = false;
-                        for (int j=0; j<ui->DossiersupTableWidget->rowCount(); j++)
+                        for (int j=0; j<m_dossiersmodel->rowCount(); j++)
                         {
-                            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(j,0));
-                            if (Widg)
+                            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
+                            if (itm)
                             {
-                                UpCheckBox *DossCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                                if (QString::number(getMetaDocumentFromRow(j)->id()) != iddoss)
+                                DossierImpression * dossier = getDossierFromIndex(itm->index());
+                                if (dossier)
+                                if (dossier->id() != iddoss)
                                 {
-                                    if (DossCheck->isChecked())
+                                    if (itm->checkState()==Qt::Checked)
                                     {
                                         req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-                                                " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(getMetaDocumentFromRow(j)->id());
+                                                " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id());
                                         QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
                                         if (listdocmts2.size() > 0)
                                         {
@@ -2116,19 +2089,21 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
     ui->dateImpressiondateEdit          ->setEnabled(m_mode == Selection);
     ui->ALDcheckBox                     ->setVisible(m_mode == Selection);
     wdg_dossiersbuttonframe             ->setEnabled(m_mode == Selection);
-    ui->DossiersupTableWidget           ->setEnabled(m_mode == Selection);
+    ui->DossiersupTableView             ->setEnabled(m_mode == Selection);
     ui->OKupPushButton                  ->setEnabled(false);
     ui->textFrame                       ->setVisible(m_mode != CreationDOSS && m_mode!= ModificationDOSS && m_mode != Selection);
 
     if (m_mode != Selection) {
         t_timerefface->disconnect();
         ui->textFrame->setGraphicsEffect(new QGraphicsOpacityEffect());
+        ui->DossiersupTableView->setContextMenuPolicy(Qt::NoContextMenu);
     }
     else
     {
         m_opacityeffect = new QGraphicsOpacityEffect();
         m_opacityeffect->setOpacity(0.1);
         ui->textFrame->setGraphicsEffect(m_opacityeffect);
+        ui->DossiersupTableView->setContextMenuPolicy(Qt::CustomContextMenu);
     }
 
     if (mode == Selection)
@@ -2142,7 +2117,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->DocupTableWidget            ->setFocus();
         ui->DocupTableWidget            ->setStyleSheet("");
         wdg_dossiersbuttonframe         ->setEnabled(true);
-        ui->DossiersupTableWidget       ->setEnabled(true);
+        ui->DossiersupTableView       ->setEnabled(true);
         ui->DocEditcheckBox             ->setChecked(false);
         ui->DocEditcheckBox             ->setEnabled(false);
         ui->DocEditcheckBox             ->setToolTip("");
@@ -2180,6 +2155,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
             }
         }
         ui->OKupPushButton->setEnabled(nbCheck>0);
+        wdg_docsbuttonframe->searchline()->setFocus();
     }
 
     else if (mode == ModificationDOC)
@@ -2209,7 +2185,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->DocupTableWidget->setEnabled(true);
         ui->DocupTableWidget->setStyleSheet("");
         wdg_docsbuttonframe->setEnabled(false);
-        ui->DossiersupTableWidget->setEnabled(true);
+        ui->DossiersupTableView->setEnabled(true);
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->textFrame->setEnabled(true);
         ui->Expliclabel->setText(tr("DOCUMENTS - MODIFICATION"));
@@ -2234,13 +2210,28 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
 
     else if (mode == ModificationDOSS)
     {
+        m_currentdossier = getDossierFromIndex(ui->DossiersupTableView->currentIndex());
+        if (!m_currentdossier)
+            return;
         DisableLines();
-        UpLineEdit *line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(row,1));
-        line->setEnabled(true);
-        line->setFocusPolicy(Qt::WheelFocus);
-        line->setFocus();
-        line->selectAll();
-        connect(line,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
+        for (int i=0; i<m_dossiersmodel->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i,0));
+            if (itm)
+            {
+                DossierImpression *dossier = dynamic_cast<DossierImpression*>(itm->item());
+                if (dossier)
+                    if (dossier == m_currentdossier)
+                    {
+                        m_dossiersmodel->item(i,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+                        ui->DossiersupTableView->setFocus();
+                        ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+                        ui->DossiersupTableView->setCurrentIndex(m_dossiersmodel->index(i,1));
+                        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(i,1));
+                        i = m_dossiersmodel->rowCount();
+                    }
+            }
+        }
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
             QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -2251,22 +2242,11 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
                 Check->setChecked(false);
             }
         }
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setEnabled(false);
-                Check->setChecked(i==row);
-            }
-        }
-        int iddossier = getMetaDocumentFromRow(row)->id();
-        CocheLesDocs(iddossier, true);
+        CocheLesDocs(m_currentdossier->id(), true);
 
         ui->DocupTableWidget->setEnabled(true);
         ui->DocupTableWidget->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
-        ui->DossiersupTableWidget->setEnabled(true);
+        ui->DossiersupTableView->setEnabled(true);
         ui->Expliclabel->setText(tr("DOSSIERS - MODIFICATION"));
 
         ui->AnnulupPushButton->setIcon(Icons::icBack());
@@ -2274,6 +2254,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
+        ui->OKupPushButton->setEnabled(false);
         wdg_docsbuttonframe->searchline()->clear();
     }
     else if (mode == CreationDOC)
@@ -2328,7 +2309,7 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->DocPubliccheckBox->setChecked(false);
         ui->DocPubliccheckBox->setEnabled(true);
         ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
-        ui->DossiersupTableWidget->setEnabled(false);
+        ui->DossiersupTableView->setEnabled(false);
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->DocEditcheckBox->setEnabled(true);
         ui->DocEditcheckBox->setChecked(false);
@@ -2363,7 +2344,9 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
     {
         wdg_docsbuttonframe->searchline()->clear();
         FiltreListe();
-        DisableLines();
+        if (m_dossiersmodel->rowCount() > 0)
+            DisableLines();
+        int row = 0;
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
             QWidget *Widg = dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -2379,56 +2362,27 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
                 line0->setEnabled(false);
             }
         }
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
+        for (int i=0; i<m_dossiersmodel->rowCount(); i++)
         {
-            QWidget *Widg = dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setEnabled(false);
-                Check->setChecked(false);
-            }
+            QStandardItem *itm = m_dossiersmodel->item(i);
+            if (itm)
+                itm->setCheckState(Qt::Unchecked);
         }
-        ui->DossiersupTableWidget->insertRow(row);
-        QWidget * w = new QWidget(ui->DocupTableWidget);
-        UpCheckBox *Check = new UpCheckBox(w);
-        Check->setCheckState(Qt::Checked);
-        Check->setRowTable(row);
-        Check->setFocusPolicy(Qt::NoFocus);
-        Check->setEnabled(false);
-        QHBoxLayout *l = new QHBoxLayout();
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
-        l->setContentsMargins(0,0,0,0);
-        w->setLayout(l);
-        ui->DossiersupTableWidget->setCellWidget(row,0,w);
-        UpLineEdit *upLine0 = new UpLineEdit;
-        upLine0->setText(tr("Nouveau dossier"));                          // resume
-        upLine0->setMaxLength(80);
-        upLine0->setRow(row);
-        upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        upLine0->setFocusPolicy(Qt::WheelFocus);
-        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-        upLine0->setFocus();
-        upLine0->selectAll();
-        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
-        ui->DossiersupTableWidget->setCellWidget(row,1,upLine0);
-        QTableWidgetItem    *pItem1 = new QTableWidgetItem;
-        int col = 2;
-        UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
-        lbl->setAlignment(Qt::AlignCenter);
-        ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
-        col++; //3
-        pItem1->setText("");                           // idMetaDocument
-        ui->DossiersupTableWidget->setItem(row,col,pItem1);
-
-        ui->DossiersupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
+        m_dossiersmodel->insertRow(row);
+        m_currentdossier = new DossierImpression;
+        m_currentdossier->setresume(tr("Nouveau Dossier"));
+        m_currentdossier->setiduser(currentuser()->id());
+        SetDossierToRow(m_currentdossier, row);
+        m_dossiersmodel->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        ui->DossiersupTableView->scrollTo(m_dossiersmodel->index(row,1), QAbstractItemView::EnsureVisible);
+        ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+        ui->DossiersupTableView->setCurrentIndex(m_dossiersmodel->index(row,1));
+        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
 
         wdg_docsbuttonframe->setEnabled(false);
         ui->DocupTableWidget->setEnabled(true);
         ui->DocupTableWidget->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
-        ui->DossiersupTableWidget->setEnabled(true);
+        ui->DossiersupTableView->setEnabled(true);
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->Expliclabel->setText(tr("DOSSIER - CREATION - Cochez les cases correspondants au dossier que vous voulez créer"));
 
@@ -2454,8 +2408,8 @@ void dlg_impressions::DisableLines()
     wdg_docsbuttonframe->searchline()->clear();
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         ui->DocupTableWidget->setRowHidden(i,false);
-    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        ui->DossiersupTableWidget->setRowHidden(i,false);
+    for (int i=0; i<m_dossiersmodel->rowCount(); i++)
+        ui->DossiersupTableView->setRowHidden(i,false);
 
     wdg_dossiersbuttonframe->setEnabled(false);
     wdg_docsbuttonframe->setEnabled(false);
@@ -2475,21 +2429,17 @@ void dlg_impressions::DisableLines()
             line0 ->disconnect();
         }
     }
-    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
+    for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
-        if (Widg)
-        {
-            UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-            Check->setEnabled(false);
-        }
-        UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (line0 != Q_NULLPTR) {
-            line0->deselect();
-            line0->setEnabled(false);
-            line0->setFocusPolicy(Qt::NoFocus);
-            line0->disconnect();
-        }
+        QStandardItem *itm = m_dossiersmodel->item(i,0);
+        if (itm)
+            itm->setFlags(Qt::ItemIsUserCheckable);
+        QStandardItem *itm1 = m_dossiersmodel->item(i,1);
+        if (itm1)
+            itm1->setFlags(Qt::NoItemFlags);
+        QStandardItem *itm2 = m_dossiersmodel->item(i,2);
+        if (itm2)
+            itm2->setFlags(Qt::NoItemFlags);
     }
 }
 
@@ -2523,28 +2473,17 @@ void dlg_impressions::EnableLines()
             connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DocupTableWidget, line0->Row());});
         }
     }
-    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
+    for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
-        if (Widg != Q_NULLPTR)
-        {
-            UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-            Check->setEnabled(true);
-        }
-        UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (line0 != Q_NULLPTR) {
-            line0->deselect();
-            line0->setEnabled(true);
-            line0->setFocusPolicy(Qt::NoFocus);
-            if (getMetaDocumentFromRow(i)->iduser() == currentuser()->id())
-            {
-                connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
-                connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
-                connect(line0,          &QLineEdit::textEdited,                 [=] {EnableOKPushButton();});
-            }
-            connect(line0,              &UpLineEdit::mouseEnter,                [=] {DocCellEnter(line0);});
-            connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DossiersupTableWidget, line0->Row());});
-        }
+        QStandardItem *itm = m_dossiersmodel->item(i,0);
+        if (itm)
+            itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+        QStandardItem *itm1 = m_dossiersmodel->item(i,1);
+        if (itm1)
+            itm1->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        QStandardItem *itm2 = m_dossiersmodel->item(i,2);
+        if (itm2)
+            itm2->setFlags(Qt::ItemIsEnabled);
     }
 }
 
@@ -2585,15 +2524,67 @@ Impression* dlg_impressions::getDocumentFromRow(int row)
     return Datas::I()->impressions->getById(ui->DocupTableWidget->item(row,2)->text().toInt());
 }
 
-DossierImpression* dlg_impressions::getMetaDocumentFromRow(int row)
+DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
 {
-    return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,3)->text().toInt());
+    int row = idx.row();
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
+    if (itm)
+        return dynamic_cast<DossierImpression*>(itm->item());
+    else
+        return Q_NULLPTR;
 }
 
 User* dlg_impressions::userentete() const
 {
     return m_userentete;
 }
+
+// ------------------------------------------------------------------------------------------
+// renvoie le row correspondant au dossier
+// ------------------------------------------------------------------------------------------
+int dlg_impressions::getRowFromDossier(DossierImpression *dossier)
+{
+    int row = -1;
+    if (!dossier)
+        return row;
+    for (int i=0; i<m_dossiersmodel->rowCount(); i++)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
+        if (itm)
+        {
+            DossierImpression *doss = dynamic_cast<DossierImpression*>(itm->item());
+            if (doss == dossier)
+            {
+                row = i;
+                i = m_dossiersmodel->rowCount();
+            }
+        }
+    }
+    return row;
+}
+
+// ----------------------------------------------------------------------------------
+// Verifie si un dossier peut être rendu public
+// ----------------------------------------------------------------------------------
+bool dlg_impressions::hasDocumentPrive(DossierImpression *dossier)
+{
+    bool ok;
+    if (!m_currentdossier)
+        return false;
+    QString req = "select " CP_ID_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
+                  " where " CP_ID_IMPRESSIONS
+                  " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id()) + ")"
+                  " and " CP_DOCPUBLIC_IMPRESSIONS " is null";
+    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
+    if (listdocs.size()>0)
+    {
+        UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre public ce dossier.\nIl incorpore le document\n- ") +
+                            listdocs.at(0).at(1).toString() + tr(" -\nqui est un document privé!"));
+        return true;
+    }
+    else return false;
+}
+
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
 // ----------------------------------------------------------------------------------
@@ -2659,44 +2650,82 @@ void dlg_impressions::InsertDocument(int row)
 // ----------------------------------------------------------------------------------
 // Creation du Dossier dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_impressions::InsertDossier(int row)
+void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
 {
     // controle validité des champs
-    UpLineEdit *line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(row,1));
-    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
-    if (line->text().length() < 1)
+    if (!dossier)
+        return;
+    int row = getRowFromDossier(dossier);
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row));
+    if (!itm)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Veuillez renseigner le champ Résumé, SVP !"));
+        selectcurrentDossier(dossier);
         return;
     }
-
-    // Creation du Dossier dans la table
-    if (ChercheDoublon(line->text(), row))
+    UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
+    if (!itmdef)
     {
-        line->setFocus();
-        line->selectAll();
+        selectcurrentDossier(dossier);
         return;
     }
-
-    QString requete = "INSERT INTO " TBL_DOSSIERSIMPRESSIONS
-            " (" CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ") "
-            " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
-            "'," + QString::number(currentuser()->id());
-    UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,2));
-    QString a = "null";
-    if (lbl->pixmap() != Q_NULLPTR)
-        a = "1";
-    requete += "," + a + ")";
-    if (db->StandardSQL(requete, tr("Erreur d'enregistrement du dossier dans ") +  TBL_DOSSIERSIMPRESSIONS))
+    bool publicdossier = (itmdef->data(Qt::DecorationRole) != QPixmap());
+    QString resume = Utils::trimcapitilize(m_dossiersmodel->item(row,1)->data(Qt::EditRole).toString());
+    if (ChercheDoublon(resume, row))
     {
-        QStringList listdocs;
-        QString idmetadoc;
-        requete = "select " CP_ID_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " where " CP_RESUME_DOSSIERIMPRESSIONS " = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
-        bool ok;
-        QList<QVariantList> listdocmts = db->StandardSelectSQL(requete,ok);
-        if (listdocmts.size()>0)
+        selectcurrentDossier(dossier);
+        return;
+    }
+    if (m_mode == ModificationDOSS)
+    {
+        QStringList listid;
+        for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
         {
-            idmetadoc = listdocmts.at(0).at(0).toString();
+            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
+            if (Widg != Q_NULLPTR)
+            {
+                UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
+                if (DocCheck->isChecked())
+                    listid << QString::number(getDocumentFromRow(l)->id());
+            }
+        }
+        if (listid.size() == 0)
+        {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Modification de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
+            return;
+        }
+        db->SupprRecordFromTable(m_currentdossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS, TBL_JOINTURESIMPRESSIONS);
+        QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
+        for (int i=0; i<listid.size(); i++)
+        {
+            req += "(" + QString::number(m_currentdossier->id()) + ", " + listid.at(i) + ")";
+            if (i<listid.size()-1)
+                req += ",";
+        }
+        db->StandardSQL(req);
+    }
+
+    // Enregistrement du Dossier dans la table
+    int idcurrentdossier = dossier->id();
+
+    DataBase::I()->UpdateTable(TBL_DOSSIERSIMPRESSIONS, m_dossierlistbinds, " where " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(m_currentdossier->id()),tr("Impossible de modifier le site"));
+    Datas::I()->metadocuments->getById(idcurrentdossier, true);
+
+    m_dossierlistbinds[CP_RESUME_DOSSIERIMPRESSIONS]   = resume.left(100);
+    m_dossierlistbinds[CP_IDUSER_DOSSIERIMPRESSIONS]   = currentuser()->id();
+    m_dossierlistbinds[CP_PUBLIC_DOSSIERIMPRESSIONS]   = (publicdossier? "1" : QVariant());
+    if (m_mode == ModificationDOSS)
+    {
+        idcurrentdossier = m_currentdossier->id();
+        DataBase::I()->UpdateTable(TBL_DOSSIERSIMPRESSIONS, m_dossierlistbinds, " where " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(m_currentdossier->id()),tr("Impossible de modifier le site"));
+        Datas::I()->metadocuments->getById(idcurrentdossier, true);
+    }
+    else if (m_mode == CreationDOSS)
+    {
+        m_currentdossier = Datas::I()->metadocuments->CreationDossierImpression(m_dossierlistbinds);
+        if (m_currentdossier)
+        {
+            idcurrentdossier = m_currentdossier->id();
+            QStringList listdocs;
             for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
             {
                 QWidget * w = static_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -2707,63 +2736,46 @@ void dlg_impressions::InsertDossier(int row)
             }
             if (listdocs.size()>0)
             {
-                requete = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") VALUES ";
+                QString req = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") VALUES ";
                 for (int k=0; k<listdocs.size(); k++)
                 {
-                    requete += "(" + idmetadoc + ", " + listdocs.at(k) + ")";
-                    if (k<listdocs.size()-1)    requete += ",";
+                    req += "(" + QString::number(m_currentdossier->id()) + ", " + listdocs.at(k) + ")";
+                    if (k<listdocs.size()-1)    req += ",";
                 }
-                //UpMessageBox::Watch(this,requete);
-                db->StandardSQL(requete);
+                db->StandardSQL(req);
             }
         }
     }
     Remplir_TableWidget();
-
+    m_currentdossier = Datas::I()->metadocuments->getById(idcurrentdossier);
     if (ui->DocupTableWidget->rowCount() == 0)
         ConfigMode(CreationDOC);
     else
     {
         ConfigMode(Selection);
-        QString resume = line->text();
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-             line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(i,1));
-             if (line->text() == resume)
-             {
-                LineSelect(ui->DossiersupTableWidget,line->Row());
-                QModelIndex index = ui->DossiersupTableWidget->model()->index(line->Row(),1);
-                ui->DocupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-                break;
-             }
-         }
+        selectcurrentDossier(m_currentdossier);;
     }
 }
 
 // ----------------------------------------------------------------------------------
 // On sélectionne une ligne. On affiche le détail et on met en édition
 // ----------------------------------------------------------------------------------
-void dlg_impressions::LineSelect(UpTableWidget *table, int row)
+void dlg_impressions::LineSelect(QTableView *table, int row)
 {
-    if (table->rowCount() == 0) return;
+    if (table->model()->rowCount() == 0) return;
     if (row < 0) row = 0;
-    if (row > table->rowCount()-1) row = table->rowCount()-1;
+    if (row > table->model()->rowCount()-1) row = table->model()->rowCount()-1;
 
-    UpLineEdit *line        = dynamic_cast<UpLineEdit*>(table->cellWidget(row,1));
-    if (!line) return;
 
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         UpLineEdit *line0   = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
         if (line0) line0->deselect();
     }
-    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-    {
-        UpLineEdit *line0   = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (line0) line0->deselect();
-    }
     if (table == ui->DocupTableWidget)
     {
+        UpLineEdit *line = Q_NULLPTR;
+        line   = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(row,1));
         wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == currentuser()->id());
         wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == currentuser()->id());
         wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(false);
@@ -2780,16 +2792,23 @@ void dlg_impressions::LineSelect(UpTableWidget *table, int row)
             ui->PrescriptioncheckBox        ->setChecked(getDocumentFromRow(row)->isprescription());
             ui->DocAdministratifcheckBox    ->setChecked(!getDocumentFromRow(row)->ismedical());
         }
+        line->selectAll();
     }
-    else if (table == ui->DossiersupTableWidget)
+    else if (table == ui->DossiersupTableView)
     {
         ui->textFrame                       ->setVisible(false);
+        QModelIndex idx = m_dossiersmodel->index(row,1);
+        ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+        ui->DossiersupTableView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
         wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == currentuser()->id());
         wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == currentuser()->id());
+        bool a = false;
+        m_currentdossier = getDossierFromIndex(idx);
+        if (m_currentdossier)
+            a = (m_currentdossier->iduser() == currentuser()->id());
+        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(a);
+        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(a);
     }
-    line->selectAll();
 }
 
 // ----------------------------------------------------------------------------------
@@ -3226,21 +3245,114 @@ void dlg_impressions::Remplir_TableWidget()
 
     //Remplissage Table Dossiers
     i = 0;
-    Datas::I()->metadocuments->initListe();
-    for (int i = 0; i<ui->DossiersupTableWidget->rowCount(); i++)
+    if (!Datas::I()->metadocuments->isfull())
+        Datas::I()->metadocuments->initListe();
+    ui->DossiersupTableView->disconnect();
+    ui->DossiersupTableView->selectionModel()->disconnect();
+    UpLineDelegate *line = new UpLineDelegate();
+    connect(line,   &UpLineDelegate::textEdited, [=] {ui->OKupPushButton->setEnabled(true);});
+    ui->DossiersupTableView->setItemDelegateForColumn(1,line);
+    if (m_dossiersmodel == Q_NULLPTR)
+        delete m_dossiersmodel;
+    m_dossiersmodel = new QStandardItemModel(this);
+
+    QStandardItem *pitem0   = new QStandardItem(Icons::icCheck(),"");
+    pitem0->setEditable(false);
+    pitem0->setTextAlignment(Qt::AlignCenter);
+    m_dossiersmodel->setHorizontalHeaderItem(0,pitem0);
+    QStandardItem *pitem1   = new QStandardItem(tr("DOSSIERS"));
+    pitem1->setEditable(false);
+    pitem1->setTextAlignment(Qt::AlignLeft);
+    m_dossiersmodel->setHorizontalHeaderItem(1,pitem1);
+    QStandardItem *pitem2   = new QStandardItem(Icons::icFamily(),"");
+    pitem2->setEditable(false);
+    pitem2->setTextAlignment(Qt::AlignCenter);
+    m_dossiersmodel->setHorizontalHeaderItem(2,pitem2);
+    m_dossiersmodel->setRowCount(Datas::I()->metadocuments->dossiersimpressions()->size());
+    m_dossiersmodel->setColumnCount(3);
+    foreach (DossierImpression *dossier, *Datas::I()->metadocuments->dossiersimpressions())
     {
-        upLine0 = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (upLine0)
-            upLine0->disconnect();
-    }
-    ui->DossiersupTableWidget->clearContents();
-    ui->DossiersupTableWidget->setRowCount(Datas::I()->metadocuments->dossiersimpressions()->size());
-    foreach (DossierImpression *metadoc, *Datas::I()->metadocuments->dossiersimpressions())
-    {
-        SetMetaDocumentToRow(metadoc, i);
+        SetDossierToRow(dossier, i);
         i++;
     }
-    TriDossiersupTableWidget();
+    if (m_dossiersmodel->rowCount()>0)
+    {
+        m_dossiersmodel->sort(1);
+        QItemSelectionModel *m = ui->DossiersupTableView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
+        ui->DossiersupTableView->setModel(m_dossiersmodel);
+        delete m;
+        ui->DossiersupTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+        QHeaderView *verticalHeader = ui->DossiersupTableView->verticalHeader();
+        verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+        verticalHeader->setDefaultSectionSize(int(QFontMetrics(qApp->font()).height()*1.3));
+        verticalHeader->setVisible(false);
+        ui->DossiersupTableView->setColumnWidth(0,30);        // checkbox
+        ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
+        ui->DossiersupTableView->setColumnWidth(2,30);        // Public
+        ui->DossiersupTableView->FixLargeurTotale();
+        wdg_dossiersbuttonframe->widgButtonParent()->setFixedWidth(ui->DossiersupTableView->width());
+        connect(ui->DossiersupTableView,    &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
+                                                                                                        DossierImpression *dossier = getDossierFromIndex(idx);
+                                                                                                        if (dossier)
+                                                                                                            QToolTip::showText(cursor().pos(),DossierToolTip(dossier));
+                                                                                                        } );
+        connect(ui->DossiersupTableView,    &QAbstractItemView::doubleClicked,         this,   [=] (QModelIndex idx) {
+                                                                                                        DossierImpression *dossier = getDossierFromIndex(idx);
+                                                                                                        if (dossier)
+                                                                                                        {
+                                                                                                            m_currentdossier = dossier;
+                                                                                                            if(dossier->iduser() == currentuser()->id() && m_mode == Selection)
+                                                                                                                ConfigMode(ModificationDOSS, m_dossiersmodel->itemFromIndex(idx)->row());
+                                                                                                        }
+                                                                                                      });
+        connect (ui->DossiersupTableView,   &QWidget::customContextMenuRequested,      this,   &dlg_impressions::MenuContextuelDossiers);
+    //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la table n'a pas le focus et qu'elle n'a aucun item sélectionné
+        connect (ui->DossiersupTableView->selectionModel(),
+                                            &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {EnableDossiersButtons(select);});
+        connect(ui->DossiersupTableView,    &QAbstractItemView::clicked,               this,   [=] (QModelIndex idx)
+                                                                                                    {// le bouton OK est enabled quand une case est cochée
+                                                                                                        QStandardItem *itm = m_dossiersmodel->itemFromIndex(idx);
+                                                                                                        if (itm)
+                                                                                                            if(itm->isCheckable())
+                                                                                                            {
+                                                                                                                bool A = (itm->checkState() == Qt::Checked);
+                                                                                                                DossierImpression *dossier = getDossierFromIndex(idx);
+                                                                                                                if (dossier)
+                                                                                                                    CocheLesDocs(dossier->id(),A);
+                                                                                                                EnableOKPushButton();
+                                                                                                            }
+                                                                                                    });
+        m_currentdossier = Q_NULLPTR;
+        ui->DossiersupTableView->selectionModel()->clearCurrentIndex();
+    }
+}
+
+void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstractItemView::ScrollHint hint)
+{
+    m_currentdossier = dossier;
+    if (!m_currentdossier)
+    {
+        ui->DossiersupTableView->selectionModel()->clearSelection();
+        EnableDossiersButtons(QItemSelection());
+    }
+    else for (int i=0; i<m_dossiersmodel->rowCount(); i++)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
+        if (itm)
+        {
+            DossierImpression *sdossier = dynamic_cast<DossierImpression*>(itm->item());
+            if (sdossier)
+                if (m_currentdossier == sdossier)
+                {
+                    QModelIndex idx = m_dossiersmodel->index(i,1);
+                    ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    ui->DossiersupTableView->scrollTo(idx, hint);
+                    ui->OKupPushButton->setEnabled(true);
+                    EnableDossiersButtons(ui->DossiersupTableView->selectionModel()->selection());
+                    break;
+                }
+        }
+    }
 }
 
 void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
@@ -3317,70 +3429,32 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
     ui->DocupTableWidget->setRowHeight(row,int(fm.height()*1.3));
 }
 
-void dlg_impressions::SetMetaDocumentToRow(DossierImpression*dossier, int row)
+void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
 {
-    UpLineEdit          *upLine0;
-    QTableWidgetItem    *pItem1;
-    QTableWidgetItem    *pItem2;
-
+    if(!dossier)
+        return;
     QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
     QPalette palette;
     palette.setColor(QPalette::Text,QColor(0,0,140));
 
-    pItem1  = new QTableWidgetItem() ;
-    upLine0 = new UpLineEdit() ;
-    pItem2  = new QTableWidgetItem() ;
-
-    int col = 0;
-    QWidget * w = new QWidget(ui->DossiersupTableWidget);
-    UpCheckBox *Check = new UpCheckBox(w);
-    Check->setCheckState(Qt::Unchecked);
-    Check->setRowTable(row);
-    Check->setFocusPolicy(Qt::NoFocus);
-    connect(Check, &QCheckBox::clicked, this, [=] {EnableOKPushButton(Check);});
-    QHBoxLayout *l = new QHBoxLayout();
-    l->setAlignment( Qt::AlignCenter );
-    l->addWidget(Check);
-    l->setContentsMargins(0,0,0,0);
-    w->setLayout(l);
-    ui->DossiersupTableWidget->setCellWidget(row,col,w);
-
-    col++; //1
-    upLine0->setText(dossier->resume());                           // resume
-    upLine0->setMaxLength(80);
-    upLine0->setRow(row);
-    upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                           "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-    upLine0->setFocusPolicy(Qt::NoFocus);
-    if (dossier->iduser() != currentuser()->id())
-    {
-        upLine0->setFont(disabledFont);
-        upLine0->setPalette(palette);
-        upLine0->setContextMenuPolicy(Qt::NoContextMenu);
-    }
-    else
-        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->DossiersupTableWidget->setCellWidget(row,col,upLine0);
-
-    col++; //2
-    UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
-    lbl->setAlignment(Qt::AlignCenter);
+    UpStandardItem *pitem0 = new UpStandardItem("", dossier);
+    pitem0->setCheckable(true);
+    m_dossiersmodel->setItem(row,0,pitem0);
+    QModelIndex index = m_dossiersmodel->index(row, 1, QModelIndex());
+    m_dossiersmodel->setData(index, dossier->resume());
+        if (dossier->iduser() != currentuser()->id())
+        {
+            m_dossiersmodel->itemFromIndex(index)->setFont(disabledFont);
+            m_dossiersmodel->itemFromIndex(index)->setForeground(QBrush(QColor(0,0,140)));
+        }
+    UpStandardItem *pitem1 = new UpStandardItem("", dossier);
     if (dossier->ispublic())
-        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));        //WARNING : icon scaled : pxLoupe 15,15
-    ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
-
-    col++; //3
-    pItem1->setText(QString::number(dossier->id()));                // idMetaDocument
-    ui->DossiersupTableWidget->setItem(row,col,pItem1);
-
-    col++; //4
-    pItem2->setText(dossier->resume());                             // Resume dans un QTableWidgetItem
-    ui->DossiersupTableWidget->setItem(row,col,pItem2);
-
-
-    ui->DossiersupTableWidget->setRowHeight(row,int(fm.height()*1.3));
+        pitem1->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+    else
+        pitem1->setData(QPixmap(),Qt::DecorationRole);
+    m_dossiersmodel->setItem(row,2, pitem1);
 }
 
 // ----------------------------------------------------------------------------------
@@ -3419,10 +3493,12 @@ void dlg_impressions::SupprimmDocument(int row)
 // ----------------------------------------------------------------------------------
 // Supprime Dossier
 // ----------------------------------------------------------------------------------
-void dlg_impressions::SupprimmDossier(int row)
+void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
 {
+    if(!dossier)
+        return;
     QString Msg;
-    Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + getMetaDocumentFromRow(row)->resume() + "?";
+    Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + dossier->resume() + "?";
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
@@ -3434,13 +3510,9 @@ void dlg_impressions::SupprimmDossier(int row)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        QStringList locklist;
-        locklist << TBL_DOSSIERSIMPRESSIONS << TBL_JOINTURESIMPRESSIONS ;
-        if (db->SupprRecordFromTable( getMetaDocumentFromRow(row)->id(),
-                                      CP_ID_DOSSIERIMPRESSIONS,
-                                      TBL_DOSSIERSIMPRESSIONS,
-                                      tr("Impossible de suppprimer le dossier") + "\n" + getMetaDocumentFromRow(row)->resume() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
-            db->SupprRecordFromTable(getMetaDocumentFromRow(row)->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
+        db->SupprRecordFromTable(dossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
+        Datas::I()->metadocuments->SupprimeDossierImpression(dossier);
+        dossier = Q_NULLPTR;
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3448,7 +3520,7 @@ void dlg_impressions::SupprimmDossier(int row)
     else
     {
         ConfigMode(Selection);
-        LineSelect(ui->DossiersupTableWidget,row);
+        LineSelect(ui->DossiersupTableView, getRowFromDossier(dossier));
     }
 }
 
@@ -3462,19 +3534,6 @@ void dlg_impressions::TriDocupTableWidget()
     {
         static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1))->setRow(i);
         static_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0))->findChildren<UpCheckBox*>().at(0)->setRowTable(i);
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// Tri de la table dossiers.
-// ----------------------------------------------------------------------------------
-void dlg_impressions::TriDossiersupTableWidget()
-{
-    ui->DossiersupTableWidget->sortByColumn(4,Qt::AscendingOrder);
-    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-    {
-        static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1))->setRow(i);
-        static_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0))->findChildren<UpCheckBox*>().at(0)->setRowTable(i);
     }
 }
 
@@ -3549,78 +3608,6 @@ void dlg_impressions::UpdateDocument(int row)
 }
 
 // ----------------------------------------------------------------------------------
-// Modification du Dossier dans la base.
-// ----------------------------------------------------------------------------------
-void dlg_impressions::UpdateDossier(int row)
-{
-    QStringList listid;
-    UpLineEdit *line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(row,1));
-    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
-    for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
-    {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
-        if (Widg != Q_NULLPTR)
-        {
-            UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-            if (DocCheck->isChecked())
-                listid << QString::number(getDocumentFromRow(l)->id());
-        }
-    }
-    if (listid.size() == 0)
-    {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Modification de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
-        return;
-    }
-
-    QString iddoss  = QString::number(getMetaDocumentFromRow(row)->id());
-
-    if (ChercheDoublon(line->text(), row))
-    {
-        line->setFocus();
-        line->selectAll();
-        return;
-    }
-
-    db->SupprRecordFromTable(iddoss.toInt(), "idMetaDocument", TBL_JOINTURESIMPRESSIONS);
-
-    QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
-    for (int i=0; i<listid.size(); i++)
-    {
-        req += "(" + iddoss + ", " + listid.at(i) + ")";
-        if (i<listid.size()-1)
-            req += ",";
-    }
-    db->StandardSQL(req);
-
-    req =   "UPDATE " TBL_DOSSIERSIMPRESSIONS
-            " SET " CP_RESUME_DOSSIERIMPRESSIONS " = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'"
-            " WHERE " CP_ID_DOSSIERIMPRESSIONS " = " + iddoss;
-    db->StandardSQL(req, tr("Erreur de mise à jour du dossier dans ") + TBL_DOSSIERSIMPRESSIONS);
-
-    Remplir_TableWidget();
-    if (ui->DocupTableWidget->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
-        {
-            if (QString::number(getMetaDocumentFromRow(i)->id()) == iddoss)
-            {
-                QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
-                if (Widg)
-                {
-                    UpCheckBox *DossCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                    DossCheck->setChecked(true);
-                }
-                CocheLesDocs(iddoss.toInt(),true);
-                break;
-            }
-        }
-    }
-}
-
-// ----------------------------------------------------------------------------------
 // Verifie qu'un document peut devenir privé
 // ----------------------------------------------------------------------------------
 bool dlg_impressions::VerifDocumentPublic(int row, bool msg)
@@ -3649,64 +3636,44 @@ bool dlg_impressions::VerifDocumentPublic(int row, bool msg)
 void dlg_impressions::VerifDossiers()
 {
     bool ok;
-    for (int j=0; j<ui->DossiersupTableWidget->rowCount(); j++)
+    for (int j=0; j<m_dossiersmodel->rowCount(); j++)
     {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(j,0));
-        if (Widg)
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
+        if (itm)
         {
-            UpCheckBox *DossCheck = Widg->findChildren<UpCheckBox*>().at(0);
-            if (DossCheck->isChecked())
+            if (itm->checkState() == Qt::Checked)
             {
-                QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-                              " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(getMetaDocumentFromRow(j)->id());
-                QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-                if (listdocs.size() > 0)
+                DossierImpression *dossier = dynamic_cast<DossierImpression*>(itm->item());
+                if (dossier)
                 {
-                    QStringList listid;
-                    for (int i=0; i<listdocs.size(); i++)
-                        listid << listdocs.at(i).at(0).toString();
-                    bool a = false;
-                    for (int k=0; k<listid.size(); k++)
+                    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
+                            " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id());
+                    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
+                    if (listdocs.size() > 0)
                     {
-                        for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
-                            if (listid.contains(QString::number(getDocumentFromRow(l)->id())))
-                            {
-                                QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
-                                if (Widg)
+                        QList<int> listid;
+                        for (int i=0; i<listdocs.size(); i++)
+                            listid << listdocs.at(i).at(0).toInt();
+                        bool a = false;
+                        for (int k=0; k<listid.size(); k++)
+                        {
+                            for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
+                                if (listid.contains(getDocumentFromRow(l)->id()))
                                 {
-                                    UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                                    if (DocCheck->isChecked())
-                                    {a = true;  break;}
+                                    QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
+                                    if (Widg)
+                                    {
+                                        UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
+                                        if (DocCheck->isChecked())
+                                        {a = true;  break;}
+                                    }
                                 }
-                            }
-                        if (a) break;
+                            if (a) break;
+                        }
+                        if (!a) itm->setCheckState(Qt::Unchecked);
                     }
-                    if (!a) DossCheck->setChecked(false);
                 }
             }
         }
     }
-}
-
-// ----------------------------------------------------------------------------------
-// Verifie qu'un dossier peut être rendu public
-// ----------------------------------------------------------------------------------
-bool dlg_impressions::VerifDossierPublic(int row, bool msg)
-{
-    bool ok;
-    int iddossier = getMetaDocumentFromRow(row)->id();
-    QString req = "select " CP_ID_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
-                  " where " CP_ID_IMPRESSIONS " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddossier) +
-                  ") and " CP_DOCPUBLIC_IMPRESSIONS " is null";
-    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-    if (listdocs.size()>0)
-    {
-        if (msg)
-        {
-            UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre public ce dossier.\nIl incorpore le document\n- ") +
-                             listdocs.at(0).at(1).toString() + tr(" -\nqui est un document privé!"));
-        }
-        return false;
-    }
-    else return true;
 }

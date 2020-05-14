@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsOpacityEffect>
 #include "gbl_datas.h"
 #include "icons.h"
+#include "updelegate.h"
 
 namespace Ui {
 class dlg_impressions;
@@ -42,8 +43,8 @@ public:
     explicit                                    dlg_impressions(Patient *pat, Intervention* intervention = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     ~dlg_impressions();
     Ui::dlg_impressions                         *ui;
-    enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                                     Q_ENUM(DATASAIMPRIMER)
-    enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};  Q_ENUM(Mode)
+    enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                     Q_ENUM(DATASAIMPRIMER)
+    enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS};  Q_ENUM(Mode)
     User*                                       userentete() const;
     QMap<int, QMap<DATASAIMPRIMER, QString> >   mapdocsaimprimer() const;
 
@@ -52,6 +53,7 @@ private:
     User*                                       currentuser() { return Datas::I()->users->userconnected(); }
     Procedures                                  *proc           = Procedures::I();
     Impression                                  *m_currentdocument = Q_NULLPTR;
+    DossierImpression                           *m_currentdossier = Q_NULLPTR;
     Patient                                     *m_currentpatient;
     Intervention                                *m_currentintervention = Q_NULLPTR;
     User                                        *m_userentete;
@@ -66,7 +68,7 @@ private:
                                                 -> le texte varie légèrement d'un destinataire à l'autre en ce qui concerne le nom du correspondant
                                                 -> la variable correspond à la liste des textes */
     QGraphicsOpacityEffect      *m_opacityeffect;
-    QMenu                       *m_menucontextuel;
+    QMenu                       *m_menucontextuel = Q_NULLPTR;
     QTimer                      *t_timerefface;
 
     UpDialog                    *dlg_ask;
@@ -86,7 +88,7 @@ private:
     void                        Annulation();
     void                        ChoixButtonFrame(WidgetButtonFrame *);
     void                        ChoixMenuContextuel(QString);
-    Impression*                 currentdocument()   { return m_currentdocument; }
+    void                        ChoixMenuContextuelDossier(QString);
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
@@ -97,33 +99,36 @@ private:
     void                        DisableLines();
     void                        DocCellDblClick(UpLineEdit *line);
     void                        DocCellEnter(UpLineEdit *line);
+    QString                     DossierToolTip(DossierImpression *dossier);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
+    void                        EnableDossiersButtons(QItemSelection select);
     void                        EnableLines();
     void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
     void                        FiltreListe();
     Impression*                 getDocumentFromRow(int row);
-    DossierImpression*          getMetaDocumentFromRow(int row);
+    DossierImpression*          getDossierFromIndex(QModelIndex idx);
+    int                         getRowFromDossier(DossierImpression *dossier);
+    bool                        hasDocumentPrive(DossierImpression *dossier);              //!> vérifie si un dossier incorpore des documents privés
     void                        InsertDocument(int row);
-    void                        InsertDossier(int row);
-    void                        LineSelect(UpTableWidget *table, int row);
+    void                        EnregistreDossier(DossierImpression *dossier);
+    void                        LineSelect(QTableView *table, int row);
     void                        ListidCor();
     void                        MenuContextuel(QWidget *widg);
+    void                        MenuContextuelDossiers();
     void                        MetAJour(QString texte, bool pourVisu = true);
     void                        OrdoAvecDupli(bool);
     void                        Remplir_TableWidget();
+    void                        selectcurrentDossier(DossierImpression *com, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        SetDocumentToRow(Impression *doc, int row);
-    void                        SetMetaDocumentToRow(DossierImpression *dossier, int row);
+    void                        SetDossierToRow(DossierImpression *dossier, int row);
     void                        SupprimmDocument(int row);
-    void                        SupprimmDossier(int row);
+    void                        SupprimmeDossier(DossierImpression *dossier);
     void                        TriDocupTableWidget();
-    void                        TriDossiersupTableWidget();
     void                        UpdateDocument(int row);
-    void                        UpdateDossier(int row);
     void                        Validation();
     void                        VerifCoherencedlg_ask();
     bool                        VerifDocumentPublic(int row, bool msg = true);
     void                        VerifDossiers();
-    bool                        VerifDossierPublic(int row, bool msg = true);
 
 private:
     QString TITRUSER            = tr(STR_TITRUSER);
