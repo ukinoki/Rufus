@@ -52,6 +52,8 @@ QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
     line = new UpLineEdit(parent);
     line->setRow(index.row());
     line->setContextMenuPolicy(Qt::CustomContextMenu);
+    line->selectAll();
+    line->setFocus();
     connect(line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
     connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
     //connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);

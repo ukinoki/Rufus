@@ -96,28 +96,28 @@ void dlg_listemotscles::keyPressEvent(QKeyEvent * event )
 // ----------------------------------------------------------------------------------
 void dlg_listemotscles::Annulation()
 {
+    int row = getRowFromMotCle(m_currentmotcle);
+    wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
     if (m_mode == Creation || m_mode == Modification)
     {
-        int row = getRowFromMotCle(m_currentmotcle);
-        wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
         if (m_mode == Modification && row < m_model->rowCount())
         {
             QModelIndex idx = m_model->index(row,1);
             wdg_tblview->closePersistentEditor(idx);
             m_model->setData(idx, m_currentmotcle->motcle());
-            ConfigMode(Selection);
             wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
             EnableButtons(wdg_tblview->selectionModel()->selection());
         }
         else if (m_mode == Creation && m_currentmotcle)
         {
-            RemplirTableView();
+            m_model->removeRow(row);
             delete m_currentmotcle;
             if(m_model->rowCount() > 0 && row < m_model->rowCount())
                 selectcurrentMotCle(getMotCleFromIndex(m_model->index(row,1)));
         }
         else
             RemplirTableView();
+        ConfigMode(Selection);
     }
     else
         reject();
@@ -378,6 +378,8 @@ MotCle* dlg_listemotscles::getMotCleFromIndex(QModelIndex idx)
 int dlg_listemotscles::getRowFromMotCle(MotCle *mc)
 {
     int row = -1;
+    if (!mc)
+        return row;
     for (int i=0; i<m_model->rowCount(); i++)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));

@@ -101,12 +101,15 @@ private:
     void                        DocCellEnter(UpLineEdit *line);
     QString                     DossierToolTip(DossierImpression *dossier);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
+    void                        EnableDocsButtons(QItemSelection select);
     void                        EnableDossiersButtons(QItemSelection select);
     void                        EnableLines();
     void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
     void                        FiltreListe();
     Impression*                 getDocumentFromRow(int row);
+    Impression*                 getDocumentFromIndex(QModelIndex idx);
     DossierImpression*          getDossierFromIndex(QModelIndex idx);
+    int                         getRowFromDocument(Impression *doc);
     int                         getRowFromDossier(DossierImpression *dossier);
     bool                        hasDocumentPrive(DossierImpression *dossier);              //!> vérifie si un dossier incorpore des documents privés
     void                        InsertDocument(int row);
@@ -118,10 +121,12 @@ private:
     void                        MetAJour(QString texte, bool pourVisu = true);
     void                        OrdoAvecDupli(bool);
     void                        Remplir_TableWidget();
-    void                        selectcurrentDossier(DossierImpression *com, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
+    void                        selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
+    void                        selectcurrentDossier(DossierImpression *dossier, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        SetDocumentToRow(Impression *doc, int row);
     void                        SetDossierToRow(DossierImpression *dossier, int row);
     void                        SupprimmDocument(int row);
+    void                        SupprimmeDocument(Impression* doc);
     void                        SupprimmeDossier(DossierImpression *dossier);
     void                        TriDocupTableWidget();
     void                        UpdateDocument(int row);

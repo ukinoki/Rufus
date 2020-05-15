@@ -178,7 +178,7 @@ DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString,
     {
         ++ idimpr;
         sets[CP_ID_DOSSIERIMPRESSIONS] = idimpr;
-        result = DataBase::I()->InsertSQLByBinds(TBL_IMPRESSIONS, sets);
+        result = DataBase::I()->InsertSQLByBinds(TBL_DOSSIERSIMPRESSIONS, sets);
     }
     DataBase::I()->unlocktables();
     if (!result)

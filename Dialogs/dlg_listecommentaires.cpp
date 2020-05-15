@@ -108,28 +108,28 @@ void dlg_listecommentaires::keyPressEvent(QKeyEvent * event )
 // ----------------------------------------------------------------------------------
 void dlg_listecommentaires::Annulation()
 {
+    wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    int row = getRowFromComment(m_currentcomment);
     if (m_mode == Creation || m_mode == Modification)
     {
-        wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        int row = getRowFromComment(m_currentcomment);
         if (m_mode == Modification && row < m_model->rowCount())
         {
             QModelIndex idx = m_model->index(row,1);
             wdg_tblview->closePersistentEditor(idx);
             m_model->setData(idx, m_currentcomment->resume());
-            ConfigMode(Selection);
             wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
             EnableButtons(wdg_tblview->selectionModel()->selection());
         }
         else if (m_mode == Creation && m_currentcomment)
         {
-            RemplirTableView();
+            m_model->removeRow(row);
             delete m_currentcomment;
             if(m_model->rowCount() > 0 && row < m_model->rowCount())
                 selectcurrentComment(getCommentFromIndex(m_model->index(row,1)));
         }
         else
             RemplirTableView();
+        ConfigMode(Selection);
     }
     else
         reject();
@@ -341,9 +341,6 @@ void dlg_listecommentaires::DisableLines()
         QStandardItem *itm1 = m_model->item(i,1);
         if (itm1)
             itm1->setFlags(Qt::NoItemFlags);
-        QStandardItem *itm2 = m_model->item(i,2);
-        if (itm2)
-            itm2->setFlags(Qt::NoItemFlags);
     }
 }
 
@@ -384,9 +381,6 @@ void dlg_listecommentaires::EnableLines()
         QStandardItem *itm1 = m_model->item(i,1);
         if (itm1)
             itm1->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        QStandardItem *itm2 = m_model->item(i,2);
-        if (itm2)
-            itm2->setFlags(Qt::ItemIsEnabled);
     }
 }
 
@@ -657,6 +651,7 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row)
         pitem1->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
     else
         pitem1->setData(QPixmap(),Qt::DecorationRole);
+    pitem1->setFlags(Qt::NoItemFlags);
     m_model->setItem(row,2, pitem1);
 }
 
