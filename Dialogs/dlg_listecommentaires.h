@@ -56,7 +56,7 @@ private:
     void                        ConfigMode(Mode mode, CommentLunet *com = Q_NULLPTR);
     void                        dblClicktextEdit();
     void                        DisableLines();
-    void                        EnableButtons(QItemSelection selection);
+    void                        EnableButtons(CommentLunet* com = Q_NULLPTR);
     void                        EnableLines();
     void                        EnregistreCommentaire(CommentLunet *com);
     CommentLunet*               getCommentFromIndex(QModelIndex idx);

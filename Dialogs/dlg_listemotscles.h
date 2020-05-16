@@ -51,7 +51,7 @@ private:
     void                ChoixMenuContextuel(QString);
     void                ConfigMode(Mode mode, MotCle *mc = Q_NULLPTR);
     void                DisableLines();
-    void                EnableButtons(QItemSelection select);
+    void                EnableButtons(MotCle *mc = Q_NULLPTR);
     void                EnableLines(int row = -1);
     void                EnregistreMotCle(MotCle *mc);
     MotCle*             getMotCleFromIndex(QModelIndex idx);

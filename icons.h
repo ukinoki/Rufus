@@ -87,6 +87,7 @@ public:
     static QPixmap pxAVTest() { return foundPX("pxAVTest", "://AVTest1.png"); }
 
     static QPixmap pxBlackCheck() { return foundPX("pxBlackCheck", "://blackcheck.png"); }
+    static QPixmap pxblockCheck() { return foundPX("pxblockCheck", "://checked.png"); }
 
     static QPixmap pxCheck() { return foundPX("pxCheck", "://check.png"); }
     static QPixmap pxConversation() { return foundPX("pxMessage", "://answer.png"); }
@@ -182,6 +183,8 @@ public:
     static QIcon icBack(QSize size = QSize(25,25)) { return foundIC("icBack", "://back.png", size); }
     static QIcon icBackup() { return foundIC("icBackup", "://Backup.png", QSize(45,45)); }
     static QIcon icBlackCheck() { return foundIC("icBlackCheck", pxBlackCheck(), QSize(45,45)); }
+    static QIcon icunBlackCheck() { return foundIC("icunBlackCheck", pxunCheck(), QSize(45,45)); }
+    static QIcon icBlockCheck() { return foundIC("icBlockCheck", pxblockCheck(), QSize(45,45)); }
     static QIcon icBlockCenter() { return foundIC("icBlockCenter", "://align-center.png", QSize(45,45)); }
     static QIcon icBlockJustify() { return foundIC("icBlockJustify", "://align-justify.png", QSize(45,45)); }
     static QIcon icBlockLeft() { return foundIC("icBlockLeft", "://align-left.png", QSize(45,45)); }
@@ -275,6 +278,19 @@ public:
     static QIcon icValide(QSize size = QSize()) { return foundIC("icValide", "://Valide2.jpg", size); } //25
     static QIcon icVitale(QSize size = QSize()) { return foundIC("icVitale", "://Vitale.jpg", size); }
     static QIcon icUpdate(QSize size = QSize()) { return foundIC("icUpdate", "://update.png", size); } //20
+
+    static bool CompareQIcon(const QIcon icon1, const QIcon icon2)
+    {
+      QByteArray a1;
+      QDataStream stream1(&a1, QIODevice::WriteOnly);
+      stream1 << icon1;
+
+      QByteArray a2;
+      QDataStream stream2(&a2, QIODevice::WriteOnly);
+      stream2 << icon2;
+
+      return a1 == a2;
+    }
 };
 
 

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-05-2020/1");
+    qApp->setApplicationVersion("16-05-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -3326,7 +3326,7 @@ void Rufus::MenuContextuelListePatients()
     QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
     connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
 
-    QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(dossierpatientaouvrir()->id());
+    QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
     if (db->StandardSelectSQL(req,m_ok).size() > 0){
         QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
         connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});

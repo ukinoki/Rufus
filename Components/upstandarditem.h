@@ -30,6 +30,7 @@ public:
     void    setitem(Item* item);
     Item*   item() const;
     bool    hasitem() const     { return m_item != Q_NULLPTR; }
+    bool    ischecked() const   { return checkState() == Qt::Checked; }
 
 private:
     Item*   m_item = Q_NULLPTR;

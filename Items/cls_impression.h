@@ -24,9 +24,14 @@ class Impression : public Item
 {
 
 private:
-    int m_iduser;
-    QString m_texte, m_resume, m_conclusion;
-    bool m_public, m_prescription, m_editable, m_medical;
+    int m_iduser = 0;
+    QString m_texte = "";
+    QString m_resume = "";
+    QString m_conclusion = "";
+    bool m_public = false;
+    bool m_prescription = false;
+    bool m_editable = false;
+    bool m_medical = false;
 
 public:
     explicit Impression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -39,9 +44,9 @@ public:
     bool ispublic() const;                      //! le document est accessible à tous les utilisateurs habilités
     bool isprescription() const;                /*! le document est une prescription -> un dupli est émis
                                                  *                                      l'entête est différent
-                                                 *                                      il n'est pas accessible au personnel non médical à moins d'avoir été déclaré administratif
+                                                 *                                      il n'est pas accessible au personnel non médical
                                                  */
-    bool ismedical() const;                     //! le document est médical (-> son accès réservé au personnel médical) ou administratif
+    bool ismedical() const;                     //! le document est médical (-> son accès est réservé au personnel médical) ou administratif
     bool iseditable() const;                    //! le document est éditable avant impression
 
     void settext(QString txt);
@@ -57,9 +62,11 @@ public:
 class DossierImpression : public Item
 {
 private:
-    int m_dossierimpression, m_iduser;
-    QString m_textedossier, m_resumedossier;
-    bool m_public;
+    int m_dossierimpression = 0;
+    int m_iduser = 0;
+    QString m_textedossier = "";
+    QString m_resumedossier = "";
+    bool m_public = false;
 
 public:
     explicit DossierImpression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);

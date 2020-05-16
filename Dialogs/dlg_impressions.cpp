@@ -39,7 +39,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
-    wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocupTableWidget);
+    wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocsupTableView);
     wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_docsbuttonframe     ->addSearchLine();
     wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableView);
@@ -61,57 +61,31 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
     connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
-    connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(ui->upTextEdit);});
+    connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
     connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
     connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_impressions::dblClicktextEdit);
     connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
     connect (wdg_docsbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe);});
     connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe);});
 
-    // Mise en forme de la table Documents
-    ui->DocupTableWidget->setPalette(QPalette(Qt::white));
-    ui->DocupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->DocupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->DocupTableWidget->verticalHeader()->setVisible(false);
-    ui->DocupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->DocupTableWidget->setColumnCount(7);
-    ui->DocupTableWidget->setColumnWidth(0,30);         // checkbox
-    ui->DocupTableWidget->setColumnWidth(1,289);        // Resume
-    ui->DocupTableWidget->setColumnHidden(2,true);      // idDocument
-    ui->DocupTableWidget->setColumnWidth(3,30);         // Public   - affiche un check si document public
-    ui->DocupTableWidget->setColumnWidth(4,30);         // Editable - affiche un check si document editable
-    ui->DocupTableWidget->setColumnWidth(5,30);         // Medical  - affiche un check si document medical
-    ui->DocupTableWidget->setColumnHidden(6,true);
-    ui->DocupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("TITRES DES DOCUMENTS")));
-    ui->DocupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
-    QTableWidgetItem *docpublic, *editable,*admin;
-    docpublic   = new QTableWidgetItem(Icons::icFamily(),"");
-    docpublic   ->setToolTip(tr("Document disponible pour tous les utilisateurs"));
-    editable    = new QTableWidgetItem(Icons::icEditer(),"");
-    editable    ->setToolTip(tr("Document éditable au moment de l'impression"));
-    admin       = new QTableWidgetItem(Icons::icAdministratif(),"");
-    admin       ->setToolTip(tr("Document administratif"));
-    ui->DocupTableWidget->setHorizontalHeaderItem(3, docpublic);
-    ui->DocupTableWidget->setHorizontalHeaderItem(4, editable);
-    ui->DocupTableWidget->setHorizontalHeaderItem(5,admin);
-    ui->DocupTableWidget->setHorizontalHeaderItem(6, new QTableWidgetItem(""));
-    ui->DocupTableWidget->horizontalHeader()->setVisible(true);
-    ui->DocupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
-    ui->DocupTableWidget->horizontalHeader()->setIconSize(QSize(25,25));
-    ui->DocupTableWidget->setGridStyle(Qt::DotLine);
-    ui->DocupTableWidget->FixLargeurTotale();
-
-    // Mise en forme de la table Dossiers
-    ui->DossiersupTableView->setPalette(QPalette(Qt::white));
-    ui->DossiersupTableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->DossiersupTableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    //wdg_comtbl->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->DossiersupTableView->setMouseTracking(true);
-    ui->DossiersupTableView->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->DossiersupTableView->horizontalHeader()->setVisible(true);
-    ui->DossiersupTableView->horizontalHeader()->setIconSize(QSize(30,30));
+    // Mise en forme de la table Documents et de la table Dossiers
+    QList<QTableView*> listtables;
+    listtables << ui->DocsupTableView << ui->DossiersupTableView;
+    foreach(QTableView* table, listtables)
+    {
+        table->setPalette(QPalette(Qt::white));
+        table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        table->setSelectionMode(QAbstractItemView::SingleSelection);
+        table->setMouseTracking(true);
+        table->setContextMenuPolicy(Qt::CustomContextMenu);
+        table->horizontalHeader()->setVisible(true);
+        table->horizontalHeader()->setIconSize(QSize(30,30));
+        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+        table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+        table->verticalHeader()->setDefaultSectionSize(int(QFontMetrics(qApp->font()).height()*1.3));
+        table->verticalHeader()->setVisible(false);
+    }
 
     QHBoxLayout *doclay = new QHBoxLayout();
     doclay      ->addWidget(wdg_dossiersbuttonframe->widgButtonParent());
@@ -137,8 +111,6 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
 
     ui->textFrame->installEventFilter(this);
-    ui->DocupTableWidget->installEventFilter(this);
-    ui->DossiersupTableView->installEventFilter(this);
     m_opacityeffect             = new QGraphicsOpacityEffect();
     t_timerefface    = new QTimer(this);
 
@@ -147,8 +119,8 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     //nettoyage de la table metadocs
     db->StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " not in (select " CP_ID_IMPRESSIONS " from " TBL_IMPRESSIONS ")");
 
-    Remplir_TableWidget();
-    if (ui->DocupTableWidget->rowCount() == 0)
+    Remplir_TableView();
+    if (m_docsmodel->rowCount() == 0)
         ConfigMode(CreationDOC);
     else
         ConfigMode(Selection);
@@ -201,8 +173,7 @@ void dlg_impressions::Annulation()
             QModelIndex idx = m_dossiersmodel->index(row,1);
             ui->DossiersupTableView->closePersistentEditor(idx);
             m_dossiersmodel->setData(idx, m_currentdossier->resume());
-            ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
-            EnableDossiersButtons(ui->DossiersupTableView->selectionModel()->selection());
+            EnableDossiersButtons(m_currentdossier);
         }
         else if (m_mode == CreationDOSS && m_currentdossier)
         {
@@ -212,7 +183,7 @@ void dlg_impressions::Annulation()
                 selectcurrentDossier(getDossierFromIndex(m_dossiersmodel->index(row,1)));
         }
         else
-            Remplir_TableWidget();
+            Remplir_TableView();
         ConfigMode(Selection);
         break;
     }
@@ -221,26 +192,26 @@ void dlg_impressions::Annulation()
         break;
     case CreationDOC:
     case ModificationDOC:{
-        int row = -1;
-        UpLineEdit *line;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        qDebug() << m_currentdocument->resume();
+        ui->DocsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        int row = getRowFromDocument(m_currentdocument);
+        if (m_mode == ModificationDOC && row < m_docsmodel->rowCount())
         {
-            line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->focusPolicy() == Qt::WheelFocus)
-            {
-                row = line->Row();
-                break;
-            }
+            QModelIndex idx = m_docsmodel->index(row,1);
+            ui->DocsupTableView->closePersistentEditor(idx);
+            m_docsmodel->setData(idx, m_currentdocument->resume());
+            EnableDocsButtons(m_currentdocument);
         }
-        if (m_mode == CreationDOC)
-            Remplir_TableWidget();
-        if (ui->DocupTableWidget->rowCount() == 0)
-            ConfigMode(CreationDOC);
+        else if (m_mode == CreationDOC && m_currentdocument)
+        {
+            m_docsmodel->removeRow(row);
+            delete m_currentdocument;
+            if(m_docsmodel->rowCount() > 0 && row < m_docsmodel->rowCount())
+                selectcurrentDocument(getDocumentFromIndex(m_docsmodel->index(row,1)));
+        }
         else
-        {
-            ConfigMode(Selection);
-            LineSelect(ui->DocupTableWidget,row);
-        }
+            Remplir_TableView();
+        ConfigMode(Selection);
     }
     }
 }
@@ -248,26 +219,14 @@ void dlg_impressions::Annulation()
 
 void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 {
-    UpLineEdit *line = new UpLineEdit();
-    int row = 0;
     if (widgbutt== wdg_docsbuttonframe)
     {
         switch (wdg_docsbuttonframe->Choix()) {
         case WidgetButtonFrame::Plus:
-            for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-            {
-                line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-                if (line->hasSelectedText()) {row = line->Row(); break;}
-            }
-            ConfigMode(CreationDOC, row);
+            ConfigMode(CreationDOC);
             break;
         case WidgetButtonFrame::Modifier:
-            for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-            {
-                line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-                if (line->hasSelectedText()) break;
-            }
-            ConfigMode(ModificationDOC,line->Row());
+            ConfigMode(ModificationDOC);
             break;
         case WidgetButtonFrame::Moins:
             SupprimmeDocument(m_currentdocument);
@@ -278,14 +237,10 @@ void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
     {
         switch (wdg_dossiersbuttonframe->Choix()) {
         case WidgetButtonFrame::Plus:
-            if (m_currentdossier)
-                row = getRowFromDossier(m_currentdossier);
-            ConfigMode(CreationDOSS, row);
+            ConfigMode(CreationDOSS);
             break;
         case WidgetButtonFrame::Modifier:
-            if (m_currentdossier)
-                row = getRowFromDossier(m_currentdossier);
-            ConfigMode(ModificationDOSS,row);
+            ConfigMode(ModificationDOSS);
             break;
         case WidgetButtonFrame::Moins:
             SupprimmeDossier(m_currentdossier);
@@ -296,45 +251,42 @@ void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_impressions::CheckPublicEditablAdmin(QCheckBox *check)
 {
-    UpLineEdit *line = new UpLineEdit(this);
-    bool a = false;
-    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)  {
-        line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (line->isEnabled()) {a = true; break;}
-    }
-    if (!a)
+    int row = getRowFromDocument(m_currentdocument);
+    if (row == -1)
         return;
-
-    int colonnelbl (-1);
     if (check == ui->DocPubliccheckBox)
-        colonnelbl = 3;
-    else if (check == ui->DocEditcheckBox)
-        colonnelbl = 4;
-    else if (check == ui->DocAdministratifcheckBox || check == ui->PrescriptioncheckBox)
-        colonnelbl = 5;
-    UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),colonnelbl));
-    if (check == ui->DocPubliccheckBox || check == ui->DocEditcheckBox)
     {
+        QStandardItem *pitem = m_docsmodel->item(row, 2);
         if (check->isChecked())
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+            pitem->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
         else
-            lbl->clear();
+            pitem->setData(QPixmap(),Qt::DecorationRole);
+    }
+    else if (check == ui->DocEditcheckBox)
+    {
+        QStandardItem *pitem = m_docsmodel->item(row, 3);
+        if (check->isChecked())
+            pitem->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+        else
+            pitem->setData(QPixmap(),Qt::DecorationRole);
     }
     else if (check == ui->DocAdministratifcheckBox)
     {
+        QStandardItem *pitem = m_docsmodel->item(row, 3);
         if (check->isChecked())
         {
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+            pitem->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
             ui->PrescriptioncheckBox->setChecked(false);
         }
         else
-            lbl->clear();
+            pitem->setData(QPixmap(),Qt::DecorationRole);
     }
     else if (check == ui->PrescriptioncheckBox)
     {
         if (check->isChecked())
         {
-            lbl->clear();
+            QStandardItem *pitem = m_docsmodel->item(row, 3);
+            pitem->setData(QPixmap(),Qt::DecorationRole);
             ui->DocAdministratifcheckBox->setChecked(false);
         }
     }
@@ -342,97 +294,76 @@ void dlg_impressions::CheckPublicEditablAdmin(QCheckBox *check)
 
 void dlg_impressions::dblClicktextEdit()
 {
+    if (!m_currentdocument)
+        return;
     if (m_mode == Selection)
-    {
-        UpLineEdit *line;
-        int row = 0;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText())
-            {
-                row = line->Row();
-                break;
-            }
-        }
-        if (getDocumentFromRow(row)->iduser() == currentuser()->id())
-            ConfigMode(ModificationDOC,row);
-    }
+        ConfigMode(ModificationDOC);
 }
 
-// ----------------------------------------------------------------------------------
-// On entre sur une ligne de comm. On affiche le tooltip
-// ----------------------------------------------------------------------------------
-void dlg_impressions::DocCellEnter(UpLineEdit *line)
+QString dlg_impressions::DocumentToolTip(Impression *doc)
 {
-    QPoint pos = cursor().pos();
-    QRect rect = QRect(pos,QSize(10,10));
-    int row = line->Row();
-
-    if (ui->DocupTableWidget->isAncestorOf(line))
+    if (!doc)
+        return "";
+    QTextEdit *text = new QTextEdit;
+    MetAJour(doc->texte(),false);
+    text->setText(m_listtexts.at(0));
+    QString ab = text->toPlainText();
+    ab.replace(QRegExp("\n\n[\n]*"),"\n");
+    while (ab.endsWith("\n"))
+        ab = ab.left(ab.size()-1);
+    if (ab.size()>300)
     {
-        //    QRect rect = QRect(itemselect->tableWidget()->pos(),itemselect->tableWidget()->size());
-        QTextEdit *text = new QTextEdit;
-        MetAJour(getDocumentFromRow(row)->texte(),false);
-        text->setText(m_listtexts.at(0));
-        QString ab = text->toPlainText();
-        ab.replace(QRegExp("\n\n[\n]*"),"\n");
+        ab = ab.left(300);
         while (ab.endsWith("\n"))
             ab = ab.left(ab.size()-1);
-        if (ab.size()>300)
+        if (!ab.endsWith("."))
         {
-            ab = ab.left(300);
-            while (ab.endsWith("\n"))
-                ab = ab.left(ab.size()-1);
-            if (!ab.endsWith("."))
+            if (ab.endsWith(" "))
+                ab = ab.left(ab.size()-1) + "...";
+            else
             {
-                if (ab.endsWith(" "))
-                    ab = ab.left(ab.size()-1) + "...";
+                int a = ab.lastIndexOf(" ");
+                int b = ab.lastIndexOf(".");
+                int c = b;
+                if (a>b) c = a;
+                ab = ab.left(c) + "...";
+            }
+        }
+    }
+    int cassure = 50;
+    QStringList listhash1;
+    listhash1 = ab.split("\n");
+    QString ResumeItem = "";
+    for (int i=0; i<listhash1.size(); i++)
+    {
+        QString abc = listhash1.at(i);
+        if (listhash1.at(i).size() > cassure)
+        {
+            QStringList listhash;
+            listhash = listhash1.at(i).split(" ");
+            abc = listhash.at(0);
+            int count = abc.size() + 1;
+            for (int j=1; j<listhash.size(); j++)
+            {
+                count += listhash.at(j).size();
+                if (count>cassure)
+                {
+                    abc += "\n";
+                    count = listhash.at(j).size() + 1;
+                }
                 else
                 {
-                    int a = ab.lastIndexOf(" ");
-                    int b = ab.lastIndexOf(".");
-                    int c = b;
-                    if (a>b) c = a;
-                    ab = ab.left(c) + "...";
+                    abc += " ";
+                    count += 1;
                 }
+                abc += listhash.at(j);
             }
         }
-        int cassure = 50;
-        QStringList listhash1;
-        listhash1 = ab.split("\n");
-        QString ResumeItem = "";
-        for (int i=0; i<listhash1.size(); i++)
-        {
-            QString abc = listhash1.at(i);
-            if (listhash1.at(i).size() > cassure)
-            {
-                QStringList listhash;
-                listhash = listhash1.at(i).split(" ");
-                abc = listhash.at(0);
-                int count = abc.size() + 1;
-                for (int j=1; j<listhash.size(); j++)
-                {
-                    count += listhash.at(j).size();
-                    if (count>cassure)
-                    {
-                        abc += "\n";
-                        count = listhash.at(j).size() + 1;
-                    }
-                    else
-                    {
-                        abc += " ";
-                        count += 1;
-                    }
-                    abc += listhash.at(j);
-                }
-            }
-            ResumeItem += abc;
-            if (i <(listhash1.size()-1)) ResumeItem += "\n";
-        }
-        delete text;
-        QToolTip::showText(QPoint(pos.x()+50,pos.y()), ResumeItem, ui->DocupTableWidget, rect, 2000);
+        ResumeItem += abc;
+        if (i <(listhash1.size()-1)) ResumeItem += "\n";
     }
+    delete text;
+    return ResumeItem;
 }
 
 QString dlg_impressions::DossierToolTip(DossierImpression *dossier)
@@ -455,61 +386,20 @@ QString dlg_impressions::DossierToolTip(DossierImpression *dossier)
     return resume;
 }
 
-// ----------------------------------------------------------------------------------
-// On a cliqué une ligne. On affiche le détail
-// ----------------------------------------------------------------------------------
-void dlg_impressions::DocCellDblClick(UpLineEdit *line)
+void dlg_impressions::EnableDocsButtons(Impression* doc)
 {
-    if (ui->DocupTableWidget->isAncestorOf(line))
-        ConfigMode(ModificationDOC, line->Row());
-    else if (ui->DossiersupTableView->isAncestorOf(line))
-        ConfigMode(ModificationDOSS, line->Row());
-}
-
-void dlg_impressions::EnableDocsButtons(QItemSelection select)
-{
-    if (select.size() == 0)
-    {
-        wdg_docsbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
-        m_currentdocument = Q_NULLPTR;
-        return;
-    }
-    if (select.at(0).indexes().size() == 0)
-    {
-        wdg_docsbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
-        m_currentdocument = Q_NULLPTR;
-        return;
-    }
-    m_currentdocument = getDocumentFromIndex(select.at(0).indexes().at(0));
-    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(m_currentdocument);
-    if (m_currentdocument)
-        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(m_currentdocument->iduser() == currentuser()->id());
+    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(doc);
+    if (doc)
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(doc->iduser() == currentuser()->id());
     else
         wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
 }
 
-void dlg_impressions::EnableDossiersButtons(QItemSelection select)
+void dlg_impressions::EnableDossiersButtons(DossierImpression *dossier)
 {
-    if (select.size() == 0)
-    {
-        wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
-        m_currentdossier = Q_NULLPTR;
-        return;
-    }
-    if (select.at(0).indexes().size() == 0)
-    {
-        wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
-        m_currentdossier = Q_NULLPTR;
-        return;
-    }
-    m_currentdossier = getDossierFromIndex(select.at(0).indexes().at(0));
-    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(m_currentdossier);
-    if (m_currentdossier)
-        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(m_currentdossier->iduser() == currentuser()->id());
+    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(dossier);
+    if (dossier)
+        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(dossier->iduser() == currentuser()->id());
     else
         wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
 }
@@ -517,24 +407,16 @@ void dlg_impressions::EnableDossiersButtons(QItemSelection select)
 // ----------------------------------------------------------------------------------
 // Enable OKpushbutton
 // ----------------------------------------------------------------------------------
-void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
+void dlg_impressions::EnableOKPushButton(QModelIndex idx)
 {
     ui->OKupPushButton->setShortcut(QKeySequence());
     if (m_mode == CreationDOC || m_mode == ModificationDOC)
     {
-        UpLineEdit *line = new UpLineEdit(this);
-        bool a = false;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) {a = true; break;}
-        }
-        if (a == false)
-        {
-            ui->OKupPushButton->setEnabled(false);
-            return;
-        }
-        if (line->text().size() == 0)
+        QString resume = "";
+        int row = getRowFromDocument(m_currentdocument);
+        QStandardItem *itm = m_docsmodel->item(row,1);
+        resume = itm->data(Qt::EditRole).toString();
+        if (resume.size() == 0)
         {
             ui->OKupPushButton->setEnabled(false);
             return;
@@ -552,67 +434,63 @@ void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
         QString resume = "";
         int row = getRowFromDossier(m_currentdossier);
         QStandardItem *itm = m_dossiersmodel->item(row,1);
-        resume = itm->text();
+        resume = itm->data(Qt::EditRole).toString();
         if (resume.size() == 0)
         {
             ui->OKupPushButton->setEnabled(false);
             return;
         }
         a = false;
-        for (int i=0 ; i<ui->DocupTableWidget->rowCount(); i++)
+        for (int i=0 ; i<m_docsmodel->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if(Check->isChecked()) {a = true;   break;}
-            }
+            QStandardItem *itm = m_docsmodel->item(i,0);
+            if (itm)
+                if(itm->checkState() == Qt::Checked) {a = true;   break;}
         }
         ui->OKupPushButton->setEnabled(a);
     }
     else if (m_mode == Selection)
     {
-        if (Check != Q_NULLPTR)
+        if (idx != QModelIndex())
         {
-            QString nomdoc = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(Check->rowTable(),1))->text();
-            if (!Check->isChecked())
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->itemFromIndex(idx));
+            QString nomdoc = "";
+            if (itm)
             {
-                VerifDossiers();
-                ui->DocupTableWidget->item(Check->rowTable(),6)->setText("1" + nomdoc);
+                int row = itm->row();
+                UpStandardItem *titm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,1));
+                if (titm)
+                    nomdoc = titm->data(Qt::DisplayRole).toString();
+                if (itm->ischecked())
+                    VerifDossiers();
             }
-            else
-                ui->DocupTableWidget->item(Check->rowTable(),6)->setText("0" + nomdoc);
-        }
-        if (wdg_docsbuttonframe->searchline()->text() == "")
-            m_listid.clear();
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
+            if (wdg_docsbuttonframe->searchline()->text() == "")
+                m_listid.clear();
+            for (int i=0; i<m_docsmodel->rowCount(); i++)
             {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if(Check->isChecked())
-                    m_listid << QString::number(getDocumentFromRow(i)->id());
-                else
+                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+                if (itm)
                 {
-                    for (int k=0; k<m_listid.size();k++){
-                        if (m_listid.at(k) == QString::number(getDocumentFromRow(Check->rowTable())->id())){
-                            m_listid.removeAt(k);
-                            k--;
-                        }
-                    }
+                    UpStandardItem *titm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,1));
+                    if (!titm)
+                        continue;
+                    Impression *doc = dynamic_cast<Impression*>(titm->item());
+                    if (!doc)
+                        continue;
+                    if(itm->ischecked())
+                           m_listid << QString::number(doc->id());
+                    else
+                        while (m_listid.contains(QString::number(doc->id())))
+                                m_listid.removeOne(QString::number(doc->id()));
                 }
             }
         }
         bool a = false;
-        for (int i=0 ; i<ui->DocupTableWidget->rowCount(); i++)
+        for (int i=0 ; i<m_docsmodel->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if(Check->isChecked()) {a = true;   break;}
-            }
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
+                if(itm->ischecked()) {a = true;   break;}
         }
         ui->OKupPushButton->setEnabled(a);
         ui->OKupPushButton->setShortcut(QKeySequence("Meta+Return"));
@@ -621,36 +499,19 @@ void dlg_impressions::EnableOKPushButton(UpCheckBox *Check)
 
 void dlg_impressions::FiltreListe()
 {
-    Remplir_TableWidget();
     EnableLines();
-    bool selectall = false;
-    for (int j=0; j<ui->DocupTableWidget->rowCount(); j++)
+    for (int j=0; j<m_docsmodel->rowCount(); j++)
     {
-        UpLineEdit *line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(j,1));
-        QString txt = line->text();
+        QString txt = m_docsmodel->item(j,1)->data(Qt::DisplayRole).toString();
         QString txtachercher = wdg_docsbuttonframe->searchline()->text();
         int lgth = txtachercher.length();
-        ui->DocupTableWidget->setRowHidden(j, txt.toUpper().left(lgth) != txtachercher.toUpper());
-        if (!selectall && txt.toUpper().left(lgth) == txtachercher.toUpper())
-        {
-            dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(j,1))->selectAll();
-            selectall = true;
-        }
+        ui->DocsupTableView->setRowHidden(j, txt.toUpper().left(lgth) != txtachercher.toUpper());
     }
 }
 
-void dlg_impressions::MenuContextuel(QWidget *widg)
+void dlg_impressions::MenuContextuelTexteDocument()
 {
-    if(m_menucontextuel)
-        delete m_menucontextuel;
-    m_menucontextuel = new QMenu(this);
-    QAction *pAction_ModifDoc;
-    QAction *pAction_SupprDoc;
-    QAction *pAction_CreerDoc;
-    QAction *pAction_PublicDoc;
-    QAction *pAction_PrescripDoc;
-    QAction *pAction_EditableDoc;
-    QAction *pAction_AdminDoc;
+    QMenu menucontextuel;
     QAction *pAction_InsertChamp;
     QAction *pAction_ModifPolice;
     QAction *pAction_Fontbold;
@@ -679,154 +540,144 @@ void dlg_impressions::MenuContextuel(QWidget *widg)
     QAction *pAction_InsInterroSite;
     QAction *pAction_InsInterroText;
     QMenu *interro = new QMenu(this);
-    UpLineEdit *line0;
-    UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
+    pAction_InsertChamp                 = menucontextuel.addAction   (Icons::icAjouter(),    tr("Insérer un champ"));
+    interro                             = menucontextuel.addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
+    pAction_InsInterroDate              = interro->addAction            (Icons::icDate(),       tr("Date"));
+    pAction_InsInterroHeure             = interro->addAction            (Icons::icClock(),      tr("Heure"));
+    pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Côté"));
+    pAction_InsInterroMontant           = interro->addAction            (Icons::icEuro(),       tr("Montant"));
+    pAction_InsInterroMedecin           = interro->addAction            (Icons::icStetho(),     tr("Soignant"));
+    pAction_InsInterroProvenance        = interro->addAction            (Icons::icFamily(),     tr("Provenance"));
+    pAction_InsInterroSejour            = interro->addAction            (Icons::icInformation(),tr("Séjour"));
+    pAction_InsInterroSite              = interro->addAction            (Icons::icClinic(),     tr("Centre"));
+    pAction_InsInterroText              = interro->addAction            (Icons::icMedoc(),      tr("Texte libre"));
+    pAction_InsInterroDateIntervention  = interro->addAction            (Icons::icDate(),       TITREDATEINTERVENTION);
+    pAction_InsInterroAnesthIntervention= interro->addAction            (Icons::icStetho(),     TITREANESTHINTERVENTION);
+    pAction_InsInterroHeureIntervention = interro->addAction            (Icons::icClock(),      TITREHEUREINTERVENTION);
+    pAction_InsInterroCoteIntervention  = interro->addAction            (Icons::icSide(),       TITRECOTEINTERVENTION);
+    pAction_InsInterroTypeIntervention  = interro->addAction            (Icons::icMedoc(),      TITRETYPEINTERVENTION);
+    pAction_InsInterroSiteIntervention  = interro->addAction            (Icons::icClinic(),     TITRESITEINTERVENTION);
 
-    if (line)
+    menucontextuel.addSeparator();
+    if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
+        pAction_ModifPolice     = menucontextuel.addAction(Icons::icFont(),           tr("Modifier la police"));
+        pAction_Fontbold        = menucontextuel.addAction(Icons::icFontbold(),       tr("Gras"));
+        pAction_Fontitalic      = menucontextuel.addAction(Icons::icFontitalic(),     tr("Italique"));
+        pAction_Fontunderline   = menucontextuel.addAction(Icons::icFontunderline(),  tr("Souligné"));
+        pAction_Fontnormal      = menucontextuel.addAction(Icons::icFontnormal(),     tr("Normal"));
+
+        connect (pAction_ModifPolice,       &QAction::triggered,    this, [=] {ChoixMenuContextuel("Police");});
+        connect (pAction_Fontbold,          &QAction::triggered,    this, [=] {ChoixMenuContextuel("Gras");});
+        connect (pAction_Fontitalic,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Italique");});
+        connect (pAction_Fontunderline,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Souligne");});
+        connect (pAction_Fontnormal,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Normal");});
+        menucontextuel.addSeparator();
+    }
+    pAction_Blockleft       = menucontextuel.addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
+    pAction_Blockright      = menucontextuel.addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
+    pAction_Blockcentr      = menucontextuel.addAction(Icons::icBlockCenter(),        tr("Centré"));
+    pAction_Blockjust       = menucontextuel.addAction(Icons::icBlockJustify(),       tr("Justifié"));
+    menucontextuel.addSeparator();
+    if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
+        pAction_Copier          = menucontextuel.addAction(Icons::icCopy(),   tr("Copier"));
+        pAction_Cut             = menucontextuel.addAction(Icons::icCut(),    tr("Couper"));
+        connect (pAction_Copier,            &QAction::triggered,    this, [=] {ChoixMenuContextuel("Copier");});
+        connect (pAction_Cut,               &QAction::triggered,    this, [=] {ChoixMenuContextuel("Couper");});
+    }
+    if (qApp->clipboard()->mimeData()->hasText()
+            || qApp->clipboard()->mimeData()->hasUrls()
+            || qApp->clipboard()->mimeData()->hasImage()
+            || qApp->clipboard()->mimeData()->hasHtml())
     {
-        int row = line->Row();
-        if (ui->DocupTableWidget->isAncestorOf(line))
-        {
-            LineSelect(ui->DocupTableWidget,line->Row());
-
-            pAction_ModifDoc                = m_menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
-            pAction_SupprDoc                = m_menucontextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
-            pAction_CreerDoc                = m_menucontextuel->addAction(Icons::icCreer(), tr("Créer un document"));
-            if (getDocumentFromRow(row)->ispublic())
-                pAction_PublicDoc           = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Public"));
-            else
-                pAction_PublicDoc           = m_menucontextuel->addAction(tr("Public"));
-            if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
-            {
-                if (getDocumentFromRow(row)->isprescription())
-                    pAction_PrescripDoc         = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Prescription"));
-                else
-                    pAction_PrescripDoc         = m_menucontextuel->addAction(tr("Prescription"));
-                pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
-                connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuel("PrescripDoc");});
-            }
-            if (getDocumentFromRow(row)->iseditable())
-                pAction_EditableDoc         = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Editable"));
-            else
-                pAction_EditableDoc         = m_menucontextuel->addAction(tr("Editable"));
-            if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
-            {
-                if (!getDocumentFromRow(row)->ismedical())
-                    pAction_AdminDoc        = m_menucontextuel->addAction(Icons::icBlackCheck(), tr("Document administratif"));
-                else
-                    pAction_AdminDoc        = m_menucontextuel->addAction(tr("Document administratif"));
-                pAction_AdminDoc    ->setToolTip(tr("si cette option est cochée\nle document est considéré comme un document non médical"));
-                connect (pAction_AdminDoc,      &QAction::triggered,this, [=] {ChoixMenuContextuel("AdminDoc");});
-            }
-
-            pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
-            pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
-
-            connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDoc");});
-            connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("SupprimerDoc");});
-            connect (pAction_CreerDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("CreerDoc");});
-            connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("PublicDoc");});
-            connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuel("EditDoc");});
-        }
+        QAction *pAction_Coller = menucontextuel.addAction(Icons::icPaste(),  tr("Coller"));
+        connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Coller");});
     }
 
-    else if (m_mode == Selection)
-    {
-        bool a = false;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line0 = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line0->hasSelectedText())
-                if (getDocumentFromRow(line0->Row())->id() == currentuser()->id())
-                {a =true; break;}
-        }
-        if (a)
-        {
-            pAction_ModifDoc       = m_menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
-            connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDoc");});
-        }
-    }
-    else if (widg == ui->upTextEdit)
-    {
-        pAction_InsertChamp                 = m_menucontextuel->addAction   (Icons::icAjouter(),    tr("Insérer un champ"));
-        interro                             = m_menucontextuel->addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
-        pAction_InsInterroDate              = interro->addAction            (Icons::icDate(),       tr("Date"));
-        pAction_InsInterroHeure             = interro->addAction            (Icons::icClock(),      tr("Heure"));
-        pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Côté"));
-        pAction_InsInterroMontant           = interro->addAction            (Icons::icEuro(),       tr("Montant"));
-        pAction_InsInterroMedecin           = interro->addAction            (Icons::icStetho(),     tr("Soignant"));
-        pAction_InsInterroProvenance        = interro->addAction            (Icons::icFamily(),     tr("Provenance"));
-        pAction_InsInterroSejour            = interro->addAction            (Icons::icInformation(),tr("Séjour"));
-        pAction_InsInterroSite              = interro->addAction            (Icons::icClinic(),     tr("Centre"));
-        pAction_InsInterroText              = interro->addAction            (Icons::icMedoc(),      tr("Texte libre"));
-        pAction_InsInterroDateIntervention  = interro->addAction            (Icons::icDate(),       TITREDATEINTERVENTION);
-        pAction_InsInterroAnesthIntervention= interro->addAction            (Icons::icStetho(),     TITREANESTHINTERVENTION);
-        pAction_InsInterroHeureIntervention = interro->addAction            (Icons::icClock(),      TITREHEUREINTERVENTION);
-        pAction_InsInterroCoteIntervention  = interro->addAction            (Icons::icSide(),       TITRECOTEINTERVENTION);
-        pAction_InsInterroTypeIntervention  = interro->addAction            (Icons::icMedoc(),      TITRETYPEINTERVENTION);
-        pAction_InsInterroSiteIntervention  = interro->addAction            (Icons::icClinic(),     TITRESITEINTERVENTION);
-
-        m_menucontextuel->addSeparator();
-        if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_ModifPolice     = m_menucontextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
-            pAction_Fontbold        = m_menucontextuel->addAction(Icons::icFontbold(),       tr("Gras"));
-            pAction_Fontitalic      = m_menucontextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
-            pAction_Fontunderline   = m_menucontextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
-            pAction_Fontnormal      = m_menucontextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
-
-            connect (pAction_ModifPolice,       &QAction::triggered,    this, [=] {ChoixMenuContextuel("Police");});
-            connect (pAction_Fontbold,          &QAction::triggered,    this, [=] {ChoixMenuContextuel("Gras");});
-            connect (pAction_Fontitalic,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Italique");});
-            connect (pAction_Fontunderline,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Souligne");});
-            connect (pAction_Fontnormal,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Normal");});
-            m_menucontextuel->addSeparator();
-        }
-        pAction_Blockleft       = m_menucontextuel->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
-        pAction_Blockright      = m_menucontextuel->addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
-        pAction_Blockcentr      = m_menucontextuel->addAction(Icons::icBlockCenter(),        tr("Centré"));
-        pAction_Blockjust       = m_menucontextuel->addAction(Icons::icBlockJustify(),       tr("Justifié"));
-        m_menucontextuel->addSeparator();
-        if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_Copier          = m_menucontextuel->addAction(Icons::icCopy(),   tr("Copier"));
-            pAction_Cut             = m_menucontextuel->addAction(Icons::icCut(),    tr("Couper"));
-            connect (pAction_Copier,            &QAction::triggered,    this, [=] {ChoixMenuContextuel("Copier");});
-            connect (pAction_Cut,               &QAction::triggered,    this, [=] {ChoixMenuContextuel("Couper");});
-        }
-        if (qApp->clipboard()->mimeData()->hasText()
-                || qApp->clipboard()->mimeData()->hasUrls()
-                || qApp->clipboard()->mimeData()->hasImage()
-                || qApp->clipboard()->mimeData()->hasHtml())
-        {
-            QAction *pAction_Coller = m_menucontextuel->addAction(Icons::icPaste(),  tr("Coller"));
-            connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Coller");});
-        }
-
-        connect (pAction_InsertChamp,                   &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Inserer");});
-        connect (pAction_InsInterroDate,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Date");});
-        connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel(COTE);});
-        connect (pAction_InsInterroHeure,               &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Heure");});
-        connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Montant");});
-        connect (pAction_InsInterroMedecin,             &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Soignant");});
-        connect (pAction_InsInterroProvenance,          &QAction::triggered,    this,   [=] {ChoixMenuContextuel(PROVENANCE);});
-        connect (pAction_InsInterroSejour,              &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPESEJOUR);});
-        connect (pAction_InsInterroSite,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel(SITE);});
-        connect (pAction_InsInterroText,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Texte");});
-        connect (pAction_Blockcentr,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Centre");});
-        connect (pAction_Blockright,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Droite");});
-        connect (pAction_Blockleft,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Gauche");});
-        connect (pAction_Blockjust,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Justifie");});
-        connect (pAction_InsInterroDateIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(DATEINTERVENTION);});
-        connect (pAction_InsInterroHeureIntervention,   &QAction::triggered,    this,   [=] {ChoixMenuContextuel(HEUREINTERVENTION);});
-        connect (pAction_InsInterroCoteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(COTEINTERVENTION);});
-        connect (pAction_InsInterroTypeIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPEINTERVENTION);});
-        connect (pAction_InsInterroSiteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(SITEINTERVENTION);});
-        connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=] {ChoixMenuContextuel(ANESTHINTERVENTION);});
-    }
+    connect (pAction_InsertChamp,                   &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Inserer");});
+    connect (pAction_InsInterroDate,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Date");});
+    connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel(COTE);});
+    connect (pAction_InsInterroHeure,               &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Heure");});
+    connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Montant");});
+    connect (pAction_InsInterroMedecin,             &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Soignant");});
+    connect (pAction_InsInterroProvenance,          &QAction::triggered,    this,   [=] {ChoixMenuContextuel(PROVENANCE);});
+    connect (pAction_InsInterroSejour,              &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPESEJOUR);});
+    connect (pAction_InsInterroSite,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel(SITE);});
+    connect (pAction_InsInterroText,                &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Texte");});
+    connect (pAction_Blockcentr,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Centre");});
+    connect (pAction_Blockright,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Droite");});
+    connect (pAction_Blockleft,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Gauche");});
+    connect (pAction_Blockjust,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuel("Justifie");});
+    connect (pAction_InsInterroDateIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(DATEINTERVENTION);});
+    connect (pAction_InsInterroHeureIntervention,   &QAction::triggered,    this,   [=] {ChoixMenuContextuel(HEUREINTERVENTION);});
+    connect (pAction_InsInterroCoteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(COTEINTERVENTION);});
+    connect (pAction_InsInterroTypeIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(TYPEINTERVENTION);});
+    connect (pAction_InsInterroSiteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuel(SITEINTERVENTION);});
+    connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=] {ChoixMenuContextuel(ANESTHINTERVENTION);});
 
     // ouvrir le menu
-    m_menucontextuel->exec(cursor().pos());
-    delete m_menucontextuel;
-    m_menucontextuel = Q_NULLPTR;
+    menucontextuel.exec(cursor().pos());
+}
+
+void dlg_impressions::MenuContextuelDocuments()
+{
+    QModelIndex idx   = ui->DocsupTableView->indexAt(ui->DossiersupTableView->viewport()->mapFromGlobal(cursor().pos()));
+    m_currentdocument = getDocumentFromIndex(idx);
+    if (!m_currentdocument)
+        return;
+    QMenu menucontextuel;
+    QAction *pAction_ModifDoc;
+    QAction *pAction_SupprDoc;
+    QAction *pAction_CreerDoc;
+    QAction *pAction_PublicDoc;
+    QAction *pAction_PrescripDoc;
+    QAction *pAction_EditableDoc;
+    QAction *pAction_AdminDoc;
+    pAction_ModifDoc                = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce document"));
+    pAction_SupprDoc                = menucontextuel.addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
+    pAction_CreerDoc                = menucontextuel.addAction(Icons::icCreer(), tr("Créer un document"));
+    if (m_currentdocument->ispublic())
+        pAction_PublicDoc           = menucontextuel.addAction(Icons::icBlackCheck(), tr("Privé"));
+    else
+        pAction_PublicDoc           = menucontextuel.addAction(tr("Public"));
+    if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
+    {
+        if (m_currentdocument->isprescription())
+            pAction_PrescripDoc         = menucontextuel.addAction(Icons::icBlackCheck(), tr("Prescription"));
+        else
+            pAction_PrescripDoc         = menucontextuel.addAction(tr("Prescription"));
+        pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
+        connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuel("PrescripDoc");});
+    }
+    if (m_currentdocument->iseditable())
+        pAction_EditableDoc         = menucontextuel.addAction(Icons::icBlackCheck(), tr("Editable"));
+    else
+        pAction_EditableDoc         = menucontextuel.addAction(tr("Editable"));
+    if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
+    {
+        if (!m_currentdocument->ismedical())
+            pAction_AdminDoc        = menucontextuel.addAction(Icons::icBlackCheck(), tr("Document administratif"));
+        else
+            pAction_AdminDoc        = menucontextuel.addAction(tr("Document administratif"));
+        pAction_AdminDoc    ->setToolTip(tr("si cette option est cochée\nle document est considéré comme un document non médical"));
+        connect (pAction_AdminDoc,      &QAction::triggered,this, [=] {ChoixMenuContextuel("Administratif");});
+    }
+
+    pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
+    pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
+
+    connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("Modifier");});
+    connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("Supprimer");});
+    connect (pAction_CreerDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("Creer");});
+    connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Public");});
+    connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuel("Editable");});
+
+    if (m_mode == Selection)
+    {
+        pAction_ModifDoc       = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce document"));
+        connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDoc");});
+    }
+    // ouvrir le menu
+    menucontextuel.exec(cursor().pos());
 }
 
 void dlg_impressions::MenuContextuelDossiers()
@@ -835,20 +686,20 @@ void dlg_impressions::MenuContextuelDossiers()
     m_currentdossier = getDossierFromIndex(idx);
     if (!m_currentdossier)
         return;
-    QMenu *menucontextuel = new QMenu(this);
+    QMenu menucontextuel;
     QAction *pAction_ModifDossier;
     QAction *pAction_SupprDossier;
     QAction *pAction_CreerDossier;
     QAction *pAction_PublicDossier;
 
-    pAction_CreerDossier            = menucontextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
-    pAction_ModifDossier            = menucontextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
-    pAction_SupprDossier            = menucontextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
-    menucontextuel->addSeparator();
+    pAction_CreerDossier            = menucontextuel.addAction(Icons::icCreer(), tr("Créer un dossier")) ;
+    pAction_ModifDossier            = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
+    pAction_SupprDossier            = menucontextuel.addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
+    menucontextuel.addSeparator();
     if (!m_currentdossier->ispublic())
-        pAction_PublicDossier       = menucontextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
+        pAction_PublicDossier       = menucontextuel.addAction(Icons::icBlackCheck(), tr("Public")) ;
     else
-        pAction_PublicDossier       = menucontextuel->addAction(tr("Privé")) ;
+        pAction_PublicDossier       = menucontextuel.addAction(tr("Privé")) ;
 
     connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Modifier");});
     connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Supprimer");});
@@ -856,153 +707,17 @@ void dlg_impressions::MenuContextuelDossiers()
     connect (pAction_PublicDossier, &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Public");});
 
     // ouvrir le menu
-    menucontextuel->exec(cursor().pos());
-    delete menucontextuel;
+    menucontextuel.exec(cursor().pos());
 }
 
 void dlg_impressions::ChoixMenuContextuel(QString choix)
 {
-    bool a = false;
-    QPoint pos = ui->DocupTableWidget->viewport()->mapFromGlobal(m_menucontextuel->pos());
     if (choix       == "Coller")    ui->upTextEdit->paste();
 
     else if (choix  == "Copier")    ui->upTextEdit->copy();
 
     else if (choix  == "Couper")    ui->upTextEdit->cut();
 
-    else if (choix  == "ModifierDoc")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a == false) return;
-        ConfigMode(ModificationDOC,line->Row());
-    }
-    else if (choix  == "SupprimerDoc")
-    {
-        SupprimmeDocument(m_currentdocument);
-    }
-    else if (choix  == "PublicDoc")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a = true; break;}
-        }
-        if (!a) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),3));
-        Impression *impr = getDocumentFromRow(line->Row());
-        QString b = "null";
-        if (lbl->pixmap() == Q_NULLPTR)
-        {
-            b = "1";
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        }
-        else
-        {
-            if (!VerifDocumentPublic(line->Row())) return;
-            lbl->clear();
-        }
-        ui->DocPubliccheckBox->toggle();
-        if (m_mode == Selection)
-        {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_DOCPUBLIC_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
-                            QString::number(impr->id()));
-            impr->setpublic(b == "1");
-        }
-    }
-    else if (choix  == "EditDoc")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),4));
-        Impression *impr = getDocumentFromRow(line->Row());
-        QString b = "null";
-        if (lbl->pixmap() == Q_NULLPTR)
-        {
-            b = "1";
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        }
-        else
-            lbl->clear();
-        ui->DocEditcheckBox->toggle();
-        if (m_mode == Selection)
-        {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_EDITABLE_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
-                            QString::number(impr->id()));
-            impr->seteditable(b == "1");
-        }
-    }
-    else if (choix  == "AdminDoc")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),5));
-        Impression *impr = getDocumentFromRow(line->Row());
-        impr->setmedical(!impr->ismedical());
-        if (impr->ismedical())
-            lbl->clear();                                           //! le document était administratif et devient médical
-        else
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));    //! le document était médical et devient administratif
-        ui->DocAdministratifcheckBox->setChecked(!impr->ismedical());
-        QString val = (impr->ismedical()? "1" : "null");
-        db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_MEDICAL_IMPRESSIONS " = " + val + " where " CP_ID_IMPRESSIONS " = " +  QString::number(impr->id()));
-        if (impr->isprescription() && !impr->ismedical())
-        {
-            impr->setprescription(false);
-            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_PRESCRIPTION_IMPRESSIONS " = null where " CP_ID_IMPRESSIONS " = " +
-                            QString::number(impr->id()));
-            ui->PrescriptioncheckBox->setChecked(false);
-        }
-    }
-    else if (choix  == "PrescripDoc")
-    {
-        UpLineEdit *line = new UpLineEdit(this);
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
-        }
-        if (a == false) return;
-        Impression *impr = getDocumentFromRow(line->Row());
-        ui->PrescriptioncheckBox->toggle();
-        QString b = "null";
-        if (ui->PrescriptioncheckBox->isChecked())
-            b = "1";
-        if (m_mode == Selection)
-        {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_PRESCRIPTION_IMPRESSIONS " = " + b + " where " CP_ID_IMPRESSIONS " = " +
-                            QString::number(impr->id()));
-            impr->setprescription(ui->PrescriptioncheckBox->isChecked());
-            if (impr->isprescription() && !impr->ismedical())
-            {
-                impr->setmedical(true);
-                db->StandardSQL("update " TBL_IMPRESSIONS " set " CP_MEDICAL_IMPRESSIONS " = 1 where " CP_ID_IMPRESSIONS " = " +
-                                QString::number(impr->id()));
-                ui->DocAdministratifcheckBox->setChecked(false);
-                static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->Row(),5))->clear();
-            }
-        }
-    }
-    else if (choix  == "CreerDoc")
-    {
-        int row = ui->DocupTableWidget->rowAt(pos.y());
-        ConfigMode(CreationDOC,row);
-    }
     else if (choix  == "Police")    {
         bool ok = false;
         QFont police = QFontDialog::getFont(&ok, ui->upTextEdit->textCursor().charFormat().font(), this, "Choisissez une police");
@@ -1209,19 +924,111 @@ void dlg_impressions::ChoixMenuContextuel(QString choix)
     }
 }
 
+void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
+{
+    if (choix  == "Modifier")
+        ConfigMode(ModificationDOC);
+    else if (choix  == "Supprimer")
+        SupprimmeDocument(m_currentdocument);
+    else if (choix  == "Public")
+    {
+        int row = getRowFromDocument(m_currentdocument);
+        if (row== -1)
+            return;
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,2));
+        if (itm)
+        {
+            if(itm->data(Qt::DecorationRole) != QPixmap())
+                itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+            else
+                itm->setData(QPixmap(),Qt::DecorationRole);
+        }
+        ui->DocPubliccheckBox->toggle();
+        if (m_mode == Selection)
+            ItemsList::update(m_currentdocument, CP_DOCPUBLIC_IMPRESSIONS,!m_currentdocument->ispublic());
+    }
+    else if (choix  == "Editable")
+    {
+        int row = getRowFromDocument(m_currentdocument);
+        if (row== -1)
+            return;
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,2));
+        if (itm)
+        {
+            if(itm->data(Qt::DecorationRole) != QPixmap())
+                itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+            else
+                itm->setData(QPixmap(),Qt::DecorationRole);
+        }
+        ui->DocEditcheckBox->toggle();
+        if (m_mode == Selection)
+            ItemsList::update(m_currentdocument, CP_EDITABLE_IMPRESSIONS,!m_currentdocument->iseditable());
+    }
+    else if (choix  == "Administratif")
+    {
+        int row = getRowFromDocument(m_currentdocument);
+        if (row== -1)
+            return;
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,2));
+        if (itm)
+        {
+            if(itm->data(Qt::DecorationRole) != QPixmap())
+                itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+            else
+                itm->setData(QPixmap(),Qt::DecorationRole);
+        }
+        ui->DocAdministratifcheckBox->toggle();
+        if (ui->PrescriptioncheckBox->isChecked() && ui->DocAdministratifcheckBox->isChecked())
+        {
+            ui->PrescriptioncheckBox->setChecked(false);
+            if (m_mode == Selection)
+                ItemsList::update(m_currentdossier, CP_PRESCRIPTION_IMPRESSIONS,false);
+        }
+        if (m_mode == Selection)
+            ItemsList::update(m_currentdossier, CP_MEDICAL_IMPRESSIONS,!m_currentdocument->ismedical());
+    }
+    else if (choix  == "Prescription")
+    {
+        int row = getRowFromDocument(m_currentdocument);
+        if (row== -1)
+            return;
+        ui->PrescriptioncheckBox->toggle();
+        if (ui->PrescriptioncheckBox->isChecked() && ui->DocAdministratifcheckBox->isChecked())
+        {
+            ui->DocAdministratifcheckBox->setChecked(false);
+            if (m_mode == Selection)
+                ItemsList::update(m_currentdossier, CP_MEDICAL_IMPRESSIONS,true);
+        }
+        if (m_mode == Selection)
+            ItemsList::update(m_currentdossier, CP_PRESCRIPTION_IMPRESSIONS,!m_currentdocument->isprescription());
+    }
+    else if (choix  == "Creer")
+        ConfigMode(CreationDOSS);
+}
+
 void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
 {
-    int row = getRowFromDossier(m_currentdossier);
     if (choix  == "Modifier")
-        ConfigMode(ModificationDOSS,row);
+        ConfigMode(ModificationDOSS);
     else if (choix  == "Supprimer")
         SupprimmeDossier(m_currentdossier);
     else if (choix  == "Public")
     {
         if (!m_currentdossier->ispublic() && hasDocumentPrive(m_currentdossier))
             return;
-        ItemsList::update(m_currentdossier, CP_PUBLIC_DOSSIERIMPRESSIONS,!m_currentdossier->ispublic());
-        SetDossierToRow(m_currentdossier, row);
+        int row = getRowFromDossier(m_currentdossier);
+        if (row== -1)
+            return;
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
+        if (itm)
+        {
+            if(itm->data(Qt::DecorationRole) != QPixmap())
+                itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+            else
+                itm->setData(QPixmap(),Qt::DecorationRole);
+        }
+        if (m_mode == Selection)
+            ItemsList::update(m_currentdossier, CP_PUBLIC_DOSSIERIMPRESSIONS,!m_currentdossier->ispublic());
     }
     else if (choix  == "Creer")
     {
@@ -1229,15 +1036,12 @@ void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
     }
 }
 
-
-
 // ----------------------------------------------------------------------------------
 // Clic sur le bouton OK.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
 void dlg_impressions::Validation()
 {
-    UpLineEdit *line = new UpLineEdit();
     int         c = 0;
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
@@ -1259,35 +1063,20 @@ void dlg_impressions::Validation()
     int ndocs = 0;
     switch (m_mode) {
     case CreationDOC:
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) break;
-        }
-        InsertDocument(line->Row());
+    case ModificationDOC:
+        EnregistreDocument(m_currentdocument);
         break;
     case CreationDOSS:
     case ModificationDOSS:
-        ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         EnregistreDossier(m_currentdossier);
         break;
-    case ModificationDOC:
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-            line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->isEnabled()) break;
-        }
-        UpdateDocument(line->Row());
-        break;
     case Selection:                                                         // -> On imprime le
-        for (int i =0 ; i < ui->DocupTableWidget->rowCount(); i++)
+        for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if(Check->isChecked()) c++;
-            }
+            QStandardItem *itm = m_docsmodel->item(i,0);
+            if (itm)
+                if (itm->checkState() == Qt::Checked)
+                    c++;
         }
         if (c == 0)
         {
@@ -1295,16 +1084,15 @@ void dlg_impressions::Validation()
             break;
         }
 
-        for (int i =0 ; i < ui->DocupTableWidget->rowCount(); i++)
+        for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
             // on établit d'abord la liste de questions à poser
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
             {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if (Check->isChecked())
+                if (itm->checkState() == Qt::Checked)
                 {
-                    QString text = getDocumentFromRow(i)->texte();
+                    QString text = m_docsmodel->item(i,1)->data(Qt::DisplayRole).toString();
                     QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
                     quest+= "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
@@ -1670,7 +1458,7 @@ void dlg_impressions::Validation()
             }
             delete dlg_ask;
         }
-        for (int i =0 ; i < ui->DocupTableWidget->rowCount(); i++)
+        for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
             /* On alimente 5 QStringList. Chaque iteration correspond à la description d'un document
              * TitreDocumentAImprimerList       -> le titre qui sera inséré dans la fiche docsexternes et dans la conclusion
@@ -1679,15 +1467,17 @@ void dlg_impressions::Validation()
              * TextDocumentsAImprimerList       -> le corps du document à imprimer
              * AdministratifAImprimerList       -> document administratif ou pas
             */
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
             {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                if (Check->isChecked())
+                if (itm->ischecked())
                 {
                     // on effectue les corrections de chacun des documents
                     QMap<DATASAIMPRIMER,QString>  datasdocaimprimer;
-                    QString textAimprimer = getDocumentFromRow(i)->texte();
+                    Impression *doc = dynamic_cast<Impression*>(itm->item());
+                    if (!itm)
+                        continue;
+                    QString textAimprimer = doc->texte();
                     if (ExpARemplacer.size() > 0)
                         for (int y=0; y<ExpARemplacer.size(); y++)
                             textAimprimer.replace(ExpARemplacer.at(y),Rempla.at(y));
@@ -1695,12 +1485,11 @@ void dlg_impressions::Validation()
                     for (int j=0; j<m_listtexts.size();j++)
                     {
                         QString txtdoc = m_listtexts.at(j);
-                        int row = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->Row();
-                        Impression *impr = getDocumentFromRow(row);
+                        Impression *impr = getDocumentFromIndex(m_docsmodel->index(i,0));
 
                         // on détermine le titre du document à inscrire en conclusion et le statut de prescription (si prescription => impression d'un dupli)
 
-                        QString titre                   = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->text();
+                        QString titre = impr->resume();
                         datasdocaimprimer.insert(Titre, titre);
                         datasdocaimprimer.insert(Prescription, (impr->isprescription()? "1": ""));
                         datasdocaimprimer.insert(Administratif, (impr->ismedical()? "": "1"));
@@ -1767,7 +1556,7 @@ bool dlg_impressions::event(QEvent *event)
 {
 /*    if (event->type() == QEvent::ToolTip)
     {
-        QWidget* rec            = ui->DocupTableWidget;
+        QWidget* rec            = ui->DocupTableView;
         QRect rect              = QRect(rec->pos(),rec->size());
         QHelpEvent *helpEvent   = static_cast<QHelpEvent *>(event);
         QTableWidgetItem *itemM = new QTableWidgetItem;
@@ -1790,11 +1579,11 @@ bool dlg_impressions::event(QEvent *event)
                               " Rect = (" + QString::number(rec->x()) + "," + QString::number(rec->y()) + ") " +
                               " (" + QString::number(rec->x()+rec->width()) + "," + QString::number(rec->y()+rec->height()) + ")" +
                               " " + tru);
-        itemM = ui->DocupTableWidget->itemAt(rec->mapFrom(this,pos));
+        itemM = ui->DocupTableView->itemAt(rec->mapFrom(this,pos));
         if (itemM == 0) return false;
         if (itemM->row() > -1) {
             QTextEdit *text = new QTextEdit;
-            text->setText(MetAJour(ui->DocupTableWidget->item(itemM->row(),2)->text()));
+            text->setText(MetAJour(ui->DocupTableView->item(itemM->row(),2)->text()));
             QString ab = text->toPlainText().left(300);
             QToolTip::showText(helpEvent->globalPos(), ab);
         } else {
@@ -1818,7 +1607,7 @@ bool dlg_impressions::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::FocusIn)
     {
-        if (obj->inherits("UpLineEdit"))
+        if (dynamic_cast<UpLineEdit*>(obj))
         {
             UpLineEdit *linetext = static_cast<UpLineEdit*>(obj);
             linetext->selectAll();
@@ -1826,7 +1615,7 @@ bool dlg_impressions::eventFilter(QObject *obj, QEvent *event)
     }
     if(event->type() == QEvent::FocusOut)
     {
-        if (obj->inherits("UpLineEdit"))
+        if (dynamic_cast<UpLineEdit*>(obj))
         {
             UpLineEdit *linetext = static_cast<UpLineEdit*>(obj);
             const QDoubleValidator *val = dynamic_cast<const QDoubleValidator*>(linetext->validator());
@@ -1836,7 +1625,7 @@ bool dlg_impressions::eventFilter(QObject *obj, QEvent *event)
     }
     if(event->type() == QEvent::MouseMove)
     {
-        if (obj == ui->textFrame || obj == ui->upTextEdit)
+        if (obj == ui->textFrame)
             if (m_mode == Selection)
             {
                 QRect rect = QRect(ui->textFrame->pos(),ui->textFrame->size());
@@ -1845,49 +1634,6 @@ bool dlg_impressions::eventFilter(QObject *obj, QEvent *event)
                     EffaceWidget(ui->textFrame, false);
             }
     }
-    if (event->type() == QEvent::KeyPress)
-        if (obj->inherits("UpTableWidget"))
-        {
-            QKeyEvent       *keyEvent = static_cast<QKeyEvent*>(event);
-            UpTableWidget   *table    = static_cast<UpTableWidget *>(obj);
-            UpLineEdit      *line;
-            if (keyEvent->key() == Qt::Key_Up)
-            {
-                for (int i=0; i<table->rowCount(); i++)
-                {
-                    line = static_cast<UpLineEdit *>(table->cellWidget(i,1));
-                    if (line->selectedText() != "")
-                    {
-                        if (line->Row() > 0){
-                            LineSelect(table, line->Row()-1);
-                            QPoint posdebut = mapFrom(this, table->cellWidget(0,0)->pos());
-                            QPoint poscell  = mapFrom(this, table->cellWidget(line->Row(),0)->pos());
-                            if (posdebut.y() < -1 && poscell.y() < table->height()-(line->height()*7))
-                                table->viewport()->scroll(0,line->height());
-                        }
-                        break;
-                    }
-                }
-            }
-            if (keyEvent->key() == Qt::Key_Down)
-            {
-                for (int i=0; i<table->rowCount(); i++)
-                {
-                    line = static_cast<UpLineEdit *>(table->cellWidget(i,1));
-                    if (line->selectedText() != "")
-                    {
-                        if (line->Row() < table->rowCount()-1){
-                            LineSelect(table, line->Row()+1);
-                            QPoint poscell = mapFrom(this, table->cellWidget(line->Row(),0)->pos());
-                            QPoint posfin = mapFrom(this, table->cellWidget(table->rowCount()-1,0)->pos());
-                            if (posfin.y() > table->height()-(line->height()*2) && poscell.y() > line->height()*5)
-                                table->viewport()->scroll(0,-line->height());
-                        }
-                        break;
-                    }
-                }
-            }
-        }
     return QWidget::eventFilter(obj, event);
 }
 
@@ -1901,20 +1647,14 @@ void dlg_impressions::keyPressEvent(QKeyEvent * event )
     }
     case Qt::Key_F5:
     {
-        int row = -1;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        if (m_currentdocument)
         {
-            UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) { row = line->Row(); break; }
-        }
-        if (row > -1)
-        {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(row,0));
-            if (Widg)
+            int row = getRowFromDocument(m_currentdocument);
+            if (row > -1 && row < m_docsmodel->rowCount())
             {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setChecked(!Check->isChecked());
-                EnableOKPushButton(Check);
+                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
+            if (itm)
+                itm->setCheckState(itm->checkState()==Qt::Checked? Qt::Unchecked : Qt:: Checked);
             }
         }
         break;
@@ -1961,6 +1701,7 @@ int dlg_impressions::AskDialog(QString titre)
 bool dlg_impressions::ChercheDoublon(QString str, int row)
 {
     DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
+    Impression *doc = getDocumentFromIndex(m_docsmodel->index(row,0));
     QString req, nom;
     switch (m_mode) {
     case CreationDOC:
@@ -1968,7 +1709,7 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
         nom = tr("document");
         break;
     case ModificationDOC:
-        req = "select " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS " from " TBL_IMPRESSIONS " where " CP_ID_IMPRESSIONS " <> " + QString::number(getDocumentFromRow(row)->id());
+        req = "select " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS " from " TBL_IMPRESSIONS " where " CP_ID_IMPRESSIONS " <> " + QString::number(doc->id());
         nom = tr("document");
         break;
     case CreationDOSS:
@@ -2023,68 +1764,64 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
     QList<QVariantList> listdocmts = db->StandardSelectSQL(req,ok);
     if (listdocmts.size() > 0)
     {
-        QStringList listiddocs;
+        QList<int> listiddocs;
         for (int i=0; i<listdocmts.size(); i++)
-            listiddocs << listdocmts.at(i).at(0).toString();
-        for (int k=0; k<ui->DocupTableWidget->rowCount(); k++)
+            listiddocs << listdocmts.at(i).at(0).toInt();
+        for (int k=0; k<m_docsmodel->rowCount(); k++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(k,0));
-            if (Widg)
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(k,0));
+            if (itm)
             {
-                UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                if (listiddocs.contains(QString::number(getDocumentFromRow(k)->id())))
+                Impression *doc = dynamic_cast<Impression*>(itm->item());
+                if (doc)
                 {
-                    if (A)
-                        DocCheck->setChecked(A);
-                    else                 // on vérifie qu'on peut décocher un doc et qu'il n'est pas nécessité par un autre dossier coché
+                    if (listiddocs.contains(doc->id()))
                     {
-                        bool a = false;
-                        for (int j=0; j<m_dossiersmodel->rowCount(); j++)
+                        if (A)
+                            itm->setCheckState(Qt::Checked);
+                        else                 // on vérifie qu'on peut décocher un doc et qu'il n'est pas nécessité par un autre dossier coché
                         {
-                            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
-                            if (itm)
+                            bool a = false;
+                            for (int j=0; j<m_dossiersmodel->rowCount(); j++)
                             {
-                                DossierImpression * dossier = getDossierFromIndex(itm->index());
-                                if (dossier)
-                                if (dossier->id() != iddoss)
+                                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
+                                if (itm)
                                 {
-                                    if (itm->checkState()==Qt::Checked)
-                                    {
-                                        req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-                                                " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id());
-                                        QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
-                                        if (listdocmts2.size() > 0)
+                                    DossierImpression * dossier = getDossierFromIndex(itm->index());
+                                    if (dossier)
+                                        if (dossier->id() != iddoss)
                                         {
-                                            QStringList listid;
-                                            for (int i=0; i<listdocmts2.size(); i++)
-                                                listid << listdocmts2.at(i).at(0).toString();
-                                            if (listid.contains(QString::number(getDocumentFromRow(k)->id())))
+                                            if (itm->checkState()==Qt::Checked)
                                             {
-                                                a = true;
-                                                break;
-                        }   }   }   }   }   }
-                        DocCheck->setChecked(a);
+                                                req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
+                                                        " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id());
+                                                QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
+                                                if (listdocmts2.size() > 0)
+                                                {
+                                                    QList<int> listid;
+                                                    for (int i=0; i<listdocmts2.size(); i++)
+                                                        listid << listdocmts2.at(i).at(0).toInt();
+                                                    if (listid.contains(doc->id()))
+                                                    {
+                                                        a = true;
+                                                        break;
+                                                    }   }   }   }   }   }
+                            itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
+                        }
                     }
-                    QString nomdoc = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(DocCheck->rowTable(),1))->text();
-                    if (!DocCheck->isChecked())
-                        ui->DocupTableWidget->item(DocCheck->rowTable(),6)->setText("1" + nomdoc);
-                    else
-                        ui->DocupTableWidget->item(DocCheck->rowTable(),6)->setText("0" + nomdoc);
                 }
 
             }   }   }
-    // tri de la table docuptablewidget
-    TriDocupTableWidget();
-    ui->DocupTableWidget->scrollToTop();
+    // tri de la table DocupTableView
+    ui->DocsupTableView->scrollToTop();
 
     // enable okpushbutton
-    for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
+    for (int l=0; l<m_docsmodel->rowCount(); l++)
     {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
-        if (Widg)
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
+        if (itm)
         {
-            UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-            if (DocCheck->isChecked())
+            if (itm->ischecked())
             {
                 ui->OKupPushButton->setEnabled(true);
                 break;
@@ -2096,7 +1833,7 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
 // ----------------------------------------------------------------------------------
 // Configuration de le fiche en fonction du mode de fonctionnement
 // ----------------------------------------------------------------------------------
-void dlg_impressions::ConfigMode(Mode mode, int row)
+void dlg_impressions::ConfigMode(Mode mode)
 {
     m_mode = mode;
     wdg_docsbuttonframe->searchline()   ->setEnabled(m_mode == Selection);
@@ -2127,11 +1864,11 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->DocPubliccheckBox           ->setChecked(false);
         ui->DocPubliccheckBox           ->setEnabled(false);
         ui->DocPubliccheckBox           ->setToolTip("");
-        ui->DocupTableWidget            ->setEnabled(true);
-        ui->DocupTableWidget            ->setFocus();
-        ui->DocupTableWidget            ->setStyleSheet("");
+        ui->DocsupTableView             ->setEnabled(true);
+        ui->DocsupTableView             ->setFocus();
+        ui->DocsupTableView             ->setStyleSheet("");
         wdg_dossiersbuttonframe         ->setEnabled(true);
-        ui->DossiersupTableView       ->setEnabled(true);
+        ui->DossiersupTableView         ->setEnabled(true);
         ui->DocEditcheckBox             ->setChecked(false);
         ui->DocEditcheckBox             ->setEnabled(false);
         ui->DocEditcheckBox             ->setToolTip("");
@@ -2158,15 +1895,12 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton              ->setIconSize(QSize(30,30));
 
         int nbCheck = 0;
-        for (int i =0 ; i < ui->DocupTableWidget->rowCount(); i++)
+        for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setEnabled(true);
-                if (Check->isChecked()) nbCheck ++;
-            }
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
+                if(itm->ischecked())
+                    ++nbCheck;
         }
         ui->OKupPushButton->setEnabled(nbCheck>0);
         wdg_docsbuttonframe->searchline()->setFocus();
@@ -2174,30 +1908,14 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
 
     else if (mode == ModificationDOC)
     {
-        int iddoc = getDocumentFromRow(row)->id();
-        DisableLines();
-        row = -1;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-            if (getDocumentFromRow(i)->id() == iddoc)
-            {
-                row = i;
-                break;
-            }
-        if (row == -1)
+        if (!m_currentdocument)
             return;
-        UpLineEdit *line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(row,1));
-        line->setEnabled(true);
-        line->setFocusPolicy(Qt::WheelFocus);
-        line->setFocus();
-        line->selectAll();
-        connect(line,   &QLineEdit::textEdited, this, [=] {EnableOKPushButton();});
-
-        ui->upTextEdit->setText(getDocumentFromRow(row)->texte());
-
-        ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(row,false));
+         DisableLines();
+        ui->upTextEdit->setText(m_currentdocument->texte());
+        ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(m_currentdocument,false));
         ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
-        ui->DocupTableWidget->setEnabled(true);
-        ui->DocupTableWidget->setStyleSheet("");
+        ui->DocsupTableView->setEnabled(true);
+        ui->DocsupTableView->setStyleSheet("");
         wdg_docsbuttonframe->setEnabled(false);
         ui->DossiersupTableView->setEnabled(true);
         wdg_dossiersbuttonframe->setEnabled(false);
@@ -2220,28 +1938,36 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
+        int row = ui->DocsupTableView->currentIndex().row();
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
+        if (itm)
+        {
+            m_docsmodel->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            ui->DocsupTableView->setFocus();
+            ui->DocsupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+            ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
+         }
+        qDebug() << m_currentdocument->resume();
     }
 
     else if (mode == ModificationDOSS)
     {
-        m_currentdossier = getDossierFromIndex(ui->DossiersupTableView->currentIndex());
         if (!m_currentdossier)
             return;
         DisableLines();
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        for (int i=0; i<m_docsmodel->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
             {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setEnabled(true);
-                Check->setChecked(false);
+                itm->setCheckState(Qt::Unchecked);
+                itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
             }
         }
         CocheLesDocs(m_currentdossier->id(), true);
 
-        ui->DocupTableWidget->setEnabled(true);
-        ui->DocupTableWidget->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
+        ui->DocsupTableView->setEnabled(true);
+        ui->DocsupTableView->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
         ui->DossiersupTableView->setEnabled(true);
         ui->Expliclabel->setText(tr("DOSSIERS - MODIFICATION"));
 
@@ -2252,74 +1978,27 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton->setText(tr("Enregistrer"));
         ui->OKupPushButton->setEnabled(false);
         wdg_docsbuttonframe->searchline()->clear();
-        for (int i=0; i<m_dossiersmodel->rowCount(); ++i)
+        int row = ui->DossiersupTableView->currentIndex().row();
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
+        if (itm)
         {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i,0));
-            if (itm)
-            {
-                DossierImpression *dossier = dynamic_cast<DossierImpression*>(itm->item());
-                if (dossier)
-                    if (dossier == m_currentdossier)
-                    {
-                        m_dossiersmodel->item(i,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-                        ui->DossiersupTableView->setFocus();
-                        ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
-                        ui->DossiersupTableView->setCurrentIndex(m_dossiersmodel->index(i,1));
-                        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(i,1));
-                        i = m_dossiersmodel->rowCount();
-                    }
-            }
+            m_dossiersmodel->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            ui->DossiersupTableView->setFocus();
+            ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+            ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
         }
     }
     else if (mode == CreationDOC)
     {
+        wdg_docsbuttonframe->searchline()->clear();
+        FiltreListe();
         DisableLines();
-        ui->DocupTableWidget->insertRow(row);
-        QWidget * w = new QWidget(ui->DocupTableWidget);
-        UpCheckBox *Check = new UpCheckBox(w);
-        Check->setCheckState(Qt::Unchecked);
-        Check->setRowTable(row);
-        Check->setFocusPolicy(Qt::NoFocus);
-        Check->setEnabled(false);
-        QHBoxLayout *l = new QHBoxLayout();
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
-        l->setContentsMargins(0,0,0,0);
-        w->setLayout(l);
-        ui->DocupTableWidget->setCellWidget(row,0,w);
-        UpLineEdit *upLine0 = new UpLineEdit;
-        upLine0->setText(tr("Nouveau document"));                          // resume
-        upLine0->setMaxLength(50);
-        upLine0->setRow(row);
-        upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        upLine0->setFocusPolicy(Qt::WheelFocus);
-        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-        upLine0->selectAll();
-        connect(upLine0,   &QLineEdit::textEdited, this, [=] {EnableOKPushButton();});
-        ui->DocupTableWidget->setCellWidget(row,1,upLine0);
-        QTableWidgetItem    *pItem1 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem2 = new QTableWidgetItem;
-        int col = 2;
-        pItem1->setText("0");                           // idDocument
-        ui->DocupTableWidget->setItem(row,col,pItem1);
-        col++; //3
-        UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
-        lbl->setAlignment(Qt::AlignCenter);
-        ui->DocupTableWidget->setCellWidget(row,col,lbl);
-        col++; //4
-        UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
-        lbl1->setAlignment(Qt::AlignCenter);
-        ui->DocupTableWidget->setCellWidget(row,col,lbl1);
-        col++; //5
-        UpLabel*lbl2 = new UpLabel(ui->DocupTableWidget);
-        lbl1->setAlignment(Qt::AlignCenter);
-        ui->DocupTableWidget->setCellWidget(row,col,lbl2);
-        col++; //6
-        pItem2->setText("1");                           // Check+text   -> sert pour le tri de la table
-        ui->DocupTableWidget->setItem(row,col,pItem2);
-        ui->DocupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
-
+        for (int i=0; i<m_docsmodel->rowCount(); i++)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
+                itm->setCheckState(Qt::Unchecked);
+        }
         ui->DocPubliccheckBox->setChecked(false);
         ui->DocPubliccheckBox->setEnabled(true);
         ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
@@ -2329,21 +2008,16 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->DocEditcheckBox->setChecked(false);
         ui->DocEditcheckBox->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
         ui->Expliclabel->setText(tr("DOCUMENTS - CREATION - Remplissez les champs définissant le document que vous voulez créer"));
-        ui->PrescriptioncheckBox->setChecked(Qt::Unchecked);
+        ui->PrescriptioncheckBox->setChecked(false);
         ui->PrescriptioncheckBox->setEnabled(true);
         ui->DocAdministratifcheckBox->setEnabled(true);
-        ui->DocAdministratifcheckBox->setChecked(false);
+        ui->DocAdministratifcheckBox->setChecked(!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist());
         ui->DocAdministratifcheckBox->setToolTip(tr("si cette option est cochée\nle document est considéré comme purement administratif"));
         wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
-        if (!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist())
-        {
-            ui->PrescriptioncheckBox->setChecked(false);
-            ui->DocAdministratifcheckBox->setChecked(true);
-        }
 
         ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setEnabled(true);
@@ -2351,30 +2025,29 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton->setText(tr("Enregistrer\nle document"));
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
-        upLine0->setFocus();
+        m_docsmodel->insertRow(0);
+        m_currentdocument = new Impression;
+        m_currentdocument->setresume(tr("Nouveau document"));
+        m_currentdocument->setiduser(currentuser()->id());
+        SetDocumentToRow(m_currentdocument, 0);
+        m_docsmodel->item(0,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        m_docsmodel->item(0,0)->setFlags(Qt::NoItemFlags);
+        ui->DocsupTableView->setFocus();
+        ui->DocsupTableView->scrollTo(m_docsmodel->index(0,1), QAbstractItemView::EnsureVisible);
+        ui->DocsupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+        ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(0,1));
     }
 
     else if (mode == CreationDOSS)
     {
         wdg_docsbuttonframe->searchline()->clear();
         FiltreListe();
-        if (m_dossiersmodel->rowCount() > 0)
-            DisableLines();
-        int row = 0;
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        DisableLines();
+        for (int i=0; i<m_docsmodel->rowCount(); i++)
         {
-            QWidget *Widg = dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-            if (Widg)
-            {
-                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                Check->setEnabled(true);
-                Check->setChecked(false);
-            }
-            UpLineEdit *line0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line0) {
-                line0->deselect();
-                line0->setEnabled(false);
-            }
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            if (itm)
+                itm->setCheckState(Qt::Unchecked);
         }
         for (int i=0; i<m_dossiersmodel->rowCount(); i++)
         {
@@ -2384,8 +2057,8 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         }
 
         wdg_docsbuttonframe->setEnabled(false);
-        ui->DocupTableWidget->setEnabled(true);
-        ui->DocupTableWidget->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
+        ui->DocsupTableView->setEnabled(true);
+        ui->DocsupTableView->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
         ui->DossiersupTableView->setEnabled(true);
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->Expliclabel->setText(tr("DOSSIER - CREATION - Cochez les cases correspondants au dossier que vous voulez créer"));
@@ -2397,18 +2070,17 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
 
-        m_dossiersmodel->insertRow(row);
+        m_dossiersmodel->insertRow(0);
         m_currentdossier = new DossierImpression;
         m_currentdossier->setresume(tr("Nouveau Dossier"));
         m_currentdossier->setiduser(currentuser()->id());
-        SetDossierToRow(m_currentdossier, row);
-        m_dossiersmodel->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        m_dossiersmodel->item(row,0)->setFlags(Qt::NoItemFlags);
+        SetDossierToRow(m_currentdossier, 0);
+        m_dossiersmodel->item(0,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        m_dossiersmodel->item(0,0)->setFlags(Qt::NoItemFlags);
         ui->DossiersupTableView->setFocus();
-        ui->DossiersupTableView->scrollTo(m_dossiersmodel->index(row,1), QAbstractItemView::EnsureVisible);
+        ui->DossiersupTableView->scrollTo(m_dossiersmodel->index(0,1), QAbstractItemView::EnsureVisible);
         ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
-        ui->DossiersupTableView->setCurrentIndex(m_dossiersmodel->index(row,1));
-        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
+        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(0,1));
     }
     if (!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist())
     {
@@ -2423,28 +2095,22 @@ void dlg_impressions::ConfigMode(Mode mode, int row)
 void dlg_impressions::DisableLines()
 {
     wdg_docsbuttonframe->searchline()->clear();
-    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        ui->DocupTableWidget->setRowHidden(i,false);
+    for (int i=0; i<m_docsmodel->rowCount(); i++)
+        ui->DocsupTableView->setRowHidden(i,false);
     for (int i=0; i<m_dossiersmodel->rowCount(); i++)
         ui->DossiersupTableView->setRowHidden(i,false);
 
     wdg_dossiersbuttonframe->setEnabled(false);
     wdg_docsbuttonframe->setEnabled(false);
-    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+
+    for (int i=0; i<m_docsmodel->rowCount(); i++)
     {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-        if (Widg)
-        {
-            UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-            Check->setEnabled(false);
-        }
-        UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (line0 != Q_NULLPTR) {
-            line0->deselect();
-            line0->setEnabled(false);
-            line0->setFocusPolicy(Qt::NoFocus);
-            line0 ->disconnect();
-        }
+        QStandardItem *itm = m_docsmodel->item(i,0);
+        if (itm)
+            itm->setFlags(Qt::ItemIsUserCheckable);
+        QStandardItem *itm1 = m_docsmodel->item(i,1);
+        if (itm1)
+            itm1->setFlags(Qt::NoItemFlags);
     }
     for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
@@ -2464,28 +2130,14 @@ void dlg_impressions::EnableLines()
 {
     wdg_dossiersbuttonframe->setEnabled(true);
     wdg_docsbuttonframe->setEnabled(true);
-    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+    for (int i=0; i<m_docsmodel->rowCount(); i++)
     {
-        QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-        if (Widg != Q_NULLPTR)
-        {
-            UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-            Check->setEnabled(true);
-        }
-        UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (line0 != Q_NULLPTR) {
-            line0->deselect();
-            line0->setEnabled(true);
-            line0->setFocusPolicy(Qt::NoFocus);
-            if (getDocumentFromRow(i)->iduser() == currentuser()->id())
-            {
-                connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
-                connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
-                connect(line0,          &QLineEdit::textEdited,                 [=] {EnableOKPushButton();});
-            }
-            connect(line0,              &UpLineEdit::mouseEnter,                [=] {DocCellEnter(line0);});
-            connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DocupTableWidget, line0->Row());});
-        }
+        QStandardItem *itm = m_docsmodel->item(i,0);
+        if (itm)
+            itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+        QStandardItem *itm1 = m_docsmodel->item(i,1);
+        if (itm1)
+            itm1->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
     for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
@@ -2528,11 +2180,6 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
             widg->setGraphicsEffect(m_opacityeffect);
         }
     });
-}
-
-Impression* dlg_impressions::getDocumentFromRow(int row)
-{
-    return Datas::I()->impressions->getById(ui->DocupTableWidget->item(row,2)->text().toInt());
 }
 
 Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
@@ -2633,17 +2280,27 @@ bool dlg_impressions::hasDocumentPrive(DossierImpression *dossier)
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_impressions::InsertDocument(int row)
+void dlg_impressions::EnregistreDocument(Impression *doc)
 {
     // controle validate des champs
-    UpLineEdit *line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(row,1));
-    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
-    if (line->text().length() < 1)
+    if (!doc)
+        return;
+    int row = getRowFromDocument(doc);
+    ui->DocsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->DocsupTableView->closePersistentEditor(m_docsmodel->index(row,1));
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row));
+    if (!itm)
+    {
+        selectcurrentDocument(doc);
+        return;
+    }
+    QString resume = Utils::trimcapitilize(m_docsmodel->item(row,1)->data(Qt::EditRole).toString(), true, false, false).left(100);
+    if (resume.length() < 1)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
         return;
     }
-    if (line->text() == tr("Nouveau document"))
+    if (resume == tr("Nouveau document"))
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
         return;
@@ -2654,41 +2311,38 @@ void dlg_impressions::InsertDocument(int row)
         return;
     }
     // Creation du Document dans la table
-    if (ChercheDoublon(line->text(), row))
+    if (ChercheDoublon(resume, row))
     {
-        line->setFocus();
-        line->selectAll();
+        selectcurrentDocument(doc);
         return;
     }
 
     m_docslistbinds[CP_TEXTE_IMPRESSIONS]           = ui->upTextEdit->document()->toHtml();
-    m_docslistbinds[CP_RESUME_IMPRESSIONS]          = line->text().left(100);
+    m_docslistbinds[CP_RESUME_IMPRESSIONS]          = resume;
     m_docslistbinds[CP_IDUSER_IMPRESSIONS]          = currentuser()->id();
     m_docslistbinds[CP_DOCPUBLIC_IMPRESSIONS]       = (ui->DocPubliccheckBox->isChecked()?          "1" : QVariant());
     m_docslistbinds[CP_PRESCRIPTION_IMPRESSIONS]    = (ui->PrescriptioncheckBox->isChecked()?       "1" : QVariant());
     m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (ui->DocEditcheckBox->isChecked()?            "1" : QVariant());
     m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
-    m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
+    if (m_mode == CreationDOC)
+    {
+        m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
+        SetDocumentToRow(m_currentdocument, 0);
+    }
+    else if (m_mode == ModificationDOC)
+    {
+        DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
+        m_currentdocument = Datas::I()->impressions->getById(m_currentdocument->id(), true);
+    }
 
-    Remplir_TableWidget();
+    m_docsmodel->sort(1);
 
-    if (ui->DocupTableWidget->rowCount() == 0)
+    if (m_docsmodel->rowCount() == 0)
         ConfigMode(CreationDOC);
     else
     {
         ConfigMode(Selection);
-        QString resume = line->text();
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-        {
-             line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1));
-             if (line->text() == resume)
-             {
-                LineSelect(ui->DocupTableWidget,line->Row());
-                QModelIndex index = ui->DocupTableWidget->model()->index(line->Row(),1);
-                ui->DocupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-                break;
-             }
-         }
+        selectcurrentDocument(m_currentdocument);;
     }
 }
 
@@ -2701,6 +2355,8 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     if (!dossier)
         return;
     int row = getRowFromDossier(dossier);
+    ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->DossiersupTableView->closePersistentEditor(m_dossiersmodel->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row));
     if (!itm)
     {
@@ -2715,6 +2371,12 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     }
     bool publicdossier = (itmdef->data(Qt::DecorationRole) != QPixmap());
     QString resume = Utils::trimcapitilize(m_dossiersmodel->item(row,1)->data(Qt::EditRole).toString());
+    if (resume == tr("Nouveau dossier"))
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Votre dossier ne peut pas s'appeler \"Nouveau dossier\""));
+        selectcurrentDossier(dossier);
+        return;
+    }
     if (ChercheDoublon(resume, row))
     {
         selectcurrentDossier(dossier);
@@ -2722,16 +2384,17 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     }
     if (m_mode == ModificationDOSS)
     {
-        QStringList listid;
-        for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
+        QList<int> listid;
+        for (int l=0; l<m_docsmodel->rowCount(); l++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
-            if (Widg != Q_NULLPTR)
-            {
-                UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                if (DocCheck->isChecked())
-                    listid << QString::number(getDocumentFromRow(l)->id());
-            }
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
+            if (itm)
+                if (itm->ischecked())
+                {
+                    Impression *doc= dynamic_cast<Impression*>(itm->item());
+                    if (doc)
+                        listid << doc->id();
+                }
         }
         if (listid.size() == 0)
         {
@@ -2742,7 +2405,7 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
         for (int i=0; i<listid.size(); i++)
         {
-            req += "(" + QString::number(m_currentdossier->id()) + ", " + listid.at(i) + ")";
+            req += "(" + QString::number(m_currentdossier->id()) + ", " + QString::number(listid.at(i)) + ")";
             if (i<listid.size()-1)
                 req += ",";
         }
@@ -2750,106 +2413,47 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     }
 
     // Enregistrement du Dossier dans la table
-    int idcurrentdossier = dossier->id();
 
     m_dossierlistbinds[CP_RESUME_DOSSIERIMPRESSIONS]   = resume.left(100);
     m_dossierlistbinds[CP_IDUSER_DOSSIERIMPRESSIONS]   = currentuser()->id();
     m_dossierlistbinds[CP_PUBLIC_DOSSIERIMPRESSIONS]   = (publicdossier? "1" : QVariant());
     if (m_mode == ModificationDOSS)
     {
-        idcurrentdossier = m_currentdossier->id();
         DataBase::I()->UpdateTable(TBL_DOSSIERSIMPRESSIONS, m_dossierlistbinds, " where " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(m_currentdossier->id()),tr("Impossible d'enregistrer le fosseir"));
-        Datas::I()->metadocuments->getById(idcurrentdossier, true);
+        m_currentdossier = Datas::I()->metadocuments->getById(m_currentdossier->id(), true);
     }
     else if (m_mode == CreationDOSS)
     {
         m_currentdossier = Datas::I()->metadocuments->CreationDossierImpression(m_dossierlistbinds);
         if (m_currentdossier)
         {
-            idcurrentdossier = m_currentdossier->id();
-            QStringList listdocs;
-            for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+            QList<int> listid;
+            for (int l=0; l<m_docsmodel->rowCount(); l++)
             {
-                QWidget * w = static_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-                QHBoxLayout* boxlay = w->findChildren<QHBoxLayout*>().at(0);
-                UpCheckBox* Check = static_cast<UpCheckBox*>(boxlay->itemAt(0)->widget());
-                if (Check->isChecked())
-                    listdocs << QString::number(getDocumentFromRow(i)->id());
+                Impression *doc= getDocumentFromIndex(m_docsmodel->index(l,0));
+                if (doc)
+                    listid << doc->id();
             }
-            if (listdocs.size()>0)
+            if (listid.size()>0)
             {
                 QString req = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") VALUES ";
-                for (int k=0; k<listdocs.size(); k++)
+                for (int k=0; k<listid.size(); k++)
                 {
-                    req += "(" + QString::number(m_currentdossier->id()) + ", " + listdocs.at(k) + ")";
-                    if (k<listdocs.size()-1)    req += ",";
+                    req += "(" + QString::number(m_currentdossier->id()) + ", " + QString::number(listid.at(k)) + ")";
+                    if (k<listid.size()-1)    req += ",";
                 }
                 db->StandardSQL(req);
             }
+            SetDossierToRow(m_currentdossier, 0);
         }
     }
-    Remplir_TableWidget();
-    m_currentdossier = Datas::I()->metadocuments->getById(idcurrentdossier);
-    if (ui->DocupTableWidget->rowCount() == 0)
+    m_dossiersmodel->sort(1);
+    if (m_docsmodel->rowCount() == 0)
         ConfigMode(CreationDOC);
     else
     {
         ConfigMode(Selection);
         selectcurrentDossier(m_currentdossier);;
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// On sélectionne une ligne. On affiche le détail et on met en édition
-// ----------------------------------------------------------------------------------
-void dlg_impressions::LineSelect(QTableView *table, int row)
-{
-    if (table->model()->rowCount() == 0) return;
-    if (row < 0) row = 0;
-    if (row > table->model()->rowCount()-1) row = table->model()->rowCount()-1;
-
-
-    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-    {
-        UpLineEdit *line0   = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (line0) line0->deselect();
-    }
-    if (table == ui->DocupTableWidget)
-    {
-        UpLineEdit *line = Q_NULLPTR;
-        line   = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(row,1));
-        wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == currentuser()->id());
-        wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == currentuser()->id());
-        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(false);
-        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(false);
-        if (m_mode == Selection)
-        {
-            ui->textFrame                   ->setVisible(true);
-            m_currentdocument               = getDocumentFromRow(row);
-            MetAJour(getDocumentFromRow(row)->texte(), false);
-            ui->upTextEdit                  ->setText(m_listtexts.at(0));
-            EffaceWidget(ui->textFrame);
-            ui->DocPubliccheckBox           ->setChecked(getDocumentFromRow(row)->ispublic());
-            ui->DocEditcheckBox             ->setChecked(getDocumentFromRow(row)->iseditable());
-            ui->PrescriptioncheckBox        ->setChecked(getDocumentFromRow(row)->isprescription());
-            ui->DocAdministratifcheckBox    ->setChecked(!getDocumentFromRow(row)->ismedical());
-        }
-        line->selectAll();
-    }
-    else if (table == ui->DossiersupTableView)
-    {
-        ui->textFrame                       ->setVisible(false);
-        QModelIndex idx = m_dossiersmodel->index(row,1);
-        ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
-        ui->DossiersupTableView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-        wdg_docsbuttonframe->wdg_modifBouton        ->setEnabled(false);
-        wdg_docsbuttonframe->wdg_moinsBouton        ->setEnabled(false);
-        bool a = false;
-        m_currentdossier = getDossierFromIndex(idx);
-        if (m_currentdossier)
-            a = (m_currentdossier->iduser() == currentuser()->id());
-        wdg_dossiersbuttonframe->wdg_modifBouton    ->setEnabled(a);
-        wdg_dossiersbuttonframe->wdg_moinsBouton    ->setEnabled(a);
     }
 }
 
@@ -3260,33 +2864,120 @@ void dlg_impressions::ListidCor()
 // ----------------------------------------------------------------------------------
 // Remplissage des UpTableWidget avec les documents de la base.
 // ----------------------------------------------------------------------------------
-void dlg_impressions::Remplir_TableWidget()
+void dlg_impressions::Remplir_TableView()
 {
-    UpLineEdit  *upLine0 = Q_NULLPTR;
-    int         i = 0;
-
     //Remplissage Table Documents
     if (!Datas::I()->impressions->isfull())
         Datas::I()->impressions->initListe();
-    for (int i = 0; i<ui->DocupTableWidget->rowCount(); i++)
-    {
-        upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (upLine0 != Q_NULLPTR)
-            upLine0->disconnect();
-    }
-    ui->DocupTableWidget->clearContents();
-    ui->DocupTableWidget->setRowCount(Datas::I()->impressions->impressions()->size());
+    ui->DocsupTableView->disconnect();
+    ui->DocsupTableView->selectionModel()->disconnect();
+    ui->DocsupTableView->horizontalHeader()->disconnect();
+    UpLineDelegate *linedoc = new UpLineDelegate();
+    connect(linedoc,   &UpLineDelegate::textEdited, [=] {ui->OKupPushButton->setEnabled(true);});
+    ui->DocsupTableView->setItemDelegateForColumn(1,linedoc);
+    if (m_docsmodel == Q_NULLPTR)
+        delete m_docsmodel;
+    m_docsmodel = new QStandardItemModel(this);
 
+    QStandardItem *ditem0   = new QStandardItem(Icons::icunBlackCheck(),"");
+    ditem0->setEditable(false);
+    ditem0->setTextAlignment(Qt::AlignCenter);
+    m_docsmodel->setHorizontalHeaderItem(0,ditem0);
+    QStandardItem *ditem1   = new QStandardItem(tr("TITRES DES DOCUMENTS"));
+    ditem1->setEditable(false);
+    ditem1->setTextAlignment(Qt::AlignLeft);
+    m_docsmodel->setHorizontalHeaderItem(1,ditem1);
+    QStandardItem *ditem2   = new QStandardItem(Icons::icFamily(),"");
+    ditem2->setEditable(false);
+    ditem2->setTextAlignment(Qt::AlignCenter);
+    ditem2->setToolTip(tr("Document disponible pour tous les utilisateurs"));
+    m_docsmodel->setHorizontalHeaderItem(2,ditem2);
+    QStandardItem *ditem3   = new QStandardItem(Icons::icEditer(),"");
+    ditem3->setEditable(false);
+    ditem3->setTextAlignment(Qt::AlignCenter);
+    ditem3->setToolTip(tr("Document éditable au moment de l'impression"));
+    m_docsmodel->setHorizontalHeaderItem(3,ditem3);
+    QStandardItem *ditem4   = new QStandardItem(Icons::icAdministratif(),"");
+    ditem4->setEditable(false);
+    ditem4->setTextAlignment(Qt::AlignCenter);
+    ditem4->setToolTip(tr("Document administratif"));
+    m_docsmodel->setHorizontalHeaderItem(4,ditem4);
+    m_docsmodel->setRowCount(Datas::I()->impressions->impressions()->size());
+    m_docsmodel->setColumnCount(5);
+
+    int         i = 0;
     foreach (Impression *doc, *Datas::I()->impressions->impressions())
     {
         SetDocumentToRow(doc, i);
         i++;
     }
-    TriDocupTableWidget();
+    if (m_docsmodel->rowCount()>0)
+    {
+        m_docsmodel->sort(1);
+        QItemSelectionModel *m = ui->DocsupTableView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
+        ui->DocsupTableView->setModel(m_docsmodel);
+        delete m;
+        ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
+        ui->DocsupTableView->setColumnWidth(1,289);       // Resume
+        ui->DocsupTableView->setColumnWidth(2,30);        // Public   - affiche un check si document public
+        ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
+        ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
+        ui->DocsupTableView->FixLargeurTotale();
+        wdg_docsbuttonframe->widgButtonParent()->setFixedWidth(ui->DossiersupTableView->width());
+        ui->DocsupTableView->setGridStyle(Qt::DotLine);
+
+        connect(ui->DocsupTableView,    &QAbstractItemView::entered,               this,   [&] (QModelIndex idx) {
+                                                                                                        Impression *doc = getDocumentFromIndex(idx);
+                                                                                                        if (doc)
+                                                                                                            QToolTip::showText(cursor().pos(),DocumentToolTip(doc));
+                                                                                                        } );
+        connect(ui->DocsupTableView,    &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
+                                                                                                        Impression *doc = getDocumentFromIndex(idx);
+                                                                                                        if (doc)
+                                                                                                        {
+                                                                                                            m_currentdocument = doc;
+                                                                                                            if(doc->iduser() == currentuser()->id() && m_mode == Selection)
+                                                                                                                ConfigMode(ModificationDOC);
+                                                                                                        }
+                                                                                                      });
+        connect (ui->DocsupTableView,   &QWidget::customContextMenuRequested,      this,   &dlg_impressions::MenuContextuelDossiers);
+    //! ++++ il faut utiliser selectionChanged et pas currentChanged
+    //! qui n'est pas déclenché quand on clique sur un item
+    //! alors que la table n'a pas le focus et qu'elle n'a aucun item sélectionné
+        connect (ui->DocsupTableView->selectionModel(),
+                                        &QItemSelectionModel::selectionChanged,    this,   [&] (QItemSelection select) {
+                                                                                                                            if (select.size() == 0)
+                                                                                                                            {
+                                                                                                                                wdg_docsbuttonframe->wdg_modifBouton->setEnabled(false);
+                                                                                                                                wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
+                                                                                                                                m_currentdocument = Q_NULLPTR;
+                                                                                                                                return;
+                                                                                                                            }
+                                                                                                                            if (select.at(0).indexes().size() == 0)
+                                                                                                                            {
+                                                                                                                                wdg_docsbuttonframe->wdg_modifBouton->setEnabled(false);
+                                                                                                                                wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
+                                                                                                                                m_currentdocument = Q_NULLPTR;
+                                                                                                                                return;
+                                                                                                                            }
+                                                                                                                            int row = select.at(0).indexes().at(0).row();
+                                                                                                                            m_currentdocument = getDocumentFromIndex(m_docsmodel->index(row,0));
+                                                                                                                            selectcurrentDocument(m_currentdocument);
+                                                                                                                        });
+        connect(ui->DocsupTableView,    &QAbstractItemView::clicked,               this,   [&] (QModelIndex idx)
+                                                                                                    {// le bouton OK est enabled quand une case est cochée
+                                                                                                        QStandardItem *itm = m_docsmodel->itemFromIndex(idx);
+                                                                                                        if (itm)
+                                                                                                            if(itm->isCheckable())
+                                                                                                                EnableOKPushButton(idx);
+                                                                                                    });
+        connect(ui->DocsupTableView->horizontalHeader(),    &QHeaderView::sectionClicked,   this,  [&] (int id)  {if(id == 0)  selectAllDocuments();});
+        m_currentdocument = Q_NULLPTR;
+        ui->DocsupTableView->selectionModel()->clearCurrentIndex();
+    }
 
 
     //Remplissage Table Dossiers
-    i = 0;
     if (!Datas::I()->metadocuments->isfull())
         Datas::I()->metadocuments->initListe();
     ui->DossiersupTableView->disconnect();
@@ -3312,6 +3003,7 @@ void dlg_impressions::Remplir_TableWidget()
     m_dossiersmodel->setHorizontalHeaderItem(2,pitem2);
     m_dossiersmodel->setRowCount(Datas::I()->metadocuments->dossiersimpressions()->size());
     m_dossiersmodel->setColumnCount(3);
+    i = 0;
     foreach (DossierImpression *dossier, *Datas::I()->metadocuments->dossiersimpressions())
     {
         SetDossierToRow(dossier, i);
@@ -3323,35 +3015,51 @@ void dlg_impressions::Remplir_TableWidget()
         QItemSelectionModel *m = ui->DossiersupTableView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
         ui->DossiersupTableView->setModel(m_dossiersmodel);
         delete m;
-        ui->DossiersupTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-        QHeaderView *verticalHeader = ui->DossiersupTableView->verticalHeader();
-        verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
-        verticalHeader->setDefaultSectionSize(int(QFontMetrics(qApp->font()).height()*1.3));
-        verticalHeader->setVisible(false);
         ui->DossiersupTableView->setColumnWidth(0,30);        // checkbox
         ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
         ui->DossiersupTableView->setColumnWidth(2,30);        // Public
         ui->DossiersupTableView->FixLargeurTotale();
         wdg_dossiersbuttonframe->widgButtonParent()->setFixedWidth(ui->DossiersupTableView->width());
+        ui->DossiersupTableView->setGridStyle(Qt::NoPen);
         connect(ui->DossiersupTableView,    &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
                                                                                                         DossierImpression *dossier = getDossierFromIndex(idx);
                                                                                                         if (dossier)
                                                                                                             QToolTip::showText(cursor().pos(),DossierToolTip(dossier));
                                                                                                         } );
-        connect(ui->DossiersupTableView,    &QAbstractItemView::doubleClicked,         this,   [=] (QModelIndex idx) {
+        connect(ui->DossiersupTableView,    &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
                                                                                                         DossierImpression *dossier = getDossierFromIndex(idx);
                                                                                                         if (dossier)
                                                                                                         {
                                                                                                             m_currentdossier = dossier;
                                                                                                             if(dossier->iduser() == currentuser()->id() && m_mode == Selection)
-                                                                                                                ConfigMode(ModificationDOSS, m_dossiersmodel->itemFromIndex(idx)->row());
+                                                                                                                ConfigMode(ModificationDOSS);
                                                                                                         }
                                                                                                       });
         connect (ui->DossiersupTableView,   &QWidget::customContextMenuRequested,      this,   &dlg_impressions::MenuContextuelDossiers);
-    //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la table n'a pas le focus et qu'elle n'a aucun item sélectionné
+        //! ++++ il faut utiliser selectionChanged et pas currentChanged
+        //! qui n'est pas déclenché quand on clique sur un item
+        //! alors que la table n'a pas le focus et qu'elle n'a aucun item sélectionné
         connect (ui->DossiersupTableView->selectionModel(),
-                                            &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {EnableDossiersButtons(select);});
-        connect(ui->DossiersupTableView,    &QAbstractItemView::clicked,               this,   [=] (QModelIndex idx)
+                                            &QItemSelectionModel::selectionChanged,    this,   [&] (QItemSelection select) {
+                                                                                                                                if (select.size() == 0)
+                                                                                                                                {
+                                                                                                                                    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
+                                                                                                                                    wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
+                                                                                                                                    m_currentdossier = Q_NULLPTR;
+                                                                                                                                    return;
+                                                                                                                                }
+                                                                                                                                if (select.at(0).indexes().size() == 0)
+                                                                                                                                {
+                                                                                                                                    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
+                                                                                                                                    wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
+                                                                                                                                    m_currentdossier = Q_NULLPTR;
+                                                                                                                                    return;
+                                                                                                                                }
+                                                                                                                                int row = select.at(0).indexes().at(0).row();
+                                                                                                                                m_currentdossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
+                                                                                                                                selectcurrentDossier(m_currentdossier);
+                                                                                                                            });
+        connect(ui->DossiersupTableView,    &QAbstractItemView::clicked,               this,   [&] (QModelIndex idx)
                                                                                                     {// le bouton OK est enabled quand une case est cochée
                                                                                                         QStandardItem *itm = m_dossiersmodel->itemFromIndex(idx);
                                                                                                         if (itm)
@@ -3369,13 +3077,25 @@ void dlg_impressions::Remplir_TableWidget()
     }
 }
 
+void dlg_impressions::selectAllDocuments()
+{
+    bool a = Icons::CompareQIcon(m_docsmodel->horizontalHeaderItem(0)->icon(), Icons::icunBlackCheck());
+    m_docsmodel->horizontalHeaderItem(0)->setIcon(a? Icons::icBlockCheck() : Icons::icunBlackCheck());
+    for (int i=0; i< m_docsmodel->rowCount(); ++i)
+    {
+         QStandardItem *itm = m_docsmodel->item(i,0);
+         if (itm)
+             itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
+    }
+}
+
 void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint)
 {
     m_currentdocument = doc;
     if (!m_currentdocument)
     {
-        ui->DocupTableWidget->selectionModel()->clearSelection();
-        EnableDocsButtons(QItemSelection());
+        ui->DocsupTableView->selectionModel()->clearSelection();
+        EnableDocsButtons();
     }
     else for (int i=0; i<m_docsmodel->rowCount(); i++)
     {
@@ -3387,10 +3107,21 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
                 if (m_currentdocument == sdoc)
                 {
                     QModelIndex idx = m_dossiersmodel->index(i,1);
-                    ui->DocupTableWidget->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
-                    ui->DocupTableWidget->scrollTo(idx, hint);
+                    ui->DocsupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    ui->DocsupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
-                    EnableDocsButtons(ui->DocupTableWidget->selectionModel()->selection());
+                    EnableDocsButtons(m_currentdocument);
+                    if (m_mode == Selection)
+                    {
+                        ui->textFrame                   ->setVisible(true);
+                        MetAJour(m_currentdocument->texte(), false);
+                        ui->upTextEdit                  ->setText(m_listtexts.at(0));
+                        EffaceWidget(ui->textFrame);
+                        ui->DocPubliccheckBox           ->setChecked(m_currentdocument->ispublic());
+                        ui->DocEditcheckBox             ->setChecked(m_currentdocument->iseditable());
+                        ui->PrescriptioncheckBox        ->setChecked(m_currentdocument->isprescription());
+                        ui->DocAdministratifcheckBox    ->setChecked(!m_currentdocument->ismedical());
+                    }
                     break;
                 }
         }
@@ -3403,7 +3134,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
     if (!m_currentdossier)
     {
         ui->DossiersupTableView->selectionModel()->clearSelection();
-        EnableDossiersButtons(QItemSelection());
+        EnableDossiersButtons();
     }
     else for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
@@ -3418,7 +3149,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
                     ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
                     ui->DossiersupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
-                    EnableDossiersButtons(ui->DossiersupTableView->selectionModel()->selection());
+                    EnableDossiersButtons(m_currentdossier);
                     break;
                 }
         }
@@ -3427,9 +3158,8 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
 
 void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
 {
-    UpLineEdit          *upLine0;
-    QTableWidgetItem    *pItem1;
-    QTableWidgetItem    *pItem2;
+    if (!doc)
+        return;
 
     QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
@@ -3437,66 +3167,37 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
     QPalette palette;
     palette.setColor(QPalette::Text,QColor(0,0,140));
 
-    upLine0 = new UpLineEdit() ;
-    pItem1  = new QTableWidgetItem() ;
-    pItem2  = new QTableWidgetItem() ;
-
-    int col = 0;
-    QWidget * w = new QWidget(ui->DocupTableWidget);
-    UpCheckBox *Check = new UpCheckBox(w);
-    Check->setCheckState(Qt::Unchecked);
-    Check->setRowTable(row);
-    Check->setFocusPolicy(Qt::NoFocus);
-    connect(Check, &QCheckBox::clicked, this, [=] {EnableOKPushButton(Check);});
-    QHBoxLayout *l = new QHBoxLayout();
-    l->setAlignment( Qt::AlignCenter );
-    l->addWidget(Check);
-    l->setContentsMargins(0,0,0,0);
-    w->setLayout(l);
-    ui->DocupTableWidget->setCellWidget(row,col,w);
-    col++; //1
-    upLine0->setText(doc->resume());                                // resume
-    upLine0->setMaxLength(50);
-    upLine0->setRow(row);
-    upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                           "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-    upLine0->setFocusPolicy(Qt::NoFocus);
-    if (doc->iduser() != currentuser()->id())
-    {
-        upLine0->setFont(disabledFont);
-        upLine0->setPalette(palette);
-        upLine0->setContextMenuPolicy(Qt::NoContextMenu);
-    }
-    else
-        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    ui->DocupTableWidget->setCellWidget(row,col,upLine0);
-    col++; //2
-    pItem1->setText(QString::number(doc->id()));                    // idDocument
-    ui->DocupTableWidget->setItem(row,col,pItem1);
-    col++; //3
-    UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
-    lbl->setAlignment(Qt::AlignCenter);
+    UpStandardItem *pitem0 = new UpStandardItem("", doc);
+    pitem0->setCheckable(true);
+    m_docsmodel->setItem(row, 0, pitem0);
+    QModelIndex index = m_docsmodel->index(row, 1, QModelIndex());
+    m_docsmodel->setData(index, doc->resume());
+        if (doc->iduser() != currentuser()->id())
+        {
+            m_docsmodel->itemFromIndex(index)->setFont(disabledFont);
+            m_docsmodel->itemFromIndex(index)->setForeground(QBrush(QColor(0,0,140)));
+        }
+    UpStandardItem *pitem1 = new UpStandardItem("", doc);
     if (doc->ispublic())
-        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));        //WARNING : icon scaled : pxLoupe 15,15
-    ui->DocupTableWidget->setCellWidget(row,col,lbl);               // Public
-    col++; //4
-    UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
-    lbl1->setAlignment(Qt::AlignCenter);
+        pitem1->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+    else
+        pitem1->setData(QPixmap(),Qt::DecorationRole);
+    pitem1->setFlags(Qt::NoItemFlags);
+    m_docsmodel->setItem(row, 2, pitem1);
+    UpStandardItem *pitem2 = new UpStandardItem("", doc);
     if (doc->iseditable())
-        lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15));       //WARNING : icon scaled : pxLoupe 15,15
-    ui->DocupTableWidget->setCellWidget(row,col,lbl1);              //Editable
-    col++; //5
-    UpLabel*lbl11 = new UpLabel(ui->DocupTableWidget);
-    lbl11->setAlignment(Qt::AlignCenter);
+        pitem2->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+    else
+        pitem2->setData(QPixmap(),Qt::DecorationRole);
+    pitem2->setFlags(Qt::NoItemFlags);
+    m_docsmodel->setItem(row, 3, pitem2);
+    UpStandardItem *pitem3 = new UpStandardItem("", doc);
     if (!doc->ismedical())
-        lbl11->setPixmap(Icons::pxBlackCheck().scaled(15,15));      //WARNING : icon scaled : pxLoupe 15,15
-    ui->DocupTableWidget->setCellWidget(row,col,lbl11);             // Administratif
-    col++; //6
-    pItem2->setText("1" + upLine0->text());                         // Check+text   -> sert pour le tri de la table
-    ui->DocupTableWidget->setItem(row,col,pItem2);
-
-    ui->DocupTableWidget->setRowHeight(row,int(fm.height()*1.3));
+        pitem3->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+    else
+        pitem3->setData(QPixmap(),Qt::DecorationRole);
+    pitem3->setFlags(Qt::NoItemFlags);
+    m_docsmodel->setItem(row, 4, pitem3);
 }
 
 void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
@@ -3531,39 +3232,6 @@ void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
 // ----------------------------------------------------------------------------------
 // Supprime Document
 // ----------------------------------------------------------------------------------
-void dlg_impressions::SupprimmDocument(int row)
-{
-    m_currentdocument = getDocumentFromRow(row);
-    if (!m_currentdocument)
-        return;
-    QString Msg;
-    Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + getDocumentFromRow(row)->resume() + "?";
-    UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
-    msgbox.setInformativeText(Msg);
-    msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton NoBouton(tr("Annuler"));
-    UpSmallButton OKBouton(tr("Supprimer le document"));
-    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(&OKBouton, UpSmallButton::SUPPRBUTTON);
-    msgbox.exec();
-    if (msgbox.clickedButton()  != &NoBouton)
-    {
-        Datas::I()->impressions->SupprimeImpression(m_currentdocument);
-        Remplir_TableWidget();
-    }
-    if (ui->DocupTableWidget->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        LineSelect(ui->DocupTableWidget,row);
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// Supprime Document
-// ----------------------------------------------------------------------------------
 void dlg_impressions::SupprimmeDocument(Impression *doc)
 {
     if(!doc)
@@ -3581,17 +3249,24 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
+        int row = getRowFromDocument(doc);
         db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->impressions->SupprimeImpression(doc);
         doc = Q_NULLPTR;
-        Remplir_TableWidget();
-    }
-    if (ui->DocupTableWidget->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        LineSelect(ui->DossiersupTableView, getRowFromDocument(doc));
+        if (row>-1 && row < m_docsmodel->rowCount())
+            m_docsmodel->removeRow(row);
+        if (m_docsmodel->rowCount() == 0)
+            ConfigMode(CreationDOC);
+        else
+        {
+            ConfigMode(Selection);
+            if (row < m_docsmodel->rowCount())
+            {
+                Impression *doc = getDocumentFromIndex(m_docsmodel->index(row,0));
+                if (doc)
+                    selectcurrentDocument(doc);
+            }
+        }
     }
 }
 
@@ -3615,112 +3290,39 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
+        int row = getRowFromDossier(dossier);
         db->SupprRecordFromTable(dossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->metadocuments->SupprimeDossierImpression(dossier);
         dossier = Q_NULLPTR;
-        Remplir_TableWidget();
-    }
-    if (ui->DocupTableWidget->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        LineSelect(ui->DossiersupTableView, getRowFromDossier(dossier));
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// Tri de la table documents.
-// ----------------------------------------------------------------------------------
-void dlg_impressions::TriDocupTableWidget()
-{
-    ui->DocupTableWidget->sortByColumn(6,Qt::AscendingOrder);
-    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
-    {
-        static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1))->setRow(i);
-        static_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0))->findChildren<UpCheckBox*>().at(0)->setRowTable(i);
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// Modification du Document dans la base.
-// ----------------------------------------------------------------------------------
-void dlg_impressions::UpdateDocument(int row)
-{
-    // recherche de l'enregistrement modifié
-    // controle validate des champs
-    UpLineEdit *line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(row,1));
-    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
-    if (line->text().length() < 1)    {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Modification de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
-        return;
-    }
-    if (line->text() == tr("Nouveau document"))
-    {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Création de document"), tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
-        return;
-    }
-    if (ui->upTextEdit->document()->toPlainText().length() < 1)   {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Modification de document"), tr("Veuillez renseigner le champ Document, SVP !"));
-        return;
-    }
-
-    if (ChercheDoublon(line->text(), row))
-    {
-        line->setFocus();
-        line->selectAll();
-        return;
-    }
-
-    m_currentdocument = getDocumentFromRow(line->Row());
-    m_docslistbinds[CP_TEXTE_IMPRESSIONS]           = ui->upTextEdit->document()->toHtml();
-    m_docslistbinds[CP_RESUME_IMPRESSIONS]          = line->text().left(100);
-    m_docslistbinds[CP_IDUSER_IMPRESSIONS]          = currentuser()->id();
-    m_docslistbinds[CP_DOCPUBLIC_IMPRESSIONS]       = (ui->DocPubliccheckBox->isChecked()?          "1" : QVariant());
-    m_docslistbinds[CP_PRESCRIPTION_IMPRESSIONS]    = (ui->PrescriptioncheckBox->isChecked()?       "1" : QVariant());
-    m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (ui->DocEditcheckBox->isChecked()?            "1" : QVariant());
-    m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
-
-    DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
-    m_currentdocument = Datas::I()->impressions->getById(m_currentdocument->id(), true);
-
-    Remplir_TableWidget();
-
-    if (ui->DocupTableWidget->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        QString resume = line->text();
-        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        if (row > -1 && row < m_dossiersmodel->rowCount())
+            m_dossiersmodel->removeRow(row);
+        if (m_docsmodel->rowCount() == 0)
+            ConfigMode(CreationDOC);
+        else
         {
-            line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->text() == resume)
+            ConfigMode(Selection);
+            if (row < m_dossiersmodel->rowCount())
             {
-                LineSelect(ui->DocupTableWidget,line->Row());
-                QModelIndex index = ui->DocupTableWidget->model()->index(line->Row(),1);
-                ui->DocupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-                QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-                if (Widg)
-                {
-                    Widg->findChildren<UpCheckBox*>().at(0)->setChecked(true);
-                    ui->OKupPushButton->setEnabled(true);
-                }
-                break;
+                DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
+                if (dossier)
+                    selectcurrentDossier(dossier);
             }
         }
     }
 }
 
+
 // ----------------------------------------------------------------------------------
 // Verifie qu'un document peut devenir privé
 // ----------------------------------------------------------------------------------
-bool dlg_impressions::VerifDocumentPublic(int row, bool msg)
+bool dlg_impressions::VerifDocumentPublic(Impression *doc, bool msg)
 {
+    if (!doc)
+        return false;
     bool ok;
-    int iddoc = getDocumentFromRow(row)->id();
     QString req = "select " CP_ID_DOSSIERIMPRESSIONS ", " CP_RESUME_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
-                  " where " CP_ID_DOSSIERIMPRESSIONS " in (select " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoc) +
+                  " where " CP_ID_DOSSIERIMPRESSIONS " in (select " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS
+                  " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(doc->id()) +
                   ") and " CP_PUBLIC_DOSSIERIMPRESSIONS " =1";
     QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
     if (listdossiers.size()>0)
@@ -3762,17 +3364,12 @@ void dlg_impressions::VerifDossiers()
                         bool a = false;
                         for (int k=0; k<listid.size(); k++)
                         {
-                            for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
-                                if (listid.contains(getDocumentFromRow(l)->id()))
-                                {
-                                    QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
-                                    if (Widg)
-                                    {
-                                        UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                                        if (DocCheck->isChecked())
-                                        {a = true;  break;}
-                                    }
-                                }
+                            for (int l=0; l<m_docsmodel->rowCount(); l++)
+                            {
+                                UpStandardItem *sitm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
+                                if (sitm->checkState() == Qt::Checked)
+                                {a = true;  break;}
+                            }
                             if (a) break;
                         }
                         if (!a) itm->setCheckState(Qt::Unchecked);

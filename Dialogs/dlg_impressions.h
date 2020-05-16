@@ -68,7 +68,6 @@ private:
                                                 -> le texte varie légèrement d'un destinataire à l'autre en ce qui concerne le nom du correspondant
                                                 -> la variable correspond à la liste des textes */
     QGraphicsOpacityEffect      *m_opacityeffect;
-    QMenu                       *m_menucontextuel = Q_NULLPTR;
     QTimer                      *t_timerefface;
 
     UpDialog                    *dlg_ask;
@@ -88,51 +87,48 @@ private:
     void                        Annulation();
     void                        ChoixButtonFrame(WidgetButtonFrame *);
     void                        ChoixMenuContextuel(QString);
+    void                        ChoixMenuContextuelDocument(QString);
     void                        ChoixMenuContextuelDossier(QString);
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
     void                        ChoixCorrespondant(QList<Correspondant*> listcor);
     void                        CocheLesDocs(int iddoss, bool A);
-    void                        ConfigMode(Mode mode, int row = 0);
+    void                        ConfigMode(Mode mode);
     void                        dblClicktextEdit();
     void                        DisableLines();
-    void                        DocCellDblClick(UpLineEdit *line);
-    void                        DocCellEnter(UpLineEdit *line);
+    QString                     DocumentToolTip(Impression *doc);
     QString                     DossierToolTip(DossierImpression *dossier);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
-    void                        EnableDocsButtons(QItemSelection select);
-    void                        EnableDossiersButtons(QItemSelection select);
+    void                        EnableDocsButtons(Impression *doc = Q_NULLPTR);
+    void                        EnableDossiersButtons(DossierImpression *dossier = Q_NULLPTR);
     void                        EnableLines();
-    void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
+    void                        EnableOKPushButton(QModelIndex idx = QModelIndex());
     void                        FiltreListe();
-    Impression*                 getDocumentFromRow(int row);
     Impression*                 getDocumentFromIndex(QModelIndex idx);
     DossierImpression*          getDossierFromIndex(QModelIndex idx);
     int                         getRowFromDocument(Impression *doc);
     int                         getRowFromDossier(DossierImpression *dossier);
     bool                        hasDocumentPrive(DossierImpression *dossier);              //!> vérifie si un dossier incorpore des documents privés
-    void                        InsertDocument(int row);
+    void                        EnregistreDocument(Impression *doc);
     void                        EnregistreDossier(DossierImpression *dossier);
-    void                        LineSelect(QTableView *table, int row);
     void                        ListidCor();
-    void                        MenuContextuel(QWidget *widg);
+    void                        MenuContextuelDocuments();
     void                        MenuContextuelDossiers();
+    void                        MenuContextuelTexteDocument();
     void                        MetAJour(QString texte, bool pourVisu = true);
     void                        OrdoAvecDupli(bool);
-    void                        Remplir_TableWidget();
+    void                        Remplir_TableView();
+    void                        selectAllDocuments();
     void                        selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        selectcurrentDossier(DossierImpression *dossier, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        SetDocumentToRow(Impression *doc, int row);
     void                        SetDossierToRow(DossierImpression *dossier, int row);
-    void                        SupprimmDocument(int row);
     void                        SupprimmeDocument(Impression* doc);
     void                        SupprimmeDossier(DossierImpression *dossier);
-    void                        TriDocupTableWidget();
-    void                        UpdateDocument(int row);
     void                        Validation();
     void                        VerifCoherencedlg_ask();
-    bool                        VerifDocumentPublic(int row, bool msg = true);
+    bool                        VerifDocumentPublic(Impression *doc, bool msg = true);
     void                        VerifDossiers();
 
 private:

@@ -105,8 +105,7 @@ void dlg_listemotscles::Annulation()
             QModelIndex idx = m_model->index(row,1);
             wdg_tblview->closePersistentEditor(idx);
             m_model->setData(idx, m_currentmotcle->motcle());
-            wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
-            EnableButtons(wdg_tblview->selectionModel()->selection());
+            EnableButtons(m_currentmotcle);
         }
         else if (m_mode == Creation && m_currentmotcle)
         {
@@ -257,7 +256,6 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
         m_model->item(row,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         wdg_tblview->scrollTo(m_model->index(row,1), QAbstractItemView::EnsureVisible);
         wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
-        wdg_tblview->setCurrentIndex(m_model->index(row,1));
         wdg_tblview->openPersistentEditor(m_model->index(row,1));
 
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
@@ -281,27 +279,12 @@ void dlg_listemotscles::DisableLines()
     }
 }
 
-void dlg_listemotscles::EnableButtons(QItemSelection select)
+void dlg_listemotscles::EnableButtons(MotCle *mc)
 {
-    if (select.size() == 0)
-    {
-        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
-        m_currentmotcle = Q_NULLPTR;
-        return;
-    }
-    if (select.at(0).indexes().size() == 0)
-    {
-        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
-        m_currentmotcle = Q_NULLPTR;
-        return;
-    }
-    m_currentmotcle = getMotCleFromIndex(select.at(0).indexes().at(0));
-    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentmotcle);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(mc);
     bool isused = false;
-    if (m_currentmotcle && m_currentpatient)
-        isused = Datas::I()->motscles->isThisMCusedForOtherPatients(m_currentmotcle, m_currentpatient->id());
+    if (mc && m_currentpatient)
+        isused = Datas::I()->motscles->isThisMCusedForOtherPatients(mc, m_currentpatient->id());
     wdg_buttonframe->wdg_moinsBouton->setEnabled(!isused);
 }
 
@@ -351,16 +334,14 @@ void dlg_listemotscles::EnregistreMotCle(MotCle *mc)
     {
         delete mc;
         m_currentmotcle = Datas::I()->motscles->CreationMotCle(m_listbinds);
-        if (m_currentmotcle)
-            idmc = m_currentmotcle->id();
+        setMotCleToRow(m_currentmotcle, m_model->rowCount()-1);
     }
     else if (m_mode == Modification)
     {
         DataBase::I()->UpdateTable(TBL_MOTSCLES, m_listbinds, "where " CP_ID_MOTCLE " = " + QString::number(mc->id()));
-        Datas::I()->motscles->getById(idmc, true);
+        m_currentmotcle = Datas::I()->motscles->getById(idmc, true);
     }
-    RemplirTableView();
-    m_currentmotcle = Datas::I()->motscles->getById(idmc);
+    m_model->sort(1);
     if (m_model->rowCount() > 0)
         selectcurrentMotCle(m_currentmotcle);
 }
@@ -476,7 +457,25 @@ void dlg_listemotscles::RemplirTableView()
         ConfigMode(Selection);
         connect (wdg_tblview,                   &QWidget::customContextMenuRequested,   this,   &dlg_listemotscles::MenuContextuel);
         //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la tabnle n'a pas le focus et qu'elle n'a aucun item sélectionné
-        connect (wdg_tblview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] (QItemSelection select) {EnableButtons(select);});
+        connect (wdg_tblview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] (QItemSelection select) {
+                                                                                                                                if (select.size() == 0)
+                                                                                                                                {
+                                                                                                                                    wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+                                                                                                                                    wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+                                                                                                                                    m_currentmotcle = Q_NULLPTR;
+                                                                                                                                    return;
+                                                                                                                                }
+                                                                                                                                if (select.at(0).indexes().size() == 0)
+                                                                                                                                {
+                                                                                                                                    wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+                                                                                                                                    wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
+                                                                                                                                    m_currentmotcle = Q_NULLPTR;
+                                                                                                                                    return;
+                                                                                                                                }
+                                                                                                                                int row = select.at(0).indexes().at(0).row();
+                                                                                                                                m_currentmotcle = getMotCleFromIndex(m_model->index(row,0));
+                                                                                                                                selectcurrentMotCle(m_currentmotcle);
+                                                                                                                            });
         connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
             QStandardItem *itm = m_model->itemFromIndex(idx);
             if (itm)
@@ -521,7 +520,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
     if (!m_currentmotcle)
     {
         wdg_tblview->selectionModel()->clearSelection();
-        EnableButtons(QItemSelection());
+        EnableButtons();
     }
     else for (int i=0; i<m_model->rowCount(); i++)
     {
@@ -536,7 +535,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
                     wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
                     wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);
-                    EnableButtons(wdg_tblview->selectionModel()->selection());
+                    EnableButtons(m_currentmotcle);
                     break;
                 }
         }
@@ -573,7 +572,7 @@ void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
         int row = getRowFromMotCle(mc);
         if (row > -1 && row < m_model->rowCount())
         {
-            m_model->takeRow(row);
+            m_model->removeRow(row);
             Datas::I()->motscles->SupprimeMotCle(mc);
         }
     }
