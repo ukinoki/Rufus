@@ -86,7 +86,7 @@ private:
     void                        keyPressEvent   (QKeyEvent * event );
     void                        Annulation();
     void                        ChoixButtonFrame(WidgetButtonFrame *);
-    void                        ChoixMenuContextuel(QString);
+    void                        ChoixMenuContextuelTexteDocument(QString);
     void                        ChoixMenuContextuelDocument(QString);
     void                        ChoixMenuContextuelDossier(QString);
     int                         AskDialog(QString titre);
