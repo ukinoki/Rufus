@@ -157,6 +157,20 @@ QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString> > dlg_impressions::mapd
     return map_docsaimprimer;
 }
 
+void dlg_impressions::AfficheTexteDocument(Impression *doc)
+{
+    if (m_mode == Selection)
+    {
+        ui->textFrame                   ->setVisible(true);
+        MetAJour(doc->texte(), false);
+        ui->upTextEdit                  ->setText(m_listtexts.at(0));
+        EffaceWidget(ui->textFrame);
+        ui->DocPubliccheckBox           ->setChecked(doc->ispublic());
+        ui->DocEditcheckBox             ->setChecked(doc->iseditable());
+        ui->PrescriptioncheckBox        ->setChecked(doc->isprescription());
+        ui->DocAdministratifcheckBox    ->setChecked(!doc->ismedical());
+    }
+}
 // ----------------------------------------------------------------------------------
 // Clic sur le bouton ANNULER.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
@@ -192,7 +206,7 @@ void dlg_impressions::Annulation()
         break;
     case CreationDOC:
     case ModificationDOC:{
-        qDebug() << m_currentdocument->resume();
+        //qDebug() << m_currentdocument->resume();
         ui->DocsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         int row = getRowFromDocument(m_currentdocument);
         if (m_mode == ModificationDOC && row < m_docsmodel->rowCount())
@@ -1097,7 +1111,8 @@ void dlg_impressions::Validation()
             {
                 if (itm->checkState() == Qt::Checked)
                 {
-                    QString text = m_docsmodel->item(i,1)->data(Qt::DisplayRole).toString();
+                    Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
+                    QString text =  doc->texte();
                     QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
                     quest+= "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
@@ -1957,7 +1972,7 @@ void dlg_impressions::ConfigMode(Mode mode)
             ui->DocsupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
             ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
          }
-        qDebug() << m_currentdocument->resume();
+        //qDebug() << m_currentdocument->resume();
     }
 
     else if (mode == ModificationDOSS)
@@ -2337,7 +2352,7 @@ void dlg_impressions::EnregistreDocument(Impression *doc)
     if (m_mode == CreationDOC)
     {
         m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
-        SetDocumentToRow(m_currentdocument, 0);
+        SetDocumentToRow(m_currentdocument, row);
     }
     else if (m_mode == ModificationDOC)
     {
@@ -2454,7 +2469,7 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
                 }
                 db->StandardSQL(req);
             }
-            SetDossierToRow(m_currentdossier, 0);
+            SetDossierToRow(m_currentdossier, row);
         }
     }
     m_dossiersmodel->sort(1);
@@ -2961,27 +2976,15 @@ void dlg_impressions::Remplir_TableView()
     //! ++++ il faut utiliser selectionChanged et pas currentChanged
     //! qui n'est pas déclenché quand on clique sur un item
     //! alors que la table n'a pas le focus et qu'elle n'a aucun item sélectionné
-        connect (ui->DocsupTableView->selectionModel(),
-                                        &QItemSelectionModel::selectionChanged,    this,   [&] (QItemSelection select) {
-                                                                                                                            if (select.size() == 0)
-                                                                                                                            {
-                                                                                                                                wdg_docsbuttonframe->wdg_modifBouton->setEnabled(false);
-                                                                                                                                wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
-                                                                                                                                m_currentdocument = Q_NULLPTR;
-                                                                                                                                return;
-                                                                                                                            }
-                                                                                                                            if (select.at(0).indexes().size() == 0)
-                                                                                                                            {
-                                                                                                                                wdg_docsbuttonframe->wdg_modifBouton->setEnabled(false);
-                                                                                                                                wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
-                                                                                                                                m_currentdocument = Q_NULLPTR;
-                                                                                                                                return;
-                                                                                                                            }
-                                                                                                                            int row = select.at(0).indexes().at(0).row();
-                                                                                                                            Impression *doc = getDocumentFromIndex(m_docsmodel->index(row,0));
-                                                                                                                            if (doc)
-                                                                                                                                selectcurrentDocument(doc);
-                                                                                                                        });
+        connect (ui->DocsupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
+                                                                                                                    m_currentdocument = getDocumentFromIndex(idx);
+                                                                                                                    if (m_currentdocument)
+                                                                                                                    {
+                                                                                                                        AfficheTexteDocument(m_currentdocument);
+                                                                                                                        ui->OKupPushButton->setEnabled(true);
+                                                                                                                        EnableDocsButtons(m_currentdocument);
+                                                                                                                    }
+                                                                                                                });
         connect(ui->DocsupTableView,    &QAbstractItemView::clicked,               this,   [&] (QModelIndex idx)
                                                                                                     {// le bouton OK est enabled quand une case est cochée
                                                                                                         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->itemFromIndex(idx));
@@ -3064,26 +3067,14 @@ void dlg_impressions::Remplir_TableView()
         //! ++++ il faut utiliser selectionChanged et pas currentChanged
         //! qui n'est pas déclenché quand on clique sur un item
         //! alors que la table n'a pas le focus et qu'elle n'a aucun item sélectionné
-        connect (ui->DossiersupTableView->selectionModel(),
-                                            &QItemSelectionModel::selectionChanged,    this,   [&] (QItemSelection select) {
-                                                                                                                                if (select.size() == 0)
-                                                                                                                                {
-                                                                                                                                    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
-                                                                                                                                    wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
-                                                                                                                                    m_currentdossier = Q_NULLPTR;
-                                                                                                                                    return;
-                                                                                                                                }
-                                                                                                                                if (select.at(0).indexes().size() == 0)
-                                                                                                                                {
-                                                                                                                                    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(false);
-                                                                                                                                    wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
-                                                                                                                                    m_currentdossier = Q_NULLPTR;
-                                                                                                                                    return;
-                                                                                                                                }
-                                                                                                                                int row = select.at(0).indexes().at(0).row();
-                                                                                                                                m_currentdossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
-                                                                                                                                selectcurrentDossier(m_currentdossier);
-                                                                                                                            });
+        connect (ui->DossiersupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
+                                                                                                                    m_currentdossier = getDossierFromIndex(idx);
+                                                                                                                    if (m_currentdossier)
+                                                                                                                    {
+                                                                                                                        ui->OKupPushButton->setEnabled(true);
+                                                                                                                        EnableDossiersButtons(m_currentdossier);
+                                                                                                                    }
+                                                                                                                });
         connect(ui->DossiersupTableView,    &QAbstractItemView::clicked,               this,   [&] (QModelIndex idx)
                                                                                                     {// le bouton OK est enabled quand une case est cochée
                                                                                                         QStandardItem *itm = m_dossiersmodel->itemFromIndex(idx);
@@ -3132,21 +3123,12 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
                 if (m_currentdocument == sdoc)
                 {
                     QModelIndex idx = m_dossiersmodel->index(i,1);
+                    ui->DocsupTableView->clearSelection();
                     ui->DocsupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
                     ui->DocsupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
                     EnableDocsButtons(m_currentdocument);
-                    if (m_mode == Selection)
-                    {
-                        ui->textFrame                   ->setVisible(true);
-                        MetAJour(m_currentdocument->texte(), false);
-                        ui->upTextEdit                  ->setText(m_listtexts.at(0));
-                        EffaceWidget(ui->textFrame);
-                        ui->DocPubliccheckBox           ->setChecked(m_currentdocument->ispublic());
-                        ui->DocEditcheckBox             ->setChecked(m_currentdocument->iseditable());
-                        ui->PrescriptioncheckBox        ->setChecked(m_currentdocument->isprescription());
-                        ui->DocAdministratifcheckBox    ->setChecked(!m_currentdocument->ismedical());
-                    }
+                    AfficheTexteDocument(m_currentdocument);
                     break;
                 }
         }
@@ -3171,6 +3153,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
                 if (m_currentdossier == sdossier)
                 {
                     QModelIndex idx = m_dossiersmodel->index(i,1);
+                    ui->DossiersupTableView->clearSelection();
                     ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
                     ui->DossiersupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);

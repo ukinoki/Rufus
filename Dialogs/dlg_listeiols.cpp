@@ -892,7 +892,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
         m_IOLsmodel->sort(0);
     }
     int dim = 45;
-    qDebug() << Datas::I()->iols->iols()->size();
+    //qDebug() << Datas::I()->iols->iols()->size();
     foreach(IOL *iol, Datas::I()->iols->iols()->values())
     {
         if (m_onlyactifs && !iol->isactif())
@@ -960,7 +960,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             }
         }
     }
-    qDebug() << m_IOLsmodel->rowCount();
+    //qDebug() << m_IOLsmodel->rowCount();
     for (int i=0; i<m_IOLsmodel->rowCount();i++)
     {
         if (m_IOLsmodel->item(i) != Q_NULLPTR)

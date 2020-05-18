@@ -67,6 +67,8 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
         listiduser << currentuser()->idparent();
     Datas::I()->commentslunets->initListeByListUsers(listiduser);
     RemplirTableView();
+    if (m_model->rowCount()>0)
+        selectcurrentComment(getCommentFromIndex(m_model->index(0,0)));
 }
 
 dlg_listecommentaires::~dlg_listecommentaires()
@@ -416,7 +418,7 @@ void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
     {
         delete  com;
         m_currentcomment = Datas::I()->commentslunets->CreationCommentLunet(m_listbinds);
-        setCommentToRow(m_currentcomment, m_model->rowCount()-1);
+        setCommentToRow(m_currentcomment, row);
     }
     else if (m_mode == Modification)
     {
@@ -561,50 +563,40 @@ void dlg_listecommentaires::RemplirTableView()
                                                                                                             }
                                                                                                           });
         connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listecommentaires::MenuContextuel);
-        //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la table n'a pas le focus et qu'elle n'a aucun item sélectionné
-        connect (wdg_tblview->selectionModel(),
-                                 &QItemSelectionModel::selectionChanged,    this,   [=] (QItemSelection select) {
-                                                                                                                    if (select.size() == 0)
+        connect (wdg_tblview->selectionModel(),                   &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
+                                                                                                                    m_currentcomment = getCommentFromIndex(idx);
+                                                                                                                    if (m_currentcomment)
                                                                                                                     {
-                                                                                                                        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
-                                                                                                                        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
-                                                                                                                        m_currentcomment = Q_NULLPTR;
-                                                                                                                        return;
+                                                                                                                        OKButton->setEnabled(true);
+                                                                                                                        EnableButtons(m_currentcomment);
                                                                                                                     }
-                                                                                                                    if (select.at(0).indexes().size() == 0)
-                                                                                                                    {
-                                                                                                                        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
-                                                                                                                        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
-                                                                                                                        m_currentcomment = Q_NULLPTR;
-                                                                                                                        return;
-                                                                                                                    }
-                                                                                                                    int row = select.at(0).indexes().at(0).row();
-                                                                                                                    m_currentcomment = getCommentFromIndex(m_model->index(row,0));
-                                                                                                                    selectcurrentComment(m_currentcomment);
                                                                                                                 });
-        connect(wdg_tblview,     &QAbstractItemView::clicked,               this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
-                                                                                                            QStandardItem *itm = m_model->itemFromIndex(idx);
-                                                                                                            if (itm)
-                                                                                                            {
-                                                                                                                if(itm->isCheckable() && itm->checkState() == Qt::Checked)
-                                                                                                                    OKButton->setEnabled(true);
-                                                                                                                else
-                                                                                                                {
-                                                                                                                    bool ok = false;
-                                                                                                                    for (int i=0; i<m_model->rowCount(); ++i)
-                                                                                                                    {
-                                                                                                                        QStandardItem *itmc = m_model->item(i);
-                                                                                                                        if (itmc)
-                                                                                                                            if(itmc->checkState() == Qt::Checked)
-                                                                                                                            {
-                                                                                                                                ok = true;
-                                                                                                                                i = m_model->rowCount();
-                                                                                                                            }
-                                                                                                                    }
-                                                                                                                    OKButton->setEnabled(ok);
-                                                                                                                }
-                                                                                                            }
-                                                                                                           });
+        connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
+            QStandardItem *itm = m_model->itemFromIndex(idx);
+            if (itm)
+            {
+                if(itm->isCheckable())
+                {
+                    if (itm->checkState() == Qt::Checked)
+                        OKButton->setEnabled(true);
+                    else
+                    {
+                        bool ok = false;
+                        for (int i=0; i<m_model->rowCount(); ++i)
+                        {
+                            QStandardItem *itmc = m_model->item(i);
+                            if (itmc)
+                                if(itmc->checkState() == Qt::Checked)
+                                {
+                                    ok = true;
+                                    i = m_model->rowCount();
+                                }
+                        }
+                        OKButton->setEnabled(ok);
+                    }
+                }
+            }
+        });
         m_currentcomment = Q_NULLPTR;
         wdg_tblview->selectionModel()->clearCurrentIndex();
     }
@@ -630,6 +622,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
                 if (m_currentcomment == coms)
                 {
                     QModelIndex idx = m_model->index(i,1);
+                    wdg_tblview->clearSelection();
                     wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
                     wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);

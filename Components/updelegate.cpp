@@ -56,7 +56,7 @@ QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
     line->setFocus();
     connect(line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
     connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
-    //connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);
+    connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);
     return line;
 }
 

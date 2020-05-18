@@ -84,6 +84,7 @@ private:
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);
     void                        keyPressEvent   (QKeyEvent * event );
+    void                        AfficheTexteDocument(Impression *doc);
     void                        Annulation();
     void                        ChoixButtonFrame(WidgetButtonFrame *);
     void                        ChoixMenuContextuelTexteDocument(QString);
