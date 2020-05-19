@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptableview.h"
 #include "updelegate.h"
 #include "procedures.h"
+#include "upstandarditemmodel.h"
 
 class dlg_listecommentaires : public UpDialog
 {
@@ -41,7 +42,7 @@ private:
     UpTableView                 *wdg_tblview;
     UpTextEdit                  *wdg_comtxt;
     WidgetButtonFrame           *wdg_buttonframe;
-    QStandardItemModel          *m_model;
+    UpStandardItemModel         *m_model = Q_NULLPTR;
     CommentLunet                *m_currentcomment = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
     QString                     m_commentaire = "";
@@ -60,7 +61,6 @@ private:
     void                        EnableLines();
     void                        EnregistreCommentaire(CommentLunet *com);
     CommentLunet*               getCommentFromIndex(QModelIndex idx);
-    int                         getRowFromComment(CommentLunet *com);
     void                        MenuContextuel();
     void                        RemplirTableView();
     void                        selectcurrentComment(CommentLunet *com, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);

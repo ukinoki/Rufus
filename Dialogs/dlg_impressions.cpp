@@ -181,7 +181,7 @@ void dlg_impressions::Annulation()
     case CreationDOSS:
     case ModificationDOSS:{
         ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        int row = getRowFromDossier(m_currentdossier);
+        int row = m_dossiersmodel->getRowFromItem(m_currentdossier);
         if (m_mode == ModificationDOSS && row < m_dossiersmodel->rowCount())
         {
             QModelIndex idx = m_dossiersmodel->index(row,1);
@@ -208,7 +208,7 @@ void dlg_impressions::Annulation()
     case ModificationDOC:{
         //qDebug() << m_currentdocument->resume();
         ui->DocsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        int row = getRowFromDocument(m_currentdocument);
+        int row = m_docsmodel->getRowFromItem(m_currentdocument);
         if (m_mode == ModificationDOC && row < m_docsmodel->rowCount())
         {
             QModelIndex idx = m_docsmodel->index(row,1);
@@ -265,7 +265,7 @@ void dlg_impressions::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_impressions::CheckPublicEditablAdmin(QCheckBox *check)
 {
-    int row = getRowFromDocument(m_currentdocument);
+    int row = m_docsmodel->getRowFromItem(m_currentdocument);
     if (row == -1)
         return;
     if (check == ui->DocPubliccheckBox)
@@ -435,7 +435,7 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
     if (m_mode == CreationDOC || m_mode == ModificationDOC)
     {
         QString resume = "";
-        int row = getRowFromDocument(m_currentdocument);
+        int row = m_docsmodel->getRowFromItem(m_currentdocument);
         QStandardItem *itm = m_docsmodel->item(row,1);
         resume = itm->data(Qt::EditRole).toString();
         if (resume.size() == 0)
@@ -454,7 +454,7 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
     {
         bool a = false;
         QString resume = "";
-        int row = getRowFromDossier(m_currentdossier);
+        int row = m_dossiersmodel->getRowFromItem(m_currentdossier);
         QStandardItem *itm = m_dossiersmodel->item(row,1);
         resume = itm->data(Qt::EditRole).toString();
         if (resume.size() == 0)
@@ -946,7 +946,7 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
         SupprimmeDocument(m_currentdocument);
     else if (choix  == "Public")
     {
-        int row = getRowFromDocument(m_currentdocument);
+        int row = m_docsmodel->getRowFromItem(m_currentdocument);
         if (row== -1)
             return;
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,2));
@@ -963,7 +963,7 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
     }
     else if (choix  == "Editable")
     {
-        int row = getRowFromDocument(m_currentdocument);
+        int row = m_docsmodel->getRowFromItem(m_currentdocument);
         if (row== -1)
             return;
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,3));
@@ -980,7 +980,7 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
     }
     else if (choix  == "Administratif")
     {
-        int row = getRowFromDocument(m_currentdocument);
+        int row = m_docsmodel->getRowFromItem(m_currentdocument);
         if (row== -1)
             return;
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,4));
@@ -1035,7 +1035,7 @@ void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
     {
         if (!m_currentdossier->ispublic() && hasDocumentPrive(m_currentdossier))
             return;
-        int row = getRowFromDossier(m_currentdossier);
+        int row = m_dossiersmodel->getRowFromItem(m_currentdossier);
         if (row== -1)
             return;
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
@@ -1669,7 +1669,7 @@ void dlg_impressions::keyPressEvent(QKeyEvent * event )
     {
         if (m_currentdocument)
         {
-            int row = getRowFromDocument(m_currentdocument);
+            int row = m_docsmodel->getRowFromItem(m_currentdocument);
             if (row > -1 && row < m_docsmodel->rowCount())
             {
                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
@@ -2232,54 +2232,6 @@ User* dlg_impressions::userentete() const
     return m_userentete;
 }
 
-// ------------------------------------------------------------------------------------------
-// renvoie le row correspondant au document
-// ------------------------------------------------------------------------------------------
-int dlg_impressions::getRowFromDocument(Impression *doc)
-{
-    int row = -1;
-    if (!doc)
-        return row;
-    for (int i=0; i<m_docsmodel->rowCount(); i++)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i));
-        if (itm)
-        {
-            Impression *sdoc = dynamic_cast<Impression*>(itm->item());
-            if (sdoc == doc)
-            {
-                row = i;
-                i = m_docsmodel->rowCount();
-            }
-        }
-    }
-    return row;
-}
-
-// ------------------------------------------------------------------------------------------
-// renvoie le row correspondant au dossier
-// ------------------------------------------------------------------------------------------
-int dlg_impressions::getRowFromDossier(DossierImpression *dossier)
-{
-    int row = -1;
-    if (!dossier)
-        return row;
-    for (int i=0; i<m_dossiersmodel->rowCount(); i++)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
-        if (itm)
-        {
-            DossierImpression *doss = dynamic_cast<DossierImpression*>(itm->item());
-            if (doss == dossier)
-            {
-                row = i;
-                i = m_dossiersmodel->rowCount();
-            }
-        }
-    }
-    return row;
-}
-
 // ----------------------------------------------------------------------------------
 // Verifie si un dossier peut être rendu public
 // ----------------------------------------------------------------------------------
@@ -2310,7 +2262,7 @@ void dlg_impressions::EnregistreDocument(Impression *doc)
     // controle validate des champs
     if (!doc)
         return;
-    int row = getRowFromDocument(doc);
+    int row = m_docsmodel->getRowFromItem(doc);
     ui->DocsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->DocsupTableView->closePersistentEditor(m_docsmodel->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row));
@@ -2379,7 +2331,7 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     // controle validité des champs
     if (!dossier)
         return;
-    int row = getRowFromDossier(dossier);
+    int row = m_dossiersmodel->getRowFromItem(dossier);
     ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->DossiersupTableView->closePersistentEditor(m_dossiersmodel->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row));
@@ -2902,7 +2854,7 @@ void dlg_impressions::Remplir_TableView()
     ui->DocsupTableView->setItemDelegateForColumn(1,linedoc);
     if (m_docsmodel == Q_NULLPTR)
         delete m_docsmodel;
-    m_docsmodel = new QStandardItemModel(this);
+    m_docsmodel = new UpStandardItemModel(this);
 
     QStandardItem *ditem0   = new QStandardItem(Icons::icunBlackCheck(),"");
     ditem0->setEditable(false);
@@ -2973,9 +2925,6 @@ void dlg_impressions::Remplir_TableView()
                                                                                                         }
                                                                                                       });
         connect (ui->DocsupTableView,   &QWidget::customContextMenuRequested,      this,   &dlg_impressions::MenuContextuelDocuments);
-    //! ++++ il faut utiliser selectionChanged et pas currentChanged
-    //! qui n'est pas déclenché quand on clique sur un item
-    //! alors que la table n'a pas le focus et qu'elle n'a aucun item sélectionné
         connect (ui->DocsupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
                                                                                                                     m_currentdocument = getDocumentFromIndex(idx);
                                                                                                                     if (m_currentdocument)
@@ -3015,7 +2964,7 @@ void dlg_impressions::Remplir_TableView()
     ui->DossiersupTableView->setItemDelegateForColumn(1,line);
     if (m_dossiersmodel == Q_NULLPTR)
         delete m_dossiersmodel;
-    m_dossiersmodel = new QStandardItemModel(this);
+    m_dossiersmodel = new UpStandardItemModel(this);
 
     QStandardItem *pitem0   = new QStandardItem(Icons::icCheck(),"");
     pitem0->setEditable(false);
@@ -3261,7 +3210,7 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        int row = getRowFromDocument(doc);
+        int row = m_docsmodel->getRowFromItem(doc);
         db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->impressions->SupprimeImpression(doc);
         doc = Q_NULLPTR;
@@ -3302,7 +3251,7 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        int row = getRowFromDossier(dossier);
+        int row = m_dossiersmodel->getRowFromItem(dossier);
         db->SupprRecordFromTable(dossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->metadocuments->SupprimeDossierImpression(dossier);
         dossier = Q_NULLPTR;

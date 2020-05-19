@@ -17,6 +17,7 @@ SOURCES += $$PWD/upcheckbox.cpp \
         $$PWD/upradiobutton.cpp \
         $$PWD/upsmallbutton.cpp \
         $$PWD/upspinbox.cpp \
+    $$PWD/upstandarditemmodel.cpp \
         $$PWD/upswitch.cpp \
     $$PWD/upsystemtrayicon.cpp \
         $$PWD/uptablewidget.cpp \
@@ -41,6 +42,7 @@ HEADERS += $$PWD/upcheckbox.h \
         $$PWD/upradiobutton.h \
         $$PWD/upsmallbutton.h \
         $$PWD/upspinbox.h \
+    $$PWD/upstandarditemmodel.h \
         $$PWD/upswitch.h \
     $$PWD/upsystemtrayicon.h \
         $$PWD/uptablewidget.h \

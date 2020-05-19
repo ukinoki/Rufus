@@ -68,7 +68,11 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     Datas::I()->commentslunets->initListeByListUsers(listiduser);
     RemplirTableView();
     if (m_model->rowCount()>0)
+    {
+        CommentLunet *com = Q_NULLPTR;
+        com = getCommentFromIndex(m_model->index(0,0));
         selectcurrentComment(getCommentFromIndex(m_model->index(0,0)));
+    }
 }
 
 dlg_listecommentaires::~dlg_listecommentaires()
@@ -111,7 +115,7 @@ void dlg_listecommentaires::keyPressEvent(QKeyEvent * event )
 void dlg_listecommentaires::Annulation()
 {
     wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    int row = getRowFromComment(m_currentcomment);
+    int row = m_model->getRowFromItem(m_currentcomment);
     if (m_mode == Creation || m_mode == Modification)
     {
         if (m_mode == Modification && row < m_model->rowCount())
@@ -202,7 +206,7 @@ void dlg_listecommentaires::ChoixMenuContextuel(QString choix)
         SupprimmCommentaire(m_currentcomment);
     else if (choix  == "ParDefaut")
     {
-        int row = getRowFromComment(m_currentcomment);
+        int row = m_model->getRowFromItem(m_currentcomment);
         if (row== -1)
             return;
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row,2));
@@ -300,7 +304,7 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
             DisableLines();
         int row = 0;
         if (com)
-            row = getRowFromComment(com);
+            row = m_model->getRowFromItem(com);
         m_model->insertRow(row);
         m_currentcomment = new CommentLunet();
         m_currentcomment->setresume(tr("Nouveau Commentaire"));
@@ -329,12 +333,9 @@ void dlg_listecommentaires::dblClicktextEdit()
 {
     if (m_mode == Selection)
     {
-        CommentLunet *com = Q_NULLPTR;
-        if (wdg_tblview->selectionModel()->hasSelection())
-            com = getCommentFromIndex(wdg_tblview->currentIndex());
-        if (com)
-            if (com->iduser() == currentuser()->id())
-                ConfigMode(Modification,com);
+        if (m_currentcomment)
+            if (m_currentcomment->iduser() == currentuser()->id())
+                ConfigMode(Modification,m_currentcomment);
     }
 }
 
@@ -384,7 +385,7 @@ void dlg_listecommentaires::EnableLines()
 // ----------------------------------------------------------------------------------
 void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
 {
-    int row = getRowFromComment(com);
+    int row = m_model->getRowFromItem(com);
     wdg_tblview->closePersistentEditor(m_model->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (!itm)
@@ -443,30 +444,6 @@ CommentLunet* dlg_listecommentaires::getCommentFromIndex(QModelIndex idx)
         return Q_NULLPTR;
 }
 
-// ------------------------------------------------------------------------------------------
-// renvoie le row correspondant au commentaire
-// ------------------------------------------------------------------------------------------
-int dlg_listecommentaires::getRowFromComment(CommentLunet *com)
-{
-    int row = -1;
-    if (!com)
-        return row;
-    for (int i=0; i<m_model->rowCount(); i++)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
-        if (itm)
-        {
-            CommentLunet *coms = dynamic_cast<CommentLunet*>(itm->item());
-            if (coms == com)
-            {
-                row = i;
-                i = m_model->rowCount();
-            }
-        }
-    }
-    return row;
-}
-
 void dlg_listecommentaires::MenuContextuel()
 {
     QMenu *menuContextuel = new QMenu(this);
@@ -509,7 +486,7 @@ void dlg_listecommentaires::RemplirTableView()
     wdg_tblview->selectionModel()->disconnect();
     if (m_model == Q_NULLPTR)
         delete m_model;
-    m_model = new QStandardItemModel();
+    m_model = new UpStandardItemModel();
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
     wdg_tblview->setItemDelegateForColumn(1,line);
@@ -681,10 +658,10 @@ void dlg_listecommentaires::SupprimmCommentaire(CommentLunet* com)
     msgbox.exec();
     if (msgbox.clickedButton()  == &OKBouton)
     {
-        int row = getRowFromComment(com);
+        int row = m_model->getRowFromItem(com);
         if (row > -1 && row < m_model->rowCount())
         {
-            m_model->removeRow(getRowFromComment(com));
+            m_model->removeRow(row);
             Datas::I()->commentslunets->SupprimeCommentLunet(com);
         }
     }

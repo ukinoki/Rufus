@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsOpacityEffect>
 #include "gbl_datas.h"
 #include "icons.h"
+#include "upstandarditemmodel.h"
 #include "updelegate.h"
 
 namespace Ui {
@@ -76,9 +77,9 @@ private:
     WidgetButtonFrame           *wdg_docsbuttonframe, *wdg_dossiersbuttonframe;
 
     QHash<QString, QVariant>    m_dossierlistbinds;
-    QStandardItemModel          *m_dossiersmodel = Q_NULLPTR;
+    UpStandardItemModel         *m_dossiersmodel = Q_NULLPTR;
     QHash<QString, QVariant>    m_docslistbinds;
-    QStandardItemModel          *m_docsmodel = Q_NULLPTR;
+    UpStandardItemModel         *m_docsmodel = Q_NULLPTR;
 
     bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);
@@ -108,8 +109,6 @@ private:
     void                        FiltreListe();
     Impression*                 getDocumentFromIndex(QModelIndex idx);
     DossierImpression*          getDossierFromIndex(QModelIndex idx);
-    int                         getRowFromDocument(Impression *doc);
-    int                         getRowFromDossier(DossierImpression *dossier);
     bool                        hasDocumentPrive(DossierImpression *dossier);              //!> vérifie si un dossier incorpore des documents privés
     void                        EnregistreDocument(Impression *doc);
     void                        EnregistreDossier(DossierImpression *dossier);

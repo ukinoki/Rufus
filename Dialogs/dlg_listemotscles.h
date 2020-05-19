@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "updelegate.h"
+#include "upstandarditemmodel.h"
 #include "uptableview.h"
 
 class dlg_listemotscles : public UpDialog
@@ -40,7 +41,7 @@ private:
     WidgetButtonFrame   *wdg_buttonframe;
     QHBoxLayout         *wdg_editlayout;
     UpDialog            *dlg_ask;
-    QStandardItemModel  *m_model = Q_NULLPTR;
+    UpStandardItemModel *m_model = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
     MotCle              *m_currentmotcle = Q_NULLPTR;
 
@@ -55,7 +56,6 @@ private:
     void                EnableLines(int row = -1);
     void                EnregistreMotCle(MotCle *mc);
     MotCle*             getMotCleFromIndex(QModelIndex idx);
-    int                 getRowFromMotCle(MotCle *mc);
     void                MenuContextuel();
     void                RemplirTableView();
     void                selectcurrentMotCle(MotCle *mc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);

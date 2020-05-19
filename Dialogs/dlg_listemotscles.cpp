@@ -96,7 +96,7 @@ void dlg_listemotscles::keyPressEvent(QKeyEvent * event )
 // ----------------------------------------------------------------------------------
 void dlg_listemotscles::Annulation()
 {
-    int row = getRowFromMotCle(m_currentmotcle);
+    int row = m_model->getRowFromItem(m_currentmotcle);
     wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
     if (m_mode == Creation || m_mode == Modification)
     {
@@ -248,7 +248,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
             DisableLines();
         int row = 0;
         if (mc)
-            row = getRowFromMotCle(mc);
+            row = m_model->getRowFromItem(mc);
         m_model->insertRow(row);
         m_currentmotcle = new MotCle();
         m_currentmotcle->setmotcle(tr("Nouveau mot-clé"));
@@ -312,7 +312,7 @@ void dlg_listemotscles::EnableLines(int row)
 // ----------------------------------------------------------------------------------
 void dlg_listemotscles::EnregistreMotCle(MotCle *mc)
 {
-    int row = getRowFromMotCle(mc);
+    int row = m_model->getRowFromItem(mc);
     wdg_tblview->closePersistentEditor(m_model->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (!itm)
@@ -357,27 +357,6 @@ MotCle* dlg_listemotscles::getMotCleFromIndex(QModelIndex idx)
         return Q_NULLPTR;
 }
 
-int dlg_listemotscles::getRowFromMotCle(MotCle *mc)
-{
-    int row = -1;
-    if (!mc)
-        return row;
-    for (int i=0; i<m_model->rowCount(); i++)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
-        if(itm)
-        {
-            MotCle* mcs = dynamic_cast<MotCle*>(itm->item());
-            if (mc->id() == mcs->id())
-            {
-                row = i;
-                break;
-            }
-        }
-    }
-    return row;
-}
-
 QList<int> dlg_listemotscles::listMCDepart() const
 {
     return m_listidmotsclesdepart;
@@ -420,7 +399,7 @@ void dlg_listemotscles::RemplirTableView()
         m_listidmotsclesdepart << listidMC.at(i);
     if (m_model == Q_NULLPTR)
         delete m_model;
-    m_model = new QStandardItemModel(this);
+    m_model = new UpStandardItemModel(this);
 
     QStandardItem *pitem0   = new QStandardItem(Icons::icCheck(),"");
     pitem0->setEditable(false);
@@ -457,7 +436,6 @@ void dlg_listemotscles::RemplirTableView()
         wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
         ConfigMode(Selection);
         connect (wdg_tblview,                   &QWidget::customContextMenuRequested,   this,   &dlg_listemotscles::MenuContextuel);
-        //! ++++ il faut utiliser selectionChanged et pas currentChanged qui n'est pas déclenché quand on clique sur un item alors la tabnle n'a pas le focus et qu'elle n'a aucun item sélectionné
         connect (wdg_tblview->selectionModel(),                   &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
                                                                                                                         m_currentmotcle = getMotCleFromIndex(idx);
                                                                                                                         if (m_currentmotcle)
@@ -563,7 +541,7 @@ void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        int row = getRowFromMotCle(mc);
+        int row = m_model->getRowFromItem(mc);
         if (row > -1 && row < m_model->rowCount())
         {
             m_model->removeRow(row);
