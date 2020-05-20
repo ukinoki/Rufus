@@ -47,6 +47,7 @@ private:
     QHash<QString, QVariant>    m_listbinds;
     QString                     m_commentaire = "";
     QString                     m_commentaireresume = "";
+    QString                     m_textdelegate = "";
 
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
@@ -59,7 +60,7 @@ private:
     void                        DisableLines();
     void                        EnableButtons(CommentLunet* com = Q_NULLPTR);
     void                        EnableLines();
-    void                        EnregistreCommentaire(CommentLunet *com);
+    bool                        EnregistreCommentaire(CommentLunet *com);
     CommentLunet*               getCommentFromIndex(QModelIndex idx);
     void                        MenuContextuel();
     void                        RemplirTableView();

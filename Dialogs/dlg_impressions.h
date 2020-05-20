@@ -80,6 +80,8 @@ private:
     UpStandardItemModel         *m_dossiersmodel = Q_NULLPTR;
     QHash<QString, QVariant>    m_docslistbinds;
     UpStandardItemModel         *m_docsmodel = Q_NULLPTR;
+    QString                     m_textdocdelegate = "";
+    QString                     m_textdossierdelegate = "";
 
     bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);
@@ -110,8 +112,8 @@ private:
     Impression*                 getDocumentFromIndex(QModelIndex idx);
     DossierImpression*          getDossierFromIndex(QModelIndex idx);
     bool                        hasDocumentPrive(DossierImpression *dossier);              //!> vérifie si un dossier incorpore des documents privés
-    void                        EnregistreDocument(Impression *doc);
-    void                        EnregistreDossier(DossierImpression *dossier);
+    bool                        EnregistreDocument(Impression *doc);
+    bool                        EnregistreDossier(DossierImpression *dossier);
     void                        ListidCor();
     void                        MenuContextuelDocuments();
     void                        MenuContextuelDossiers();

@@ -48,16 +48,16 @@ bool UpLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const
 
 QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
-    UpLineEdit *line;
-    line = new UpLineEdit(parent);
-    line->setRow(index.row());
-    line->setContextMenuPolicy(Qt::CustomContextMenu);
-    line->selectAll();
-    line->setFocus();
-    connect(line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
-    connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
-    connect(line, &QLineEdit::textEdited,       this, &UpLineDelegate::commitEditor);
-    return line;
+    UpLineEdit *m_line;
+    m_line = new UpLineEdit(parent);
+    m_line = new UpLineEdit(parent);
+    m_line->setRow(index.row());
+    m_line->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_line->selectAll();
+    m_line->setFocus();
+    connect(m_line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
+    connect(m_line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
+    return m_line;
 }
 
 void UpLineDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
@@ -73,11 +73,6 @@ bool UpLineDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const 
     if(event->type() == QEvent::MouseButtonRelease)
          emit focusitem(index.row());
     return QAbstractItemDelegate::editorEvent(event, model, option, index);
-}
-
-void UpLineDelegate::commitEditor(){
-    UpLineEdit *editor = qobject_cast<UpLineEdit *>(sender());
-    emit commitData(editor);
 }
 
 void UpLineDelegate::updateEditorGeometry(QWidget *editor,

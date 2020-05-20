@@ -310,24 +310,21 @@ void dlg_listemotscles::EnableLines(int row)
 // ----------------------------------------------------------------------------------
 // Modification du commentaire dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_listemotscles::EnregistreMotCle(MotCle *mc)
+bool dlg_listemotscles::EnregistreMotCle(MotCle *mc)
 {
     int row = m_model->getRowFromItem(mc);
-    wdg_tblview->closePersistentEditor(m_model->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (!itm)
-    {
-        selectcurrentMotCle(mc);
-        return;
-    }
-
-    QString motcle = m_model->item(row,1)->data(Qt::DisplayRole).toString().left(80);
+        return false;
+    wdg_tblview->closePersistentEditor(m_model->index(row,1));
+    qApp->focusWidget()->clearFocus();   //permet de déclencher le focusout du delegate qui va lancer le signal commiData
+    QString motcle = m_textdelegate.left(80);
     // recherche de l'enregistrement modifié
     // controle validate des champs
     if (ChercheDoublon(motcle,row))
     {
-        selectcurrentMotCle(mc);
-        return;
+        wdg_tblview->openPersistentEditor(m_model->index(row,1));
+        return false;
     }
     m_listbinds[CP_TEXT_MOTCLE]     = motcle;
     int idmc = mc->id();
@@ -343,8 +340,7 @@ void dlg_listemotscles::EnregistreMotCle(MotCle *mc)
         m_currentmotcle = Datas::I()->motscles->getById(idmc, true);
     }
     m_model->sort(1);
-    if (m_model->rowCount() > 0)
-        selectcurrentMotCle(m_currentmotcle);
+    return true;
 }
 
 MotCle* dlg_listemotscles::getMotCleFromIndex(QModelIndex idx)
@@ -392,6 +388,10 @@ void dlg_listemotscles::RemplirTableView()
     wdg_tblview->selectionModel()->disconnect();
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, [=] {OKButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+                                                                        m_textdelegate = line->text();
+                                                                      });
     wdg_tblview->setItemDelegateForColumn(1,line);
     QList<int> listidMC = DataBase::I()->loadListIdMotsClesByPat(m_currentpatient->id());
     m_listidmotsclesdepart.clear();
@@ -479,7 +479,7 @@ void dlg_listemotscles::RemplirTableView()
                     ConfigMode(Modification, m_currentmotcle);
             }
         });
-        wdg_tblview->selectionModel()->clearSelection();
+        wdg_tblview->selectionModel()->clear();
     }
     else
         ConfigMode(Creation);
@@ -490,7 +490,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
     m_currentmotcle = mc;
     if (!m_currentmotcle)
     {
-        wdg_tblview->selectionModel()->clearSelection();
+        wdg_tblview->selectionModel()->clear();
         EnableButtons();
     }
     else for (int i=0; i<m_model->rowCount(); i++)
@@ -503,8 +503,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
                 if (mcs == m_currentmotcle)
                 {
                     QModelIndex idx = m_model->index(i,1);
-                    wdg_tblview->clearSelection();
-                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
                     wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);
                     EnableButtons(m_currentmotcle);
@@ -547,6 +546,18 @@ void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
             m_model->removeRow(row);
             Datas::I()->motscles->SupprimeMotCle(mc);
         }
+        if (m_model->rowCount() == 0)
+            ConfigMode(Creation);
+        else
+        {
+            ConfigMode(Selection);
+            if (row < m_model->rowCount())
+            {
+                mc = getMotCleFromIndex(m_model->index(row,0));
+                if (mc)
+                    selectcurrentMotCle(mc);
+            }
+        }
     }
 }
 
@@ -555,8 +566,11 @@ void dlg_listemotscles::Validation()
     if (m_mode == Modification || m_mode == Creation)
     {
         wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        EnregistreMotCle(m_currentmotcle);
-        ConfigMode(Selection, m_currentmotcle);
+        if (EnregistreMotCle(m_currentmotcle))
+        {
+            ConfigMode(Selection, m_currentmotcle);
+            selectcurrentMotCle(m_currentmotcle);
+        }
     }
     else if (m_mode == Selection)
     {

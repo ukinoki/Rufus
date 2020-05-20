@@ -364,9 +364,6 @@ void dlg_listecommentaires::EnableButtons(CommentLunet* com)
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }
 
-// -------------------------------------------------------------------------------------------
-// SetEnabled = true, connect toutes les lignes des UpTableWidget - SetEnabled = true checkBox
-// -------------------------------------------------------------------------------------------
 void dlg_listecommentaires::EnableLines()
 {
     for (int i=0; i<m_model->rowCount(); i++)
@@ -383,32 +380,27 @@ void dlg_listecommentaires::EnableLines()
 // ----------------------------------------------------------------------------------
 // Modification du commentaire dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
+bool dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
 {
     int row = m_model->getRowFromItem(com);
-    wdg_tblview->closePersistentEditor(m_model->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (!itm)
-    {
-        selectcurrentComment(com);
-        return;
-    }
+        return false;
     UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_model->item(row,2));
     if (!itmdef)
-    {
-        selectcurrentComment(com);
-        return;
-    }
-    bool pardefaut = (itmdef->data(Qt::DecorationRole) != QPixmap());
+        return false;
+    wdg_tblview->closePersistentEditor(m_model->index(row,1));
+    qApp->focusWidget()->clearFocus();   //permet de déclencher le focusout du delegate qui va lancer le signal commiData
 
-    QString resume = Utils::trimcapitilize(m_model->item(row,1)->data(Qt::DisplayRole).toString()).left(50);
+    QString resume = Utils::trimcapitilize(m_textdelegate).left(50);
     // recherche de l'enregistrement modifié
     // controle validate des champs
     if (ChercheDoublon(resume,row))
     {
-        selectcurrentComment(com);
-        return;
+        wdg_tblview->openPersistentEditor(m_model->index(row,1));
+        return false;
     }
+    bool pardefaut = (itmdef->data(Qt::DecorationRole) != QPixmap());
     m_listbinds[CP_TEXT_COMLUN]     = wdg_comtxt->toPlainText();
     m_listbinds[CP_RESUME_COMLUN]   = resume;
     m_listbinds[CP_IDUSER_COMLUN]   = com->iduser();
@@ -427,8 +419,7 @@ void dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
         m_currentcomment = Datas::I()->commentslunets->getById(idcom, true);
     }
     m_model->sort(1);
-    if (m_model->rowCount() > 0)
-        selectcurrentComment(m_currentcomment);
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -489,6 +480,10 @@ void dlg_listecommentaires::RemplirTableView()
     m_model = new UpStandardItemModel();
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+                                                                        m_textdelegate = line->text();
+                                                                      });
     wdg_tblview->setItemDelegateForColumn(1,line);
     QStandardItem *pitem0   = new QStandardItem(Icons::icImprimer(),"");
     pitem0->setEditable(false);
@@ -575,7 +570,6 @@ void dlg_listecommentaires::RemplirTableView()
             }
         });
         m_currentcomment = Q_NULLPTR;
-        wdg_tblview->selectionModel()->clearCurrentIndex();
     }
     else
         ConfigMode(Creation);
@@ -586,7 +580,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
     m_currentcomment = com;
     if (!m_currentcomment)
     {
-        wdg_tblview->selectionModel()->clearSelection();
+        wdg_tblview->selectionModel()->clear();
         EnableButtons();
     }
     else for (int i=0; i<m_model->rowCount(); i++)
@@ -599,8 +593,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
                 if (m_currentcomment == coms)
                 {
                     QModelIndex idx = m_model->index(i,1);
-                    wdg_tblview->clearSelection();
-                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
                     wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);
                     EnableButtons(m_currentcomment);
@@ -664,6 +657,18 @@ void dlg_listecommentaires::SupprimmCommentaire(CommentLunet* com)
             m_model->removeRow(row);
             Datas::I()->commentslunets->SupprimeCommentLunet(com);
         }
+        if (m_model->rowCount() == 0)
+            ConfigMode(Creation);
+        else
+        {
+            ConfigMode(Selection);
+            if (row < m_model->rowCount())
+            {
+                com = getCommentFromIndex(m_model->index(row,0));
+                if (com)
+                    selectcurrentComment(com);
+            }
+        }
     }
 }
 
@@ -676,8 +681,11 @@ void dlg_listecommentaires::Validation()
     if (m_mode == Modification || m_mode == Creation)
     {
         wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        EnregistreCommentaire(m_currentcomment);
-        ConfigMode(Selection, m_currentcomment);
+        if (EnregistreCommentaire(m_currentcomment))
+        {
+            ConfigMode(Selection, m_currentcomment);
+            selectcurrentComment(m_currentcomment);
+        }
     }
     else if (m_mode == Selection)
     {

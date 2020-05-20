@@ -1083,11 +1083,19 @@ void dlg_impressions::Validation()
     switch (m_mode) {
     case CreationDOC:
     case ModificationDOC:
-        EnregistreDocument(m_currentdocument);
+        if (EnregistreDocument(m_currentdocument))
+        {
+            ConfigMode(Selection);
+            selectcurrentDocument(m_currentdocument);
+        }
         break;
     case CreationDOSS:
     case ModificationDOSS:
-        EnregistreDossier(m_currentdossier);
+        if (EnregistreDossier(m_currentdossier))
+        {
+            ConfigMode(Selection);
+            selectcurrentDossier(m_currentdossier);
+        }
         break;
     case Selection:                                                         // -> On imprime le
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
@@ -2257,41 +2265,41 @@ bool dlg_impressions::hasDocumentPrive(DossierImpression *dossier)
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_impressions::EnregistreDocument(Impression *doc)
+bool dlg_impressions::EnregistreDocument(Impression *doc)
 {
     // controle validate des champs
     if (!doc)
-        return;
+        return false;
     int row = m_docsmodel->getRowFromItem(doc);
     ui->DocsupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->DocsupTableView->closePersistentEditor(m_docsmodel->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row));
     if (!itm)
-    {
-        selectcurrentDocument(doc);
-        return;
-    }
-    QString resume = Utils::trimcapitilize(m_docsmodel->item(row,1)->data(Qt::EditRole).toString(), true, false, false).left(100);
+        return false;
+    ui->DocsupTableView->closePersistentEditor(m_docsmodel->index(row,1));
+    qApp->focusWidget()->clearFocus();
+    QString resume = Utils::trimcapitilize(m_textdocdelegate, true, false, false).left(50);
     if (resume.length() < 1)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
-        return;
+        ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
+        return false;
     }
     if (resume == tr("Nouveau document"))
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
-        return;
+        ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
+        return false;
     }
     if (ui->upTextEdit->document()->toPlainText().length() < 1)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Document, SVP !"));
-        return;
+        ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));        return false;
     }
     // Creation du Document dans la table
     if (ChercheDoublon(resume, row))
     {
-        selectcurrentDocument(doc);
-        return;
+        ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
+        return false;
     }
 
     m_docslistbinds[CP_TEXTE_IMPRESSIONS]           = ui->upTextEdit->document()->toHtml();
@@ -2313,51 +2321,43 @@ void dlg_impressions::EnregistreDocument(Impression *doc)
     }
 
     m_docsmodel->sort(1);
-
-    if (m_docsmodel->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        selectcurrentDocument(m_currentdocument);;
-    }
+    return true;
 }
 
 // ----------------------------------------------------------------------------------
 // Creation du Dossier dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
+bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
 {
     // controle validité des champs
     if (!dossier)
-        return;
+        return false;
     int row = m_dossiersmodel->getRowFromItem(dossier);
     ui->DossiersupTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->DossiersupTableView->closePersistentEditor(m_dossiersmodel->index(row,1));
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row));
     if (!itm)
     {
-        selectcurrentDossier(dossier);
-        return;
+        return false;
     }
     UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
     if (!itmdef)
     {
-        selectcurrentDossier(dossier);
-        return;
+        return false;
     }
+    ui->DossiersupTableView->closePersistentEditor(m_dossiersmodel->index(row,1));
+    qApp->focusWidget()->clearFocus();
     bool publicdossier = (itmdef->data(Qt::DecorationRole) != QPixmap());
-    QString resume = Utils::trimcapitilize(m_dossiersmodel->item(row,1)->data(Qt::EditRole).toString());
+    QString resume = Utils::trimcapitilize(m_textdossierdelegate).left(100);
     if (resume == tr("Nouveau dossier"))
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Votre dossier ne peut pas s'appeler \"Nouveau dossier\""));
-        selectcurrentDossier(dossier);
-        return;
+        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
+        return false;
     }
     if (ChercheDoublon(resume, row))
     {
-        selectcurrentDossier(dossier);
-        return;
+        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
+        return false;
     }
     if (m_mode == ModificationDOSS)
     {
@@ -2376,7 +2376,8 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         if (listid.size() == 0)
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Modification de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
-            return;
+            ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
+            return false;
         }
         db->SupprRecordFromTable(m_currentdossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS, TBL_JOINTURESIMPRESSIONS);
         QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
@@ -2425,13 +2426,7 @@ void dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         }
     }
     m_dossiersmodel->sort(1);
-    if (m_docsmodel->rowCount() == 0)
-        ConfigMode(CreationDOC);
-    else
-    {
-        ConfigMode(Selection);
-        selectcurrentDossier(m_currentdossier);;
-    }
+    return true;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2851,6 +2846,10 @@ void dlg_impressions::Remplir_TableView()
     ui->DocsupTableView->horizontalHeader()->disconnect();
     UpLineDelegate *linedoc = new UpLineDelegate();
     connect(linedoc,   &UpLineDelegate::textEdited, [=] {ui->OKupPushButton->setEnabled(true);});
+    connect(linedoc,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+                                                                            UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+                                                                            m_textdocdelegate = line->text();
+                                                                         });
     ui->DocsupTableView->setItemDelegateForColumn(1,linedoc);
     if (m_docsmodel == Q_NULLPTR)
         delete m_docsmodel;
@@ -2950,7 +2949,6 @@ void dlg_impressions::Remplir_TableView()
                                                                                                     });
         connect(ui->DocsupTableView->horizontalHeader(),    &QHeaderView::sectionClicked,   this,  [&] (int id)  {if(id == 0)  selectAllDocuments();});
         m_currentdocument = Q_NULLPTR;
-        ui->DocsupTableView->selectionModel()->clearCurrentIndex();
     }
 
 
@@ -2961,6 +2959,10 @@ void dlg_impressions::Remplir_TableView()
     ui->DossiersupTableView->selectionModel()->disconnect();
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, [=] {ui->OKupPushButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+                                                                         UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+                                                                         m_textdossierdelegate = line->text();
+                                                                      });
     ui->DossiersupTableView->setItemDelegateForColumn(1,line);
     if (m_dossiersmodel == Q_NULLPTR)
         delete m_dossiersmodel;
@@ -3038,7 +3040,6 @@ void dlg_impressions::Remplir_TableView()
                                                                                                             }
                                                                                                     });
         m_currentdossier = Q_NULLPTR;
-        ui->DossiersupTableView->selectionModel()->clearCurrentIndex();
     }
 }
 
@@ -3059,7 +3060,7 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
     m_currentdocument = doc;
     if (!m_currentdocument)
     {
-        ui->DocsupTableView->selectionModel()->clearSelection();
+        ui->DocsupTableView->selectionModel()->clear();
         EnableDocsButtons();
     }
     else for (int i=0; i<m_docsmodel->rowCount(); i++)
@@ -3072,8 +3073,7 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
                 if (m_currentdocument == sdoc)
                 {
                     QModelIndex idx = m_dossiersmodel->index(i,1);
-                    ui->DocsupTableView->clearSelection();
-                    ui->DocsupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    ui->DocsupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
                     ui->DocsupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
                     EnableDocsButtons(m_currentdocument);
@@ -3089,7 +3089,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
     m_currentdossier = dossier;
     if (!m_currentdossier)
     {
-        ui->DossiersupTableView->selectionModel()->clearSelection();
+        ui->DossiersupTableView->selectionModel()->clear();
         EnableDossiersButtons();
     }
     else for (int i=0; i<m_dossiersmodel->rowCount(); i++)
@@ -3102,8 +3102,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
                 if (m_currentdossier == sdossier)
                 {
                     QModelIndex idx = m_dossiersmodel->index(i,1);
-                    ui->DossiersupTableView->clearSelection();
-                    ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+                    ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
                     ui->DossiersupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
                     EnableDossiersButtons(m_currentdossier);
@@ -3213,7 +3212,6 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
         int row = m_docsmodel->getRowFromItem(doc);
         db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->impressions->SupprimeImpression(doc);
-        doc = Q_NULLPTR;
         if (row>-1 && row < m_docsmodel->rowCount())
             m_docsmodel->removeRow(row);
         if (m_docsmodel->rowCount() == 0)
@@ -3223,7 +3221,7 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
             ConfigMode(Selection);
             if (row < m_docsmodel->rowCount())
             {
-                Impression *doc = getDocumentFromIndex(m_docsmodel->index(row,0));
+                doc = getDocumentFromIndex(m_docsmodel->index(row,0));
                 if (doc)
                     selectcurrentDocument(doc);
             }
@@ -3254,7 +3252,6 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
         int row = m_dossiersmodel->getRowFromItem(dossier);
         db->SupprRecordFromTable(dossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->metadocuments->SupprimeDossierImpression(dossier);
-        dossier = Q_NULLPTR;
         if (row > -1 && row < m_dossiersmodel->rowCount())
             m_dossiersmodel->removeRow(row);
         if (m_docsmodel->rowCount() == 0)
@@ -3264,7 +3261,7 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
             ConfigMode(Selection);
             if (row < m_dossiersmodel->rowCount())
             {
-                DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
+                dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
                 if (dossier)
                     selectcurrentDossier(dossier);
             }

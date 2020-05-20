@@ -382,6 +382,7 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
         DataBase::I()->SupprRecordFromTable(item->id(), idname, table);
         m_map->remove(item->id());
         delete item;
+        item = Q_NULLPTR;
         return true;
     }
     return false;

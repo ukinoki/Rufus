@@ -44,6 +44,7 @@ private:
     UpStandardItemModel *m_model = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
     MotCle              *m_currentmotcle = Q_NULLPTR;
+    QString             m_textdelegate = "";
 
     void                keyPressEvent   (QKeyEvent * event );
     void                Annulation();
@@ -54,7 +55,7 @@ private:
     void                DisableLines();
     void                EnableButtons(MotCle *mc = Q_NULLPTR);
     void                EnableLines(int row = -1);
-    void                EnregistreMotCle(MotCle *mc);
+    bool                EnregistreMotCle(MotCle *mc);
     MotCle*             getMotCleFromIndex(QModelIndex idx);
     void                MenuContextuel();
     void                RemplirTableView();
@@ -63,6 +64,9 @@ private:
     void                SupprimeMotCle(MotCle *mc);
     void                Validation();
     void                VerifMC();
+
+signals:
+    void closedelegate();
 
 };
 
