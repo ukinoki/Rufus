@@ -57,6 +57,7 @@ QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
     m_line->setFocus();
     connect(m_line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
     connect(m_line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
+    //connect(m_line, &QLineEdit::editingFinished,  this, &UpLineDelegate::commitEditor);
     return m_line;
 }
 
@@ -87,6 +88,11 @@ void UpLineDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     UpLineEdit *line = static_cast<UpLineEdit*>(editor);
     QString txt = line->text();
     model->setData(index, txt, Qt::EditRole | Qt::DisplayRole);
+}
+
+void UpLineDelegate::commitEditor(){
+    UpLineEdit *editor = dynamic_cast<UpLineEdit *>(sender());
+    emit commitData(editor);
 }
 
 QSize TreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

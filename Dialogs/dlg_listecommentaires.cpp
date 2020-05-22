@@ -115,9 +115,9 @@ void dlg_listecommentaires::keyPressEvent(QKeyEvent * event )
 void dlg_listecommentaires::Annulation()
 {
     wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    int row = m_model->getRowFromItem(m_currentcomment);
     if (m_mode == Creation || m_mode == Modification)
     {
+        int row = m_model->getRowFromItem(m_currentcomment);
         if (m_mode == Modification && row < m_model->rowCount())
         {
             QModelIndex idx = m_model->index(row,1);
@@ -125,10 +125,9 @@ void dlg_listecommentaires::Annulation()
             m_model->setData(idx, m_currentcomment->resume());
             EnableButtons(m_currentcomment);
         }
-        else if (m_mode == Creation && m_currentcomment)
+        else if (m_mode == Creation)
         {
             m_model->removeRow(row);
-            delete m_currentcomment;
             if(m_model->rowCount() > 0 && row < m_model->rowCount())
                 selectcurrentComment(getCommentFromIndex(m_model->index(row,1)));
         }
@@ -585,6 +584,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
     }
     else for (int i=0; i<m_model->rowCount(); i++)
     {
+        wdg_tblview->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
@@ -593,7 +593,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
                 if (m_currentcomment == coms)
                 {
                     QModelIndex idx = m_model->index(i,1);
-                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
+                    wdg_tblview->selectionModel()->select(idx,QItemSelectionModel::SelectCurrent);
                     wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);
                     EnableButtons(m_currentcomment);
@@ -625,6 +625,9 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row)
         pitem1->setData(QPixmap(),Qt::DecorationRole);
     pitem1->setFlags(Qt::NoItemFlags);
     m_model->setItem(row,2, pitem1);
+
+    //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
+    wdg_tblview->setColumnWidth(0,30);        // checkbox
 }
 
 // ----------------------------------------------------------------------------------

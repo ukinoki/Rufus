@@ -33,7 +33,6 @@ public:
     QWidget*    createEditor    (QWidget* parent,   const QStyleOptionViewItem& option, const QModelIndex &index) const  Q_DECL_OVERRIDE;
     void        setEditorData   (QWidget* editor,   const QModelIndex& index) const Q_DECL_OVERRIDE;
     bool        editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)  Q_DECL_OVERRIDE;
-
 signals:
     void        focusitem(int a);
 };
@@ -52,6 +51,8 @@ public:
     void        updateEditorGeometry(QWidget *editor,
                                     const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     bool        editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)  Q_DECL_OVERRIDE;
+private:
+    void        commitEditor();
 
 signals:
     void        focusitem(int a);

@@ -162,6 +162,23 @@ void DossiersImpressions::initListe()
     m_isfull = true;
 }
 
+QList<int> DossiersImpressions::initListeIdDococumentsFromsDossier(DossierImpression *dossier)
+{
+    QList<int> listid = QList<int>();
+    if (!dossier)
+        return listid;
+    bool ok;
+    int iddoss = dossier->id();
+    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoss);
+    QList<QVariantList> listdocmts = DataBase::I()->StandardSelectSQL(req,ok);
+    if (listdocmts.size() > 0)
+    {
+        for (int i=0; i<listdocmts.size(); i++)
+            listid << listdocmts.at(i).at(0).toInt();
+    }
+    return listid;
+}
+
 void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr)
 {
     Supprime(map_all, impr);

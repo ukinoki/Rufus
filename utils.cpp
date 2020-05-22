@@ -139,9 +139,18 @@ QString Utils::trim(QString text, bool end, bool removereturnend)
  * \param text le texte à modifier
  * \return le texte modifié
  */
-QString Utils::capitilize(QString text)
+QString Utils::capitilize(QString text, bool onlyfirst)
 {
     QString newText="";
+    if (onlyfirst)
+    {
+        QChar c = text.at(0);
+        c = c.toUpper();
+        newText += c;
+        for( int i=1; i < text.size(); ++i )
+            newText += text.at(i);
+        return newText;
+    }
     QChar c;
     //Permet de forcer le premier caractère en majucule
     QChar lastChar = ' ';

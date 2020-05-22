@@ -55,6 +55,7 @@ public:
 
     DossierImpression* getById(int id, bool reload = false);
     void initListe();
+    QList<int>  initListeIdDococumentsFromsDossier(DossierImpression* dossier);
     //!> actions sur les enregistrements
     void                    SupprimeDossierImpression(DossierImpression *impr);
     DossierImpression*      CreationDossierImpression(QHash<QString, QVariant> sets);

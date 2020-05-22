@@ -189,10 +189,9 @@ void dlg_impressions::Annulation()
             m_dossiersmodel->setData(idx, m_currentdossier->resume());
             EnableDossiersButtons(m_currentdossier);
         }
-        else if (m_mode == CreationDOSS && m_currentdossier)
+        else if (m_mode == CreationDOSS)
         {
             m_dossiersmodel->removeRow(row);
-            delete m_currentdossier;
             if(m_dossiersmodel->rowCount() > 0 && row < m_dossiersmodel->rowCount())
                 selectcurrentDossier(getDossierFromIndex(m_dossiersmodel->index(row,1)));
         }
@@ -216,10 +215,9 @@ void dlg_impressions::Annulation()
             m_docsmodel->setData(idx, m_currentdocument->resume());
             EnableDocsButtons(m_currentdocument);
         }
-        else if (m_mode == CreationDOC && m_currentdocument)
+        else if (m_mode == CreationDOC)
         {
             m_docsmodel->removeRow(row);
-            delete m_currentdocument;
             if(m_docsmodel->rowCount() > 0 && row < m_docsmodel->rowCount())
                 selectcurrentDocument(getDocumentFromIndex(m_docsmodel->index(row,1)));
         }
@@ -410,11 +408,11 @@ QString dlg_impressions::DossierToolTip(DossierImpression *dossier)
 
 void dlg_impressions::EnableDocsButtons(Impression* doc)
 {
-    wdg_dossiersbuttonframe->wdg_modifBouton->setEnabled(doc);
+    wdg_docsbuttonframe->wdg_modifBouton->setEnabled(doc);
     if (doc)
-        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(doc->iduser() == currentuser()->id());
+        wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(doc->iduser() == currentuser()->id());
     else
-        wdg_dossiersbuttonframe->wdg_moinsBouton->setEnabled(false);
+        wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
 }
 
 void dlg_impressions::EnableDossiersButtons(DossierImpression *dossier)
@@ -434,10 +432,8 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
     ui->OKupPushButton->setShortcut(QKeySequence());
     if (m_mode == CreationDOC || m_mode == ModificationDOC)
     {
-        QString resume = "";
         int row = m_docsmodel->getRowFromItem(m_currentdocument);
-        QStandardItem *itm = m_docsmodel->item(row,1);
-        resume = itm->data(Qt::EditRole).toString();
+        QString resume = m_docsmodel->data(m_docsmodel->index(row,1),Qt::DisplayRole).toString();
         if (resume.size() == 0)
         {
             ui->OKupPushButton->setEnabled(false);
@@ -453,10 +449,8 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
     else if (m_mode == CreationDOSS || m_mode == ModificationDOSS)
     {
         bool a = false;
-        QString resume = "";
         int row = m_dossiersmodel->getRowFromItem(m_currentdossier);
-        QStandardItem *itm = m_dossiersmodel->item(row,1);
-        resume = itm->data(Qt::EditRole).toString();
+        QString resume = m_dossiersmodel->data(m_dossiersmodel->index(row,1), Qt::EditRole).toString();
         if (resume.size() == 0)
         {
             ui->OKupPushButton->setEnabled(false);
@@ -476,16 +470,9 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
         if (idx != QModelIndex())
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->itemFromIndex(idx));
-            QString nomdoc = "";
             if (itm)
-            {
-                int row = itm->row();
-                UpStandardItem *titm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,1));
-                if (titm)
-                    nomdoc = titm->data(Qt::DisplayRole).toString();
                 if (itm->ischecked())
                     VerifDossiers();
-            }
             if (wdg_docsbuttonframe->searchline()->text() == "")
                 m_listid.clear();
             for (int i=0; i<m_docsmodel->rowCount(); i++)
@@ -1787,63 +1774,49 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
 // ----------------------------------------------------------------------------------
 void dlg_impressions::CocheLesDocs(int iddoss, bool A)
 {
-    bool ok;
-    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoss);
-    QList<QVariantList> listdocmts = db->StandardSelectSQL(req,ok);
-    if (listdocmts.size() > 0)
+    QList<int> listiddocs = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(Datas::I()->metadocuments->getById(iddoss));
+    for (int k=0; k<m_docsmodel->rowCount(); k++)
     {
-        QList<int> listiddocs;
-        for (int i=0; i<listdocmts.size(); i++)
-            listiddocs << listdocmts.at(i).at(0).toInt();
-        for (int k=0; k<m_docsmodel->rowCount(); k++)
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(k,0));
+        if (itm)
         {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(k,0));
-            if (itm)
+            Impression *doc = dynamic_cast<Impression*>(itm->item());
+            if (doc)
             {
-                Impression *doc = dynamic_cast<Impression*>(itm->item());
-                if (doc)
+                if (listiddocs.contains(doc->id()))
                 {
-                    if (listiddocs.contains(doc->id()))
+                    if (A)
                     {
-                        if (A)
+                        itm->setCheckState(Qt::Checked);
+                        m_docsmodel->item(k,5)->setText("0" + doc->resume());
+                    }
+                    else                 // on vérifie qu'on peut décocher un doc et qu'il n'est pas nécessité par un autre dossier coché
+                    {
+                        bool a = false;
+                        for (int j=0; j<m_dossiersmodel->rowCount(); j++)
                         {
-                            itm->setCheckState(Qt::Checked);
-                            m_docsmodel->item(k,5)->setText("0" + doc->resume());
-                        }
-                        else                 // on vérifie qu'on peut décocher un doc et qu'il n'est pas nécessité par un autre dossier coché
-                        {
-                            bool a = false;
-                            for (int j=0; j<m_dossiersmodel->rowCount(); j++)
+                            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
+                            if (itm)
                             {
-                                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
-                                if (itm)
-                                {
-                                    DossierImpression * dossier = getDossierFromIndex(itm->index());
-                                    if (dossier)
-                                        if (dossier->id() != iddoss)
+                                DossierImpression * dossier = getDossierFromIndex(itm->index());
+                                if (dossier)
+                                    if (dossier->id() != iddoss)
+                                    {
+                                        if (itm->checkState()==Qt::Checked)
                                         {
-                                            if (itm->checkState()==Qt::Checked)
+                                            QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(dossier);
+                                            if (listid.contains(doc->id()))
                                             {
-                                                req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-                                                        " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id());
-                                                QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
-                                                if (listdocmts2.size() > 0)
-                                                {
-                                                    QList<int> listid;
-                                                    for (int i=0; i<listdocmts2.size(); i++)
-                                                        listid << listdocmts2.at(i).at(0).toInt();
-                                                    if (listid.contains(doc->id()))
-                                                    {
-                                                        a = true;
-                                                        break;
-                                                    }   }   }   }   }   }
-                            itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
-                            m_docsmodel->item(k,5)->setText((a?"0":"1") + doc->resume());
-                        }
+                                                a = true;
+                                                break;
+                                            }   }   }   }   }
+                                            itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
+                        m_docsmodel->item(k,5)->setText((a?"0":"1") + doc->resume());
                     }
                 }
+            }
 
-            }   }   }
+        }   }
     // tri de la table DocupTableView
     m_docsmodel->sort(5);
     ui->DocsupTableView->scrollToTop();
@@ -1988,16 +1961,26 @@ void dlg_impressions::ConfigMode(Mode mode)
         if (!m_currentdossier)
             return;
         DisableLines();
+        for (int i=0; i<m_dossiersmodel->rowCount(); i++)
+        {
+            QStandardItem *itm = m_dossiersmodel->item(i);
+            if (itm)
+                itm->setCheckState(Qt::Unchecked);
+        }
         for (int i=0; i<m_docsmodel->rowCount(); i++)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
             if (itm)
             {
-                itm->setCheckState(Qt::Unchecked);
+                QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(m_currentdossier);
+                Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
+                bool a= listid.contains(doc->id());
+                itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
                 itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+                m_docsmodel->item(i,5)->setText((a?"0":"1") + doc->resume());
             }
         }
-        CocheLesDocs(m_currentdossier->id(), true);
+        m_docsmodel->sort(5);
 
         ui->DocsupTableView->setEnabled(true);
         ui->DocsupTableView->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
@@ -2078,10 +2061,17 @@ void dlg_impressions::ConfigMode(Mode mode)
         DisableLines();
         for (int i=0; i<m_docsmodel->rowCount(); i++)
         {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+            QStandardItem *itm = m_docsmodel->item(i,0);
             if (itm)
+            {
+                itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
                 itm->setCheckState(Qt::Unchecked);
+                Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
+                if (doc)
+                    m_docsmodel->item(i,5)->setText("0" + doc->resume());
+            }
         }
+        m_docsmodel->sort(5);
         for (int i=0; i<m_dossiersmodel->rowCount(); i++)
         {
             QStandardItem *itm = m_dossiersmodel->item(i);
@@ -2311,6 +2301,7 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
     if (m_mode == CreationDOC)
     {
+        delete m_currentdocument;
         m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
         SetDocumentToRow(m_currentdocument, row);
     }
@@ -2359,26 +2350,26 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
         return false;
     }
+    QList<int> listid;
+    for (int l=0; l<m_docsmodel->rowCount(); l++)
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
+        if (itm)
+            if (itm->ischecked())
+            {
+                Impression *doc= dynamic_cast<Impression*>(itm->item());
+                if (doc)
+                    listid << doc->id();
+            }
+    }
+    if (listid.size() == 0)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Enregistrement de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
+        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
+        return false;
+    }
     if (m_mode == ModificationDOSS)
     {
-        QList<int> listid;
-        for (int l=0; l<m_docsmodel->rowCount(); l++)
-        {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
-            if (itm)
-                if (itm->ischecked())
-                {
-                    Impression *doc= dynamic_cast<Impression*>(itm->item());
-                    if (doc)
-                        listid << doc->id();
-                }
-        }
-        if (listid.size() == 0)
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Modification de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
-            ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
-            return false;
-        }
         db->SupprRecordFromTable(m_currentdossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS, TBL_JOINTURESIMPRESSIONS);
         QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
         for (int i=0; i<listid.size(); i++)
@@ -2397,35 +2388,41 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     m_dossierlistbinds[CP_PUBLIC_DOSSIERIMPRESSIONS]   = (publicdossier? "1" : QVariant());
     if (m_mode == ModificationDOSS)
     {
-        DataBase::I()->UpdateTable(TBL_DOSSIERSIMPRESSIONS, m_dossierlistbinds, " where " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(m_currentdossier->id()),tr("Impossible d'enregistrer le fosseir"));
+        DataBase::I()->UpdateTable(TBL_DOSSIERSIMPRESSIONS, m_dossierlistbinds, " where " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(m_currentdossier->id()),tr("Impossible d'enregistrer le dossier"));
         m_currentdossier = Datas::I()->metadocuments->getById(m_currentdossier->id(), true);
     }
     else if (m_mode == CreationDOSS)
     {
+        delete m_currentdossier;
         m_currentdossier = Datas::I()->metadocuments->CreationDossierImpression(m_dossierlistbinds);
-        if (m_currentdossier)
-        {
-            QList<int> listid;
-            for (int l=0; l<m_docsmodel->rowCount(); l++)
-            {
-                Impression *doc= getDocumentFromIndex(m_docsmodel->index(l,0));
-                if (doc)
-                    listid << doc->id();
-            }
-            if (listid.size()>0)
-            {
-                QString req = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") VALUES ";
-                for (int k=0; k<listid.size(); k++)
-                {
-                    req += "(" + QString::number(m_currentdossier->id()) + ", " + QString::number(listid.at(k)) + ")";
-                    if (k<listid.size()-1)    req += ",";
-                }
-                db->StandardSQL(req);
-            }
-            SetDossierToRow(m_currentdossier, row);
-        }
+        SetDossierToRow(m_currentdossier, row);
     }
-    m_dossiersmodel->sort(1);
+    if (m_currentdossier)
+        if (listid.size()>0)
+        {
+            QString req = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") VALUES ";
+            for (int k=0; k<listid.size(); k++)
+            {
+                req += "(" + QString::number(m_currentdossier->id()) + ", " + QString::number(listid.at(k)) + ")";
+                if (k<listid.size()-1)    req += ",";
+            }
+            db->StandardSQL(req);
+            for (int i=0; i<m_docsmodel->rowCount(); i++)
+            {
+                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
+                if (itm)
+                {
+                    Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
+                    bool a = itm->checkState() == Qt::Checked;
+                    m_docsmodel->item(i,5)->setText((a?"0":"1") + doc->resume());
+                }
+            }
+            m_docsmodel->sort(5);
+            m_dossiersmodel->sort(1);
+            row = m_dossiersmodel->getRowFromItem(m_currentdossier);
+            if (row > -1 && row < m_dossiersmodel->rowCount())
+                m_dossiersmodel->item(row)->setCheckState(Qt::Checked);
+        }
     return true;
 }
 
@@ -3015,9 +3012,7 @@ void dlg_impressions::Remplir_TableView()
                                                                                                         }
                                                                                                       });
         connect (ui->DossiersupTableView,   &QWidget::customContextMenuRequested,      this,   &dlg_impressions::MenuContextuelDossiers);
-        //! ++++ il faut utiliser selectionChanged et pas currentChanged
-        //! qui n'est pas déclenché quand on clique sur un item
-        //! alors que la table n'a pas le focus et qu'elle n'a aucun item sélectionné
+
         connect (ui->DossiersupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
                                                                                                                     m_currentdossier = getDossierFromIndex(idx);
                                                                                                                     if (m_currentdossier)
@@ -3065,6 +3060,7 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
     }
     else for (int i=0; i<m_docsmodel->rowCount(); i++)
     {
+        ui->DocsupTableView->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i));
         if (itm)
         {
@@ -3072,8 +3068,8 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
             if (sdoc)
                 if (m_currentdocument == sdoc)
                 {
-                    QModelIndex idx = m_dossiersmodel->index(i,1);
-                    ui->DocsupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
+                    QModelIndex idx = m_docsmodel->index(i,1);
+                    ui->DocsupTableView->selectionModel()->select(idx,QItemSelectionModel::SelectCurrent);
                     ui->DocsupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
                     EnableDocsButtons(m_currentdocument);
@@ -3094,6 +3090,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
     }
     else for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
+        ui->DossiersupTableView->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
         if (itm)
         {
@@ -3102,7 +3099,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
                 if (m_currentdossier == sdossier)
                 {
                     QModelIndex idx = m_dossiersmodel->index(i,1);
-                    ui->DossiersupTableView->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
+                    ui->DossiersupTableView->selectionModel()->select(idx,QItemSelectionModel::SelectCurrent);
                     ui->DossiersupTableView->scrollTo(idx, hint);
                     ui->OKupPushButton->setEnabled(true);
                     EnableDossiersButtons(m_currentdossier);
@@ -3158,6 +3155,9 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
                                                                                 //! quand un item est coché, le 1 du début est remplacé par 0
     pitem4->setFlags(Qt::NoItemFlags);
     m_docsmodel->setItem(row, 5, pitem4);
+
+    //! la suite est obligatoire poiur contourner un bug d'affichage sous MacOS
+    ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
 }
 
 void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
@@ -3187,6 +3187,9 @@ void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
         pitem1->setData(QPixmap(),Qt::DecorationRole);
     pitem1->setFlags(Qt::NoItemFlags);
     m_dossiersmodel->setItem(row,2, pitem1);
+
+    //! la suite est obligatoire poiur contourner un bug d'affichage
+    ui->DossiersupTableView->setColumnWidth(0,30);        // checkbox
 }
 
 // ----------------------------------------------------------------------------------
@@ -3300,7 +3303,6 @@ bool dlg_impressions::VerifDocumentPublic(Impression *doc, bool msg)
 // ----------------------------------------------------------------------------------
 void dlg_impressions::VerifDossiers()
 {
-    bool ok;
     for (int j=0; j<m_dossiersmodel->rowCount(); j++)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
@@ -3311,27 +3313,19 @@ void dlg_impressions::VerifDossiers()
                 DossierImpression *dossier = dynamic_cast<DossierImpression*>(itm->item());
                 if (dossier)
                 {
-                    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-                            " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id());
-                    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-                    if (listdocs.size() > 0)
+                    QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(dossier);
+                    bool a = false;
+                    for (int k=0; k<listid.size(); k++)
                     {
-                        QList<int> listid;
-                        for (int i=0; i<listdocs.size(); i++)
-                            listid << listdocs.at(i).at(0).toInt();
-                        bool a = false;
-                        for (int k=0; k<listid.size(); k++)
+                        for (int l=0; l<m_docsmodel->rowCount(); l++)
                         {
-                            for (int l=0; l<m_docsmodel->rowCount(); l++)
-                            {
-                                UpStandardItem *sitm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
-                                if (sitm->checkState() == Qt::Checked)
-                                {a = true;  break;}
-                            }
-                            if (a) break;
+                            UpStandardItem *sitm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(l,0));
+                            if (sitm->checkState() == Qt::Checked)
+                            {a = true;  break;}
                         }
-                        if (!a) itm->setCheckState(Qt::Unchecked);
+                        if (a) break;
                     }
+                    if (!a) itm->setCheckState(Qt::Unchecked);
                 }
             }
         }

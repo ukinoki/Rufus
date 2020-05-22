@@ -57,7 +57,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
                                                                                                     for (auto it = Datas::I()->motscles->motscles()->constBegin(); it != Datas::I()->motscles->motscles()->constEnd(); ++it)
                                                                                                     {
                                                                                                         MotCle *mc = const_cast<MotCle*>(it.value());
-                                                                                                        if (mc->motcle().startsWith(txt))
+                                                                                                        if (mc->motcle().toUpper().startsWith(txt.toUpper()))
                                                                                                         {
                                                                                                             selectcurrentMotCle(mc, QAbstractItemView::PositionAtCenter);
                                                                                                             break;
@@ -96,10 +96,10 @@ void dlg_listemotscles::keyPressEvent(QKeyEvent * event )
 // ----------------------------------------------------------------------------------
 void dlg_listemotscles::Annulation()
 {
-    int row = m_model->getRowFromItem(m_currentmotcle);
     wdg_tblview->setEditTriggers(QAbstractItemView::NoEditTriggers);
     if (m_mode == Creation || m_mode == Modification)
     {
+        int row = m_model->getRowFromItem(m_currentmotcle);
         if (m_mode == Modification && row < m_model->rowCount())
         {
             QModelIndex idx = m_model->index(row,1);
@@ -107,10 +107,9 @@ void dlg_listemotscles::Annulation()
             m_model->setData(idx, m_currentmotcle->motcle());
             EnableButtons(m_currentmotcle);
         }
-        else if (m_mode == Creation && m_currentmotcle)
+        else if (m_mode == Creation)
         {
             m_model->removeRow(row);
-            delete m_currentmotcle;
             if(m_model->rowCount() > 0 && row < m_model->rowCount())
                 selectcurrentMotCle(getMotCleFromIndex(m_model->index(row,1)));
         }
@@ -318,7 +317,8 @@ bool dlg_listemotscles::EnregistreMotCle(MotCle *mc)
         return false;
     wdg_tblview->closePersistentEditor(m_model->index(row,1));
     qApp->focusWidget()->clearFocus();   //permet de déclencher le focusout du delegate qui va lancer le signal commiData
-    QString motcle = m_textdelegate.left(80);
+    m_model->setData(m_model->index(row,1),m_textdelegate);
+    QString motcle = Utils::capitilize(m_textdelegate.left(80), true);
     // recherche de l'enregistrement modifié
     // controle validate des champs
     if (ChercheDoublon(motcle,row))
@@ -495,6 +495,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
     }
     else for (int i=0; i<m_model->rowCount(); i++)
     {
+        wdg_tblview->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
@@ -503,7 +504,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
                 if (mcs == m_currentmotcle)
                 {
                     QModelIndex idx = m_model->index(i,1);
-                    wdg_tblview->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::SelectCurrent);
+                    wdg_tblview->selectionModel()->select(idx,QItemSelectionModel::SelectCurrent);
                     wdg_tblview->scrollTo(idx, hint);
                     OKButton->setEnabled(true);
                     EnableButtons(m_currentmotcle);
@@ -524,6 +525,9 @@ void dlg_listemotscles::setMotCleToRow(MotCle *mc, int row)
     m_model->setItem(row,0,pitem0);
     QModelIndex index = m_model->index(row, 1, QModelIndex());
     m_model->setData(index, mc->motcle());
+
+    //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
+    wdg_tblview->setColumnWidth(0,30);        // checkbox
 }
 
 void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
