@@ -191,7 +191,6 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
     if (mode == Selection)
     {
         EnableLines();
-        wdg_tblview->setFocus();
         wdg_tblview->setStyleSheet("");
         wdg_buttonframe->wdg_modifBouton->setEnabled(false);
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
@@ -339,7 +338,11 @@ bool dlg_listemotscles::EnregistreMotCle(MotCle *mc)
         DataBase::I()->UpdateTable(TBL_MOTSCLES, m_listbinds, "where " CP_ID_MOTCLE " = " + QString::number(mc->id()));
         m_currentmotcle = Datas::I()->motscles->getById(idmc, true);
     }
-    m_model->sort(1);
+    if (m_currentmotcle)
+    {
+        m_model->sort(1);
+        selectcurrentMotCle(m_currentmotcle);
+    }
     return true;
 }
 
@@ -414,7 +417,7 @@ void dlg_listemotscles::RemplirTableView()
     for (int i=0; i<Datas::I()->motscles->motscles()->size(); i++)
     {
         MotCle *mc = Datas::I()->motscles->motscles()->values().at(i);
-        setMotCleToRow(mc,i);
+        setMotCleToRow(mc,i, false);
     }
     if (m_model->rowCount()>0)
     {
@@ -487,15 +490,12 @@ void dlg_listemotscles::RemplirTableView()
 
 void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::ScrollHint hint)
 {
+    wdg_tblview->selectionModel()->clear();
     m_currentmotcle = mc;
     if (!m_currentmotcle)
-    {
-        wdg_tblview->selectionModel()->clear();
         EnableButtons();
-    }
     else for (int i=0; i<m_model->rowCount(); i++)
     {
-        wdg_tblview->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
@@ -514,7 +514,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
     }
 }
 
-void dlg_listemotscles::setMotCleToRow(MotCle *mc, int row)
+void dlg_listemotscles::setMotCleToRow(MotCle *mc, int row, bool resizecolumn)
 {
     UpStandardItem *pitem0 = new UpStandardItem("", mc);
     pitem0->setCheckable(true);
@@ -525,9 +525,12 @@ void dlg_listemotscles::setMotCleToRow(MotCle *mc, int row)
     m_model->setItem(row,0,pitem0);
     QModelIndex index = m_model->index(row, 1, QModelIndex());
     m_model->setData(index, mc->motcle());
+    if(!resizecolumn)
+        return;
 
     //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
-    wdg_tblview->setColumnWidth(0,30);        // checkbox
+    wdg_tblview->setColumnWidth(0,30);
+    wdg_tblview->setColumnWidth(1,270);
 }
 
 void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
@@ -555,12 +558,11 @@ void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
         else
         {
             ConfigMode(Selection);
-            if (row < m_model->rowCount())
-            {
-                mc = getMotCleFromIndex(m_model->index(row,0));
-                if (mc)
-                    selectcurrentMotCle(mc);
-            }
+            if (row >= m_model->rowCount())
+                row = m_model->rowCount()-1;
+            mc = getMotCleFromIndex(m_model->index(row,0));
+            if (mc)
+                selectcurrentMotCle(mc);
         }
     }
 }

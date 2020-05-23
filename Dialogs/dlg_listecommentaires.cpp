@@ -238,7 +238,6 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
     {
         EnableLines();
         wdg_tblview->setEnabled(true);
-        wdg_tblview->setFocus();
         wdg_tblview->setStyleSheet("");
         wdg_buttonframe->wdg_modifBouton->setEnabled(false);
         wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
@@ -417,7 +416,11 @@ bool dlg_listecommentaires::EnregistreCommentaire(CommentLunet *com)
         DataBase::I()->UpdateTable(TBL_COMMENTAIRESLUNETTES, m_listbinds, "where " CP_ID_COMLUN " = " + QString::number(idcom));
         m_currentcomment = Datas::I()->commentslunets->getById(idcom, true);
     }
-    m_model->sort(1);
+    if (m_currentcomment)
+    {
+        m_model->sort(1);
+        selectcurrentComment(m_currentcomment);
+    }
     return true;
 }
 
@@ -500,7 +503,7 @@ void dlg_listecommentaires::RemplirTableView()
     for (int i=0; i<Datas::I()->commentslunets->commentaires()->size(); i++)
     {
         CommentLunet *com = Datas::I()->commentslunets->commentaires()->values().at(i);
-        setCommentToRow(com, i);
+        setCommentToRow(com, i, false);
     }
     if (m_model->rowCount()>0)
     {
@@ -576,15 +579,12 @@ void dlg_listecommentaires::RemplirTableView()
 
 void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractItemView::ScrollHint hint)
 {
+    wdg_tblview->selectionModel()->clear();
     m_currentcomment = com;
     if (!m_currentcomment)
-    {
-        wdg_tblview->selectionModel()->clear();
         EnableButtons();
-    }
     else for (int i=0; i<m_model->rowCount(); i++)
     {
-        wdg_tblview->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
@@ -603,7 +603,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
     }
 }
 
-void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row)
+void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row, bool resizecolumn)
 {
     if(!com)
         return;
@@ -625,9 +625,13 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row)
         pitem1->setData(QPixmap(),Qt::DecorationRole);
     pitem1->setFlags(Qt::NoItemFlags);
     m_model->setItem(row,2, pitem1);
+    if(!resizecolumn)
+        return;
 
     //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
-    wdg_tblview->setColumnWidth(0,30);        // checkbox
+    wdg_tblview->setColumnWidth(0,30);      // Check
+    wdg_tblview->setColumnWidth(1,380);     // Resumé
+    wdg_tblview->setColumnWidth(2,30);      // DefautIcon
 }
 
 // ----------------------------------------------------------------------------------
@@ -665,12 +669,11 @@ void dlg_listecommentaires::SupprimmCommentaire(CommentLunet* com)
         else
         {
             ConfigMode(Selection);
-            if (row < m_model->rowCount())
-            {
-                com = getCommentFromIndex(m_model->index(row,0));
-                if (com)
-                    selectcurrentComment(com);
-            }
+            if (row >= m_model->rowCount())
+                row = m_model->rowCount()-1;
+            com = getCommentFromIndex(m_model->index(row,0));
+            if (com)
+                selectcurrentComment(com);
         }
     }
 }

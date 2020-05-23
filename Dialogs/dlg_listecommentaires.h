@@ -65,7 +65,7 @@ private:
     void                        MenuContextuel();
     void                        RemplirTableView();
     void                        selectcurrentComment(CommentLunet *com, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
-    void                        setCommentToRow(CommentLunet *com, int row);
+    void                        setCommentToRow(CommentLunet *com, int row, bool resizecolumn = true);
     void                        SupprimmCommentaire(CommentLunet *com);
     void                        Validation();
 };

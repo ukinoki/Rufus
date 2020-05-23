@@ -60,7 +60,7 @@ private:
     void                MenuContextuel();
     void                RemplirTableView();
     void                selectcurrentMotCle(MotCle *mc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
-    void                setMotCleToRow(MotCle *mc, int row);
+    void                setMotCleToRow(MotCle *mc, int row, bool resizecolumn = true);
     void                SupprimeMotCle(MotCle *mc);
     void                Validation();
     void                VerifMC();

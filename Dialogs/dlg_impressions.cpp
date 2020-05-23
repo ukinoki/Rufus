@@ -48,7 +48,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
     connect (wdg_docsbuttonframe->searchline(), &QLineEdit::textEdited,                 this,   &dlg_impressions::FiltreListe);
-    connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::Validation);
+    connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::OKpushButtonClicked);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);
     connect (ui->dateImpressiondateEdit,        &QDateEdit::dateChanged,                this,   [=] {
         if (m_currentdocument)
@@ -1046,7 +1046,7 @@ void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
 // Clic sur le bouton OK.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_impressions::Validation()
+void dlg_impressions::OKpushButtonClicked()
 {
     int         c = 0;
     QStringList listQuestions, listtypeQuestions;
@@ -1871,7 +1871,6 @@ void dlg_impressions::ConfigMode(Mode mode)
         ui->DocPubliccheckBox           ->setEnabled(false);
         ui->DocPubliccheckBox           ->setToolTip("");
         ui->DocsupTableView             ->setEnabled(true);
-        ui->DocsupTableView             ->setFocus();
         ui->DocsupTableView             ->setStyleSheet("");
         wdg_dossiersbuttonframe         ->setEnabled(true);
         ui->DossiersupTableView         ->setEnabled(true);
@@ -1974,7 +1973,7 @@ void dlg_impressions::ConfigMode(Mode mode)
             {
                 QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(m_currentdossier);
                 Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
-                bool a= listid.contains(doc->id());
+                bool a = listid.contains(doc->id());
                 itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
                 itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
                 m_docsmodel->item(i,5)->setText((a?"0":"1") + doc->resume());
@@ -2009,11 +2008,22 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_docsbuttonframe->searchline()->clear();
         FiltreListe();
         DisableLines();
+        for (int i=0; i<m_dossiersmodel->rowCount(); i++)
+        {
+            QStandardItem *itm = m_dossiersmodel->item(i);
+            if (itm)
+                itm->setCheckState(Qt::Unchecked);
+        }
         for (int i=0; i<m_docsmodel->rowCount(); i++)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
             if (itm)
+            {
                 itm->setCheckState(Qt::Unchecked);
+                Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
+                if (doc)
+                    m_docsmodel->item(i,5)->setText("1" + doc->resume());
+            }
         }
         ui->DocPubliccheckBox->setChecked(false);
         ui->DocPubliccheckBox->setEnabled(true);
@@ -2068,7 +2078,7 @@ void dlg_impressions::ConfigMode(Mode mode)
                 itm->setCheckState(Qt::Unchecked);
                 Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
                 if (doc)
-                    m_docsmodel->item(i,5)->setText("0" + doc->resume());
+                    m_docsmodel->item(i,5)->setText("1" + doc->resume());
             }
         }
         m_docsmodel->sort(5);
@@ -2268,6 +2278,7 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     ui->DocsupTableView->closePersistentEditor(m_docsmodel->index(row,1));
     qApp->focusWidget()->clearFocus();
     QString resume = Utils::trimcapitilize(m_textdocdelegate, true, false, false).left(50);
+    resume = Utils::capitilize(resume, true);
     if (resume.length() < 1)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
@@ -2310,8 +2321,8 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
         DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
         m_currentdocument = Datas::I()->impressions->getById(m_currentdocument->id(), true);
     }
-
-    m_docsmodel->sort(1);
+    if(m_currentdocument)
+        m_docsmodel->sort(5);
     return true;
 }
 
@@ -2905,15 +2916,13 @@ void dlg_impressions::Remplir_TableView()
         ui->DocsupTableView->setGridStyle(Qt::DotLine);
 
         connect(ui->DocsupTableView,    &QAbstractItemView::entered,               this,   [&] (QModelIndex idx) {
-                                                                                                        int row = idx.row();
-                                                                                                        QToolTip::showText(cursor().pos(),m_docsmodel->item(row,5)->text());
                                                                                                         Impression *doc = getDocumentFromIndex(idx);
-                                                                                                        if (doc)
+                                                                                                        if (doc && idx.column() == 1)
                                                                                                             QToolTip::showText(cursor().pos(),DocumentToolTip(doc));
                                                                                                         } );
         connect(ui->DocsupTableView,    &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
                                                                                                         Impression *doc = getDocumentFromIndex(idx);
-                                                                                                        if (doc)
+                                                                                                        if (doc && idx.column() == 1)
                                                                                                         {
                                                                                                             m_currentdocument = doc;
                                                                                                             if(doc->iduser() == currentuser()->id() && m_mode == Selection)
@@ -2982,7 +2991,7 @@ void dlg_impressions::Remplir_TableView()
     i = 0;
     foreach (DossierImpression *dossier, *Datas::I()->metadocuments->dossiersimpressions())
     {
-        SetDossierToRow(dossier, i);
+        SetDossierToRow(dossier, i, false);
         i++;
     }
     if (m_dossiersmodel->rowCount()>0)
@@ -2999,12 +3008,12 @@ void dlg_impressions::Remplir_TableView()
         ui->DossiersupTableView->setGridStyle(Qt::NoPen);
         connect(ui->DossiersupTableView,    &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
                                                                                                         DossierImpression *dossier = getDossierFromIndex(idx);
-                                                                                                        if (dossier)
+                                                                                                        if (dossier && idx.column() == 1)
                                                                                                             QToolTip::showText(cursor().pos(),DossierToolTip(dossier));
                                                                                                         } );
         connect(ui->DossiersupTableView,    &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
                                                                                                         DossierImpression *dossier = getDossierFromIndex(idx);
-                                                                                                        if (dossier)
+                                                                                                        if (dossier && idx.column() == 1)
                                                                                                         {
                                                                                                             m_currentdossier = dossier;
                                                                                                             if(dossier->iduser() == currentuser()->id() && m_mode == Selection)
@@ -3052,15 +3061,12 @@ void dlg_impressions::selectAllDocuments()
 
 void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint)
 {
+    ui->DocsupTableView->selectionModel()->clear(); //! declenche le signal currentrowchanged et mcurrentdocument devient Q_NULLPTR
     m_currentdocument = doc;
     if (!m_currentdocument)
-    {
-        ui->DocsupTableView->selectionModel()->clear();
         EnableDocsButtons();
-    }
     else for (int i=0; i<m_docsmodel->rowCount(); i++)
     {
-        ui->DocsupTableView->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i));
         if (itm)
         {
@@ -3082,15 +3088,12 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
 
 void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstractItemView::ScrollHint hint)
 {
+    ui->DossiersupTableView->selectionModel()->clear(); //! declenche le signal currentrowchanged et mcurrentdocument devient Q_NULLPTR
     m_currentdossier = dossier;
     if (!m_currentdossier)
-    {
-        ui->DossiersupTableView->selectionModel()->clear();
         EnableDossiersButtons();
-    }
     else for (int i=0; i<m_dossiersmodel->rowCount(); i++)
     {
-        ui->DossiersupTableView->selectionModel()->clear();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
         if (itm)
         {
@@ -3109,7 +3112,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
     }
 }
 
-void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
+void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolumn)
 {
     if (!doc)
         return;
@@ -3155,12 +3158,19 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row)
                                                                                 //! quand un item est coché, le 1 du début est remplacé par 0
     pitem4->setFlags(Qt::NoItemFlags);
     m_docsmodel->setItem(row, 5, pitem4);
+    if(!resizecolumn)
+        return;
 
     //! la suite est obligatoire poiur contourner un bug d'affichage sous MacOS
     ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
+    ui->DocsupTableView->setColumnWidth(1,289);       // Resume
+    ui->DocsupTableView->setColumnWidth(2,30);        // Public   - affiche un check si document public
+    ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
+    ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
+    ui->DocsupTableView->setColumnWidth(5,0);         // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
 }
 
-void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
+void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool resizecolumn)
 {
     if(!dossier)
         return;
@@ -3187,9 +3197,13 @@ void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row)
         pitem1->setData(QPixmap(),Qt::DecorationRole);
     pitem1->setFlags(Qt::NoItemFlags);
     m_dossiersmodel->setItem(row,2, pitem1);
+    if(!resizecolumn)
+        return;
 
     //! la suite est obligatoire poiur contourner un bug d'affichage
     ui->DossiersupTableView->setColumnWidth(0,30);        // checkbox
+    ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
+    ui->DossiersupTableView->setColumnWidth(2,30);        // Public
 }
 
 // ----------------------------------------------------------------------------------
@@ -3216,13 +3230,15 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
         db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->impressions->SupprimeImpression(doc);
         if (row>-1 && row < m_docsmodel->rowCount())
-            m_docsmodel->removeRow(row);
+            m_docsmodel->removeRow(row); //! declenche le signal si la rox current est la row suppriméecurrentrowchanged et mcurrentdocument devient le document suivant ou qnullptre s'il n'y a pas de suivant
         if (m_docsmodel->rowCount() == 0)
             ConfigMode(CreationDOC);
         else
         {
             ConfigMode(Selection);
-            if (row < m_docsmodel->rowCount())
+            if (row >= m_docsmodel->rowCount())
+                row = m_docsmodel->rowCount()-1;
+            if(m_docsmodel->rowCount()>0)
             {
                 doc = getDocumentFromIndex(m_docsmodel->index(row,0));
                 if (doc)
@@ -3256,18 +3272,17 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
         db->SupprRecordFromTable(dossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->metadocuments->SupprimeDossierImpression(dossier);
         if (row > -1 && row < m_dossiersmodel->rowCount())
-            m_dossiersmodel->removeRow(row);
+            m_dossiersmodel->removeRow(row); //! declenche le signal currentrowchanged et mcurrentdosier devient le dossier suivanr ou qnullptre s'il n'y a pas de suivant
         if (m_docsmodel->rowCount() == 0)
             ConfigMode(CreationDOC);
         else
         {
             ConfigMode(Selection);
-            if (row < m_dossiersmodel->rowCount())
-            {
-                dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
-                if (dossier)
-                    selectcurrentDossier(dossier);
-            }
+            if (row >= m_dossiersmodel->rowCount())
+                row = m_dossiersmodel->rowCount()-1;
+            dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
+            if (dossier)
+                selectcurrentDossier(dossier);
         }
     }
 }

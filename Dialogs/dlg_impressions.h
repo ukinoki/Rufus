@@ -124,11 +124,11 @@ private:
     void                        selectAllDocuments();
     void                        selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        selectcurrentDossier(DossierImpression *dossier, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
-    void                        SetDocumentToRow(Impression *doc, int row);
-    void                        SetDossierToRow(DossierImpression *dossier, int row);
+    void                        SetDocumentToRow(Impression *doc, int row, bool resizecolumn = true);
+    void                        SetDossierToRow(DossierImpression *dossier, int row, bool resizecolumn = true);
     void                        SupprimmeDocument(Impression* doc);
     void                        SupprimmeDossier(DossierImpression *dossier);
-    void                        Validation();
+    void                        OKpushButtonClicked();
     void                        VerifCoherencedlg_ask();
     bool                        VerifDocumentPublic(Impression *doc, bool msg = true);
     void                        VerifDossiers();
