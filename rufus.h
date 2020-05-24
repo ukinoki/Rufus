@@ -263,9 +263,9 @@ private:
     QDialog                 *dlg_msgRepons, *dlg_msgDialog;
     QSystemTrayIcon         *ict_messageIcon;
 
-    ImportDocsExternesThread        *m_importdocsexternesthread = Q_NULLPTR;
+    ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;
     bool                    isPosteImport();
-    bool                    m_isposteImport;
+    bool                    m_isposteImport = false;
     bool                    m_pasDExportPourLeMoment = false;
     UpSmallButton           *wdg_modifIdentificationupSmallButton;
 

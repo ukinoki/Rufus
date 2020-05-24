@@ -30,7 +30,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
           " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idlieuExercice);
     -> listdocs.at(i).at(0) = le titre de l'examen
     -> listdocs.at(i).at(1) = le nom de l'appareil*/
-    if (m_encours == true)
+    if (m_encours)
         return;
     m_encours = true;
     m_listemessages.clear();

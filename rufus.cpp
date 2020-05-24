@@ -173,7 +173,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     t_timerPosteConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
 
-    if (!m_utiliseTCP)
+    if (!m_utiliseTCP)  //! pas de rufusadmin ou accès distant
     {
         m_flagcorrespondants    = Flags::I()->flagCorrespondants();
         m_flagsalledattente     = Flags::I()->flagSalleDAttente();
@@ -2338,11 +2338,16 @@ void Rufus::ImportDocsExternes()
 {
     if (isPosteImport())
     {
+        if (m_importdocsexternesthread == Q_NULLPTR)
+        {
+            m_importdocsexternesthread = new ImportDocsExternesThread();
+            connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
+        }
         QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
                       " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
         //qDebug()<< req;
         QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
-        if (m_ok && listdocs.size()>0)
+        if (m_ok && listdocs.size()>0 && m_importdocsexternesthread != Q_NULLPTR)
             m_importdocsexternesthread->RapatrieDocumentsThread(listdocs);
     }
 }
@@ -5648,11 +5653,6 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         */
     if (db->ModeAccesDataBase() == Utils::Distant)
     {
-        if (m_importdocsexternesthread == Q_NULLPTR)
-        {
-            m_importdocsexternesthread = new ImportDocsExternesThread();
-            connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
-        }
         m_isposteImport = true;
         return;
     }
@@ -5688,7 +5688,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
             }
             if (idx<0)
             {
-                /*Le poste défini comme importateur des docs externes n'est pas connecté,
+                /*! Le poste défini comme importateur des docs externes n'est pas connecté,
                  on prend la place si
                     on n'est pas en accès distant
                     et si on est importateur
@@ -5696,11 +5696,11 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
                 proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
             }
             else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEUR))
-                // le poste défini comme importateur est valide mais pas administrateur, on prend sa place si
-                //  on est prioritaire et pas lui
-                //  à condition de ne pas être en accès distant
+                /*! le poste défini comme importateur est valide mais pas administrateur, on prend sa place si
+                    on est prioritaire et pas lui
+                    à condition de ne pas être en accès distant */
             {
-                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire") && db->ModeAccesDataBase() != Utils::Distant)
+                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire"))
                     proc->setPosteImportDocs();
                 else if (ImportateurDocs.remove(" - prioritaire") == QHostInfo::localHostName()) // cas rare du poste qui a modifié son propre statut
                     proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
@@ -5712,15 +5712,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     if (chgtstatut)
     {
         if (isPosteImport())
-        {
             connect(t_timerExportDocs,           &QTimer::timeout,   this,   &Rufus::ExporteDocs);
-            if (m_importdocsexternesthread == Q_NULLPTR)
-                if (proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
-                {
-                    m_importdocsexternesthread = new ImportDocsExternesThread();
-                    connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
-                }
-        }
         else
             t_timerExportDocs->disconnect();
     }

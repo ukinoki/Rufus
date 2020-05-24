@@ -553,7 +553,8 @@ void dlg_bilanrecettes::ExportTable()
             ExportEtat.append(rec->payeur() + sep);                                                         // NomPrenom
             ExportEtat.append(rec->cotationacte() + sep);                                                   // Cotation
             ExportEtat.append(QString::number(rec->montant()) + sep);                                       // Montant
-            ExportEtat.append(Utils::ConvertitModePaiement(rec->modepaiement()) + sep);                     // Mode de paiement
+            QString A = (rec->modepaiement() == "T"? rec->typetiers() : rec->modepaiement());               // Mode de paiement
+            ExportEtat.append(Utils::ConvertitModePaiement(A) + sep);
             ExportEtat.append(QString::number(rec->encaissement()) + sep);                                  // Reçu
             double diversrec = (rec->isautrerecette()? rec->encaissementautrerecette() : 0.0);
             ExportEtat.append(QString::number(diversrec) + sep);                                            // divers et eutres recettes
@@ -628,11 +629,8 @@ void dlg_bilanrecettes::RemplitLaTable()
         pitem3 = new UpStandardItem(A, rec);
         pitem3->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
 
-        A = rec->modepaiement();                                                                    // Mode de paiement - col = 4
-        QString B = A;
-        if (A == "T")
-            B = rec->typetiers();
-        pitem4 = new UpStandardItem(Utils::ConvertitModePaiement(B), rec);
+        A = (rec->modepaiement() == "T"? rec->typetiers() : rec->modepaiement());                   // Mode de paiement - col = 4
+        pitem4 = new UpStandardItem(Utils::ConvertitModePaiement(A), rec);
 
         double C = rec->encaissement();                                                             // Reçu- col = 5
         pitem5 = new UpStandardItem(QLocale().toString(C,'f',2), rec);
