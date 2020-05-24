@@ -263,7 +263,7 @@ private:
     QDialog                 *dlg_msgRepons, *dlg_msgDialog;
     QSystemTrayIcon         *ict_messageIcon;
 
-    ImportDocsExternesThread        *m_importdocsexternesthread;
+    ImportDocsExternesThread        *m_importdocsexternesthread = Q_NULLPTR;
     bool                    isPosteImport();
     bool                    m_isposteImport;
     bool                    m_pasDExportPourLeMoment = false;

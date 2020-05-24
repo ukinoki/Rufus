@@ -30,7 +30,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
           " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idlieuExercice);
     -> listdocs.at(i).at(0) = le titre de l'examen
     -> listdocs.at(i).at(1) = le nom de l'appareil*/
-    if (m_encours)
+    if (m_encours == true)
         return;
     m_encours = true;
     m_listemessages.clear();
@@ -291,6 +291,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     Typedoc     = "OCT";
                     SousTypeDoc = "Zeiss";
                 }
+                else if (Appareil == "ION Imaging")
+                {
+                    //! 37214_0D_20200522_1848188838.01.e.jpg
+                    if (nomdoc.split("_").size()>1)
+                        datestring = nomdoc.split("_").at(2);
+                    Titredoc    = "Photo - ION";
+                    Typedoc     = "Imgerie SA";
+                    SousTypeDoc = "ION";
+                }
                 if (!QDate().fromString(datestring,"yyyyMMdd").isValid())
                 {
                     commentechec =  tr("date invalide") + " -> " + datestring;
@@ -432,6 +441,11 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                 else if (Appareil == "ZEISS CIRRUS 5000")
                 {
                     idPatient           = nomdoc.split("_").at(3);
+                }
+                else if (Appareil == "ION Imaging")
+                {
+                    //! 37214_0D_20200522_1848188838.01.e.jpg
+                    idPatient           = nomdoc.split("_").at(0);
                 }
                 bool b=true;
                 if (idPatient.toInt(&b)<1)
