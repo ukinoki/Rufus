@@ -622,10 +622,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1(), 'f', 4));
         if (m_currentIOL->haigisa2() > 0.0)
             wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2(), 'f', 4));
-        if (m_currentIOL->pwrmax() > 0.0)
-            wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
-        if (m_currentIOL->pwrmin() > 0.0)
-            wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
+        wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
+        wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
         if (m_currentIOL->materiau() != "")
             wdg_materiaubox ->setCurrentText(m_currentIOL->materiau());
         else
@@ -830,6 +828,7 @@ void dlg_identificationIOL::NavigueVers(QString but)
 
 void dlg_identificationIOL::OKpushButtonClicked()
 {
+    qApp->focusWidget()->clearFocus();
     if (wdg_nomiolline->text() == "")
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas indiqué le modèle d'implant!"));

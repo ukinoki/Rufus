@@ -516,6 +516,10 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
 
 void dlg_listemotscles::setMotCleToRow(MotCle *mc, int row, bool resizecolumn)
 {
+    if (!mc)
+        return;
+    if (row < 0 || row > m_model->rowCount()-1)
+        return;
     UpStandardItem *pitem0 = new UpStandardItem("", mc);
     pitem0->setCheckable(true);
     if (m_listidmotsclesdepart.contains(mc->id()))

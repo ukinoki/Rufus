@@ -1211,6 +1211,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     disconnect(dlg_intervention->CancelButton,   &QPushButton::clicked, dlg_intervention, &UpDialog::reject);
     connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [&]
     {
+        qApp->focusWidget()->clearFocus();
         if (!timeedit->time().isValid())
         {
             UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié une heure valide"));

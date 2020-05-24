@@ -2314,15 +2314,18 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     {
         delete m_currentdocument;
         m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
-        SetDocumentToRow(m_currentdocument, row);
     }
     else if (m_mode == ModificationDOC)
     {
         DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
         m_currentdocument = Datas::I()->impressions->getById(m_currentdocument->id(), true);
+        row = m_docsmodel->getRowFromItem(m_currentdocument);
     }
     if(m_currentdocument)
+    {
+        SetDocumentToRow(m_currentdocument,row);
         m_docsmodel->sort(5);
+    }
     return true;
 }
 
@@ -3116,6 +3119,8 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
 {
     if (!doc)
         return;
+    if (row < 0 || row > m_docsmodel->rowCount()-1)
+        return;
 
     QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
@@ -3173,6 +3178,8 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
 void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool resizecolumn)
 {
     if(!dossier)
+        return;
+    if (row < 0 || row > m_dossiersmodel->rowCount()-1)
         return;
     QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();

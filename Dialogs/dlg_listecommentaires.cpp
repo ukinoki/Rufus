@@ -607,6 +607,8 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row, bool res
 {
     if(!com)
         return;
+    if (row < 0 || row > m_model->rowCount()-1)
+        return;
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
     UpStandardItem *pitem0 = new UpStandardItem("", com);
