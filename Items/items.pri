@@ -13,6 +13,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_iol.cpp \
     $$PWD/cls_lignecompte.cpp \
     $$PWD/cls_manufacturer.cpp \
+    $$PWD/cls_message.cpp \
     $$PWD/cls_motcle.cpp \
     $$PWD/cls_patient.cpp \
     $$PWD/cls_posteconnecte.cpp \
@@ -46,6 +47,7 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_item.h \
     $$PWD/cls_lignecompte.h \
     $$PWD/cls_manufacturer.h \
+    $$PWD/cls_message.h \
     $$PWD/cls_motcle.h \
     $$PWD/cls_patient.h \
     $$PWD/cls_posteconnecte.h \

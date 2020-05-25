@@ -47,7 +47,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + m_pathdirstockageimagerie + "</b></font>" + tr(" n'existe pas");
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet \"ce poste\" /Onglet \"") + NomOnglet + "</b></font>";
-        Message::I()->SplashMessage(msg, 6000);
+        ShowMessage::I()->SplashMessage(msg, 6000);
         m_initok = false;
         return;
     }
@@ -321,7 +321,7 @@ void dlg_docsscanner::ValideFiche()
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-        Message::I()->SplashMessage(msg, 3000);
+        ShowMessage::I()->SplashMessage(msg, 3000);
         return;
     }
 

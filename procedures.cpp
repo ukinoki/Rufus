@@ -387,7 +387,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
-        Message::I()->ClosePriorityMessage(handle);
+        ShowMessage::I()->ClosePriorityMessage(handle);
         proc->emit ConnectTimers(true);
     };
     if (QDir(m_parametres->dirimagerieserveur()).exists())
@@ -408,7 +408,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     if (verifmdp)
         if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
             return false;
-    Message::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
+    ShowMessage::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
     emit ConnectTimers(false);
 
     if (OKBase)
@@ -454,7 +454,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
-        Message::I()->ClosePriorityMessage(handle);
+        ShowMessage::I()->ClosePriorityMessage(handle);
         proc->emit ConnectTimers(true);
     };
     QString msgEchec = tr("Incident pendant la sauvegarde");
@@ -2733,7 +2733,7 @@ bool Procedures::VerifBaseEtRessources()
                                                                             tr("Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
                                                                             tr("Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin"));
             }
-            Message::I()->SplashMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
+            ShowMessage::I()->SplashMessage(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
             int a = 99;
@@ -2796,7 +2796,7 @@ bool Procedures::VerifBaseEtRessources()
         PremierParametrageRessources();
         m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
         m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
-        Message::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
+        ShowMessage::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
     }
     return true;
 }

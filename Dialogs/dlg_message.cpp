@@ -17,19 +17,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_message.h"
 
-Message* Message::instance = Q_NULLPTR;
-Message* Message::I()
+ShowMessage* ShowMessage::instance = Q_NULLPTR;
+ShowMessage* ShowMessage::I()
 {
     if( !instance )
-        instance = new Message();
+        instance = new ShowMessage();
     return instance;
 }
-Message::Message()
+ShowMessage::ShowMessage()
 {
     idprioritymessage = 0;
 }
 
-void Message::SplashMessage(QString msg, int duree)
+void ShowMessage::SplashMessage(QString msg, int duree)
 {
     QDialog *dlg = new QDialog();
     dlg                 ->setAttribute(Qt::WA_DeleteOnClose);
@@ -75,7 +75,7 @@ void Message::SplashMessage(QString msg, int duree)
     QTimer::singleShot(duree, dlg, &QDialog::reject);
 }
 
-void Message::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidget *parent)
+void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidget *parent)
 {
     idprioritymessage ++;
     idmessage           = idprioritymessage;
@@ -119,7 +119,7 @@ void Message::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidge
     if (parent != Q_NULLPTR)
         parent->setEnabled(false);
     Utils::Pause(500);
-    connect(this,   &Message::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
+    connect(this,   &ShowMessage::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
             if (prioritydlg->parent() != Q_NULLPTR)
                 static_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
             prioritydlg->reject();

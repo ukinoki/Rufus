@@ -38,18 +38,18 @@ int pause       = la durée d'affichage du message en ms (1000 par défaut)
 bool bottom     = si true le message est affiché en bas à droite de l'écran, sinon, en plein centre (en bas à droite par défaut)
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN
 */
-class Message : public QObject
+class ShowMessage : public QObject
 {
     Q_OBJECT
 private:
     qintptr         idprioritymessage;
     QWidget         *m_parent = Q_NULLPTR;
-    static Message *instance;
-    Message();
+    static ShowMessage *instance;
+    ShowMessage();
     void            LogMessage(QString msg);
 
 public:
-    static Message* I();
+    static ShowMessage* I();
     void SplashMessage(QString msg, int duree = 3000);
     void SplashMessage(QStringList listmsg, int duree = 3000)
     {

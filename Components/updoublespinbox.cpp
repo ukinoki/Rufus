@@ -93,7 +93,7 @@ void UpDoubleSpinBox::CorrigeDioptrie(int UpDownNear)
                     || singleStep() == 0.50)
                 {
                     QSound::play("://goutte.wav");
-                    Message::I()->SplashMessage(tr("Valeur non conforme arrondie à la\nvaleur conforme la plus proche!"), 500);
+                    ShowMessage::I()->SplashMessage(tr("Valeur non conforme arrondie à la\nvaleur conforme la plus proche!"), 500);
                 }
             setValue(round(c/10)*singleStep());
         }

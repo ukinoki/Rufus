@@ -316,7 +316,7 @@ private:
     void                MonteUneLigne();
     void                Monte20Lignes();
     QMap<QString, QVariant>
-                        MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
+                        MotifRDV(QString Motif = "", QString ShowMessage = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(DocsExternes *docs);

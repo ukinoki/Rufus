@@ -51,7 +51,7 @@ public:
     //!> actions sur les enregistrements
     void                SupprimePatientEnCours(PatientEnCours *pat);
     PatientEnCours*     CreationPatient(int idPat, User *usr , QString Statut, QTime heureStatut, QTime heureRDV = QTime(),
-                                        QTime heureArrivee = QTime(), QString Motif = "", QString Message = "", int idActeAPayer = 0, QString PosteExamen = "",
+                                        QTime heureArrivee = QTime(), QString Motif = "", QString ShowMessage = "", int idActeAPayer = 0, QString PosteExamen = "",
                                         int idUserEnCours = 0, int idSalDat = 0);
 
     //!< action sur toutes les données
