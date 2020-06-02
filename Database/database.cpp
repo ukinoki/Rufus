@@ -3069,7 +3069,7 @@ QList<Commercial *> DataBase::loadCommercialsByIdManufacturer(int idmanufacturer
 }
 
 /*
- * Manufacturers
+ * Mots cles
 */
 
 QJsonObject DataBase::loadMotCleData(QVariantList Motcledata)         //! attribue la liste des datas à un mot clé
@@ -3126,4 +3126,127 @@ QList<int> DataBase::loadListIdMotsClesByPat(int idpat)                         
     for (int i=0; i<idslist.size(); ++i)
         listid << idslist.at(i).at(0).toInt();
     return listid;
+}
+
+/*
+ * Messages
+*/
+
+QJsonObject DataBase::loadMessageData(QVariantList msgdata)         //! attribue la liste des datas à un message
+{
+    QJsonObject data{};
+    data[CP_ID_MSG]             = msgdata.at(0).toInt();
+    data[CP_IDEMETTEUR_MSG]     = msgdata.at(1).toInt();
+    data[CP_IDEMETTEUR_MSG]     = msgdata.at(1).toInt();
+    data[CP_TEXT_MSG]           = msgdata.at(2).toString();
+    data[CP_IDPATIENT_MSG]      = msgdata.at(3).toInt();
+    data[CP_TACHE_MSG]          = msgdata.at(4).toInt() == 1;
+    data[CP_DATELIMITE_MSG]     = msgdata.at(5).toDate().toString("yyyy-MM-dd");
+    data[CP_DATECREATION_MSG]   = QDateTime(msgdata.at(5).toDate(), msgdata.at(5).toTime()).toMSecsSinceEpoch();
+    data[CP_URGENT_MSG]         = msgdata.at(7).toInt() == 1;
+    data[CP_ENREPONSEA_MSG]     = msgdata.at(8).toInt();
+    data[CP_ASUPPRIMER_MSG]     = msgdata.at(9).toInt() == 1;
+    if (msgdata.size() == 10)
+        return data;
+    data[CP_LU_JOINTURESMSG]    = msgdata.at(10).toInt() == 1;
+    data[CP_FAIT_JOINTURESMSG]  = msgdata.at(11).toInt() == 1;
+    data[CP_ID_JOINTURESMSG]    = msgdata.at(12).toInt();
+    data[CP_IDDESTINATAIRE_JOINTURESMSG] = msgdata.at(13).toInt();
+    return data;
+}
+
+QList<Message*> DataBase::loadMessagesRecusByIdUser(int id)                     //! charge tous les messages reçus par un utilisateur
+{
+    QList<Message*> list = QList<Message*> ();
+    QString req =
+        "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
+            CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG ", "
+            CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG " from "
+        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
+        " where \n"
+        CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(id) + "\n"
+        " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
+    //proc->Edit(req);
+    QList<QVariantList> msglist = StandardSelectSQL(req, ok);
+    if(!ok || msglist.size()==0)
+        return list;
+    for (int i=0; i<msglist.size(); ++i)
+    {
+        QJsonObject data = loadMessageData(msglist.at(i));
+        Message *msg = new Message(data);
+        if (msg)
+            list << msg;
+    }
+    return list;
+}
+
+QList<Message*> DataBase::loadMessagesEnvoyesByIdUser(int id)                     //! charge tous les messages envoyes par un utilisateur
+{
+    QList<Message*> list = QList<Message*> ();
+    QString req =
+        "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
+                CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG ", "
+                CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG " from "
+        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint \n"
+        " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
+        " where " CP_IDEMETTEUR_MSG " = " + QString::number(id) + "\n"
+        " and " CP_ASUPPRIMER_MSG " is null\n"
+        " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
+    //proc->Edit(req);
+    QList<QVariantList> msglist = StandardSelectSQL(req, ok);
+    if(!ok || msglist.size()==0)
+        return list;
+    for (int i=0; i<msglist.size(); ++i)
+    {
+        QJsonObject data = loadMessageData(msglist.at(i));
+        Message *msg = new Message(data);
+        if (msg)
+            list << msg;
+    }
+    return list;
+}
+
+QList<Message*> DataBase::loadAllMessagesByIdUser(int id)                     //! charge tous les messages reçus ou envoyes par un utilisateur
+{
+    QList<Message*> list = QList<Message*> ();
+    QString req =
+            "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
+                    CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG ", "
+                    CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG " from "
+            TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint"
+            " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
+            " where \n"
+            CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(id) + "\n"
+            " or (" CP_IDEMETTEUR_MSG " = " + QString::number(id) +
+            " and " CP_ASUPPRIMER_MSG " is null)"
+            " order by " CP_DATECREATION_MSG;
+    //proc->Edit(req);
+    QList<QVariantList> msglist = StandardSelectSQL(req, ok);
+    if(!ok || msglist.size()==0)
+        return list;
+    for (int i=0; i<msglist.size(); ++i)
+    {
+        QJsonObject data = loadMessageData(msglist.at(i));
+        Message *msg = new Message(data);
+        if (msg)
+            list << msg;
+    }
+    return list;
+}
+
+Message* DataBase::loadMessageById(int idmessage)                     //! charge tous les messages envoyes par un utilisateur
+{
+    Message *msg = Q_NULLPTR;
+    QList<Message*> list = QList<Message*> ();
+    QString req =
+        "select " CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
+                CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG " from "
+        TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmessage);
+    //proc->Edit(req);
+    QVariantList msgdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || msgdata.size()==0)
+        return msg;
+    QJsonObject data = loadMessageData(msgdata);
+    msg = new Message(data);
+    return msg;
 }

@@ -31,6 +31,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     MotCle *motcle              = Q_NULLPTR;
     Impression *impr            = Q_NULLPTR;
     DossierImpression *dossier  = Q_NULLPTR;
+    Message *msg                = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
@@ -199,6 +200,12 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         dossier = dynamic_cast<DossierImpression*>(item);
         if (dossier)
+        {
+            loop = true;
+            break;
+        }
+        msg = dynamic_cast<Message*>(item);
+        if (msg)
         {
             loop = true;
             break;
@@ -1272,6 +1279,66 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             bool a = newvalue.toBool();
             dossier->setpublic(a);
+            newvalue = (a? "1" : "null");
+        }
+    }
+    else if (msg)
+    {
+        ok = true;
+        table = TBL_MESSAGES;
+        clause = CP_ID_MSG " = " + QString::number(dossier->id());
+#define CP_TACHE_MSG                                    "Tache"
+#define CP_DATELIMITE_MSG                               "DateLimite"
+#define CP_DATECREATION_MSG                             "CreeLe"
+#define CP_URGENT_MSG                                   "Urge"
+#define CP_ENREPONSEA_MSG                               "ReponseA"
+#define CP_ASUPPRIMER_MSG                               "ASupprimer"
+        if (field == CP_IDEMETTEUR_MSG)
+        {
+            msg->setidemetteur(newvalue.toInt());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_TEXT_MSG)
+        {
+            msg->settexte(newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_IDPATIENT_MSG)
+        {
+            msg->setidpatient(newvalue.toInt());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_TACHE_MSG)
+        {
+            bool a = newvalue.toBool();
+            msg->settache(a);
+            newvalue = (a? "1" : "null");
+        }
+        if (field == CP_DATELIMITE_MSG )
+        {
+            msg->setdatelimite(newvalue.toDate());
+            Utils::CalcDateValueSQL(newvalue);
+        }
+        if (field == CP_DATECREATION_MSG )
+        {
+            msg->setdatecreation(newvalue.toDateTime());
+            Utils::CalcDateTimeValueSQL(newvalue);
+        }
+        else if (field == CP_URGENT_MSG)
+        {
+            bool a = newvalue.toBool();
+            msg->seturgent(a);
+            newvalue = (a? "1" : "null");
+        }
+        else if (field == CP_ENREPONSEA_MSG)
+        {
+            msg->setidreponsea(newvalue.toInt());
+            Utils::CalcStringValueSQL(newvalue);
+        }
+        else if (field == CP_ASUPPRIMER_MSG)
+        {
+            bool a = newvalue.toBool();
+            msg->setasupprimer(a);
             newvalue = (a? "1" : "null");
         }
     }

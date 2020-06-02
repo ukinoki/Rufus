@@ -33,10 +33,14 @@ void Message::setData(QJsonObject data)
     Utils::setDataInt(data, CP_IDPATIENT_MSG, m_idpatient);
     Utils::setDataBool(data, CP_TACHE_MSG, m_istache);
     Utils::setDataDate(data, CP_DATELIMITE_MSG, m_datelimite);
-    Utils::setDataDate(data, CP_DATECREATION_MSG, m_datecreation);
+    Utils::setDataDateTime(data, CP_DATECREATION_MSG, m_datecreation);
     Utils::setDataBool(data, CP_URGENT_MSG, m_isurgent);
     Utils::setDataInt(data, CP_ENREPONSEA_MSG, m_idreponsea);
     Utils::setDataBool(data, CP_ASUPPRIMER_MSG, m_isasupprimer);
+    Utils::setDataBool(data, CP_LU_JOINTURESMSG, m_islu);
+    Utils::setDataBool(data, CP_FAIT_JOINTURESMSG, m_isfait);
+    Utils::setDataInt(data, CP_ID_JOINTURESMSG, m_idjointure);
+    Utils::setDataInt(data, CP_IDDESTINATAIRE_JOINTURESMSG, m_iddestinataire);
     m_data = data;
 }
 
@@ -49,10 +53,14 @@ void Message::resetdatas()
     data[CP_IDPATIENT_MSG]      = 0;
     data[CP_TACHE_MSG]          = false;
     data[CP_DATELIMITE_MSG]     = QDate(1900,1,1).toString("yyyy-MM-dd");
-    data[CP_DATECREATION_MSG]   = QDate(1900,1,1).toString("yyyy-MM-dd");
+    data[CP_DATECREATION_MSG]   = QDateTime(QDate(1900,1,1),QTime(0,0)).toMSecsSinceEpoch();
     data[CP_URGENT_MSG]         = false;
     data[CP_ENREPONSEA_MSG]     = 0;
     data[CP_ASUPPRIMER_MSG]     = false;
+    data[CP_LU_JOINTURESMSG]    = false;
+    data[CP_FAIT_JOINTURESMSG]  = false;
+    data[CP_ID_JOINTURESMSG]    = 0;
+    data[CP_IDDESTINATAIRE_JOINTURESMSG]    = 0;
     setData(data);
 }
 

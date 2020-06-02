@@ -33,25 +33,33 @@ private: //Données du message
     int m_idpatient             = 0;                //! id du patient concerné par le message
     bool m_istache              = false;            //! le message concerne une tâche à effectuer
     QDate m_datelimite          = QDate();          //! le message a une date limite (pour une tâche à effectuer p.e.)
-    QDate m_datecreation        = QDate();          //! la date de création du messafe
+    QDateTime m_datecreation    = QDateTime();      //! la date de création du messafe
     bool m_isurgent             = false;            //! le message est urgent
     int m_idreponsea            = 0;                //! l'e'id de l'utilisateur à qui répond le message
     bool m_isasupprimer         = false;            //! le message est à supprimer
+    bool m_islu                 = false;            //! le message a été lu
+    bool m_isfait               = false;            //! la tache concernée par le message a été effectuée
+    int m_idjointure            = 0;                //! id de la jointure du message
+    int m_iddestinataire        = 0;                //! id du destinataire
 
 public:
 
     void resetdatas();
     bool isnull() const                     { return m_id == 0; }
 
-    int idemetteurr() const                 { return m_idemetteur; }
+    int idemetteur() const                  { return m_idemetteur; }
     QString texte() const                   { return m_text; }
     int idpatient() const                   { return m_idpatient; }
     bool istache() const                    { return m_istache;  }
     QDate datelimite() const                { return m_datelimite; }
-    QDate datecreation() const              { return m_datecreation; }
+    QDateTime datecreation() const          { return m_datecreation; }
     bool isurgent() const                   { return m_isurgent; }
     int idreponsea() const                  { return m_idreponsea; }
     bool isasupprimer() const               { return m_isasupprimer; }
+    bool islu() const                       { return m_islu; }
+    bool isfait() const                     { return m_isfait; }
+    int idjointure() const                  { return m_idjointure; }
+    int iddestinataire() const              { return m_iddestinataire; }
 
     void setidemetteur(int id)              { m_idemetteur = id;
                                               m_data[CP_IDEMETTEUR_MSG] = id; }
@@ -59,18 +67,26 @@ public:
                                               m_data[CP_TEXT_MSG] = txt; }
     void setidpatient(int idpatient)        { m_idpatient = idpatient;
                                               m_data[CP_IDPATIENT_MSG] = idpatient; }
-    void setistache(bool istache)           { m_istache = istache;
+    void settache(bool istache)             { m_istache = istache;
                                               m_data[CP_TACHE_MSG] = istache; }
     void setdatelimite(const QDate &date)   { m_datelimite = date;
                                               m_data[CP_DATELIMITE_MSG] = date.toString("yyyy-MM-dd"); }
-    void setdatecreation(const QDate &date) { m_datecreation = date;
+    void setdatecreation(const QDateTime &date) { m_datecreation = date;
                                               m_data[CP_DATECREATION_MSG] = date.toString("yyyy-MM-dd"); }
-    void setisurgent(bool logic)            { m_isurgent = logic;
+    void seturgent(bool logic)              { m_isurgent = logic;
                                               m_data[CP_URGENT_MSG] = logic; }
     void setidreponsea(int id)              { m_idreponsea = id;
                                               m_data[CP_ENREPONSEA_MSG] = id; }
-    void setisasupprimer(bool logic)        { m_isasupprimer = logic;
+    void setasupprimer(bool logic)          { m_isasupprimer = logic;
                                               m_data[CP_ASUPPRIMER_MSG] = logic; }
+    void setlu(bool logic)                  { m_islu = logic;
+                                              m_data[CP_LU_JOINTURESMSG] = logic; }
+    void setfait(bool logic)                { m_isfait = logic;
+                                              m_data[CP_FAIT_JOINTURESMSG] = logic; }
+    void setidjointure(int id)              { m_idjointure = id;
+                                             m_data[CP_ID_JOINTURESMSG] = id; }
+    void setiddestinataire(int id)          { m_iddestinataire = id;
+                                              m_data[CP_IDDESTINATAIRE_JOINTURESMSG] = id; }
 };
 
 #endif // MESSAGE_H

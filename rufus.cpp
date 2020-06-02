@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("25-05-2020/1");
+    qApp->setApplicationVersion("02-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -4418,7 +4418,6 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 
 void Rufus::VerifSendMessage(int idMsg)
 {
-    //TODO : SQL
     if (dlg_ask->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"), Icons::icSunglasses(), 2000);
@@ -4437,154 +4436,68 @@ void Rufus::VerifSendMessage(int idMsg)
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de choisir un destinataire!"),Icons::icSunglasses(), 2000);
         return;
     }
-    QStringList locklist;
-    locklist <<  TBL_MESSAGES << TBL_MESSAGESJOINTURES << TBL_FLAGS;
-    db->createtransaction(locklist);
+    QHash<QString, QVariant> m_listbinds;
+    m_listbinds[CP_IDEMETTEUR_MSG]  = currentuser()->id();
+    m_listbinds[CP_TEXT_MSG]        = dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml();
+    int idpat = 0;
+    int ncheck = dlg_ask->findChildren<UpCheckBox*>().size();
+    for (int i=0; i<ncheck; i++)
+        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="AboutPatupCheckBox")
+        {
+            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
+            {
+                idpat = dlg_ask->findChildren<UpCheckBox*>().at(i)->iD();
+                break;
+            }
+        }
+    m_listbinds[CP_IDPATIENT_MSG]       = (idpat > 0? idpat : QVariant());
+    bool task = false;
+    QDate datelimite = QDate();
+    for (int i=0; i<ncheck; i++)
+        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="TaskupCheckBox")
+        {
+            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
+            {
+                task = true;
+                datelimite = dlg_ask->findChildren<QDateTimeEdit*>().at(0)->date();
+                break;
+            }
+        }
+    bool urge = false;
+    for (int i=0; i<ncheck; i++)
+        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="UrgeupCheckBox")
+        {
+            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
+            {
+                urge = true;
+                break;
+            }
+        }
+    m_listbinds[CP_TACHE_MSG]           = (task? 1 : QVariant());
+    m_listbinds[CP_DATELIMITE_MSG]      = (datelimite.isValid()? datelimite.toString("yyyy-MM-dd") : QVariant());
+    m_listbinds[CP_URGENT_MSG]          = (urge? 1 : QVariant());
+    m_listbinds[CP_DATECREATION_MSG]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    QList<int> listidusr;
+    for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
+        if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
+            if (dlg_ask->findChildren<UpCheckBox*>().at(j)->isChecked())
+                listidusr << dlg_ask->findChildren<UpCheckBox*>().at(j)->iD();
+    if (listidusr.size() == 0)
+        return;
+    bool result = false;
     if (idMsg<0)  // Enregistrement d'un nouveau message
     {
-        QString req = "insert into " TBL_MESSAGES " (" CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_URGENT_MSG ", " CP_DATECREATION_MSG ")\n values(";
-        req += QString::number(currentuser()->id()) + ", ";
-        req += "'" + Utils::correctquoteSQL(dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
-        int ncheck = dlg_ask->findChildren<UpCheckBox*>().size();
-        QString idpat = "NULL";
-        for (int i=0; i<ncheck; i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="AboutPatupCheckBox")
-            {
-                if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-                {
-                    idpat = QString::number(dlg_ask->findChildren<UpCheckBox*>().at(i)->iD());
-                    break;
-                }
-            }
-        req += idpat + ", ";
-        QString task = "NULL, NULL";
-        for (int i=0; i<ncheck; i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="TaskupCheckBox")
-            {
-                if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-                {
-                    task = "1, '" + dlg_ask->findChildren<QDateTimeEdit*>().at(0)->date().toString("yyyy-MM-dd")  + "'";
-                    break;
-                }
-            }
-        req += task + ", ";
-        QString urge = "NULL";
-        for (int i=0; i<ncheck; i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="UrgeupCheckBox")
-            {
-                if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-                {
-                    urge = "1";
-                    break;
-                }
-            }
-        req += urge + ", ";
-        req += "'" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "')";
-        //qDebug() << req;
-        if (!db->StandardSQL(req,tr("Impossible d'enregistrer ce message")))
-            db->rollback();
-
-        req = "SELECT Max(" CP_ID_MSG ") FROM " TBL_MESSAGES;
-        QVariantList msgdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-        if (!m_ok || msgdata.size()==0)
+        if (Datas::I()->messages->CreationMessage(m_listbinds, listidusr))
         {
-            db->rollback();
-            return;
+            envoieTCPMessageA(listidusr);
+            result = true;
         }
-        int idmsg = msgdata.at(0).toInt();
-        QList<int> listidusr;
-        for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
-                if (dlg_ask->findChildren<UpCheckBox*>().at(j)->isChecked())
-                    listidusr << dlg_ask->findChildren<UpCheckBox*>().at(j)->iD();
-        if (listidusr.size()==0)
-        {
-            db->rollback();
-            return;
-        }
-        req = "insert into " TBL_MESSAGESJOINTURES " (" CP_IDMSG_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ") Values ";
-        for (int i=0; i<listidusr.size(); i++)
-        {
-            req += "(" + QString::number(idmsg) + "," + QString::number(listidusr.at(i)) + ")";
-            if (i<listidusr.size()-1)
-                req += ",";
-        }
-        if (!db->StandardSQL(req, tr("Impossible d'enregistrer le message")))
-        {
-            db->rollback();
-            return;
-        }
-        db->commit();
-        envoieTCPMessageA(listidusr);
     }
     else  //    modification d'un message existant
-    {
-        QString req = "update " TBL_MESSAGES " set ";
-        req += CP_TEXT_MSG " = '" + Utils::correctquoteSQL(dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
-        int ncheck = dlg_ask->findChildren<UpCheckBox*>().size();
-        QString idpat = CP_IDPATIENT_MSG " = null, ";
-        for (int i=0; i<ncheck; i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="AboutPatupCheckBox")
-            {
-                if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-                {
-                    idpat= CP_IDPATIENT_MSG " = " + QString::number(dlg_ask->findChildren<UpCheckBox*>().at(i)->iD()) + ", ";
-                    break;
-                }
-            }
-        req += idpat;
-        QString task = CP_TACHE_MSG " = null, " CP_DATELIMITE_MSG " = null, ";
-        for (int i=0; i<ncheck; i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="TaskupCheckBox")
-            {
-                if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-                {
-                    task = CP_TACHE_MSG " = 1, " CP_DATELIMITE_MSG " = '" + dlg_ask->findChildren<QDateTimeEdit*>().at(0)->date().toString("yyyy-MM-dd")  + "', ";
-                    break;
-                }
-            }
-        req += task;
-        QString urge = CP_URGENT_MSG " = null ";
-        for (int i=0; i<ncheck; i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="UrgeupCheckBox")
-            {
-                if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-                {
-                    urge = CP_URGENT_MSG " = 1 ";
-                    break;
-                }
-            }
-        req += urge;
-        req += "where " CP_ID_MSG " = " + QString::number(idMsg);
-        //qDebug() << req;
-        if (!db->StandardSQL(req,tr("Impossible d'enregistrer ce message")))
-            db->rollback();
-        db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG " = " + QString::number(idMsg));
-        QList<int> listidusr;
-        for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
-                if (dlg_ask->findChildren<UpCheckBox*>().at(j)->isChecked())
-                    listidusr << dlg_ask->findChildren<UpCheckBox*>().at(j)->iD();
-        if (listidusr.size()==0)
-        {
-            db->rollback();
-            return;
-        }
-        req = "insert into " TBL_MESSAGESJOINTURES " (" CP_IDMSG_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ") Values ";
-        for (int i=0; i<listidusr.size(); i++)
-        {
-            req += "(" + QString::number(idMsg) + "," + QString::number(listidusr.at(i)) + ")";
-            if (i<listidusr.size()-1)
-                req += ",";
-        }
-        if (!db->StandardSQL(req, tr("Impossible d'enregistrer le message")))
-        {
-            db->rollback();
-            return;
-        }
-        db->commit();
-    }
-    UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
+        if (Datas::I()->messages->UpdateMessage(idMsg, m_listbinds, listidusr))
+            result = true;
+    if (result)
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
     dlg_ask->accept();
 }
 
@@ -4870,15 +4783,10 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
     QTabWidget* tabw = new QTabWidget();
     tabw->setIconSize(QSize(25,25));
     // I - Les messages reçus
-    QString req =
-        "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG " from "
-        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
-        " where \n"
-        CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(currentuser()->id()) + "\n"
-        " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
-    //proc->Edit(req);
-    QList<QVariantList> destlist = db->StandardSelectSQL(req, m_ok);
-    if (m_ok && destlist.size()>0)
+
+    Datas::I()->messages->initListeMsgsrecusByIdUser(currentuser()->id());
+    QList<Message*> listmessagesrecus = Datas::I()->messages->messagesrecus();
+    if (listmessagesrecus.size() > 0)
     {
         QScrollArea *Scroll = new QScrollArea();
         Scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -4892,8 +4800,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         Scroll->setWidget(widg);
         tabw->addTab(Scroll, Icons::icPostit(), tr("Reçu"));
 
-        for (int i=0; i<destlist.size(); i++)
+        for (int i=0; i<listmessagesrecus.size(); i++)
         {
+            Message *msg = listmessagesrecus.at(i);
             /*
              * Par enregistrement:
              * un QFrame framerec pour chaque enregistrement
@@ -4915,16 +4824,16 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             QHBoxLayout *titrelay = new QHBoxLayout();
             UpLabel *Titredoc = new UpLabel();
             Titredoc->setStyleSheet("color: green");
-            if (destlist.at(i).at(7).toInt()==1)
+            if (msg->isurgent())
                 Titredoc->setStyleSheet("color: red");
-            QString txt = destlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + destlist.at(i).at(6).toTime().toString("h:mm");
-            if (destlist.at(i).at(1).toInt()>0)
-                txt += tr(" de ") + (Datas::I()->users->getById(destlist.at(i).at(1).toInt()) != Q_NULLPTR? Datas::I()->users->getById(destlist.at(i).at(1).toInt())->login() : "null");
+            QString txt = msg->datecreation().toString(tr("d-MMM-yy")) + " " + msg->datecreation().toString("h:mm");
+            if (msg->idemetteur() > 0)
+                txt += tr(" de ") + (Datas::I()->users->getById(msg->idemetteur()) != Q_NULLPTR? Datas::I()->users->getById(msg->idemetteur())->login() : "null");
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
-            Rdchk->setChecked(destlist.at(i).at(8).toInt()==1);
-            Rdchk->setiD(destlist.at(i).at(10).toInt());
+            Rdchk->setChecked(msg->islu());
+            Rdchk->setiD(msg->idjointure());
             Rdchk->setText(tr("lu"));
             Rdchk->setFixedWidth(45);
             connect(Rdchk,  &QCheckBox::clicked,    this,   [=] {MsgRead(Rdchk);});
@@ -4936,10 +4845,10 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             QVBoxLayout *Droplay = new QVBoxLayout();
             Droplay->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
-            if (destlist.at(i).at(1).toInt() != currentuser()->id())
+            if (msg->idemetteur() != currentuser()->id())
             {
                 UpLabel *Respondlbl = new UpLabel();
-                Respondlbl->setiD(destlist.at(i).at(0).toInt());
+                Respondlbl->setiD(msg->id());
                 Respondlbl->setPixmap(Icons::pxConversation().scaled(20,20)); //WARNING : icon scaled : pxConversation 20,20
                 Respondlbl->setImmediateToolTip(tr("Répondre"));
                 connect(Respondlbl,     QOverload<int>::of(&UpLabel::clicked), [=] {MsgResp(Respondlbl->iD());});
@@ -4948,7 +4857,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
 
             UpLabel *Dellbl = new UpLabel();
-            Dellbl->setiD(destlist.at(i).at(10).toInt());
+            Dellbl->setiD(msg->idjointure());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             Dellbl->setMinimumWidth(25);
@@ -4964,41 +4873,41 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             QVBoxLayout *SMlay = new QVBoxLayout();
             SMlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
-            if (destlist.at(i).at(4).toInt()==1)                                                                           // le message est une tâche
+            if (msg->istache())                                                                           // le message est une tâche
             {
                 QHBoxLayout *Tasklay = new QHBoxLayout();
                 UpLabel *Todolbl = new UpLabel();
-                Todolbl->setText(tr("A effectuer avant le ") + destlist.at(i).at(5).toDate().toString(tr("d-MMM-yy")));
-                if (destlist.at(i).at(9).toInt()!=1)
+                Todolbl->setText(tr("A effectuer avant le ") + msg->datelimite().toString(tr("d-MMM-yy")));
+                if (!msg->isfait())
                 {
-                    if (QDate::currentDate() >= destlist.at(i).at(5).toDate())
+                    if (QDate::currentDate() >= msg->datelimite())
                         Todolbl->setStyleSheet("color: red");
-                    else if (QDate::currentDate().addDays(3) > destlist.at(i).at(5).toDate())
+                    else if (QDate::currentDate().addDays(3) > msg->datelimite())
                         Todolbl->setStyleSheet("color: orange");
                 }
                 Tasklay->addWidget(Todolbl);
                 Tasklay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
                 UpCheckBox *Dnchk = new UpCheckBox();
-                Dnchk->setChecked(destlist.at(i).at(9).toInt()==1);
-                Dnchk->setiD(destlist.at(i).at(10).toInt());
+                Dnchk->setChecked(msg->isfait());
+                Dnchk->setiD(msg->idjointure());
                 Dnchk->setText(tr("fait"));
                 Dnchk->setFixedWidth(45);
                 connect(Dnchk,  &QCheckBox::clicked,    this,    [=] {MsgDone(Dnchk);});
                 Tasklay->addWidget(Dnchk);
                 SMlay->addLayout(Tasklay);
             }
-            if (destlist.at(i).at(3).toInt()>0)                                                                            // le message concerne un patient
+            if (msg->idpatient()>0)                                                                            // le message concerne un patient
             {
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
                 QString nomprenom ("");
-                Patient *pat = m_patients->getById(destlist.at(i).at(3).toInt());
+                Patient *pat = m_patients->getById(msg->idpatient());
                 if (pat != Q_NULLPTR)
                     nomprenom = pat->prenom() + " " + pat->nom();
                 if (nomprenom != "")
                 {
                     aboutdoc->setText(nomprenom);
-                    aboutdoc->setiD(destlist.at(i).at(3).toInt());
+                    aboutdoc->setiD(msg->idpatient());
                     aboutlay->addWidget(aboutdoc);
                     aboutlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
                     SMlay->addLayout(aboutlay);
@@ -5007,9 +4916,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpTextEdit *Msgtxt = new UpTextEdit();
             Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
-            if  (destlist.at(i).at(7).toInt() == 1)
+            if  (msg->isurgent())
                 Msgtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);border-radius: 5px; background-color:#FFFFFF;");
-            Msgtxt->setText(destlist.at(i).at(2).toString());
+            Msgtxt->setText(msg->texte());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
             Msgtxt->setReadOnly(true);
@@ -5032,24 +4941,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
     }
 
     // I - Les messages emis
-    req =
-        "select Distinct mess." CP_ID_MSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG " from "
-        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint \n"
-        " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
-        " where " CP_IDEMETTEUR_MSG " = " + QString::number(currentuser()->id()) + "\n"
-        " and " CP_ASUPPRIMER_MSG " is null\n"
-        " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
-    /*
-    select Distinct mess.idMessage, iddestinataire, " CP_TEXT_MSG ", idPatient, Tache, DateLimite, CreeLe, Urge, lu, Fait, idJointure from
-    Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint
-    on mess.idmessage = joint.idmessage
-    where
-    idemetteur = 1
-    and asupprimer is null
-    order by urge desc, CreeLe desc
-    */
-    QList<QVariantList> emetlist = db->StandardSelectSQL(req, m_ok);
-    if (m_ok && emetlist.size()>0)
+    Datas::I()->messages->initListeMsgsenvoyesByIdUser(currentuser()->id());
+    QList<Message*> listmessagesenvoyes = Datas::I()->messages->messagesenvoyes();
+    if (listmessagesenvoyes.size() >0)
     {
         QScrollArea *Scroll = new QScrollArea();
         Scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -5063,23 +4957,24 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         Scroll->setWidget(widg);
         tabw->addTab(Scroll, Icons::icMessage(), tr("Envoyé"));
 
-        for (int i=0; i<emetlist.size(); i++)
+        for (int i=0; i<listmessagesenvoyes.size(); i++)
         {
+            Message *msg = listmessagesenvoyes.at(i);
             QFrame *framerec = new QFrame();
             //framerec->setFrameShape(QFrame::Panel);
             QVBoxLayout *reclay = new QVBoxLayout(framerec);
             QHBoxLayout *titrelay = new QHBoxLayout();
             UpLabel *Titredoc = new UpLabel();
             Titredoc->setStyleSheet("color: green");
-            if (emetlist.at(i).at(7).toInt()==1)
+            if (msg->isurgent())
                 Titredoc->setStyleSheet("color: red");
-            QString txt = emetlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + emetlist.at(i).at(6).toTime().toString("h:mm");
-            if (emetlist.at(i).at(1).toInt()>0)
-                txt += tr(" pour ") + (Datas::I()->users->getById(emetlist.at(i).at(1).toInt()) != Q_NULLPTR? Datas::I()->users->getById(emetlist.at(i).at(1).toInt())->login() : "null");
+            QString txt = msg->datecreation().toString(tr("d-MMM-yy")) + " " + msg->datecreation().toString("h:mm");
+            if (msg->iddestinataire()>0)
+                txt += tr(" pour ") + (Datas::I()->users->getById(msg->iddestinataire()) != Q_NULLPTR? Datas::I()->users->getById(msg->iddestinataire())->login() : "null");
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
-            Rdchk->setChecked(emetlist.at(i).at(8).toInt()==1);
+            Rdchk->setChecked(msg->islu());
             Rdchk->setEnabled(false);
             Rdchk->setText(tr("lu"));
             Rdchk->setFixedWidth(45);
@@ -5092,7 +4987,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Droplay->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
             UpLabel *Modiflbl = new UpLabel();
-            Modiflbl->setiD(emetlist.at(i).at(0).toInt());
+            Modiflbl->setiD(msg->id());
             Modiflbl->setPixmap(Icons::pxEditer().scaled(20,20)); //WARNING : icon scaled : pxEditer 20,20
             Modiflbl->setImmediateToolTip(tr("Modifier"));
             Modiflbl->setFixedWidth(25);
@@ -5100,7 +4995,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Droplay->addWidget(Modiflbl);
 
             UpLabel *Dellbl = new UpLabel();
-            Dellbl->setiD(emetlist.at(i).at(0).toInt());
+            Dellbl->setiD(msg->id());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  this,  [=] {SupprimerMessageEmis(Dellbl->iD());});
@@ -5114,35 +5009,35 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             QVBoxLayout *SMlay = new QVBoxLayout();
             SMlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
-            if (emetlist.at(i).at(4).toInt()==1)                                                                           // le message est une tâche
+            if (msg->istache())                                                                           // le message est une tâche
             {
                 QHBoxLayout *Tasklay = new QHBoxLayout();
                 UpLabel *Todolbl = new UpLabel();
                 Tasklay->setSpacing(0);
-                Todolbl->setText(tr("A effectuer avant le ") + emetlist.at(i).at(5).toDate().toString(tr("d-MMM-yy")));
-                if (emetlist.at(i).at(9).toInt()!=1)
+                Todolbl->setText(tr("A effectuer avant le ") + msg->datelimite().toString(tr("d-MMM-yy")));
+                if (!msg->isfait())
                 {
-                    if (QDate::currentDate() >= emetlist.at(i).at(5).toDate())
+                    if (QDate::currentDate() >= msg->datelimite())
                         Todolbl->setStyleSheet("color: red");
-                    else if (QDate::currentDate().addDays(3) > emetlist.at(i).at(5).toDate())
+                    else if (QDate::currentDate().addDays(3) > msg->datelimite())
                         Todolbl->setStyleSheet("color: orange");
                 }
                 Tasklay->addWidget(Todolbl);
                 Tasklay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum));
                 UpCheckBox *Dnchk = new UpCheckBox();
-                Dnchk->setChecked(emetlist.at(i).at(9).toInt()==1);
+                Dnchk->setChecked(msg->isfait());
                 Dnchk->setEnabled(false);
                 Dnchk->setText(tr("fait"));
                 Dnchk->setFixedWidth(45);
                 Tasklay->addWidget(Dnchk);
                 SMlay->addLayout(Tasklay);
             }
-            if (emetlist.at(i).at(3).toInt()>0)                                                                            // le message concerne un patient
+            if (msg->idpatient() > 0)                                                                            // le message concerne un patient
             {
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
                 QString nomprenom ("");
-                Patient *pat = m_patients->getById(emetlist.at(i).at(3).toInt());
+                Patient *pat = m_patients->getById(msg->idpatient());
                 if (pat != Q_NULLPTR)
                     nomprenom = pat->prenom() + " " + pat->nom();
                 if (nomprenom != "")
@@ -5156,7 +5051,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpTextEdit *Msgtxt = new UpTextEdit();
             Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFDD;");
-            Msgtxt->setText(emetlist.at(i).at(2).toString());
+            Msgtxt->setText(msg->texte());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
             Msgtxt->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -5166,7 +5061,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Msgtxt->setFixedSize(380,int(Msgtxt->document()->size().height())+2);
             Msgtxt->settable(TBL_MESSAGES);
             Msgtxt->setchamp(CP_TEXT_MSG);
-            Msgtxt->setiD(emetlist.at(i).at(0).toInt());
+            Msgtxt->setiD(msg->id());
             Msgtxt->installEventFilter(this);
             Msgtxt->setReadOnly(true);
 
@@ -5182,7 +5077,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         lay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
     }
 
-    if (destlist.size()==0 && emetlist.size()==0)
+    if (listmessagesrecus.size()==0 && listmessagesenvoyes.size()==0)
     {
         QScrollArea *Scroll = new QScrollArea();
         Scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -5207,37 +5102,33 @@ void Rufus::MsgResp(int idmsg)
 {
     QVBoxLayout *globallay = new QVBoxLayout();
     dlg_msgRepons = new QDialog();
-
-    QString req = "select " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " in (select " CP_IDEMETTEUR_MSG " from " TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmsg) +  ")";
-    QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
-    if (!m_ok || usrdata.size()==0)
+    Message *msg = Datas::I()->messages->getById(idmsg);
+    if (!msg)
+        return;
+    User* usr = Datas::I()->users->getById(msg->idemetteur());
+    if (!usr)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver l'expéditeur du message"));
         return;
     }
     QLabel *lbl = new QLabel(dlg_msgRepons);
-    lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usrdata.at(0).toString() + "</b></font>");
+    lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usr->login() + "</b></font>");
     globallay->addWidget(lbl);
-    req = "select " CP_TEXT_MSG ", " CP_IDPATIENT_MSG " from " TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmsg);
-    QVariantList txtdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
-    if (m_ok && txtdata.size()>0)
+    QHBoxLayout *lbllayout  = new QHBoxLayout();
+    UpLabel     *msglbl     = new UpLabel(dlg_msgRepons);
+    QString nomprenom = "";
+    if (msg->idpatient() > 0)
     {
-        QHBoxLayout *lbllayout  = new QHBoxLayout();
-        UpLabel     *msglbl     = new UpLabel(dlg_msgRepons);
-        QString nomprenom = "";
-        if (txtdata.at(1).toInt()>0)
-        {
-            Patient *pat = m_patients->getById(txtdata.at(1).toInt());
-            if (pat != Q_NULLPTR)
-                nomprenom = tr("à propos de ") + "<b>" + pat->prenom() + " " + pat->nom() + "</b>";
-        }
-        if (nomprenom != "")
-            msglbl->setText(nomprenom + "\n");
-        msglbl      ->setText(msglbl->text() + txtdata.at(0).toString());
-        lbllayout   ->addSpacerItem(new QSpacerItem(30,1));
-        lbllayout   ->addWidget(msglbl);
-        globallay   ->addLayout(lbllayout);
+        Patient *pat = m_patients->getById(msg->idpatient());
+        if (pat != Q_NULLPTR)
+            nomprenom = tr("à propos de ") + "<b>" + pat->prenom() + " " + pat->nom() + "</b>";
     }
+    if (nomprenom != "")
+        msglbl->setText(nomprenom + "\n");
+    msglbl      ->setText(msglbl->text() + msg->texte());
+    lbllayout   ->addSpacerItem(new QSpacerItem(30,1));
+    lbllayout   ->addWidget(msglbl);
+    globallay   ->addLayout(lbllayout);
 
     UpTextEdit* rponstxt = new UpTextEdit(dlg_msgRepons);
     rponstxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
@@ -5267,6 +5158,7 @@ void Rufus::MsgResp(int idmsg)
 
     dlg_msgRepons->exec();
     delete dlg_msgRepons;
+    dlg_msgRepons = Q_NULLPTR;
 }
 
 void Rufus::EnregMsgResp(int idmsg)
@@ -5276,53 +5168,26 @@ void Rufus::EnregMsgResp(int idmsg)
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"),Icons::icSunglasses(), 2000);
         return;
     }
-    QString req = "select " CP_IDEMETTEUR_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_URGENT_MSG " from " TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmsg);
-    QVariantList emtdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
-    if (!m_ok || emtdata.size() == 0)
-        return;
-    int iddest          = emtdata.at(0).toInt();
-    QString tache       = ((emtdata.at(1).toInt()==1)? "1" : "null");
-    QString DateLimit   = ((emtdata.at(2).toDate().isValid())? "'" + emtdata.at(2).toDate().toString("yyyy-MM-dd") + "'" : "null");
-    QString Urg         = ((emtdata.at(3).toInt()==1)? "1" : "null");
-
-    QStringList locklist;
-    locklist << TBL_MESSAGES << TBL_MESSAGESJOINTURES;
-    db->createtransaction(locklist);
-
-    req  = "insert into " TBL_MESSAGES " (" CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_DATECREATION_MSG ", " CP_ENREPONSEA_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_URGENT_MSG ")\n values(";
-    req += QString::number(currentuser()->id()) + ", ";
+     Message *msg = Datas::I()->messages->getById(idmsg);
+     if (!msg)
+         return;
+    QHash<QString, QVariant> m_listbinds;
+    m_listbinds[CP_IDEMETTEUR_MSG]  = currentuser()->id();
     QString Reponse = "<font color = " COULEUR_TITRES ">" + dlg_msgRepons->findChildren<UpLabel*>().at(0)->text() + "</font>"
             + "------<br><b>" + currentuser()->login() + ":</b> " + dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
     UpTextEdit txt;
     txt.setText(Reponse);
-    req += "'" + Utils::correctquoteSQL(txt.toHtml()) + "', ";
-    req += "'" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "', ";
-    req += QString::number(idmsg) + ", ";
-    req += tache + ", ";
-    req += DateLimit + ", ";
-    req += Urg + ")";
-    //qDebug() << req;
-    if (!db->StandardSQL(req, tr("Impossible d'enregistrer ce message")))
-        db->rollback();
-
-    int idrep = db->selectMaxFromTable(CP_ID_MSG, TBL_MESSAGES, m_ok);
-    if (!m_ok || idrep == -1)
+    m_listbinds[CP_TEXT_MSG]            = txt.toHtml();
+    m_listbinds[CP_DATECREATION_MSG]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    m_listbinds[CP_ENREPONSEA_MSG]      = idmsg;
+    m_listbinds[CP_TACHE_MSG]           = (msg->istache()? 1 : QVariant());
+    m_listbinds[CP_DATELIMITE_MSG]      = (msg->datelimite().isValid()? msg->datelimite().toString("yyyy-MM-dd") : QVariant());
+    m_listbinds[CP_URGENT_MSG]          = (msg->isurgent()? 1 : QVariant());
+    QList<int> listidusr = QList<int>() << msg->idemetteur();
+    if (Datas::I()->messages->CreationMessage(m_listbinds, listidusr))
     {
-        db->rollback();
-        return;
-    }
-    req = "insert into " TBL_MESSAGESJOINTURES " (" CP_IDMSG_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG ") Values ";
-    req += "(" + QString::number(idrep) + "," + QString::number(iddest) + ")";
-    if (!db->StandardSQL(req, tr("Impossible d'enregistrer le message")))
-    {
-        db->rollback();
-        return;
-    }
-    else
-    {
+        envoieTCPMessageA(listidusr);
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
-        db->commit();
-        envoieTCPMessageA(QList<int>() << iddest);
     }
     dlg_msgRepons->accept();
 }
@@ -5335,26 +5200,26 @@ void Rufus::MsgModif(int idmsg)
         {
             if (listtxt.at(i)->iD()==idmsg)
             {
-                QString req = "select " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", " CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG " from " TBL_MESSAGES
-                              " where " CP_ID_MSG " = " + QString::number(idmsg);
-                QVariantList msgdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
                 QMap<QString, QVariant> map;
-                map[CP_TEXT_MSG]            = msgdata.at(0).toString();
-                map[CP_IDPATIENT_MSG]       = msgdata.at(1).toInt();
-                map[CP_TACHE_MSG]           = msgdata.at(2).toInt();
-                map[CP_DATELIMITE_MSG]      = msgdata.at(3).toDate();
-                map[CP_DATECREATION_MSG]    = msgdata.at(4).toDateTime();
-                map[CP_URGENT_MSG]          = msgdata.at(5).toInt();
-                map["null"]                 = false;
-
+                Message *msg = Datas::I()->messages->getById(idmsg);
+                if (msg)
+                {
+                    map[CP_TEXT_MSG]            = msg->texte();
+                    map[CP_IDPATIENT_MSG]       = msg->idpatient();
+                    map[CP_TACHE_MSG]           = (msg->istache()? 1 : 0);
+                    map[CP_DATELIMITE_MSG]      = msg->datelimite();
+                    map[CP_DATECREATION_MSG]    = msg->datecreation();
+                    map[CP_URGENT_MSG]          = (msg->isurgent()? 1 : 0);
+                    map["null"]                 = false;
+                }
                 QStringList listdestinataires;
-                req = "select " CP_IDDESTINATAIRE_JOINTURESMSG " from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG " = " + QString::number(idmsg);
+                QString req = "select " CP_IDDESTINATAIRE_JOINTURESMSG " from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG " = " + QString::number(idmsg);
                 QList<QVariantList> destlist = db->StandardSelectSQL(req,m_ok);
                 for (int i=0; i<destlist.size();i++)
                     listdestinataires << destlist.at(i).at(0).toString();
                 map["listdestinataires"] = listdestinataires;
 
-                SendMessage(map, map[CP_IDPATIENT_MSG].toInt(), idmsg);                           //depuis gMsgDialog
+                SendMessage(map, msg->idpatient(), idmsg);                           //depuis gMsgDialog
                 dlg_ask->exec();
                 delete dlg_ask;
                 i =listtxt.size();
@@ -5393,16 +5258,26 @@ void Rufus::SupprimerMessageRecu(int idJoint)
     QString req = "select " CP_IDMSG_JOINTURESMSG " from " TBL_MESSAGESJOINTURES  " where " CP_ID_JOINTURESMSG " = " + QString::number(idJoint);
     QVariantList msgdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     int idmsg = msgdata.at(0).toInt();
-    req = "select " CP_IDEMETTEUR_MSG " from " TBL_MESSAGES  " where " CP_ID_MSG " = " + QString::number(idmsg);
-    QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
-    int idusr = usrdata.at(0).toInt();
+    Message *msg = Datas::I()->messages->getById(idmsg);
+    if (!msg)
+        return;
+    int idusr = msg->idemetteur();
     if (idusr == currentuser()->id())
-        db->StandardSQL("update " TBL_MESSAGES " set " CP_ASUPPRIMER_MSG " = 1 where " CP_ID_MSG " = " + QString::number(idmsg));
+        ItemsList::update(msg, CP_ASUPPRIMER_MSG, true);
     db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where " CP_ID_JOINTURESMSG " = " + QString::number(idJoint));
-    req = "delete from " TBL_MESSAGES " where "
-          CP_ID_MSG " not in (select " CP_IDMSG_JOINTURESMSG " from " TBL_MESSAGESJOINTURES ") "
-          " and " CP_ASUPPRIMER_MSG " = 1";
-    db->StandardSQL(req);
+    bool ok;
+    QList<QVariantList> listmsg = db->StandardSelectSQL("select " CP_IDMSG_JOINTURESMSG " from " TBL_MESSAGESJOINTURES " where " CP_IDMSG_JOINTURESMSG " = " + QString::number(msg->id()), ok);
+    if (ok)
+    {
+        if (listmsg.size() == 0)
+        {
+            req = "delete from " TBL_MESSAGES " where "
+                  CP_ID_MSG " not in (select " CP_IDMSG_JOINTURESMSG " from " TBL_MESSAGESJOINTURES ") "
+                  " and " CP_ASUPPRIMER_MSG " = 1";
+            db->StandardSQL(req);
+            Datas::I()->messages->SupprimeMessage(msg);
+        }
+    }
     if (dlg_msgDialog->findChildren<QScrollArea*>().size()>0)
         AfficheMessages();
 }
@@ -5411,33 +5286,21 @@ void Rufus::ReconstruitListeMessages()
 {
     QDateTime DateMsg;
     m_totalNvxMessages = 0;
-    QString req =
-            "select Distinct mess." CP_ID_MSG ", " CP_DATECREATION_MSG ", " CP_ENREPONSEA_MSG " from "
-            TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
-                                                                                    " where \n"
-                                                                                    CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(currentuser()->id()) + "\n"
-                                                                                    " or (" CP_IDEMETTEUR_MSG " = " + QString::number(currentuser()->id()) + " and " CP_ASUPPRIMER_MSG " is null)"
-                                                                                    " order by " CP_DATECREATION_MSG;
-    /*
-select Distinct mess.idMessage, Creele, ReponseA from Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint on mess.idmessage = joint.idmessage
-where iddestinataire = 1
-or (idemetteur = 1 and asupprimer is null)
-order by CreeLe
-*/
-    QList<QVariantList> msglist = db->StandardSelectSQL(req,m_ok);
-    m_totalMessages = msglist.size();
+    Datas::I()->messages->initListeAllMsgsByIdUser(currentuser()->id());
+    m_totalMessages = Datas::I()->messages->allmessages().size();
     ict_messageIcon->setVisible(m_totalMessages>0);
     if (m_totalMessages>0)
     {
-        for (int i=0; i<m_totalMessages; i++)
+        for (int i=0; i<Datas::I()->messages->allmessages().size(); i++)
         {
-            DateMsg = QDateTime(msglist.at(i).at(1).toDate(), msglist.at(i).at(1).toTime());
-            if (DateMsg > QDateTime(m_datederniermessageuser))
+            Message *msg = Datas::I()->messages->allmessages().at(i);
+            DateMsg = msg->datecreation();
+            if (msg->datecreation() > QDateTime(m_datederniermessageuser))
                 m_totalNvxMessages += 1;
         }
         m_datederniermessageuser = QDateTime(DateMsg);
     }
-    else if (dlg_msgDialog !=Q_NULLPTR)
+    else if (dlg_msgDialog)
     {
         if (dlg_msgDialog->isVisible())
             dlg_msgDialog->close();

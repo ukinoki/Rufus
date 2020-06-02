@@ -48,6 +48,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_iol.h"
 #include "cls_lignepaiement.h"
 #include "cls_manufacturer.h"
+#include "cls_message.h"
 #include "cls_motcle.h"
 #include "cls_motif.h"
 #include "cls_paiementtiers.h"
@@ -426,6 +427,18 @@ public:
     QList<MotCle*>          loadMotsCles();                                         //! charge tous les mots clés
     MotCle*                 loadMotCleById(int idMotcle);                           //! charge un motclé défini par son id - utilisé pour renouveler les données en cas de modification
     QList<int>              loadListIdMotsClesByPat(int idpat);                     //! chagre les id des mots clés utilisés par un patient
+
+    /*
+     * Messages
+    */
+private:
+    QJsonObject             loadMessageData(QVariantList msgdata);                  //! attribue le liste des datas à un message
+public:
+    QList<Message*>         loadMessagesRecusByIdUser(int id);                      //! charge tous les messages reçus par un utilisateur
+    QList<Message*>         loadMessagesEnvoyesByIdUser(int id);                    //! charge tous les messages envoyes par un utilisateur
+    QList<Message*>         loadAllMessagesByIdUser(int id);                        //! charge tous les messages reçus ou envoyes par un utilisateur
+    Message*                loadMessageById(int idMotcle);                          //! charge un motclé défini par son id - utilisé pour renouveler les données en cas de modification
+//    QList<int>              loadListIdMotsClesByPat(int idpat);                     //! chagre les id des mots clés utilisés par un patient
 };
 
 #endif // DataBase_H

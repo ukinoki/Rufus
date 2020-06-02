@@ -297,7 +297,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     if (nomdoc.split("_").size()>1)
                         datestring = nomdoc.split("_").at(2);
                     Titredoc    = "Photo - ION";
-                    Typedoc     = "Imgerie SA";
+                    Typedoc     = "Imagerie SA";
                     SousTypeDoc = "ION";
                 }
                 if (!QDate().fromString(datestring,"yyyyMMdd").isValid())

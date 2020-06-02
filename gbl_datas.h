@@ -33,6 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_interventions.h"
 #include "cls_iols.h"
 #include "cls_manufacturers.h"
+#include "cls_messages.h"
 #include "cls_motscles.h"
 #include "cls_motifs.h"
 #include "cls_paiementstiers.h"
@@ -78,6 +79,7 @@ public:
     LignesComptes *lignescomptes;           //!< Les lignes non rapprochées d'un compte bancaire
     LignesPaiements *lignespaiements;       //!< Les lignes de paiement des actes d'un patient
     DossiersImpressions *metadocuments;     //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Messages *messages;                     //!< les messages
     Manufacturers *manufacturers;           //!< tous les fabricants
     Motifs *motifs;                         //!< tous les motifs d'actes
     MotsCles *motscles;                     //!< tous les mots clés

@@ -42,6 +42,7 @@ Datas::Datas()
     lignescomptes       = new LignesComptes();
     lignespaiements     = new LignesPaiements();
     manufacturers       = new Manufacturers();
+    messages            = new Messages();
     metadocuments       = new DossiersImpressions();
     motscles            = new MotsCles();
     motifs              = new Motifs();
