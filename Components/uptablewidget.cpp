@@ -69,7 +69,6 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    QString suffixe;
     if (doc.value("type").toString() == PDF)
     {
         QList<QImage> listimg = Utils::calcImagefromPdf(ba);

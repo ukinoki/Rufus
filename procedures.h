@@ -446,7 +446,7 @@ public:
                 };  Q_ENUM(TypeMesure)
     Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
 signals:
-    void                    NouvMesure(TypeMesure);
+    void                    NouvMesure(Procedures::TypeMesure);
 
 public:
     QSerialPort*            PortAutoref();

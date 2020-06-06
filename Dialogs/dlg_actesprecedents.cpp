@@ -85,7 +85,7 @@ void dlg_actesprecedents::Actualise(QMap<int, Acte *> *map)
     if( map_actes->size() == 0 )
         close();
     int initScrollValue;
-    it_currentacte = map_actes->find(map_actes->lastKey());
+    it_currentacte = map_actes->constFind(map_actes->lastKey());
     initScrollValue = map_actes->size();
 
     ui->ScrollBar->disconnect();
@@ -98,7 +98,8 @@ void dlg_actesprecedents::Actualise(QMap<int, Acte *> *map)
 
     if( ui->ScrollBar->maximum() > 0 )
         connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
-            it_currentacte = map_actes->find(map_actes->keys().at(newValue));
+            QList<int> listid = map_actes->keys();
+            it_currentacte = map_actes->constFind(listid.at(newValue));
             ActesPrecsAfficheActe();
         });
 }
@@ -203,7 +204,7 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 {
-    it_currentacte = map_actes->find(acte->id());
+    it_currentacte = map_actes->constFind(acte->id());
     if( it_currentacte == map_actes->constEnd() )
         return;
     ActesPrecsAfficheActe();
@@ -229,9 +230,11 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     ui->CorpsupTextEdit->clear();
     ui->ConclusionupTextEdit->clear();
     Site *sit = Datas::I()->sites->getById(acte->idsite());
+    QMap<QString,QVariant> mapage = Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date());
+    QString age = mapage["toString"].toString();
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                       "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
-                      "<td width=\"60\">" + Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date())["toString"].toString() + "</td>"
+                      "<td width=\"60\">" + age + "</td>"
                       "<td width=\"300\">" + nomcomplet + " - <font color = \"" COULEUR_TITRES "\" ><b>" + (sit? sit->nom() : "") + "</b></font></td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
@@ -280,25 +283,26 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     ui->SitelineEdit->setText(sit? sit->nom() : "");
 
     //3. Mettre à jour le numéro d'acte
+    QList<int> listid = map_actes->keys();
     if( map_actes->size() > 1 )
     {
-        int scrolPos = map_actes->keys().indexOf(acte->id());
+        int scrolPos = listid.indexOf(acte->id());
         ui->ScrollBar->setValue(scrolPos);
     }
 
-    bool canprec = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) > 0);
+    bool canprec = (map_actes->size() > 1 && listid.indexOf(acte->id()) > 0);
     ui->ActePrecedentpushButton->setEnabled(canprec);
 
-    bool cansui = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) < map_actes->size() - 1);
+    bool cansui = (map_actes->size() > 1 && listid.indexOf(acte->id()) < map_actes->size() - 1);
     ui->ActeSuivantpushButton->setEnabled(cansui);
 
-    bool canfirst = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) > 0);
+    bool canfirst = (map_actes->size() > 1 && listid.indexOf(acte->id()) > 0);
     ui->PremierActepushButton->setEnabled(canfirst);
 
-    bool canlast = (map_actes->size() > 1 && map_actes->keys().indexOf(acte->id()) < map_actes->size() - 1);
+    bool canlast = (map_actes->size() > 1 && listid.indexOf(acte->id()) < map_actes->size() - 1);
     ui->DernierActepushButton->setEnabled(canlast);
 
-    ui->NoActelabel->setText(QString::number(map_actes->keys().indexOf(acte->id()) + 1) + " / " + QString::number(mapsize));
+    ui->NoActelabel->setText(QString::number(listid.indexOf(acte->id()) + 1) + " / " + QString::number(mapsize));
 
     //4. Afficher les renseignements comptables
     ui->ActeCotationlineEdit->setText(acte->cotation());
@@ -334,8 +338,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
             double TotalPaye = 0;
-            foreach (LignePaiement* lign, m_listepaiements->lignespaiements()->values())
+            for (auto it = m_listepaiements->lignespaiements()->constBegin(); it != m_listepaiements->lignespaiements()->constEnd(); ++it)
             {
+                LignePaiement *lign = const_cast<LignePaiement*>(it.value());
                 if (lign->idacte() == acte->id())
                 {
                     if (lign->monnaie() == "F")
@@ -404,7 +409,7 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     {
         ++it_currentacte;
         if( it_currentacte == map_actes->constEnd() )
-            it_currentacte = map_actes->find(map_actes->lastKey());
+            it_currentacte = map_actes->constFind(map_actes->lastKey());
     }
     else if (i == ItemsList::Prec)
     {
@@ -418,7 +423,7 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     }
     else if (i == ItemsList::Fin)
     {
-        it_currentacte = map_actes->find(map_actes->lastKey());
+        it_currentacte = map_actes->constFind(map_actes->lastKey());
     }
 
     idActe = it_currentacte.value()->id();

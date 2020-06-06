@@ -262,10 +262,10 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
         QMenu *menuContextuel       = new QMenu(this);
         QString msg = tr("Supprimer l'écriture") + " - " + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "?";
         QAction *pAction_SupprEcriture = menuContextuel->addAction(msg) ;
-        connect (pAction_SupprEcriture, &QAction::triggered,    [=] { SupprimerEcriture(lign); });
+        connect (pAction_SupprEcriture, &QAction::triggered, this,    [=] { SupprimerEcriture(lign); });
         msg = tr("Modifer le montant de l'écriture") + " - " + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "?";
         QAction *pAction_ModifEcriture = menuContextuel->addAction(msg) ;
-        connect (pAction_ModifEcriture, &QAction::triggered,    [=] { ModifMontant(lign); });
+        connect (pAction_ModifEcriture, &QAction::triggered, this,    [=] { ModifMontant(lign); });
 
         menuContextuel->exec(cursor().pos());
         delete menuContextuel;
@@ -644,8 +644,9 @@ void dlg_comptes::CalculeTotal()
 {
     double Total = m_soldesurreleve;
     double TotalConsolide = m_soldesurreleve;
-    foreach (LigneCompte *lign, Datas::I()->lignescomptes->lignescomptes()->values())
+    for (auto it = Datas::I()->lignescomptes->lignescomptes()->constBegin(); it != Datas::I()->lignescomptes->lignescomptes()->constEnd(); ++it)
     {
+        LigneCompte *lign = const_cast<LigneCompte*>(it.value());
         double montantligne = lign->montant();
         if (!lign->iscredit())
             montantligne = montantligne*-1;
@@ -794,8 +795,9 @@ void dlg_comptes::RemplitLaTable(int idcompte)
     // toute la manip qui suit sert à remettre les lignes par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
 
     QStandardItemModel *listlign = new QStandardItemModel();
-    foreach(LigneCompte *lign, Datas::I()->lignescomptes->lignescomptes()->values())
+    for (auto it = Datas::I()->lignescomptes->lignescomptes()->constBegin(); it != Datas::I()->lignescomptes->lignescomptes()->constEnd(); ++it)
     {
+        LigneCompte *lign = const_cast<LigneCompte*>(it.value());
         UpStandardItem *item = new UpStandardItem(lign->date().toString("yyyyMMdd"), lign);
         listlign->appendRow(item);
     }
@@ -877,14 +879,14 @@ void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
     lbl7->setRow(row);
     lbl8->setRow(row);
 
-    connect (lbl0,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl0);});
-    connect (lbl1,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl1);});
-    connect (lbl2,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl2);});
-    connect (lbl3,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl3);});
-    connect (lbl4,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl4);});
-    connect (lbl5,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl5);});
-    connect (lbl7,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl7);});
-    connect (lbl8,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl8);});
+    connect (lbl0,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl0);});
+    connect (lbl1,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl1);});
+    connect (lbl2,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl2);});
+    connect (lbl3,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl3);});
+    connect (lbl4,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl4);});
+    connect (lbl5,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl5);});
+    connect (lbl7,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl7);});
+    connect (lbl8,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl8);});
 
     int col = 0;
 
@@ -949,7 +951,7 @@ void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
     Checkbx->setRowTable(row);
     Checkbx->setFocusPolicy(Qt::NoFocus);
 
-    connect(Checkbx,      &QCheckBox::clicked,  [=] {RenvoieRangee(Checkbx);});
+    connect(Checkbx,      &QCheckBox::clicked,  this,  [=] {RenvoieRangee(Checkbx);});
     l = new QHBoxLayout(wdg);
     l->setContentsMargins(0,0,0,0);
     l->setAlignment( Qt::AlignCenter );

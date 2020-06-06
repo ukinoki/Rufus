@@ -25,7 +25,7 @@ dlg_autresmesures::dlg_autresmesures(Mode mod,  QWidget *parent) :
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    connect (OKButton,   &QPushButton::clicked,   [=] {OKButtonClicked();});
+    connect (OKButton,   &QPushButton::clicked,   this, [=] {OKButtonClicked();});
     if (m_mode == TONO)
     {
         widgto      = new WidgTono(this);

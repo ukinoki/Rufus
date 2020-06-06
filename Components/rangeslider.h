@@ -29,7 +29,6 @@ SOFTWARE.*/
 class RangeSlider : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS(RangeSliderTypes)
 
 public:
     enum Option {

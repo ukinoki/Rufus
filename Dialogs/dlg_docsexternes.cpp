@@ -28,7 +28,9 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     installEventFilter(this);
-    setMaximumHeight(QGuiApplication::screens().first()->geometry().height());
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    if (listscreens.size()>0)
+        setMaximumHeight(listscreens.first()->geometry().height());
     setWindowTitle(tr("Documents de ") + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom());
 
     QFont font  = qApp->font();
@@ -419,8 +421,11 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 return;
             }
-            pix = QPixmap::fromImage(image).scaled(QSize(QGuiApplication::screens().first()->geometry().width(),
-                                                         QGuiApplication::screens().first()->geometry().height()),
+            pix = QPixmap();
+            QList<QScreen*> listscreens = QGuiApplication::screens();
+            if (listscreens.size()>0)
+                pix = QPixmap::fromImage(image).scaled(QSize(listscreens.first()->geometry().width(),
+                                                         listscreens.first()->geometry().height()),
                                                    Qt::KeepAspectRatioByExpanding,
                                                    Qt::SmoothTransformation);
             x = pix.size().width();
@@ -447,8 +452,11 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 for (int i=0; i<listimg.size();++i)
                 {
                     QImage image = listimg.at(i);
-                    pix = QPixmap::fromImage(image).scaled(QSize(QGuiApplication::screens().first()->geometry().width(),
-                                                                 QGuiApplication::screens().first()->geometry().height()),
+                    pix = QPixmap();
+                    QList<QScreen*> listscreens = QGuiApplication::screens();
+                    if (listscreens.size()>0)
+                        pix = QPixmap::fromImage(image).scaled(QSize(listscreens.first()->geometry().width(),
+                                                                 listscreens.first()->geometry().height()),
                                                            Qt::KeepAspectRatioByExpanding,
                                                            Qt::SmoothTransformation);
                     if (i==0)
@@ -557,19 +565,26 @@ void dlg_docsexternes::BasculeTriListe(int a)
     wdg_listdocstreewiew->setModel(m_model);
     delete m;
 
-    int nrows = m_model->item(m_model->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
-    QStandardItem *item =  m_model->item(m_model->rowCount()-1)->child(nrows,0);    // le tout dernier item
-    QModelIndex idx = item->index();                                                // l'index de ce dernier item
-    if (idimpraretrouver != "")
-    {
-        QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
-        if (indx.isValid())
-            idx = indx;
-    }
-    wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
-    wdg_listdocstreewiew->expandAll();
-    wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-    wdg_listdocstreewiew->setCurrentIndex(idx);
+    if (m_model)
+        if (m_model->rowCount()>0)
+        {
+            int nrows = 0;
+            int n = m_model->rowCount()-1;
+            if (m_model->item(n) != Q_NULLPTR)
+                nrows = m_model->item(n)->rowCount()-1;                 // le nombre de child du dernier item date
+            QStandardItem *item =  m_model->item(n)->child(nrows,0);    // le tout dernier item
+            QModelIndex idx = item->index();                            // l'index de ce dernier item
+            if (idimpraretrouver != "")
+            {
+                QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
+                if (indx.isValid())
+                    idx = indx;
+            }
+            wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
+            wdg_listdocstreewiew->expandAll();
+            wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+            wdg_listdocstreewiew->setCurrentIndex(idx);
+        }
     connect(wdg_listdocstreewiew->selectionModel()  ,   &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());});
     connect(wdg_listdocstreewiew,                       &QTreeView::customContextMenuRequested, this,   [=] {
         QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
@@ -891,7 +906,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     dateedit->setDate(docmt->date().date());
     dateedit->setSelectedSection(QDateTimeEdit::DaySection);
 
-    connect(dlg->OKButton,   &QPushButton::clicked,   [=]
+    connect(dlg->OKButton,   &QPushButton::clicked, this,   [=]
     {
         if (dateedit->date().isValid())
         {
@@ -930,7 +945,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     Line->setText(docmt->soustypedoc());
     Line->selectAll();
 
-    connect(dlg->OKButton,   &QPushButton::clicked,   [=]
+    connect(dlg->OKButton,   &QPushButton::clicked, this,  [=]
     {
         if (Line->text()!="")
         {
@@ -1004,7 +1019,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression
         {
             auto itdoc =  m_docsexternes->docsexternes()->find(docmt->id());
-            if (itdoc != m_docsexternes->docsexternes()->cbegin())
+            if (itdoc != m_docsexternes->docsexternes()->begin())
                 itdoc --;
             else
                 itdoc ++;
@@ -1198,13 +1213,13 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
             }
             wdg_inflabel    ->move(10,graphview_view->height()-40);
         }
-        if (event->type() == QEvent::MouseButtonPress)
-        {
-            //static int eventEnumIndex = QEvent::staticMetaObject.indexOfEnumerator("Type");
-            //qDebug() << QEvent::staticMetaObject.enumerator(eventEnumIndex).valueToKey(event->type());
-            ZoomDoc();
-        }
-
+        if (event)
+            if (event->type() == QEvent::MouseButtonPress)
+            {
+                //static int eventEnumIndex = QEvent::staticMetaObject.indexOfEnumerator("Type");
+                //qDebug() << QEvent::staticMetaObject.enumerator(eventEnumIndex).valueToKey(event->type());
+                ZoomDoc();
+            }
      }
     return QWidget::eventFilter(obj, event);
 }
@@ -1344,7 +1359,6 @@ void dlg_docsexternes::RemplirTreeView()
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
         QString date = doc->date().toString(tr("dd-MM-yyyy"));
-        QString a = doc->typedoc();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));
         pitemtridated       = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));

@@ -42,14 +42,13 @@ bool UpLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const
 {
     if(event->type() == QEvent::MouseButtonRelease)
          emit focusitem(index.row());
-    return QAbstractItemDelegate::editorEvent(event, model, option, index);
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
 
 
 QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
     UpLineEdit *m_line;
-    m_line = new UpLineEdit(parent);
     m_line = new UpLineEdit(parent);
     m_line->setRow(index.row());
     m_line->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -73,7 +72,7 @@ bool UpLineDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const 
 {
     if(event->type() == QEvent::MouseButtonRelease)
          emit focusitem(index.row());
-    return QAbstractItemDelegate::editorEvent(event, model, option, index);
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
 
 void UpLineDelegate::updateEditorGeometry(QWidget *editor,

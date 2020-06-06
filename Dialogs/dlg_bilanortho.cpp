@@ -198,13 +198,13 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui->HMaddoxVPSCDcomboBox->setVisible(false);
     ui->HMaddoxVPASCDcomboBox->setVisible(false);
 
-    connect(ui->OKupPushButton,         &QPushButton::clicked,                                  [=] {accept();});
-    connect(ui->AnnulupPushButton,      &QPushButton::clicked,                                  [=] {reject();});
-    connect(ui->ImprimeupPushButton,    &QPushButton::clicked,                                  [=] {ImprimeBOClicked();});
+    connect(ui->OKupPushButton,         &QPushButton::clicked,  this,                               [=] {accept();});
+    connect(ui->AnnulupPushButton,      &QPushButton::clicked,  this,                               [=] {reject();});
+    connect(ui->ImprimeupPushButton,    &QPushButton::clicked,  this,                               [=] {ImprimeBOClicked();});
     QList<UpComboBox*> listcombo = findChildren<UpComboBox*>();
     foreach(UpComboBox *cbox, listcombo)
-        connect(cbox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {AfficheCombobox(cbox->currentIndex(), cbox);});
-    connect(ui->WirtcomboBox,           &QComboBox::currentTextChanged,                         [=] {EnableAnimauxWirtcomboBox(ui->WirtcomboBox->currentText());});
+        connect(cbox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),  this, [=](int) {AfficheCombobox(cbox->currentIndex(), cbox);});
+    connect(ui->WirtcomboBox,           &QComboBox::currentTextChanged,  this,                      [=] {EnableAnimauxWirtcomboBox(ui->WirtcomboBox->currentText());});
 
     ui->AnnulupPushButton->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Small);
     ui->OKupPushButton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Small);
@@ -1085,7 +1085,6 @@ void dlg_bilanortho::AfficheBilan(Acte *acte)
 void dlg_bilanortho::ExtraitRefraction(QString textorigin, QString &ReponseaModifier)
 {
     QString Reponse = "";
-    QString a;
 
     QString const debuttable = "<table";
     QString const fintable = "</table>";

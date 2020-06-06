@@ -56,7 +56,7 @@ bool UpComboBox::eventFilter(QObject *obj, QEvent *event)
             {
                 if (!lineEdit()->hasAcceptableInput())
                 {
-                    QString ab = lineEdit()->text();
+                    //QString ab = lineEdit()->text();
                     setCurrentText(valeuravant());
                     //QRegExpValidator const * reg = static_cast<QRegExpValidator const*>(lineEdit()->validator());
                     //UpMessageBox::Watch(this,reg->regExp().pattern() + "\n'" + ab + "'");

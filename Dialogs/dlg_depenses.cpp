@@ -277,7 +277,6 @@ void dlg_depenses::PrintTable()
     if (Pied == "") return;
 
     // creation du corps
-    QString couleur = "<font color = \"" COULEUR_TITRES "\">";
     double c = CORRECTION_td_width;
     QTextEdit *Etat_textEdit = new QTextEdit;
     QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
@@ -352,7 +351,6 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
 {
     m_mode = mode;
-    Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
 
     ui->DateDepdateEdit     ->setVisible(m_mode != TableVide);
     ui->ObjetlineEdit       ->setVisible(m_mode != TableVide);
@@ -416,21 +414,26 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         wdg_bigtable->disconnect();
         wdg_enreguppushbutton       ->setText("Valider");
         int compte = -1;
-        ui->ComptesupComboBox->setVisible(dep->modepaiement()!="E");
-        if (dep->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
+        Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
+        if (dep)
         {
-            compte = ui->ComptesupComboBox->currentData().toInt();
-            ui->ComptesupComboBox   ->setVisible(true);
-            if (dep->isArchivee() == Depense::NoLoSo)
-                db->loadDepenseArchivee(dep);
-            bool modifiable = (dep->isArchivee() == Depense::Non);
-            ui->DateDeplabel        ->setEnabled(modifiable);
-            ui->DateDepdateEdit     ->setEnabled(modifiable);
-            ui->Montantlabel        ->setEnabled(modifiable);
-            ui->MontantlineEdit     ->setEnabled(modifiable);
-            ui->Paiementlabel       ->setEnabled(modifiable);
-            ui->PaiementcomboBox    ->setEnabled(modifiable);
-            ui->ComptesupComboBox   ->setEnabled(modifiable);
+            bool vis = (dep->modepaiement()!="E");
+            ui->ComptesupComboBox->setVisible(vis);
+            if (dep->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
+            {
+                compte = ui->ComptesupComboBox->currentData().toInt();
+                ui->ComptesupComboBox   ->setVisible(true);
+                if (dep->isArchivee() == Depense::NoLoSo)
+                    db->loadDepenseArchivee(dep);
+                bool modifiable = (dep->isArchivee() == Depense::Non);
+                ui->DateDeplabel        ->setEnabled(modifiable);
+                ui->DateDepdateEdit     ->setEnabled(modifiable);
+                ui->Montantlabel        ->setEnabled(modifiable);
+                ui->MontantlineEdit     ->setEnabled(modifiable);
+                ui->Paiementlabel       ->setEnabled(modifiable);
+                ui->PaiementcomboBox    ->setEnabled(modifiable);
+                ui->ComptesupComboBox   ->setEnabled(modifiable);
+            }
         }
         ui->OKupPushButton->setShortcut(QKeySequence());
         wdg_modifieruppushbutton->setShortcut(QKeySequence());
@@ -611,7 +614,7 @@ void dlg_depenses::EnregistreDepense()
     }
 
     // Insertion de l'écriture dans la table depenses
-    QString Paiement, idDep, m;
+    QString Paiement, m;
     Paiement = ui->PaiementcomboBox->currentText();
     if (Paiement == tr("Espèces"))              m = "E";
     else if (Paiement == tr("Virement"))        m = "V";
@@ -866,7 +869,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
             [=]
             {
               if (dep->lienfacture()!="")
-                  ui->VisuDocupTableWidget->emit zoom();
+                  emit ui->VisuDocupTableWidget->zoom();
               else
                   UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible)"));
             });
@@ -940,7 +943,7 @@ void dlg_depenses::EffaceFacture()
          * on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier
          */
     /* on ferme la fiche d'édition de la facture*/
-    proc->emit CloseEditDocument();
+    emit proc->CloseEditDocument();
     SupprimeFacture(m_depenseencours);
     /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/
     ui->VisuDocupTableWidget->clear();
@@ -1599,8 +1602,9 @@ void dlg_depenses::ReconstruitListeAnnees()
 {
     ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
-    foreach (Depense* dep, Datas::I()->depenses->depenses()->values())
+    for (auto it = Datas::I()->depenses->depenses()->constBegin(); it != Datas::I()->depenses->depenses()->constEnd(); ++it)
     {
+        Depense* dep = const_cast<Depense*>(it.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
             ListeAnnees << QString::number(dep->annee());
     }
@@ -1642,8 +1646,9 @@ void dlg_depenses::RemplitBigTable()
     wdg_bigtable->setRowCount(0);
     QList<Depense*> listDepenses;
 
-    foreach (Depense* dep, Datas::I()->depenses->depenses()->values())
+    for (auto it = Datas::I()->depenses->depenses()->constBegin(); it != Datas::I()->depenses->depenses()->constEnd(); ++it)
     {
+        Depense* dep = const_cast<Depense*>(it.value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
             listDepenses << dep;
     }
@@ -1801,9 +1806,9 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
         if (idfact>-1)
         {
             ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
-            m_depenseencours->setlienfacture(Dlg_DocsScan->getdataFacture()["lien"].toString());
-            m_depenseencours->setecheancier(Dlg_DocsScan->getdataFacture()["echeancier"].toBool());
-            m_depenseencours->setobjetecheancier(Dlg_DocsScan->getdataFacture()["objetecheancier"].toString());
+            m_depenseencours->setlienfacture(map["lien"].toString());
+            m_depenseencours->setecheancier(map["echeancier"].toBool());
+            m_depenseencours->setobjetecheancier(map["objetecheancier"].toString());
             ui->FactureupPushButton     ->setVisible(false);
             ui->EcheancierupPushButton  ->setVisible(false);
             ui->VisuDocupTableWidget    ->setVisible(true);

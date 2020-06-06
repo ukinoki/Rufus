@@ -28,6 +28,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     wdg_buttonframe->addSearchLine();
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
+    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     CancelButton    ->disconnect();
 
@@ -236,7 +237,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
             }
         }
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
-        CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de commentaire"));
+        CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de mot clé"));
         OKButton->setImmediateToolTip(tr("Enregistrer"));
         OKButton->setEnabled(false);
     }
@@ -258,9 +259,9 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
 
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
         CancelButton->setEnabled(true);
-        CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de commentaire"));
+        CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de mot clé"));
         OKButton->setEnabled(false);
-        OKButton->setImmediateToolTip(tr("Enregistrer\nle commentaire"));
+        OKButton->setImmediateToolTip(tr("Enregistrer\nle mot clé"));
     }
 }
 
@@ -289,7 +290,7 @@ void dlg_listemotscles::EnableButtons(MotCle *mc)
 
 void dlg_listemotscles::EnableLines(int row)
 {
-    auto enableline = [=] (int i)
+    auto enableline = [&] (int i)
     {
         QStandardItem *itm = m_model->item(i,0);
         if (itm)
@@ -306,7 +307,7 @@ void dlg_listemotscles::EnableLines(int row)
 }
 
 // ----------------------------------------------------------------------------------
-// Modification du commentaire dans la base.
+// Modification du mot clé dans la base.
 // ----------------------------------------------------------------------------------
 bool dlg_listemotscles::EnregistreMotCle(MotCle *mc)
 {
@@ -408,11 +409,11 @@ void dlg_listemotscles::RemplirTableView()
     pitem0->setEditable(false);
     pitem0->setTextAlignment(Qt::AlignCenter);
     m_model->setHorizontalHeaderItem(0,pitem0);
-    QStandardItem *pitem1   = new QStandardItem(tr("TITRES DES COMMENTAIRES"));
+    QStandardItem *pitem1   = new QStandardItem(tr("TITRES DES MOTS CLES"));
     pitem0->setEditable(false);
     pitem0->setTextAlignment(Qt::AlignLeft);
     m_model->setHorizontalHeaderItem(1,pitem1);
-    m_model->setRowCount(Datas::I()->commentslunets->commentaires()->size());
+    m_model->setRowCount(Datas::I()->motscles->motscles()->size());
     m_model->setColumnCount(2);
     for (int i=0; i<Datas::I()->motscles->motscles()->size(); i++)
     {

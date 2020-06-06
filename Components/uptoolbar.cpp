@@ -24,14 +24,14 @@ UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToo
     {
         debut   = new QAction(Icons::icPageAvant(),tr("Début"),this);
         fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
-        connect(debut,  &QAction::triggered,  [=] {TBChoix(debut);});
-        connect(fin,    &QAction::triggered,  [=] {TBChoix(fin);});
+        connect(debut,  &QAction::triggered,  this, [=] {TBChoix(debut);});
+        connect(fin,    &QAction::triggered,  this, [=] {TBChoix(fin);});
     }
     prec    = new QAction(Icons::icAvant(),tr("Précédent"),this);
     suiv    = new QAction(Icons::icApres(),tr("Suivant"),this);
 
-    connect(prec,   &QAction::triggered,  [=] {TBChoix(prec);});
-    connect(suiv,   &QAction::triggered,  [=] {TBChoix(suiv);});
+    connect(prec,   &QAction::triggered,  this, [=] {TBChoix(prec);});
+    connect(suiv,   &QAction::triggered,  this, [=] {TBChoix(suiv);});
 
     if (AvecFinDebut)
         addAction(debut);

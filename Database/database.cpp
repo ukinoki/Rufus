@@ -216,7 +216,6 @@ QList<QVariantList> DataBase::SelectRecordsFromTable(QStringList listselectChamp
                                                         bool distinct,
                                                         QString errormsg)
 {
-    QList<QVariantList> listreponses;
     QString Distinct = (distinct? "distinct " : "");
     QString selectchamp;
     for (int i=0; i<listselectChamp.size(); ++i)
@@ -278,7 +277,6 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
 {
     QSqlQuery query = QSqlQuery(m_db);
     QString champs, champs2;
-    QString valeurs;
     QHashIterator<QString, QVariant> itset(sets);
     while (itset.hasNext())
     {
@@ -1475,7 +1473,7 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
         return listdepenses;
     for (int i=0; i<deplist.size(); ++i)
     {
-        QMap<int, Depense*>::const_iterator itDepense = m_listDepenses.find(deplist.at(i).at(0).toInt());
+        QMap<int, Depense*>::const_iterator itDepense = m_listDepenses.constFind(deplist.at(i).at(0).toInt());
         if (itDepense != m_listDepenses.constEnd())
         {
             Depense *dep = itDepense.value();
@@ -2303,7 +2301,6 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 */
 QString DataBase::getMDPAdmin()
 {
-    QString mdp ("");
     QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " TBL_PARAMSYSTEME,ok);
     if( !ok || mdpdata.size()==0 )
         StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
@@ -3237,7 +3234,6 @@ QList<Message*> DataBase::loadAllMessagesByIdUser(int id)                     //
 Message* DataBase::loadMessageById(int idmessage)                     //! charge tous les messages envoyes par un utilisateur
 {
     Message *msg = Q_NULLPTR;
-    QList<Message*> list = QList<Message*> ();
     QString req =
         "select " CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
                 CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG " from "
