@@ -41,7 +41,7 @@ void Banques::initListe()
 
 Banque* Banques::getById(int id)
 {
-    QMap<int, Banque*>::const_iterator itcpt = map_banques->find(id);
+    QMap<int, Banque*>::const_iterator itcpt = map_banques->constFind(id);
     if( itcpt == map_banques->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();

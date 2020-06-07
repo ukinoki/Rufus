@@ -29,7 +29,7 @@ QMap<int, Tiers *> *TiersPayants::tierspayants() const
 
 Tiers* TiersPayants::getById(int id)
 {
-    QMap<int, Tiers*>::const_iterator itcpt = map_tierspayants->find(id);
+    QMap<int, Tiers*>::const_iterator itcpt = map_tierspayants->constFind(id);
     if( itcpt == map_tierspayants->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
@@ -82,7 +82,6 @@ Tiers* TiersPayants::CreationTiers(QHash<QString, QVariant> sets)
     }
     QJsonObject  data = QJsonObject{};
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

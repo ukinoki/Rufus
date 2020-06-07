@@ -569,13 +569,13 @@ void dlg_remisecheques::RemplirRemisesPrecs(int id)
     QList<QVariantList> listremises = db->StandardSelectSQL(req,ok);
     ui->ListeChequesupTableWidget->setRowCount(listremises.size());
     if (listremises.size()>0) {
-        QTableWidgetItem *pItem0    = new QTableWidgetItem() ;
-        QTableWidgetItem *pItem1    = new QTableWidgetItem() ;
-        QTableWidgetItem *pItem2    = new QTableWidgetItem() ;
-        QTableWidgetItem *pItem3    = new QTableWidgetItem() ;
-        QTableWidgetItem *pItem4    = new QTableWidgetItem() ;
-        QTableWidgetItem *pItem5    = new QTableWidgetItem() ;
-        UpCheckBox *check           = new UpCheckBox() ;
+        QTableWidgetItem *pItem0;
+        QTableWidgetItem *pItem1;
+        QTableWidgetItem *pItem2;
+        QTableWidgetItem *pItem3;
+        QTableWidgetItem *pItem4;
+        QTableWidgetItem *pItem5;
+        UpCheckBox *check;
         for (int i = 0; i < listremises.size(); i++)
         {
             QVariantList remise = listremises.at(i);
@@ -1027,7 +1027,6 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     int     gtotalNbrePieces    = 0;
      int iduser = ui->UserComboBox->currentData().toInt();
     QDate date;
-    QString req;
     int id = ui->ComptecomboBox->currentData().toInt();
     Compte *cpt = Datas::I()->comptes->getById(id);
     if (!cpt)

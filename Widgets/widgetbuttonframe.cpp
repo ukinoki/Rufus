@@ -50,7 +50,7 @@ void WidgetButtonFrame::AddButtons(Buttons butt)
         butt->setVisible(false);
         butt->setIconSize(QSize(szicon, szicon));
         butt->setFixedSize(geo,geo);
-        connect(butt, &QPushButton::clicked, [=] {Choix(butt->iD());});
+        connect(butt, &QPushButton::clicked, this, [=] {Choix(butt->iD());});
     }
     QHBoxLayout *ilay = new QHBoxLayout();
     ilay->setContentsMargins(0,0,0,0);

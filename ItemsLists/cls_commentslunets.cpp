@@ -19,23 +19,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 CommentsLunets::CommentsLunets(QObject *parent) : ItemsList(parent)
 {
-    map_comments = new QMap<int, CommentLunet*>();
+    map_all = new QMap<int, CommentLunet*>();
 }
 
 QMap<int, CommentLunet*>* CommentsLunets::commentaires() const
 {
-    return map_comments;
+    return map_all;
 }
 
 CommentLunet* CommentsLunets::getById(int id, bool reload)
 {
-    QMap<int, CommentLunet*>::const_iterator itref = map_comments->find(id);
-    if( itref == map_comments->constEnd() )
+    QMap<int, CommentLunet*>::const_iterator itref = map_all->constFind(id);
+    if( itref == map_all->constEnd() )
     {
         CommentLunet * itm = DataBase::I()->loadCommentLunetById(id);
         if (itm != Q_NULLPTR)
-            add( map_comments, itm );
-        return itm;
+            add( map_all, itm );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<CommentLunet*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -57,13 +58,13 @@ CommentLunet* CommentsLunets::getById(int id, bool reload)
 void CommentsLunets::initListeByListUsers(QList<int> listid)
 {
     QList<CommentLunet*> listCommentsLunets = DataBase::I()->loadCommentsLunetsByListidUser(listid);
-    epurelist(map_comments, &listCommentsLunets);
-    addList(map_comments, &listCommentsLunets, Item::Update);
+    epurelist(map_all, &listCommentsLunets);
+    addList(map_all, &listCommentsLunets, Item::Update);
 }
 
 void CommentsLunets::SupprimeCommentLunet(CommentLunet* comment)
 {
-    Supprime(map_comments, comment);
+    Supprime(map_all, comment);
 }
 
 CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets)
@@ -88,7 +89,6 @@ CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets
     QJsonObject  data = QJsonObject{};
     data[CP_ID_COMLUN] = idcomment;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
@@ -100,7 +100,7 @@ CommentLunet* CommentsLunets::CreationCommentLunet(QHash<QString, QVariant> sets
     }
     comment = new CommentLunet(data);
     if (comment != Q_NULLPTR)
-        map_comments->insert(comment->id(), comment);
+        map_all->insert(comment->id(), comment);
     return comment;
 }
 

@@ -369,7 +369,7 @@ void dlg_listemotscles::MenuContextuel()
     QAction *pAction_Suppr;
     QAction *pAction_Creer;
     pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un mot-clé"));
-    connect (pAction_Creer,      &QAction::triggered,    [=] {ChoixMenuContextuel("Creer");});
+    connect (pAction_Creer,      &QAction::triggered, this,   [&] {ChoixMenuContextuel("Creer");});
 
     QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
     m_currentmotcle = getMotCleFromIndex(idx);
@@ -379,8 +379,8 @@ void dlg_listemotscles::MenuContextuel()
         pAction_Modif                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce mot-clé"));
         pAction_Suppr                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce mot-clé"));
 
-        connect (pAction_Modif,      &QAction::triggered,    [=] {ChoixMenuContextuel("Modifier");});
-        connect (pAction_Suppr,      &QAction::triggered,    [=] {ChoixMenuContextuel("Supprimer");});
+        connect (pAction_Modif,      &QAction::triggered, this,   [&] {ChoixMenuContextuel("Modifier");});
+        connect (pAction_Suppr,      &QAction::triggered, this,   [&] {ChoixMenuContextuel("Supprimer");});
     }
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -391,8 +391,8 @@ void dlg_listemotscles::RemplirTableView()
     wdg_tblview->disconnect();
     wdg_tblview->selectionModel()->disconnect();
     UpLineDelegate *line = new UpLineDelegate();
-    connect(line,   &UpLineDelegate::textEdited, [=] {OKButton->setEnabled(true);});
-    connect(line,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+    connect(line,   &UpLineDelegate::textEdited, this, [&] {OKButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
                                                                         UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
                                                                         m_textdelegate = line->text();
                                                                       });

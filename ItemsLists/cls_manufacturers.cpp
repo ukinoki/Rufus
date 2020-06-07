@@ -29,13 +29,14 @@ QMap<int, Manufacturer*>* Manufacturers::manufacturers() const
 
 Manufacturer* Manufacturers::getById(int id, bool reload)
 {
-    QMap<int, Manufacturer*>::const_iterator itman = map_all->find(id);
+    QMap<int, Manufacturer*>::const_iterator itman = map_all->constFind(id);
     if( itman == map_all->constEnd() )
     {
         Manufacturer * man = DataBase::I()->loadManufacturerById(id);
         if (man != Q_NULLPTR)
             add( map_all, man, Item::Update );
-        return man;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Manufacturer*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -90,7 +91,6 @@ Manufacturer* Manufacturers::CreationManufacturer(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_MANUFACTURER] = idManufacturer;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

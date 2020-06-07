@@ -511,9 +511,10 @@ void dlg_impressions::FiltreListe()
     EnableLines();
     for (int j=0; j<m_docsmodel->rowCount(); j++)
     {
-        QString txt = m_docsmodel->item(j,1)->data(Qt::DisplayRole).toString();
-        QString txtachercher = wdg_docsbuttonframe->searchline()->text();
-        ui->DocsupTableView->setRowHidden(j, !txt.toUpper().contains(txtachercher.toUpper()));
+        QString txt = m_docsmodel->item(j,1)->data(Qt::DisplayRole).toString().toUpper();
+        QString txtachercher = wdg_docsbuttonframe->searchline()->text().toUpper();
+        bool cache = !txt.contains(txtachercher);
+        ui->DocsupTableView->setRowHidden(j, cache);
     }
 }
 
@@ -547,9 +548,8 @@ void dlg_impressions::MenuContextuelTexteDocument()
     QAction *pAction_InsInterroSejour;
     QAction *pAction_InsInterroSite;
     QAction *pAction_InsInterroText;
-    QMenu *interro = new QMenu(this);
     pAction_InsertChamp                 = menucontextuel.addAction   (Icons::icAjouter(),    tr("Insérer un champ"));
-    interro                             = menucontextuel.addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
+    QMenu *interro                      = menucontextuel.addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
     pAction_InsInterroDate              = interro->addAction            (Icons::icDate(),       tr("Date"));
     pAction_InsInterroHeure             = interro->addAction            (Icons::icClock(),      tr("Heure"));
     pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Côté"));
@@ -819,9 +819,9 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         ListChamps->setModal(true);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
 
-        connect(ListChamps->OKButton,   &QPushButton::clicked,          [=] {ListChamps->accept();});
+        connect(ListChamps->OKButton,   &QPushButton::clicked, ListChamps,         [=] {ListChamps->accept();});
         ListChamps->setFixedWidth(tabChamps->width() + ListChamps->dlglayout()->contentsMargins().left()*2);
-        connect(tabChamps,              &QTableWidget::doubleClicked,   [=] {ListChamps->accept();});
+        connect(tabChamps,              &QTableWidget::doubleClicked, ListChamps,  [=] {ListChamps->accept();});
         ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
         if (ListChamps->exec()>0)   {
@@ -943,10 +943,10 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
                 itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
             else
                 itm->setData(QPixmap(),Qt::DecorationRole);
+            if (m_mode == Selection)
+                ItemsList::update(m_currentdocument, CP_DOCPUBLIC_IMPRESSIONS,itm->data(Qt::DecorationRole) != QPixmap());
         }
         ui->DocPubliccheckBox->toggle();
-        if (m_mode == Selection)
-            ItemsList::update(m_currentdocument, CP_DOCPUBLIC_IMPRESSIONS,itm->data(Qt::DecorationRole) != QPixmap());
     }
     else if (choix  == "Editable")
     {
@@ -960,10 +960,10 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
                 itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
             else
                 itm->setData(QPixmap(),Qt::DecorationRole);
+            if (m_mode == Selection)
+                ItemsList::update(m_currentdocument, CP_EDITABLE_IMPRESSIONS,itm->data(Qt::DecorationRole) != QPixmap());
         }
         ui->DocEditcheckBox->toggle();
-        if (m_mode == Selection)
-            ItemsList::update(m_currentdocument, CP_EDITABLE_IMPRESSIONS,itm->data(Qt::DecorationRole) != QPixmap());
     }
     else if (choix  == "Administratif")
     {
@@ -1032,9 +1032,9 @@ void dlg_impressions::ChoixMenuContextuelDossier(QString choix)
                 itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
             else
                 itm->setData(QPixmap(),Qt::DecorationRole);
+            if (m_mode == Selection)
+                ItemsList::update(m_currentdossier, CP_PUBLIC_DOSSIERIMPRESSIONS, itm->data(Qt::DecorationRole) != QPixmap());
         }
-        if (m_mode == Selection)
-            ItemsList::update(m_currentdossier, CP_PUBLIC_DOSSIERIMPRESSIONS,itm->data(Qt::DecorationRole) != QPixmap());
     }
     else if (choix  == "Creer")
     {
@@ -1362,7 +1362,7 @@ void dlg_impressions::OKpushButtonClicked()
 
             dlg_ask->AjouteLayButtons();
             dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-            connect(dlg_ask->OKButton,     &QPushButton::clicked,   [=] {VerifCoherencedlg_ask();});
+            connect(dlg_ask->OKButton,     &QPushButton::clicked, this,  [=] {VerifCoherencedlg_ask();});
 
             if (dlg_ask->exec() == 0)
             {
@@ -1703,7 +1703,7 @@ int dlg_impressions::AskDialog(QString titre)
     dlg_askdialog->AjouteLayButtons();
     dlg_askdialog->TuneSize();
 
-    connect(dlg_askdialog->OKButton,   &QPushButton::clicked,   [=] {dlg_askdialog->accept();});
+    connect(dlg_askdialog->OKButton,   &QPushButton::clicked, dlg_askdialog,  [=] {dlg_askdialog->accept();});
 
     Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
@@ -2194,7 +2194,7 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     widg->setAutoFillBackground(true);
     t_timerefface->disconnect();
     t_timerefface->start(70);
-    connect(t_timerefface, &QTimer::timeout, [=]
+    connect(t_timerefface, &QTimer::timeout, this, [=]
     {
         QRect rect = QRect(widg->pos(),widg->size());
         QPoint pos = mapFromParent(cursor().pos());
@@ -2825,7 +2825,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     dlg_askcorrespondant ->setModal(true);
     dlg_askcorrespondant->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, [=] {ListidCor();});
+    connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [=] {ListidCor();});
 
     dlg_askcorrespondant ->exec();
 }
@@ -2856,8 +2856,8 @@ void dlg_impressions::Remplir_TableView()
     ui->DocsupTableView->selectionModel()->disconnect();
     ui->DocsupTableView->horizontalHeader()->disconnect();
     UpLineDelegate *linedoc = new UpLineDelegate();
-    connect(linedoc,   &UpLineDelegate::textEdited, [=] {ui->OKupPushButton->setEnabled(true);});
-    connect(linedoc,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+    connect(linedoc,   &UpLineDelegate::textEdited, this, [=] {ui->OKupPushButton->setEnabled(true);});
+    connect(linedoc,   &UpLineDelegate::commitData, this, [=](QWidget *editor) {
                                                                             UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
                                                                             m_textdocdelegate = line->text();
                                                                          });
@@ -2967,8 +2967,8 @@ void dlg_impressions::Remplir_TableView()
     ui->DossiersupTableView->disconnect();
     ui->DossiersupTableView->selectionModel()->disconnect();
     UpLineDelegate *line = new UpLineDelegate();
-    connect(line,   &UpLineDelegate::textEdited, [=] {ui->OKupPushButton->setEnabled(true);});
-    connect(line,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+    connect(line,   &UpLineDelegate::textEdited, this, [=] {ui->OKupPushButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, this, [=](QWidget *editor) {
                                                                          UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
                                                                          m_textdossierdelegate = line->text();
                                                                       });
@@ -3122,7 +3122,6 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
     if (row < 0 || row > m_docsmodel->rowCount()-1)
         return;
 
-    QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
     QPalette palette;
@@ -3181,7 +3180,6 @@ void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool r
         return;
     if (row < 0 || row > m_dossiersmodel->rowCount()-1)
         return;
-    QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
     QPalette palette;

@@ -45,7 +45,7 @@ Depenses::Depenses(QObject *parent) : ItemsList(parent)
  */
 Depense* Depenses::getById(int id)
 {
-    QMap<int, Depense*>::const_iterator Depense = map_depenses->find(id);
+    QMap<int, Depense*>::const_iterator Depense = map_depenses->constFind(id);
     if( Depense == map_depenses->constEnd() )
         return Q_NULLPTR;
     return Depense.value();

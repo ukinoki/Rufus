@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Correspondants : public ItemsList
 {
 private:
-    QMap<int, Correspondant*> *map_correspondants;    //!<Collection de tous les correspondants sans exception, généralistes ou pas
+    QMap<int, Correspondant*> *map_all;    //!<Collection de tous les correspondants sans exception, généralistes ou pas
 
 public:
     //GETTER

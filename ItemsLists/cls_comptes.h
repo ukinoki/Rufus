@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Comptes : public ItemsList
 {
 private:
-    QMap<int, Compte*> *map_comptes = Q_NULLPTR;  //!< la liste de tous les comptes
+    QMap<int, Compte*> *map_all = Q_NULLPTR;  //!< la liste de tous les comptes
 
 public:
     explicit Comptes(QObject *parent = Q_NULLPTR);
@@ -32,8 +32,7 @@ public:
 
     QMap<int, Compte*>* comptes() const;
 
-    Compte* getById(int id);
-    void reloadCompte(Compte*compte);
+    Compte* getById(int id, bool reload = false);
     void initListe();
     QMap<int, bool> initListeComptesByIdUser(int id);    //! reconstruit la liste des comptes d'un utilisateur
 

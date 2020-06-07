@@ -207,7 +207,7 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
         };
     auto nouvcouleur = [&]
         {
-            QColor colordep = QColor("#FFFFFFFF");
+            QColor colordep = QColor(0xFF,0xFF,0xFF);
             QColorDialog *dlg = new QColorDialog(colordep, this);
             dlg->exec();
             QColor colorfin = dlg->selectedColor();
@@ -215,7 +215,6 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
             if (!colorfin.isValid())
                 return;
             QString couleur = colorfin.name();
-            QString fontcolor = "color:" + couleur;
             str_nouvcolor = couleur.replace("#","");
             dlg_lieu->OKButton->setEnabled(true);
         };

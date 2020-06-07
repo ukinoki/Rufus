@@ -186,7 +186,6 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
 
     MAJIP();
     Utils::ModeAcces mode = Utils::Poste;
-    QString server;
     if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
@@ -202,7 +201,6 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
         Login = LOGIN_SQL;
         Password = MDP_SQL;
     }
-    QString req;
     QString error = "";
     error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
 

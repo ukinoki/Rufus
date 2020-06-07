@@ -147,8 +147,11 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         int nulitem = -2;
         ui->ComptablescomboBox->addItem(tr("Tout le monde"), nulitem);
     }
-    foreach (User* usr, map_comptables->values())
+    for (auto it = map_comptables->constBegin(); it != map_comptables->constEnd(); ++it)
+    {
+        User* usr = const_cast<User*>(it.value());
         ui->ComptablescomboBox->addItem(usr->login(), QString::number(usr->id()) );
+    }
     // on cherche le comptable à créditer
     if (m_listidactes.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
     {
@@ -610,7 +613,7 @@ void dlg_paiementdirect::ModifGratuit(QPoint pos)
         {
             QMenu           *menuContextuel = new QMenu(this);
             QAction         *pAction_ModifGratuit = menuContextuel->addAction(tr("Ne plus considérer comme gratuit")) ;
-            connect (pAction_ModifGratuit, &QAction::triggered,    [=] {ModifGratuitChoixMenu("Modifier");});
+            connect (pAction_ModifGratuit, &QAction::triggered, this,   [&] {ModifGratuitChoixMenu("Modifier");});
 
             // ouvrir le menu
             menuContextuel->exec(QCursor::pos());
@@ -1019,7 +1022,6 @@ void dlg_paiementdirect::SupprimerPaiement()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::ValidePaiement()
 {
-    QString requete;
     switch (m_mode) {
     case Accueil:
     {
@@ -1587,7 +1589,6 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, TypeTable typetable)
 {
     QStringList         LabelARemplir;
-    QString             A;
     int                 ColCount = 0;
 
     // il faut deconnecter la table du signal itemSelectionChanged(), sinon, l'appel de TableARemplir->clear()
@@ -1848,8 +1849,9 @@ void dlg_paiementdirect::ReconstruitListeBanques()
     ui->BanqueChequecomboBox->clear();
     // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel(this);
-    foreach (Banque* bq, map_banques->values())
+    for (auto it = map_banques->constBegin(); it != map_banques->constEnd(); ++it)
     {
+        Banque* bq = const_cast<Banque*>(it.value());
         QList<QStandardItem *> items;
         items << new QStandardItem(bq->nomabrege()) << new QStandardItem(QString::number(bq->id()));
             model->appendRow(items);
@@ -2524,9 +2526,9 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                     if (A == "I") A = tr("Impayé");
                     if (A == "G") A = tr("Gratuit");
                     if (A == "CB")  A = tr("Carte bancaire");
-                    pItem6 = new QTableWidgetItem() ;
                     if (TableARemplir == ui->ListeupTableWidget)
                     {
+                        pItem6 = new QTableWidgetItem() ;
                         pItem6->setTextAlignment(Qt::AlignCenter);
                         pItem6->setText(A);
                         TableARemplir->setItem(i,col,pItem6);                                           // Type paiement
@@ -2570,6 +2572,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                         {
                             A = Tablelist.at(i).at(9).toString();
                             if (A == "CB")  A = tr("Carte Bancaire");
+                            pItem6 = new QTableWidgetItem() ;
                             pItem6->setTextAlignment(Qt::AlignCenter);
                             pItem6->setText(A);
                             TableARemplir->setItem(i,col,pItem6);                                                   // Type paiement

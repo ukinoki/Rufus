@@ -222,8 +222,9 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(QString filtre)
 
     UpStandardItem *pitem;
 
-    foreach(Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
+    for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
     {
+        Manufacturer *man = const_cast<Manufacturer*>(it.value());
         if (man->nom().toUpper().startsWith(filtre.toUpper()))
         {
             pitem   = new UpStandardItem(man->nom(), man);

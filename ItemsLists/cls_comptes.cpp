@@ -19,60 +19,59 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Comptes::Comptes(QObject * parent) : ItemsList(parent)
 {
-    map_comptes = new QMap<int, Compte*>();
+    map_all = new QMap<int, Compte*>();
 }
 
 Comptes::~Comptes()
 {
-    clearAll(map_comptes);
-    delete map_comptes;
+    clearAll(map_all);
+    delete map_all;
 }
 
 QMap<int, Compte*>* Comptes::comptes() const
 {
-    return map_comptes;
+    return map_all;
 }
 
-Compte* Comptes::getById(int id)
+Compte* Comptes::getById(int id, bool reload)
 {
-    QMap<int, Compte*>::const_iterator itcpt = map_comptes->find(id);
-    if( itcpt == map_comptes->constEnd() )
+    QMap<int, Compte*>::const_iterator itcpt = map_all->constFind(id);
+    if( itcpt == map_all->constEnd() )
     {
-        QJsonObject data = DataBase::I()->loadCompteDataById(id);
-        if (data != QJsonObject{})
+        Compte *cpt = DataBase::I()->loadCompteById(id);
+        if (cpt)
+            add( map_all, cpt );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Compte*>(it.value()) : Q_NULLPTR);
+    }
+    else if (reload)
+    {
+        Compte *cpt = DataBase::I()->loadCompteById(id);
+        if (cpt)
         {
-            Compte * cpt = new Compte(data);
-            add( map_comptes, cpt );
-            return cpt;
+            itcpt.value()->setData(cpt->datas());
+            delete cpt;
         }
-        return Q_NULLPTR;
     }
     return itcpt.value();
-}
-
-void Comptes::reloadCompte(Compte *compte)
-{
-    if (compte == Q_NULLPTR)
-        return;
-    compte->setData(DataBase::I()->loadCompteDataById(compte->id()));
 }
 
 void Comptes::initListe()
 {
     QList<Compte*> listcomptes = DataBase::I()->loadComptesAll();
-    epurelist(map_comptes, &listcomptes);
-    addList(map_comptes, &listcomptes);
+    epurelist(map_all, &listcomptes);
+    addList(map_all, &listcomptes);
 }
 
 void Comptes::SupprimeCompte(Compte *cpt)
 {
-    Supprime(map_comptes, cpt);
+    Supprime(map_all, cpt);
 }
 
 QMap<int, bool> Comptes::initListeComptesByIdUser(int id)
 {
     QMap<int, bool> mapcomptes;
-    foreach (Compte *cpt, *map_comptes)
+    foreach (Compte *cpt, *map_all)
         if (cpt->idUser() == id)
             mapcomptes.insert(cpt->id(), cpt->isDesactive());
     return mapcomptes;
@@ -125,6 +124,6 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     cpt->setsolde(SoldeSurDernierReleve);
     cpt->setpartage(Partage);
     cpt->setdesactive(Desactive);
-    add(map_comptes, cpt);
+    add(map_all, cpt);
     return cpt;
 }

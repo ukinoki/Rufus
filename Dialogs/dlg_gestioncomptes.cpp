@@ -260,13 +260,14 @@ void dlg_gestioncomptes::CompteFactice()
     if (msgbox.clickedButton()==&RemplirBouton)
     {
         Banque *newbq = Q_NULLPTR;
-        foreach (Banque* bq, Datas::I()->banques->banques()->values())
+        for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
         {
-           if (bq->nomabrege() == "PaPRS")
-           {
-               newbq = bq;
-               break;
-           }
+            Banque *bq = const_cast<Banque*>(it.value());
+            if (bq->nomabrege() == "PaPRS")
+            {
+                newbq = bq;
+                break;
+            }
         }
         if (newbq == Q_NULLPTR)
             newbq = Datas::I()->banques->CreationBanque("PaPRS",             //! idBanqueAbrege
@@ -282,21 +283,20 @@ void dlg_gestioncomptes::CompteFactice()
         ui->IntituleCompteuplineEdit    ->setText(intit);
         int al = 0;
         QString iban = "FR";
-        srand(static_cast<uint>(time(Q_NULLPTR)));
-        al = rand() % 100;
+        al = arc4random() % 100;
         while (al<10)
-            al = rand() % 100;
+            al = arc4random() % 100;
         iban += QString::number(al) + " ";
         for(int i=0; i<5; i++)
         {
-            al = rand() % 10000;
+            al = arc4random() % 10000;
             while (al<1000)
-                al = rand() % 10000;
+                al = arc4random() % 10000;
             iban += QString::number(al) + " ";
         }
-        al = rand() % 1000;
+        al = arc4random() % 1000;
         while (al<100)
-            al = rand() % 1000;
+            al = arc4random() % 1000;
         iban += QString::number(al);
         ui->NomCompteAbregeuplineEdit   ->setText("PaPRS"+QString::number(al));
         ui->IBANuplineEdit              ->setText(iban);
@@ -395,18 +395,20 @@ void dlg_gestioncomptes::Fermer()
 void dlg_gestioncomptes::ValidCompte()
 {
     int idcompte = 0;
-    QString req;
     if (!VerifCompte())
         return;
     ui->Compteframe->setEnabled(false);
     ui->OKModifupSmallButton->setVisible(false);
     int idbanque = 0;
-    foreach (Banque *bq, Datas::I()->banques->banques()->values())
+    for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
+    {
+        Banque *bq = const_cast<Banque*>(it.value());
         if (bq->id() == ui->BanqueupcomboBox->currentData().toInt())
         {
             idbanque = bq->id();
             break;
         }
+    }
     if (idbanque == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver la banque") + " " + ui->BanqueupcomboBox->currentText() + "!");
@@ -426,11 +428,11 @@ void dlg_gestioncomptes::ValidCompte()
         db->UpdateTable(TBL_COMPTES,
                         listsets,
                         "where idCompte = "     + ui->idCompteupLineEdit->text());
-        Datas::I()->comptes->reloadCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
+        m_comptencours = Datas::I()->comptes->getById(idcompte,true);
     }
     else if (m_mode == Nouv)
     {
-        Compte* cpt = Datas::I()->comptes->CreationCompte(idbanque,                                          //! idBanque
+        m_comptencours = Datas::I()->comptes->CreationCompte(idbanque,                            //! idBanque
                                             m_userencours->id(),                               //! idUser
                                             ui->IBANuplineEdit->text(),                        //! IBAN
                                             ui->IntituleCompteuplineEdit->text(),              //! IntituleCompte
@@ -438,10 +440,8 @@ void dlg_gestioncomptes::ValidCompte()
                                             QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
                                             m_societe,                                         //! Partage
                                             ui->DesactiveComptecheckBox->isChecked());         //! Desactive
-        idcompte = cpt->id();
     }
     m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
-    m_comptencours = Datas::I()->comptes->getById(idcompte);
 
     RemplirTableView(idcompte);
     ui->OKModifupSmallButton->setVisible(false);
@@ -460,8 +460,9 @@ void dlg_gestioncomptes::ReconstruitComboBanques()
     ui->BanqueupcomboBox->clear();
     // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
-    foreach (Banque* bq, Datas::I()->banques->banques()->values())
+    for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
     {
+        Banque *bq = const_cast<Banque*>(it.value());
         QList<QStandardItem *> items;
         items << new QStandardItem(bq->nom()) << new QStandardItem(QString::number(bq->id()));
             model->appendRow(items);
@@ -494,11 +495,11 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
         int i=0;
         foreach (int idcpt, m_userencours->listecomptesbancaires(true))
         {
-            pitem0 = new QTableWidgetItem;
-            pitem1 = new QTableWidgetItem;
             Compte *cpt = Datas::I()->comptes->getById(idcpt);
             if (cpt != Q_NULLPTR)
             {
+                pitem0 = new QTableWidgetItem;
+                pitem1 = new QTableWidgetItem;
                 pitem0->setText(QString::number(cpt->id()));
                 pitem1->setText(cpt->nomabrege());
                 ui->ComptesuptableWidget->setItem(i,0,pitem0);
@@ -507,7 +508,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
                 i++;
             }
         }
-        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
+        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, this, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
         if (idcompte > 0)
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(idcompte), Qt::MatchExactly).at(0));
         else if (m_userencours->idcomptepardefaut() > 0)
@@ -522,7 +523,6 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
 bool dlg_gestioncomptes::VerifCompte()
 {
     QString msg = "";
-    QString req;
     if (ui->BanqueupcomboBox->currentText() == "")
         msg = tr("la banque");
     else if (ui->IntituleCompteuplineEdit->text() == "")
@@ -540,12 +540,15 @@ bool dlg_gestioncomptes::VerifCompte()
     }
 
     int idbanque = 0;
-    foreach (Banque *bq, Datas::I()->banques->banques()->values())
+    for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
+    {
+        Banque *bq = const_cast<Banque*>(it.value());
         if (bq->id() == ui->BanqueupcomboBox->currentData().toInt())
         {
             idbanque = bq->id();
             break;
         }
+    }
     if (idbanque == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver la banque") + " " + ui->BanqueupcomboBox->currentText() + "!");

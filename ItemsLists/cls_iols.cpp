@@ -29,13 +29,14 @@ QMap<int, IOL*>* IOLs::iols() const
 
 IOL* IOLs::getById(int id, bool reload)
 {
-    QMap<int, IOL*>::const_iterator itref = map_all->find(id);
+    QMap<int, IOL*>::const_iterator itref = map_all->constFind(id);
     if( itref == map_all->constEnd() )
     {
         IOL* iol = DataBase::I()->loadIOLById(id);
         if (iol != Q_NULLPTR)
             add( map_all, iol, Item::Update );
-        return iol;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<IOL*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -89,7 +90,6 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_IOLS] = idiol;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

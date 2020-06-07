@@ -584,8 +584,6 @@ void dlg_motifs::RemplirTableWidget()
 
     //Remplissage Table MotifsupTableWidget
     ui->MotifsupTableWidget->clearContents();
-    QList<Motif*> listMotifs;
-
     int i=0;
     ui->MotifsupTableWidget->setRowCount(map_motifs->size());
     QMapIterator<int, Motif*> itmtf(*map_motifs);

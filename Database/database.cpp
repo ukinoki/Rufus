@@ -1246,45 +1246,40 @@ QList<Compte*> DataBase::loadComptesAll()
         return listcomptes;
     for (int i=0; i<cptlist.size(); ++i)
     {
-        QJsonObject jData{};
-        jData[CP_ID_COMPTES]  = cptlist.at(i).at(0).toInt();
-        jData[CP_IDBANQUE_COMPTES]  = cptlist.at(i).at(1).toInt();
-        jData[CP_IDUSER_COMPTES]    = cptlist.at(i).at(2).toInt();
-        jData[CP_IBAN_COMPTES]      = cptlist.at(i).at(3).toString();
-        jData[CP_INTITULE_COMPTES]  = cptlist.at(i).at(4).toString();
-        jData[CP_NOMABREGE_COMPTES] = cptlist.at(i).at(5).toString();
-        jData[CP_SOLDE_COMPTES]     = cptlist.at(i).at(6).toDouble();
-        jData[CP_PARTAGE_COMPTES]   = (cptlist.at(i).at(7).toInt() == 1);
-        jData[CP_DESACTIVE_COMPTES] = (cptlist.at(i).at(8).toInt() == 1);
-        Compte *cpt = new Compte(jData);
-        if (cpt != Q_NULLPTR)
-            listcomptes << cpt;
+        QJsonObject data = loadCompteData(cptlist.at(i));
+        Compte *cpt = new Compte(data);
+        listcomptes << cpt;
     }
     return listcomptes;
 }
 
-QJsonObject DataBase::loadCompteDataById(int id)
+Compte* DataBase::loadCompteById(int id)
 {
-    QJsonObject jData{};
+    Compte *cpt = Q_NULLPTR;
     bool ok;
     QString req = "SELECT idCompte, idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive "
-          " FROM " TBL_COMPTES
-          " where idCompte = " + QString::number(id);
-    QList<QVariantList> cptlist = StandardSelectSQL(req,ok);
+                  " FROM " TBL_COMPTES
+            " where idCompte = " + QString::number(id);
+    QVariantList cptlist = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
-        return jData;
-    for (int i=0; i<cptlist.size(); ++i)
-    {
-        jData[CP_ID_COMPTES]  = id;
-        jData[CP_IDBANQUE_COMPTES]  = cptlist.at(i).at(1).toInt();
-        jData[CP_IDUSER_COMPTES]    = cptlist.at(i).at(2).toInt();
-        jData[CP_IBAN_COMPTES]      = cptlist.at(i).at(3).toString();
-        jData[CP_INTITULE_COMPTES]  = cptlist.at(i).at(4).toString();
-        jData[CP_NOMABREGE_COMPTES] = cptlist.at(i).at(5).toString();
-        jData[CP_SOLDE_COMPTES]     = cptlist.at(i).at(6).toDouble();
-        jData[CP_PARTAGE_COMPTES]   = (cptlist.at(i).at(7).toInt() == 1);
-        jData[CP_DESACTIVE_COMPTES] = (cptlist.at(i).at(8).toInt() == 1);
-    }
+        return cpt;
+    QJsonObject data = loadCompteData(cptlist);
+    cpt = new Compte(data);
+    return cpt;
+}
+
+QJsonObject DataBase::loadCompteData(QVariantList listdata)
+{
+    QJsonObject jData{};
+    jData[CP_ID_COMPTES]        = listdata.at(1).toInt();
+    jData[CP_IDBANQUE_COMPTES]  = listdata.at(1).toInt();
+    jData[CP_IDUSER_COMPTES]    = listdata.at(2).toInt();
+    jData[CP_IBAN_COMPTES]      = listdata.at(3).toString();
+    jData[CP_INTITULE_COMPTES]  = listdata.at(4).toString();
+    jData[CP_NOMABREGE_COMPTES] = listdata.at(5).toString();
+    jData[CP_SOLDE_COMPTES]     = listdata.at(6).toDouble();
+    jData[CP_PARTAGE_COMPTES]   = (listdata.at(7).toInt() == 1);
+    jData[CP_DESACTIVE_COMPTES] = (listdata.at(8).toInt() == 1);
     return jData;
 }
 

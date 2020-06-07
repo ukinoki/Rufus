@@ -29,13 +29,14 @@ QMap<int, Commercial*>* Commercials::commercials() const
 
 Commercial* Commercials::getById(int id)
 {
-    QMap<int, Commercial*>::const_iterator itman = map_all->find(id);
+    QMap<int, Commercial*>::const_iterator itman = map_all->constFind(id);
     if( itman == map_all->constEnd() )
     {
         Commercial * man = DataBase::I()->loadCommercialById(id);
-        if (man != Q_NULLPTR)
+        if (man)
             add( map_all, man, Item::Update );
-        return man;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Commercial*>(it.value()) : Q_NULLPTR);
     }
     return itman.value();
 }
@@ -93,7 +94,6 @@ Commercial* Commercials::CreationCommercial(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_COM] = idcommercial;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

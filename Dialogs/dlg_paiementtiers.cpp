@@ -764,7 +764,6 @@ void dlg_paiementtiers::ValidePaiement()
     {
         NettoieVerrousCompta();
         m_modifpaiementencours = false;
-        QString ModePaiement;
         // On retrouve l'idRecette de LignesRecettes correspondant au paiement à modifier
         QList<QTableWidgetSelectionRange>  RangeeSelectionne = ui->ListeupTableWidget->selectedRanges();
         int ab      = RangeeSelectionne.at(0).topRow();
@@ -947,7 +946,6 @@ bool dlg_paiementtiers::initOK() const
 void dlg_paiementtiers::DefinitArchitectureTableView(UpTableWidget *TableARemplir, TypeTable Type)
 {
     QStringList         LabelARemplir;
-    QString             A;
     int                 ColCount = 0;
 
     // il faut deconnecter la table du signal itemSelectionChanged(), sinon, l'appel de TableARemplir->clear()
@@ -1562,7 +1560,6 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
     if (Upline == Q_NULLPTR) return;
     QString anc = box->valeuravant();
     QString nou = box->currentText();
-    QString req;
     box->setCurrentText(nou);
     int i = box->findText(nou, Qt::MatchFixedString);
     if (-1 < i && i < box->count())                     //! le tiers existe, on passe à autre chose
@@ -2340,14 +2337,14 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
 
             if (m_mode == VoirListePaiementsTiers)
             {
-                pItem6 = new QTableWidgetItem() ;
-                if (TableARemplir == ui->ListeupTableWidget)
+                 if (TableARemplir == ui->ListeupTableWidget)
                 {
                     A = reclist.at(i).at(8).toString();
                     if (A == "T") A = reclist.at(i).at(9).toString();
                     if (A == "E") A = tr("Espèces");
                     if (A == "C") A = tr("Chèque");
                     if (A == "CB")  A = tr("Carte bancaire");
+                    pItem6 = new QTableWidgetItem() ;
                     pItem6->setTextAlignment(Qt::AlignCenter);
                     pItem6->setText(A);
                     TableARemplir->setItem(i,col,pItem6);                                                       // Type paiement
@@ -2363,6 +2360,7 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
                 {
                     A = reclist.at(i).at(9).toString();
                     if (A == "CB")  A = tr("Carte bancaire");
+                    pItem6 = new QTableWidgetItem() ;
                     pItem6->setTextAlignment(Qt::AlignCenter);
                     pItem6->setText(A);
                     TableARemplir->setItem(i,col,pItem6);                                                       // Type paiement

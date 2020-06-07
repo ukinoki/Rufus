@@ -196,7 +196,6 @@ int dlg_refractionlistemesures::Nombre_Mesure_Selected()
 //--------------------------------------------------------------------------------------
 void dlg_refractionlistemesures::RemplirTableView()
 {
-    QString zw;
     if (m_mode == Recuperer)
         OKButton->setEnabled(false);
     else

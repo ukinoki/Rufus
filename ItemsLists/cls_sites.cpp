@@ -42,13 +42,14 @@ Sites::Sites(QObject *parent) : ItemsList(parent)
  */
 Site* Sites::getById(int id, bool reload)
 {
-    QMap<int, Site*>::const_iterator itsit = map_all->find(id);
+    QMap<int, Site*>::const_iterator itsit = map_all->constFind(id);
     if(  itsit ==  map_all->constEnd() )
     {
         Site* sit = DataBase::I()->loadSiteById(id);
         if (sit)
             add(  map_all, sit, Item::Update );
-        return sit;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Site*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -120,7 +121,6 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_SITE] = idSite;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

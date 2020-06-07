@@ -221,9 +221,9 @@ QList<UpStandardItem*> dlg_listecorrespondants::ListeMetiers()
     QList<UpStandardItem*> listmetiers;
     QStringList list;
     UpStandardItem *metieritem;
-    QString metier  = "";
-    foreach(Correspondant *cor, Datas::I()->correspondants->correspondants()->values())
+    for (auto it = Datas::I()->correspondants->correspondants()->constBegin(); it != Datas::I()->correspondants->correspondants()->constEnd(); ++it)
     {
+        Correspondant *cor = const_cast<Correspondant*>(it.value());
         QString metier  = Utils::trimcapitilize(cor->metier(), true, false);
         if (!list.contains(metier))
         {
@@ -252,8 +252,9 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     foreach(UpStandardItem *item, ListeMetiers())
         m_correspondantsmodel->appendRow(item);
 
-    foreach(Correspondant *cor, Datas::I()->correspondants->correspondants()->values())
+    for (auto it = Datas::I()->correspondants->correspondants()->constBegin(); it != Datas::I()->correspondants->correspondants()->constEnd(); ++it)
     {
+        Correspondant *cor = const_cast<Correspondant*>(it.value());
         if (cor->nomprenom().startsWith(filtre))
         {
             pitem   = new UpStandardItem(cor->nomprenom(), cor);

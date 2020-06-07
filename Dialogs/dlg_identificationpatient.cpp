@@ -228,9 +228,6 @@ void    dlg_identificationpatient::OKpushButtonClicked()
     QString Sexe ("");
     if (ui->MradioButton->isChecked()) Sexe = "M";
     if (ui->FradioButton->isChecked()) Sexe = "F";
-    QString ALD = (ui->ALDcheckBox->isChecked()? "1" : "null");
-    QString CMU = (ui->CMUcheckBox->isChecked()? "1" : "null");
-    QString NNI = (!ui->NNIlineEdit->text().isEmpty()? ui->NNIlineEdit->text() : "null");
 
     if (m_mode == Copie)
     {
@@ -396,7 +393,7 @@ void dlg_identificationpatient::MenuContextuelMedecin()
     {
         m_menucontextuel = new QMenu(this);
         QAction *pAction_IdentPatient = m_menucontextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
-        connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ModifCorrespondant();});
+        connect (pAction_IdentPatient,      &QAction::triggered, this,    [=] {ModifCorrespondant();});
 
         // ouvrir le menu
         m_menucontextuel->exec(cursor().pos());

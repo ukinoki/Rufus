@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Interventions : public ItemsList
 {
 private:
-    QMap<int, Intervention*> *map_interventions = Q_NULLPTR;    //!< la liste des interventions
+    QMap<int, Intervention*> *map_all = Q_NULLPTR;    //!< la liste des interventions
     int m_idsession = 0;                                        //!< l'id de la session concernée par la map
 
 public:
@@ -45,7 +45,7 @@ public:
 class SessionsOperatoires : public ItemsList
 {
 private:
-    QMap<int, SessionOperatoire*> *map_sessions = Q_NULLPTR;        //!< la liste des sessions
+    QMap<int, SessionOperatoire*> *map_all = Q_NULLPTR;        //!< la liste des sessions
     int m_iduser = 0;                                               //!< l'id du user concerné par la map
 
 public:
@@ -65,7 +65,7 @@ public:
 class TypesInterventions : public ItemsList
 {
 private:
-    QMap<int, TypeIntervention*> *map_typeinterventions = Q_NULLPTR;    //!< la liste des TypeInterventions
+    QMap<int, TypeIntervention*> *map_all = Q_NULLPTR;    //!< la liste des TypeInterventions
 
 public:
     explicit TypesInterventions(QObject *parent = Q_NULLPTR);

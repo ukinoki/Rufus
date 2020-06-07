@@ -31,7 +31,7 @@ QMap<int, PaiementTiers *> *PaiementsTiers::paiementstiers() const
 
 PaiementTiers* PaiementsTiers::getById(int id)
 {
-    QMap<int, PaiementTiers*>::const_iterator itcpt = map_paiementstiers->find(id);
+    QMap<int, PaiementTiers*>::const_iterator itcpt = map_paiementstiers->constFind(id);
     if( itcpt == map_paiementstiers->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();

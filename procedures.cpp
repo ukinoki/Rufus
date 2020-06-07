@@ -173,8 +173,9 @@ bool Procedures::AutresPostesConnectes(bool msg)
     if (Datas::I()->users->userconnected() != Q_NULLPTR)
         id = Datas::I()->users->userconnected()->id();
     QString stringid = Utils::MACAdress() + " - " + QString::number(id);
-    foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
+    for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
     {
+        PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
         if (post->stringid() != stringid)
         {
             if (msg)
@@ -388,7 +389,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     auto result = [] (qintptr handle, Procedures *proc)
     {
         ShowMessage::I()->ClosePriorityMessage(handle);
-        proc->emit ConnectTimers(true);
+        proc->ConnectTimers(true);
     };
     if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
@@ -455,7 +456,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
     auto result = [] (qintptr handle, Procedures *proc)
     {
         ShowMessage::I()->ClosePriorityMessage(handle);
-        proc->emit ConnectTimers(true);
+        proc->ConnectTimers(true);
     };
     QString msgEchec = tr("Incident pendant la sauvegarde");
     if (factures) {
@@ -994,7 +995,9 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 -----------------------------------------------------------------------------------*/
 QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
 {
-    QMap<QString, QString> EnteteMap;
+    QMap<QString, QString> EnteteMap = QMap<QString, QString>();
+    if (!user)
+        return EnteteMap;
     EnteteMap["Norm"]   = "";
     EnteteMap["ALD"]    = "";
     QString Entete;
@@ -1486,8 +1489,14 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     QString         geometry("PositionsFiches/PositionEdit");
     UpDialog        *gAsk           = new UpDialog();
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
-    int x = QGuiApplication::screens().first()->geometry().width();
-    int y = QGuiApplication::screens().first()->geometry().height();
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    int x = 0;
+    int y = 0;
+    if (listscreens.size())
+    {
+        x = listscreens.first()->geometry().width();
+        y = listscreens.first()->geometry().height();
+    }
 
     gAsk->setModal(true);
     gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1566,13 +1575,19 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
         gAsk->PrintButton->setdata(doc);
-        connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), [=](QVariant) {PrintDocument(doc);});
+        connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), this, [=](QVariant) {PrintDocument(doc);});
     }
     if (Button.testFlag(UpDialog::ButtonSuppr))
         connect(gAsk->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
 
-    int x = QGuiApplication::screens().first()->geometry().width();
-    int y = QGuiApplication::screens().first()->geometry().height();
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    int x = 0;
+    int y = 0;
+    if (listscreens.size())
+    {
+        x = listscreens.first()->geometry().width();
+        y = listscreens.first()->geometry().height();
+    }
     gAsk->setMaximumWidth(x);
     gAsk->setMaximumHeight(y);
     int topmarge    = gAsk->dlglayout()->contentsMargins().top();
@@ -1727,14 +1742,25 @@ bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QSt
 
     //création du pied
     Pied = CalcPiedImpression(user, false, ALD);
-    if (Pied == "") return false;
+    if (Pied == "")
+    {
+        delete Etat_textEdit;
+        return false;
+    }
 
     // creation du corps
     Corps = CalcCorpsImpression(text, ALD);
-    if (Corps == "") return false;
+    if (Corps == "")
+    {
+        delete Etat_textEdit;
+        return false;
+    }
     Etat_textEdit->setHtml(Corps);
-    if (Etat_textEdit->toPlainText() == "") return false;
-
+    if (Etat_textEdit->toPlainText() == "")
+    {
+        delete Etat_textEdit;
+        return false;
+    }
     int tailleEnTete = TailleEnTete();
     if (ALD) tailleEnTete = TailleEnTeteALD();
     aa = Imprime_Etat(Etat_textEdit, Entete, Pied,
@@ -2001,8 +2027,9 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::
     box->clear();
     QStandardItemModel *model = new QStandardItemModel();
     // toute la manip qui suit sert à remettre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
-    foreach ( Correspondant *cor, Datas::I()->correspondants->correspondants()->values() )
+    for (auto it = Datas::I()->correspondants->correspondants()->constBegin(); it != Datas::I()->correspondants->correspondants()->constEnd(); ++it)
     {
+        Correspondant *cor = const_cast<Correspondant*>(it.value());
         QList<QStandardItem *> items;
         items << new QStandardItem(cor->nom() + " "  + cor->prenom()) << new QStandardItem(QString::number(cor->id()));
         if (typ == Correspondants::TousLesCorrespondants)
@@ -2505,7 +2532,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
 
                         bool echecfile = true;
-                        QString NomDumpFile;
                         QStringList filters;
                         filters << "*.sql";
                         QStringList listfichiers = dirtorestore.entryList(filters);
@@ -3028,32 +3054,35 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     db->StandardSQL ("insert into " TBL_UTILISATEURS " (" CP_ID_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") VALUES (" + QString::number(idusr) + ", '" + login + "', '" + Utils::calcSHA1(mdp) + "')");
 
     int idbanq = 0;
-    foreach (Banque* bq, Datas::I()->banques->banques()->values())
+    for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
+    {
+        Banque *bq = const_cast<Banque*>(it.value());
         if (bq->nomabrege() == "PaPRS")
         {
             idbanq = bq->id();
             break;
         }
+    }
     if (idbanq == 0)
         idbanq = Datas::I()->banques->CreationBanque("PaPRS", "Panama Papers")->id();
 
     int al = 0;
     QString iban = "FR";
     srand(static_cast<uint>(time(Q_NULLPTR)));
-    al = rand() % 100;
+    al = arc4random() % 100;
     while (al<10)
-        al = rand() % 100;
+        al = arc4random() % 100;
     iban += QString::number(al) + " ";
     for(int i=0; i<5; i++)
     {
-        al = rand() % 10000;
+        al = arc4random() % 10000;
         while (al<1000)
-            al = rand() % 10000;
+            al = arc4random() % 10000;
         iban += QString::number(al) + " ";
     }
-    al = rand() % 1000;
+    al = arc4random() % 1000;
     while (al<100)
-        al = rand() % 1000;
+        al = arc4random() % 1000;
     iban += QString::number(al);
 
     QString req  = "insert into " TBL_COMPTES
@@ -3249,7 +3278,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 {
     if (currentuser()->isSoignant() )
     {
-        QString req;
         dlg_askUser                = new UpDialog();
         dlg_askUser                ->AjouteLayButtons();
         dlg_askUser                ->setAccessibleName(QString::number(currentuser()->id()));
@@ -3287,11 +3315,12 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         else if( currentuser()->isResponsableOuAssistant() )
         {
             bool found = false;
-            foreach (User *us, Datas::I()->users->actifs()->values())
+            for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
             {
-                if( us->id() == currentuser()->id() )
+                User *usr = const_cast<User*>(it.value());
+                if( usr->id() == currentuser()->id() )
                     continue;
-                if( !us->isResponsable() && !us->isResponsableOuAssistant() )
+                if( !usr->isResponsable() && !usr->isResponsableOuAssistant() )
                     continue;
                 found = true;
                 break;
@@ -3405,15 +3434,16 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         {
                             // le superviseur est remplaçant, on essaie de savoir s'il a un parent
                             QList<User*> listUserFound;
-                            foreach (User *us, Datas::I()->users->actifs()->values())
+                            for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
                             {
-                                if( us->id() == currentuser()->id() )
+                                User *usr = const_cast<User*>(it.value());
+                                if( usr->id() == currentuser()->id() )
                                     continue;
-                                if( us->id() == currentuser()->idsuperviseur() )
+                                if( usr->id() == currentuser()->idsuperviseur() )
                                     continue;
-                                if( !us->isLiberal() && !us->isSalarie() )
+                                if( !usr->isLiberal() && !usr->isSalarie() )
                                     continue;
-                                listUserFound << us;
+                                listUserFound << usr;
                             }
                             if (listUserFound.size() == 1)
                                 currentuser()->setidparent( listUserFound.first()->id() );
@@ -3553,26 +3583,29 @@ void Procedures::CalcUserSuperviseur()
         else if (Listgroupbx.at(i)->accessibleName() == "Parent")
             Listgroupbx.at(i)->setVisible(false);
     }
-    ptbox->setVisible(false);
-
-    QList<QRadioButton*> listbutt = ptbox->findChildren<QRadioButton*>();
-    foreach (QRadioButton * rb, listbutt)
-        delete rb;
-    delete ptbox->layout();
+    if (ptbox)
+    {
+        ptbox->setVisible(false);
+        QList<QRadioButton*> listbutt = ptbox->findChildren<QRadioButton*>();
+        foreach (QRadioButton * rb, listbutt)
+            delete rb;
+        delete ptbox->layout();
+    }
 
     QList<User*> listUserFound;
-    foreach (User *us, Datas::I()->users->superviseurs()->values())
+    for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
     {
-        if( us->id() == user->id() )
+        User *usr = const_cast<User*>(it.value());
+        if( usr->id() == user->id() )
             continue;
-        if( currentuser()->isMedecin() && !us->isMedecin() )
+        if( currentuser()->isMedecin() && !usr->isMedecin() )
             continue;
-        listUserFound << us;
+        listUserFound << usr;
     }
 
     if( listUserFound.size() == 1 )
         currentuser()->setidsuperviseur( listUserFound.first()->id() );
-    else if( !listUserFound.isEmpty() )
+    else if( !listUserFound.isEmpty() && ptbox )
     {
         ptbox->setVisible( true );
 
@@ -3630,7 +3663,8 @@ void Procedures::CalcUserParent()
         else if (box->accessibleName() == "Parent")
             ptbox = box;
     }
-    ptbox->setVisible(false);
+    if (ptbox)
+        ptbox->setVisible(false);
 
     // on a déterminé le superviseur, on cherche qui enregistre les actes
     if( user->isRemplacant() )
@@ -3642,15 +3676,16 @@ void Procedures::CalcUserParent()
          */
 
         QList<User*> listUserFound;
-        foreach (User *us, Datas::I()->users->actifs()->values() )
+        for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
         {
-            if( us->id() == user->id() )
+            User *usr = const_cast<User*>(it.value());
+            if( usr->id() == user->id() )
                 continue;
-            if( !us->isLiberal() && !us->isSalarie() )
+            if( !usr->isLiberal() && !usr->isSalarie() )
                 continue;
-            if( us->metier() != user->metier() )
+            if( usr->metier() != user->metier() )
                 continue;
-            listUserFound << us;
+            listUserFound << usr;
         }
 
         if( listUserFound.size() == 1 )
@@ -3658,7 +3693,7 @@ void Procedures::CalcUserParent()
             //gidUserParentProv = listUserFound.first()->id();
             user->setidparent( listUserFound.first()->id() );
         }
-        else if( !listUserFound.isEmpty() )
+        else if( !listUserFound.isEmpty() && ptbox )
         {
             ptbox->setVisible( true );
             QList<QRadioButton*> listbutt = ptbox->findChildren<QRadioButton*>();
@@ -4115,8 +4150,8 @@ bool Procedures::Ouverture_Ports_Series()
     if (m_isFrontoParametre)
     {
         m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
-        bool a          = ReglePortFronto();
-        a               = (m_portFronto != "");
+        ReglePortFronto();
+        bool a           = (m_portFronto != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion frontofocomètre"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
@@ -4194,8 +4229,8 @@ bool Procedures::Ouverture_Ports_Series()
     if (m_isRefracteurParametre)
     {
         m_portRefracteur = m_settings->value("Param_Poste/PortRefracteur").toString();
-        bool a          = ReglePortRefracteur();
-        a               = (m_portRefracteur != "");
+        ReglePortRefracteur();
+        bool a           = (m_portRefracteur != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion refracteur"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
@@ -4271,8 +4306,8 @@ bool Procedures::Ouverture_Ports_Series()
     if (m_isAutorefParametre)
     {
         m_portAutoref    = m_settings->value("Param_Poste/PortAutoref").toString();
-        bool a          = ReglePortAutoref();
-        a               = (m_portAutoref != "");
+        ReglePortAutoref();
+        bool a           = (m_portAutoref != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion autorefractomètre"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
@@ -4769,15 +4804,15 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mesureOD            = SectionKerato.mid(SectionKerato.indexOf("CR")+2,13)   .replace(" ","0");
                 K1OD                = mesureOD.mid(0,5);
                 K2OD                = mesureOD.mid(5,5);
-                AxeKOD              = mesureOD.mid(10,3).toInt();
+                AxeKOD              = mesureOD.midRef(10,3).toInt();
                 Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                 Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
                 Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
                 if (SectionKerato.contains("DR"))
                 {
                     mesureOD        = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
-                    Datas::I()->mesurekerato->setdioptriesK1OD(mesureOD.mid(0,5).toDouble());
-                    Datas::I()->mesurekerato->setdioptriesK2OD(mesureOD.mid(5,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK1OD(mesureOD.midRef(0,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OD(mesureOD.midRef(5,5).toDouble());
                 }
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -4786,15 +4821,15 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
                 mesureOG            = SectionKerato.mid(SectionKerato.indexOf("CL")+2,13)   .replace(" ","0");
                 K1OG                = mesureOG.mid(0,5);
                 K2OG                = mesureOG.mid(5,5);
-                AxeKOG              = mesureOG.mid(10,3).toInt();
+                AxeKOG              = mesureOG.midRef(10,3).toInt();
                 Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
                 Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
                 Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
                 if (SectionKerato.contains("DL"))
                 {
                     mesureOG        = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
-                    Datas::I()->mesurekerato->setdioptriesK1OG(mesureOG.mid(0,5).toDouble());
-                    Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.mid(5,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK1OG(mesureOG.midRef(0,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.midRef(5,5).toDouble());
                 }
             }
             if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
@@ -5043,14 +5078,14 @@ QString Procedures::HtmlRefracteur()
     colorVLOD = "\"blue\"";
     int av = 0;
     if (mAVLOD.contains("/"))
-        av = mAVLOD.left(mAVLOD.indexOf("/")).toInt();
+        av = mAVLOD.leftRef(mAVLOD.indexOf("/")).toInt();
     if (av < 6)
         colorVLOD =  "\"red\"";
     if (av > 5 && av < 9)
         colorVLOD =  "\"orange\"";
     av = 0;
     if (mAVLOG.contains("/"))
-        av = mAVLOG.left(mAVLOG.indexOf("/")).toInt();
+        av = mAVLOG.leftRef(mAVLOG.indexOf("/")).toInt();
     if (av < 6)
         colorVLOG =  "\"red\"";
     if (av >5 && av < 9)
@@ -5239,7 +5274,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
             mCylOD               = mesureOD.mid(6,6);
             mAxeOD               = mesureOD.mid(12,3);
             if (Mesure.indexOf("AR")>0)
-                mAddOD           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AR")+2,4).toDouble());
+                mAddOD           = Utils::PrefixePlus(Mesure.midRef(Mesure.indexOf("AR")+2,4).toDouble());
             Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
             Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
             Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
@@ -5254,7 +5289,7 @@ void Procedures::LectureDonneesFronto(QString Mesure)
             mCylOG               = mesureOG.mid(6,6);
             mAxeOG               = mesureOG.mid(12,3);
             if (Mesure.indexOf("AL")>0)
-                mAddOG           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AL")+2,4).toDouble());
+                mAddOG           = Utils::PrefixePlus(Mesure.midRef(Mesure.indexOf("AL")+2,4).toDouble());
             Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
             Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
             Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
@@ -5820,13 +5855,13 @@ PL04.7N
                         KOD                 = K.mid(K.indexOf(" R")+2,13);
                         K1OD                = KOD.mid(0,5);
                         K2OD                = KOD.mid(5,5);
-                        AxeKOD              = KOD.mid(10,3).toInt();
+                        AxeKOD              = KOD.midRef(10,3).toInt();
                         Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                         Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
                         Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
                         QString mOD         = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
-                        Datas::I()->mesurekerato->setdioptriesK1OD(mOD.mid(0,5).toDouble());
-                        Datas::I()->mesurekerato->setdioptriesK2OD(mOD.mid(5,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK1OD(mOD.midRef(0,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK2OD(mOD.midRef(5,5).toDouble());
                     }
                     // OEIL GAUCHE ---------------------------------------------------------------------------
                     a  = Ref.indexOf(" L");
@@ -5838,13 +5873,13 @@ PL04.7N
                         KOG                 = K.mid(K.indexOf(" L")+2,13);
                         K1OG                = KOG.mid(0,5);
                         K2OG                = KOG.mid(5,5);
-                        AxeKOG              = KOG.mid(10,3).toInt();
+                        AxeKOG              = KOG.midRef(10,3).toInt();
                         Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
                         Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
                         Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
                         QString mOG         = K.mid(K.indexOf("DL")+2,10).replace(" ","0");
-                        Datas::I()->mesurekerato->setdioptriesK1OG(mOG.mid(0,5).toDouble());
-                        Datas::I()->mesurekerato->setdioptriesK2OG(mOG.mid(5,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK1OG(mOG.midRef(0,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK2OG(mOG.midRef(5,5).toDouble());
                     }
                 }
             }
@@ -6178,12 +6213,15 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
         mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
         mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
-        foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+        {
+            Refraction *ref = const_cast<Refraction*>(it.value());
             if (ref->idacte() == idActe
                     && ref->typemesure() == Refraction::Fronto
                     && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
                     && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
                 Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+        }
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
@@ -6230,9 +6268,12 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         mAxeOG          = QString::number(Datas::I()->mesureautoref->axecylindreOG());
         PD              = (Datas::I()->mesureautoref->ecartIP() > 0?
                                QString::number(Datas::I()->mesureautoref->ecartIP()) : "null");
-        foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+        {
+            Refraction *ref = const_cast<Refraction*>(it.value());
             if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
                 Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+        }
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
@@ -6383,9 +6424,12 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
         if (PD == "")
             PD = "null";
-        foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+        {
+            Refraction *ref = const_cast<Refraction*>(it.value());
             if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
                 Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+        }
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;

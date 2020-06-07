@@ -19,23 +19,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 MotsCles::MotsCles(QObject *parent) : ItemsList(parent)
 {
-    map_motscles = new QMap<int, MotCle*>();
+    map_all = new QMap<int, MotCle*>();
 }
 
 QMap<int, MotCle*>* MotsCles::motscles() const
 {
-    return map_motscles;
+    return map_all;
 }
 
 MotCle* MotsCles::getById(int id, bool reload)
 {
-    QMap<int, MotCle*>::const_iterator itref = map_motscles->find(id);
-    if( itref == map_motscles->constEnd() )
+    QMap<int, MotCle*>::const_iterator itref = map_all->constFind(id);
+    if( itref == map_all->constEnd() )
     {
         MotCle * itm = DataBase::I()->loadMotCleById(id);
         if (itm != Q_NULLPTR)
-            add( map_motscles, itm );
-        return itm;
+            add( map_all, itm );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<MotCle*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -57,15 +58,18 @@ MotCle* MotsCles::getById(int id, bool reload)
 void MotsCles::initListe()
 {
     QList<MotCle*> listMotsCles = DataBase::I()->loadMotsCles();
-    epurelist(map_motscles, &listMotsCles);
-    addList(map_motscles, &listMotsCles, Item::Update);
+    epurelist(map_all, &listMotsCles);
+    addList(map_all, &listMotsCles, Item::Update);
 }
 
 QCompleter* MotsCles::completer()
 {
     QStandardItemModel *model = new QStandardItemModel();
-    foreach (MotCle *mc, map_motscles->values())
+    for (auto it = map_all->constBegin(); it != map_all->constEnd(); ++it)
+    {
+        MotCle *mc = const_cast<MotCle*>(it.value());
         model->appendRow(new QStandardItem(mc->motcle()));
+    }
     model->sort(0);
     m_completer->setModel(model);
     m_completer->setCaseSensitivity(Qt::CaseInsensitive);
@@ -75,7 +79,7 @@ QCompleter* MotsCles::completer()
 
 void MotsCles::SupprimeMotCle(MotCle* motcle)
 {
-    Supprime(map_motscles, motcle);
+    Supprime(map_all, motcle);
 }
 
 MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)
@@ -100,7 +104,6 @@ MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_MOTCLE] = idmotcle;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
@@ -108,7 +111,7 @@ MotCle* MotsCles::CreationMotCle(QHash<QString, QVariant> sets)
     }
     motcle = new MotCle(data);
     if (motcle != Q_NULLPTR)
-        map_motscles->insert(motcle->id(), motcle);
+        map_all->insert(motcle->id(), motcle);
     return motcle;
 }
 

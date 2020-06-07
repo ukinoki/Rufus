@@ -84,7 +84,7 @@ bool Users::add(User *usr)
     if( usr == Q_NULLPTR)
         return false;
 
-    auto itusr = map_all->find(usr->id());
+    auto itusr = map_all->constFind(usr->id());
     if( itusr != map_all->constEnd() )
         itusr.value()->setData(usr->datas());
     else
@@ -124,7 +124,7 @@ void Users::addList(QList<User*> listusr)
  */
 User* Users::getById(int id, Item::UPDATE upd)
 {
-    QMap<int, User*>::const_iterator ituser = map_all->find(id);
+    QMap<int, User*>::const_iterator ituser = map_all->constFind(id);
     User *result;
     if( ituser == map_all->constEnd() )
     {
@@ -162,7 +162,7 @@ void Users::reload(User *usr)
     if( jsonUser.isEmpty() )
         return;
     usr->setData(jsonUser);
-    if( map_all->find(usr->id()) == map_all->constEnd() )
+    if( map_all->constFind(usr->id()) == map_all->constEnd() )
         add(usr);
 }
 
@@ -191,9 +191,10 @@ void Users::initListe()
     epurelist(map_all, &listusers);
     mapsclean();
     addList(listusers);
-    foreach (User *usr, actifs()->values())
+    for (auto it = map_actifs->constBegin(); it != map_actifs->constEnd(); ++it)
     {
-        if (usr->login() == NOM_ADMINISTRATEUR)
+        User *usr = const_cast<User*>(it.value());
+         if (usr->login() == NOM_ADMINISTRATEUR)
         {
             m_useradmin = usr;
             break;
@@ -220,7 +221,7 @@ void Users::initShortListe()
     foreach (User *usr, listusers)
         if( usr != Q_NULLPTR)
         {
-            auto itusr = map_all->find(usr->id());
+            auto itusr = map_all->constFind(usr->id());
             if( itusr != map_all->constEnd() )
                 itusr.value()->setData(usr->datas());
             else

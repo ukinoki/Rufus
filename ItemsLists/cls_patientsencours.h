@@ -39,7 +39,7 @@ public:
     void initListeAll();                                                                    /*! crée la liste des patientsencours */
 
 private:
-    QMap<int, PatientEnCours*> *map_patientsencours;                                          //!< la liste des patientsencours
+    QMap<int, PatientEnCours*> *map_all;                                          //!< la liste des patientsencours
 
 public:
 

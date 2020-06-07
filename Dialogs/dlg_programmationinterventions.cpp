@@ -208,7 +208,8 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(m_currentsession != Q_NULLPTR);
     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(m_currentsession != Q_NULLPTR);
     wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(m_currentsession != Q_NULLPTR);
-    Datas::I()->interventions->initListebySessionId(m_currentsession->id());
+    if (m_currentsession)
+        Datas::I()->interventions->initListebySessionId(m_currentsession->id());
     RemplirTreeInterventions();
 }
 
@@ -381,13 +382,10 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = true;
 
-    QString LigneIntervention;
-
     //--------------------------------------------------------------------
     // Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
 
-    QString req;
     int iduser = m_currentsession->iduser();
 
 //    //création de l'entête
@@ -460,13 +458,10 @@ void dlg_programmationinterventions::ImprimeSession()
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = true;
 
-    QString LigneIntervention;
-
     //--------------------------------------------------------------------
     // Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
 
-    QString req;
     int iduser = m_currentsession->iduser();
 
 //    //création de l'entête
@@ -817,8 +812,11 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                     ioltxt += " Cyl. " + Utils::PrefixePlus(interv->cylindreIOL());
                 itemiol = new UpStandardItem("\t" + tr("Implant") + " : " + ioltxt, interv);
                 itemiol ->setEditable(false);
-                QString ttip = iol->tooltip(true);
-                itemiol->setData(ttip);
+                if (iol)
+                {
+                    QString ttip = iol->tooltip(true);
+                    itemiol->setData(ttip);
+                }
                 listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemiol << new QStandardItem(QString::number(a) + "d"));
             }
             if (interv->observation() != "")                                                                                                //! observation
@@ -884,9 +882,6 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     if( itm == Q_NULLPTR)
         return;
     QString mode = "";
-    QString table = "";
-    QString champ = "";
-    QString idchamp = "";
     QString incident = "";
     Intervention * interv = dynamic_cast<Intervention*>(itm);
     if (interv)
@@ -1169,7 +1164,6 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     if (interv != Q_NULLPTR)                        /*! On modidife une intervention */
     {
         timeedit->setTime(interv->heure());
-        QString type = "";
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
         if (typ)
             interventioncombo->setCurrentIndex(interventioncombo->findText(typ->typeintervention()));
@@ -1258,7 +1252,9 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         SessionOperatoire * session = dynamic_cast<SessionOperatoire*>(upitm->item());
         if (session == Q_NULLPTR)
             return;
-        int idpat = pat->id();
+        int idpat = 0;
+        if (pat)
+            idpat = pat->id();
         int idact = DataBase::I()->getidActeCorrespondant(idpat, session->date());
         int idtype = 0;
         QString cote = cotecombo->currentData().toString();
@@ -1352,7 +1348,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         dlg_intervention->close();
     });
     connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(verifencours, interventioncombo); });
-    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [&]
+    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
                                                                                                     {
                                                                                                         interventioncombo->lineEdit()->disconnect();
                                                                                                         dlg_intervention->reject();
@@ -1391,7 +1387,8 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
             QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
 
-            bool AvecChoixImprimante    = (mapdoc == Dlg_Imprs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
+            QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> map = Dlg_Imprs->mapdocsaimprimer();
+            bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
             Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
@@ -1547,7 +1544,6 @@ void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
     foreach (TypeIntervention* typ, *Datas::I()->typesinterventions->typeinterventions())
     {
         QList<QStandardItem *> items;
-        QString nomtype = typ->typeintervention();
         UpStandardItem *itemtyp = new UpStandardItem(typ->typeintervention(), typ);
         UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
         UpStandardItem *itemid = new UpStandardItem(QString::number(typ->id()), typ);
@@ -1590,7 +1586,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
     dlg_typintervention->dlglayout()   ->insertLayout(0, nomLay);
     dlg_typintervention->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_typintervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_typintervention->OKButton, &QPushButton::clicked, dlg_typintervention, [&]
+    connect(dlg_typintervention->OKButton, &QPushButton::clicked, dlg_typintervention, [=]
     {
         if (linenom->text() == "")
             return;
@@ -1697,10 +1693,9 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
     foreach (Manufacturer *man, listdistributeurs)
     {
         //--------------------------------------------------------------------
-        // Préparation de l'état "liste des implants pour un fabriacant" dans un QplainTextEdit
+        // Préparation de l'état "liste des implants pour un fabricant" dans un QplainTextEdit
         //--------------------------------------------------------------------
 
-        QString req;
         int iduser = m_currentsession->iduser();
 
         //création de l'entête
@@ -1878,8 +1873,9 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     QList<int> listidmanufacturer;
-    foreach (IOL *iol, Datas::I()->iols->iols()->values())
+    for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
+        IOL *iol = const_cast<IOL*>(it.value());
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
         if (man != Q_NULLPTR)
         {

@@ -42,7 +42,7 @@ public:
     enum State {Pause, Stop, Play}; Q_ENUM(State)
 
 signals:
-    void ctrl(State);
+    void ctrl(PlayerControls::State);
 
 private:
     QMediaPlayer    *m_player;

@@ -121,7 +121,7 @@ void dlg_gestionbanques::AfficheBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
     int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
-    auto itbq = Datas::I()->banques->banques()->find(idBanque);
+    auto itbq = Datas::I()->banques->banques()->constFind(idBanque);
     if (itbq != Datas::I()->banques->banques()->constEnd())
     {
         Banque *banq = const_cast<Banque*>(itbq.value());
@@ -129,12 +129,15 @@ void dlg_gestionbanques::AfficheBanque()
         ui->NomAbregeupLineEdit->setText(banq->nomabrege());
     }
     wdg_buttonframe->wdg_moinsBouton->setEnabled(true);
-    foreach (Compte *cpt, Datas::I()->comptes->comptes()->values())
+    for (auto it = Datas::I()->comptes->comptes()->constBegin(); it != Datas::I()->comptes->comptes()->constEnd(); ++it)
+    {
+        Compte *cpt = const_cast<Compte*>(it.value());
         if (cpt->idBanque() == idBanque)
         {
             wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
             return;
         }
+    }
 }
 
 void dlg_gestionbanques::AnnuleModifBanque()
@@ -217,7 +220,6 @@ void dlg_gestionbanques::ValideModifBanque()
 {
     QString msg = "";
     QString nombanque = Utils::trimcapitilize(ui->NomBanqueupLineEdit->text());
-    QString req;
     if (ui->NomBanqueupLineEdit->text() == "")
         msg = tr("le nom de la banque");
     else if (ui->NomAbregeupLineEdit->text() == "")
@@ -230,8 +232,9 @@ void dlg_gestionbanques::ValideModifBanque()
 
     if (m_mode == Nouv)
     {
-        foreach (Banque* bq, Datas::I()->banques->banques()->values())
+        for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
         {
+            Banque *bq = const_cast<Banque*>(it.value());
             if (bq->nom().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
             {
                 UpMessageBox::Watch(this,tr("Cette banque est déjà enregistrée!"));
@@ -261,8 +264,9 @@ void dlg_gestionbanques::ValideModifBanque()
         UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
         int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
         Banque * bqamodifier = Datas::I()->banques->getById(idBanque);
-        foreach (Banque* banq, Datas::I()->banques->banques()->values())
+        for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
         {
+            Banque *banq = const_cast<Banque*>(it.value());
             if (banq != bqamodifier && banq->nom().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
             {
                 msg = tr("il y a déjà un organisme bancaire enregistré avec ce nom");
@@ -313,8 +317,11 @@ void dlg_gestionbanques::RemplirTableWidget()
         if (m_model)
             delete m_model;
         m_model = new QStandardItemModel;
-        foreach (Banque* bq, Datas::I()->banques->banques()->values())
+        for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
+        {
+            Banque *bq = const_cast<Banque*>(it.value());
             m_model->appendRow(QList<QStandardItem*>() << new QStandardItem(bq->nom()) << new QStandardItem(QString::number(bq->id())));
+        }
         m_model->sort(0);
         wdg_bigtable->setRowCount(m_model->rowCount());
         for (int i=0; i < m_model->rowCount(); ++i)

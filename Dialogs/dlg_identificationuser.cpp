@@ -135,7 +135,6 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
         return NoConnexion;
     }
 
-    QString Client = "%";
     ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
     req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";

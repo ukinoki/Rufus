@@ -116,11 +116,9 @@ void dlg_salledattente::OKButtonClicked()
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
-
-    QString MsgErreur;
     PatientEnCours *pat = Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id());
-    if (pat == Q_NULLPTR)
-        pat = Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                            //! idPat
+    if (!pat)
+        Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                  //! idPat
                                                  Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur()),   //! User
                                                  Statut,                                                                            //! Statut
                                                  QTime(0,0,0,0),                                                                    //! heureStatut

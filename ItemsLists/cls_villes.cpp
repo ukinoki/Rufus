@@ -68,7 +68,6 @@ Villes::Villes(QObject *parent) : ItemsList(parent)
 
 void Villes::initListe()
 {
-    QList<Ville*> listvilles;
     addList(DataBase::I()->loadVilles());
 }
 
@@ -110,7 +109,7 @@ QStringList Villes::ListeCodesPostaux()
 
 QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegrite)
 {
-    QMap<QString, Ville*>::const_iterator it = map_codespostaux.find( codePostal );
+    QMap<QString, Ville*>::const_iterator it = map_codespostaux.constFind( codePostal );
     QJsonObject error{};
     if( testIntegrite && (it == map_codespostaux.constEnd()) )
     {
@@ -120,7 +119,7 @@ QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegri
     }
 
     QList<Ville *> listV;
-    while( it != map_codespostaux.end() && it.key() == codePostal)
+    while( it != map_codespostaux.cend() && it.key() == codePostal)
     {
         listV << it.value();
         ++it;
@@ -181,8 +180,8 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
     }
     */
 
-    QMap<QString, Ville*>::const_iterator it = map_codespostaux.find( codePostal );
-    while( it != map_codespostaux.end() && it.key() == codePostal)
+    QMap<QString, Ville*>::const_iterator it = map_codespostaux.constFind( codePostal );
+    while( it != map_codespostaux.cend() && it.key() == codePostal)
     {
         if( it.value()->nom() == name )
             listV << it.value();

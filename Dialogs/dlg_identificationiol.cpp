@@ -550,7 +550,7 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
      connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   [&] {if (wdg_imgIOL->isEnabled()) changeImage();});
-     connect (wdg_recopiebutton,     &UpPushButton::click,                                   this,   &dlg_identificationIOL::creeCopieIOL);
+     connect (wdg_recopiebutton,     &UpPushButton::clicked,                                 this,   &dlg_identificationIOL::creeCopieIOL);
      connect (wdg_toolbar,           &UpToolBar::TBSignal,                                   this,  [=] {NavigueVers(wdg_toolbar->choix());});
 }
 

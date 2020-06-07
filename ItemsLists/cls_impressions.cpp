@@ -33,13 +33,14 @@ QMap<int, Impression *> *Impressions::impressions() const
 
 Impression* Impressions::getById(int id, bool reload)
 {
-    QMap<int, Impression*>::const_iterator itdoc = map_all->find(id);
+    QMap<int, Impression*>::const_iterator itdoc = map_all->constFind(id);
     if( itdoc == map_all->constEnd() )
     {
         Impression* impr = DataBase::I()->loadImpressionById(id);
         if (impr)
             add(map_all, impr, Item::Update);
-        return impr;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Impression*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -93,7 +94,6 @@ Impression* Impressions::CreationImpression(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_IMPRESSIONS] = idimpr;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
@@ -129,13 +129,14 @@ QMap<int, DossierImpression *> *DossiersImpressions::dossiersimpressions() const
 
 DossierImpression* DossiersImpressions::getById(int id, bool reload)
 {
-    QMap<int, DossierImpression*>::const_iterator itdoc = map_all->find(id);
+    QMap<int, DossierImpression*>::const_iterator itdoc = map_all->constFind(id);
     if( itdoc == map_all->constEnd() )
     {
         DossierImpression* dossier = DataBase::I()->loadDossierImpressionById(id);
         if (dossier)
             add(map_all, dossier, Item::Update);
-        return dossier;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<DossierImpression*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -206,7 +207,6 @@ DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString,
     QJsonObject  data = QJsonObject{};
     data[CP_ID_DOSSIERIMPRESSIONS] = idimpr;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

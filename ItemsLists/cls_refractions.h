@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Refractions : public ItemsList
 {
 private:
-    QMap<int, Refraction*> *map_refractions = Q_NULLPTR;    //!< la liste des refractions
+    QMap<int, Refraction*> *map_all = Q_NULLPTR;    //!< la liste des refractions
     int m_idpat = 0;                                        //!< l'id du patient concerné par la la map de refractions
 
 public:

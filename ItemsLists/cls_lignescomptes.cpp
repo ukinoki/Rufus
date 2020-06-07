@@ -35,7 +35,7 @@ QMap<int, LigneCompte*>* LignesComptes::lignescomptes() const
 
 LigneCompte* LignesComptes::getById(int id)
 {
-    QMap<int, LigneCompte*>::const_iterator itlign = map_lignes->find(id);
+    QMap<int, LigneCompte*>::const_iterator itlign = map_lignes->constFind(id);
     if( itlign == map_lignes->constEnd() )
     {
         QJsonObject data = DataBase::I()->loadLigneCompteDataById(id);

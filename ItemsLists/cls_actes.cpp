@@ -61,8 +61,9 @@ void Actes::sortActesByDate()  /*! cette fonction n'est pour l'instant pas utili
     if (m_actesmodel != Q_NULLPTR)
         delete m_actesmodel;
     m_actesmodel = new QStandardItemModel(this);
-    foreach (Acte* act, map_actes->values())
+    for (auto it = map_actes->constBegin(); it != map_actes->constEnd(); ++it)
     {
+        Acte *act = const_cast<Acte*>(it.value());
         QList<QStandardItem *> items;
         UpStandardItem *itemact = new UpStandardItem(QString::number(act->id()), act);
         items << new UpStandardItem(act->date().toString("yyyymmss"))
@@ -106,7 +107,7 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
 Acte* Actes::getById(int id, Item::LOADDETAILS details)
 {
     Acte * act = Q_NULLPTR;
-    QMap<int, Acte*>::const_iterator itact = map_actes->find(id);
+    QMap<int, Acte*>::const_iterator itact = map_actes->constFind(id);
     if( itact == map_actes->constEnd() )
     {
         if (details == Item::LoadDetails)
@@ -119,12 +120,12 @@ Acte* Actes::getById(int id, Item::LOADDETAILS details)
 
 QMap<int, Acte*>::const_iterator Actes::getLast()
 {
-    return actes()->find(actes()->lastKey());
+    return actes()->constFind(actes()->lastKey());
 }
 
 QMap<int, Acte*>::const_iterator Actes::getAt(int idx)
 {
-    return actes()->find( actes()->keys().at(idx) );
+    return actes()->constFind(actes()->keys().at(idx) );
 }
 
 void Actes::updateActe(Acte* acte)

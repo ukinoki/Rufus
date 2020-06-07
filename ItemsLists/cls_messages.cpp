@@ -44,13 +44,14 @@ QList<Message*> Messages::allmessages() const
 
 Message* Messages::getById(int id)
 {
-    QMap<int, Message*>::const_iterator itref = map_all->find(id);
+    QMap<int, Message*>::const_iterator itref = map_all->constFind(id);
     Message * itm = DataBase::I()->loadMessageById(id);
     if( itref == map_all->constEnd() )
     {
         if (itm != Q_NULLPTR)
             add( map_all, itm );
-        return itm;
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Message*>(it.value()) : Q_NULLPTR);
     }
     else
     {

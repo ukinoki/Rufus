@@ -24,12 +24,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 PatientsEnCours::PatientsEnCours(QObject *parent) : ItemsList(parent)
 {
-    map_patientsencours = new QMap<int, PatientEnCours*>();
+    map_all = new QMap<int, PatientEnCours*>();
 }
 
 QMap<int,  PatientEnCours *>* PatientsEnCours::patientsencours() const
 {
-    return map_patientsencours;
+    return map_all;
 }
 
 /*! charge les données du patient corresondant à l'id *
@@ -40,28 +40,29 @@ QMap<int,  PatientEnCours *>* PatientsEnCours::patientsencours() const
 PatientEnCours* PatientsEnCours::getById(int id)
 {
     PatientEnCours *pat = Q_NULLPTR;
-    QMap<int, PatientEnCours*>::const_iterator itpat = map_patientsencours->find(id);
-    if (itpat == map_patientsencours->constEnd())
+    QMap<int, PatientEnCours*>::const_iterator itpat = map_all->constFind(id);
+    if (itpat == map_all->constEnd())
     {
         pat = DataBase::I()->loadPatientEnCoursById(id);
         if (pat != Q_NULLPTR)
-            add(map_patientsencours, pat);
+            add(map_all, pat);
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<PatientEnCours*>(it.value()) : Q_NULLPTR);
     }
     else
-        pat = itpat.value();
-    return pat;
+        return itpat.value();
 }
 
 void PatientsEnCours::initListeAll()
 {
     QList<PatientEnCours*> listpatencours = DataBase::I()->loadPatientsenCoursAll();
-    epurelist(map_patientsencours, &listpatencours);
-    addList(map_patientsencours, &listpatencours, Item::Update);
+    epurelist(map_all, &listpatencours);
+    addList(map_all, &listpatencours, Item::Update);
 }
 
 void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)
 {
-    Supprime(map_patientsencours, pat);
+    Supprime(map_all, pat);
 }
 
 void PatientsEnCours::updatePatientEnCours(PatientEnCours *pat)
@@ -152,6 +153,6 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
         pat->setiduserencoursexam(idUserEnCours);
     if (idSalDat != 0)
         pat->setidsaldat(idSalDat);
-    add(map_patientsencours, pat);
+    add(map_all, pat);
     return pat;
 }

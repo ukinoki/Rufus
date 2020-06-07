@@ -190,11 +190,11 @@ void User::setlistecomptesbancaires(QMap<int, bool> mapidcomptes)
         m_listidcomptes.clear();
     if (!m_listidcomptesall.isEmpty())
         m_listidcomptesall.clear();
-    foreach (int idcpt, mapidcomptes.keys())
+    for (auto it = mapidcomptes.constBegin(); it!= mapidcomptes.constEnd(); ++it)
     {
-        m_listidcomptesall << idcpt;
-        if (!mapidcomptes.value(idcpt))
-            m_listidcomptes.append(idcpt);
+        m_listidcomptesall << it.key();
+        if (!mapidcomptes.value(it.key()))
+            m_listidcomptes.append(it.key());
     }
 }
 

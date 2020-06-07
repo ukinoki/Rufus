@@ -37,7 +37,7 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
  */
 DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 {
-    QMap<int, DocExterne*>::const_iterator itdoc = map_docsexternes->find(id);
+    QMap<int, DocExterne*>::const_iterator itdoc = map_docsexternes->constFind(id);
     DocExterne *result;
     if( itdoc == map_docsexternes->constEnd() )
             result = new DocExterne();
@@ -136,7 +136,6 @@ DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_DOCSEXTERNES] = iddoc;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

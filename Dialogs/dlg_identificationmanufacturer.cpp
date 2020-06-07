@@ -75,13 +75,16 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
 
     QStandardItemModel m_manufacturermodel;
     int idcurrenmtmanufacturer = (m_currentmanufacturer? m_currentmanufacturer->id() : 0);
-    foreach (Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
+    for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+    {
+        Manufacturer *man = const_cast<Manufacturer*>(it.value());
         if (man->id() != idcurrenmtmanufacturer)
         {
             QList<QStandardItem *> items;
             items << new QStandardItem(man->nom()) << new QStandardItem(QString::number(man->id()));
             m_manufacturermodel.appendRow(items);
         }
+    }
     m_manufacturermodel.sort(0);
     for (int i=0; i <m_manufacturermodel.rowCount(); ++i)
         ui->DistributeurupComboBox->addItem(m_manufacturermodel.item(i)->text(), m_manufacturermodel.item(i,1)->text());
@@ -411,6 +414,8 @@ void dlg_identificationmanufacturer::AfficheDatasManufacturer()
 {
     if (m_mode == Modification)
     {
+        if(!m_currentmanufacturer)
+            return;
         m_nommanufacturer       = m_currentmanufacturer->nom();
         ui->ActifcheckBox       ->setChecked(m_currentmanufacturer->isactif());
         ui->NomlineEdit         ->setText(m_nommanufacturer);
@@ -450,8 +455,9 @@ void dlg_identificationmanufacturer::reconstruitCommercialsModel()
     if (m_commodel == Q_NULLPTR)
         delete m_commodel;
     m_commodel = new QStandardItemModel(this);
-    foreach (Commercial*com, Datas::I()->commercials->commercials()->values())
+    for (auto it = Datas::I()->commercials->commercials()->constBegin(); it != Datas::I()->commercials->commercials()->constEnd(); ++it)
     {
+        Commercial*com = const_cast<Commercial*>(it.value());
         UpStandardItem *itmnom      = new UpStandardItem(com->nom().toUpper() + " " + com->prenom(), com);
         UpStandardItem *itmstatut   = new UpStandardItem(com->statut(), com);
         UpStandardItem *itmtel      = new UpStandardItem(com->telephone(), com);

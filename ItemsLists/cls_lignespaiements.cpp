@@ -29,7 +29,7 @@ QMap<QString, LignePaiement *>* LignesPaiements::lignespaiements() const
 
 LignePaiement* LignesPaiements::getById(QString stringid)
 {
-    QMap<QString, LignePaiement*>::const_iterator itcpt = map_lignespaiements->find(stringid);
+    QMap<QString, LignePaiement*>::const_iterator itcpt = map_lignespaiements->constFind(stringid);
     if( itcpt == map_lignespaiements->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
@@ -54,7 +54,6 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
     if (act == Q_NULLPTR)
         return;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
-    QList<LignePaiement*> listlignesasupprimer = QList<LignePaiement*>();
     for (auto itlign = map_lignespaiements->begin() ; itlign != map_lignespaiements->end();)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());

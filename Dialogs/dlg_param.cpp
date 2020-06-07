@@ -1378,7 +1378,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
 
 
     UpCheckBox* check0      = dynamic_cast<UpCheckBox*>(widg);
-    if (check0 != Q_NULLPTR)
+    if (check0)
     {
         if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
             modifboutonsActes = true;
@@ -1451,17 +1451,18 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
         ui->ActesCCAMupTableWidget          ->clearSelection();
         ui->AssocCCAMupTableWidget          ->clearSelection();
         bool checked = true;
-        if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
-        {
-            UpCheckBox* check                   = static_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
-            checked = check->isChecked();
-        }
+        if (check0)
+            if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
+            {
+                UpCheckBox* check                   = static_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
+                checked = check->isChecked();
+            }
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
         wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
-                                                         && checked);
+                                                                                    && checked);
         wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
-                                                         && checked);
+                                                                                    && checked);
     }
 }
 
@@ -1958,8 +1959,7 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
         }
         if (obj == ui->FermepushButton)
         {
-            QPushButton* Button = static_cast<QPushButton*>(obj);
-            Button->setIcon(Icons::icFerme());
+            ui->FermepushButton->setIcon(Icons::icFerme());
         }
     }
     if(event->type() == QEvent::MouseButtonPress)

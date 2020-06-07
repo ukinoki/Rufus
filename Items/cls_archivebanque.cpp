@@ -83,7 +83,6 @@ void Archives::addArchive(QList<Archive*> listarchives)
 
 void Archives::clearAll()
 {
-    QList<Archive*> listarchs;
     for( auto it = m_archives->begin(); it != m_archives->end(); )
     {
         delete it.value();

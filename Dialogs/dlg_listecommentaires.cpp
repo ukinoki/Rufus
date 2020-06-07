@@ -69,9 +69,8 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     RemplirTableView();
     if (m_model->rowCount()>0)
     {
-        CommentLunet *com = Q_NULLPTR;
-        com = getCommentFromIndex(m_model->index(0,0));
-        selectcurrentComment(getCommentFromIndex(m_model->index(0,0)));
+        CommentLunet *com = getCommentFromIndex(m_model->index(0,0));
+        selectcurrentComment(com);
     }
 }
 
@@ -446,7 +445,7 @@ void dlg_listecommentaires::MenuContextuel()
     QAction *pAction_ParDefaut;
 
     pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
-    connect (pAction_Creer,      &QAction::triggered,    [=] {ChoixMenuContextuel("Creer");});
+    connect (pAction_Creer,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Creer");});
 
     QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
     m_currentcomment = getCommentFromIndex(idx);
@@ -461,9 +460,9 @@ void dlg_listecommentaires::MenuContextuel()
         else
             pAction_ParDefaut                = menuContextuel->addAction("Par défaut") ;
         pAction_ParDefaut->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
-        connect (pAction_ParDefaut,          &QAction::triggered,    [=] {ChoixMenuContextuel("ParDefaut");});
-        connect (pAction_Modif,      &QAction::triggered,    [=] {ChoixMenuContextuel("Modifier");});
-        connect (pAction_Suppr,      &QAction::triggered,    [=] {ChoixMenuContextuel("Supprimer");});
+        connect (pAction_ParDefaut,          &QAction::triggered, this,   [=] {ChoixMenuContextuel("ParDefaut");});
+        connect (pAction_Modif,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Modifier");});
+        connect (pAction_Suppr,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Supprimer");});
     }
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -482,7 +481,7 @@ void dlg_listecommentaires::RemplirTableView()
     m_model = new UpStandardItemModel();
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
-    connect(line,   &UpLineDelegate::commitData, [=](QWidget *editor) {
+    connect(line,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
                                                                         UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
                                                                         m_textdelegate = line->text();
                                                                       });

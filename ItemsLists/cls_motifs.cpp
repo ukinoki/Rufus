@@ -19,27 +19,30 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Motifs::Motifs(QObject *parent) : ItemsList(parent)
 {
-    map_motifs = new QMap<int, Motif*>();
+    map_all = new QMap<int, Motif*>();
 }
 
 QMap<int, Motif *> *Motifs::motifs() const
 {
-    return map_motifs;
+    return map_all;
 }
 
 Motif* Motifs::getById(int id)
 {
-    QMap<int, Motif*>::const_iterator itcpt = map_motifs->find(id);
-    if( itcpt == map_motifs->constEnd() )
+    QMap<int, Motif*>::const_iterator itcpt = map_all->constFind(id);
+    if( itcpt == map_all->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
 
 Motif* Motifs::getMotifFromRaccourci(QString txt)
 {
-    foreach (Motif* mtf, motifs()->values())
+    for (auto it = map_all->constBegin(); it != map_all->constEnd(); ++it)
+    {
+        Motif *mtf = const_cast<Motif*>(it.value());
         if (mtf->raccourci() == txt)
             return mtf;
+    }
     return Q_NULLPTR;
 }
 
@@ -51,8 +54,8 @@ Motif* Motifs::getMotifFromRaccourci(QString txt)
 void Motifs::initListe()
 {
     QList<Motif*> listmotifs = DataBase::I()->loadMotifs();
-    epurelist(map_motifs, &listmotifs);
-    addList(map_motifs, &listmotifs);
+    epurelist(map_all, &listmotifs);
+    addList(map_all, &listmotifs);
 }
 
 void Motifs::SupprimeMotif(Motif *mf)
@@ -60,7 +63,7 @@ void Motifs::SupprimeMotif(Motif *mf)
     if (mf == Q_NULLPTR)
         return;
     DataBase::I()->SupprRecordFromTable(mf->id(), "idMotifsRDV", TBL_MOTIFSRDV);
-    remove(map_motifs, mf);
+    remove(map_all, mf);
 }
 
 Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, int Duree, bool ParDefaut, bool Utiliser, int NoOrdre)
@@ -107,6 +110,6 @@ Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, 
     jmotif["utiliser"] = Utiliser;
     jmotif["noordre"] = NoOrdre;
     motf = new Motif(jmotif);
-    add(map_motifs, motf);
+    add(map_all, motf);
     return motf;
 }

@@ -90,12 +90,12 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->CPlineEdit              ->setCompleter(complListCP);
 
 
-    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), [=] { ChercheCodePostal(false); emit villecpmodified(); });
+    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { ChercheCodePostal(false); emit villecpmodified(); });
     //connect(complListCP,        QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { qDebug()<<"CP Completer"; ChercheVille(false); emit villecpmodified(); });
     connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
         connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
     });
-    connect(ui->VillelineEdit, &QLineEdit::textEdited, [=]{
+    connect(ui->VillelineEdit, &QLineEdit::textEdited, this, [=]{
         connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
     });
 

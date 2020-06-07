@@ -56,8 +56,9 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
     QStandardItemModel *model = new QStandardItemModel(this);
-    foreach (Banque* bq, Datas::I()->banques->banques()->values())
+    for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
     {
+        Banque* bq = const_cast<Banque*>(it.value());
         QList<QStandardItem *> items;
         items << new QStandardItem(bq->nomabrege()) << new QStandardItem(QString::number(bq->id()));
             model->appendRow(items);
@@ -90,27 +91,27 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     ReconstruitListeAnnees();
 
-    connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          [=] {GestionComptes();});
-    connect (ui->NouvelleRecetteupPushButton,   &QPushButton::clicked,          [=] {GererRecette(ui->NouvelleRecetteupPushButton);});
-    connect (ui->ModifierupPushButton,          &QPushButton::clicked,          [=] {GererRecette(ui->ModifierupPushButton);});
-    connect (ui->OKupPushButton,                &QPushButton::clicked,          [=] {accept();});
-    connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    [=] {ConvertitDoubleMontant();});
+    connect (ui->GestionComptesupPushButton,    &QPushButton::clicked, this,          [=] {GestionComptes();});
+    connect (ui->NouvelleRecetteupPushButton,   &QPushButton::clicked, this,          [=] {GererRecette(ui->NouvelleRecetteupPushButton);});
+    connect (ui->ModifierupPushButton,          &QPushButton::clicked, this,          [=] {GererRecette(ui->ModifierupPushButton);});
+    connect (ui->OKupPushButton,                &QPushButton::clicked, this,          [=] {accept();});
+    connect (ui->MontantlineEdit,               &QLineEdit::editingFinished, this,    [=] {ConvertitDoubleMontant();});
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                [=](int) {ChoixPaiement();});
-    connect (ui->ObjetlineEdit,                 &QLineEdit::textEdited,         [=] {EnableModifiepushButton();});
-    connect (ui->MontantlineEdit,               &QLineEdit::textEdited,         [=] {EnableModifiepushButton();});
-    connect (ui->DateRecdateEdit,               &QDateEdit::dateChanged,        [=] {EnableModifiepushButton();});
-    connect (ui->PaiementcomboBox,              &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
-    connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
-    connect (ui->SupprimerupPushButton,         &QPushButton::clicked,          [=] {SupprimerRecette();});
+                                                                             this,    [=](int) {ChoixPaiement();});
+    connect (ui->ObjetlineEdit,                 &QLineEdit::textEdited, this,         [=] {EnableModifiepushButton();});
+    connect (ui->MontantlineEdit,               &QLineEdit::textEdited, this,         [=] {EnableModifiepushButton();});
+    connect (ui->DateRecdateEdit,               &QDateEdit::dateChanged, this,        [=] {EnableModifiepushButton();});
+    connect (ui->PaiementcomboBox,              &QComboBox::currentTextChanged, this, [=] {EnableModifiepushButton();});
+    connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, this, [=] {EnableModifiepushButton();});
+    connect (ui->SupprimerupPushButton,         &QPushButton::clicked, this,          [=] {SupprimerRecette();});
 
-    connect (wdg_enreguppushbutton,             &QPushButton::clicked,          [=] {m_mode == Enregistrer? EnregistreRecette() : ModifierRecette();});
-    connect (wdg_annuluppushbutton,             &QPushButton::clicked,          [=] {AnnulEnreg();});
+    connect (wdg_enreguppushbutton,             &QPushButton::clicked, this,          [=] {m_mode == Enregistrer? EnregistreRecette() : ModifierRecette();});
+    connect (wdg_annuluppushbutton,             &QPushButton::clicked, this,          [=] {AnnulEnreg();});
 
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
-    connect (ui->AnneecomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
+    connect (ui->AnneecomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged), this,    [=](int) {RedessineBigTable();});
     RedessineBigTable();
 
     wdg_bigtable->setFocus();
@@ -350,7 +351,7 @@ void dlg_recettesspeciales::EnregistreRecette()
             ReconstruitListeAnnees();
         ui->AnneecomboBox->disconnect();
         ui->AnneecomboBox->setCurrentText(QString::number(annee));
-        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
+        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged), this,  [=](int) {RedessineBigTable();});
     }
     RedessineBigTable();
 }
@@ -377,9 +378,9 @@ void dlg_recettesspeciales::MenuContextuel(int id)
     menu = new QMenu(this);
 
     QAction *pAction_RecopieDep = menu->addAction(tr("Effectuer une copie de cette recette à la date d'aujourd'hui"));
-    connect (pAction_RecopieDep, &QAction::triggered,    [=] {ChoixMenu(id);});
+    connect (pAction_RecopieDep, &QAction::triggered, this,   [=] {ChoixMenu(id);});
     QAction *pAction_ChercheVal = menu->addAction(tr("Rechercher une valeur"));
-    connect (pAction_ChercheVal, &QAction::triggered,    [=] {ChoixMenu();});
+    connect (pAction_ChercheVal, &QAction::triggered, this,   [=] {ChoixMenu();});
 
     // ouvrir le menu
     menu->exec(cursor().pos());
@@ -432,7 +433,7 @@ void dlg_recettesspeciales::ChoixMenu(int id)
         ui->OKupPushButton              ->setShortcut(QKeySequence());
         ui->ModifierupPushButton        ->setShortcut(QKeySequence());
         wdg_enreguppushbutton           ->setShortcut(QKeySequence("Meta+Return"));
-        connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, [=] {RegleAffichageFiche(Lire);});
+        connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this, [=] {RegleAffichageFiche(Lire);});
     }
 }
 
@@ -519,7 +520,7 @@ void dlg_recettesspeciales::SupprimerRecette()
             QString year = QDate::currentDate().toString("yyyy");
             int idx = ui->AnneecomboBox->findText(year);
             ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
-            connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
+            connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged), this,   [=](int) {RedessineBigTable();});
         }
         else
         {
@@ -654,10 +655,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         ui->PaiementcomboBox    ->setCurrentIndex(ui->PaiementcomboBox->findText(A));
         ui->RefFiscalecomboBox  ->setCurrentText(recette.at(5).toString());
 
-        connect (ui->DateRecdateEdit,       &QDateEdit::dateChanged,                                [=] {EnableModifiepushButton();});
-        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged,                         [=] {EnableModifiepushButton();});
-        connect (ui->PaiementcomboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {ChoixPaiement();});
-        connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged,                         [=] {EnableModifiepushButton();});
+        connect (ui->DateRecdateEdit,       &QDateEdit::dateChanged,                             this,   [=] {EnableModifiepushButton();});
+        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged,                      this,   [=] {EnableModifiepushButton();});
+        connect (ui->PaiementcomboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged), this,   [=](int) {ChoixPaiement();});
+        connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged,                      this,   [=] {EnableModifiepushButton();});
 
         QString Paiement = ui->PaiementcomboBox->currentText();
         bool modifiable;
@@ -721,7 +722,6 @@ void dlg_recettesspeciales::MetAJourFiche()
 void dlg_recettesspeciales::ModifierRecette()
 {
     QString idRec       = QString::number(m_idrecetteencours);
-    QString Paiement    = ui->PaiementcomboBox->currentText();
 
     if (!VerifSaisie())
         return;
@@ -781,7 +781,7 @@ void dlg_recettesspeciales::ModifierRecette()
     }
     RedessineBigTable(idRec.toInt());
     RegleAffichageFiche(wdg_bigtable->rowCount()>0? Lire : TableVide);
-    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
+    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),  this,  [=](int) {RedessineBigTable();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -793,9 +793,7 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
     CalculTotalRecettes();
     if (wdg_bigtable->rowCount() > 0)
     {
-        if (idRec == -1)
-            idRec = wdg_bigtable->rowCount()-1;
-        else
+        if (idRec != -1)
         {
             bool trouve = false;
             for (int row=0; row< wdg_bigtable->rowCount(); row++)
@@ -804,15 +802,22 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
                 if (idReclbl->text() == QString::number(idRec))
                 {
                     wdg_bigtable->setCurrentCell(row,1);
-                    row = wdg_bigtable->rowCount();
+                    wdg_bigtable->scrollTo(wdg_bigtable->model()->index(row,1));
                     trouve = true;
                 }
             }
-            if (!trouve)    wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
+            if (!trouve)
+            {
+                wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
+                wdg_bigtable->scrollTo(wdg_bigtable->model()->index(wdg_bigtable->model()->rowCount()-1,1));
+            }
             m_mode = Lire;
         }
-        wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
-        wdg_bigtable->scrollTo(wdg_bigtable->model()->index(wdg_bigtable->model()->rowCount()-1,1));
+        else
+        {
+            wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
+            wdg_bigtable->scrollTo(wdg_bigtable->model()->index(wdg_bigtable->model()->rowCount()-1,1));
+        }
     }
     else
         RegleAffichageFiche(TableVide);
@@ -922,7 +927,7 @@ void dlg_recettesspeciales::ReconstruitListeAnnees()
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->clear();
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
-    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
+    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged), this,  [=](int) {RedessineBigTable();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -982,13 +987,13 @@ void dlg_recettesspeciales::RemplitBigTable()
             label5->setContextMenuPolicy(Qt::CustomContextMenu);
             label6->setContextMenuPolicy(Qt::CustomContextMenu);
 
-            connect(label0,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
-            connect(label1,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
-            connect(label2,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
-            connect(label3,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
-            connect(label4,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
-            connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
-            connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(id);});
+            connect(label0,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
+            connect(label1,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
+            connect(label2,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
+            connect(label3,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
+            connect(label4,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
+            connect(label5,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
+            connect(label6,  &QWidget::customContextMenuRequested, this,  [=] {MenuContextuel(id);});
 
             A = recette.at(0).toString();                                                                  // idRecette - col = 0
             label0->setText(A);
@@ -1016,7 +1021,6 @@ void dlg_recettesspeciales::RemplitBigTable()
 
             A = recette.at(9).toString();                                                                  // Paiement - col = 4
             QString B = "";
-            QString C = "";
             if (A == "E")
                 A = ESPECES;
             else if (A == "V")
@@ -1055,7 +1059,7 @@ void dlg_recettesspeciales::RemplitBigTable()
             wdg_bigtable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
         }
     ui->SupprimerupPushButton->setEnabled(false);
-    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, [=] {RegleAffichageFiche(Lire);});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this, [=] {RegleAffichageFiche(Lire);});
 }
 
 //  Vérifer que la saisie est complète et cohérente

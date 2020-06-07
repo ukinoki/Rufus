@@ -214,8 +214,9 @@ void dlg_listetiers::ReconstruitTreeViewtiers(bool reconstruirelaliste, QString 
 
     UpStandardItem *pitem;
 
-    foreach(Tiers *trs, Datas::I()->tierspayants->tierspayants()->values())
+    for (auto it = Datas::I()->tierspayants->tierspayants()->constBegin(); it != Datas::I()->tierspayants->tierspayants()->constEnd(); ++it)
     {
+        Tiers *trs = const_cast<Tiers*>(it.value());
         if (trs->nom().startsWith(filtre))
         {
             pitem   = new UpStandardItem(trs->nom(), trs);

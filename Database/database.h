@@ -239,8 +239,11 @@ public:
     /*
      * Compta
     */
+private:
+    QJsonObject             loadCompteData(QVariantList listdata);                  //! attribue le liste des datas à un compte
+public:
     QList<Compte*>          loadComptesAll();                                       //! charge tous les comptes bancaires sans exception
-    QJsonObject             loadCompteDataById(int id);                             //! charge les datas d'un compte bancaire défini par son id
+    Compte*                 loadCompteById(int id);                                 //! chargeun compte bancaire défini par son id
 
     QList<LigneCompte*>     loadLignesComptesByCompte(int idcompte);                //! charge tous les lignes de comptes bancaires pas encore archivées
     QJsonObject             loadLigneCompteDataById(int id);                        //! charge les datas d'une ligne de compte bancaire défini par son id

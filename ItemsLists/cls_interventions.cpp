@@ -19,23 +19,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Interventions::Interventions(QObject *parent) : ItemsList(parent)
 {
-    map_interventions = new QMap<int, Intervention*>();
+    map_all = new QMap<int, Intervention*>();
 }
 
 QMap<int, Intervention*>* Interventions::interventions() const
 {
-    return map_interventions;
+    return map_all;
 }
 
 Intervention* Interventions::getById(int id, bool reload)
 {
-    QMap<int, Intervention*>::const_iterator itref = map_interventions->find(id);
-    if( itref == map_interventions->constEnd() )
+    QMap<int, Intervention*>::const_iterator itref = map_all->constFind(id);
+    if( itref == map_all->constEnd() )
     {
         Intervention * itm = DataBase::I()->loadInterventionById(id);
         if (itm != Q_NULLPTR)
-            add( map_interventions, itm );
-        return itm;
+            add( map_all, itm );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Intervention*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -64,13 +65,13 @@ void Interventions::initListebySessionId(int id)
 {
     m_idsession = id;
     QList<Intervention*> listInterventions = DataBase::I()->loadInterventionsBySessionId(m_idsession);
-    epurelist(map_interventions, &listInterventions);
-    addList(map_interventions, &listInterventions, Item::Update);
+    epurelist(map_all, &listInterventions);
+    addList(map_all, &listInterventions, Item::Update);
 }
 
 void Interventions::SupprimeIntervention(Intervention* intervention)
 {
-    Supprime(map_interventions, intervention);
+    Supprime(map_all, intervention);
 }
 
 Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
@@ -95,7 +96,6 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_LIGNPRGOPERATOIRE] = idintervention;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
@@ -113,29 +113,30 @@ Intervention* Interventions::CreationIntervention(QHash<QString, QVariant> sets)
     }
     intervention = new Intervention(data);
     if (intervention != Q_NULLPTR)
-        map_interventions->insert(intervention->id(), intervention);
+        map_all->insert(intervention->id(), intervention);
     return intervention;
 }
 
 SessionsOperatoires::SessionsOperatoires(QObject *parent) : ItemsList(parent)
 {
-    map_sessions = new QMap<int, SessionOperatoire*>();
+    map_all = new QMap<int, SessionOperatoire*>();
 }
 
 QMap<int, SessionOperatoire*>* SessionsOperatoires::sessions() const
 {
-    return map_sessions;
+    return map_all;
 }
 
 SessionOperatoire* SessionsOperatoires::getById(int id, bool reload)
 {
-    QMap<int, SessionOperatoire*>::const_iterator itref = map_sessions->find(id);
-    if( itref == map_sessions->constEnd() )
+    QMap<int, SessionOperatoire*>::const_iterator itref = map_all->constFind(id);
+    if( itref == map_all->constEnd() )
     {
         SessionOperatoire * itm = DataBase::I()->loadSessionOpById(id);
         if (itm != Q_NULLPTR)
-            add( map_sessions, itm );
-        return itm;
+            add( map_all, itm );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<SessionOperatoire*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -158,14 +159,14 @@ void SessionsOperatoires::initListebyUserId(int id)
 {
     m_iduser = id;
     QList<SessionOperatoire*> listsessions = DataBase::I()->loadSessionsOpByUserId(m_iduser);
-    epurelist(map_sessions, &listsessions);
-    addList(map_sessions, &listsessions, Item::Update);
+    epurelist(map_all, &listsessions);
+    addList(map_all, &listsessions, Item::Update);
 }
 
 
 void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session)
 {
-    Supprime(map_sessions, session);
+    Supprime(map_all, session);
 }
 
 SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString, QVariant> sets)
@@ -190,7 +191,6 @@ SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString,
     QJsonObject  data = QJsonObject{};
     data[CP_ID_SESSIONOPERATOIRE] = idsession;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
@@ -201,29 +201,30 @@ SessionOperatoire* SessionsOperatoires::CreationSessionOperatoire(QHash<QString,
     }
     session = new SessionOperatoire(data);
     if (session != Q_NULLPTR)
-        map_sessions->insert(session->id(), session);
+        map_all->insert(session->id(), session);
     return session;
 }
 
 TypesInterventions::TypesInterventions(QObject *parent) : ItemsList(parent)
 {
-    map_typeinterventions = new QMap<int, TypeIntervention*>();
+    map_all = new QMap<int, TypeIntervention*>();
 }
 
 QMap<int, TypeIntervention*>* TypesInterventions::typeinterventions() const
 {
-    return map_typeinterventions;
+    return map_all;
 }
 
 TypeIntervention* TypesInterventions::getById(int id, bool reload)
 {
-    QMap<int, TypeIntervention*>::const_iterator itref = map_typeinterventions->find(id);
-    if( itref == map_typeinterventions->constEnd() )
+    QMap<int, TypeIntervention*>::const_iterator itref = map_all->constFind(id);
+    if( itref == map_all->constEnd() )
     {
         TypeIntervention* itm = DataBase::I()->loadTypeInterventionById(id);
         if (itm != Q_NULLPTR)
-            add( map_typeinterventions, itm );
-        return itm;
+            add( map_all, itm );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<TypeIntervention*>(it.value()) : Q_NULLPTR);
     }
     else if (reload)
     {
@@ -245,14 +246,14 @@ TypeIntervention* TypesInterventions::getById(int id, bool reload)
 void TypesInterventions::initListe()
 {
     QList<TypeIntervention*> listtypesinterventions = DataBase::I()->loadTypeInterventions();
-    epurelist(map_typeinterventions, &listtypesinterventions);
-    addList(map_typeinterventions, &listtypesinterventions, Item::Update);
+    epurelist(map_all, &listtypesinterventions);
+    addList(map_all, &listtypesinterventions, Item::Update);
 }
 
 
 void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
 {
-    Supprime(map_typeinterventions, typeintervention);
+    Supprime(map_all, typeintervention);
 }
 
 TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
@@ -277,7 +278,6 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     QJsonObject  data = QJsonObject{};
     data[CP_ID_TYPINTERVENTION] = idtypeintervention;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
@@ -287,6 +287,6 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     }
     typ = new TypeIntervention(data);
     if (typ != Q_NULLPTR)
-        map_typeinterventions->insert(typ->id(), typ);
+        map_all->insert(typ->id(), typ);
     return typ;
 }

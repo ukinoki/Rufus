@@ -90,7 +90,7 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
     if (id == 0)
         return Q_NULLPTR;
     Patient *pat = Q_NULLPTR;
-    QMap<int, Patient*>::const_iterator itpat = map_patients->find(id);
+    QMap<int, Patient*>::const_iterator itpat = map_patients->constFind(id);
     if (itpat == map_patients->constEnd())
     {
         pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
@@ -161,7 +161,6 @@ void Patients::SupprimePatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    QString requete;
     //!. Suppression des bilans orthoptiques
     DataBase::I()->StandardSQL("DELETE FROM " TBL_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " TBL_ACTES " where idPat = " + QString::number(pat->id()) + ")");
     //!. Suppression des actes
@@ -257,7 +256,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     }
     // Récupération de l'idpatient créé ------------------------------------
     int id = -1;
-    QHash<QString, QVariant>::const_iterator itx = sets.find(CP_IDPAT_PATIENTS);
+    QHash<QString, QVariant>::const_iterator itx = sets.constFind(CP_IDPAT_PATIENTS);
     if (itx != sets.constEnd())
         id = itx.value().toInt();
     else
@@ -275,7 +274,6 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     data[CP_IDCREATEUR_PATIENTS] = DataBase::I()->idUserConnected();
     data[CP_DATECREATION_PATIENTS] = QDate::currentDate().toString("yyyy-MM-dd");
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();

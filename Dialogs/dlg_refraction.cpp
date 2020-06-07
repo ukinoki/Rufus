@@ -1887,8 +1887,9 @@ Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure M
     bool cejour = (Quand == Aujourdhui);
     bool dilat  = (dilatation == Refraction::Dilatation);
     QMap<int, Refraction*> mapref;
-    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+    for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
     {
+        Refraction* ref = const_cast<Refraction*>(it.value());
         if (((ref->daterefraction() == QDate::currentDate()) == cejour)
                 && ref->typemesure() == Mesure
                 && ref->isdilate() == dilat)
@@ -2130,7 +2131,6 @@ void dlg_refraction::RechercheMesureEnCours()
     }
 
     // recherche d'une mesure du jour
-    QList<Refraction*> refsdujour;
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
         if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Prescription)
         {
@@ -2223,8 +2223,9 @@ QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction:
     QString zdate;
     QMap<int, Refraction*> mapref;
     bool dilat = (dilatation == Refraction::Dilatation);
-    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+    for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
     {
+        Refraction* ref = const_cast<Refraction*>(it.value());
         if (ref->typemesure() == Refraction::ConvertMesure(mesure)
                 && ref->isdilate() == dilat)
         {
@@ -2247,8 +2248,9 @@ QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction:
             DateOD      = zdate;
             ResultatOD  =  ref->formuleOD();
             QMap<int, Refraction*> maprefOG;
-            foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+            for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
             {
+                Refraction* ref = const_cast<Refraction*>(it.value());
                 if (ref->typemesure() == Refraction::ConvertMesure(mesure)
                         && ref->isdilate() == dilat
                         && ref->isOGmesure())
@@ -2267,8 +2269,9 @@ QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction:
                 DateOG      = zdate;
                 ResultatOG  =  ref->formuleOG();
                 QMap<int, Refraction*> maprefOD;
-                foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+                for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
                 {
+                    Refraction* ref = const_cast<Refraction*>(it.value());
                     if (ref->typemesure() == Refraction::ConvertMesure(mesure)
                             && ref->isdilate() == dilat
                             && ref->isODmesure())
@@ -2307,16 +2310,18 @@ QString dlg_refraction::RechercheVerres()
     QString     ResultatVerres = "";
     QString     zdate, Formule, TypeMesure;
     QMap<int, Refraction*> mapref;
-    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
+    for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
     {
+        Refraction* ref = const_cast<Refraction*>(it.value());
         if (ref->typemesure() == Refraction::Autoref
                 || ref->typemesure() == Refraction::Prescription)
                 mapref.insert(ref->id(), ref);
     }
     if (mapref.size() == 0)
         return "";
-    foreach (Refraction* ref, mapref.values())
+    for (auto it = mapref.constBegin(); it != mapref.constEnd(); ++it)
     {
+        Refraction* ref = const_cast<Refraction*>(it.value());
         if (ref->typemesure() == Refraction::Prescription)
             TypeMesure =  tr("Prescription");
         else
@@ -3111,9 +3116,8 @@ void dlg_refraction::ResumePrescription()
                     if (VerreSpecialOD == "oui" && VerreSpecialOG == "oui")
                         Resultat = "\t" + tr("OD") + " " + ResultatOD + "\n\t" + tr("OG") + " " + ResultatOG;
                     OKPourResultat = true;
-                    break;
                 }
-                if (ui->AddVPOD->value() != 0.0 && ui->AddVPOG->value() != 0.0)
+                else if (ui->AddVPOD->value() != 0.0 && ui->AddVPOG->value() != 0.0)
                 {
                     ui->DeuxMonturesPrescritRadioButton->setVisible(true);
                     Resultat = tr("Vision de loin") + "\n\t" + tr("OD ") + ResultatOD + "\n\t" + tr("OG ") + ResultatOG;
@@ -3128,9 +3132,8 @@ void dlg_refraction::ResumePrescription()
                     else if (ui->PlanOGCheckBox->isChecked())
                         Resultat += "\n" + tr("Vision de près") + "\n\t" "add. " + AddVPOD + tr(" VP OD");
                     OKPourResultat = true;
-                    break;
                 }
-                if (ui->AddVPOD->value() != 0.0 && ui->AddVPOG->value() == 0.0)
+                else if (ui->AddVPOD->value() != 0.0 && ui->AddVPOG->value() == 0.0)
                 {
                     ui->DeuxMonturesPrescritRadioButton->setVisible(!(ResultatOD == tr("dépoli") || ui->PlanODCheckBox->isChecked()));
                     Resultat = tr("Vision de loin") + "\n\t" + tr("OD ") + ResultatOD + "\n\t" + tr("OG ") + ResultatOG;
@@ -3146,9 +3149,8 @@ void dlg_refraction::ResumePrescription()
                         }
                     }
                     OKPourResultat = true;
-                    break;
                 }
-                if (ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() != 0.0)
+                else if (ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() != 0.0)
                 {
                     ui->DeuxMonturesPrescritRadioButton->setVisible(!(ResultatOG == tr("dépoli") || ui->PlanOGCheckBox->isChecked()));
                     Resultat = tr("Vision de loin") + "\n\t" + tr("OD ") + ResultatOD + "\n\t" + tr("OG ") + ResultatOG;
@@ -3164,7 +3166,6 @@ void dlg_refraction::ResumePrescription()
                         }
                     }
                     OKPourResultat = true;
-                    break;
                 }
             }
 

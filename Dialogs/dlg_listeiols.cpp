@@ -362,7 +362,10 @@ void dlg_listeiols::EnregistreNouveauIOL()
 {
     dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(dlg_identificationIOL::Creation, Q_NULLPTR, this);
     if (!Dlg_IdentIOL->initok())
+    {
+        delete Dlg_IdentIOL;
         return;
+    }
     if (Dlg_IdentIOL->exec()>0)
     {
         IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL());
@@ -415,7 +418,6 @@ void dlg_listeiols::ImportListeIOLS()
         for (int i=0; i<xml.childNodes().size(); i++)
         {
             QDomElement lensnode = xml.childNodes().at(i).toElement();
-            QString lens = lensnode.tagName();
             for (int i=0; i<lensnode.childNodes().size(); i++)
             {
                 QDomElement node = lensnode.childNodes().at(i).toElement();
@@ -426,8 +428,11 @@ void dlg_listeiols::ImportListeIOLS()
         }
         listmanufacturers.sort();
         QStringList listmanofficiel;
-        foreach(Manufacturer *man, Datas::I()->manufacturers->manufacturers()->values())
-            listmanofficiel << man->nom().toUpper();
+        for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+        {
+            Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+            listmanofficiel << manf->nom().toUpper();
+        }
         foreach (QString nommanufacturer, listmanufacturers)
             if (!listmanofficiel.contains(nommanufacturer.toUpper()))
             {
@@ -469,7 +474,6 @@ void dlg_listeiols::ImportListeIOLS()
             double olsen = 0.0;
             QDomElement lensnode = xml.childNodes().at(i).toElement();
             idiol = lensnode.attributeNode("id").value().toInt();
-            QString lens = lensnode.tagName();
             for (int i=0; i<lensnode.childNodes().size(); i++)
             {
                 QDomElement node = lensnode.childNodes().at(i).toElement();
@@ -577,9 +581,10 @@ void dlg_listeiols::ImportListeIOLS()
             if (cylmin > 99.0) cylmin= 0.0;
             if (cylmax < -99.0) cylmax= 0.0;
             Manufacturer *man = Q_NULLPTR;
-            foreach (Manufacturer *manf, Datas::I()->manufacturers->manufacturers()->values())
+            for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
             {
-                if (manf)
+                Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+                 if (manf)
                     if (manf->nom().toUpper() == fabricant.toUpper())
                     {
                         man = manf;
@@ -660,7 +665,10 @@ void dlg_listeiols::ModifIOL(IOL *iol)
         return;
     dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(dlg_identificationIOL::Modification, iol, this);
     if (!Dlg_IdentIOL->initok())
+    {
+        delete Dlg_IdentIOL;
         return;
+    }
     if (Dlg_IdentIOL->exec()>0)
     {
         if (iol)
@@ -821,8 +829,9 @@ void dlg_listeiols::ReconstruitListeManufacturers()
 
     QStringList list;
     UpStandardItem *manufactureritem;
-    foreach(IOL *iol, Datas::I()->iols->iols()->values())
+    for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
+        IOL *iol = const_cast<IOL*>(it.value());
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
         if (man != Q_NULLPTR)
         {
@@ -893,8 +902,9 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     }
     int dim = 45;
     //qDebug() << Datas::I()->iols->iols()->size();
-    foreach(IOL *iol, Datas::I()->iols->iols()->values())
+    for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
+        IOL *iol = const_cast<IOL*>(it.value());
         if (m_onlyactifs && !iol->isactif())
             continue;
         if (iol->modele().startsWith(filtre, Qt::CaseInsensitive))
@@ -902,7 +912,6 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             /*! filtrage des types */
             if (wdg_typebox->currentIndex() != 0)
             {
-                QString type  = wdg_typebox->currentText();
                 if (iol->type() != wdg_typebox->currentText())
                     continue;
             }

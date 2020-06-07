@@ -42,7 +42,7 @@ PosteConnecte* PostesConnectes::getByStringId(QString stringid)
         //qDebug() << "stringid invalide";
         return post;
     }
-    QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->find(stringid) ;
+    QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->constFind(stringid) ;
     if( itcpt == map_postesconnectes->constEnd() )
     {
         QJsonObject posteData{};

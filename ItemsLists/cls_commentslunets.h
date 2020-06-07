@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class CommentsLunets : public ItemsList
 {
 private:
-    QMap<int, CommentLunet*> *map_comments = Q_NULLPTR;    //!< la liste des comments
+    QMap<int, CommentLunet*> *map_all = Q_NULLPTR;    //!< la liste des comments
 
 public:
     explicit CommentsLunets(QObject *parent = Q_NULLPTR);

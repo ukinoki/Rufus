@@ -19,23 +19,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Refractions::Refractions(QObject *parent) : ItemsList(parent)
 {
-    map_refractions = new QMap<int, Refraction*>();
+    map_all = new QMap<int, Refraction*>();
 }
 
 QMap<int, Refraction *>* Refractions::refractions() const
 {
-    return map_refractions;
+    return map_all;
 }
 
 Refraction* Refractions::getById(int id)
 {
-    QMap<int, Refraction*>::const_iterator itref = map_refractions->find(id);
-    if( itref == map_refractions->constEnd() )
+    QMap<int, Refraction*>::const_iterator itref = map_all->constFind(id);
+    if( itref == map_all->constEnd() )
     {
         Refraction * ref = DataBase::I()->loadRefractionById(id);
         if (ref != Q_NULLPTR)
-            add( map_refractions, ref );
-        return ref;
+            add( map_all, ref );
+        auto it = map_all->constFind(id);
+        return (it != map_all->cend()? const_cast<Refraction*>(it.value()) : Q_NULLPTR);
     }
     return itref.value();
 }
@@ -49,14 +50,14 @@ void Refractions::initListebyPatId(int id)
 {
     m_idpat = id;
     QList<Refraction*> listrefractions = DataBase::I()->loadRefractionsByPatId(m_idpat);
-    epurelist(map_refractions, &listrefractions);
-    addList(map_refractions, &listrefractions, Item::Update);
+    epurelist(map_all, &listrefractions);
+    addList(map_all, &listrefractions, Item::Update);
 }
 
 
 void Refractions::SupprimeRefraction(Refraction* ref)
 {
-    Supprime(map_refractions, ref);
+    Supprime(map_all, ref);
 }
 
 Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
@@ -81,7 +82,6 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_ID_REFRACTIONS] = idrefraction;
     QString champ;
-    QVariant value;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
 
@@ -131,6 +131,6 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
     }
     ref = new Refraction(data);
     if (ref != Q_NULLPTR)
-    map_refractions->insert(ref->id(), ref);
+    map_all->insert(ref->id(), ref);
     return ref;
 }

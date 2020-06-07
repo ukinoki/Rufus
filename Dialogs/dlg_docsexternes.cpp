@@ -483,8 +483,16 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     if (m_mode == Zoom)
     {
         // les dimensions maxi de la zone de visu
-        const double maxwscroll  = QGuiApplication::screens().first()->geometry().width()*2/3    - m_wdelta - m_wdeltaframe;
-        const double maxhscroll  = QGuiApplication::screens().first()->geometry().height()       - m_hdelta - m_hdeltaframe;
+        double wscroll  = 0;
+        double hscroll  = 0;
+        QList<QScreen*> listscreens = QGuiApplication::screens();
+        if (listscreens.size())
+        {
+            wscroll  = listscreens.first()->geometry().width()*2/3;
+            hscroll  = listscreens.first()->geometry().height();
+        }
+        const double maxwscroll  = wscroll    - m_wdelta - m_wdeltaframe;
+        const double maxhscroll  = hscroll    - m_hdelta - m_hdeltaframe;
         // les dimensions calculées de la zone de visu
         int wfinal(0), hfinal(0);
 
@@ -527,9 +535,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             int y = pix.size().height();
             obj_graphicscene->setSceneRect(1,1,x-1,y-1);
         }
-
-        if ((w + m_wdeltaframe) > (QGuiApplication::screens().first()->geometry().width() - this->x()))
-            move(QGuiApplication::screens().first()->geometry().width() - (w + m_wdeltaframe), 0);
+        if (listscreens.size())
+            if ((w + m_wdeltaframe) > (listscreens.first()->geometry().width() - this->x()))
+                move(listscreens.first()->geometry().width() - (w + m_wdeltaframe), 0);
     }
 
     if (m_typedoc == PDF)
@@ -749,6 +757,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
+        delete Etat_textEdit;
         return false;
     }
 
@@ -756,7 +765,10 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(QDate::currentDate(), userEntete);
     Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
     if (Entete == "")
+    {
+        delete Etat_textEdit;
         return false;
+    }
     Entete.replace("{{TITRE1}}"        , "");
     Entete.replace("{{TITRE}}"         , "");
     Entete.replace("{{DDN}}"           , "");
@@ -775,6 +787,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     {
         if (Etat_textEdit->toPlainText() == "")
             UpMessageBox::Watch(this,tr("Rien à imprimer"));
+        delete Etat_textEdit;
         return false;
     }
     int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
@@ -1066,8 +1079,16 @@ void dlg_docsexternes::ZoomDoc()
         }
 
         // les dimensions maxi de la zone de visu
-        const double maxwscroll  = QGuiApplication::screens().first()->geometry().width()*2/3    - m_wdelta - m_wdeltaframe;
-        const double maxhscroll  = QGuiApplication::screens().first()->geometry().height()       - m_hdelta - m_hdeltaframe;
+        double wscroll  = 0;
+        double hscroll  = 0;
+        QList<QScreen*> listscreens = QGuiApplication::screens();
+        if (listscreens.size())
+        {
+            wscroll  = listscreens.first()->geometry().width()*2/3;
+            hscroll  = listscreens.first()->geometry().height();
+        }
+        const double maxwscroll  = wscroll    - m_wdelta - m_wdeltaframe;
+        const double maxhscroll  = hscroll    - m_hdelta - m_hdeltaframe;
         // les dimensions calculées de la zone de visu
         int wfinal(0), hfinal(0);
 
@@ -1114,7 +1135,8 @@ void dlg_docsexternes::ZoomDoc()
                 obj_graphicscene->setSceneRect(1,1,x-1,y-1);
             }
         }
-        move (QGuiApplication::screens().first()->geometry().width() - w, 0);
+        if (listscreens.size())
+            move (listscreens.first()->geometry().width() - w, 0);
     }
     else if (m_mode == Zoom)
     {
@@ -1237,9 +1259,11 @@ void dlg_docsexternes::RemplirTreeView()
     else
         m_modefiltre = NormalFiltre;
 
-    if (wdg_listdocstreewiew != Q_NULLPTR)
+    if (!wdg_listdocstreewiew)
+        return;
+    if (wdg_listdocstreewiew)
         wdg_listdocstreewiew->disconnect();
-    if (wdg_listdocstreewiew->selectionModel() != Q_NULLPTR)
+    if (wdg_listdocstreewiew->selectionModel())
         wdg_listdocstreewiew->selectionModel()->disconnect();
     QString             idimpraretrouver = "";
     m_model = dynamic_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
