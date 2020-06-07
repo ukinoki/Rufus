@@ -43,7 +43,7 @@ UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToo
     if (AvecReload)
     {
         reload  = new QAction(Icons::icPageRefresh(),tr("Recharger"),this);
-        connect(reload, &QAction::triggered,  [=] {TBChoix(reload);});
+        connect(reload, &QAction::triggered, this, [=] {TBChoix(reload);});
         addSeparator();
         addAction(reload);
     }

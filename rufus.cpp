@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("02-06-2020/1");
+    qApp->setApplicationVersion("07-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -777,7 +777,7 @@ void Rufus::Moulinette()
     for (int j = 0; j < s ; j++)
     {
         QString idpat = copieAlist.at(j).at(0).toString();
-        idauhasard = arc4random() % (listAdresses.size());
+        idauhasard = rand() % (listAdresses.size());
         copierequete = "update rufus.donneessocialespatients2 set patAdresse1 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
                 + "' where idPat = " + idpat;
         db->StandardSQL(copierequete);
@@ -792,7 +792,7 @@ void Rufus::Moulinette()
     for (int j = 0; j < s ; j++)
     {
         QString idpat = copieA2list.at(j).at(0).toString();
-        idauhasard = arc4random() % (listAdresses.size());
+        idauhasard = rand() % (listAdresses.size());
         copierequete = "update rufus.donneessocialespatients2 set patAdresse2 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
                 + "' where idPat = " + idpat;
         db->StandardSQL(copierequete);
