@@ -1066,21 +1066,21 @@ void dlg_gestionusers::SupprUser()
         foreach (int idcpt, m_userencours->listecomptesbancaires(false))
         {
             QString icpt = QString::number(idcpt);
-            if (db->StandardSelectSQL("select idrecette from " TBL_RECETTES " where comptevirement = " + icpt, m_ok).size()==0)
-                if (db->StandardSelectSQL("select idligne from " TBL_ARCHIVESBANQUE " where idcompte = " + icpt, m_ok).size()==0)
-                    if (db->StandardSelectSQL("select iddep from " TBL_DEPENSES " where compte = " + icpt, m_ok).size()==0)
+            if (db->StandardSelectSQL("select " CP_ID_LIGNRECETTES " from " TBL_RECETTES " where " CP_IDCPTEVIREMENT_LIGNRECETTES " = " + icpt, m_ok).size()==0)
+                if (db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDCOMPTE_ARCHIVESCPT " = " + icpt, m_ok).size()==0)
+                    if (db->StandardSelectSQL("select " CP_ID_DEPENSES " from " TBL_DEPENSES " where " CP_COMPTE_DEPENSES " = " + icpt, m_ok).size()==0)
                         if (db->StandardSelectSQL("select idremcheq from " TBL_REMISECHEQUES " where idcompte = " + icpt, m_ok).size()==0)
-                            if (db->StandardSelectSQL("select idligne from " TBL_LIGNESCOMPTES " where idcompte = " + icpt, m_ok).size()==0)
+                            if (db->StandardSelectSQL("select " CP_ID_LIGNCOMPTES " from " TBL_LIGNESCOMPTES " where " CP_IDCOMPTE_LIGNCOMPTES " = " + icpt, m_ok).size()==0)
                                 Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(idcpt));
         }
         db->SupprRecordFromTable(idUser, "idUser", TBL_COTATIONS);
         db->StandardSQL("delete from " TBL_JOINTURESLIEUX " where iduser not in (select " CP_ID_USR " from " TBL_UTILISATEURS ")");
 
-        QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";
-        QList<QVariantList> listusr = db->StandardSelectSQL(req, m_ok);
-        if (listusr.size()>0)
-            for (int i=0; i<listusr.size(); i++)
-                db->StandardSQL("drop user '" + listusr.at(i).at(0).toString() + "'@'" + listusr.at(i).at(1).toString() + "'");
+//        QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";
+//        QList<QVariantList> listusr = db->StandardSelectSQL(req, m_ok);
+//        if (listusr.size()>0)
+//            for (int i=0; i<listusr.size(); i++)
+//                db->StandardSQL("drop user '" + listusr.at(i).at(0).toString() + "'@'" + listusr.at(i).at(1).toString() + "'");
         if (m_userencours == Datas::I()->users->userconnected())
         {
             UpMessageBox::Watch(this, tr("Cool ") + vamourir + "...", tr("Votre suicide s'est parfaitement déroulé et le programme va maintenant se fermer"));

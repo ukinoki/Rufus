@@ -324,7 +324,14 @@ void dlg_recettesspeciales::EnregistreRecette()
     {
         Paiement = (Paiement == VIREMENT? tr("Virement crébiteur") : tr("Dépôt espèces"));
         int a = db->getIdMaxTableComptesTableArchives();
-        if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES "(idLigne, idCompte, idRecSpec, LigneDate, Lignelibelle, LigneMontant, LigneDebitCredit, LigneTypeoperation) VALUES (" +
+        if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES "(" CP_ID_LIGNCOMPTES ", "
+                             CP_IDCOMPTE_LIGNCOMPTES ", "
+                             CP_IDRECSPEC_LIGNCOMPTES ", "
+                             CP_DATE_LIGNCOMPTES ", "
+                             CP_LIBELLE_LIGNCOMPTES ", "
+                             CP_MONTANT_LIGNCOMPTES ", "
+                             CP_DEBITCREDIT_LIGNCOMPTES ", "
+                             CP_TYPEOPERATION_LIGNCOMPTES ") VALUES (" +
                     QString::number(a) + "," +
                     ui->ComptesupComboBox->currentData().toString() +
                     "," + idRec +
@@ -510,7 +517,7 @@ void dlg_recettesspeciales::SupprimerRecette()
             return;
 
         //On supprime l'écriture
-        db->SupprRecordFromTable(m_idrecetteencours,"idrecspec", TBL_LIGNESCOMPTES);
+        db->SupprRecordFromTable(m_idrecetteencours, CP_IDRECSPEC_LIGNCOMPTES, TBL_LIGNESCOMPTES);
         db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
         if (wdg_bigtable->rowCount() == 1)
         {

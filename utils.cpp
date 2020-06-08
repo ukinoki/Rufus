@@ -424,8 +424,14 @@ QMap<QString, qint64> Utils::dir_size(const QString DirPath)
     for(int i = 0; i < list.size(); ++i)
     {
         QFileInfo fileInfo = list.at(i);
-        sizex += (fileInfo.isDir()) ? dir_size(fileInfo.absoluteFilePath())["Size"]: fileInfo.size();
-        nfiles += (fileInfo.isDir()) ? dir_size(fileInfo.absoluteFilePath())["Nfiles"] : i+1;
+        QMap<QString, qint64> size = QMap<QString, qint64>();
+        if (fileInfo.isDir())
+        {
+            QString path = fileInfo.absoluteFilePath();
+            size = dir_size(path);
+        }
+        sizex += (fileInfo.isDir()) ? size["Size"]: fileInfo.size();
+        nfiles += (fileInfo.isDir()) ? size["Nfiles"] : i+1;
     }
     DataDir["Size"]= sizex;
     DataDir["Nfiles"]= nfiles;

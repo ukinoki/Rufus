@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("07-06-2020/1");
+    qApp->setApplicationVersion("08-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -423,7 +423,7 @@ void Rufus::MAJDocsExternes()
         for (int i=0; i< ListDialogDocs.size();++i)
             if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
             {
-                proc->emit UpdDocsExternes();
+                proc->UpdDocsExternes();
                 break;
             }
     }
@@ -882,8 +882,9 @@ void Rufus::ActeMontantModifie()
 void Rufus::AfficheMotif(UpLabel *lbl)
 {
     QMap<QString, QVariant> rsgnmt = lbl->datas();
+    QMap<QString,QVariant> mapage = Utils::CalculAge(rsgnmt["ddnpat"].toDate());
     QString Msg("");
-    Msg += Utils::CalculAge(rsgnmt["ddnpat"].toDate())["toString"].toString();
+    Msg += mapage["toString"].toString();
     if (rsgnmt["urgence"].toBool())
     {
         if (Msg != "") Msg += "\n";
@@ -1018,7 +1019,10 @@ void Rufus::AfficheToolTip(Patient *pat)
     m_patients->loadAll(pat, Item::Update);
     QString Msg = "";
     if (pat->datedenaissance().isValid())
-        Msg += Utils::CalculAge(pat->datedenaissance())["toString"].toString();
+    {
+        QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
+        Msg += mapage["toString"].toString();
+    }
     if (pat->ville() != "")
     {
         if (Msg!="") Msg = "\n" + Msg;
@@ -1513,7 +1517,11 @@ void Rufus::CreerBilanOrtho()
         if (creeracte)
         {
             if (ui->Acteframe->isVisible())
-                if (!AutorDepartConsult(false)) return;
+                if (!AutorDepartConsult(false))
+                {
+                    delete Dlg_BlOrtho;
+                    return;
+                }
             CreerActe(currentpatient());
         }
         QString RefractionOD    = "";
@@ -2590,7 +2598,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
             || act->conclusion() != "")
         {
             User *usr = Datas::I()->users->getById(act->idUserSuperviseur());
-            QString titre (!usr? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null");
+            QString titre (usr? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null");
             reponsevide = false;
             Reponse += "<p><td width=\"140\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
@@ -2975,8 +2983,9 @@ void Rufus::RechercheParMotCle()
 
     UpStandardItem      *pitem;
     QStandardItemModel *model =  new QStandardItemModel;
-    foreach (MotCle *mc, Datas::I()->motscles->motscles()->values())
+    for (auto it =  Datas::I()->motscles->motscles()->constBegin(); it !=  Datas::I()->motscles->motscles()->constEnd(); ++it)
     {
+        MotCle *mc = const_cast<MotCle*>(it.value());
         pitem   = new UpStandardItem(mc->motcle(), mc);
         pitem   ->setEditable(false);
         pitem   ->setCheckable(true);
@@ -3156,7 +3165,7 @@ void Rufus::AfficheCourriersAFaire()
         QString patient = modele->item(modele->itemFromIndex(idx)->row(),0)->text();
         m_menuContextuel = new QMenu(this);
         QAction *pAction_OuvrirDossier = m_menuContextuel->addAction("Ouvrir le dossier " + patient) ;
-        connect (pAction_OuvrirDossier, &QAction::triggered, [=]
+        connect (pAction_OuvrirDossier, &QAction::triggered, this, [=]
         {
             int idacte      = modele->itemFromIndex(idx)->accessibleDescription().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
@@ -3650,8 +3659,11 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
     QMap<QString, QVariant>     mapRDV         = QMap<QString,QVariant>();
     grpBox      ->setTitle(tr("Motif de l'acte"));
 
-    foreach (User *usr, Datas::I()->users->superviseurs()->values() )
-        ComboSuperviseurs->addItem(usr->login(), QString::number(usr->id()) );
+    for (auto it =  Datas::I()->users->superviseurs()->constBegin(); it !=  Datas::I()->users->superviseurs()->constEnd(); ++it)
+    {
+        User *usr = const_cast<User*>(it.value());
+        ComboSuperviseurs->addItem(usr->login(), QString::number(usr->id()));
+    }
     ComboSuperviseurs->setFixedWidth(100);
 
     QHBoxLayout *soignantlayout     = new QHBoxLayout();
@@ -3665,8 +3677,9 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
         return mapRDV;
     int defaut = -1;
     int k = -1;
-    foreach (Motif *mtf, Datas::I()->motifs->motifs()->values())
+    for (auto it = Datas::I()->motifs->motifs()->constBegin(); it != Datas::I()->motifs->motifs()->constEnd(); ++it)
     {
+        Motif *mtf = const_cast<Motif*>(it.value());
         ++k;
         QRadioButton *radiobut = new QRadioButton(grpBox);
         radiobut->setAutoExclusive(true);
@@ -3741,8 +3754,9 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
             motif= "URG";
         else
         {
-            foreach (Motif *mtf, Datas::I()->motifs->motifs()->values())
+            for (auto it = Datas::I()->motifs->motifs()->constBegin(); it != Datas::I()->motifs->motifs()->constEnd(); ++it)
             {
+                Motif *mtf = const_cast<Motif*>(it.value());
                 if (mtf->motif()==motif)
                 {
                     motif = mtf->raccourci();
@@ -4539,7 +4553,8 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     QString backgroundsurbrill = "background:#B2D7FF";
     if (lab==Q_NULLPTR)
         return;
-    int idpat       = lab->datas()["idpat"].toInt();
+    QMap<QString, QVariant> rsgnmt = lab->datas();
+    int idpat       = rsgnmt["idpat"].toInt();
     int row         = lab->Row();
     QString color   = "color: black";
     QString colorRDV= "color: black";
@@ -4624,7 +4639,8 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 UpLabel *labi6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
                 pat = Q_NULLPTR;
-                auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(labi0->datas()["idpat"].toInt());
+                QMap<QString, QVariant> rsgnmt = labi0->datas();
+                auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(rsgnmt["idpat"].toInt());
                 if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
                 {
                     pat = const_cast<PatientEnCours*>(itpat.value());
@@ -4762,8 +4778,14 @@ void Rufus::AfficheMessages(int idx)
         if (dlg_msgDialog->isVisible())
             dlg_msgDialog->close();
     dlg_msgDialog = new QDialog();
-    int x = QGuiApplication::screens().first()->geometry().width();
-    int y = QGuiApplication::screens().first()->geometry().height();
+    int x = 0;
+    int y = 0;
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    if (listscreens.size())
+    {
+        x = listscreens.first()->geometry().width();
+        y = listscreens.first()->geometry().height();
+    }
     dlg_msgDialog->setStyleSheet("border-image: none; background-color:#FAFAFA;");
     Tabw->setParent(dlg_msgDialog);
     globallay->addWidget(Tabw);
@@ -5100,8 +5122,6 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
 void Rufus::MsgResp(int idmsg)
 {
-    QVBoxLayout *globallay = new QVBoxLayout();
-    dlg_msgRepons = new QDialog();
     Message *msg = Datas::I()->messages->getById(idmsg);
     if (!msg)
         return;
@@ -5111,6 +5131,8 @@ void Rufus::MsgResp(int idmsg)
         UpMessageBox::Watch(this,tr("Impossible de retrouver l'expéditeur du message"));
         return;
     }
+    QVBoxLayout *globallay = new QVBoxLayout();
+    dlg_msgRepons = new QDialog();
     QLabel *lbl = new QLabel(dlg_msgRepons);
     lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usr->login() + "</b></font>");
     globallay->addWidget(lbl);
@@ -5151,7 +5173,10 @@ void Rufus::MsgResp(int idmsg)
     dlg_msgRepons->setSizeGripEnabled(false);
     dlg_msgRepons->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
     dlg_msgRepons->setWindowTitle(tr("Messagerie"));
-    int y = QGuiApplication::screens().first()->geometry().height();
+    int y = 0;
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    if (listscreens.size())
+        y = listscreens.first()->geometry().height();
     dlg_msgRepons->setMaximumHeight(y-30);
     dlg_msgRepons->setWindowIcon(Icons::icSunglasses());
     dlg_msgRepons->setFixedWidth(450);
@@ -5542,8 +5567,9 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         {
             // on vérifie que l'importateur est toujours connecté
             int idx = -1;
-            foreach (PosteConnecte* post, Datas::I()->postesconnectes->postesconnectes()->values())
+            for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
             {
+                PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
                 if (post->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
                     idx = Datas::I()->postesconnectes->postesconnectes()->values().indexOf(post);
@@ -5722,12 +5748,15 @@ void Rufus::closeEvent(QCloseEvent *)
         Flags::I()->MAJFlagSalleDAttente();
         //!> on déverrouille les actes verrouillés en comptabilité par cet utilisateur s'il n'est plus connecté sur aucun poste
         bool usernotconnectedever = true;
-        foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
+        for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
+        {
+            PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
             if(post->id() == iduserposte)
             {
                 usernotconnectedever = false;
                 break;
             }
+        }
         if (usernotconnectedever)
             db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(iduserposte));
     }
@@ -5808,7 +5837,8 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             }
             else if (obj == ui->ActeDatedateEdit)
             {
-                if (ui->ActeDatedateEdit->text() != m_dateActe)
+                QString date = ui->ActeDatedateEdit->text();
+                if (date != m_dateActe)
                 {
                     ItemsList::update(currentacte(), CP_DATE_ACTES, ui->ActeDatedateEdit->date());
                     m_dateActe       = ui->ActeDatedateEdit->text();
@@ -6163,8 +6193,9 @@ void Rufus::AfficheActeCompta(Acte *acte)
     if (acte->paiementType() != "G" || acte->paiementType() != "I")
     {
         double TotalPaye = 0;
-        foreach (LignePaiement *lign, m_lignespaiements->lignespaiements()->values())
+        for (auto it = m_lignespaiements->lignespaiements()->constBegin(); it != m_lignespaiements->lignespaiements()->constEnd(); ++it)
         {
+            LignePaiement *lign = const_cast<LignePaiement*>(it.value());
             if (lign->idacte() == acte->id())
             {
                 if (lign->monnaie() == "F")
@@ -6554,8 +6585,9 @@ void Rufus::SortieAppli()
      * 2. cet utilisateur est connecté sur d'autres postes, on peut partir
      */
         bool IlResteDesPostesConnectesAvecCeUser = false;
-        foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
+        for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
         {
+            PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
             if (post->nomposte() != currentpost()->nomposte() && post->id() == currentpost()->id())
             {
                 IlResteDesPostesConnectesAvecCeUser = true;
@@ -8068,16 +8100,17 @@ void    Rufus::FicheImpressions(Patient *pat)
 
         bool ALD;
         QString imprimante = "";
+        QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> listdocs = Dlg_Imprs->mapdocsaimprimer();
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
-        foreach (mapdoc, Dlg_Imprs->mapdocsaimprimer())
+        foreach (mapdoc, listdocs)
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::Prescription).value() == "1");
             bool AvecDupli              = (mapdoc.find(dlg_impressions::Dupli).value() == "1");
             bool Administratif          = (mapdoc.find(dlg_impressions::Administratif).value() == "1");
             QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
             QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
-
-            bool AvecChoixImprimante    = (mapdoc == Dlg_Imprs->mapdocsaimprimer().first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
+            QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
+            bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
             Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));

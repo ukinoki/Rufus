@@ -462,6 +462,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TYPEOPERATION_LIGNCOMPTES                   "LigneTypeoperation"
 #define CP_CONSOLIDE_LIGNCOMPTES                       "LigneConsolide"
 
+
+                            //! Table ComptaMedicale.archivesbanques
+#define CP_ID_ARCHIVESCPT                              "idLigne"
+#define CP_IDCOMPTE_ARCHIVESCPT                        "idCompte"
+#define CP_IDDEP_ARCHIVESCPT                           "idDep"
+#define CP_IDREC_ARCHIVESCPT                           "idRec"
+#define CP_IDRECSPEC_ARCHIVESCPT                       "idRecSpec"
+#define CP_IDREMCHEQ_ARCHIVESCPT                       "idRemCheq"
+#define CP_DATE_ARCHIVESCPT                            "LigneDate"
+#define CP_LIBELLE_ARCHIVESCPT                         "LigneLibelle"
+#define CP_MONTANT_ARCHIVESCPT                         "LigneMontant"
+#define CP_DEBITCREDIT_ARCHIVESCPT                     "LigneDebitCredit"
+#define CP_TYPEOPERATION_ARCHIVESCPT                   "LigneTypeoperation"
+#define CP_DATECONSOLIDE_ARCHIVESCPT                   "LigneDateconsolidation"
+#define CP_IDARCHIVE_ARCHIVESCPT                       "idArchive"
+
                             //! Table ComptaMedicale.lignespaiements
 #define CP_IDACTE_LIGNEPAIEMENT                         "idActe"
 #define CP_IDRECETTE_LIGNEPAIEMENT                      "idRecette"

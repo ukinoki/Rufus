@@ -148,7 +148,7 @@ void dlg_remisecheques::CorrigeRemise()
         a = db->StandardSQL("update " TBL_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
         if (!a) break;
         // supprimer la remise dans la table lignescomptes
-        a = db->SupprRecordFromTable(idRemise, "idremcheq", TBL_LIGNESCOMPTES);
+        a = db->SupprRecordFromTable(idRemise, CP_IDREMCHEQ_LIGNCOMPTES, TBL_LIGNESCOMPTES);
         break;
     }
     if (!a)
@@ -268,13 +268,23 @@ void dlg_remisecheques::ImprimepushButton()
         }
 
         // On enregitre dans la table GestionComptes cettte remise
-        req =  "INSERT INTO " TBL_LIGNESCOMPTES " (idLigne, idCompte,LigneDate,LigneLibelle,LigneMontant,LigneDebitCredit,LigneTypeOperation, idremcheq) VALUES (" +
+        req =  "INSERT INTO " TBL_LIGNESCOMPTES " ("
+                CP_ID_LIGNCOMPTES ", "
+                CP_IDCOMPTE_LIGNCOMPTES ", "
+                CP_DATE_LIGNCOMPTES ", "
+                CP_LIBELLE_LIGNCOMPTES ", "
+                CP_MONTANT_LIGNCOMPTES ", "
+                CP_DEBITCREDIT_LIGNCOMPTES ", "
+                CP_TYPEOPERATION_LIGNCOMPTES ", "
+                CP_IDREMCHEQ_LIGNCOMPTES ") VALUES (" +
                 QString::number(db->getIdMaxTableComptesTableArchives()) + "," +
                 ui->ComptecomboBox->currentData().toString() +
                 ", NOW(),"
                 "'" + tr("Remise de chèques n°") + QString::number(idRemise) +
                 "','" + QString::number(Total) +
-                "',1,'" + tr("Remise de chèques") + "', " + QString::number(idRemise) + ")";
+                "',1,'" +
+                tr("Remise de chèques") + "', " +
+                QString::number(idRemise) + ")";
         if (!db->StandardSQL(req))
         {
             db->rollback();
@@ -705,12 +715,11 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( auto it = m_userencours->listecomptesbancaires().constBegin(); it != m_userencours->listecomptesbancaires().constEnd(); ++it )
-    {
-        idlist += QString::number(*it);
-        if (it != m_userencours->listecomptesbancaires().constEnd()-1)
-            idlist += ", ";
-    }
+    QList<int> listcpt = m_userencours->listecomptesbancaires();
+    foreach (int idcpt, listcpt)
+        idlist += QString::number(idcpt) + ", ";
+    idlist.remove(idlist.lastIndexOf(","),2);
+    qDebug() << idlist;
 
     bool ok = true;
     QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " TBL_REMISECHEQUES

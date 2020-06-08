@@ -2913,7 +2913,7 @@ void dlg_impressions::Remplir_TableView()
         ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
         ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
         ui->DocsupTableView->setColumnWidth(5,0);         // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
-        ui->DocsupTableView->setRowHidden(5,true);
+        ui->DocsupTableView->setColumnHidden(5,true);
         ui->DocsupTableView->FixLargeurTotale();
         wdg_docsbuttonframe->widgButtonParent()->setFixedWidth(ui->DocsupTableView->width());
         ui->DocsupTableView->setGridStyle(Qt::DotLine);

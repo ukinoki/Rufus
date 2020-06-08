@@ -2862,16 +2862,29 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
             //2. Mise à jour LignesComptes ======================================================================================================================================================
             if (ui->VirementradioButton->isChecked())
             {
-                QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES "(idLigne, idCompte, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
-                        + QString::number(db->getIdMaxTableComptesTableArchives()) + "," + idCompte + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
-                        + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "',"
-                        + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
+                QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES "("
+                        CP_ID_LIGNCOMPTES ", "
+                        CP_IDCOMPTE_LIGNCOMPTES ", "
+                        CP_IDREC_LIGNCOMPTES ", "
+                        CP_DATE_LIGNCOMPTES ", "
+                        CP_LIBELLE_LIGNCOMPTES ", "
+                        CP_MONTANT_LIGNCOMPTES ", "
+                        CP_DEBITCREDIT_LIGNCOMPTES ", "
+                        CP_TYPEOPERATION_LIGNCOMPTES ")"
+                        " VALUES (" +
+                        QString::number(db->getIdMaxTableComptesTableArchives()) + "," +
+                        idCompte + "," +
+                        QString::number(m_idrecette) + ", '" +
+                        ui->dateEdit->date().toString("yyyy-MM-dd") + "', "
+                        "'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "'," +
+                        QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
+                        ",1, "
+                        "'Virement créditeur')";
                 if (!db->StandardSQL(InsertComptrequete))
                 {
                     db->rollback();
                     return Impossible;
                 }
-
             }
         }
         else
@@ -3052,10 +3065,9 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
             else
             {
                 QList<PatientEnCours*> listpatients;
-                for (QMap<int, PatientEnCours*>::const_iterator itpat = Datas::I()->patientsencours->patientsencours()->constBegin();
-                     itpat != Datas::I()->patientsencours->patientsencours()->constEnd(); ++itpat)
+                for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
                 {
-                    PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.value());
+                    PatientEnCours *pat = const_cast<PatientEnCours*>(it.value());
                     if (pat != Q_NULLPTR)
                         if (pat->idacteapayer() == ActeAInserer.toInt())
                             listpatients << pat;

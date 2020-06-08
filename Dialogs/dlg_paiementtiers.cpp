@@ -1186,7 +1186,15 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             //2. Mise à hour LignesComptes ======================================================================================================================================================
             if (ui->VirementradioButton->isChecked())
             {
-                QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES "(idLigne, idCompte, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
+                QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES "("
+                        CP_ID_LIGNCOMPTES ", "
+                        CP_IDCOMPTE_LIGNCOMPTES ", "
+                        CP_IDREC_LIGNCOMPTES ", "
+                        CP_DATE_LIGNCOMPTES ", "
+                        CP_LIBELLE_LIGNCOMPTES ", "
+                        CP_MONTANT_LIGNCOMPTES ", "
+                        CP_DEBITCREDIT_LIGNCOMPTES ", "
+                        CP_TYPEOPERATION_LIGNCOMPTES ") VALUES ("
                         + QString::number(db->getIdMaxTableComptesTableArchives()) + "," + idCompte + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
                         + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TiersupComboBox->currentText()) + "',"
                         + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
@@ -1195,8 +1203,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                     db->rollback();
                     return Impossible;
                 }
-
-            }
+             }
             //3. Mise à hour Depenses  et LignesComptes s'il y a eu une commission sur le virement ==============================================================================================
             if (QLocale().toDouble(ui->CommissionlineEdit->text()) > 0)
             {
@@ -1242,12 +1249,20 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                     QString Commission = "Commission";
                     if (ui->TiersupComboBox->currentText() == "CB")
                         Commission += " CB";
-                    QString InsertComrequete = "INSERT INTO " TBL_LIGNESCOMPTES "(idCompte, idDep, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
+                    QString InsertComrequete = "INSERT INTO " TBL_LIGNESCOMPTES "("
+                            CP_IDCOMPTE_LIGNCOMPTES ", "
+                            CP_IDDEP_LIGNCOMPTES ", "
+                            CP_IDREC_LIGNCOMPTES ", "
+                            CP_DATE_LIGNCOMPTES ", "
+                            CP_LIBELLE_LIGNCOMPTES ", "
+                            CP_MONTANT_LIGNCOMPTES ", "
+                            CP_DEBITCREDIT_LIGNCOMPTES ", "
+                            CP_TYPEOPERATION_LIGNCOMPTES ") VALUES ("
                             + idCompte + "," + max + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
                             + "', '" + Commission + "'," + QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())) + ",0,'Prélèvement')";
                     if (!db->StandardSQL(InsertComrequete))
                     {
-                        db->rollback();
+                         db->rollback();
                         return Impossible;
                     }
                 }
@@ -1663,11 +1678,21 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     else
     {
         bool Consolide = false;
-        requete = "SELECT idLigne, idCompte, idDep, idRec, idRecSpec,"                      // 0, 1, 2, 3, 4
-                  " idRemCheq, LigneDate, LigneLibelle, LigneMontant, LigneDebitCredit,"    // 5, 6, 7, 8, 9
-                  " LigneTypeOperation, LigneConsolide"                                     // 10, 11
-                  " FROM " TBL_LIGNESCOMPTES
-                  " WHERE idRec = " + QString::number(m_idrecette) + " and LigneDebitCredit = 1";
+        requete = "SELECT " CP_ID_LIGNCOMPTES ", "
+                            CP_IDCOMPTE_LIGNCOMPTES ", "
+                            CP_IDDEP_LIGNCOMPTES ", "
+                            CP_IDREC_LIGNCOMPTES ", "
+                            CP_IDRECSPEC_LIGNCOMPTES ", "
+                            CP_IDREMCHEQ_LIGNCOMPTES ", "
+                            CP_DATE_LIGNCOMPTES ", "
+                            CP_LIBELLE_LIGNCOMPTES ", "
+                            CP_MONTANT_LIGNCOMPTES ", "
+                            CP_DEBITCREDIT_LIGNCOMPTES ", "
+                            CP_TYPEOPERATION_LIGNCOMPTES ", "
+                            CP_CONSOLIDE_LIGNCOMPTES " FROM "
+                            TBL_LIGNESCOMPTES
+                            " WHERE idRec = " + QString::number(m_idrecette) + " and LigneDebitCredit = 1";
+
         QVariantList consdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (m_ok && consdata.size() > 0)
             Consolide = (consdata.at(11).toInt() == 1);
@@ -1784,7 +1809,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                     m_lignecompteamodifier << consdata.at(11).toString();
 
 
-                requete = "DELETE FROM " TBL_LIGNESCOMPTES " WHERE idRec = " + QString::number(m_idrecette) + " AND LigneDebitCredit = 1";
+                requete = "DELETE FROM " TBL_LIGNESCOMPTES " WHERE " CP_IDREC_LIGNCOMPTES " = " + QString::number(m_idrecette) + " AND " CP_DEBITCREDIT_LIGNCOMPTES " = 1";
                 db->StandardSQL(requete);
 
             }
@@ -1795,10 +1820,18 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                 {
                     //Nettoyer et mettre en mémoire les commissions et les dépenses correspondantes éventuelles
                       m_lignecommissioncompteamodifier.clear();
-                      QString CommCompterequete = "SELECT idLigne, idCompte, idDep, idRec, LigneDate,"
-                                                  " LigneLibelle, LigneMontant, LigneDebitCredit, LigneTypeOperation, LigneConsolide"
-                                                  " FROM " TBL_LIGNESCOMPTES
-                                                  " WHERE idRec = " + QString::number(m_idrecette) + " and idDep > 0";
+                      QString CommCompterequete = "SELECT " CP_ID_LIGNCOMPTES ", "
+                                                            CP_IDCOMPTE_LIGNCOMPTES ", "
+                                                            CP_IDDEP_LIGNCOMPTES ", "
+                                                            CP_IDREC_LIGNCOMPTES ", "
+                                                            CP_DATE_LIGNCOMPTES ", "
+                                                            CP_LIBELLE_LIGNCOMPTES ", "
+                                                            CP_MONTANT_LIGNCOMPTES ", "
+                                                            CP_DEBITCREDIT_LIGNCOMPTES ", "
+                                                            CP_TYPEOPERATION_LIGNCOMPTES ", "
+                                                            CP_CONSOLIDE_LIGNCOMPTES
+                                                            " FROM " TBL_LIGNESCOMPTES
+                                                            " WHERE " CP_IDREC_LIGNCOMPTES " = " + QString::number(m_idrecette) + " and idDep > 0";
                       QVariantList commdata = db->getFirstRecordFromStandardSelectSQL(CommCompterequete, m_ok);
                       if (m_ok && commdata.size() > 0)
                       {
@@ -1818,7 +1851,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                           else
                               m_lignecommissioncompteamodifier << commdata.at(9).toString();                                  //LigneConsolide
 
-                          requete = "DELETE FROM " TBL_LIGNESCOMPTES " WHERE idligne = " + commdata.at(0).toString();
+                          requete = "DELETE FROM " TBL_LIGNESCOMPTES " WHERE " CP_ID_LIGNCOMPTES " = " + commdata.at(0).toString();
                           db->StandardSQL(requete);
                       }
 
@@ -1942,7 +1975,8 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
                     " WHERE act." CP_ID_ACTES " = "  + QString::number(m_listidactes.at(i)) +
                     " AND ver.idActe = act." CP_ID_ACTES
                     " AND PosePar = uti." CP_ID_USR ;
-            QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
+            //QVariantList usrdata =
+                    db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
          }
     }
 }

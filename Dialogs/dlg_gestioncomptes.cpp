@@ -158,11 +158,11 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     if (autorsupprimer)
     {
         bool ok = true;
-        QString req = "select idcompte from " TBL_ARCHIVESBANQUE
-                " where idcompte = " + QString::number(idCompte) +
+        QString req = "select " CP_IDCOMPTE_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE
+                " where " CP_IDCOMPTE_ARCHIVESCPT " = " + QString::number(idCompte) +
                 " union"
-                " select idcompte from " TBL_LIGNESCOMPTES
-                " where idcompte = " + QString::number(idCompte) +
+                " select " CP_IDCOMPTE_LIGNCOMPTES " from " TBL_LIGNESCOMPTES
+                " where " CP_IDCOMPTE_LIGNCOMPTES " = " + QString::number(idCompte) +
                 " limit 1";
         autorsupprimer = (db->StandardSelectSQL(req, ok).size() == 0);
     }
@@ -210,9 +210,9 @@ void dlg_gestioncomptes::DesactiveCompte()
         * . il est le seul compte active pour cet utilisateur
         */
         bool ok = true;
-        QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
-                                                                        TBL_LIGNESCOMPTES, ok,
-                                                                        "where iduser = " + QString::number(m_userencours->id()) + " and desactive is null");
+        QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_COMPTES,
+                                                                        TBL_COMPTES, ok,
+                                                                        "where " CP_IDUSER_COMPTES " = " + QString::number(m_userencours->id()) + " and desactive is null");
         ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
     }    
 }

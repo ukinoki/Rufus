@@ -1286,8 +1286,8 @@ QJsonObject DataBase::loadCompteData(QVariantList listdata)
 int DataBase::getIdMaxTableComptesTableArchives()
 {
     int a(0), b(0);
-    a = selectMaxFromTable("idligne", TBL_ARCHIVESBANQUE, ok);
-    b = selectMaxFromTable("idligne", TBL_LIGNESCOMPTES, ok);
+    a = selectMaxFromTable(CP_ID_ARCHIVESCPT, TBL_ARCHIVESBANQUE, ok);
+    b = selectMaxFromTable(CP_ID_LIGNCOMPTES, TBL_LIGNESCOMPTES, ok);
     return (((a<b)?b:a)+1);
 }
 

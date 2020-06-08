@@ -108,9 +108,19 @@ void dlg_comptes::AnnulArchive()
 
     if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES
                                " select * from"
-                               "  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
-                               "LigneDebitCredit, LigneTypeOperation, 1 as ligneConsolide from " TBL_ARCHIVESBANQUE
-                               " where idarchive = " + QString::number(max) + ")"
+                               "  (SELECT " CP_ID_ARCHIVESCPT ", "
+                                            CP_IDCOMPTE_ARCHIVESCPT ", "
+                                            CP_IDDEP_ARCHIVESCPT ", "
+                                            CP_IDREC_ARCHIVESCPT ", "
+                                            CP_IDRECSPEC_ARCHIVESCPT ", "
+                                            CP_IDREMCHEQ_ARCHIVESCPT ", "
+                                            CP_DATE_ARCHIVESCPT ", "
+                                            CP_LIBELLE_ARCHIVESCPT ", "
+                                            CP_MONTANT_ARCHIVESCPT ", "
+                                            CP_DEBITCREDIT_ARCHIVESCPT ", "
+                                            CP_TYPEOPERATION_ARCHIVESCPT ", "
+                                            " 1 as " CP_CONSOLIDE_LIGNCOMPTES " from " TBL_ARCHIVESBANQUE
+                               " where " CP_IDARCHIVE_ARCHIVESCPT " = " + QString::number(max) + ")"
                                " as tet",
                                tr("Impossible d'ouvrir la table des archives bancaires")))
     {
@@ -120,9 +130,9 @@ void dlg_comptes::AnnulArchive()
 
     // recalculer le solde
     double NouveauSolde = QLocale().toDouble(ui->MontantSoldeBrutlabel->text());
-    QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "LigneMontant" << "LigneDebitCredit",
+    QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << CP_MONTANT_LIGNCOMPTES << CP_DEBITCREDIT_LIGNCOMPTES,
                                                               TBL_LIGNESCOMPTES, ok,
-                                                              " where idcompte = " + QString::number(m_idcompte));
+                                                              " where " CP_IDCOMPTE_LIGNCOMPTES " = " + QString::number(m_idcompte));
     if (listsoldes.size() == 0)
     {
         UpMessageBox::Watch(this, tr("Il n'y a pas d'acte à désarchiver!"));
@@ -136,7 +146,7 @@ void dlg_comptes::AnnulArchive()
             NouveauSolde += listsoldes.at(i).at(0).toDouble();
     }
 
-    if (!db->SupprRecordFromTable(max, "idarchive", TBL_ARCHIVESBANQUE))
+    if (!db->SupprRecordFromTable(max, CP_IDARCHIVE_ARCHIVESCPT, TBL_ARCHIVESBANQUE))
     {
         db->rollback();
         return;
@@ -192,17 +202,27 @@ void dlg_comptes::Archiver()
     listlock << TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES << TBL_COMPTES;
     if (!db->createtransaction(listlock))
         return;
-    int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
+    int max = db->selectMaxFromTable(CP_IDARCHIVE_ARCHIVESCPT, TBL_ARCHIVESBANQUE, ok);
     if ( !ok )
     {
         db->rollback();
         return;
     }
 
-    QString Archiverequete = "insert into " TBL_ARCHIVESBANQUE " select * from  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
-            "LigneDebitCredit, LigneTypeOperation, date(now()) as LigneDateConsolidation, "
-            + QString::number(max+1) + " as idArchive from " TBL_LIGNESCOMPTES
-            " where idLigne in ";
+    QString Archiverequete = "insert into " TBL_ARCHIVESBANQUE " select * from  (SELECT "
+            CP_ID_LIGNCOMPTES ", "
+            CP_IDCOMPTE_LIGNCOMPTES ", "
+            CP_IDDEP_LIGNCOMPTES ", "
+            CP_IDREC_LIGNCOMPTES ", "
+            CP_IDRECSPEC_LIGNCOMPTES ", "
+            CP_IDREMCHEQ_LIGNCOMPTES ", "
+            CP_DATE_LIGNCOMPTES ", "
+            CP_LIBELLE_LIGNCOMPTES ", "
+            CP_MONTANT_LIGNCOMPTES ", "
+            CP_DEBITCREDIT_LIGNCOMPTES ", "
+            CP_TYPEOPERATION_LIGNCOMPTES ", date(now()) as " CP_DATECONSOLIDE_ARCHIVESCPT ", "
+            + QString::number(max+1) + " as " CP_IDARCHIVE_ARCHIVESCPT " from " TBL_LIGNESCOMPTES
+            " where " CP_ID_LIGNCOMPTES " in ";
     QString reponse = "(" + QString::number(ListeActesAArchiver.at(0));
     for (int i = 1; i < ListeActesAArchiver.size();i++)
       reponse += "," + QString::number(ListeActesAArchiver.at(i));

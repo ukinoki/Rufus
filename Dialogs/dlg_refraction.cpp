@@ -3863,7 +3863,9 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
 //---------------------------------------------------------------------------------------------------------
 QString dlg_refraction::Valeur(QString StringValeur)
 {
-    if (StringValeur.toDouble() > 0 && StringValeur.left(1) != "+")
+    if (StringValeur == "")
+        return QLocale().toString(StringValeur.toDouble());
+    if (StringValeur.toDouble() > 0 && StringValeur.at(0) != "+")
         return("+" + StringValeur);
     else
         return(StringValeur);

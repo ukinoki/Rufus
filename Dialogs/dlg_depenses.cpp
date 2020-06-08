@@ -648,14 +648,14 @@ void dlg_depenses::EnregistreDepense()
         if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
         int a = db->getIdMaxTableComptesTableArchives();
         QHash<QString, QString> listsets;
-        listsets.insert("idLigne",              QString::number(a));
-        listsets.insert("idCompte",             idCompte);
-        listsets.insert("idDep",                QString::number(dep->id()));
-        listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-        listsets.insert("Lignelibelle",         ui->ObjetlineEdit->text());
-        listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-        listsets.insert("LigneDebitCredit",     "0");
-        listsets.insert("LigneTypeoperation",   Paiement);
+        listsets.insert(CP_ID_LIGNCOMPTES,              QString::number(a));
+        listsets.insert(CP_IDCOMPTE_LIGNCOMPTES,        idCompte);
+        listsets.insert(CP_IDDEP_LIGNCOMPTES,           QString::number(dep->id()));
+        listsets.insert(CP_DATE_LIGNCOMPTES,            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+        listsets.insert(CP_LIBELLE_LIGNCOMPTES,         ui->ObjetlineEdit->text());
+        listsets.insert(CP_MONTANT_LIGNCOMPTES,         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+        listsets.insert(CP_DEBITCREDIT_LIGNCOMPTES,     "0");
+        listsets.insert(CP_TYPEOPERATION_LIGNCOMPTES,   Paiement);
         db->InsertIntoTable(TBL_LIGNESCOMPTES, listsets);
     }
 
@@ -802,7 +802,7 @@ void dlg_depenses::SupprimerDepense()
         SupprimeFacture(dep);
 
     //On supprime l'écriture
-    db->SupprRecordFromTable(dep->id(), "idDep", TBL_LIGNESCOMPTES);
+    db->SupprRecordFromTable(dep->id(), CP_IDDEP_LIGNCOMPTES, TBL_LIGNESCOMPTES);
     Datas::I()->depenses->SupprimeDepense(dep);
 
     if (wdg_bigtable->rowCount() == 1)
@@ -1183,57 +1183,55 @@ void dlg_depenses::ModifierDepense()
     
     // Correction de l'écriture dans la table lignescomptes
     if (Paiement == tr("Espèces"))
-        db->SupprRecordFromTable(dep->id(), "idDep", TBL_LIGNESCOMPTES);
+        db->SupprRecordFromTable(dep->id(), CP_IDDEP_LIGNCOMPTES, TBL_LIGNESCOMPTES);
     else
     {
         Paiement = ui->PaiementcomboBox->currentText();
         if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
 
         // on recherche si l'écriture existe dans lignescomptes et si c'est le cas, on la modifie
-        QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idLigne",
+        QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_LIGNCOMPTES,
                                                                               TBL_LIGNESCOMPTES, ok,
-                                                                              "where idDep = " + idDep);
+                                                                              "where " CP_IDDEP_LIGNCOMPTES " = " + idDep);
         if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
         {
            QHash<QString, QVariant> listsets;
-           listsets.insert("LigneDate",             ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-           listsets.insert("LigneLibelle",          ui->ObjetlineEdit->text());
-           listsets.insert("LigneMontant",          QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-           listsets.insert("LigneDebitCredit",      "0");
-           listsets.insert("LigneTypeOperation",    Paiement);
-           listsets.insert("idCompte",              (m!="E"? ui->ComptesupComboBox->currentData().toString() : "null"));
-           DataBase:: I()->UpdateTable(TBL_LIGNESCOMPTES,
-                                                 listsets,
-                                                 "where idDep = " + idDep);
+           listsets.insert(CP_DATE_LIGNCOMPTES,             ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+           listsets.insert(CP_LIBELLE_LIGNCOMPTES,          ui->ObjetlineEdit->text());
+           listsets.insert(CP_MONTANT_LIGNCOMPTES,          QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+           listsets.insert(CP_DEBITCREDIT_LIGNCOMPTES,      "0");
+           listsets.insert(CP_TYPEOPERATION_LIGNCOMPTES,    Paiement);
+           listsets.insert(CP_IDCOMPTE_LIGNCOMPTES,         (m!="E"? ui->ComptesupComboBox->currentData().toString() : "null"));
+           DataBase:: I()->UpdateTable(TBL_LIGNESCOMPTES, listsets, "where " CP_IDDEP_LIGNCOMPTES " = " + idDep);
         }
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
         {
-            QList<QVariantList> listlignesarchives = db->SelectRecordsFromTable(QStringList() << "idLigne",
+            QList<QVariantList> listlignesarchives = db->SelectRecordsFromTable(QStringList() << CP_ID_ARCHIVESCPT,
                                                                                    TBL_ARCHIVESBANQUE, ok,
-                                                                                   "where idDep = " + idDep);
+                                                                                   "where " CP_IDDEP_ARCHIVESCPT " = " + idDep);
             if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
             {
                 QHash<QString, QVariant> listsets;
-                listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-                listsets.insert("LigneLibelle",         ui->ObjetlineEdit->text());
-                listsets.insert("LigneDebitCredit",     "0");
-                listsets.insert("LigneTypeOperation",   Paiement);
+                listsets.insert(CP_DATE_ARCHIVESCPT,            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+                listsets.insert(CP_LIBELLE_ARCHIVESCPT,         ui->ObjetlineEdit->text());
+                listsets.insert(CP_DEBITCREDIT_ARCHIVESCPT,     "0");
+                listsets.insert(CP_TYPEOPERATION_ARCHIVESCPT,   Paiement);
                 DataBase:: I()->UpdateTable(TBL_ARCHIVESBANQUE,
                                                       listsets,
-                                                      " where idDep = " + idDep);
+                                                      " where " CP_IDDEP_ARCHIVESCPT " = " + idDep);
             }
             else        // l'écriture n'existait ni dans lignescomptes ni dans archives
                         // => c'était une dépense en espèces
                         // on l'enregistre dans lignescomptes
             {
                 QHash<QString, QString> listsets;
-                listsets.insert("idCompte",             ui->ComptesupComboBox->currentData().toString());
-                listsets.insert("idDep",                idDep);
-                listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-                listsets.insert("Lignelibelle",         ui->ObjetlineEdit->text());
-                listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-                listsets.insert("LigneDebitCredit",     "0");
-                listsets.insert("LigneTypeoperation",   Paiement);
+                listsets.insert(CP_IDCOMPTE_LIGNCOMPTES,        ui->ComptesupComboBox->currentData().toString());
+                listsets.insert(CP_IDDEP_LIGNCOMPTES,           idDep);
+                listsets.insert(CP_DATE_LIGNCOMPTES,            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+                listsets.insert(CP_LIBELLE_LIGNCOMPTES,         ui->ObjetlineEdit->text());
+                listsets.insert(CP_MONTANT_LIGNCOMPTES,         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+                listsets.insert(CP_DEBITCREDIT_LIGNCOMPTES,     "0");
+                listsets.insert(CP_TYPEOPERATION_LIGNCOMPTES,   Paiement);
                 DataBase:: I()->InsertIntoTable(TBL_LIGNESCOMPTES, listsets);
             }
         }
