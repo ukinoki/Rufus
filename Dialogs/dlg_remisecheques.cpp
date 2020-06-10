@@ -145,7 +145,7 @@ void dlg_remisecheques::CorrigeRemise()
         a = db->StandardSQL("update " TBL_RECETTES " set " CP_IDREMISECHQ_LIGNRECETTES " = null, " CP_DATEENREGISTREMENT_LIGNRECETTES " = null where " CP_IDREMISECHQ_LIGNRECETTES " = " + QString::number(idRemise));
         if (!a) break;
         // supprimer l'idRemise dans les lignes de la table autresrecettes
-        a = db->StandardSQL("update " TBL_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
+        a = db->StandardSQL("update " TBL_RECETTESSPECIALES " set " CP_IDREMISECHQ_AUTRESRECETTES " = null, " CP_DATEENREGISTREMENT_AUTRESRECETTES " = null where " CP_IDREMISECHQ_AUTRESRECETTES " = " + QString::number(idRemise));
         if (!a) break;
         // supprimer la remise dans la table lignescomptes
         a = db->SupprRecordFromTable(idRemise, CP_IDREMCHEQ_LIGNCOMPTES, TBL_LIGNESCOMPTES);
@@ -232,9 +232,9 @@ void dlg_remisecheques::ImprimepushButton()
                                                     << TBL_ARCHIVESBANQUE))
             return;
         //On récupére l'idRemise
-        int idRemise = db->selectMaxFromTable("idRemCheq", TBL_REMISECHEQUES, ok) + 1;
+        int idRemise = db->selectMaxFromTable(CP_ID_REMCHEQ, TBL_REMISECHEQUES, ok) + 1;
         // on enregistre la remise dans la table remisecheques
-        if (!db->StandardSQL(" INSERT INTO " TBL_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
+        if (!db->StandardSQL(" INSERT INTO " TBL_REMISECHEQUES " (" CP_ID_REMCHEQ ", " CP_MONTANT_REMCHEQ ", " CP_DATE_REMCHEQ ", " CP_IDCOMPTE_REMCHEQ ") VALUES (" + QString::number(idRemise) +
                                 "," + QString::number(Total) + ", NOW(),'" + ui->ComptecomboBox->currentData().toString() +"')"))
         {
             db->rollback();
@@ -256,7 +256,7 @@ void dlg_remisecheques::ImprimepushButton()
             QString RecSpec = ui->ListeChequesupTableWidget->item(k,6)->text();
             int idChequeAMettreAJour = ui->ListeChequesupTableWidget->item(k,5)->text().toInt();
             if (RecSpec == "1")
-                req = "UPDATE " TBL_RECETTESSPECIALES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
+                req = "UPDATE " TBL_RECETTESSPECIALES " SET " CP_IDREMISECHQ_AUTRESRECETTES " = " + QString::number(idRemise) + ", " CP_CHQENATTENTE_AUTRESRECETTES " = null WHERE " CP_ID_AUTRESRECETTES " = " + QString::number(idChequeAMettreAJour);
             else
                 req = "UPDATE " TBL_RECETTES " SET " CP_IDREMISECHQ_LIGNRECETTES " = " + QString::number(idRemise) + ", " CP_CHQENATTENTE_LIGNRECETTES " = null WHERE " CP_ID_LIGNRECETTES " = " + QString::number(idChequeAMettreAJour);
             if (!db->StandardSQL(req))
@@ -299,8 +299,8 @@ void dlg_remisecheques::ImprimepushButton()
             QString RecSpec = ui->ListeChequesupTableWidget->item(l,6)->text();
             QString AB = ui->ListeChequesupTableWidget->item(l,3)->text();
             if (RecSpec == "1")
-                req = "UPDATE " TBL_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
-                    + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
+                req = "UPDATE " TBL_RECETTESSPECIALES " SET " CP_BANQUECHEQUE_AUTRESRECETTES " = '" + AB  + "', " CP_TIREURCHEQUE_AUTRESRECETTES " = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                    + "', " CP_DATEENREGISTREMENT_AUTRESRECETTES " = NOW() WHERE " CP_ID_AUTRESRECETTES " = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             else
                 req = "UPDATE " TBL_RECETTES " SET " CP_BANQUECHEQUE_LIGNRECETTES " = '" + AB  + "', " CP_TIREURCHEQUE_LIGNRECETTES " = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                         + "', " CP_DATEENREGISTREMENT_LIGNRECETTES " = NOW() WHERE " CP_ID_LIGNRECETTES " = " + ui->ListeChequesupTableWidget->item(l,5)->text();
@@ -336,7 +336,7 @@ void dlg_remisecheques::ImprimepushButton()
         if (chqattrecspec != "")
         {
             chqattrecspec = chqattrecspec.left(chqattrecspec.size()-1);
-            req = "UPDATE " TBL_RECETTESSPECIALES " SET EnAttente = 1 WHERE idRecette in (" + chqattrecspec + ")";
+            req = "UPDATE " TBL_RECETTESSPECIALES " SET " CP_CHQENATTENTE_AUTRESRECETTES " = 1 WHERE " CP_ID_AUTRESRECETTES " in (" + chqattrecspec + ")";
             if (!db->StandardSQL(req))
             {
                 db->rollback();
@@ -426,7 +426,7 @@ void dlg_remisecheques::ItemChequeARemettreClicked(int A, int B)
         //mise à jour de la table lignesrecettes ou recettesspeciales
         QString UpdateidRec;
         if (RecSpec == "1")
-            UpdateidRec = "update " TBL_RECETTESSPECIALES " set EnAttente = 1 where idRecette = " + idRec;
+            UpdateidRec = "update " TBL_RECETTESSPECIALES " set " CP_CHQENATTENTE_AUTRESRECETTES " = 1 where " CP_ID_AUTRESRECETTES " = " + idRec;
         else
             UpdateidRec = "update " TBL_RECETTES " set " CP_CHQENATTENTE_LIGNRECETTES " = 1 where " CP_ID_LIGNRECETTES " = " + idRec;
         db->StandardSQL(UpdateidRec, "void dlg_remisecheques::ItemChequeARemettreClicked(int A, int B)");
@@ -505,7 +505,7 @@ void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)
         //mise à jour de la table lignesrecettes
         QString UpdateidRec;
         if (RecSpec == "1")
-            UpdateidRec = "update " TBL_RECETTESSPECIALES " set EnAttente = null where idRecette = " + idRec;
+            UpdateidRec = "update " TBL_RECETTESSPECIALES " set " CP_CHQENATTENTE_AUTRESRECETTES " = null where i" CP_ID_AUTRESRECETTES " = " + idRec;
         else
             UpdateidRec = "update " TBL_RECETTES " set " CP_CHQENATTENTE_LIGNRECETTES " = null where " CP_ID_LIGNRECETTES " = " + idRec;
         db->StandardSQL(UpdateidRec, "void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)");
@@ -577,9 +577,14 @@ void dlg_remisecheques::RemplirRemisesPrecs(int id)
                   " from " TBL_RECETTES
                   " where " CP_ID_LIGNRECETTES " = " + QString::number(idRemise);
     req +=        " union"
-                  " select idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec"
+                  " select "
+                    CP_ID_AUTRESRECETTES ", "
+                    CP_TIREURCHEQUE_AUTRESRECETTES ", "
+                    CP_BANQUECHEQUE_AUTRESRECETTES ", "
+                    CP_MONTANT_AUTRESRECETTES ", "
+                  " 1 as recspec"
                   " from " TBL_RECETTESSPECIALES
-                  " where idRemise = " + QString::number(idRemise) +
+                  " where " CP_ID_AUTRESRECETTES " = " + QString::number(idRemise) +
                   " order by Tireurcheque";
     bool ok = true;
     QList<QVariantList> listremises = db->StandardSelectSQL(req,ok);
@@ -661,7 +666,7 @@ void dlg_remisecheques::ToolTip(int A, int B)
         {
             QString requete;
             if (RecSpec == "1")
-                requete = "SELECT Libelle, Daterecette From " TBL_RECETTESSPECIALES " WHERE idRecette = " + tabl->item(A,col)->text();
+                requete = "SELECT " CP_LIBELLE_AUTRESRECETTES ", " CP_DATE_AUTRESRECETTES " From " TBL_RECETTESSPECIALES " WHERE " CP_ID_AUTRESRECETTES " = " + tabl->item(A,col)->text();
             else
                 requete = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_DATE_ACTES " From " TBL_PATIENTS " pat, " TBL_ACTES " act"
                           " WHERE act." CP_ID_ACTES " in (SELECT " CP_ID_ACTES " FROM " TBL_LIGNESPAIEMENTS " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + tabl->item(A,col)->text() + ")"
@@ -729,8 +734,8 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     qDebug() << idlist;
 
     bool ok = true;
-    QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " TBL_REMISECHEQUES
-                                                                          " where idcompte in (" + idlist + ") order by idremcheq desc",ok);
+    QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select " CP_ID_REMCHEQ ", " CP_DATE_REMCHEQ ", " CP_MONTANT_REMCHEQ ", " CP_IDCOMPTE_REMCHEQ " from " TBL_REMISECHEQUES
+                                                                          " where " CP_IDCOMPTE_REMCHEQ " in (" + idlist + ") order by " CP_ID_REMCHEQ " desc",ok);
     if (listremisesprecedentes.size() == 0)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas de remises précédentes"));
@@ -862,7 +867,13 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 " AND " CP_CHQENATTENTE_LIGNRECETTES " IS NULL"
                 " AND " CP_MODEPAIEMENT_LIGNRECETTES " = 'C'";
         req +=  " union"
-                " SELECT idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec  FROM " TBL_RECETTESSPECIALES
+                " SELECT "
+                CP_ID_AUTRESRECETTES ", "
+                CP_TIREURCHEQUE_AUTRESRECETTES ", "
+                CP_BANQUECHEQUE_AUTRESRECETTES ", "
+                CP_MONTANT_AUTRESRECETTES ", "
+                " 1 as recspec"
+                " FROM " TBL_RECETTESSPECIALES
                 " WHERE IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND Paiement = 'C'";

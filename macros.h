@@ -538,6 +538,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MAIL_TIERS                                   "MailTiers"
 #define CP_WEB_TIERS                                    "WebsiteTiers"
 
+
+                            //! Table ComptaMedicale.rubriques2035
+#define CP_ID_2035                                      "idRubrique"
+#define CP_REFFISCALE_2035                              "Reffiscale"
+#define CP_FAMFISCALE_2035                              "Famfiscale"
+
                             //! Table ComptaMedicale.typepaiementactes
 #define CP_IDACTE_TYPEPAIEMENTACTES                    "idActe"
 #define CP_TYPEPAIEMENT_TYPEPAIEMENTACTES              "TypePaiement"

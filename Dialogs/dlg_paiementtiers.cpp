@@ -1254,7 +1254,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                 InsertDeprequete +=  "', '" + Utils::correctquoteSQL(intitule2035);                                            // RefFiscale
                 InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TiersupComboBox->currentText());             // Objet
                 InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
-                QString chercheFamFiscale = "select Famfiscale from " TBL_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
+                QString chercheFamFiscale = "select " CP_FAMFISCALE_2035 " from " TBL_RUBRIQUES2035 " where " CP_REFFISCALE_2035 " = '" + Utils::correctquoteSQL(intitule2035) +"'";
                 QVariantList famfiscdata = db->getFirstRecordFromStandardSelectSQL(chercheFamFiscale, m_ok);
                 if (!m_ok || famfiscdata.size()==0)
                 {

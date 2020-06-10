@@ -2252,7 +2252,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
 
         requete =
                     "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                        // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as TypePaiement, " CP_MONTANT_ACTES " as ResteDu , SUM(" CP_PAYE_LIGNEPAIEMENT ") as Regle, "  // 5, 6, 7, 8, 9
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu , SUM(" CP_PAYE_LIGNEPAIEMENT ") as Regle, "  // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                          // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE "
@@ -2271,7 +2271,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
 
         requete +=  " UNION \n\n"
                     " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                       // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as TypePaiement, " CP_MONTANT_ACTES " as ResteDu , 0 as Regle, "                               // 5, 6, 7, 8, 9
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu , 0 as Regle, "                               // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                          // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat"
                     " WHERE "
@@ -2285,7 +2285,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
 
         requete +=  " UNION \n\n"
                     " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                         // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", TypePaiement, " CP_MONTANT_ACTES " as ResteDu, 0 as Regle, "                   // 5, 6, 7, 8, 9
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu, 0 as Regle, "                   // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                               // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
                     " WHERE typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'I'\n"

@@ -248,11 +248,11 @@ void dlg_recettesspeciales::EnregistreRecette()
     // vérifier que cette recette n'a pas été déjà saisie
     bool OK = true;
     QList<QVariantList> listrec =
-            db->StandardSelectSQL("select DateRecette from " TBL_RECETTESSPECIALES
-                                  " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-                                  "'and Libelle = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
-                                  "'and Montant = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                                  " and idUser = "    + QString::number(currentuser()->id()),OK);
+            db->StandardSelectSQL("select " CP_DATE_AUTRESRECETTES " from " TBL_RECETTESSPECIALES
+                                  " where " CP_DATE_AUTRESRECETTES " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
+                                  "'and " CP_LIBELLE_AUTRESRECETTES " = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
+                                  "'and " CP_MONTANT_AUTRESRECETTES " = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
+                                  " and " CP_IDUSER_AUTRESRECETTES " = "    + QString::number(currentuser()->id()),OK);
     if (listrec.size() > 0)
     {
         pb = tr("Elle a déjà été saisie");
@@ -264,10 +264,13 @@ void dlg_recettesspeciales::EnregistreRecette()
         if (QDate::currentDate() > ui->DateRecdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
         bool OK = true;
-        listrec = db->StandardSelectSQL("select DateRecette from " TBL_RECETTESSPECIALES " where DateRecette > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
-                "'and Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
-                "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(currentuser()->id()),OK);
+        listrec = db->StandardSelectSQL(
+                "select " CP_DATE_AUTRESRECETTES
+                " from " TBL_RECETTESSPECIALES
+                " where " CP_DATE_AUTRESRECETTES " > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") + "' "
+                " and " CP_LIBELLE_AUTRESRECETTES " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "' "
+                " and " CP_MONTANT_AUTRESRECETTES " = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
+                " and " CP_IDUSER_AUTRESRECETTES " = " + QString::number(currentuser()->id()),OK);
         if (listrec.size() > 0)
         {
             if (pb != "")
@@ -301,7 +304,17 @@ void dlg_recettesspeciales::EnregistreRecette()
     listtables << TBL_RECETTESSPECIALES << TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES;
     if (!db->createtransaction(listtables))
         return;
-    if (!db->StandardSQL("insert into " TBL_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
+    if (!db->StandardSQL("insert into " TBL_RECETTESSPECIALES " ("
+                         CP_DATE_AUTRESRECETTES ", "
+                         CP_IDUSER_AUTRESRECETTES ", "
+                         CP_LIBELLE_AUTRESRECETTES ", "
+                         CP_MONTANT_AUTRESRECETTES ", "
+                         CP_TYPERECETTE_AUTRESRECETTES ", "
+                         CP_PAIEMENT_AUTRESRECETTES ", "
+                         CP_IDCPTEVIREMENT_AUTRESRECETTES ", "
+                         CP_TIREURCHEQUE_AUTRESRECETTES ", "
+                         CP_BANQUECHEQUE_AUTRESRECETTES
+                         ")"
             " VALUES ('" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
             "', " + QString::number(currentuser()->id()) +
             ", '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
@@ -317,7 +330,7 @@ void dlg_recettesspeciales::EnregistreRecette()
         return;
     }
     bool ok;
-    idRec       = QString::number(db->selectMaxFromTable("idrecette", TBL_RECETTESSPECIALES, ok));
+    idRec       = QString::number(db->selectMaxFromTable(CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES, ok));
 
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'un virement ou d'un dépôt d'espèces
     if (Paiement == VIREMENT || Paiement == ESPECES)
@@ -480,7 +493,7 @@ void dlg_recettesspeciales::SupprimerRecette()
         return;
     }
 
-    QList<QVariantList> listremises = db->StandardSelectSQL(" select idRemise from " TBL_RECETTESSPECIALES " where idRecette = " + QString::number(m_idrecetteencours),OK);
+    QList<QVariantList> listremises = db->StandardSelectSQL(" select " CP_IDREMISECHQ_AUTRESRECETTES " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + QString::number(m_idrecetteencours),OK);
     if (listremises.size() > 0)
         if (listremises.at(0).at(0).toInt()>0)
         {
@@ -491,7 +504,7 @@ void dlg_recettesspeciales::SupprimerRecette()
     QDate   Dateop;
     QString Libelle;
     double  montant;
-    QList<QVariantList> listrecettes = db->StandardSelectSQL("select DateRecette, Libelle, Montant from " TBL_RECETTESSPECIALES " where idrecette = " + QString::number(m_idrecetteencours),OK);
+    QList<QVariantList> listrecettes = db->StandardSelectSQL("select " CP_DATE_AUTRESRECETTES ", " CP_LIBELLE_AUTRESRECETTES ", " CP_MONTANT_AUTRESRECETTES " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + QString::number(m_idrecetteencours),OK);
     if (listrecettes.size() > 0)
     {
         Dateop  = listrecettes.at(0).at(0).toDate();
@@ -520,7 +533,7 @@ void dlg_recettesspeciales::SupprimerRecette()
 
         //On supprime l'écriture
         db->SupprRecordFromTable(m_idrecetteencours, CP_IDRECSPEC_LIGNCOMPTES, TBL_LIGNESCOMPTES);
-        db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
+        db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
         if (wdg_bigtable->rowCount() == 1)
         {
             ui->AnneecomboBox->disconnect();
@@ -606,8 +619,17 @@ void dlg_recettesspeciales::MetAJourFiche()
         //TODO : SQL
         bool OK = true;
         QList<QVariantList> listrecettes =
-                db->StandardSelectSQL("select DateRecette, Libelle, Montant, Paiement, idremise, TypeRecette, CompteVirement, BanqueCheque, TireurCheque"
-                                      " from " TBL_RECETTESSPECIALES " where idRecette = " + QString::number(m_idrecetteencours),OK);
+                db->StandardSelectSQL("select "
+                                      CP_DATE_AUTRESRECETTES ", "
+                                      CP_LIBELLE_AUTRESRECETTES ", "
+                                      CP_MONTANT_AUTRESRECETTES ", "
+                                      CP_PAIEMENT_AUTRESRECETTES ", "
+                                      CP_IDREMISECHQ_AUTRESRECETTES ", "
+                                      CP_TYPERECETTE_AUTRESRECETTES ", "
+                                      CP_IDCPTEVIREMENT_AUTRESRECETTES ", "
+                                      CP_BANQUECHEQUE_AUTRESRECETTES ", "
+                                      CP_TIREURCHEQUE_AUTRESRECETTES
+                                      " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + QString::number(m_idrecetteencours),OK);
         QVariantList recette = listrecettes.at(0);
 
         ui->ObjetlineEdit->setText(recette.at(1).toString());
@@ -700,7 +722,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 // on recherche si le chéque a été déposé et si c'est le cas, on ne peut pas modifier le montant
             {
                 bool ok = true;
-                QList<QVariantList> listlignes = db->StandardSelectSQL("select idRemise from " TBL_RECETTESSPECIALES " where idrecspec = " + QString::number(m_idrecetteencours),ok);
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_IDREMISECHQ_AUTRESRECETTES " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + QString::number(m_idrecetteencours),ok);
                 modifiable = !(listlignes.at(0).at(0).toInt()>0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
@@ -736,7 +758,12 @@ void dlg_recettesspeciales::ModifierRecette()
         return;
     // on reconstruit les renseignements de la recette à modifier
     bool ok = true;
-    QList<QVariantList> listpaiements = db->StandardSelectSQL("select paiement, comptevirement, banquecheque, idremise from " TBL_RECETTESSPECIALES " where idrecette = " + idRec,ok);
+    QList<QVariantList> listpaiements = db->StandardSelectSQL("select "
+                                                              CP_PAIEMENT_AUTRESRECETTES ", "
+                                                              CP_IDCPTEVIREMENT_AUTRESRECETTES ", "
+                                                              CP_BANQUECHEQUE_AUTRESRECETTES ", "
+                                                              CP_IDREMISECHQ_AUTRESRECETTES
+                                                              " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + idRec,ok);
     if (listpaiements.size()==0)
     {
         EnregistreRecette();
@@ -745,20 +772,20 @@ void dlg_recettesspeciales::ModifierRecette()
     QString ancpaiement = listpaiements.at(0).at(0).toString();
 
     if (ancpaiement == "E")
-        db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
+        db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
     else if (ancpaiement == "C")
     {
         // le cheque a été remis en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes
         if (listpaiements.at(0).at(3).toInt()>0)
             db->StandardSQL("update " TBL_RECETTESSPECIALES " set "
-                  "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  "Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +"', "
-                  "TypeRecette = '" + ui->RefFiscalecomboBox->currentText() + "'"
-                  " where idrecette = " + idRec);
+                  CP_DATE_AUTRESRECETTES " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
+                  CP_LIBELLE_AUTRESRECETTES " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +"', "
+                  CP_TYPERECETTE_AUTRESRECETTES " = '" + ui->RefFiscalecomboBox->currentText() + "'"
+                  " where  " CP_ID_AUTRESRECETTES " = " + idRec);
         else
             // le cheque n'a pas été remis en banque, on remet tout à jour
         {
-            db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
+            db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
             EnregistreRecette();
         }
     }
@@ -776,15 +803,15 @@ void dlg_recettesspeciales::ModifierRecette()
                   CP_TYPEOPERATION_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
                   " where " CP_ID_ARCHIVESCPT " = " + idligne);
             db->StandardSQL("update " TBL_RECETTESSPECIALES " set "
-                  "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  "Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"
-                  "TypeRecette = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
-                  " where idrecette = " + idRec);
+                  CP_DATE_AUTRESRECETTES " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
+                  CP_LIBELLE_AUTRESRECETTES " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +"', "
+                  CP_TYPERECETTE_AUTRESRECETTES " = '" + ui->RefFiscalecomboBox->currentText() + "'"
+                  " where  " CP_ID_AUTRESRECETTES " = " + idRec);
         }
         else
             // le virement n'a pas été enregistré en banque
         {
-            db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
+            db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
             EnregistreRecette();
         }
     }
@@ -923,8 +950,8 @@ void dlg_recettesspeciales::ReconstruitListeAnnees()
 {
     bool ok = true;
     QList<QVariantList> listannees =
-            db->StandardSelectSQL("SELECT distinct Annee from (SELECT year(DateRecette) as Annee FROM " TBL_RECETTESSPECIALES
-                                  " WHERE idUser = " + QString::number(currentuser()->id()) + ") as ghf order by Annee",ok);
+            db->StandardSelectSQL("SELECT distinct Annee from (SELECT year(" CP_DATE_AUTRESRECETTES ") as Annee FROM " TBL_RECETTESSPECIALES
+                                  " WHERE " CP_IDUSER_AUTRESRECETTES " = " + QString::number(currentuser()->id()) + ") as ghf order by Annee",ok);
     QStringList ListeAnnees;
     for (int i = 0; i < listannees.size(); i++)
     {

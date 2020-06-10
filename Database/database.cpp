@@ -1386,7 +1386,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " idRubrique"
                         " FROM " TBL_DEPENSES " dep"
                         " left join " TBL_FACTURES " fac on dep." CP_IDFACTURE_DEPENSES " = fac." CP_ID_FACTURES
-                        " left join " TBL_RUBRIQUES2035 " rub on dep." CP_REFFISCALE_DEPENSES " = rub.RefFiscale"
+                        " left join " TBL_RUBRIQUES2035 " rub on dep." CP_REFFISCALE_DEPENSES " = rub." CP_REFFISCALE_2035
                         " WHERE dep." CP_IDUSER_DEPENSES " = " + QString::number(idUser);
     //qDebug() << req;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
@@ -1441,7 +1441,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
 QStringList DataBase::ListeRubriquesFiscales()
 {
     QStringList ListeRubriques = QStringList();
-    QString req = "SELECT reffiscale from " TBL_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel' order by reffiscale";
+    QString req = "SELECT " CP_REFFISCALE_2035 " from " TBL_RUBRIQUES2035 " where " CP_FAMFISCALE_2035 " is not null and " CP_FAMFISCALE_2035 " <> 'Prélèvement personnel' order by " CP_REFFISCALE_2035;
     QList<QVariantList> rublist = StandardSelectSQL(req,ok);
     if(!ok || rublist.size()==0)
         return ListeRubriques;
@@ -1599,52 +1599,99 @@ QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
     QList<Recette*> listerecettes;
         //---------------------------------------------- Tous les actes effectués par tout le monde durant la période, sauf les impayés et les gratuits
         QString req =
-        "select res1." CP_ID_ACTES ", res1." CP_DATE_ACTES ", res1.nom, res1." CP_COTATION_ACTES ", res1." CP_MONTANT_ACTES ", res1." CP_MONNAIE_ACTES ", res1.TypePaiement,"
-        " res1.Tiers, Paye, res1." CP_IDUSER_ACTES ", res1." CP_IDUSERPARENT_ACTES ", res1." CP_IDUSERCOMPTABLE_ACTES ", null as montantautresrecettes, null as typeautresrecettes from\n "
-        "(\n"
-            "select\n"
-            " act." CP_ID_ACTES ", " CP_DATE_ACTES ", concat(patnom, ' ', patprenom) as nom, " CP_COTATION_ACTES ", " CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES
-            ", TypePaiement, Tiers, " CP_IDUSER_ACTES ", " CP_IDUSERPARENT_ACTES ", " CP_IDUSERCOMPTABLE_ACTES " from \n"
-            TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
+        "select "
+        "res1." CP_ID_ACTES ", "
+        "res1." CP_DATE_ACTES ", "
+        "res1.nom, "
+        "res1." CP_COTATION_ACTES ", "
+        "res1." CP_MONTANT_ACTES ", "
+        "res1." CP_MONNAIE_ACTES ", "
+        "res1." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", "
+        "res1.Tiers, "
+        "Paye, "
+        "res1." CP_IDUSER_ACTES ", "
+        "res1." CP_IDUSERPARENT_ACTES ", "
+        "res1." CP_IDUSERCOMPTABLE_ACTES ", "
+        "null as montantautresrecettes, "
+        "null as typeautresrecettes "
+        "from ("
+            "select "
+            "act." CP_ID_ACTES ", "
+            CP_DATE_ACTES ", "
+            "concat(patnom, ' ', patprenom) as nom, "
+            CP_COTATION_ACTES ", "
+            CP_MONTANT_ACTES ", "
+            CP_MONNAIE_ACTES ", "
+            CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", "
+            "Tiers, "
+            CP_IDUSER_ACTES ", "
+            CP_IDUSERPARENT_ACTES ", "
+            CP_IDUSERCOMPTABLE_ACTES
+            " from " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ"
             " where act." CP_IDPAT_ACTES " = pat.idpat\n"
             " and act." CP_ID_ACTES " = typ.idacte\n"
             " and " CP_DATE_ACTES " >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
             " and " CP_DATE_ACTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
             " order by " CP_DATE_ACTES ", nom\n"
-        ")\n"
-        " as res1\n"
-        " left outer join\n"
-        " (\n"
+        ") as res1"
+        " left outer join"
+        " ("
             "select rec." CP_ID_LIGNRECETTES ", " CP_PAYE_LIGNEPAIEMENT ", lig." CP_IDACTE_LIGNEPAIEMENT " from \n"
             TBL_LIGNESPAIEMENTS " lig, " TBL_RECETTES " rec, " TBL_TYPEPAIEMENTACTES " typ2\n"
             " where lig." CP_IDRECETTE_LIGNEPAIEMENT " = rec." CP_ID_LIGNRECETTES "\n"
             " and lig." CP_IDACTE_LIGNEPAIEMENT " = typ2.idacte\n"
-            " and TypePaiement <> 'T'\n"
-            " and TypePaiement <> 'G'\n"
+            " and " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " <> 'T'\n"
+            " and " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " <> 'G'\n"
             " and " CP_DATE_LIGNRECETTES " >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
             " and " CP_DATE_LIGNRECETTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
-        ")\n"
-        " as res3 on res1." CP_ID_ACTES " = res3." CP_IDACTE_LIGNEPAIEMENT "\n";
+        ") as res3 "
+        "on res1." CP_ID_ACTES " = res3." CP_IDACTE_LIGNEPAIEMENT "";
 
         //----------------------------------------------- et tous les tiers payants encaissés durant cette même période
         req +=
         " union\n"
 
-        " select null as " CP_ID_ACTES ", " CP_DATE_LIGNRECETTES " as " CP_DATE_ACTES ", " CP_NOMPAYEUR_LIGNRECETTES " as nom, null as " CP_COTATION_ACTES ", null as " CP_MONTANT_ACTES ", " CP_MONNAIE_LIGNRECETTES " as " CP_MONNAIE_ACTES ", " CP_MODEPAIEMENT_LIGNRECETTES " as TypePaiement,"
-        " null as Tiers, Montant as paye, " CP_IDUSER_LIGNRECETTES ", " CP_IDUSER_LIGNRECETTES " as " CP_IDUSERPARENT_ACTES ", " CP_IDUSER_LIGNRECETTES " as " CP_IDUSERCOMPTABLE_ACTES ", null as montantautresrecettes, null as typeautresrecettes from \n"
-        TBL_RECETTES
-        "\n where TiersPayant = 'O'\n"
+        " select "
+        "null as " CP_ID_ACTES ", "
+        CP_DATE_LIGNRECETTES " as " CP_DATE_ACTES ", "
+        CP_NOMPAYEUR_LIGNRECETTES " as nom, "
+        "null as " CP_COTATION_ACTES ", "
+        "null as " CP_MONTANT_ACTES ", "
+        CP_MONNAIE_LIGNRECETTES " as " CP_MONNAIE_ACTES ", "
+        CP_MODEPAIEMENT_LIGNRECETTES " as TypePaiement, "
+        "null as Tiers, "
+        CP_MONTANT_LIGNRECETTES " as paye, "
+        CP_IDUSER_LIGNRECETTES ", "
+        CP_IDUSER_LIGNRECETTES " as " CP_IDUSERPARENT_ACTES ", "
+        CP_IDUSER_LIGNRECETTES " as " CP_IDUSERCOMPTABLE_ACTES ", "
+        "null as montantautresrecettes, "
+        "null as typeautresrecettes"
+        " from "  TBL_RECETTES
+        " where TiersPayant = 'O'"
         " and " CP_DATE_LIGNRECETTES " >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
         " and " CP_DATE_LIGNRECETTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
 
-        " union\n"
+        " union"
 
-        " select null as idActe, DateRecette as actedate, Libelle as nom, null as actecotation, null as acteMontant, Monnaie as acteMonnaie,"
-        " Paiement as TypePaiement, null as Tiers, null as paye, null as iduser, null as userparent, iduser as usercomptable,"
-        " montant as montantautresrecettes, Typerecette as typeautresrecettes from \n" TBL_RECETTESSPECIALES
-        " \nwhere"
-        " DateRecette >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
-        " and DateRecette<= '" + datefin.toString("yyyy-MM-dd") + "'\n"
+        " select "
+        "null as idActe, "
+        CP_DATE_AUTRESRECETTES " as actedate, "
+        CP_LIBELLE_AUTRESRECETTES " as nom, "
+        "null as actecotation, "
+        "null as acteMontant, "
+        CP_MONNAIE_AUTRESRECETTES " as acteMonnaie, "
+        CP_PAIEMENT_AUTRESRECETTES " as TypePaiement, "
+        "null as Tiers, "
+        "null as Paye, "
+        "null as iduser, "
+        "null as userparent, "
+        CP_IDUSER_AUTRESRECETTES " as usercomptable, "
+        CP_MONTANT_AUTRESRECETTES " as montantautresrecettes, "
+        CP_TYPERECETTE_AUTRESRECETTES " as typeautresrecettes "
+        "from " TBL_RECETTESSPECIALES
+        " where "
+        CP_DATE_AUTRESRECETTES " >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
+        " and " CP_DATE_AUTRESRECETTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
         " order by actedate, nom";
 
         //proc->Edit(req);

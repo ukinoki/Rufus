@@ -624,13 +624,13 @@ void dlg_depenses::EnregistreDepense()
     else if (Paiement == tr("TIP"))             m = "T";
 
     bool ok = true;
-    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
+    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << CP_FAMFISCALE_2035,
                                                                        TBL_RUBRIQUES2035, ok,
-                                                                       "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
+                                                                       "where " CP_REFFISCALE_2035 " = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
 
-    Depense *dep = Datas::I()->depenses->CreationDepense(m_userencours->id(),                           //! idUser
+    Depense *dep = Datas::I()->depenses->CreationDepense(m_userencours->id(),                       //! idUser
                                         ui->DateDepdateEdit->date(),                                //! DateDep
                                         ui->RefFiscalecomboBox->currentText(),                      //! RefFiscale
                                         ui->ObjetlineEdit->text(),                                  //! Objet
@@ -1166,9 +1166,9 @@ void dlg_depenses::ModifierDepense()
     else if (Paiement == tr("Prélèvement"))     m = "P";
     else if (Paiement == tr("TIP"))             m = "T";
     bool ok = true;
-    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
+    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << CP_FAMFISCALE_2035,
                                                                        TBL_RUBRIQUES2035, ok,
-                                                                       "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
+                                                                       "where " CP_REFFISCALE_2035 " = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     if (listfamfiscale.size() > 0)                // l'écriture existe et on la modifie
     {
@@ -1624,7 +1624,7 @@ void dlg_depenses::ReconstruitListeRubriques(int idx)
     bool ok = true;
     QString req = "select distinct dep." CP_REFFISCALE_DEPENSES ", idRubrique from " TBL_DEPENSES " dep"
                   " left join " TBL_RUBRIQUES2035 " rub"
-                  " on dep." CP_REFFISCALE_DEPENSES " = rub.Reffiscale"
+                  " on dep." CP_REFFISCALE_DEPENSES " = rub." CP_REFFISCALE_2035
                   " where " CP_IDUSER_DEPENSES " = " + QString::number(m_userencours->id()) +
                   " ORDER BY " CP_REFFISCALE_DEPENSES;
     QList<QVariantList> ListeRubriques = db->StandardSelectSQL(req, ok);
