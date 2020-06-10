@@ -212,7 +212,7 @@ void dlg_gestioncomptes::DesactiveCompte()
         bool ok = true;
         QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_COMPTES,
                                                                         TBL_COMPTES, ok,
-                                                                        "where " CP_IDUSER_COMPTES " = " + QString::number(m_userencours->id()) + " and desactive is null");
+                                                                        "where " CP_IDUSER_COMPTES " = " + QString::number(m_userencours->id()) + " and " CP_DESACTIVE_COMPTES " is null");
         ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
     }    
 }
@@ -428,12 +428,12 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("desactive"             , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->UpdateTable(TBL_COMPTES,
                         listsets,
-                        "where idCompte = "     + ui->idCompteupLineEdit->text());
+                        "where " CP_ID_COMPTES "  = " + ui->idCompteupLineEdit->text());
         m_comptencours = Datas::I()->comptes->getById(idcompte,true);
     }
     else if (m_mode == Nouv)
     {
-        m_comptencours = Datas::I()->comptes->CreationCompte(idbanque,                            //! idBanque
+        m_comptencours = Datas::I()->comptes->CreationCompte(idbanque,                         //! idBanque
                                             m_userencours->id(),                               //! idUser
                                             ui->IBANuplineEdit->text(),                        //! IBAN
                                             ui->IntituleCompteuplineEdit->text(),              //! IntituleCompte

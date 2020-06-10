@@ -324,14 +324,16 @@ void dlg_recettesspeciales::EnregistreRecette()
     {
         Paiement = (Paiement == VIREMENT? tr("Virement crébiteur") : tr("Dépôt espèces"));
         int a = db->getIdMaxTableComptesTableArchives();
-        if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES "(" CP_ID_LIGNCOMPTES ", "
+        if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES "("
+                             CP_ID_LIGNCOMPTES ", "
                              CP_IDCOMPTE_LIGNCOMPTES ", "
                              CP_IDRECSPEC_LIGNCOMPTES ", "
                              CP_DATE_LIGNCOMPTES ", "
                              CP_LIBELLE_LIGNCOMPTES ", "
                              CP_MONTANT_LIGNCOMPTES ", "
                              CP_DEBITCREDIT_LIGNCOMPTES ", "
-                             CP_TYPEOPERATION_LIGNCOMPTES ") VALUES (" +
+                             CP_TYPEOPERATION_LIGNCOMPTES
+                             ") VALUES (" +
                     QString::number(a) + "," +
                     ui->ComptesupComboBox->currentData().toString() +
                     "," + idRec +
@@ -471,7 +473,7 @@ void dlg_recettesspeciales::SupprimerRecette()
     if (wdg_bigtable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
     bool OK = true;
-    QList<QVariantList> listidrecspec = db->StandardSelectSQL(" select idRecSpec from " TBL_ARCHIVESBANQUE " where idRecSpec = " + QString::number(m_idrecetteencours),OK);
+    QList<QVariantList> listidrecspec = db->StandardSelectSQL(" select " CP_IDRECSPEC_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDRECSPEC_ARCHIVESCPT " = " + QString::number(m_idrecetteencours),OK);
     if (listidrecspec.size() > 0)
     {
         UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
@@ -496,7 +498,7 @@ void dlg_recettesspeciales::SupprimerRecette()
         Libelle = listrecettes.at(0).at(1).toString();
         montant = listrecettes.at(0).at(2).toDouble();
         bool ok = true;
-        QList<QVariantList> listlignes = db->StandardSelectSQL("select idligne from " TBL_ARCHIVESBANQUE " where LigneDate = '" + Dateop.toString("yyyy-MM-dd")
+        QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_DATE_ARCHIVESCPT " = '" + Dateop.toString("yyyy-MM-dd")
                 + "' and LigneLibelle = '" + Utils::correctquoteSQL(Libelle) + "' and LigneMontant = " + QString::number(montant), ok);
         if (listlignes.size()> 0)
         {
@@ -685,7 +687,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 // on recherche si l'écriture existe dans archivesbanques et si c'est le cas, on ne peut pas modifier le montant
             {
                 bool ok = true;
-                QList<QVariantList> listlignes = db->StandardSelectSQL("select idLigne from " TBL_ARCHIVESBANQUE " where idrecspec = " + QString::number(m_idrecetteencours),ok);
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDRECSPEC_ARCHIVESCPT " = " + QString::number(m_idrecetteencours),ok);
                 modifiable = (listlignes.size() == 0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
@@ -763,16 +765,16 @@ void dlg_recettesspeciales::ModifierRecette()
     else if (ancpaiement == "V")
     {
         bool ok = true;
-        QList<QVariantList> listlignes = db->StandardSelectSQL("select idLigne from " TBL_ARCHIVESBANQUE " where idrecspec = " + idRec,ok);
+        QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDRECSPEC_ARCHIVESCPT " = " + idRec,ok);
         if (listlignes.size()>0)
         {
             // le virement a été enregistré en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes et archivesbanques
             QString idligne = listlignes.at(0).at(0).toString();
             db->StandardSQL("update " TBL_ARCHIVESBANQUE " set "
-                  "LigneDate = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  "LigneLibelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"
-                  "LigneTypeOperation = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
-                  " where idligne = " + idligne);
+                  CP_DATE_ARCHIVESCPT " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
+                  CP_LIBELLE_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"
+                  CP_TYPEOPERATION_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
+                  " where " CP_ID_ARCHIVESCPT " = " + idligne);
             db->StandardSQL("update " TBL_RECETTESSPECIALES " set "
                   "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
                   "Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("08-06-2020/1");
+    qApp->setApplicationVersion("10-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2114,8 +2114,16 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES JPG
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    req = "SELECT " CP_ID_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_JPG_FACTURES " FROM " TBL_FACTURES
-                  " where " CP_JPG_FACTURES " is not null";
+    req = "SELECT "
+            CP_ID_FACTURES ", "
+            CP_DATEFACTURE_FACTURES ", "
+            CP_LIENFICHIER_FACTURES ", "
+            CP_INTITULE_FACTURES ", "
+            CP_ECHEANCIER_FACTURES ", "
+            CP_IDDEPENSE_FACTURES ", "
+            CP_JPG_FACTURES
+            " FROM " TBL_FACTURES
+            " where " CP_JPG_FACTURES " is not null";
     //qDebug() << req;
     QList<QVariantList> listexportjpgfact = db->StandardSelectSQL(req, m_ok);
     if (m_ok)
@@ -2144,13 +2152,13 @@ void Rufus::ExporteDocs()
             // on recherche le user à l'origine de cette facture
             QList<QVariantList> Listeusr;
             if (listexportjpgfact.at(i).at(4).toInt()==1)          // c'est un échéancier
-                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr." CP_ID_USR
-                                                                                                              " and idFacture = " + listexportjpgfact.at(i).at(0).toString();
+                req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                                                                                                              " and " CP_IDFACTURE_DEPENSES " = " + listexportjpgfact.at(i).at(0).toString();
             else                                                // c'est une facture, l'iduser est dans la table
-                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr." CP_ID_USR
-                                                                                                              " and idDep = " + listexportjpgfact.at(i).at(5).toString();
+                req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                                                                                                              " and " CP_ID_DEPENSES " = " + listexportjpgfact.at(i).at(5).toString();
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
@@ -2223,8 +2231,16 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES PDF
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    reqpdf = "SELECT " CP_ID_FACTURES ", " CP_DATEFACTURE_FACTURES ", " CP_LIENFICHIER_FACTURES ", " CP_INTITULE_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_IDDEPENSE_FACTURES ", " CP_PDF_FACTURES " FROM " TBL_FACTURES
-                  " where " CP_PDF_FACTURES " is not null";
+    reqpdf = "SELECT "
+            CP_ID_FACTURES ", "
+            CP_DATEFACTURE_FACTURES ", "
+            CP_LIENFICHIER_FACTURES ", "
+            CP_INTITULE_FACTURES ", "
+            CP_ECHEANCIER_FACTURES ", "
+            CP_IDDEPENSE_FACTURES ", "
+            CP_PDF_FACTURES
+            " FROM " TBL_FACTURES
+            " where " CP_PDF_FACTURES " is not null";
     QList<QVariantList> listexportpdffact = db->StandardSelectSQL(reqpdf, m_ok );
     if (m_ok)
         for (int i=0; i<listexportpdffact.size(); i++)
@@ -2248,13 +2264,13 @@ void Rufus::ExporteDocs()
             // on recherche le user à l'origine de cette facture
             QList<QVariantList> Listeusr;
             if (listexportpdffact.at(i).at(4).toInt()==1)          // c'est un échéancier
-                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr." CP_ID_USR
-                                                                                                              " and idFacture = " + listexportpdffact.at(i).at(0).toString();
+                req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                                                                                                              " and " CP_IDFACTURE_DEPENSES " = " + listexportpdffact.at(i).at(0).toString();
             else                                                // c'est une facture, l'iduser est dans la table
-                req = "select dep.idUser, " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep.idUser  = usr." CP_ID_USR
-                                                                                                              " and idDep = " + listexportpdffact.at(i).at(5).toString();
+                req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
+                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                                                                                                              " and " CP_ID_DEPENSES " = " + listexportpdffact.at(i).at(5).toString();
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {

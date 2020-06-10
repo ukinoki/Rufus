@@ -431,6 +431,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_OBJET_DEPENSES                              "Objet"
 #define CP_MONTANT_DEPENSES                            "Montant"
 #define CP_FAMILLEFISCALE_DEPENSES                     "FamFiscale"
+#define CP_IDOPERATION_DEPENSES                        "Nooperation"
 #define CP_MONNAIE_DEPENSES                            "Monnaie"
 #define CP_IDRECETTE_DEPENSES                          "idRec"
 #define CP_MODEPAIEMENT_DEPENSES                       "ModePaiement"
@@ -461,7 +462,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_DEBITCREDIT_LIGNCOMPTES                     "LigneDebitCredit"
 #define CP_TYPEOPERATION_LIGNCOMPTES                   "LigneTypeoperation"
 #define CP_CONSOLIDE_LIGNCOMPTES                       "LigneConsolide"
-
 
                             //! Table ComptaMedicale.archivesbanques
 #define CP_ID_ARCHIVESCPT                              "idLigne"
@@ -502,6 +502,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDUSERENREGISTREUR_LIGNRECETTES             "EnregistrePar"
 #define CP_TYPERECETTE_LIGNRECETTES                    "TypeRecette"
 
+                            //! Table ComptaMedicale.remisecheques
+#define CP_ID_REMCHEQ                                   "idRemCheq"
+#define CP_MONTANT_REMCHEQ                              "Montant"
+#define CP_DATE_REMCHEQ                                 "RCDate"
+#define CP_IDCOMPTE_REMCHEQ                             "idCompte"
 
                             //! Table ComptaMedicale.tiers
 #define CP_ID_TIERS                                     "idTiers"

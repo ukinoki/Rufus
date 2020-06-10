@@ -3086,12 +3086,12 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     iban += QString::number(al);
 
     QString req  = "insert into " TBL_COMPTES
-           " (idBanque, idUser, IBAN, IntituleCompte, NomCompteAbrege, SoldeSurDernierReleve)"
+           " (" CP_IDBANQUE_COMPTES ", " CP_IDUSER_COMPTES ", " CP_IBAN_COMPTES ", " CP_INTITULE_COMPTES ", " CP_NOMABREGE_COMPTES ", " CP_SOLDE_COMPTES ")"
            " VALUES (" + QString::number(idbanq) + "," + QString::number(idusr) + ", '" + iban + "', '" + login + "', 'PaPRS" + QString::number(al) + "', 2333.67)";
     //qDebug() << req;
     db->StandardSQL(req);
     QString idcpt ("");
-    req = "select max(idcompte) from " TBL_COMPTES;
+    req = "select max(" CP_ID_COMPTES ") from " TBL_COMPTES;
     QVariantList cptdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
     if (m_ok && cptdata.size()>0)
         idcpt = cptdata.at(0).toString();

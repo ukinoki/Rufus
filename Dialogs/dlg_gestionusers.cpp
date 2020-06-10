@@ -669,8 +669,8 @@ void dlg_gestionusers::EnregistreUser()
         }
     }
 
-    req = "update " TBL_COMPTES " set partage = ";
-    db->StandardSQL(req + (ui->SocieteComptableupRadioButton->isChecked()? "1" : "null") + " where iduser = " +  ui->idUseruplineEdit->text());
+    req = "update " TBL_COMPTES " set " CP_PARTAGE_COMPTES " = ";
+    db->StandardSQL(req + (ui->SocieteComptableupRadioButton->isChecked()? "1" : "null") + " where " CP_IDUSER_COMPTES " = " +  ui->idUseruplineEdit->text());
     setDataCurrentUser(ui->idUseruplineEdit->text().toInt()); // reactualise l'item user correspondant
     RemplirTableWidget(ui->idUseruplineEdit->text().toInt());
 
@@ -1069,7 +1069,7 @@ void dlg_gestionusers::SupprUser()
             if (db->StandardSelectSQL("select " CP_ID_LIGNRECETTES " from " TBL_RECETTES " where " CP_IDCPTEVIREMENT_LIGNRECETTES " = " + icpt, m_ok).size()==0)
                 if (db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDCOMPTE_ARCHIVESCPT " = " + icpt, m_ok).size()==0)
                     if (db->StandardSelectSQL("select " CP_ID_DEPENSES " from " TBL_DEPENSES " where " CP_COMPTE_DEPENSES " = " + icpt, m_ok).size()==0)
-                        if (db->StandardSelectSQL("select idremcheq from " TBL_REMISECHEQUES " where idcompte = " + icpt, m_ok).size()==0)
+                        if (db->StandardSelectSQL("select " CP_ID_REMCHEQ " from " TBL_REMISECHEQUES " where " CP_IDCOMPTE_REMCHEQ " = " + icpt, m_ok).size()==0)
                             if (db->StandardSelectSQL("select " CP_ID_LIGNCOMPTES " from " TBL_LIGNESCOMPTES " where " CP_IDCOMPTE_LIGNCOMPTES " = " + icpt, m_ok).size()==0)
                                 Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(idcpt));
         }

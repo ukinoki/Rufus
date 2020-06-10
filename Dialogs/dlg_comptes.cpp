@@ -99,7 +99,7 @@ void dlg_comptes::AnnulArchive()
     if (!db->createtransaction(QStringList() <<  TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES << TBL_COMPTES))
         return;
 
-    int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
+    int max = db->selectMaxFromTable(CP_IDARCHIVE_ARCHIVESCPT, TBL_ARCHIVESBANQUE, ok);
     if (!ok)
     {
         db->rollback();
@@ -154,9 +154,9 @@ void dlg_comptes::AnnulArchive()
 
 
     if (!db->StandardSQL("update " TBL_COMPTES
-                               " set SoldeSurDernierReleve = "
+                               " set " CP_SOLDE_COMPTES " = "
                                + QString::number(NouveauSolde,'f',2)
-                               + " where idCompte = " + QString::number(m_idcompte)))
+                               + " where" CP_ID_COMPTES " = " + QString::number(m_idcompte)))
     {
         db->rollback();
         return;
@@ -238,9 +238,9 @@ void dlg_comptes::Archiver()
         db->rollback();
         return;
     }
-    if (!db->StandardSQL("update " TBL_COMPTES " set SoldeSurDernierReleve = "
+    if (!db->StandardSQL("update " TBL_COMPTES " set " CP_SOLDE_COMPTES " = "
                                + QString::number(QLocale().toDouble(ui->MontantSoldeConsolidelabel->text()),'f',2)
-                               + " where idCompte = " + QString::number(m_idcompte)))
+                               + " where " CP_ID_COMPTES " = " + QString::number(m_idcompte)))
     {
         db->rollback();
         return;

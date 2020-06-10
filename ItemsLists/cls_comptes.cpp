@@ -90,7 +90,7 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     QString partage         = (!Partage?                    "null" : "1");
     QString desactive       = (!Desactive?                  "null" : "1");
     QString req =     "INSERT INTO " TBL_COMPTES
-            " (idBanque, idUser, IBAN, IntituleCompte, NomCompteAbrege, SoldeSurDernierReleve, Partage, Desactive)"
+            " (" CP_IDBANQUE_COMPTES ", " CP_IDUSER_COMPTES ", " CP_IBAN_COMPTES ", " CP_INTITULE_COMPTES ", " CP_NOMABREGE_COMPTES ", " CP_SOLDE_COMPTES ", " CP_PARTAGE_COMPTES ", " CP_DESACTIVE_COMPTES ")"
             " VALUES (" +   idbq + "," +
             idusr + "," +
             iban + "," +

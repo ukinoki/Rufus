@@ -276,7 +276,8 @@ void dlg_remisecheques::ImprimepushButton()
                 CP_MONTANT_LIGNCOMPTES ", "
                 CP_DEBITCREDIT_LIGNCOMPTES ", "
                 CP_TYPEOPERATION_LIGNCOMPTES ", "
-                CP_IDREMCHEQ_LIGNCOMPTES ") VALUES (" +
+                CP_IDREMCHEQ_LIGNCOMPTES
+                ") VALUES (" +
                 QString::number(db->getIdMaxTableComptesTableArchives()) + "," +
                 ui->ComptecomboBox->currentData().toString() +
                 ", NOW(),"
@@ -629,7 +630,7 @@ void dlg_remisecheques::RemplirRemisesPrecs(int id)
             Total += QLocale().toDouble(ui->ListeChequesupTableWidget->item(k,4)->text());
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
     }
-    req = "select idligne from " TBL_ARCHIVESBANQUE " where idremcheq = " + MapRemise["idRemise"].toString();
+    req = "select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDREMCHEQ_ARCHIVESCPT " = " + MapRemise["idRemise"].toString();
     QList<QVariantList> listlignes = db->StandardSelectSQL(req, ok);
     ui->RemisesPrecsPushButton->setEnabled(listlignes.size()==0 && ok);
 }
@@ -657,8 +658,9 @@ void dlg_remisecheques::ToolTip(int A, int B)
             if (RecSpec == "1")
                 requete = "SELECT Libelle, Daterecette From " TBL_RECETTESSPECIALES " WHERE idRecette = " + tabl->item(A,col)->text();
             else
-                requete = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_DATE_ACTES " From " TBL_PATIENTS " pat, " TBL_ACTES " act WHERE act." CP_ID_ACTES " in (SELECT " CP_ID_ACTES " FROM "
-                        TBL_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat." CP_IDPAT_PATIENTS " = act." CP_IDPAT_ACTES;
+                requete = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", " CP_DATE_ACTES " From " TBL_PATIENTS " pat, " TBL_ACTES " act"
+                          " WHERE act." CP_ID_ACTES " in (SELECT " CP_ID_ACTES " FROM " TBL_LIGNESPAIEMENTS " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + tabl->item(A,col)->text() + ")"
+                          " AND pat." CP_IDPAT_PATIENTS " = act." CP_IDPAT_ACTES;
             bool ok = true;
             QList<QVariantList> listtips = db->StandardSelectSQL(requete,ok);
             QString ABC;
@@ -843,8 +845,9 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         QString req;
         //1, on recherche les chèques à déposer
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " TBL_RECETTES " pai"
-                " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act." CP_ID_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_userencours->id()) + "))"
+                " WHERE pai.idRecette in (SELECT lig." CP_IDRECETTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS " lig"
+                    " WHERE lig." CP_IDACTE_LIGNEPAIEMENT " in"
+                    " (SELECT act." CP_ID_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_userencours->id()) + "))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND ModePaiement = 'C'";
@@ -860,8 +863,9 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " TBL_RECETTES " pai"
-                " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act." CP_ID_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_userencours->id()) +"))"
+                " WHERE pai.idRecette in (SELECT lig." CP_IDRECETTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS " lig"
+                    " WHERE lig." CP_IDACTE_LIGNEPAIEMENT " in"
+                    " (SELECT act." CP_ID_ACTES " FROM " TBL_ACTES " act WHERE " CP_IDUSERCOMPTABLE_ACTES " = " + QString::number(m_userencours->id()) +"))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C'";

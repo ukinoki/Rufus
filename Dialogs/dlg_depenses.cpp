@@ -1202,7 +1202,7 @@ void dlg_depenses::ModifierDepense()
            listsets.insert(CP_DEBITCREDIT_LIGNCOMPTES,      "0");
            listsets.insert(CP_TYPEOPERATION_LIGNCOMPTES,    Paiement);
            listsets.insert(CP_IDCOMPTE_LIGNCOMPTES,         (m!="E"? ui->ComptesupComboBox->currentData().toString() : "null"));
-           DataBase:: I()->UpdateTable(TBL_LIGNESCOMPTES, listsets, "where " CP_IDDEP_LIGNCOMPTES " = " + idDep);
+           DataBase::I()->UpdateTable(TBL_LIGNESCOMPTES, listsets, "where " CP_IDDEP_LIGNCOMPTES " = " + idDep);
         }
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
         {
@@ -1622,11 +1622,11 @@ void dlg_depenses::ReconstruitListeRubriques(int idx)
 {
     ui->Rubriques2035comboBox->clear();
     bool ok = true;
-    QString req = "select distinct dep.reffiscale, idRubrique from " TBL_DEPENSES " dep"
+    QString req = "select distinct dep." CP_REFFISCALE_DEPENSES ", idRubrique from " TBL_DEPENSES " dep"
                   " left join " TBL_RUBRIQUES2035 " rub"
-                  " on dep.RefFiscale = rub.Reffiscale"
-                  " where idUser = " + QString::number(m_userencours->id()) +
-                  " ORDER BY reffiscale";
+                  " on dep." CP_REFFISCALE_DEPENSES " = rub.Reffiscale"
+                  " where " CP_IDUSER_DEPENSES " = " + QString::number(m_userencours->id()) +
+                  " ORDER BY " CP_REFFISCALE_DEPENSES;
     QList<QVariantList> ListeRubriques = db->StandardSelectSQL(req, ok);
     ListeRubriques.insert(0, (QVariantList() << tr("<Aucun>") << -1));
     for (int i = 0; i < ListeRubriques.size(); i++)
@@ -1736,7 +1736,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                                                                             newlien             .replace(oldintitule, item->text());
                                                                             item->model()->item(rowit,2)->setText(newlien);
                                                                             QString req         = "update " TBL_FACTURES " set " CP_LIENFICHIER_FACTURES " = '" + newlien + "', " CP_INTITULE_FACTURES " = '" + item->text() + "' "
-                                                                                                                                                                                                                               " where " CP_ID_FACTURES " = " + QString::number(idech);
+                                                                                                  " where " CP_ID_FACTURES " = " + QString::number(idech);
                                                                             DataBase::I()       ->StandardSQL(req);
                                                                             QString newfilename = Procedures::I()->AbsolutePathDirImagerie() +  NOM_DIR_FACTURES + newlien;
                                                                             QString oldfilename = Procedures::I()->AbsolutePathDirImagerie() +  NOM_DIR_FACTURES + oldlien;

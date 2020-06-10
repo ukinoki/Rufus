@@ -85,9 +85,21 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     QString nochq           = (Nocheque == 0?               "null" : QString::number(Nocheque));
     QString idfacture       = (idFacture == 0?              "null" : QString::number(idFacture));
     QString req =     "INSERT INTO " TBL_DEPENSES
-            " (idUser, DateDep, RefFiscale, Objet, Montant, FamFiscale,"
-            " Monnaie, idRec, ModePaiement, Compte, Nocheque, idFacture)"
-            " VALUES (" +   idusr + "," +
+            " ("
+            CP_IDUSER_DEPENSES ", "
+            CP_DATE_DEPENSES ", "
+            CP_REFFISCALE_DEPENSES ", "
+            CP_OBJET_DEPENSES ", "
+            CP_MONTANT_DEPENSES ", "
+            CP_FAMILLEFISCALE_DEPENSES ", "
+            CP_MONNAIE_DEPENSES ", "
+            CP_IDRECETTE_DEPENSES ","
+            CP_MODEPAIEMENT_DEPENSES ", "
+            CP_COMPTE_DEPENSES ", "
+            CP_NUMCHEQUE_DEPENSES ", "
+            CP_IDFACTURE_DEPENSES
+            ") VALUES (" +
+            idusr + "," +
             date + "," +
             ref + "," +
             objet   + "," +

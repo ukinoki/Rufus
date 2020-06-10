@@ -53,7 +53,7 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
 {
     if (act == Q_NULLPTR)
         return;
-    DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
+    DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE " CP_IDACTE_LIGNEPAIEMENT " = " + QString::number(act->id()));
     for (auto itlign = map_lignespaiements->begin() ; itlign != map_lignespaiements->end();)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
