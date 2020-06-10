@@ -538,9 +538,10 @@ void dlg_programmationinterventions::ImprimeSession()
                             lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = " + color + "><span style=\"font-size:8pt;\">" + typinterv + "</span></font></td>" ;                        }
                         if (pat != Q_NULLPTR)
                         {
+                            QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
                             QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
                                     + " " + pat->datedenaissance().toString("dd-MM-yyyy")
-                                    + " - " + Utils::CalculAge(pat->datedenaissance())["toString"].toString();
+                                    + " - " + mapage["toString"].toString();
                             if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
                             {
                                 QString tel = tr("Tel") + " ";
@@ -775,9 +776,10 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                 itemtyp ->setEditable(false);
                 listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtyp << new QStandardItem(QString::number(a) + "b"));
             }
+            QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
             QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
                     + " " + pat->datedenaissance().toString("dd-MM-yyyy")
-                    + " - " + Utils::CalculAge(pat->datedenaissance())["toString"].toString();
+                    + " - " + mapage["toString"].toString();
             if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
             {
                 QString tel = tr("Tel") + " ";

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-06-2020/1");
+    qApp->setApplicationVersion("08-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -9323,7 +9323,7 @@ void Rufus::SupprimerActe(Acte *act)
             if (i<listlignespaiement.size()-1)
                 critere += ",";
         }
-        QString req = "SELECT ModePaiement, NomTiers, idRemise FROM " TBL_RECETTES " WHERE idRecette in (" + critere + ")";
+        QString req = "SELECT " CP_MODEPAIEMENT_LIGNRECETTES ", " CP_NOMPAYEUR_LIGNRECETTES ", " CP_IDREMISECHQ_LIGNRECETTES " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " in (" + critere + ")";
         QList<QVariantList> pmtlist = db->StandardSelectSQL(req,m_ok);
         if(m_ok && pmtlist.size()>0)
             for (int j=0; j<pmtlist.size(); j++)
@@ -9403,14 +9403,14 @@ void Rufus::SupprimerActe(Acte *act)
     {
         for (int j=0; j<listlignespaiement.size(); j++)
         {
-            req = "SELECT Montant FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(listlignespaiement.at(j)->idrecette());
+            req = "SELECT " CP_MONTANT_LIGNRECETTES " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(listlignespaiement.at(j)->idrecette());
             QList<QVariantList> mntlist = db->StandardSelectSQL(req,m_ok);
             for (int i=0; i<mntlist.size(); ++i)
             {
-                QString req = "delete from " TBL_RECETTES " where idrecette = " + QString::number(listlignespaiement.at(j)->idrecette());
+                QString req = "delete from " TBL_RECETTES " where " CP_ID_LIGNRECETTES " = " + QString::number(listlignespaiement.at(j)->idrecette());
                 if (mntlist.at(i).at(0).toDouble() > listlignespaiement.at(j)->paye())
-                    req = "update " TBL_RECETTES " set Montant = " + QString::number(mntlist.at(i).at(0).toDouble() - listlignespaiement.at(j)->paye()) +
-                          " where idRecette = " + QString::number(listlignespaiement.at(j)->idrecette());
+                    req = "update " TBL_RECETTES " set " CP_MONTANT_LIGNRECETTES " = " + QString::number(mntlist.at(i).at(0).toDouble() - listlignespaiement.at(j)->paye()) +
+                          " where " CP_ID_LIGNRECETTES " = " + QString::number(listlignespaiement.at(j)->idrecette());
                 db->StandardSQL(req);
             }
         }
@@ -9455,7 +9455,7 @@ void Rufus::SupprimerDossier(Patient *pat)
     {
         LignePaiement* lign = const_cast<LignePaiement*>(it.value());
         // on vérifie pour chaque ligne s'il s'agit d'un virement ou d'une carte bleue ou d'un chèque enregistré
-        QString requete = "SELECT ModePaiement, NomTiers, idRemise FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(lign->idrecette());
+        QString requete = "SELECT " CP_MODEPAIEMENT_LIGNRECETTES ", " CP_NOMPAYEUR_LIGNRECETTES ", " CP_IDREMISECHQ_LIGNRECETTES " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(lign->idrecette());
         QVariantList pmydata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok);
         if (!m_ok)
             return;
@@ -9501,7 +9501,7 @@ void Rufus::SupprimerDossier(Patient *pat)
         for (int j=0; j < m_lignespaiements->lignespaiements()->size(); j++)
         {
             int idrecetteACorriger = m_lignespaiements->lignespaiements()->values().at(j)->idrecette();
-            QString requete = "SELECT Montant FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(idrecetteACorriger);
+            QString requete = "SELECT " CP_MONTANT_LIGNRECETTES " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(idrecetteACorriger);
             QList<QVariantList> reclist = db->StandardSelectSQL(requete,m_ok);
             if (!m_ok)
                 return;
@@ -9509,10 +9509,10 @@ void Rufus::SupprimerDossier(Patient *pat)
             {
                 for (int k=0; k<reclist.size(); k++)
                 {
-                    QString req = "delete from " TBL_RECETTES " where idrecette = " + QString::number(idrecetteACorriger);
+                    QString req = "delete from " TBL_RECETTES " where " CP_ID_LIGNRECETTES " = " + QString::number(idrecetteACorriger);
                     if (reclist.at(k).at(0).toDouble() > m_lignespaiements->lignespaiements()->values().at(j)->paye())
-                        req = "update " TBL_RECETTES " set Montant = " + QString::number(reclist.at(k).at(0).toDouble() - m_lignespaiements->lignespaiements()->values().at(j)->paye()) +
-                                " where idRecette = " + QString::number(idrecetteACorriger);
+                        req = "update " TBL_RECETTES " set " CP_MONTANT_LIGNRECETTES " = " + QString::number(reclist.at(k).at(0).toDouble() - m_lignespaiements->lignespaiements()->values().at(j)->paye()) +
+                                " where " CP_ID_LIGNRECETTES " = " + QString::number(idrecetteACorriger);
                     db->StandardSQL(req);
                 }
             }

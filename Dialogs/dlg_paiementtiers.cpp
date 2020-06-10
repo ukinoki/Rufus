@@ -768,7 +768,7 @@ void dlg_paiementtiers::ValidePaiement()
         QList<QTableWidgetSelectionRange>  RangeeSelectionne = ui->ListeupTableWidget->selectedRanges();
         int ab      = RangeeSelectionne.at(0).topRow();
         m_idrecette   = ui->ListeupTableWidget->item(ab,0)->text().toInt();
-        requete = "SELECT idRecette FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(m_idrecette);
+        requete = "SELECT " CP_ID_LIGNRECETTES " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(m_idrecette);
         QList<QVariantList> reclist = db->StandardSelectSQL(requete,m_ok);
         if (reclist.size() == 0)
         {
@@ -1135,7 +1135,22 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             QString idCompte = "";
             // Mise à jour lignesRecettes
             QString EnregRecetterequete = "INSERT INTO " TBL_RECETTES
-                    " (idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, BanqueCheque, EnAttente, CompteVirement, EnregistrePar, TypeRecette, TiersPayant, NomTiers, Commission) VALUES (";
+                    " ("
+                    CP_IDUSER_LIGNRECETTES ", "
+                    CP_DATE_LIGNRECETTES ", "
+                    CP_DATEENREGISTREMENT_LIGNRECETTES ", "
+                    CP_MONTANT_LIGNRECETTES ", "
+                    CP_MODEPAIEMENT_LIGNRECETTES ","
+                    CP_TIREURCHEQUE_LIGNRECETTES ", "
+                    CP_BANQUECHEQUE_LIGNRECETTES ", "
+                    CP_CHQENATTENTE_LIGNRECETTES ", "
+                    CP_IDCPTEVIREMENT_LIGNRECETTES ", "
+                    CP_IDUSERENREGISTREUR_LIGNRECETTES ", "
+                    CP_TYPERECETTE_LIGNRECETTES ", "
+                    CP_TIERSPAYANT_LIGNRECETTES ", "
+                    CP_NOMPAYEUR_LIGNRECETTES ", "
+                    CP_COMMISSION_LIGNRECETTES
+                    ") VALUES (";
             EnregRecetterequete +=  QString::number(m_useracrediter->id());                                             // idUser
             EnregRecetterequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                // DatePaiement
             EnregRecetterequete +=  "', DATE(NOW())";                                                                   // DateEnregistrement
@@ -1173,7 +1188,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             }
 
 
-            QString ChercheMaxrequete = "SELECT Max(idRecette) FROM " TBL_RECETTES;
+            QString ChercheMaxrequete = "SELECT Max(" CP_ID_LIGNRECETTES ") FROM " TBL_RECETTES;
             QVariantList maxrecdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, m_ok);
             if (!m_ok || maxrecdata.size()==0)
             {
@@ -1286,20 +1301,20 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
              if (ui->ChequeradioButton->isChecked())
              {
                  updatelignerecettes = true;
-                 Updaterequete += "TireurCheque = '" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text()) + "', ";                   // Tireur chèque
-                 Updaterequete += "BanqueCheque = '" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText()) + "'";              // BanqueCheque
+                 Updaterequete += CP_TIREURCHEQUE_LIGNRECETTES " = '" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text()) + "', ";                   // Tireur chèque
+                 Updaterequete += CP_BANQUECHEQUE_LIGNRECETTES " = '" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText()) + "'";              // BanqueCheque
              }
             QString NomTiers = ui->TiersupComboBox->currentText();
             if (updatelignerecettes && NomTiers != "")
                 Updaterequete += ", ";
             if (NomTiers != "")
             {
-                Updaterequete += "NomTiers = '" + Utils::correctquoteSQL(NomTiers) + "'";
+                Updaterequete += CP_NOMPAYEUR_LIGNRECETTES " = '" + Utils::correctquoteSQL(NomTiers) + "'";
                 updatelignerecettes = true;
             }
             if (updatelignerecettes)
             {
-                Updaterequete += " WHERE idRecette = " + QString::number(m_idrecette);
+                Updaterequete += " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(m_idrecette);
                 //        UpMessageBox::Watch(this,Updaterequete);
                 if (!db->StandardSQL(Updaterequete,tr("Impossible de mettre à jour cette ligne de recette")))
                 {
@@ -1786,7 +1801,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                 m_lignerecetteamodifier << "null";
             else
                 m_lignerecetteamodifier << QString::number(rec->typerecette());
-            requete = "DELETE FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(m_idrecette);
+            requete = "DELETE FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(m_idrecette);
             db->StandardSQL(requete);
 
             // nettoyer LignesComptes et le mettre en mémoire au cas où on devrait le restaurer
@@ -2636,12 +2651,31 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
     case VoirListePaiementsTiers:      // on reconstruit la liste des tiers
     {
         // On sélectionne tous les paiements sans exception
-        requete =   "SELECT idRecette, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette, RCDate, Montant as Paye FROM " TBL_RECETTES
-                "\n LEFT OUTER JOIN (SELECT RCDate, idRemCheq FROM " TBL_REMISECHEQUES ") AS rc\n"
-                " ON rc.idRemCheq = idRemise\n"
-                " WHERE idUser = " + QString::number(m_useracrediter->id()) +
-                "\n AND TiersPayant = 'O'\n"
-                " ORDER BY DatePaiement DESC, NomTiers";
+        requete =   "SELECT "
+                        CP_ID_LIGNRECETTES ", "
+                        CP_DATE_LIGNRECETTES ", "
+                        CP_DATEENREGISTREMENT_LIGNRECETTES ", "
+                        CP_MONTANT_LIGNRECETTES ", "
+                        CP_MODEPAIEMENT_LIGNRECETTES ","
+                        CP_TIREURCHEQUE_LIGNRECETTES ", "
+                        CP_IDCPTEVIREMENT_LIGNRECETTES ", "
+                        CP_BANQUECHEQUE_LIGNRECETTES ", "
+                        CP_TIERSPAYANT_LIGNRECETTES ", "
+                        CP_NOMPAYEUR_LIGNRECETTES ","
+                        CP_COMMISSION_LIGNRECETTES ", "
+                        CP_MONNAIE_LIGNRECETTES ", "
+                        CP_IDREMISECHQ_LIGNRECETTES ", "
+                        CP_CHQENATTENTE_LIGNRECETTES ", "
+                        CP_IDUSERENREGISTREUR_LIGNRECETTES ","
+                        CP_TYPERECETTE_LIGNRECETTES ", "
+                        CP_DATE_REMCHEQ ", "
+                        CP_MONTANT_LIGNRECETTES " as Paye "
+                        " FROM " TBL_RECETTES
+                        " LEFT OUTER JOIN (SELECT " CP_DATE_REMCHEQ ", " CP_ID_REMCHEQ " FROM " TBL_REMISECHEQUES ") AS rc"
+                        " ON rc." CP_ID_REMCHEQ " = " CP_IDREMISECHQ_LIGNRECETTES
+                        " WHERE " CP_IDUSER_LIGNRECETTES " = " + QString::number(m_useracrediter->id()) +
+                        " AND " CP_TIERSPAYANT_LIGNRECETTES " = 'O'"
+                        " ORDER BY" CP_DATE_LIGNRECETTES " DESC, " CP_NOMPAYEUR_LIGNRECETTES;
 
         //UpMessageBox::Watch(this,requete);
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,m_ok);
