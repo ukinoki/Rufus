@@ -2795,7 +2795,7 @@ Intervention* DataBase::loadInterventionById(int idintervention)                
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
                               CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
                               CP_OBSERV_LIGNPRGOPERATOIRE ", " CP_IDACTE_LIGNPRGOPERATOIRE ", " CP_INCIDENT_LIGNPRGOPERATOIRE // 10-11-12
-                    " FROM " TBL_LIGNESPRGOPERATOIRES ;
+                    " FROM " TBL_LIGNESPRGOPERATOIRES
                     " WHERE " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(idintervention) ;
     QVariantList interventiondata = getFirstRecordFromStandardSelectSQL(req,ok);
     //qDebug() << req;

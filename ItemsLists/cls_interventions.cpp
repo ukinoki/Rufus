@@ -29,25 +29,28 @@ QMap<int, Intervention*>* Interventions::interventions() const
 
 Intervention* Interventions::getById(int id, bool reload)
 {
-    QMap<int, Intervention*>::const_iterator itref = map_all->constFind(id);
+    auto itref = map_all->constFind(id);
     if( itref == map_all->constEnd() )
     {
         Intervention * itm = DataBase::I()->loadInterventionById(id);
-        if (itm != Q_NULLPTR)
+        if (itm)
             add( map_all, itm );
         auto it = map_all->constFind(id);
         return (it != map_all->cend()? const_cast<Intervention*>(it.value()) : Q_NULLPTR);
     }
-    else if (reload)
+    else
     {
-        Intervention* itm = DataBase::I()->loadInterventionById(id);
-        if (itm)
+        if (reload)
         {
-            itref.value()->setData(itm->datas());
-            delete itm;
+            Intervention* itm = DataBase::I()->loadInterventionById(id);
+            if (itm)
+            {
+                itref.value()->setData(itm->datas());
+                delete itm;
+            }
         }
+        return const_cast<Intervention*>(itref.value());
     }
-    return itref.value();
 }
 
 Intervention* Interventions::getInterventionByDateIdPatient(QDate date, int idpatient)
