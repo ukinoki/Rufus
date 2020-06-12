@@ -406,11 +406,27 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_LU_JOINTURESMSG                              "Lu"
 #define CP_FAIT_JOINTURESMSG                            "Fait"
 
+                            //! Table Images.EchangeImages
+#define CP_ID_ECHGIMAGES                                "idImpression"
+#define CP_PDF_ECHGIMAGES                               "pdf"
+#define CP_JPG_ECHGIMAGES                               "jpg"
+#define CP_COMPRESSION_ECHGIMAGES                       "Compression"
+#define CP_FACTURE_ECHGIMAGES                           "Facture"
+
+                            //! Table Images.DocsASupprimer
+#define CP_FILEPATH_DOCSASUPPR                          "FilePath"
+
+                            //! Table Images.FacturesASupprimer
+#define CP_ID_FACTASUPPR                                "idFacture"
+#define CP_ECHEANCIER_FACTASUPPR                        "Echeancier"
+#define CP_LIENFICHIER_FACTASUPPR                       "LienFichier"
+
                             //! Table ComptaMedicale.banques
 #define CP_ID_BANQUES                                   "idBanque"
 #define CP_NOMABREGE_BANQUES                            "idBanqueAbrege"
 #define CP_NOMBANQUE_BANQUES                            "NomBanque"
 #define CP_CODE_BANQUES                                 "CodeBanque"
+
 
                             //! Table ComptaMedicale.Comptes
 #define CP_ID_COMPTES                                   "idCompte"

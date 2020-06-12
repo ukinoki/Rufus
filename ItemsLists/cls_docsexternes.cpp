@@ -108,7 +108,7 @@ void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
 {
     if (doc == Q_NULLPTR)
         return;
-    DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
+    DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + QString::number(doc->id()));
     Supprime(map_docsexternes, doc);
 }
 

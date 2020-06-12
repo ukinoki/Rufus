@@ -1026,7 +1026,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
             QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
             QString cheminFichier = (docmt->format()== VIDEO? NOM_DIR_VIDEOS : NOM_DIR_IMAGES);
             filename = cheminFichier + filename;
-            db->StandardSQL("insert into " TBL_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
+            db->StandardSQL("insert into " TBL_DOCSASUPPRIMER " (" CP_FILEPATH_DOCSASUPPR ") VALUES ('" + Utils::correctquoteSQL(filename) + "')");
         }
         QString idaafficher = "";
         if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression

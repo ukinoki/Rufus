@@ -1357,7 +1357,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                 }
                 QString sfx = (filesufx == PDF? PDF : JPG);
                 if (docmt != Q_NULLPTR)
-                    imgs = "select idimpression from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and (pdf is not null or jpg is not null)";
+                    imgs = "select " CP_ID_ECHGIMAGES " from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + iditem + " and (" CP_PDF_ECHGIMAGES " is not null or " CP_JPG_ECHGIMAGES " is not null)";
                 else
                     imgs = "select " CP_ID_FACTURES " from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem + " and (" CP_PDF_FACTURES " is not null or " CP_JPG_FACTURES " is not null)";
                 QList<QVariantList> listid = db->StandardSelectSQL(imgs, m_ok);
@@ -1368,9 +1368,9 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                     if (docmt != Q_NULLPTR)
                     {
                         db->StandardSQL("delete from " TBL_ECHANGEIMAGES
-                                        " where idimpression = " + iditem +
-                                        " and facture is null");
-                        QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
+                                        " where " CP_ID_ECHGIMAGES " = " + iditem +
+                                        " and " CP_FACTURE_ECHGIMAGES " is null");
+                        QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (" CP_ID_ECHGIMAGES ", " + sfx + ", " CP_COMPRESSION_ECHGIMAGES ")"
                                                                                                   " VALUES (" +
                                 iditem + ", " +
                                 " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
@@ -1381,9 +1381,9 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                     else
                     {
                         db->StandardSQL("delete from " TBL_ECHANGEIMAGES
-                                                             " where idimpression = " + iditem +
-                                                             " and facture = 1");
-                        QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
+                                                             " where " CP_ID_ECHGIMAGES " = " + iditem +
+                                                             " and " CP_FACTURE_ECHGIMAGES " = 1");
+                        QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (" CP_ID_ECHGIMAGES ", " + sfx + ", " CP_FACTURE_ECHGIMAGES ") "
                                       "VALUES (" +
                                       iditem + ", " +
                                       " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
@@ -1397,7 +1397,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
         QList<QVariantList> listimpr;
         if (docmt != Q_NULLPTR)
         {
-            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and facture is null"
+            listimpr = db->StandardSelectSQL("select " CP_PDF_ECHGIMAGES ", " CP_JPG_ECHGIMAGES ", " CP_COMPRESSION_ECHGIMAGES "  from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + iditem + " and " CP_FACTURE_ECHGIMAGES " is null"
                                                                   , m_ok
                                                                   , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
             if (!m_ok)
@@ -1409,7 +1409,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
         }
         else
         {
-            listimpr = db->StandardSelectSQL("select pdf, jpg  from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = 1"
+            listimpr = db->StandardSelectSQL("select " CP_PDF_ECHGIMAGES ", " CP_JPG_ECHGIMAGES "  from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + iditem + " and facture = 1"
                                                                   , m_ok
                                                                   , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
             if (!m_ok)

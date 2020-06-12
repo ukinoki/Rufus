@@ -993,9 +993,9 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
          * se chargera de supprimer les fichiers du disque
          * et d'en faire une copie dans le dossier factures sans lien
          * On vérifie au préalable que cette facture ne vient pas d'être inscrite dans la table */
-        if (db->StandardSelectSQL("select lienfichier from " TBL_FACTURESASUPPRIMER " where lienfichier = '" + dep->lienfacture() + "'", ok).size()==0)
+        if (db->StandardSelectSQL("select " CP_LIENFICHIER_FACTASUPPR " from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " = '" + dep->lienfacture() + "'", ok).size()==0)
             req = "insert into " TBL_FACTURESASUPPRIMER
-                  " (LienFichier)"
+                  " (" CP_LIENFICHIER_FACTASUPPR ")"
                   " values ('" + dep->lienfacture() + "')";
         db->StandardSQL(req);
     }

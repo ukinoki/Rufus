@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("11-06-2020/1");
+    qApp->setApplicationVersion("12-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -4744,14 +4744,14 @@ void Rufus::SupprimerDocsEtFactures()
     QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
 
     /* Supprimer les documents en attente de suppression*/
-    QString req = "Select filepath from " TBL_DOCSASUPPRIMER;
+    QString req = "Select " CP_FILEPATH_DOCSASUPPR " from " TBL_DOCSASUPPRIMER;
     QList<QVariantList> ListeDocs = db->StandardSelectSQL(req, m_ok);
     for (int i=0; i<ListeDocs.size(); i++)
     {
         QString CheminFichier = NomDirStockageImagerie + ListeDocs.at(i).at(0).toString();
         if (!QFile(CheminFichier).remove())
             UpMessageBox::Watch(this, tr("Fichier introuvable!"), CheminFichier);
-        db->StandardSQL("delete from " TBL_DOCSASUPPRIMER " where filepath = '" + Utils::correctquoteSQL(ListeDocs.at(i).at(0).toString()) + "'");
+        db->StandardSQL("delete from " TBL_DOCSASUPPRIMER " where " CP_FILEPATH_DOCSASUPPR " = '" + Utils::correctquoteSQL(ListeDocs.at(i).at(0).toString()) + "'");
     }
 
     /* Supprimer les factures en attente de suppression - même démarche mais on fait une copie de la facture dans le dossier FACTURESSANSLIEN avant de la supprimer*/
@@ -4762,7 +4762,7 @@ void Rufus::SupprimerDocsEtFactures()
         ShowMessage::I()->SplashMessage(msg, 3000);
         return;
     }
-    req = "select LienFichier from " TBL_FACTURESASUPPRIMER;
+    req = "select " CP_LIENFICHIER_FACTASUPPR " from " TBL_FACTURESASUPPRIMER;
     QList<QVariantList> ListeFactures = db->StandardSelectSQL(req, m_ok);
     for (int i=0; i<ListeFactures.size(); i++)
     {
@@ -4780,7 +4780,7 @@ void Rufus::SupprimerDocsEtFactures()
         /*  on l'efface du dossier de factures*/
         QFile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier).remove();
         /* on détruit l'enregistrement dans la table FacturesASupprimer*/
-        db->StandardSQL("delete from " TBL_FACTURESASUPPRIMER " where LienFichier = '" + Utils::correctquoteSQL(lienfichier) + "'");
+        db->StandardSQL("delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " = '" + Utils::correctquoteSQL(lienfichier) + "'");
     }
 }
 
@@ -7334,9 +7334,9 @@ void Rufus::ExporteActe(Acte *act)
                     }
                     QString sfx = (filesufx == PDF? PDF : JPG);
                     db->StandardSQL("delete from " TBL_ECHANGEIMAGES
-                                    " where idimpression = " + QString::number(docmt->id()) +
-                                    " and facture is null");
-                    QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
+                                    " where " CP_ID_ECHGIMAGES " = " + QString::number(docmt->id()) +
+                                    " and " CP_FACTURE_ECHGIMAGES " is null");
+                    QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (" CP_ID_ECHGIMAGES ", " + sfx + ", " CP_COMPRESSION_ECHGIMAGES ")"
                                   " VALUES (" +
                                     QString::number(docmt->id()) + ", " +
                                     " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(docmt->lienversfichier())) + "'), " +
@@ -7344,7 +7344,7 @@ void Rufus::ExporteActe(Acte *act)
                     db->StandardSQL(req);
 
                     // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
-                    req = "select " + sfx + " from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(docmt->id()) + " and facture is null";
+                    req = "select " + sfx + " from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + QString::number(docmt->id()) + " and facture is null";
                     QVariantList impr = db->getFirstRecordFromStandardSelectSQL(req, m_ok, tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
                     if (!m_ok || impr.size() == 0)
                         return;
