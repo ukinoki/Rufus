@@ -84,3 +84,9 @@ void Banques::SupprimeBanque(Banque *bq)
     add(map_banques, bq);
     return bq;
 }
+
+void Banques::UpdateBanque(Banque *banq, QHash<QString, QVariant> sets)
+{
+    update(banq, CP_NOMABREGE_BANQUES, sets[CP_NOMABREGE_BANQUES]);
+    update(banq, CP_NOMBANQUE_BANQUES, sets[CP_NOMBANQUE_BANQUES]);
+}

@@ -1217,8 +1217,8 @@ void dlg_depenses::ModifierDepense()
                 listsets.insert(CP_DEBITCREDIT_ARCHIVESCPT,     "0");
                 listsets.insert(CP_TYPEOPERATION_ARCHIVESCPT,   Paiement);
                 DataBase:: I()->UpdateTable(TBL_ARCHIVESBANQUE,
-                                                      listsets,
-                                                      " where " CP_IDDEP_ARCHIVESCPT " = " + idDep);
+                                            listsets,
+                                            " where " CP_IDDEP_ARCHIVESCPT " = " + idDep);
             }
             else        // l'écriture n'existait ni dans lignescomptes ni dans archives
                         // => c'était une dépense en espèces

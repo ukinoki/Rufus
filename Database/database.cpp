@@ -1260,7 +1260,8 @@ Compte* DataBase::loadCompteById(int id)
     bool ok;
     QString req = "SELECT " CP_ID_COMPTES ", " CP_IDBANQUE_COMPTES ", " CP_IDUSER_COMPTES ", " CP_IBAN_COMPTES " , " CP_INTITULE_COMPTES ", "
             CP_NOMABREGE_COMPTES ", " CP_SOLDE_COMPTES ", " CP_PARTAGE_COMPTES ", " CP_DESACTIVE_COMPTES
-            " where idCompte = " + QString::number(id);
+            " FROM " TBL_COMPTES
+            " where " CP_ID_COMPTES " = " + QString::number(id);
     QVariantList cptlist = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return cpt;
@@ -1353,8 +1354,8 @@ QJsonObject DataBase::loadLigneCompteDataById(int id)
             CP_MONTANT_LIGNCOMPTES ", "
             CP_DEBITCREDIT_LIGNCOMPTES ", "
             CP_TYPEOPERATION_LIGNCOMPTES ", "
-            CP_CONSOLIDE_LIGNCOMPTES " FROM "
-            TBL_LIGNESCOMPTES
+            CP_CONSOLIDE_LIGNCOMPTES
+            " FROM " TBL_LIGNESCOMPTES
             " where " CP_ID_LIGNCOMPTES " = " + QString::number(id);
     QVariantList lign = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || lign.size()==0)
@@ -1460,8 +1461,8 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
         op = "<";
     QList<Depense*> listdepenses;
     QString req = "select " CP_ID_DEPENSES " from " TBL_DEPENSES " where " CP_DATE_DEPENSES + op + "'" + date.toString("yyyy-MM-dd") +
-            "'and " CP_OBJET_DEPENSES " = '" + Utils::correctquoteSQL(objet) +
-            "'and " CP_MONTANT_DEPENSES " = " + QString::number(montant) +
+            "' and " CP_OBJET_DEPENSES " = '" + Utils::correctquoteSQL(objet) +
+            "' and " CP_MONTANT_DEPENSES " = " + QString::number(montant) +
             " and " CP_IDUSER_DEPENSES " = " + QString::number(iduser) +
             " order by " CP_DATE_DEPENSES;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
@@ -1801,10 +1802,10 @@ QList<PaiementTiers*> DataBase::loadPaiementTiersByUser(User* usr)
                     CP_TYPERECETTE_LIGNRECETTES ", "
                     CP_DATE_REMCHEQ
                     " FROM " TBL_RECETTES
-                "\n LEFT OUTER JOIN (SELECT " CP_DATE_REMCHEQ ", " CP_ID_REMCHEQ " FROM " TBL_REMISECHEQUES ") AS rc\n"
+                " LEFT OUTER JOIN (SELECT " CP_DATE_REMCHEQ ", " CP_ID_REMCHEQ " FROM " TBL_REMISECHEQUES ") AS rc\n"
                 " ON rc." CP_ID_REMCHEQ " = " CP_IDREMISECHQ_LIGNRECETTES "\n"
                 " WHERE " CP_IDUSER_LIGNRECETTES " = " + QString::number(usr->id()) +
-                "\n AND " CP_TIERSPAYANT_LIGNRECETTES " = 'O'\n"
+                " AND " CP_TIERSPAYANT_LIGNRECETTES " = 'O'\n"
                 " ORDER BY " CP_DATE_LIGNRECETTES " DESC, " CP_NOMPAYEUR_LIGNRECETTES;
     QList<QVariantList> paiementslist = StandardSelectSQL(req,ok);
     if(!ok || paiementslist.size()==0)

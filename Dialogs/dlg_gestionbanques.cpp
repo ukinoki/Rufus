@@ -280,8 +280,10 @@ void dlg_gestionbanques::ValideModifBanque()
                 return;
             }
         }
-        ItemsList::update(bqamodifier, CP_NOMABREGE_BANQUES, ui->NomAbregeupLineEdit->text());
-        ItemsList::update(bqamodifier, CP_NOMBANQUE_BANQUES, nombanque);
+        QHash<QString, QVariant> sets = QHash<QString, QVariant>();
+        sets[CP_NOMABREGE_BANQUES] = ui->NomAbregeupLineEdit->text();
+        sets[CP_NOMBANQUE_BANQUES] = nombanque;
+        Datas::I()->banques->UpdateBanque(bqamodifier, sets);
     }
     RemplirTableWidget();
     UpLabel *lbl;

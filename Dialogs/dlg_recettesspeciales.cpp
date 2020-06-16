@@ -799,7 +799,7 @@ void dlg_recettesspeciales::ModifierRecette()
             QString idligne = listlignes.at(0).at(0).toString();
             db->StandardSQL("update " TBL_ARCHIVESBANQUE " set "
                   CP_DATE_ARCHIVESCPT " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  CP_LIBELLE_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"
+                  CP_LIBELLE_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "', "
                   CP_TYPEOPERATION_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
                   " where " CP_ID_ARCHIVESCPT " = " + idligne);
             db->StandardSQL("update " TBL_RECETTESSPECIALES " set "

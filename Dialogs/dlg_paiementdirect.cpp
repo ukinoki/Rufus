@@ -736,10 +736,11 @@ void dlg_paiementdirect::ModifiePaiement()
                     CP_MONNAIE_LIGNRECETTES ", "
                     CP_IDREMISECHQ_LIGNRECETTES ", "
                     CP_CHQENATTENTE_LIGNRECETTES ", "
-                    CP_IDUSERENREGISTREUR_LIGNRECETTES ","
+                    CP_IDUSERENREGISTREUR_LIGNRECETTES ", "
                     CP_TYPERECETTE_LIGNRECETTES ","
-                    " datediff(" CP_DATEENREGISTREMENT_LIGNRECETTES ",NOW()) as Delai"
-                    " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(m_idrecette);
+                    " datediff(" CP_DATEENREGISTREMENT_LIGNRECETTES ", NOW()) as Delai"
+                    " FROM " TBL_RECETTES
+                    " WHERE " CP_ID_LIGNRECETTES " = " + QString::number(m_idrecette);
         QVariantList recettedata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok);
         if (!m_ok || recettedata.size()==0)
             return;
@@ -1555,7 +1556,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                         " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + TextidRecette + ") AS Result\n"
                         " WHERE lig." CP_IDACTE_LIGNEPAIEMENT " = Result." CP_IDACTE_LIGNEPAIEMENT " GROUP BY lig." CP_IDACTE_LIGNEPAIEMENT ") AS calc\n"
                         " WHERE act." CP_ID_ACTES " = lig." CP_IDACTE_LIGNEPAIEMENT "\n"
-                        " AND typ.idActe = act." CP_ID_ACTES "\n"
+                        " AND typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES "\n"
                         " AND calc." CP_IDACTE_LIGNEPAIEMENT " = act." CP_ID_ACTES "\n"
                         " AND lig." CP_IDRECETTE_LIGNEPAIEMENT " = " + TextidRecette + "\n"
                         " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"

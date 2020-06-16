@@ -35,8 +35,9 @@ public:
     void    initListe();
 
     //!> actions sur les enregistrements
-    void       SupprimeBanque(Banque *bq);
-    Banque*    CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque = 0);
+    void        SupprimeBanque(Banque *bq);
+    Banque*     CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque = 0);
+    void        UpdateBanque(Banque *banq, QHash<QString, QVariant> sets);
 };
 
 #endif // CLS_BANQUES_H

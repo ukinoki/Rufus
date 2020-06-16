@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("12-06-2020/1");
+    qApp->setApplicationVersion("15-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2314,7 +2314,7 @@ void Rufus::ExporteDocs()
                         out << listexportpdffact.at(i).at(6).toByteArray() ;
                     }
                 }
-                QString delreq = "delete from  " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
+                QString delreq = "delete from " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 delete document;
@@ -8700,7 +8700,10 @@ void Rufus::Remplir_SalDat()
         }
     }
 
-    // SALLE D'ATTENTE ---------------------------------------------------------------------------------------------------
+/*! ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+    1 - SALLE D'ATTENTE ----------------------------------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
     TableAMettreAJour = ui->SalleDAttenteupTableWidget;
     ui->SalleDAttenteupTableWidget->clearAllRowsExceptHeader();
     QList<PatientEnCours*> listpatsaldat;
@@ -8919,7 +8922,9 @@ void Rufus::Remplir_SalDat()
     }
 
 
-    // BUREAUX ---------------------------------------------------------------------------------------------------
+/*! ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+    2 - BUREAUX ----------------------------------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
     QList<UpTextEdit *> listuptext = ui->scrollArea->findChildren<UpTextEdit*>();
     if (listuptext.size() > 0)
@@ -9016,7 +9021,10 @@ void Rufus::Remplir_SalDat()
     }
 
 
-    // ACCUEIL ----------------------------------------------------------------------------------------------------------
+/*! ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+    3 - ACCUEIL ----------------------------------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
     TableAMettreAJour = ui->AccueilupTableWidget;
     TableAMettreAJour->clearContents();
     QList<PatientEnCours*> listpatvus;
@@ -9097,7 +9105,6 @@ void Rufus::Remplir_SalDat()
         label0->setText(" " + zw);                                                              // Heure acte
         label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
         QString Soignant = superviseurlogin;
-        QString parent ("");
         if (patencours->iduser() != idparent)
             Soignant +=  " / " +  (Datas::I()->users->getById(idparent) != Q_NULLPTR? Datas::I()->users->getById(idparent)->login() : "null");
         label2->setText(" " + superviseurlogin);       // Soignant
@@ -9122,7 +9129,8 @@ void Rufus::Remplir_SalDat()
         {
             listidparents           << idparent;
             oitem0                  = new QStandardItem(QString::number(idparent));
-            oitem1                  = new QStandardItem(parent);
+            User *usr = Datas::I()->users->getById(idparent);
+            oitem1                  = new QStandardItem(usr? usr->login() : "");
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
             m_listeparentsmodel     ->appendRow(listitems);
@@ -9153,7 +9161,7 @@ void Rufus::Remplir_SalDat()
     }
     while (wdg_accueilTab->count()>0)
         wdg_accueilTab->removeTab(0);
-    if (m_listeparentsmodel->rowCount()==0)
+    if (m_listeparentsmodel->rowCount() == 0)
         wdg_accueilTab->setVisible(false);
     else
     {
@@ -9177,7 +9185,9 @@ void Rufus::Remplir_SalDat()
         }
         FiltreAccueil(wdg_accueilTab->currentIndex());
     }
-    // PATIENTS VUS CE JOUR ----------------------------------------------------------------------------------------------------------
+/*! ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+    4 -PATIENTS VUS CE JOUR ----------------------------------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
     if(ui->PatientsVusWidget->isVisible())
         MAJPatientsVus();
 }

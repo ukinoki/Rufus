@@ -1240,7 +1240,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                                                         CP_MONTANT_DEPENSES ", "
                                                         CP_FAMILLEFISCALE_DEPENSES ", "
                                                         CP_IDRECETTE_DEPENSES ", "
-                                                        CP_MODEPAIEMENT_DEPENSES ","
+                                                        CP_MODEPAIEMENT_DEPENSES ", "
                                                         CP_COMPTE_DEPENSES
                                                         ") VALUES (";
                 InsertDeprequete += max;                                                                                        // idDep
@@ -1719,7 +1719,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                             CP_TYPEOPERATION_LIGNCOMPTES ", "
                             CP_CONSOLIDE_LIGNCOMPTES " FROM "
                             TBL_LIGNESCOMPTES
-                            " WHERE idRec = " + QString::number(m_idrecette) + " and LigneDebitCredit = 1";
+                            " WHERE " CP_IDREC_LIGNCOMPTES " = " + QString::number(m_idrecette) + " and LigneDebitCredit = 1";
 
         QVariantList consdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (m_ok && consdata.size() > 0)
@@ -1898,7 +1898,8 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                               CP_MODEPAIEMENT_DEPENSES ", "
                               CP_COMPTE_DEPENSES ", "
                               CP_NUMCHEQUE_DEPENSES ", "
-                              CP_IDFACTURE_DEPENSES " from " TBL_DEPENSES
+                              CP_IDFACTURE_DEPENSES
+                              " from " TBL_DEPENSES
                               " where " CP_ID_DEPENSES " = " + commdata.at(2).toString();
 
                       QVariantList depdata = db->getFirstRecordFromStandardSelectSQL(Depenserequete, m_ok);
@@ -2596,7 +2597,7 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
                     ")\n"
                     " order by " CP_DATE_ACTES " desc, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
 
-        //UpMessageBox::Watch(this,requete);
+        //qDebug() << requete;
 
         QList<QVariantList> actlist = db->StandardSelectSQL(requete,m_ok);
         RemplirTableWidget(ui->ListeupTableWidget, Actes, actlist, true, Qt::Unchecked);
@@ -2661,7 +2662,7 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
                         CP_IDCPTEVIREMENT_LIGNRECETTES ", "
                         CP_BANQUECHEQUE_LIGNRECETTES ", "
                         CP_TIERSPAYANT_LIGNRECETTES ", "
-                        CP_NOMPAYEUR_LIGNRECETTES ","
+                        CP_NOMPAYEUR_LIGNRECETTES ", "
                         CP_COMMISSION_LIGNRECETTES ", "
                         CP_MONNAIE_LIGNRECETTES ", "
                         CP_IDREMISECHQ_LIGNRECETTES ", "
@@ -2675,9 +2676,9 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
                         " ON rc." CP_ID_REMCHEQ " = " CP_IDREMISECHQ_LIGNRECETTES
                         " WHERE " CP_IDUSER_LIGNRECETTES " = " + QString::number(m_useracrediter->id()) +
                         " AND " CP_TIERSPAYANT_LIGNRECETTES " = 'O'"
-                        " ORDER BY" CP_DATE_LIGNRECETTES " DESC, " CP_NOMPAYEUR_LIGNRECETTES;
+                        " ORDER BY " CP_DATE_LIGNRECETTES " DESC, " CP_NOMPAYEUR_LIGNRECETTES;
 
-        //UpMessageBox::Watch(this,requete);
+        //qDebug() << requete;
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,m_ok);
         if (detpmtlist.size() == 0)
         {

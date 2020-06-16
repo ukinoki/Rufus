@@ -575,7 +575,7 @@ void dlg_remisecheques::RemplirRemisesPrecs(int id)
                     CP_MONTANT_LIGNRECETTES ", "
                   " null as recspec"
                   " from " TBL_RECETTES
-                  " where " CP_ID_LIGNRECETTES " = " + QString::number(idRemise);
+                  " where " CP_IDREMISECHQ_LIGNRECETTES " = " + QString::number(idRemise);
     req +=        " union"
                   " select "
                     CP_ID_AUTRESRECETTES ", "
@@ -584,8 +584,9 @@ void dlg_remisecheques::RemplirRemisesPrecs(int id)
                     CP_MONTANT_AUTRESRECETTES ", "
                   " 1 as recspec"
                   " from " TBL_RECETTESSPECIALES
-                  " where " CP_ID_AUTRESRECETTES " = " + QString::number(idRemise) +
+                  " where " CP_IDREMISECHQ_AUTRESRECETTES " = " + QString::number(idRemise) +
                   " order by Tireurcheque";
+    //qDebug() << req;
     bool ok = true;
     QList<QVariantList> listremises = db->StandardSelectSQL(req,ok);
     ui->ListeChequesupTableWidget->setRowCount(listremises.size());
@@ -874,10 +875,10 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 CP_MONTANT_AUTRESRECETTES ", "
                 " 1 as recspec"
                 " FROM " TBL_RECETTESSPECIALES
-                " WHERE IdRemise IS NULL"
-                " AND EnAttente IS NULL"
-                " AND Paiement = 'C'";
-        req +=  " ORDER BY TireurCheque";
+                " WHERE " CP_IDREMISECHQ_AUTRESRECETTES " IS NULL"
+                " AND " CP_CHQENATTENTE_AUTRESRECETTES " IS NULL"
+                " AND " CP_PAIEMENT_AUTRESRECETTES " = 'C'";
+        req +=  " ORDER BY " CP_TIREURCHEQUE_AUTRESRECETTES;
         //qDebug() << req;
         bool ok = true;
         QList<QVariantList> listchequesaremettre = db->StandardSelectSQL(req,ok);
@@ -902,10 +903,10 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 CP_BANQUECHEQUE_AUTRESRECETTES ", "
                 CP_MONTANT_AUTRESRECETTES ", "
                 " 1 as recspec  FROM " TBL_RECETTESSPECIALES
-                " WHERE IdRemise IS NULL"
-                " AND EnAttente IS NOT NULL"
-                " AND Paiement = 'C'"
-                " ORDER BY TireurCheque";
+                " WHERE " CP_IDREMISECHQ_AUTRESRECETTES " IS NULL"
+                " AND " CP_CHQENATTENTE_AUTRESRECETTES " IS NOT NULL"
+                " AND " CP_PAIEMENT_AUTRESRECETTES " = 'C'"
+                " ORDER BY " CP_TIREURCHEQUE_AUTRESRECETTES;
         // qDebug() << req;
         QList<QVariantList> listchequesenattente = db->StandardSelectSQL(req,ok);
 

@@ -156,7 +156,7 @@ void dlg_comptes::AnnulArchive()
     if (!db->StandardSQL("update " TBL_COMPTES
                                " set " CP_SOLDE_COMPTES " = "
                                + QString::number(NouveauSolde,'f',2)
-                               + " where" CP_ID_COMPTES " = " + QString::number(m_idcompte)))
+                               + " where " CP_ID_COMPTES " = " + QString::number(m_idcompte)))
     {
         db->rollback();
         return;
