@@ -650,8 +650,7 @@ void dlg_paiementdirect::ModifiePaiement()
         ModePaiement    = ui->ListeupTableWidget->item(ab,5)->text();
         int idActe      = ui->ListeupTableWidget->item(ab,0)->text().toInt();
         DateActe        = QDate::fromString(ui->ListeupTableWidget->item(ab,1)->text(),tr("dd-MM-yyyy"));
-        requete = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(idActe);
-        db->StandardSQL(requete);
+        db->SupprRecordFromTable(idActe, CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
         m_listidactes.clear();
         m_listidactes << idActe;
         bool ok = true;
@@ -3052,7 +3051,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
             {
                 if (QLocale().toDouble(ui->DetailupTableWidget->item(i,5)->text()) > 0)
                 {
-                    if (!db->SupprRecordFromTable(ui->DetailupTableWidget->item(i,0)->text().toInt(), "idActe", TBL_TYPEPAIEMENTACTES))
+                    if (!db->SupprRecordFromTable(ui->DetailupTableWidget->item(i,0)->text().toInt(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES))
                     {
                         db->rollback();
                         return Impossible;

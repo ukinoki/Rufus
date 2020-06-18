@@ -249,9 +249,9 @@ void dlg_recettesspeciales::EnregistreRecette()
     bool OK = true;
     QList<QVariantList> listrec =
             db->StandardSelectSQL("select " CP_DATE_AUTRESRECETTES " from " TBL_RECETTESSPECIALES
-                                  " where " CP_DATE_AUTRESRECETTES " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-                                  "'and " CP_LIBELLE_AUTRESRECETTES " = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
-                                  "'and " CP_MONTANT_AUTRESRECETTES " = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
+                                  " where " CP_DATE_AUTRESRECETTES " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "'"
+                                  " and " CP_LIBELLE_AUTRESRECETTES " = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text())  + "'"
+                                  " and " CP_MONTANT_AUTRESRECETTES " = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
                                   " and " CP_IDUSER_AUTRESRECETTES " = "    + QString::number(currentuser()->id()),OK);
     if (listrec.size() > 0)
     {
@@ -977,9 +977,10 @@ void dlg_recettesspeciales::RemplitBigTable()
     UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
     wdg_bigtable->disconnect();
     wdg_bigtable->clearContents();
-    QString Recrequete = "SELECT idRecette, idUser, year(DateRecette) as Annee, DateRecette, Libelle, Montant,"
-                         "TypeRecette, Nooperation, Monnaie, Paiement, CompteVirement, BanqueCheque FROM " TBL_RECETTESSPECIALES
-                         " WHERE idUser = " + QString::number(currentuser()->id());
+    QString Recrequete = "SELECT " CP_ID_AUTRESRECETTES ", " CP_IDUSER_AUTRESRECETTES ", year(" CP_DATE_AUTRESRECETTES ") as Annee, " CP_DATE_AUTRESRECETTES ", " CP_LIBELLE_AUTRESRECETTES ", " CP_MONTANT_AUTRESRECETTES ", "
+                         CP_TYPERECETTE_AUTRESRECETTES ", " CP_NOOPERATION_AUTRESRECETTES ", " CP_MONNAIE_AUTRESRECETTES ", " CP_PAIEMENT_AUTRESRECETTES ", " CP_IDCPTEVIREMENT_AUTRESRECETTES ", " CP_BANQUECHEQUE_AUTRESRECETTES
+                         " FROM " TBL_RECETTESSPECIALES
+                         " WHERE " CP_IDUSER_AUTRESRECETTES " = " + QString::number(currentuser()->id());
     if (ui->AnneecomboBox->currentText() != "")
         Recrequete += " AND year(DateRecette) = " + ui->AnneecomboBox->currentText();
     Recrequete += " ORDER BY DateRecette, Libelle";

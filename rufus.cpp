@@ -20,10 +20,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
-    Datas::I();
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-06-2020/1");
+    qApp->setApplicationVersion("18-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -4820,7 +4819,8 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 {
     QTabWidget* tabw = new QTabWidget();
     tabw->setIconSize(QSize(25,25));
-    // I - Les messages reçus
+
+    //! I - Les messages reçus ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     Datas::I()->messages->initListeMsgsrecusByIdUser(currentuser()->id());
     QList<Message*> listmessagesrecus = Datas::I()->messages->messagesrecus();
@@ -4978,7 +4978,8 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         lay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
     }
 
-    // I - Les messages emis
+    //! II - Les messages emis ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     Datas::I()->messages->initListeMsgsenvoyesByIdUser(currentuser()->id());
     QList<Message*> listmessagesenvoyes = Datas::I()->messages->messagesenvoyes();
     if (listmessagesenvoyes.size() >0)
@@ -7344,7 +7345,7 @@ void Rufus::ExporteActe(Acte *act)
                     db->StandardSQL(req);
 
                     // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
-                    req = "select " + sfx + " from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + QString::number(docmt->id()) + " and facture is null";
+                    req = "select " + sfx + " from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + QString::number(docmt->id()) + " and " CP_FACTURE_ECHGIMAGES " is null";
                     QVariantList impr = db->getFirstRecordFromStandardSelectSQL(req, m_ok, tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
                     if (!m_ok || impr.size() == 0)
                         return;
@@ -9427,8 +9428,7 @@ void Rufus::SupprimerActe(Acte *act)
 
         // On actualise la table des lignes de paiement et la table des Types de paiement
         m_lignespaiements->SupprimeActeLignesPaiements(act);
-        req = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(act->id());
-        db->StandardSQL(req);
+        db->SupprRecordFromTable(act->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
     }
 
     // on supprime l'acte -------------------------------------------------------------------------------------------------
@@ -9711,8 +9711,8 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             }
             else
             {
-                db->StandardSQL("DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE " CP_IDACTE_TYPEPAIEMENTACTES " = " + QString::number(currentacte()->id()));
-                AfficheActeCompta(currentacte());
+                db->SupprRecordFromTable(currentacte()->id(), CP_IDACTE_TYPEPAIEMENTACTES, TBL_TYPEPAIEMENTACTES);
+               AfficheActeCompta(currentacte());
             }
         }
         else

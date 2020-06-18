@@ -175,6 +175,7 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DONNEES_OPHTA_PATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_BIOMETRIES);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_TONOMETRIE);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_PACHYMETRIE);
 
     //!. Suppression du patient
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_PATIENTS);

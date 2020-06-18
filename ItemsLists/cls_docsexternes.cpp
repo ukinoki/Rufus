@@ -106,10 +106,11 @@ void DocsExternes::actualise()
 
 void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
 {
-    if (doc == Q_NULLPTR)
-        return;
-    DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where " CP_ID_ECHGIMAGES " = " + QString::number(doc->id()));
-    Supprime(map_docsexternes, doc);
+    if (doc)
+    {
+        DataBase::I()->SupprRecordFromTable(doc->id(), CP_ID_ECHGIMAGES, TBL_ECHANGEIMAGES);
+        Supprime(map_docsexternes, doc);
+    }
 }
 
 DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)

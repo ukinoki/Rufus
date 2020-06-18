@@ -543,19 +543,35 @@ void DataBase::setdirbkup(QString adress)
 */
 void DataBase::initDonnesOphtaPatient(int idpat)
 {
-    if (m_donneesophtapatient == Q_NULLPTR)
+    if (!m_donneesophtapatient)
         m_donneesophtapatient = new DonneesOphtaPatient();
+    else
+        m_donneesophtapatient->cleandatas();
+
     QJsonObject data{};
-    QString req = "select " CP_ID_DATAOPHTA ", " CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", "
-                            CP_SPHEREOG_DATAOPHTA ", " CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_ECARTIP_DATAOPHTA
-                            " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " and " CP_MESURE_DATAOPHTA " = 'A' order by idmesure asc" ;
+
+    //! Rappel des données de l'autoref ----------------------------------------
+    QString req = "select "
+                    CP_ID_DATAOPHTA ", "
+                    CP_SPHEREOD_DATAOPHTA ", "
+                    CP_CYLINDREOD_DATAOPHTA ", "
+                    CP_AXECYLINDREOD_DATAOPHTA ", "
+                    CP_DATEREFRACTIONOD_DATAOPHTA ", "
+                    CP_SPHEREOG_DATAOPHTA ", "
+                    CP_CYLINDREOG_DATAOPHTA ", "
+                    CP_AXECYLINDREOG_DATAOPHTA ", "
+                    CP_DATEREFRACTIONOG_DATAOPHTA ", "
+                    CP_ECARTIP_DATAOPHTA
+                  " from " TBL_DONNEES_OPHTA_PATIENTS
+                  " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) +
+                  " and " CP_MESURE_DATAOPHTA " = 'A'"
+                  " order by " CP_ID_DATAOPHTA " desc" ;
     //qDebug() << req;
     QVariantList ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
     if(ok && ophtadata.size() > 0)
     {
         data[CP_ID_DATAOPHTA "A"]               = ophtadata.at(0).toInt();
         data[CP_IDPATIENT_DATAOPHTA]            = idpat;
-
         data[CP_SPHEREOD_DATAOPHTA "A"]         = ophtadata.at(1).toDouble();
         data[CP_CYLINDREOD_DATAOPHTA "A"]       = ophtadata.at(2).toDouble();
         data[CP_AXECYLINDREOD_DATAOPHTA "A"]    = ophtadata.at(3).toInt();
@@ -566,17 +582,29 @@ void DataBase::initDonnesOphtaPatient(int idpat)
         data[CP_DATEREFRACTIONOG_DATAOPHTA "A"] = ophtadata.at(8).toDate().toString("yyyy-MM-dd");
         data[CP_ECARTIP_DATAOPHTA "A"]          = ophtadata.at(9).toInt();
     }
-    else
-    {
-        m_donneesophtapatient->cleandatas();
+    else if (!ok)
         return;
-    }
 
-    req = "select " CP_K1OD_DATAOPHTA  ", " CP_K2OD_DATAOPHTA ", " CP_AXEKOD_DATAOPHTA ", " CP_K1OG_DATAOPHTA ", " CP_K2OG_DATAOPHTA ", "
-                    CP_AXEKOG_DATAOPHTA ", " CP_MODEMESUREKERATO_DATAOPHTA ", " CP_DATEKERATO_DATAOPHTA ", " CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", "
-                    CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA
-                    " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " order by idmesure asc" ;
-    ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
+    //! Rappel des de la keratométrie ----------------------------------------
+    req = "select "
+            CP_K1OD_DATAOPHTA  ", "
+            CP_K2OD_DATAOPHTA ", "
+            CP_AXEKOD_DATAOPHTA ", "
+            CP_K1OG_DATAOPHTA ", "
+            CP_K2OG_DATAOPHTA ", "
+            CP_AXEKOG_DATAOPHTA ", "
+            CP_MODEMESUREKERATO_DATAOPHTA ", "
+            CP_DATEKERATO_DATAOPHTA ", "
+            CP_DIOTRIESK1OD_DATAOPHTA ", "
+            CP_DIOTRIESK2OD_DATAOPHTA ", "
+            CP_DIOTRIESK1OG_DATAOPHTA ", "
+            CP_DIOTRIESK2OG_DATAOPHTA
+          " from " TBL_DONNEES_OPHTA_PATIENTS
+          " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) +
+          " and (" CP_K1OG_DATAOPHTA " is not null or " CP_K1OD_DATAOPHTA " is not null)"
+          " order by " CP_ID_DATAOPHTA " desc" ;
+    //qDebug() << req;
+    ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données ophtalmologiques du patient"));
     if(ok && ophtadata.size() > 0)
     {
         data[CP_K1OD_DATAOPHTA]                 = ophtadata.at(0).toDouble();
@@ -593,11 +621,29 @@ void DataBase::initDonnesOphtaPatient(int idpat)
         data[CP_DIOTRIESK2OG_DATAOPHTA]         = ophtadata.at(11).toDouble();
     }
 
-    req = "select " CP_ID_DATAOPHTA ", " CP_DISTANCE_DATAOPHTA ", " CP_SPHEREOD_DATAOPHTA ", " CP_CYLINDREOD_DATAOPHTA ", " CP_AXECYLINDREOD_DATAOPHTA ", "
-                    CP_AVLOD_DATAOPHTA ", " CP_ADDVPOD_DATAOPHTA ", " CP_AVPOD_DATAOPHTA ", " CP_DATEREFRACTIONOD_DATAOPHTA ", " CP_SPHEREOG_DATAOPHTA ", "
-                    CP_CYLINDREOG_DATAOPHTA ", " CP_AXECYLINDREOG_DATAOPHTA ", " CP_AVLOG_DATAOPHTA ", " CP_ADDVPOG_DATAOPHTA ", " CP_AVPOG_DATAOPHTA ", "
-                    CP_DATEREFRACTIONOG_DATAOPHTA ", " CP_ECARTIP_DATAOPHTA
-                    " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) + " and " CP_MESURE_DATAOPHTA " = 'R' order by idmesure asc" ;
+    //! Rappel des données de la refraction subjective ----------------------------------------
+    req = "select "
+            CP_ID_DATAOPHTA ", "
+            CP_DISTANCE_DATAOPHTA ", "
+            CP_SPHEREOD_DATAOPHTA ", "
+            CP_CYLINDREOD_DATAOPHTA ", "
+            CP_AXECYLINDREOD_DATAOPHTA ", "
+            CP_AVLOD_DATAOPHTA ", "
+            CP_ADDVPOD_DATAOPHTA ", "
+            CP_AVPOD_DATAOPHTA ", "
+            CP_DATEREFRACTIONOD_DATAOPHTA ", "
+            CP_SPHEREOG_DATAOPHTA ", "
+            CP_CYLINDREOG_DATAOPHTA ", "
+            CP_AXECYLINDREOG_DATAOPHTA ", "
+            CP_AVLOG_DATAOPHTA ", "
+            CP_ADDVPOG_DATAOPHTA ", "
+            CP_AVPOG_DATAOPHTA ", "
+            CP_DATEREFRACTIONOG_DATAOPHTA ", "
+            CP_ECARTIP_DATAOPHTA
+          " from " TBL_DONNEES_OPHTA_PATIENTS
+          " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idpat) +
+          " and " CP_MESURE_DATAOPHTA " = 'R' "
+          " order by " CP_ID_DATAOPHTA " desc" ;
     ophtadata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données opthalmologiques du patient"));
     if(ok && ophtadata.size() > 0)
     {
@@ -3212,7 +3258,7 @@ QJsonObject DataBase::loadMessageData(QVariantList msgdata)         //! attribue
     data[CP_IDPATIENT_MSG]      = msgdata.at(3).toInt();
     data[CP_TACHE_MSG]          = msgdata.at(4).toInt() == 1;
     data[CP_DATELIMITE_MSG]     = msgdata.at(5).toDate().toString("yyyy-MM-dd");
-    data[CP_DATECREATION_MSG]   = QDateTime(msgdata.at(5).toDate(), msgdata.at(5).toTime()).toMSecsSinceEpoch();
+    data[CP_DATECREATION_MSG]   = QDateTime(msgdata.at(6).toDate(), msgdata.at(5).toTime()).toMSecsSinceEpoch();
     data[CP_URGENT_MSG]         = msgdata.at(7).toInt() == 1;
     data[CP_ENREPONSEA_MSG]     = msgdata.at(8).toInt();
     data[CP_ASUPPRIMER_MSG]     = msgdata.at(9).toInt() == 1;
@@ -3229,14 +3275,27 @@ QList<Message*> DataBase::loadMessagesRecusByIdUser(int id)                     
 {
     QList<Message*> list = QList<Message*> ();
     QString req =
-        "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
-            CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG ", "
-            CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG " from "
-        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
-        " where \n"
-        CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(id) + "\n"
+        "select Distinct"
+            " mess." CP_ID_MSG ", "
+            CP_IDEMETTEUR_MSG ", "
+            CP_TEXT_MSG ", "
+            CP_IDPATIENT_MSG ", "
+            CP_TACHE_MSG ", "
+            CP_DATELIMITE_MSG ", "
+            CP_DATECREATION_MSG ", "
+            CP_URGENT_MSG ", "
+            CP_ENREPONSEA_MSG ", "
+            CP_ASUPPRIMER_MSG ", "
+            CP_LU_JOINTURESMSG ", "
+            CP_FAIT_JOINTURESMSG ", "
+            CP_ID_JOINTURESMSG ", "
+            CP_IDDESTINATAIRE_JOINTURESMSG
+        " from " TBL_MESSAGES " mess"
+        " left outer join " TBL_MESSAGESJOINTURES
+        " joint on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG
+        " where " CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(id) +
         " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
-    //proc->Edit(req);
+    //qDebug() << req;
     QList<QVariantList> msglist = StandardSelectSQL(req, ok);
     if(!ok || msglist.size()==0)
         return list;
@@ -3254,15 +3313,28 @@ QList<Message*> DataBase::loadMessagesEnvoyesByIdUser(int id)                   
 {
     QList<Message*> list = QList<Message*> ();
     QString req =
-        "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
-                CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG ", "
-                CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG " from "
-        TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint \n"
-        " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
-        " where " CP_IDEMETTEUR_MSG " = " + QString::number(id) + "\n"
-        " and " CP_ASUPPRIMER_MSG " is null\n"
+        "select Distinct"
+            " mess." CP_ID_MSG ", "
+            CP_IDEMETTEUR_MSG ", "
+            CP_TEXT_MSG ", "
+            CP_IDPATIENT_MSG ", "
+            CP_TACHE_MSG ", "
+            CP_DATELIMITE_MSG ", "
+            CP_DATECREATION_MSG ", "
+            CP_URGENT_MSG ", "
+            CP_ENREPONSEA_MSG ", "
+            CP_ASUPPRIMER_MSG ", "
+            CP_LU_JOINTURESMSG ", "
+            CP_FAIT_JOINTURESMSG ", "
+            CP_ID_JOINTURESMSG ", "
+            CP_IDDESTINATAIRE_JOINTURESMSG
+        " from " TBL_MESSAGES " mess"
+        " left outer join " TBL_MESSAGESJOINTURES " joint"
+        " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG
+        " where " CP_IDEMETTEUR_MSG " = " + QString::number(id) +
+        " and " CP_ASUPPRIMER_MSG " is null"
         " order by " CP_URGENT_MSG " desc, " CP_DATECREATION_MSG " desc";
-    //proc->Edit(req);
+    //qDebug() << req;
     QList<QVariantList> msglist = StandardSelectSQL(req, ok);
     if(!ok || msglist.size()==0)
         return list;
@@ -3280,17 +3352,29 @@ QList<Message*> DataBase::loadAllMessagesByIdUser(int id)                     //
 {
     QList<Message*> list = QList<Message*> ();
     QString req =
-            "select Distinct mess." CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
-                    CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG ", "
-                    CP_LU_JOINTURESMSG ", " CP_FAIT_JOINTURESMSG ", " CP_ID_JOINTURESMSG ", " CP_IDDESTINATAIRE_JOINTURESMSG " from "
-            TBL_MESSAGES " mess left outer join " TBL_MESSAGESJOINTURES " joint"
-            " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG " \n"
-            " where \n"
-            CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(id) + "\n"
+            "select Distinct"
+            " mess." CP_ID_MSG ", "
+            CP_IDEMETTEUR_MSG ", "
+            CP_TEXT_MSG ", "
+            CP_IDPATIENT_MSG ", "
+            CP_TACHE_MSG ", "
+            CP_DATELIMITE_MSG ", "
+            CP_DATECREATION_MSG ", "
+            CP_URGENT_MSG ", "
+            CP_ENREPONSEA_MSG ", "
+            CP_ASUPPRIMER_MSG ", "
+            CP_LU_JOINTURESMSG ", "
+            CP_FAIT_JOINTURESMSG ", "
+            CP_ID_JOINTURESMSG ", "
+            CP_IDDESTINATAIRE_JOINTURESMSG
+            " from " TBL_MESSAGES " mess"
+            " left outer join " TBL_MESSAGESJOINTURES " joint"
+            " on mess." CP_ID_MSG " = joint." CP_IDMSG_JOINTURESMSG
+            " where " CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(id) +
             " or (" CP_IDEMETTEUR_MSG " = " + QString::number(id) +
             " and " CP_ASUPPRIMER_MSG " is null)"
             " order by " CP_DATECREATION_MSG;
-    //proc->Edit(req);
+    //qDebug() << req;
     QList<QVariantList> msglist = StandardSelectSQL(req, ok);
     if(!ok || msglist.size()==0)
         return list;
@@ -3308,10 +3392,20 @@ Message* DataBase::loadMessageById(int idmessage)                     //! charge
 {
     Message *msg = Q_NULLPTR;
     QString req =
-        "select " CP_ID_MSG ", " CP_IDEMETTEUR_MSG ", " CP_TEXT_MSG ", " CP_IDPATIENT_MSG ", " CP_TACHE_MSG ", "
-                CP_DATELIMITE_MSG ", " CP_DATECREATION_MSG ", " CP_URGENT_MSG ", " CP_ENREPONSEA_MSG ", " CP_ASUPPRIMER_MSG " from "
-        TBL_MESSAGES " where " CP_ID_MSG " = " + QString::number(idmessage);
-    //proc->Edit(req);
+        "select "
+            CP_ID_MSG ", "
+            CP_IDEMETTEUR_MSG ", "
+            CP_TEXT_MSG ", "
+            CP_IDPATIENT_MSG ", "
+            CP_TACHE_MSG ", "
+            CP_DATELIMITE_MSG ", "
+            CP_DATECREATION_MSG ", "
+            CP_URGENT_MSG ", "
+            CP_ENREPONSEA_MSG ", "
+            CP_ASUPPRIMER_MSG
+            " from " TBL_MESSAGES
+            " where " CP_ID_MSG " = " + QString::number(idmessage);
+    //qDebug() << req;
     QVariantList msgdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || msgdata.size()==0)
         return msg;

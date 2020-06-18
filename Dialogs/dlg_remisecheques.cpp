@@ -505,7 +505,7 @@ void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)
         //mise à jour de la table lignesrecettes
         QString UpdateidRec;
         if (RecSpec == "1")
-            UpdateidRec = "update " TBL_RECETTESSPECIALES " set " CP_CHQENATTENTE_AUTRESRECETTES " = null where i" CP_ID_AUTRESRECETTES " = " + idRec;
+            UpdateidRec = "update " TBL_RECETTESSPECIALES " set " CP_CHQENATTENTE_AUTRESRECETTES " = null where " CP_ID_AUTRESRECETTES " = " + idRec;
         else
             UpdateidRec = "update " TBL_RECETTES " set " CP_CHQENATTENTE_LIGNRECETTES " = null where " CP_ID_LIGNRECETTES " = " + idRec;
         db->StandardSQL(UpdateidRec, "void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)");

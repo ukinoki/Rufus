@@ -1784,7 +1784,9 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        }
        listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
-   db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
+   if (ui->EIPLabel->text().toInt() > 0)
+       listbinds[CP_PD_REFRACTIONS] = ui->EIPLabel->text();
+   db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur d'écriture dans ") + TBL_DONNEES_OPHTA_PATIENTS);
    Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }
 
@@ -1959,6 +1961,7 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
             ui->RyserSpinBox->setValue(         ref->ryserOG());
         }
     } // fin Oeil gauche coche
+    ui->EIPLabel->setText(ref->ecartIP() > 0? QString::number(ref->ecartIP()) : "null");
 }
 
 
@@ -3852,6 +3855,8 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVLOG = null, AddVPOG = null, AVPOG = null";
         UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
+    if (ui->EIPLabel->text().toInt() > 0)
+        UpdateDOPrequete += ", PD = '" + ui->EIPLabel->text() + "'";
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
     //proc->Edit(UpdateDOPrequete);
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
@@ -4046,6 +4051,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     default:
         break;
     }
-    MesureRefracteur = Q_NULLPTR;
+    ui->EIPLabel->setText(QString::number(MesureRefracteur->ecartIP()));
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
+    MesureRefracteur = Q_NULLPTR;
 }

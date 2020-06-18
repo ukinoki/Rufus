@@ -4883,6 +4883,7 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
         {
             idx                         = Mesure.indexOf("@RT");
             QString SectionRefracteur   = Mesure.right(Mesure.length()-idx);
+            //qDebug() << "Procedures::LectureDonneesRefracteur(QString Mesure) - SectionRefracteur = " << SectionRefracteur;
 
             // les données subjectives --------------------------------------------------------------------------------------------------------------
             if (SectionRefracteur.contains("fR") || SectionRefracteur.contains("fL"))
@@ -6523,7 +6524,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
     {
         Datas::I()->mesuretono->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_TONOMETRIE);
-        QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  ("
+        QString req = "INSERT INTO " TBL_TONOMETRIE " (" CP_IDPAT_TONO ", " CP_TOD_TONO ", " CP_TOG_TONO ", " CP_TODATE_TONO ", " CP_TOTYPE_TONO ") VALUES  ("
                 + QString::number(Datas::I()->mesuretono->idpatient()) + ","
                 + QString::number(Datas::I()->mesuretono->TOD()) + ","
                 + QString::number(Datas::I()->mesuretono->TOG())
@@ -6537,7 +6538,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
     {
         Datas::I()->mesurepachy->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_PACHYMETRIE);
-        QString req = "INSERT INTO " TBL_PACHYMETRIE " (idPat, pachyOD, pachyOG, pachyDate, pachyType) VALUES  ("
+        QString req = "INSERT INTO " TBL_PACHYMETRIE " (" CP_IDPAT_PACHY ", " CP_PACHYOD_PACHY ", " CP_PACHYOG_PACHY ", " CP_PACHYDATE_PACHY ", " CP_PACHYTYPE_PACHY ") VALUES  ("
                 + QString::number(Datas::I()->mesurepachy->idpatient()) + ","
                 + QString::number(Datas::I()->mesurepachy->pachyOD()) + ","
                 + QString::number(Datas::I()->mesurepachy->pachyOG())
