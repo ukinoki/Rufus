@@ -1784,7 +1784,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        }
        listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
-   if (ui->EIPLabel->text().toInt() > 0)
+   if (ui->EIPLabel->text().toInt() > 0 && ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked())
        listbinds[CP_PD_REFRACTIONS] = ui->EIPLabel->text();
    db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur d'écriture dans ") + TBL_DONNEES_OPHTA_PATIENTS);
    Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
@@ -1961,7 +1961,7 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
             ui->RyserSpinBox->setValue(         ref->ryserOG());
         }
     } // fin Oeil gauche coche
-    ui->EIPLabel->setText(ref->ecartIP() > 0? QString::number(ref->ecartIP()) : "null");
+    ui->EIPLabel->setText(ref->ecartIP() > 0? QString::number(ref->ecartIP()) : tr("inconnu"));
 }
 
 
@@ -1993,21 +1993,24 @@ void dlg_refraction::MajDonneesOphtaPatient()
 //---------------------------------------------------------------------------------
 void dlg_refraction::MasquerObjetsOeilDecoche()
 {
-if (!ui->ODCheckBox->isChecked())
-    Afficher_Oeil_Droit(false);
-if (!ui->OGCheckBox->isChecked())
-    Afficher_Oeil_Gauche(false);
-if (ui->DepoliODCheckBox->isChecked())
-    ui->RyserODCheckBox->setVisible(false);
-else
-    {ui->RyserODCheckBox->setVisible(true);
-    ui->PlanODCheckBox->setVisible(true);
+    if (!ui->ODCheckBox->isChecked())
+        Afficher_Oeil_Droit(false);
+    if (!ui->OGCheckBox->isChecked())
+        Afficher_Oeil_Gauche(false);
+    ui->EIPtitreLabel   ->setVisible(ui->OGCheckBox->isChecked() && ui->ODCheckBox->isChecked());
+    ui->EIPLabel        ->setVisible(ui->OGCheckBox->isChecked() && ui->ODCheckBox->isChecked());
+    if (ui->DepoliODCheckBox->isChecked())
+        ui->RyserODCheckBox->setVisible(false);
+    else
+    {
+        ui->RyserODCheckBox->setVisible(true);
+        ui->PlanODCheckBox->setVisible(true);
     }
-if (ui->DepoliOGCheckBox->isChecked())
-    ui->RyserOGCheckBox->setVisible(false);
-else
+    if (ui->DepoliOGCheckBox->isChecked())
+        ui->RyserOGCheckBox->setVisible(false);
+    else
     {ui->RyserOGCheckBox->setVisible(true);
-    ui->PlanOGCheckBox->setVisible(true);
+        ui->PlanOGCheckBox->setVisible(true);
     }
 }
 
@@ -3855,7 +3858,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVLOG = null, AddVPOG = null, AVPOG = null";
         UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
-    if (ui->EIPLabel->text().toInt() > 0)
+    if (ui->EIPLabel->text().toInt() > 0 && ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked())
         UpdateDOPrequete += ", PD = '" + ui->EIPLabel->text() + "'";
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
     //proc->Edit(UpdateDOPrequete);
@@ -3918,6 +3921,7 @@ void dlg_refraction::AfficheMesureFronto()
     ui->CylindreOG->setValuewithPrefix(Datas::I()->mesurefronto->cylindreOG());
     ui->AxeCylindreOG   ->setValue(Datas::I()->mesurefronto->axecylindreOG());
     ui->AddVPOG         ->setValue(Datas::I()->mesurefronto->addVPOG());
+    ui->EIPLabel->setText(Datas::I()->mesurefronto->ecartIP() > 0? QString::number(Datas::I()->mesurefronto->ecartIP()) : tr("inconnu"));
 }
 
 //-----------------------------------------------------------------------------------------
@@ -3940,6 +3944,7 @@ void dlg_refraction::AfficheMesureAutoref()
     ui->SphereOG->setValuewithPrefix(Datas::I()->mesureautoref->sphereOG());
     ui->CylindreOG->setValuewithPrefix(Datas::I()->mesureautoref->cylindreOG());
     ui->AxeCylindreOG       ->setValue(Datas::I()->mesureautoref->axecylindreOG());
+    ui->EIPLabel->setText(Datas::I()->mesureautoref->ecartIP() > 0? QString::number(Datas::I()->mesureautoref->ecartIP()) : tr("inconnu"));
     AfficheKerato();
 }
 
@@ -4051,7 +4056,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     default:
         break;
     }
-    ui->EIPLabel->setText(QString::number(MesureRefracteur->ecartIP()));
+    ui->EIPLabel->setText(MesureRefracteur->ecartIP() > 0? QString::number(MesureRefracteur->ecartIP()) : tr("inconnu"));
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
     MesureRefracteur = Q_NULLPTR;
 }

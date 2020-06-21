@@ -1201,7 +1201,8 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             //2. Mise à hour LignesComptes ======================================================================================================================================================
             if (ui->VirementradioButton->isChecked())
             {
-                QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES "("
+                QString InsertComptrequete = "INSERT INTO " TBL_LIGNESCOMPTES
+                        "("
                         CP_ID_LIGNCOMPTES ", "
                         CP_IDCOMPTE_LIGNCOMPTES ", "
                         CP_IDREC_LIGNCOMPTES ", "
@@ -1209,10 +1210,16 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                         CP_LIBELLE_LIGNCOMPTES ", "
                         CP_MONTANT_LIGNCOMPTES ", "
                         CP_DEBITCREDIT_LIGNCOMPTES ", "
-                        CP_TYPEOPERATION_LIGNCOMPTES ") VALUES ("
-                        + QString::number(db->getIdMaxTableComptesTableArchives()) + "," + idCompte + "," + QString::number(m_idrecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
-                        + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TiersupComboBox->currentText()) + "',"
-                        + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
+                        CP_TYPEOPERATION_LIGNCOMPTES
+                        ") VALUES ("
+                        + QString::number(db->getIdMaxTableComptesTableArchives()) + ", "
+                        + idCompte + ", "
+                        + QString::number(m_idrecette) + ", "
+                        + "'" + ui->dateEdit->date().toString("yyyy-MM-dd") + "', "
+                        + "'Virement créditeur " + Utils::correctquoteSQL(ui->TiersupComboBox->currentText()) + "', "
+                        + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ", "
+                        + "1, "
+                        "'Virement créditeur')";
                 if (!db->StandardSQL(InsertComptrequete))
                 {
                     db->rollback();
@@ -1222,17 +1229,17 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             //3. Mise à hour Depenses  et LignesComptes s'il y a eu une commission sur le virement ==============================================================================================
             if (QLocale().toDouble(ui->CommissionlineEdit->text()) > 0)
             {
-                QString SelectMaxrequete = "select max(" CP_ID_DEPENSES ") + 1 from " TBL_DEPENSES;
-                QVariantList maxdepdata = db->getFirstRecordFromStandardSelectSQL(SelectMaxrequete, m_ok);
-                if (!m_ok || maxdepdata.size()==0)
+                int maxid = db->selectMaxFromTable(CP_ID_DEPENSES, TBL_DEPENSES, m_ok);
+                if (maxid == -1)
                 {
                     db->rollback();
                     return Impossible;
                 }
-                QString max = maxdepdata.at(0).toString();
+                QString max = QString::number(maxid+1);
 
                 QString InsertDeprequete =
-                        "INSERT INTO " TBL_DEPENSES "(" CP_ID_DEPENSES ", "
+                        "INSERT INTO " TBL_DEPENSES "("
+                                                        CP_ID_DEPENSES ", "
                                                         CP_IDUSER_DEPENSES ", "
                                                         CP_DATE_DEPENSES ", "
                                                         CP_REFFISCALE_DEPENSES ", "
@@ -1242,7 +1249,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                                                         CP_IDRECETTE_DEPENSES ", "
                                                         CP_MODEPAIEMENT_DEPENSES ", "
                                                         CP_COMPTE_DEPENSES
-                                                        ") VALUES (";
+                                                     ") VALUES (";
                 InsertDeprequete += max;                                                                                        // idDep
                 InsertDeprequete +=  "," + QString::number(m_useracrediter->id());                                              // idUser
                 InsertDeprequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                       // DateDep
@@ -1429,7 +1436,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
             if (!items.isEmpty())
             {
                 /* les lignes suivantes sont utiles pour contourner un bug de Qt
-                Si on fait un removeRow et qu il y a des cellwidget dans le row,
+                Si on fait un removeRow et qu'il y a des cellwidget dans le row,
                 et que le nombre de lignes du tablewidget est supérieur à ce que peut afficher le scrollarea
                 et que la dernière ligne est visible dans le scrollarea
                 ils ne disparaissent pas et passent dans le row suivant
@@ -1532,22 +1539,34 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         }
         QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
 
-        requete =   "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", "
-                                  CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_PAYE_LIGNEPAIEMENT ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ", "
-                                  "TotalPaye\n"
-                    " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig, " TBL_TYPEPAIEMENTACTES " typ,\n"
-                    " (SELECT lig." CP_IDACTE_LIGNEPAIEMENT ", SUM(lig." CP_PAYE_LIGNEPAIEMENT ") as TotalPaye FROM " TBL_LIGNESPAIEMENTS " lig,\n"
-                    " (SELECT " CP_IDACTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS
-                    " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + TextidRecette + ") AS Result\n"
-                    " WHERE lig." CP_IDACTE_LIGNEPAIEMENT " = Result." CP_IDACTE_LIGNEPAIEMENT " GROUP BY lig." CP_IDACTE_LIGNEPAIEMENT ") AS calc\n"
-                    " WHERE act." CP_ID_ACTES " = lig." CP_IDACTE_LIGNEPAIEMENT "\n"
-                    " AND typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES "\n"
-                    " AND calc.idActe = act." CP_ID_ACTES "\n"
-                    " AND lig." CP_IDRECETTE_LIGNEPAIEMENT " = " + TextidRecette + "\n"
-                    " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS "\n"
+        requete = "SELECT "
+                    " act." CP_ID_ACTES ", "
+                    CP_DATE_ACTES ", "
+                    CP_NOM_PATIENTS ", "
+                    CP_PRENOM_PATIENTS ", "
+                    CP_COTATION_ACTES ", "
+                    CP_MONTANT_ACTES ", "
+                    CP_MONNAIE_ACTES ", "
+                    CP_PAYE_LIGNEPAIEMENT ", "
+                    CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", "
+                    CP_TIERS_TYPEPAIEMENTACTES ", "
+                    " TotalPaye"
+                    " FROM " TBL_ACTES " act, "
+                             TBL_PATIENTS " pat, "
+                             TBL_LIGNESPAIEMENTS " lig, "
+                             TBL_TYPEPAIEMENTACTES " typ,"
+                            " (SELECT lig." CP_IDACTE_LIGNEPAIEMENT ", SUM(lig." CP_PAYE_LIGNEPAIEMENT ") as TotalPaye FROM " TBL_LIGNESPAIEMENTS " lig,"
+                            " (SELECT " CP_IDACTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + TextidRecette + ") AS Result"
+                                " WHERE lig." CP_IDACTE_LIGNEPAIEMENT " = Result." CP_IDACTE_LIGNEPAIEMENT
+                                " GROUP BY lig." CP_IDACTE_LIGNEPAIEMENT ") AS calc"
+                    " WHERE act." CP_ID_ACTES " = lig." CP_IDACTE_LIGNEPAIEMENT
+                    " AND typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES
+                    " AND calc.idActe = act." CP_ID_ACTES
+                    " AND lig." CP_IDRECETTE_LIGNEPAIEMENT " = " + TextidRecette +
+                    " AND act." CP_IDPAT_ACTES " = pat." CP_IDPAT_PATIENTS
                     " ORDER BY " CP_DATE_ACTES " DESC, " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
 
-        //UpMessageBox::Watch(this,requete);
+        //qDebug() << requete;
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,m_ok);
         RemplirTableWidget(ui->DetailupTableWidget, Actes, detpmtlist, false, Qt::Unchecked);
 

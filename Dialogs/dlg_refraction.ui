@@ -1589,12 +1589,12 @@ et fermer</string>
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QLabel" name="EIPLabel">
+     <widget class="QLabel" name="EIPtitreLabel">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>110</y>
-        <width>211</width>
+        <width>131</width>
         <height>20</height>
        </rect>
       </property>
@@ -1603,6 +1603,22 @@ et fermer</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="EIPLabel">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>110</y>
+        <width>71</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>EIP</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
     </widget>
@@ -1927,14 +1943,14 @@ prédéfini</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

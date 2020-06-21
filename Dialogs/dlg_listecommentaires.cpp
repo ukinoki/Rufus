@@ -22,7 +22,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionCommentaires", parent)
 {
-    //ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     wdg_tblview = new UpTableView();
     wdg_comtxt = new UpTextEdit();

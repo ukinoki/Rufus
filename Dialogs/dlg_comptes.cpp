@@ -99,30 +99,35 @@ void dlg_comptes::AnnulArchive()
     if (!db->createtransaction(QStringList() <<  TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES << TBL_COMPTES))
         return;
 
-    int max = db->selectMaxFromTable(CP_IDARCHIVE_ARCHIVESCPT, TBL_ARCHIVESBANQUE, ok);
-    if (!ok)
+    QString req = "select max(" CP_IDARCHIVE_ARCHIVESCPT ") from " TBL_ARCHIVESBANQUE " where " CP_IDCOMPTE_ARCHIVESCPT " = " + QString::number(m_idcompte);
+    QVariantList data = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if(!ok || data.size()==0)
     {
         db->rollback();
         return;
     }
+    int max = data.at(0).toInt();
+    //int max = db->selectMaxFromTable(CP_IDARCHIVE_ARCHIVESCPT, TBL_ARCHIVESBANQUE, ok);
 
     if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES
-                               " select * from"
-                               "  (SELECT " CP_ID_ARCHIVESCPT ", "
-                                            CP_IDCOMPTE_ARCHIVESCPT ", "
-                                            CP_IDDEP_ARCHIVESCPT ", "
-                                            CP_IDREC_ARCHIVESCPT ", "
-                                            CP_IDRECSPEC_ARCHIVESCPT ", "
-                                            CP_IDREMCHEQ_ARCHIVESCPT ", "
-                                            CP_DATE_ARCHIVESCPT ", "
-                                            CP_LIBELLE_ARCHIVESCPT ", "
-                                            CP_MONTANT_ARCHIVESCPT ", "
-                                            CP_DEBITCREDIT_ARCHIVESCPT ", "
-                                            CP_TYPEOPERATION_ARCHIVESCPT ", "
-                                            " 1 as " CP_CONSOLIDE_LIGNCOMPTES " from " TBL_ARCHIVESBANQUE
-                               " where " CP_IDARCHIVE_ARCHIVESCPT " = " + QString::number(max) + ")"
-                               " as tet",
-                               tr("Impossible d'ouvrir la table des archives bancaires")))
+                         " select * from"
+                            " (SELECT "
+                                CP_ID_ARCHIVESCPT ", "
+                                CP_IDCOMPTE_ARCHIVESCPT ", "
+                                CP_IDDEP_ARCHIVESCPT ", "
+                                CP_IDREC_ARCHIVESCPT ", "
+                                CP_IDRECSPEC_ARCHIVESCPT ", "
+                                CP_IDREMCHEQ_ARCHIVESCPT ", "
+                                CP_DATE_ARCHIVESCPT ", "
+                                CP_LIBELLE_ARCHIVESCPT ", "
+                                CP_MONTANT_ARCHIVESCPT ", "
+                                CP_DEBITCREDIT_ARCHIVESCPT ", "
+                                CP_TYPEOPERATION_ARCHIVESCPT ", "
+                                " 1 as " CP_CONSOLIDE_LIGNCOMPTES
+                             " from " TBL_ARCHIVESBANQUE
+                             " where " CP_IDARCHIVE_ARCHIVESCPT " = " + QString::number(max) + ")"
+                             " as tet",
+                             tr("Impossible d'ouvrir la table des archives bancaires")))
     {
         db->rollback();
         return;

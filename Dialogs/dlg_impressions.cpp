@@ -2918,11 +2918,11 @@ void dlg_impressions::Remplir_TableView()
         wdg_docsbuttonframe->widgButtonParent()->setFixedWidth(ui->DocsupTableView->width());
         ui->DocsupTableView->setGridStyle(Qt::DotLine);
 
-        connect(ui->DocsupTableView,    &QAbstractItemView::entered,               this,   [&] (QModelIndex idx) {
-                                                                                                        Impression *doc = getDocumentFromIndex(idx);
-                                                                                                        if (doc && idx.column() == 1)
-                                                                                                            QToolTip::showText(cursor().pos(),DocumentToolTip(doc));
-                                                                                                        } );
+//        connect(ui->DocsupTableView,    &QAbstractItemView::entered,               this,   [&] (QModelIndex idx) {
+//                                                                                                        Impression *doc = getDocumentFromIndex(idx);
+//                                                                                                        if (doc && idx.column() == 1)
+//                                                                                                            QToolTip::showText(cursor().pos(),DocumentToolTip(doc));
+//                                                                                                        } );
         connect(ui->DocsupTableView,    &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
                                                                                                         Impression *doc = getDocumentFromIndex(idx);
                                                                                                         if (doc && idx.column() == 1)
@@ -3009,7 +3009,7 @@ void dlg_impressions::Remplir_TableView()
         ui->DossiersupTableView->FixLargeurTotale();
         wdg_dossiersbuttonframe->widgButtonParent()->setFixedWidth(ui->DossiersupTableView->width());
         ui->DossiersupTableView->setGridStyle(Qt::NoPen);
-        connect(ui->DossiersupTableView,    &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
+        connect(ui->DossiersupTableView,    &QAbstractItemView::entered,               this,   [&] (QModelIndex idx) {
                                                                                                         DossierImpression *dossier = getDossierFromIndex(idx);
                                                                                                         if (dossier && idx.column() == 1)
                                                                                                             QToolTip::showText(cursor().pos(),DossierToolTip(dossier));

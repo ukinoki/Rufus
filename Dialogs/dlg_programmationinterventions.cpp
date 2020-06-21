@@ -1826,10 +1826,11 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
             wdg_IOLcombo->setCurrentIndex(idx);
             CalcRangeBox(m_currentIOL);
         }
-        connect(wdg_IOLcombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),     this,   [&] (int idx)   {
+        connect(wdg_IOLcombo,   QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&] (int idx)   {
                                                                                                                     m_currentIOL = Datas::I()->iols->getById(wdg_IOLcombo->itemData(idx).toInt());
-                                                                                                                    CalcRangeBox(m_currentIOL); });
-        connect(wdg_IOLcombo,           QOverload<int>::of(&QComboBox::highlighted),    this,   [&] (int id)    {
+                                                                                                                    CalcRangeBox(m_currentIOL);
+                                                                                                                });
+        connect(wdg_IOLcombo,   QOverload<int>::of(&QComboBox::highlighted),            this,   [&] (int id)    {
                                                                                                                     IOL * iol = Datas::I()->iols->getById(wdg_IOLcombo->itemData(id).toInt());
                                                                                                                     if (iol)
                                                                                                                         QToolTip::showText(cursor().pos(),iol->tooltip(true));

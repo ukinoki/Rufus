@@ -39,15 +39,17 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     wdg_bigtable       = new UpTableWidget(this);
     ui->horizontalLayout_3->addWidget(wdg_bigtable);
-    wdg_enreguppushbutton = new UpPushButton(ui->frame);
-    wdg_enreguppushbutton->setGeometry(155,285,150,50);
+    wdg_enreguppushbutton = new UpPushButton();
+    ui->Buttonlayout->insertWidget(2, wdg_enreguppushbutton);
+    wdg_enreguppushbutton->setFixedSize(160,46);
     wdg_enreguppushbutton->setText("Valider");
     wdg_enreguppushbutton->setIcon(Icons::icOK());
     wdg_enreguppushbutton->setIconSize(QSize(30,30));
     wdg_enreguppushbutton->setVisible(true);
 
-    wdg_annuluppushbutton = new UpPushButton(ui->frame);
-    wdg_annuluppushbutton->setGeometry(5,285,150,50);
+    wdg_annuluppushbutton = new UpPushButton();
+    ui->Buttonlayout->insertWidget(1,wdg_annuluppushbutton);
+    wdg_annuluppushbutton->setFixedSize(160,46);
     wdg_annuluppushbutton->setText("Annuler");
     wdg_annuluppushbutton->setIcon(Icons::icAnnuler());
     wdg_annuluppushbutton->setIconSize(QSize(30,30));
@@ -130,12 +132,9 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode, bool majfiche)
     ui->MontantlineEdit     ->setVisible(m_mode != TableVide);
     ui->PaiementcomboBox    ->setVisible(m_mode != TableVide);
 
-    ui->BanqChequpComboBox  ->setVisible(m_mode != TableVide);
-    ui->Tireurlabel         ->setVisible(m_mode != TableVide);
-    ui->Comptelabel         ->setVisible(m_mode != TableVide);
-    ui->BanqueChequelabel   ->setVisible(m_mode != TableVide);
-    ui->TireurlineEdit      ->setVisible(m_mode != TableVide);
-    ui->ComptesupComboBox   ->setVisible(m_mode != TableVide);
+    ui->BanqueChequewidget  ->setVisible(m_mode != TableVide);
+    ui->Tireurwidget        ->setVisible(m_mode != TableVide);
+    ui->CompteWidget        ->setVisible(m_mode != TableVide);
     ui->RefFiscalecomboBox  ->setVisible(m_mode != TableVide);
     ui->DateRecettelabel    ->setVisible(m_mode != TableVide);
     ui->Objetlabel          ->setVisible(m_mode != TableVide);
@@ -162,6 +161,8 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode, bool majfiche)
     ui->OKupPushButton      ->setEnabled(m_mode == Lire || m_mode == TableVide);
     ui->GestionComptesupPushButton  ->setEnabled(m_mode == Lire || m_mode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(m_mode == Lire);
+    ui->SupprimerupPushButton       ->setIcon(Icons::icPoubelle());
+
     ui->ModifierupPushButton        ->setVisible(m_mode == Lire);
     int sz = currentuser()->listecomptesbancaires().size();
     ui->NouvelleRecetteupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && sz>0);
@@ -171,11 +172,9 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode, bool majfiche)
     wdg_bigtable                    ->setEnabled(m_mode == Lire);
     if (wdg_bigtable->rowCount()==0 && m_mode== Enregistrer)
     {
-        ui->TireurlineEdit->setVisible(false);
-        ui->Tireurlabel->setVisible(false);
-        ui->BanqChequpComboBox->setVisible(false);
-        ui->BanqueChequelabel->setVisible(false);
-        ui->PaiementcomboBox->setCurrentText(VIREMENT);
+        ui->Tireurwidget        ->setVisible(false);
+        ui->BanqueChequewidget  ->setVisible(false);
+        ui->PaiementcomboBox    ->setCurrentText(VIREMENT);
     }
     RegleComptesComboBox(m_mode==Enregistrer);
     if (majfiche)
@@ -212,12 +211,9 @@ bool dlg_recettesspeciales::initializeUserSelected()
 
 void dlg_recettesspeciales::ChoixPaiement()
 {
-    ui->BanqChequpComboBox  ->setVisible(ui->PaiementcomboBox->currentText() == CHEQUE);
-    ui->BanqueChequelabel   ->setVisible(ui->PaiementcomboBox->currentText() == CHEQUE);
-    ui->Tireurlabel         ->setVisible(ui->PaiementcomboBox->currentText() == CHEQUE);
-    ui->TireurlineEdit      ->setVisible(ui->PaiementcomboBox->currentText() == CHEQUE);
-    ui->ComptesupComboBox   ->setVisible(ui->PaiementcomboBox->currentText() == VIREMENT || ui->PaiementcomboBox->currentText() == ESPECES);
-    ui->Comptelabel         ->setVisible(ui->PaiementcomboBox->currentText() == VIREMENT || ui->PaiementcomboBox->currentText() == ESPECES);
+    ui->BanqueChequewidget  ->setVisible(ui->PaiementcomboBox->currentText() == CHEQUE);
+    ui->Tireurwidget        ->setVisible(ui->PaiementcomboBox->currentText() == CHEQUE);
+    ui->CompteWidget        ->setVisible(ui->PaiementcomboBox->currentText() == VIREMENT);
 }
 
 void dlg_recettesspeciales::ConvertitDoubleMontant()
@@ -425,7 +421,7 @@ void dlg_recettesspeciales::ChoixMenu(int id)
     }
     else
     {
-        RegleAffichageFiche(Enregistrer, false);
+        MetAJourFiche();
         m_mode = Enregistrer;
         ui->DateRecdateEdit             ->setEnabled(true);
         ui->ObjetlineEdit               ->setEnabled(true);
@@ -455,7 +451,6 @@ void dlg_recettesspeciales::ChoixMenu(int id)
         ui->OKupPushButton              ->setShortcut(QKeySequence());
         ui->ModifierupPushButton        ->setShortcut(QKeySequence());
         wdg_enreguppushbutton           ->setShortcut(QKeySequence("Meta+Return"));
-        connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this, [=] {RegleAffichageFiche(Lire);});
     }
 }
 
@@ -637,12 +632,9 @@ void dlg_recettesspeciales::MetAJourFiche()
         ui->MontantlineEdit->setText(QLocale().toString(recette.at(2).toDouble(),'f',2));
         QString A = recette.at(3).toString();                                                         // Mode de paiement - col = 4
         QString B = "";
-        ui->Comptelabel->setVisible(false);
-        ui->ComptesupComboBox->setVisible(false);
-        ui->BanqChequpComboBox->setVisible(false);
-        ui->BanqueChequelabel   ->setVisible(false);
-        ui->Tireurlabel         ->setVisible(false);
-        ui->TireurlineEdit      ->setVisible(false);
+        ui->CompteWidget        ->setVisible(false);
+        ui->BanqueChequewidget  ->setVisible(false);
+        ui->Tireurwidget        ->setVisible(false);
         ui->ComptesupComboBox   ->setCurrentIndex(-1);
         ui->BanqChequpComboBox  ->setCurrentIndex(-1);
 
@@ -658,9 +650,8 @@ void dlg_recettesspeciales::MetAJourFiche()
                     Compte *cpt = Datas::I()->comptes->getById(currentuser()->listecomptesbancaires(true).at(idx));
                     if (cpt)
                         B = cpt->nomabrege();
-                    ui->Comptelabel->setVisible(true);
-                    ui->ComptesupComboBox->setVisible(true);
-                    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
+                    ui->CompteWidget        ->setVisible(true);
+                    ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
                 }
             }
             A = VIREMENT;
@@ -670,15 +661,13 @@ void dlg_recettesspeciales::MetAJourFiche()
             if (recette.at(7).toString() != "")
             {
                 B = recette.at(7).toString();
-                ui->BanqChequpComboBox  ->setVisible(true);
-                ui->BanqueChequelabel   ->setVisible(true);
+                ui->BanqueChequewidget  ->setVisible(true);
                 ui->BanqChequpComboBox  ->setCurrentIndex(ui->BanqChequpComboBox->findText(B));
             }
             if (recette.at(8).toString() != "")
             {
                 B = recette.at(8).toString();
-                ui->Tireurlabel     ->setVisible(true);
-                ui->TireurlineEdit  ->setVisible(true);
+                ui->Tireurwidget    ->setVisible(true);
                 ui->TireurlineEdit  ->setText(B);
             }
             A = CHEQUE;
@@ -699,10 +688,9 @@ void dlg_recettesspeciales::MetAJourFiche()
             ui->ObjetlineEdit->clear();
             ui->MontantlineEdit->setText(QLocale().toString(0.00,'f',2));
             ui->DateRecdateEdit->setDate(QDate::currentDate());
-            ui->Comptelabel->setVisible(true);
-            ui->ComptesupComboBox->setVisible(true);
-            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(currentuser()->idcomptepardefaut()));
-            ui->PaiementcomboBox->setCurrentText(VIREMENT);
+            ui->CompteWidget        ->setVisible(true);
+            ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findData(currentuser()->idcomptepardefaut()));
+            ui->PaiementcomboBox    ->setCurrentText(VIREMENT);
             break;
         case Modifier:
             if (Paiement == VIREMENT)
@@ -713,8 +701,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 modifiable = (listlignes.size() == 0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
-                ui->Comptelabel->setVisible(modifiable);
-                ui->ComptesupComboBox->setVisible(modifiable);
+                ui->CompteWidget    ->setVisible(modifiable);
                 ui->Comptelabel->setEnabled(modifiable);
                 ui->ComptesupComboBox->setEnabled(modifiable);
             }
@@ -724,16 +711,14 @@ void dlg_recettesspeciales::MetAJourFiche()
                 bool ok = true;
                 QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_IDREMISECHQ_AUTRESRECETTES " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + QString::number(m_idrecetteencours),ok);
                 modifiable = !(listlignes.at(0).at(0).toInt()>0);
-                ui->MontantlineEdit->setEnabled(modifiable);
-                ui->PaiementcomboBox->setEnabled(modifiable);
-                ui->BanqChequpComboBox->setEnabled(modifiable);
-                ui->BanqueChequelabel->setEnabled(modifiable);
-                ui->Tireurlabel->setEnabled(modifiable);
-                ui->TireurlineEdit->setEnabled(modifiable);
-                ui->TireurlineEdit->setVisible(modifiable);
-                ui->BanqChequpComboBox->setVisible(modifiable);
-                ui->BanqueChequelabel->setVisible(modifiable);
-                ui->Tireurlabel->setVisible(modifiable);
+                ui->MontantlineEdit     ->setEnabled(modifiable);
+                ui->PaiementcomboBox    ->setEnabled(modifiable);
+                ui->BanqChequpComboBox  ->setEnabled(modifiable);
+                ui->BanqueChequelabel   ->setEnabled(modifiable);
+                ui->Tireurlabel         ->setEnabled(modifiable);
+                ui->TireurlineEdit      ->setEnabled(modifiable);
+                ui->Tireurwidget        ->setVisible(modifiable);
+                ui->BanqueChequewidget  ->setVisible(modifiable);
             }
             break;
         default:
@@ -786,22 +771,31 @@ void dlg_recettesspeciales::ModifierRecette()
             // le cheque n'a pas été remis en banque, on remet tout à jour
         {
             db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
+            QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_LIGNCOMPTES,
+                                                                                  TBL_LIGNESCOMPTES, ok,
+                                                                                  "where " CP_IDRECSPEC_LIGNCOMPTES " = " + idRec);
+            if (listlignescomptes.size() > 0)                // l'écriture existe et on la supprime
+                db->SupprRecordFromTable(listlignescomptes.at(0).at(0).toInt(), CP_ID_LIGNCOMPTES, TBL_LIGNESCOMPTES);
             EnregistreRecette();
         }
     }
     else if (ancpaiement == "V")
     {
+        QString         Paiement = ui->PaiementcomboBox->currentText();
         bool ok = true;
-        QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDRECSPEC_ARCHIVESCPT " = " + idRec,ok);
-        if (listlignes.size()>0)
+        QList<QVariantList> listlignesarchives = db->SelectRecordsFromTable(QStringList() << CP_ID_ARCHIVESCPT,
+                                                                               TBL_ARCHIVESBANQUE, ok,
+                                                                               "where " CP_IDRECSPEC_ARCHIVESCPT " = " + idRec);
+        if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
         {
-            // le virement a été enregistré en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes et archivesbanques
-            QString idligne = listlignes.at(0).at(0).toString();
-            db->StandardSQL("update " TBL_ARCHIVESBANQUE " set "
-                  CP_DATE_ARCHIVESCPT " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  CP_LIBELLE_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "', "
-                  CP_TYPEOPERATION_ARCHIVESCPT " = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
-                  " where " CP_ID_ARCHIVESCPT " = " + idligne);
+            QHash<QString, QVariant> listsets;
+            listsets.insert(CP_DATE_ARCHIVESCPT,            ui->DateRecdateEdit->date().toString("yyyy-MM-dd"));
+            listsets.insert(CP_LIBELLE_ARCHIVESCPT,         ui->ObjetlineEdit->text());
+            listsets.insert(CP_DEBITCREDIT_ARCHIVESCPT,     "1");
+            listsets.insert(CP_TYPEOPERATION_ARCHIVESCPT,   Paiement);
+            DataBase:: I()->UpdateTable(TBL_ARCHIVESBANQUE,
+                                        listsets,
+                                        " where " CP_IDRECSPEC_ARCHIVESCPT " = " + idRec);
             db->StandardSQL("update " TBL_RECETTESSPECIALES " set "
                   CP_DATE_AUTRESRECETTES " = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
                   CP_LIBELLE_AUTRESRECETTES " = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +"', "
@@ -809,9 +803,13 @@ void dlg_recettesspeciales::ModifierRecette()
                   " where  " CP_ID_AUTRESRECETTES " = " + idRec);
         }
         else
-            // le virement n'a pas été enregistré en banque
         {
             db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
+            QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_LIGNCOMPTES,
+                                                                               TBL_LIGNESCOMPTES, ok,
+                                                                               "where " CP_IDRECSPEC_LIGNCOMPTES " = " + idRec);
+            if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
+                db->SupprRecordFromTable(listlignescomptes.at(0).at(0).toInt(), CP_ID_LIGNCOMPTES, TBL_LIGNESCOMPTES);
             EnregistreRecette();
         }
     }
