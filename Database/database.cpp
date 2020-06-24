@@ -1750,21 +1750,21 @@ QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
         {
             QJsonObject jData{};
             jData["id"] = i;
-            jData["idacte"] = (recetteslist.at(i).at(0) == QVariant()? -1 : recetteslist.at(i).at(0).toInt());
-            jData["date"] = recetteslist.at(i).at(1).toDate().toString("yyyy-MM-dd");
-            jData["payeur"] = recetteslist.at(i).at(2).toString();
-            jData["cotationacte"] = recetteslist.at(i).at(3).toString();
-            jData["montant"] = recetteslist.at(i).at(4).toDouble();
-            jData["monnaie"] = recetteslist.at(i).at(5).toString();
-            jData["modepaiement"] = recetteslist.at(i).at(6).toString();
-            jData["typetiers"] = recetteslist.at(i).at(7).toString();
-            jData["encaissement"] = recetteslist.at(i).at(8).toDouble();
-            jData["iduser"] = recetteslist.at(i).at(9).toInt();
-            jData["idparent"] = recetteslist.at(i).at(10).toInt();
-            jData["idcomptable"] = recetteslist.at(i).at(11).toInt();
-            jData["encaissementautrerecette"] = recetteslist.at(i).at(12).toDouble();
-            jData["apportpraticien"] = (recetteslist.at(i).at(13).toString() == tr("Apport praticien"));
-            jData["autrerecette"] = (recetteslist.at(i).at(13).toString() == tr("Divers et autres recettes"));
+            jData["idacte"]                     = (recetteslist.at(i).at(0) == QVariant()? -1 : recetteslist.at(i).at(0).toInt());
+            jData["date"]                       = recetteslist.at(i).at(1).toDate().toString("yyyy-MM-dd");
+            jData["payeur"]                     = recetteslist.at(i).at(2).toString();
+            jData["cotationacte"]               = recetteslist.at(i).at(3).toString();
+            jData["montant"]                    = recetteslist.at(i).at(4).toDouble();
+            jData["monnaie"]                    = recetteslist.at(i).at(5).toString();
+            jData["modepaiement"]               = recetteslist.at(i).at(6).toString();
+            jData["typetiers"]                  = recetteslist.at(i).at(7).toString();
+            jData["encaissement"]               = recetteslist.at(i).at(8).toDouble();
+            jData["iduser"]                     = recetteslist.at(i).at(9).toInt();
+            jData["idparent"]                   = recetteslist.at(i).at(10).toInt();
+            jData["idcomptable"]                = recetteslist.at(i).at(11).toInt();
+            jData["encaissementautrerecette"]   = recetteslist.at(i).at(12).toDouble();
+            jData["apportpraticien"]            = (recetteslist.at(i).at(13).toString() == tr("Apport praticien"));
+            jData["autrerecette"]               = (recetteslist.at(i).at(13).toString() == tr("Divers et autres recettes"));
             Recette *recette = new Recette(jData);
             if (recette != Q_NULLPTR)
                 listerecettes << recette;
@@ -1800,7 +1800,7 @@ RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
     if(!ok || recette.size()==0)
         return Q_NULLPTR;
     QJsonObject jData{};
-    jData[CP_ID_LIGNRECETTES]            = id;
+    jData[CP_ID_LIGNRECETTES]                   = id;
     jData[CP_IDUSER_LIGNRECETTES]               = recette.at(0).toInt();
     jData[CP_DATE_LIGNRECETTES]                 = recette.at(1).toDate().toString("yyyy-MM-dd");
     jData[CP_DATEENREGISTREMENT_LIGNRECETTES]   = recette.at(2).toDate().toString("yyyy-MM-dd");
@@ -1936,16 +1936,16 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
     {
         ++k;
         QJsonObject jcotation{};
-        jcotation["id"] = k;
-        jcotation["idcotation"] = cotlist.at(i).at(0).toInt();
-        jcotation["typeacte"] = cotlist.at(i).at(1).toString();
-        jcotation["montantoptam"] = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"] = cotlist.at(i).at(3).toDouble();
-        jcotation["montantpratique"] = cotlist.at(i).at(4).toDouble();
-        jcotation["ccam"] = (cotlist.at(i).at(5).toInt()==1);
-        jcotation["iduser"] = iduser;
-        jcotation["frequence"] = cotlist.at(i).at(6).toInt();
-        jcotation["descriptif"] = cotlist.at(i).at(7).toString();
+        jcotation["id"]                 = k;
+        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
+        jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
+        jcotation["montantpratique"]    = cotlist.at(i).at(4).toDouble();
+        jcotation["ccam"]               = (cotlist.at(i).at(5).toInt()==1);
+        jcotation["iduser"]             = iduser;
+        jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
+        jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
         if (cotation != Q_NULLPTR)
             cotations << cotation;
@@ -1962,16 +1962,16 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
     {
         k++;
         QJsonObject jcotation{};
-        jcotation["id"] = k;
-        jcotation["idcotation"] = cotlist.at(i).at(0).toInt();
-        jcotation["typeacte"] = cotlist.at(i).at(1).toString();
-        jcotation["montantoptam"] = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"] = cotlist.at(i).at(3).toDouble();
-        jcotation["montantpratique"] = cotlist.at(i).at(4).toDouble();
-        jcotation["ccam"] = (cotlist.at(i).at(5).toInt()==1);
-        jcotation["iduser"] = iduser;
-        jcotation["frequence"] = cotlist.at(i).at(6).toInt();
-        jcotation["descriptif"] = cotlist.at(i).at(7).toString();
+        jcotation["id"]                 = k;
+        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
+        jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
+        jcotation["montantpratique"]    = cotlist.at(i).at(4).toDouble();
+        jcotation["ccam"]               = (cotlist.at(i).at(5).toInt()==1);
+        jcotation["iduser"]             = iduser;
+        jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
+        jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
         if (cotation != Q_NULLPTR)
             cotations << cotation;

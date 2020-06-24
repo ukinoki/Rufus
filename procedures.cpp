@@ -4572,25 +4572,27 @@ QString Procedures::currentuserstatus() const
     //qDebug() << "parent " << usr->idparent();
     //qDebug() << "comptable " << usr->idcomptable();
     QString strSup = "";
+    User * usrsuperviseur = Datas::I()->users->getById(usr->idsuperviseur());
     if ( usr->idsuperviseur() == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
         strSup = tr("tout le monde");
     else if ( usr->idsuperviseur() == User::ROLE_VIDE )               // le user est un administratif
         strSup = tr("sans objet");
     else if ( usr->idsuperviseur() == User::ROLE_INDETERMINE )        // jamais utilisé
         strSup = tr("indéterminé");
-    else if ( Datas::I()->users->getById(usr->idsuperviseur()) != Q_NULLPTR )
-        strSup = Datas::I()->users->getById(usr->idsuperviseur())->login();
+    else if ( usrsuperviseur )
+        strSup = usrsuperviseur->login();
     str += tr("superviseur") + "\t\t= " + strSup + "\n";
 
     QString strParent = "";
+    User * usrparent = Datas::I()->users->getById(usr->idparent());
     if ( usr->idparent() == User::ROLE_NON_RENSEIGNE )                    // le user est soignant, assistant, travaille pour plusieurs superviseurs
         strParent = tr("sans objet");
     else if ( usr->idparent() == User::ROLE_VIDE )                        // le user est un administratif
         strParent = tr("sans objet");
     else if ( usr->idparent() == User::ROLE_INDETERMINE )                 // jamais utilisé
         strParent = tr("indéterminé");
-    else if ( Datas::I()->users->getById(usr->idparent()) != Q_NULLPTR )
-        strParent = Datas::I()->users->getById(usr->idparent())->login();
+    else if ( usrparent )
+        strParent = usrparent->login();
     str += tr("parent") + "\t\t= " + strParent + "\n";
 
     QString strComptable = "";
@@ -4601,6 +4603,8 @@ QString Procedures::currentuserstatus() const
         strComptable = tr("sans objet");
     else if ( usr->idcomptable() == User::ROLE_INDETERMINE )
         strComptable = tr("indéterminé");
+    else if (usrcptble)
+        strComptable = usrcptble->login();
     str += tr("comptable") + "\t\t= " + (usrcptble? strComptable : "null") + "\n";
     if ( usrcptble )
     {

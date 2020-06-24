@@ -29,6 +29,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
+    Datas::I()->comptes->initListe(); // (si le solde a été changé sur un autre poste)
     if (Datas::I()->users->userconnected()->listecomptesbancaires().isEmpty())
         proc->MAJComptesBancaires(Datas::I()->users->userconnected());
     m_comptesusr = Datas::I()->users->userconnected()->listecomptesbancaires(true);
