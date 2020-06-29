@@ -73,8 +73,7 @@ void epurelist(QMap<int, T*> *m_oldmap, const QList<T*> *m_newlist)
     for (auto it = m_oldmap->begin(); it != m_oldmap->end();)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
         {
-            T* item = const_cast<T*>(it.value());
-//            T* item = m_oldmap->take(it.key()); ne marche pas
+            T* item = const_cast<T*>(it.value());               //  T* item = m_oldmap->take(it.key()); ne marche pas
             if (item != Q_NULLPTR)
                 delete item;
             it = m_oldmap->erase(it);
@@ -99,8 +98,8 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
     for (auto it = m_oldmap->begin(); it != m_oldmap->end();)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
         {
-            T* item = const_cast<T*>(it.value());
-//            T* item = m_oldmap->take(it.key()); ne marche pass
+            T* item = const_cast<T*>(it.value());               // T* item = m_oldmap->take(it.key()); ne marche pass
+
             if (item != Q_NULLPTR)
                 delete item;
             it = m_oldmap->erase(it);

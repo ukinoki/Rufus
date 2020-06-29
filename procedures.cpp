@@ -6218,14 +6218,20 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
         mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
         mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
-        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+        for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
             if (ref->idacte() == idActe
                     && ref->typemesure() == Refraction::Fronto
                     && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
                     && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
-                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+            {
+                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                delete ref;
+                it = Datas::I()->refractions->refractions()->erase(it);
+            }
+            else
+                ++it;
         }
 
         QHash<QString, QVariant> listbinds;
@@ -6273,11 +6279,26 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         mAxeOG          = QString::number(Datas::I()->mesureautoref->axecylindreOG());
         PD              = (Datas::I()->mesureautoref->ecartIP() > 0?
                                QString::number(Datas::I()->mesureautoref->ecartIP()) : "null");
-        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+//        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+//        {
+//            Refraction *ref = const_cast<Refraction*>(it.value());
+//            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
+//            {
+//                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+//                //++it;
+//            }
+//        }
+        for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
             if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
-                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+            {
+                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                delete ref;
+                it = Datas::I()->refractions->refractions()->erase(it);
+            }
+            else
+                ++it;
         }
 
         QHash<QString, QVariant> listbinds;
@@ -6429,11 +6450,17 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
         if (PD == "")
             PD = "null";
-        for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+        for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
             if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
-                Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+            {
+                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                delete ref;
+                it = Datas::I()->refractions->refractions()->erase(it);
+            }
+            else
+                ++it;
         }
 
         QHash<QString, QVariant> listbinds;

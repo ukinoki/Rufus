@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-06-2020/1");
+    qApp->setApplicationVersion("29-06-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -9388,11 +9388,17 @@ void Rufus::SupprimerActe(Acte *act)
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
-    for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
+    for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
     {
         Refraction* ref = const_cast<Refraction*>(it.value());
         if (ref->idacte() == act->id())
-            Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
+        {
+            DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+            delete ref;
+            it = Datas::I()->refractions->refractions()->erase(it);
+        }
+        else
+            ++it;
     }
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------

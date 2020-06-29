@@ -112,21 +112,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_wdeltaframe       = 0;
     m_avecprevisu = proc  ->ApercuAvantImpression();
 
-    /*Gestion des XML - exemple
-    QString adressexml = PATHTODIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
-    QFile xmldoc(adressexml);
-    if (xmldoc.open(QIODevice::ReadOnly))
-    {
-        QDomDocument *docxml = new QDomDocument();
-        docxml->setContent(&xmldoc);
-        QDomElement xml = docxml->documentElement();
-        QString info;
-        for (int i=0; i<xml.childNodes().size(); i++)
-            info += "Nom de la balise\t" + xml.childNodes().at(i).toElement().tagName() + "\n";
-        proc->Edit(info);
-    }*/
-
-
     connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch());});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_alldocsupcheckbox);});
