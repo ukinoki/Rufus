@@ -66,7 +66,13 @@ private: //Données du patient
     QString m_important = "";           //!< points importants du dossier
     QString m_resume = "";              //!< resumé du dossier
     bool m_ismedicalloaded = false;     //!< les renseignements médicaux sont chargés
-    bool m_issocialloaded  = false;     //!< les renseignements sociaux sont chargés
+    bool m_issocialloaded  = false;     //!< les renseignements sociaux sont chargés du
+
+    QList<QPair<int, int>> m_listidinterventions = QList<QPair<int, int>>();
+                                        /*!< la liste des interventions d'un patient
+                                         *  - défini par une paire de int :
+                                         *  le premier est l'idintervention,
+                                         * le deuxième l'iduser qui a effectué l'intervention */
 
 public:
     //GETTER | SETTER
@@ -208,6 +214,10 @@ public:
      */
     void resetdatas();
     bool isnull() const                             { return m_id == 0; }
+    QList<QPair<int, int>> listidinterventions() const
+                                                    { return m_listidinterventions; }
+    void setListidinterventions(const QList<QPair<int, int>> &listidinterventions)
+                                                    { m_listidinterventions = listidinterventions; }
 };
 
 #endif // CLS_PATIENT_H

@@ -36,7 +36,7 @@ class dlg_programmationinterventions : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit            dlg_programmationinterventions(Patient *pat, QWidget *parent = Q_NULLPTR);
+    explicit            dlg_programmationinterventions(Patient *pat, Acte *act = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     ~dlg_programmationinterventions();
     bool                docimprime() const      { return m_docimprime; }
 
@@ -56,6 +56,7 @@ private:
                                                                                         * dans la liste des actes en cours et va modifier sa propriété m_intervention
                                                                                         */
 /*! les items */
+    Acte                *m_currentchiracte          = Q_NULLPTR;                        //! l'e user'acte concerné par le programme opératoire
     User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
     Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
     SessionOperatoire   *m_currentsession           = Q_NULLPTR;                        //! la session en cours

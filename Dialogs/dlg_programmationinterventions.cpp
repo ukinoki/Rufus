@@ -17,9 +17,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_programmationinterventions.h"
 
-dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, QWidget *parent) : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
+dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Acte *act, QWidget *parent) : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
 {
-    m_currentchirpatient = pat;
+    m_currentchirpatient    = pat;
+    m_currentchiracte       = act;
+
     setWindowTitle(tr("Programmer une intervention pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
     wdg_listmedecinscombo           = new QComboBox();
     QHBoxLayout *choixmedecinLay    = new QHBoxLayout();
@@ -176,12 +178,73 @@ bool dlg_programmationinterventions::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
+    if (m_currentintervention)
+        delete m_currentintervention;
+    if (m_currentsession)
+        delete m_currentsession;
+    m_currentintervention   = Q_NULLPTR;
+    m_currentsession        = Q_NULLPTR;
+
     m_currentchiruser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
     if (m_currentchiruser == Q_NULLPTR)
         return;
     Datas::I()->sites->initListeByUser(m_currentchiruser->id());
     Datas::I()->sessionsoperatoires->initListebyUserId(m_currentchiruser->id());
-    RemplirTreeSessions();
+    /*! si un acte chirurgical est défini à l'ouverture de la fiche,
+     *  on regarde s'il est lié à l'utilisateur chirurgical en cours
+     *  et si oui, on se positionne dessus
+     */
+    if (m_currentchiracte)
+        if (m_currentchiracte->isintervention())
+        {
+            Intervention *interv = Datas::I()->interventions->getById(m_currentchiracte->idIntervention());
+            if (interv)
+            {
+                auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
+                if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
+                {
+                    m_currentintervention = interv;
+                    m_currentsession = const_cast<SessionOperatoire*>(it.value());
+                }
+                else
+                    delete interv;
+            }
+        }
+    /*! si on n'a pas défini d'intervention en cours,
+     * on fait la liste des interventions du patient en cours
+     * on définit comme intervention en cours
+     * la dernière intervention de ce patient qui a été faite par ce chirurgien
+     */
+    if (!m_currentintervention)
+    {
+        Datas::I()->patients->initListeIdInterventions(m_currentchirpatient);
+        if (m_currentchirpatient->listidinterventions().size()>0)
+            for (int i=0; i < m_currentchirpatient->listidinterventions().size(); ++i)
+            {
+                int idinterv = m_currentchirpatient->listidinterventions().at(i).first;
+                int iduser = m_currentchirpatient->listidinterventions().at(i).second;
+                if (iduser == m_currentchiruser->id())
+                {
+                    Intervention *interv = Datas::I()->interventions->getById(m_currentchirpatient->listidinterventions().at(i).first);
+                    if (interv)
+                    {
+                        auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
+                        if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
+                        {
+                            m_currentintervention = interv;
+                            m_currentsession = const_cast<SessionOperatoire*>(it.value());
+                        }
+                        else
+                            delete interv;
+                       break;
+                    }
+                }
+            }
+    }
+    /*! si aucune intervention pour le patient en cours n'a été effectuée par le chirurgien en cours, on se positionne sur la dernière session de ce chirurgien */
+    if (!m_currentsession && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
+        m_currentsession = Datas::I()->sessionsoperatoires->sessions()->last();
+    RemplirTreeSessions(m_currentsession);
 }
 
 void dlg_programmationinterventions::ChoixSessionFrame()
@@ -210,7 +273,7 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(m_currentsession != Q_NULLPTR);
     if (m_currentsession)
         Datas::I()->interventions->initListebySessionId(m_currentsession->id());
-    RemplirTreeInterventions();
+    RemplirTreeInterventions(m_currentintervention);
 }
 
 void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* session)
@@ -270,6 +333,7 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
             }
         }
         wdg_sessionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+        wdg_sessionstreeView->selectionModel()->select(idx,QItemSelectionModel::Rows | QItemSelectionModel::Select);
         wdg_sessionstreeView->setCurrentIndex(idx);
     }
     connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
@@ -703,7 +767,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     if (m_currentsession->incident() != "")
         incident = true;
     bool iollist = false;           //! va servir à indiquer si des implants sont prévus sur la session
-    QStandardItem * rootNodeDate = m_interventionsmodel->invisibleRootItem();
+    QStandardItem *rootNodeDate = m_interventionsmodel->invisibleRootItem();
     QList<QTime> listheures;
 
     foreach (Intervention *interv, *Datas::I()->interventions->interventions())
@@ -856,17 +920,35 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     if (m_interventionsmodel->rowCount() >0)
     {
         if (intervention == Q_NULLPTR)
+        {
             idx = m_interventionsmodel->item(m_interventionsmodel->rowCount()-1)->index();        //! l'index du dernier item
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_interventionsmodel->item(m_interventionsmodel->rowCount()-1));
+            if (itm->rowCount() > 0)
+            {
+                UpStandardItem *childitm = dynamic_cast<UpStandardItem*>(itm->child(0,0));
+                idx = childitm->index();
+            }
+        }
         else for (int i=0; i<m_interventionsmodel->rowCount(); ++i)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_interventionsmodel->item(i));
-            if (itm->item() == intervention)
+            QString heurestring = "- " + intervention->heure().toString("HH:mm") + " -";
+            if (itm->text() == heurestring)
             {
-                idx = itm->index();
-                break;
+                for (int j=0; j<itm->rowCount(); ++j)
+                {
+                    UpStandardItem *childitm = dynamic_cast<UpStandardItem*>(itm->child(j,0));
+                    if (childitm->item() == intervention)
+                    {
+                        idx = childitm->index();
+                        break;
+                    }
+                }
             }
         }
+
         wdg_interventionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+        wdg_interventionstreeView->selectionModel()->select(idx,QItemSelectionModel::Rows | QItemSelectionModel::Select);
         wdg_interventionstreeView->setCurrentIndex(idx);
     }
     connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);

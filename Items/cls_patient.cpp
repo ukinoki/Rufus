@@ -61,6 +61,10 @@ QString Patient::toxiques() const           { return m_toxiques; }
 QString Patient::important() const          { return m_important; }
 QString Patient::resume() const             { return m_resume; }
 
+
+
+
+
 bool Patient::ismedicalloaded() const       { return m_ismedicalloaded; }
 bool Patient::issocialloaded() const        { return m_issocialloaded; }
 bool Patient::isalloaded()

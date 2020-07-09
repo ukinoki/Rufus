@@ -157,6 +157,13 @@ void Patients::initListeByDDN(QDate DDN)
     addList(map_patientstable, &listpatients, Item::Update);
 }
 
+void Patients::initListeIdInterventions(Patient *pat)
+{
+    if (!pat)
+        return;
+    pat->setListidinterventions(DataBase::I()->loadIdInterventionsByPatientId(pat->id()));
+}
+
 void Patients::SupprimePatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)

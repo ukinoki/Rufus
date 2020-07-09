@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-06-2020/1");
+    qApp->setApplicationVersion("09-07-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -287,7 +287,7 @@ void Rufus::ConnectSignals()
     connect (ui->CreerActepushButton_2,                             &QPushButton::clicked,                              this,   [=] {CreerActe(currentpatient());});
     connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   &Rufus::CreerBilanOrtho);
     connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   &Rufus::CreerBilanOrtho);
-    connect (ui->CreerInterventionpushButton,                       &QPushButton::clicked,                              this,   [=] { ProgrammationIntervention(currentpatient()); });
+    connect (ui->CreerInterventionpushButton,                       &QPushButton::clicked,                              this,   [=] { ProgrammationIntervention(currentpatient(), currentacte()); });
     connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (m_mode == RechercheDDN) FiltreTableparDDN();});
     connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   &Rufus::ChercherDepuisListe);
     connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   &Rufus::MajusculeCreerNom);
@@ -8221,9 +8221,13 @@ void Rufus::ModeCreationDossier()
     m_mode = NouveauDossier;
 }
 
-void Rufus::ProgrammationIntervention(Patient *pat)
+void Rufus::ProgrammationIntervention(Patient *pat, Acte *act)
 {
-    dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, this);
+    Acte *chiract = Q_NULLPTR;
+    if (act)
+        if (act->isintervention())
+            chiract = act;
+    dlg_programmationinterventions *dlg_progr = new dlg_programmationinterventions(pat, chiract, this);
     connect(dlg_progr, &dlg_programmationinterventions::updateHtml, this, [&](Patient *chirpat) {
         if (chirpat->id() == pat->id())
             ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(pat));

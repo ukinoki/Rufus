@@ -71,6 +71,7 @@ public:
 
     void initListeByDDN(QDate DDN = QDate());                                              /*! crée une liste des patients de la table pour une date de naissance
                                                                                             * \param DDN la date de naissance */
+    void initListeIdInterventions(Patient * pat);                                          /*! calcule la liste des interventions d'un patient */
 
     static bool veriftelephone(Patient * pat);                                             /*! vérfie si le patient a au moins un no de tel enregistré */
 

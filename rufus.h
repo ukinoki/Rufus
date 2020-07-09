@@ -323,7 +323,7 @@ private:
     void                FicheImpressions(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
-    void                ProgrammationIntervention(Patient *pat);
+    void                ProgrammationIntervention(Patient *pat, Acte *act = Q_NULLPTR);
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);

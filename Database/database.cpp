@@ -2488,6 +2488,7 @@ QJsonObject DataBase::loadActeAllData(int idActe)
                   " LEFT JOIN " TBL_TYPEPAIEMENTACTES " tpm on tpm." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES
                   " LEFT JOIN " TBL_LIGNESPRGOPERATOIRES " lign on lign." CP_IDACTE_LIGNPRGOPERATOIRE " = act." CP_ID_ACTES
                   " WHERE act." CP_ID_ACTES " = '" + QString::number(idActe) + "'";
+    //qDebug() << req;
     QVariantList actdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || actdata.size()==0 )
         return QJsonObject{};
@@ -2834,6 +2835,24 @@ QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)             
             list << intervention;
     }
     return list;
+}
+
+QList<QPair<int, int>> DataBase::loadIdInterventionsByPatientId(int id)                  //! charge toutes les Interventions d'un patient
+{
+    QList<QPair<int, int>> listpair;
+    QList<int> listid = QList<int> ();
+    QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE
+                    " FROM " TBL_LIGNESPRGOPERATOIRES " prog left outer join " TBL_SESSIONSOPERATOIRES " sess "
+                    " ON prog." CP_IDSESSION_LIGNPRGOPERATOIRE " = sess." CP_ID_SESSIONOPERATOIRE
+                    " WHERE " CP_IDPATIENT_LIGNPRGOPERATOIRE " = " + QString::number(id) +
+                    " order by " CP_ID_LIGNPRGOPERATOIRE " desc";
+    QList<QVariantList> interventionlist = StandardSelectSQL(req,ok);
+    //qDebug() << req;
+    if(!ok || interventionlist.size()==0)
+        return listpair;
+    for (int i=0; i<interventionlist.size(); ++i)
+        listpair << qMakePair(interventionlist.at(i).at(0).toInt(), interventionlist.at(i).at(1).toInt());
+    return listpair;
 }
 
 Intervention* DataBase::loadInterventionById(int idintervention)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
