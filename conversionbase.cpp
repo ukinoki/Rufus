@@ -34,7 +34,8 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                   " and schema_name <> '" DB_CCAM
                   "' and schema_name <> '" DB_CONSULTS
                   "' and schema_name <> '" DB_COMPTA
-                  "' and schema_name <> '" DB_OPHTA "'";
+                  "' and schema_name <> '" DB_OPHTA
+                  "' and schema_name <> 'Oplus'";
     QList<QVariantList> lgclist = db->StandardSelectSQL(req,ok);
     if (lgclist.size()==0)
     {

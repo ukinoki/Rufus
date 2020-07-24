@@ -369,7 +369,7 @@ void Rufus::ConnectSignals()
         connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
-    ui->MoulinettepushButton->setVisible(false);
+    ui->MoulinettepushButton->setVisible(true);
 }
 
 
@@ -444,6 +444,15 @@ void Rufus::MAJDocsExternes()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::Moulinette()
 {
+
+    //CONVERSION DES BASES OPLUS ============================================================================================================================================================
+    QString req;
+    conversionbaseoplus *convbase = new conversionbaseoplus(proc,"");
+    delete convbase;
+    Remplir_ListePatients_TableView();
+
+
+
 
     //! MODIFICATION DES TABLES CCAM ============================================================================================================================================================
     /*!bool ok;
@@ -656,6 +665,7 @@ void Rufus::Moulinette()
 
 /*!    // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
     //Mélange les noms, et 1ère ligne d'adresse dans la base */
+    /*
     if (UpMessageBox::Question(this,tr("ATTENTION"),tr("Cette fonction sert à générer une base factice pour la démonstration du logiciel") + "<br />"
                                + tr("Si vous cliquez sur OK, tous les enregistrements de la base seront mélangés et les données seront donc irrémédiablement perdues")) != UpSmallButton::STARTBUTTON)
         return;
@@ -860,6 +870,7 @@ void Rufus::Moulinette()
         db->StandardSQL(Corcopierequete);
     }
     UpMessageBox::Watch(this,"OK pour Correspondants");
+    */
 
 }
 
