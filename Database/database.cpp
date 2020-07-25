@@ -2078,7 +2078,7 @@ Site* DataBase::loadSiteById(int id)
             CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
             " from " TBL_LIEUXEXERCICE
             " where " CP_ID_SITE " = " + QString::number(id);
-    qDebug() << req;
+    //qDebug() << req;
     QVariantList sitdata =  getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || sitdata.size()==0)
         return sit;

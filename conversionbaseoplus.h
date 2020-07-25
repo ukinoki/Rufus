@@ -25,8 +25,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class conversionbaseoplus : public QObject
 {
     Q_OBJECT
+private:
+    QString dirimagerieoplus, dirimagerie;
 public:
-    explicit conversionbaseoplus(Procedures *proc, QString BaseAConvertir, QObject *parent = Q_NULLPTR);
+    explicit conversionbaseoplus(QObject *parent = Q_NULLPTR);
     DataBase    *db;
     bool        ok;
 };

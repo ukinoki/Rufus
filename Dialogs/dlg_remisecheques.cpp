@@ -732,7 +732,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     foreach (int idcpt, listcpt)
         idlist += QString::number(idcpt) + ", ";
     idlist.remove(idlist.lastIndexOf(","),2);
-    qDebug() << idlist;
+    //qDebug() << idlist;
 
     bool ok = true;
     QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select " CP_ID_REMCHEQ ", " CP_DATE_REMCHEQ ", " CP_MONTANT_REMCHEQ ", " CP_IDCOMPTE_REMCHEQ " from " TBL_REMISECHEQUES

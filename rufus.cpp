@@ -447,7 +447,7 @@ void Rufus::Moulinette()
 
     //CONVERSION DES BASES OPLUS ============================================================================================================================================================
     QString req;
-    conversionbaseoplus *convbase = new conversionbaseoplus(proc,"");
+    conversionbaseoplus *convbase = new conversionbaseoplus();
     delete convbase;
     Remplir_ListePatients_TableView();
 

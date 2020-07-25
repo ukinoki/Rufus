@@ -18,10 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "conversionbaseoplus.h"
 
-conversionbaseoplus::conversionbaseoplus(Procedures *proc, QString BaseAConvertir, QObject *parent) :
+conversionbaseoplus::conversionbaseoplus(QObject *parent) :
     QObject(parent)
 {
-    QString NomBase = BaseAConvertir;
+    QString NomBase = "";
     db = DataBase::I();
     /*COnvertir une base ophtalogic
     */
@@ -45,6 +45,13 @@ conversionbaseoplus::conversionbaseoplus(Procedures *proc, QString BaseAConverti
     }
     if (NomBase=="")
         return;
+    dirimagerieoplus    = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                                                            tr("Choisissez le dossier dans lequel se trouvent les images O+\n"
+                                                               "Le nom de dossier ne doit pas contenir d'espace"),
+                                                            QDir::homePath() + NOM_DIR_RUFUS,
+                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    bool okdirimagerie = QDir(dirimagerieoplus).exists();
+    dirimagerie = QDir::homePath() + NOM_DIR_RUFUS NOM_DIR_IMAGERIE NOM_DIR_IMAGES;
     db->StandardSQL("delete from " TBL_PATIENTS);
     db->StandardSQL("delete from " TBL_DONNEESSOCIALESPATIENTS);
     db->StandardSQL("delete from " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
@@ -179,15 +186,20 @@ conversionbaseoplus::conversionbaseoplus(Procedures *proc, QString BaseAConverti
     for (int k=0; k< listidpat.size(); ++k)
     {
         int idpat =  listidpat.at(k);
-        qDebug() << k << "/" <<  listidpat.size() << "idpat = " << idpat;
+        if (idpat<30000)
+            continue;
+        qDebug() << k+1 << "/" <<  listidpat.size() << "idpat =" << idpat;
         QString strgidpat = QString::number(idpat);
 
-        req = "SELECT rubrique, valeur, dateheure FROM Oplus.actes where nopat = " + QString::number(idpat);
+        req = "SELECT rubrique, valeur, dateheure FROM Oplus.actes where nopat = " + QString::number(idpat);// + " and (rubrique = 'reti' or rubrique = 'icv' or rubrique = 'scan')";
+        //qDebug() << req;
         QList<QVariantList> actlist = db->StandardSelectSQL(req,ok);
         QList<QDateTime> listdates;
         for (int i=0; i< actlist.size(); i++)
         {
             QDateTime datetime = QDateTime::fromString(actlist.at(i).at(2).toString(),"dd/MM/yyyy HHmm");
+            QString rubrique = actlist.at(i).at(0).toString();
+            QString valeur = actlist.at(i).at(1).toString();
             if (!datetime.isValid())
             {
                 /*!
@@ -202,17 +214,16 @@ conversionbaseoplus::conversionbaseoplus(Procedures *proc, QString BaseAConverti
                     ald     = ald
                     sec     = ?
                 */
-                QString rubrique = actlist.at(i).at(0).toString();
                 if (rubrique == "atcd")
                 {
-                    QString atcdt = actlist.at(i).at(1).toString().replace("^","\n");
+                    QString atcdt = valeur.replace("^","\n");
                     req = "update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set " CP_ATCDTSPERSOS_RMP " =  '" + Utils::correctquoteSQL(atcdt) + "' where " CP_IDPAT_RMP " = " + strgidpat;
                     //qDebug() << req;
                     db->StandardSQL(req);
                 }
                 else if (rubrique == "dgn")
                 {
-                    QString atcdt = actlist.at(i).at(1).toString().replace("^","\n");
+                    QString atcdt = valeur.replace("^","\n");
                     req = "update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set " CP_ATCDTSOPH_RMP " =  '" + Utils::correctquoteSQL(atcdt) + "' where " CP_IDPAT_RMP " = " + strgidpat;
                     //qDebug() << req;
                     db->StandardSQL(req);
@@ -227,23 +238,128 @@ conversionbaseoplus::conversionbaseoplus(Procedures *proc, QString BaseAConverti
             QString actedate = datetime.date().toString("yyyy-MM-dd");
             QString acteheure = datetime.time().toString("HH:mm");
             QString txt = "";
-            QString motif = "";
+            QString motif = "", conclusion = "";
             for (int j=0; j< actlist.size(); j++)
             {
                 QDateTime datetimeenreg = QDateTime::fromString(actlist.at(j).at(2).toString(),"dd/MM/yyyy HHmm");
+                QString rubrique = actlist.at(j).at(0).toString();
+                QString valeur = actlist.at(j).at(1).toString();
                 if (datetimeenreg == datetime)
                 {
-                    QString rubrique = actlist.at(j).at(1).toString();
                     if (rubrique == "m")
-                        motif += actlist.at(j).at(2).toString().replace("^","\n");
+                        motif += valeur.replace("^","\n");
+                    else if (rubrique == "cc")
+                        conclusion += valeur.replace("^","\n");
+                    else if ((rubrique == "icv" || rubrique == "scan" || rubrique == "reti") && (valeur.contains(".tif") || valeur.contains(".jpg")) && okdirimagerie)
+                    {
+                        QString nomfichier = valeur;
+                        QString titre = (rubrique == "icv"? tr("CV"): (rubrique == "reti"? tr("RNM") : "scan"));
+                        QString typedoc = titre;
+                        QString sstypedoc = titre;
+                        if (valeur.split(":").size()>1)
+                        {
+                            nomfichier = valeur.split(":").at(0);
+                            sstypedoc = valeur.split(":").at(1);
+                        }
+                        QString nomdossierimage = strgidpat;
+                        if (nomdossierimage.size() == 1)
+                            nomdossierimage = "00000" +nomdossierimage;
+                        else if (nomdossierimage.size() == 2)
+                            nomdossierimage = "0000" +nomdossierimage;
+                        else if (nomdossierimage.size() == 3)
+                            nomdossierimage = "000" +nomdossierimage;
+                        else if (nomdossierimage.size() == 4)
+                            nomdossierimage = "00" +nomdossierimage;
+                        else if (nomdossierimage.size() == 5)
+                            nomdossierimage = "0" +nomdossierimage;
+                        QString pathorigin = dirimagerieoplus + "/" + nomdossierimage +"/" + nomfichier;
+                        QFile fileorigin(pathorigin);
+                        if (!fileorigin.exists())
+                            continue;
+                        QString nomdossierdestination = dirimagerie + "/" + datetime.date().toString("yyyy-MM-dd");
+                        Utils::mkpath(nomdossierdestination);
+                        int idimpr = db->selectMaxFromTable(CP_ID_DOCSEXTERNES,  TBL_DOCSEXTERNES, ok)+1;
+                        QString nomfiledestination = strgidpat + "_"
+                                + typedoc + "_"
+                                + sstypedoc + "_"
+                                + datetime.toString("yyyyMMdd-HHmm")
+                                + "-" + QString::number(idimpr);
+                        QString suffix = QFileInfo(fileorigin).suffix();
+                        if (suffix == "tif") //! CONVERTIT LES TIF EN JPG
+                        {
+                            if (!fileorigin.open(QIODevice::ReadOnly)) {
+                                return;
+                            }
+                            QByteArray ar(fileorigin.size(), ' ');
+                            fileorigin.read(ar.data(), ar.size());
+                            QImage img;
+                            img.loadFromData(ar);
+                            if (!img.isNull())
+                            {
+                                nomfiledestination +=  ".jpg";
+                                img.save(nomdossierdestination + "/" + nomfiledestination);
+                            }
+                        }
+                        else
+                        {
+                            if (QFileInfo(fileorigin).suffix() == "jpeg")
+                                suffix = "jpg";
+                            nomfiledestination +=  "." + suffix;
+                            fileorigin.copy(nomdossierdestination + "/" + nomfiledestination);
+                        }
+                        req = "insert into " TBL_DOCSEXTERNES " (" CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ",  " CP_IDPAT_DOCSEXTERNES ",  " CP_TYPEDOC_DOCSEXTERNES ",  " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
+                                                                   CP_IDEMETTEUR_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_EMISORRECU_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IDLIEU_DOCSEXTERNES ")"
+                                                                   " values("
+                                + QString::number(idimpr) + ", "
+                                + "1, "
+                                + strgidpat + ", '"
+                                + typedoc + "', '"
+                                + titre
+                                + "', '"
+                                + sstypedoc + "', '"
+                                + datetime.date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss") + "', "
+                                +  "1, '"
+                                + "/" + datetime.date().toString("yyyy-MM-dd") + "/" + nomfiledestination + "', "
+                                + "0" + ", '"
+                                IMAGERIE "', "
+                                + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
+                        //qDebug() << req;
+                        if(db->StandardSQL(req))
+                        {
+                            QFile CC(nomdossierdestination + "/" + nomfiledestination);
+                            CC.open(QIODevice::ReadWrite);
+                            CC.setPermissions(QFileDevice::ReadOther
+                                              | QFileDevice::ReadGroup
+                                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+                        }
+                    }
                     else
-                        txt += "[" + rubrique + "]\t" + actlist.at(j).at(2).toString().replace("^","\n\t") + "\n";
+                    {
+                        if (rubrique == "lf")
+                            rubrique = tr("LAF:");
+                        else if (rubrique == "to")
+                            rubrique = tr("TO:");
+                        else if (rubrique == "av")
+                            rubrique = tr("AV:");
+                        else if (rubrique == "vp")
+                            rubrique = tr("VP:");
+                        else if (rubrique == "ra")
+                            rubrique = tr("Autoref:");
+                        else if (rubrique == "po")
+                            rubrique = tr("Porte:");
+                        else if (rubrique.left(3) == "ker")
+                            rubrique = tr("Kerato:");
+                        else
+                            rubrique = "[" + rubrique + "]";
+                        txt += rubrique + "\t" + valeur.replace("^","\n\t") + "\n";
+                    }
                 }
             }
             req= "insert into " TBL_ACTES " (" CP_IDPAT_ACTES ", " CP_IDUSER_ACTES ", " CP_TEXTE_ACTES ", " CP_DATE_ACTES ", " CP_HEURE_ACTES ", " CP_IDUSERCREATEUR_ACTES  ", "
-                    CP_COTATION_ACTES  ", " CP_MONTANT_ACTES", " CP_MONNAIE_ACTES ", " CP_IDUSERPARENT_ACTES ", " CP_IDLIEU_ACTES ", " CP_MOTIF_ACTES ")"
+                    CP_COTATION_ACTES  ", " CP_MONTANT_ACTES", " CP_MONNAIE_ACTES ", " CP_IDUSERPARENT_ACTES ", " CP_IDLIEU_ACTES ", " CP_MOTIF_ACTES ", " CP_CONCLUSION_ACTES ")"
                     " values (" + strgidpat + ", 1, '" + Utils::correctquoteSQL(txt) + "', '" + actedate + "', '" + acteheure + "', 1, "
-                    " 'Acte gratuit', 0.00 , 'E', 1, 1, '" + Utils::correctquoteSQL(motif) + "')";
+                    " 'Acte gratuit', 0.00 , 'E', 1, 1, '" + Utils::correctquoteSQL(motif) + "', '" + Utils::correctquoteSQL(conclusion) + "')";
             //qDebug() << req;
             db->StandardSQL(req);
         }
@@ -258,6 +374,6 @@ conversionbaseoplus::conversionbaseoplus(Procedures *proc, QString BaseAConverti
             values += ", ";
     }
     req = "insert into " TBL_TYPEPAIEMENTACTES " (" CP_IDACTE_TYPEPAIEMENTACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ") values " + values;
-    qDebug() << req;
+    //qDebug() << req;
     db->StandardSQL(req);
 }
