@@ -18,6 +18,72 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "conversionbaseoplus.h"
 
+
+/*! IMPORT OPLUS
+ * Il y a 2 fichiers CSV et un dossier pieces_jointes contenant l'imagerie
+ * 1. mettre tout dans un seul dossier (laine dans l'exemple suivant) qu'on recopiera dans le dossier imagerie de Rufus pour que MySQL puisse y accèder
+    * actes.csv
+    * identites_patients.csv
+    * pieces_jointes (dosssier)
+ * 2. Importer les fichiers csv dans une base de données mySQL Oplus
+    * éxécuter le script MySQL suivant
+
+CREATE SCHEMA `Oplus`;
+Use `Oplus`;
+CREATE TABLE `Oplus`.`identites_patients` (
+  `nopat` INT NOT NULL AUTO_INCREMENT,
+  `sexe` VARCHAR(10) NULL,
+  `titre` VARCHAR(4) NULL,
+  `nom_prenom` VARCHAR(45) NULL,
+  `adr1` VARCHAR(100) NULL,
+  `adr2` VARCHAR(100) NULL,
+  `codepostal` VARCHAR(5) NULL,
+  `ville` VARCHAR(100) NULL,
+  `date_naiss` VARCHAR(10) NULL,
+  `noSS` VARCHAR(45) NULL,
+  `nom_naiss` VARCHAR(45) NULL,
+  `tel` VARCHAR(45) NULL,
+  `tel_bur` VARCHAR(45) NULL,
+  `tel_port` VARCHAR(45) NULL,
+  `email` VARCHAR(45) NULL,
+  `prat_usuel` VARCHAR(45) NULL,
+  `med_trait` VARCHAR(45) NULL,
+  `org` VARCHAR(45) NULL,
+  `profession` VARCHAR(45) NULL,
+  `divers` VARCHAR(45) NULL,
+  PRIMARY KEY (`nopat`));
+LOAD DATA INFILE '/Users/serge/Documents/Rufus/laine/identites_patients.csv'
+INTO TABLE `Oplus`.`identites_patients`
+FIELDS
+    TERMINATED BY '|'
+LINES
+    TERMINATED BY '\n'
+    IGNORE 1 LINES;
+CREATE TABLE `Oplus`.`actes` (
+  `nopat` INT NOT NULL,
+  `dateheure` VARCHAR(15) NULL,
+  `rubrique` VARCHAR(15) NULL,
+  `valeur` VARCHAR(1000) NULL);
+LOAD DATA INFILE '/Users/serge/Documents/Rufus/laine/actes.csv'
+INTO TABLE `Oplus`.`actes`
+FIELDS
+    TERMINATED BY '|'
+LINES
+    TERMINATED BY '\n'
+    IGNORE 1 LINES;
+
+    * ce srcipt plantera à de nombreuses reprises sur les irrégularités des champs des fichiers CSV
+    * corriger l'erreur à chaque plantage et recommencer jusaqu'à ce que le script finisse par s'éxécuter sans échec
+ * 3. faire une install vierge de Rufus en conservant les données d'utilisateur proposées par défaut
+ * 4. redémarrer Rufus et éxécuter la classe consersionbaseoplus qui va importer les données de la base MySQL Oplus créée par le script précédent pour les incorporer dans la base Rufus nouvellement créée
+    * C'est très lent - environ 2 à 3 heures pour 350000 dossiers
+ * 5. redémarrer Rufus et corriger les utilisateurs importés, les lieux d'exercice, l'emplacement du serveur...etc...
+ *
+ * Remarque : les documents émis par O+ au format Abiword (extension .zabw) ne peuvent pas être importés
+ */
+
+
+
 conversionbaseoplus::conversionbaseoplus(QObject *parent) :
     QObject(parent)
 {
@@ -52,20 +118,25 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
                                                             QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     bool okdirimagerie = QDir(dirimagerieoplus).exists();
     dirimagerie = QDir::homePath() + NOM_DIR_RUFUS NOM_DIR_IMAGERIE NOM_DIR_IMAGES;
+
     db->StandardSQL("delete from " TBL_PATIENTS);
     db->StandardSQL("delete from " TBL_DONNEESSOCIALESPATIENTS);
     db->StandardSQL("delete from " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
     db->StandardSQL("delete from " TBL_ACTES);
     db->StandardSQL("delete from " TBL_TYPEPAIEMENTACTES);
-    db->StandardSQL("delete from " TBL_LIGNESPAIEMENTS);
-    db->StandardSQL("delete from " TBL_RECETTES);
     db->StandardSQL("delete from " TBL_CORRESPONDANTS);
     db->StandardSQL("delete from " TBL_REFRACTIONS);
     db->StandardSQL("delete from " TBL_DOCSEXTERNES);
-    db->StandardSQL("delete from " TBL_DONNEES_OPHTA_PATIENTS);
     db->StandardSQL("delete from " TBL_UTILISATEURS " where " CP_NOM_USR " <> '" NOM_ADMINISTRATEUR "' and " CP_NOM_USR " <> 'Snow'" );
 
-    // Utilisateurs
+    /*! Utilisateurs
+     * Seul le nom de l'utilisateur est enregistré dans 0+, dans la table identites_patients, avec les risques de doublons
+     * On crée donc un enregistrement pour chacun de ces utilisateurss dans la table Correspondants de Rufus
+     * le nom et le login sont fixés arbitrairement
+     * le mdp à "bob"
+     * il n'y a aucun renseignement sur le statut
+     * il faut donc compléter "à la main" par la suite tous les autres renseignements de statut
+     */
     req = "SELECT distinct prat_usuel FROM Oplus.identites_patients where prat_usuel <> \"\" order by prat_usuel asc;";
     QMap<int,QString> mapprat;
     QList<QVariantList> pratlist = db->StandardSelectSQL(req,ok);
@@ -83,7 +154,15 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
         mapprat.insert(idusr, nom);
     }
 
-    // Médecins traitants
+    /*! Médecins traitants
+     * Seul le nom du médecin est enregistré dans 0+, dans la table identites_patients, avec les risques de doublons
+     * On crée donc un enregistrement pour chacun de ces médecins dans la table Correspondants de Rufus
+     * le prénom est fixé arbitrairement à x
+     * le sexe à M
+     * pas d'adresse
+     * tous généralistes
+     * les risques de doublons persistent donc
+     */
     req = "SELECT distinct med_trait FROM Oplus.identites_patients where med_trait <> \"\";";
     QMap<QString, int> medtraitprat;
     QList<QVariantList> medlist = db->StandardSelectSQL(req,ok);
@@ -102,7 +181,9 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
         db->StandardSQL(req);
     }
 
-    // Patients
+    /*! Patients
+     *
+     */
     UpSystemTrayIcon::I()->showMessage(tr("Messages"), "importation des patients", Icons::icSunglasses(), 1000);
     req = "select nopat, sexe, nom_prenom, date_naiss,"
           " adr1, adr2, codepostal, ville, noSS, tel, tel_port, email, profession,"
@@ -136,15 +217,15 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
         db->InsertSQLByBinds(TBL_PATIENTS, listbinds, "problème avec le patient " + nom);
         listbinds.clear();
 
-        adr1        = patlist.at(i).at(4).toString();
-        adr2        = patlist.at(i).at(5).toString();
+        adr1        = Utils::trimcapitilize(patlist.at(i).at(4).toString());
+        adr2        = Utils::trimcapitilize(patlist.at(i).at(5).toString());
         codepostal  = patlist.at(i).at(6).toString();
-        ville       = patlist.at(i).at(7).toString();
+        ville       = Utils::trimcapitilize(patlist.at(i).at(7).toString());
         noSS        = patlist.at(i).at(8).toString();
         tel         = patlist.at(i).at(9).toString();
         tel_port    = patlist.at(i).at(10).toString();
         email       = patlist.at(i).at(11).toString();
-        profession  = patlist.at(i).at(12).toString();
+        profession  = Utils::trimcapitilize(patlist.at(i).at(12).toString());
         listbinds[CP_IDPAT_PATIENTS] = idpat;
         if (adr1 != "")
             listbinds[CP_ADRESSE1_DSP] = adr1;
@@ -181,17 +262,14 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
         db->InsertSQLByBinds(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS, listbinds, "problème avec le patient " + nom);
         listbinds.clear();
     }
-    UpSystemTrayIcon::I()->showMessage(tr("Messages"), "table " TBL_PATIENTS " importée", Icons::icSunglasses(), 1000);
 
     for (int k=0; k< listidpat.size(); ++k)
     {
         int idpat =  listidpat.at(k);
-        if (idpat<30000)
-            continue;
         qDebug() << k+1 << "/" <<  listidpat.size() << "idpat =" << idpat;
         QString strgidpat = QString::number(idpat);
 
-        req = "SELECT rubrique, valeur, dateheure FROM Oplus.actes where nopat = " + QString::number(idpat);// + " and (rubrique = 'reti' or rubrique = 'icv' or rubrique = 'scan')";
+        req = "SELECT rubrique, valeur, dateheure FROM Oplus.actes where nopat = " + QString::number(idpat);
         //qDebug() << req;
         QList<QVariantList> actlist = db->StandardSelectSQL(req,ok);
         QList<QDateTime> listdates;
@@ -246,11 +324,36 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
                 QString valeur = actlist.at(j).at(1).toString();
                 if (datetimeenreg == datetime)
                 {
+                    QString larg =  "60";
+                    QString retourligneavectab = "</td>" HTML_RETOURLIGNE "<td width=\"" + larg + "\"></td><td>";
+                    QString retourlignesanstab = "</td>" HTML_RETOURLIGNE "<td>";
                     if (rubrique == "m")
                         motif += valeur.replace("^","\n");
                     else if (rubrique == "cc")
-                        conclusion += valeur.replace("^","\n");
-                    else if ((rubrique == "icv" || rubrique == "scan" || rubrique == "reti") && (valeur.contains(".tif") || valeur.contains(".jpg")) && okdirimagerie)
+                    {
+                        valeur = valeur.replace("^",retourlignesanstab);
+                        conclusion += HTML_RETOURLIGNE "<td>" + valeur + "</td></p>";
+                    }
+                    else if (rubrique == "ttn")
+                    {
+                        rubrique = tr("Ordo:");
+                        valeur = valeur.replace("^",retourligneavectab);
+                        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">" + rubrique + "</font></b></td>";
+                        conclusion += title + "<td>" + valeur + "</td></p>";
+                    }
+                    else if (rubrique == "vp")
+                    {
+                        rubrique = tr("VP:");
+                        valeur = valeur.replace("^",retourligneavectab);
+                        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">" + rubrique + "</font></b></td>";
+                        conclusion += title + "<td>" + valeur + "</td></p>";
+                    }
+                    /*! l'adresse des fichiers image est enregistrée dans la table actes
+                     * dans les lignes des rubriques scan, icv et reti
+                     */
+                    else if ((rubrique == "icv" || rubrique == "scan" || rubrique == "reti")
+                             && (valeur.contains(".tif") || valeur.contains(".jpg") || valeur.contains(".jpeg"))
+                             && okdirimagerie)
                     {
                         QString nomfichier = valeur;
                         QString titre = (rubrique == "icv"? tr("CV"): (rubrique == "reti"? tr("RNM") : "scan"));
@@ -342,17 +445,25 @@ conversionbaseoplus::conversionbaseoplus(QObject *parent) :
                             rubrique = tr("TO:");
                         else if (rubrique == "av")
                             rubrique = tr("AV:");
-                        else if (rubrique == "vp")
-                            rubrique = tr("VP:");
                         else if (rubrique == "ra")
                             rubrique = tr("Autoref:");
                         else if (rubrique == "po")
                             rubrique = tr("Porte:");
                         else if (rubrique.left(3) == "ker")
                             rubrique = tr("Kerato:");
+                        else if (rubrique.left(3) == "fo")
+                            rubrique = tr("FO:");
+                        else if (rubrique.left(3) == "oct")
+                            rubrique = tr("OCT:");
+                        else if (rubrique.left(3) == "pachy")
+                            rubrique = tr("Pachy:");
                         else
                             rubrique = "[" + rubrique + "]";
-                        txt += rubrique + "\t" + valeur.replace("^","\n\t") + "\n";
+                        //txt += rubrique + "\t" + valeur.replace("^","\n\t") + "\n";
+
+                        valeur = valeur.replace("^",retourligneavectab);
+                        QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">" + rubrique + "</font></b></td>";
+                        txt += title + "<td>" + valeur + "</td></p>";
                     }
                 }
             }
