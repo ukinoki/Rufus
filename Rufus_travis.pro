@@ -41,7 +41,6 @@ linux-g++ {
 }
 
 SOURCES += main.cpp\
-    conversionbaseoplus.cpp \
     rufus.cpp \
     procedures.cpp \
     pyxinterf.cpp \
@@ -54,7 +53,6 @@ SOURCES += main.cpp\
     flags.cpp
 
 HEADERS += rufus.h \
-    conversionbaseoplus.h \
     ostask.h \
     procedures.h \
     pyxinterf.h \

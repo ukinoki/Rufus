@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-07-2020/1");
+    qApp->setApplicationVersion("27-07-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -369,7 +369,7 @@ void Rufus::ConnectSignals()
         connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
-    ui->MoulinettepushButton->setVisible(true);
+    ui->MoulinettepushButton->setVisible(false);
 }
 
 
@@ -445,17 +445,26 @@ void Rufus::MAJDocsExternes()
 void Rufus::Moulinette()
 {
 
-    //CONVERSION DES BASES OPLUS ============================================================================================================================================================
+    //!CONVERSION DES BASES OPLUS ============================================================================================================================================================
     QString req;
-    conversionbaseoplus *convbase = new conversionbaseoplus();
+    conversionbase *convbase = new conversionbase();
+    convbase->conversionbaseoplus();
     delete convbase;
     Remplir_ListePatients_TableView();
 
-
-
+    //! CONVERSION DES BASES OPHTALOGIC ============================================================================================================================================================
+    /*
+    int max = 1000;
+    QString req;
+    conversionbase *convbase = new conversionbase();
+    convbase->conversionbaseophtalogic();
+    delete convbase;
+    Remplir_ListePatients_TableView();
+    */
 
     //! MODIFICATION DES TABLES CCAM ============================================================================================================================================================
-    /*!bool ok;
+    /*
+    bool ok;
     QString req = "select codeccam from rufus.ccam";
     QList<QVariantList> listcodes = db->StandardSelectSQL(req, ok);
     for (int i=0; i< listcodes.size(); i++)
@@ -476,8 +485,10 @@ void Rufus::Moulinette()
         //qDebug() << req;
         db->StandardSQL(req);
      */
+
     //! FIN MODIFICATION DES TABLES CCAM ============================================================================================================================================================
-    /*    QString req= "select codeCCAM, modificateur, montant from ccam.ccamd";
+    /*
+    QString req= "select codeCCAM, modificateur, montant from ccam.ccamd";
     QSqlQuery quer(req, db->getDataBase() );
     for (int i=0; i< quer.size(); i++)
     {
@@ -560,15 +571,6 @@ void Rufus::Moulinette()
             source.copy(destination);
         }
     }*/
-
-    /*
-    //CONVERSION DES BASES OPHTALOGIC ============================================================================================================================================================
-    int max = 1000;
-    QString req;
-    conversionbase *convbase = new conversionbase(proc,"");
-    delete convbase;
-    Remplir_ListePatients_TableView(grequeteListe,"","");
-    */
 
     /*
     // SUPPRESSION DES RETOURS A LA LIGNE DANS LES CHAMPS TEXTE DE ACTES ET IMPRESSIONS ============================================================================================================================================================

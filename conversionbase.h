@@ -26,9 +26,15 @@ class conversionbase : public QObject
 {
     Q_OBJECT
 public:
-    explicit conversionbase(Procedures *proc, QString BaseAConvertir, QObject *parent = Q_NULLPTR);
+    explicit conversionbase(QObject *parent = Q_NULLPTR);
     DataBase    *db;
+    Procedures  *proc;
     bool        ok;
+    void        conversionbaseophtalogic();
+    void        conversionbaseoplus();
+
+private:
+    QString dirimagerieoplus, dirimagerie;
 };
 
 #endif // CONVERSIONBASE_H

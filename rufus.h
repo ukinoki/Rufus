@@ -68,7 +68,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updoublevalidator.h"
 #include "upstandarditem.h"
 #include "conversionbase.h"
-#include "conversionbaseoplus.h"
 #include "database.h"
 #include "flags.h"
 #include "gbl_datas.h"

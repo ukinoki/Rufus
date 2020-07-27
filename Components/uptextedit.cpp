@@ -358,6 +358,13 @@ void UpTextEdit::setText(const QString &text)
         QTextEdit::setText(text);
 }
 
+/*!
+ * \brief UpTextEdit::appendHtml
+ * \param appendtext
+ * \param supprimeLesLignesVidesDuMilieu - true par défaut
+ * \param rajouteunelignealafin - true par défaut
+ * \return
+ */
 QString UpTextEdit::appendHtml(QString appendtext, bool supprimeLesLignesVidesDuMilieu, bool rajouteunelignealafin)
 {
     QString texte = toHtml();
