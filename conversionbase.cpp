@@ -508,13 +508,16 @@ void conversionbase::conversionbaseoplus()
 {
     /*! IMPORT OPLUS
      * Il y a 2 fichiers CSV et un dossier pieces_jointes contenant l'imagerie
+
      * 1. mettre tout dans un seul dossier (laine dans l'exemple suivant) qu'on recopiera dans le dossier imagerie de Rufus pour que MySQL puisse y accèder
         * actes.csv
         * identites_patients.csv
         * pieces_jointes (dosssier)
-     * 2. Importer les fichiers csv dans une base de données mySQL Oplus
-        * éxécuter le script MySQL suivant
 
+     * 2. Importer les fichiers csv dans une base de données mySQL Oplus
+        * éxécuter le script MySQL suivant dans MySQLWorkbench
+
+    DROP SCHEMA IF EXISTS `Oplus`;
     CREATE SCHEMA `Oplus`;
     Use `Oplus`;
     CREATE TABLE `Oplus`.`identites_patients` (
@@ -539,7 +542,7 @@ void conversionbase::conversionbaseoplus()
       `profession` VARCHAR(45) NULL,
       `divers` VARCHAR(45) NULL,
       PRIMARY KEY (`nopat`));
-    LOAD DATA INFILE '/Users/serge/Documents/Rufus/laine/identites_patients.csv'
+    LOAD DATA LOCAL INFILE '/Users/serge/Documents/Rufus/laine/identites_patients.csv'
     INTO TABLE `Oplus`.`identites_patients`
     FIELDS
         TERMINATED BY '|'
@@ -551,7 +554,7 @@ void conversionbase::conversionbaseoplus()
       `dateheure` VARCHAR(15) NULL,
       `rubrique` VARCHAR(15) NULL,
       `valeur` VARCHAR(1000) NULL);
-    LOAD DATA INFILE '/Users/serge/Documents/Rufus/laine/actes.csv'
+    LOAD DATA LOCAL INFILE '/Users/serge/Documents/Rufus/laine/actes.csv'
     INTO TABLE `Oplus`.`actes`
     FIELDS
         TERMINATED BY '|'
@@ -559,13 +562,24 @@ void conversionbase::conversionbaseoplus()
         TERMINATED BY '\n'
         IGNORE 1 LINES;
 
-        * ce srcipt plantera à de nombreuses reprises sur les irrégularités des champs des fichiers CSV
-        * corriger l'erreur à chaque plantage et recommencer jusaqu'à ce que le script finisse par s'éxécuter sans échec
+        * ce script plantera à de nombreuses reprises sur les irrégularités des champs des fichiers CSV. Les 2 plus fréquentes sont
+            * il peut y avoir un champ avant la date, p.e. comme ici 'pas de tel' qu'il faut supprimer
+                * 22677|pas de tel|01/07/2011 0000|cc|intevention Cataracte OG
+                * doit être transformé en
+                * 22677|01/07/2011 0000|cc|intevention Cataracte OG
+            * l'absence de la date, qu'il faut alors remplacer par un cahmp vierge
+                * 22678|pidmm|62.0
+                * doit être transformé en
+                * 22678||pidmm|62.0
+        * corriger l'erreur à chaque plantage et recommencer jusqu'à ce que le script finisse par s'éxécuter sans échec
+
      * 3. faire une install vierge de Rufus en conservant les données d'utilisateur proposées par défaut
+
      * 4. redémarrer Rufus et éxécuter la fonction consersionbaseoplus qui va importer les données de la base MySQL Oplus créée par le script précédent pour les incorporer dans la base Rufus nouvellement créée
-        * C'est très lent - environ 2 à 3 heures pour 350000 dossiers
+        * C'est très lent - environ 2 à 3 heures pour 35 000 dossiers
+
      * 5. redémarrer Rufus et corriger les utilisateurs importés, les lieux d'exercice, l'emplacement du serveur...etc...
-     *
+
      * Remarque : les documents émis par O+ au format Abiword (extension .zabw) ne peuvent pas être importés
      */
 
@@ -656,7 +670,7 @@ void conversionbase::conversionbaseoplus()
     for (auto it = medtraitprat.constBegin(); it != medtraitprat.constEnd(); ++it)
     {
         req = "insert into " TBL_CORRESPONDANTS "(" CP_ID_CORRESP ", " CP_NOM_CORRESP ", " CP_PRENOM_CORRESP ", " CP_SEXE_CORRESP ", " CP_SPECIALITE_CORRESP ", " CP_ISMEDECIN_CORRESP  ") "
-                           " values (" + QString::number(it.value()) +  ",'" + it.key() + "', 'x', 'F', 13, 1)";
+                           " values (" + QString::number(it.value()) +  ",'" + Utils::correctquoteSQL(it.key()) + "', 'x', 'F', 13, 1)";
         //qDebug() << req;
         db->StandardSQL(req);
     }
@@ -674,7 +688,7 @@ void conversionbase::conversionbaseoplus()
 
     for (int i=0; i< patlist.size(); i++)
     {
-        QString nom (""), sexe (""), ddn ("");
+        QString nom (""), prenom (""), sexe (""), ddn ("");
         int idpat;
         QString adr1 (""), adr2 (""), codepostal (""), ville (""), noSS (""), tel (""), tel_port (""), email (""), profession ("");
 
@@ -686,12 +700,26 @@ void conversionbase::conversionbaseoplus()
         idpat = patlist.at(i).at(0).toInt();
         nom = Utils::trimcapitilize(patlist.at(i).at(2).toString());
         mappat.insert(idpat, nom);
+
+        QStringList listnom = nom.split(" ");
+        if (listnom.size() >1)
+        {
+            prenom = listnom.last();
+            nom = "";
+            for (int i=0; i< listnom.size()-1; ++i)
+                nom += listnom.at(i) + " ";
+            nom = Utils::trim(nom);
+        }
+        qDebug() << i+1 << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << nom + prenom;
+        QString strgidpat = QString::number(idpat);
+
         sexe = "";
         if (patlist.at(i).at(1) == "F" || patlist.at(i).at(1) == "M")
             sexe = patlist.at(i).at(1).toString();
         listbinds[CP_IDPAT_PATIENTS] = idpat;
         listbinds[CP_DDN_PATIENTS] = date;
         listbinds[CP_NOM_PATIENTS] = nom;
+        listbinds[CP_PRENOM_PATIENTS] = prenom;
         if (sexe != "")
             listbinds[CP_SEXE_PATIENTS] = sexe;
         db->InsertSQLByBinds(TBL_PATIENTS, listbinds, "problème avec le patient " + nom);
@@ -751,7 +779,8 @@ void conversionbase::conversionbaseoplus()
     {
         ++l;
         int idpat =  it.key();
-        qDebug() << l << "/" <<  mappat.size() << "idpat =" << idpat << "- patient = " << it.value();
+        qDebug() << l << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << it.value();
+        //if (idpat < 30000 || idpat > 30030) continue;
         QString strgidpat = QString::number(idpat);
 
         req = "SELECT rubrique, valeur, dateheure FROM Oplus.actes where nopat = " + QString::number(idpat);
@@ -886,7 +915,9 @@ void conversionbase::conversionbaseoplus()
                             if (!img.isNull())
                             {
                                 nomfiledestination +=  ".jpg";
-                                img.save(nomdossierdestination + "/" + nomfiledestination);
+                                QString pathfiledestination = nomdossierdestination + "/" + nomfiledestination;
+                                img.save(pathfiledestination);
+                                Utils::CompressFileJPG(pathfiledestination, proc->AbsolutePathDirImagerie());
                             }
                         }
                         else
@@ -894,7 +925,9 @@ void conversionbase::conversionbaseoplus()
                             if (QFileInfo(fileorigin).suffix() == "jpeg")
                                 suffix = "jpg";
                             nomfiledestination +=  "." + suffix;
-                            fileorigin.copy(nomdossierdestination + "/" + nomfiledestination);
+                            QString pathfiledestination = nomdossierdestination + "/" + nomfiledestination;
+                            fileorigin.copy(pathfiledestination);
+                            Utils::CompressFileJPG(pathfiledestination, proc->AbsolutePathDirImagerie());
                         }
                         req = "insert into " TBL_DOCSEXTERNES " (" CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ",  " CP_IDPAT_DOCSEXTERNES ",  " CP_TYPEDOC_DOCSEXTERNES ",  " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
                                                                    CP_IDEMETTEUR_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_EMISORRECU_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IDLIEU_DOCSEXTERNES ")"

@@ -314,9 +314,9 @@ QSize Utils::CalcSize(QString txt, QFont fm)
 }
 
 /*!
- * \brief Utils::CompressFileJPG(QString nomfileOK, QString Dirprov, QString nomfileEchec)
+ * \brief Utils::CompressFileJPG(QString pathfile, QString Dirprov, QString nomfileEchec)
  * comprime un fichier jpg à une taille inférieure à celle de la macro TAILLEMAXIIMAGES
- * \param QString nomfileOK le nom du fichier d'origine utilisé aussi en cas d'échec pour faire le log
+ * \param QString pathfile le chemin complet du fichier d'origine utilisé aussi en cas d'échec pour faire le log
  * \param QString dirprov le nom du dossier d'imagerie
  * \param QDate datetransfert date utilisée en cas d'échec pour faire le log
  * \return true si réussi, false si échec de l'enregistrement du fichier
@@ -325,7 +325,7 @@ QSize Utils::CalcSize(QString txt, QFont fm)
     * et une ligne résumant l'échec est ajoutée en fin de ce fichier
     * le fichier d'origine est ajouté dans ce même répertoire
  */
-bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert)
+bool Utils::CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfert)
 {
     /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
     QString CheminEchecTransfrDir   = Dirprov + NOM_DIR_ECHECSTRANSFERTS;
@@ -344,12 +344,12 @@ bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfer
         return false;
     }
 
-    QFile CC(nomfile);
+    QFile CC(pathfile);
     double sz = CC.size();
     if (sz < TAILLEMAXIIMAGES)
         return true;
-    QImage  img(nomfile);
-    QString filename = QFileInfo(nomfile).fileName();
+    QImage  img(pathfile);
+    QString filename = QFileInfo(pathfile).fileName();
     QString nomfichresize = DirStockProvPath + "/" + filename;
     QFile fileresize(nomfichresize);
     if (fileresize.exists())
@@ -392,7 +392,7 @@ bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfer
         sz = fileresize.size();
         tauxcompress -= 10;
     }
-    fileresize.copy(nomfile);
+    fileresize.copy(pathfile);
     fileresize.close();
     fileresize.remove();
     return true;

@@ -113,7 +113,7 @@ public:
     static QString                  getMacForIP(QString ipAddress);
 
     //! Fichiers
-    static bool                     CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert = QDate::currentDate());
+    static bool                     CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfert = QDate::currentDate());
     static QMap<QString, qint64>    dir_size(const QString DirPath);
     static QString                  getExpressionSize(qint64 size);                 //! concertit en Go, To la taille en Mo du qint64 passé en paramètre
     static bool                     mkpath(QString path);
