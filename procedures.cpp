@@ -103,7 +103,7 @@ Procedures::Procedures(QObject *parent) :
 
     m_nomImprimante  = "";
 
-    Ouverture_Ports_Series();
+    Ouverture_Appareils_Refraction();
     ReconstruitListeModesAcces();
     m_typemesureRefraction               = None;
     m_dlgrefractionouverte    = false;
@@ -4095,6 +4095,27 @@ bool Procedures::VerifRessources(QString Nomfile)
     return true;
 }
 
+
+void Procedures::Ouverture_Appareils_Refraction()
+{
+    bool m_isAutorefParametre   = (m_settings->value("Param_Poste/Autoref").toString() != "-"
+                                && m_settings->value("Param_Poste/Autoref").toString() != ""
+                                && m_settings->value("Param_Poste/PortAutoref").toString() != "Box");
+    if (m_isAutorefParametre)
+    {
+        bool m_isReseauAutoref  = (m_settings->value("Param_Poste/PortAutoref").toString() == RESEAU);
+        if (!m_isReseauAutoref)
+            Ouverture_Ports_Series();
+        else
+            Ouverture_Fichiers_Echange();
+    }
+}
+
+bool Procedures::Ouverture_Fichiers_Echange()
+{
+    Utils::mkpath(PATH_DIR_AUTOREF);
+
+}
 
 /*! ------------------------------------------------------------------------------------------------------------------------------------------
 GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------

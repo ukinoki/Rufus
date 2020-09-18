@@ -171,6 +171,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortFrontoupComboBox    ->addItem("Box");
     ui->PortAutorefupComboBox   ->insertItems(0,ListPortsCOM);
     ui->PortAutorefupComboBox   ->addItem("Box");
+    ui->PortAutorefupComboBox   ->addItem(RESEAU);
     ui->PortRefracteurupComboBox->insertItems(0,ListPortsCOM);
     ui->PortTonometreupComboBox ->insertItems(0,ListPortsCOM);
 

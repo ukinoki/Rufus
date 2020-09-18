@@ -66,6 +66,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "uptoolbar.h"
 #include "upmessagebox.h"
+#include "util.h"
 
 #include "database.h"
 #include "gbl_datas.h"
@@ -407,7 +408,7 @@ signals:
 
 
 /*! ------------------------------------------------------------------------------------------------------------------------------------------
-     GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------
+     GESTION DES APPAREILS DE REFRACTION - PORTS SERIES, FICHIER ECHANGE XML -----------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 public:
     void                    setFicheRefractionOuverte(bool a);
@@ -455,15 +456,15 @@ public:
     QSerialPort*            PortTono();
     void                    debugMesure(QObject *mesure, QString titre = "");
     //LE FRONTO ----------------------------------------------------
-    QString                 HtmlFronto();                           // accesseur pour le html de mesure fronto à afficher;
+    QString                 HtmlFronto();                                           //! accesseur pour le html de mesure fronto à afficher;
     //L'AUTOREF ----------------------------------------------------
-    QString                 HtmlAutoref();                          // accesseur pour le html de mesure fronto à afficher;
-    QString                 HtmlKerato();                           // accesseur pour le html de mesure kerato à afficher;
-    QString                 HtmlTono();                             // accesseur pour le html de mesure tonométrie à afficher;
+    QString                 HtmlAutoref();                                          //! accesseur pour le html de mesure fronto à afficher;
+    QString                 HtmlKerato();                                           //! accesseur pour le html de mesure kerato à afficher;
+    QString                 HtmlTono();                                             //! accesseur pour le html de mesure tonométrie à afficher;
     QString                 HtmlPachy();
    //LE REFRACTEUR ------------------------------------------------
-    QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure typemesure = All);         // enregistre la mesure de réfraction
+    QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
+    void                    InsertMesure(TypeMesure typemesure = All);              //! enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
@@ -472,20 +473,20 @@ public:
 
 private:
     QString                 m_mesureSerie;
-    TypeMesure              m_typemesureRefraction;                // le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
     TypesMesures            m_flagreglagerefracteur = None;
-    QString                 CalculeFormule(MesureRefraction *ref, QString Cote);
-                                                                    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
-    bool                    Ouverture_Ports_Series();
-
+    QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
+    void                    Ouverture_Appareils_Refraction();
+    bool                    Ouverture_Ports_Series();                               //! ouvre les ports séries des appareils connectés en  port COM
+    bool                    Ouverture_Fichiers_Echange();                           //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
     //LE FRONTO ----------------------------------------------------
-    void                    LectureDonneesFronto(QString Mesure);           // lit les données envoyées sur le port série du fronto
+    void                    LectureDonneesFronto(QString Mesure);                   //! lit les données envoyées sur le port série du fronto
     void                    ReponsePortSerie_Fronto(const QString &s);
     //L'AUTOREF ----------------------------------------------------
-    void                    LectureDonneesAutoref(QString Mesure);          // lit les données envoyées sur le port série du fronto
+    void                    LectureDonneesAutoref(QString Mesure);                  //! lit les données envoyées sur le port série du fronto
     void                    ReponsePortSerie_Autoref(const QString &s);
     //LE REFRACTEUR ------------------------------------------------
-    void                    LectureDonneesRefracteur(QString Mesure);       // lit les données envoyées sur le port série du refracteur
+    void                    LectureDonneesRefracteur(QString Mesure);               //! lit les données envoyées sur le port série du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
     void                    RegleRefracteur();
 

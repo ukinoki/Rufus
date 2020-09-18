@@ -800,6 +800,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_DIR_IMAGES                          "/Images"
 #define NOM_DIR_VIDEOS                          "/Videos"
 #define NOM_DIR_PROV                            "/Prov"
+#define NOM_DIR_AUTOREF                         "/Autoref"
 #define NOM_DIR_LOGS                            "/Logs"
 #define NOM_DIR_ECHECSTRANSFERTS                "/EchecsTransferts"
 
@@ -828,6 +829,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_DIR_VIDEOS                         PATH_DIR_IMAGERIE NOM_DIR_VIDEOS
 #define PATH_DIR_PROV                           PATH_DIR_IMAGERIE NOM_DIR_PROV
 #define PATH_DIR_ECHECSTRANSFERTS               PATH_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS
+
+#define PATH_DIR_AUTOREF                        PATH_DIR_PROV NOM_DIR_AUTOREF
 
 #define PATH_FILE_ENTETEORDO                    PATH_DIR_RESSOURCES NOM_FILE_ENTETEORDO
 #define PATH_FILE_CORPSORDO                     PATH_DIR_RESSOURCES NOM_FILE_CORPSORDO
@@ -936,6 +939,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define OPTIQUE_BIOMETRIE           "OBM"
 #define ECHO_BIOMETRIE              "EBM"
 #define AUTRE_BIOMETRIE             "ABM"
+
+//modes de mesure appareils refraction
+#define COM1                        "COM1"
+#define COM2                        "COM2"
+#define COM3                        "COM3"
+#define COM4                        "COM4"
+#define BOX                         "Box"
+#define RESEAU                       "Network"
 
 //mots utilisés en macros dans les documents à imprimer
 #define STR_TITRUSER            "TITREUSER"
