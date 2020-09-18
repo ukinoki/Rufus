@@ -1944,19 +1944,6 @@ un serveur hébergé sur le réseau local</string>
             <string notr="true"/>
            </property>
           </widget>
-          <widget class="QWidget" name="AutorefReseauWidget" native="true">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="geometry">
-            <rect>
-             <x>260</x>
-             <y>170</y>
-             <width>231</width>
-             <height>31</height>
-            </rect>
-           </property>
-          </widget>
          </widget>
         </item>
         <item>

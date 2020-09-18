@@ -66,7 +66,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "uptoolbar.h"
 #include "upmessagebox.h"
-#include "util.h"
 
 #include "database.h"
 #include "gbl_datas.h"
@@ -436,16 +435,24 @@ private:
 
 public:
     enum TypeMesure {
-                None        = 0x0,
-                All         = 0x1,
-                Fronto      = 0x2,
-                Autoref     = 0x4,
-                Kerato      = 0x8,
-                Refracteur  = 0x10,
-                Tono        = 0x20,
-                Pachy       = 0x40
+                MesureNone        = 0x0,
+                MesureAll         = 0x1,
+                MesureFronto      = 0x2,
+                MesureAutoref     = 0x4,
+                MesureKerato      = 0x8,
+                MesureRefracteur  = 0x10,
+                MesureTono        = 0x20,
+                MesurePachy       = 0x40
                 };  Q_ENUM(TypeMesure)
     Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
+    enum TypeAppareil {
+                AppNone        = 0x0,
+                AppFronto      = 0x1,
+                AppAutoref     = 0x2,
+                AppRefracteur  = 0x4,
+                AppTono        = 0x8,
+                };  Q_ENUM(TypeAppareil)
+    Q_DECLARE_FLAGS(TypesAppareils, TypeAppareil)
 signals:
     void                    NouvMesure(Procedures::TypeMesure);
 
@@ -464,7 +471,7 @@ public:
     QString                 HtmlPachy();
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure typemesure = All);              //! enregistre la mesure de réfraction
+    void                    InsertMesure(TypeMesure typemesure = MesureAll);              //! enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
@@ -474,11 +481,11 @@ public:
 private:
     QString                 m_mesureSerie;
     TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
-    TypesMesures            m_flagreglagerefracteur = None;
+    TypesMesures            m_flagreglagerefracteur = MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    Ouverture_Appareils_Refraction();
-    bool                    Ouverture_Ports_Series();                               //! ouvre les ports séries des appareils connectés en  port COM
-    bool                    Ouverture_Fichiers_Echange();                           //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
+    bool                    Ouverture_Ports_Series(TypesAppareils appareils);       //! ouvre les ports séries des appareils connectés en  port COM
+    bool                    Ouverture_Fichiers_Echange(TypesAppareils appareils);   //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
     //LE FRONTO ----------------------------------------------------
     void                    LectureDonneesFronto(QString Mesure);                   //! lit les données envoyées sur le port série du fronto
     void                    ReponsePortSerie_Fronto(const QString &s);
@@ -497,5 +504,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesMesures)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesAppareils)
 
 #endif // PROCEDURES_H

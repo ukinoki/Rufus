@@ -105,7 +105,7 @@ Procedures::Procedures(QObject *parent) :
 
     Ouverture_Appareils_Refraction();
     ReconstruitListeModesAcces();
-    m_typemesureRefraction               = None;
+    m_typemesureRefraction               = MesureNone;
     m_dlgrefractionouverte    = false;
     int margemm         = TailleTopMarge(); // exprimé en mm
     p_printer             = new QPrinter(QPrinter::HighResolution);
@@ -4098,39 +4098,7 @@ bool Procedures::VerifRessources(QString Nomfile)
 
 void Procedures::Ouverture_Appareils_Refraction()
 {
-    bool m_isAutorefParametre   = (m_settings->value("Param_Poste/Autoref").toString() != "-"
-                                && m_settings->value("Param_Poste/Autoref").toString() != ""
-                                && m_settings->value("Param_Poste/PortAutoref").toString() != "Box");
-    if (m_isAutorefParametre)
-    {
-        bool m_isReseauAutoref  = (m_settings->value("Param_Poste/PortAutoref").toString() == RESEAU);
-        if (!m_isReseauAutoref)
-            Ouverture_Ports_Series();
-        else
-            Ouverture_Fichiers_Echange();
-    }
-}
-
-bool Procedures::Ouverture_Fichiers_Echange()
-{
-    Utils::mkpath(PATH_DIR_AUTOREF);
-
-}
-
-/*! ------------------------------------------------------------------------------------------------------------------------------------------
-GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------*/
-bool Procedures::Ouverture_Ports_Series()
-{
-    QString NomPort             = "";
-    m_portRefracteur            = "";
-    m_portFronto                = "";
-    m_portAutoref               = "";
-    m_portTono                  = "";
-    sp_portRefracteur           = Q_NULLPTR;
-    sp_portFronto               = Q_NULLPTR;
-    sp_portAutoref              = Q_NULLPTR;
-    sp_portTono                 = Q_NULLPTR;
+    TypesAppareils appareilscom, appareilsreseau;
     bool m_isFrontoParametre    = (m_settings->value("Param_Poste/Fronto").toString() != "-"
                                 && m_settings->value("Param_Poste/Fronto").toString() != ""
                                 && m_settings->value("Param_Poste/PortFronto").toString() != "Box");
@@ -4141,13 +4109,67 @@ bool Procedures::Ouverture_Ports_Series()
                                 && m_settings->value("Param_Poste/Refracteur").toString() != "");
     bool m_isTonoParametre      = (m_settings->value("Param_Poste/Tonometre").toString() != "-"
                                 && m_settings->value("Param_Poste/Tonometre").toString() != "");
+    if (m_isFrontoParametre)
+    {
+        bool m_isReseauFronto       = (m_settings->value("Param_Poste/PortFronto").toString() == RESEAU);
+        m_isReseauFronto?           appareilsreseau.setFlag(AppFronto)      : appareilscom.setFlag(AppFronto);
+    }
+    if (m_isAutorefParametre)
+    {
+        bool m_isReseauAutoref      = (m_settings->value("Param_Poste/PortAutoref").toString() == RESEAU);
+        m_isReseauAutoref?          appareilsreseau.setFlag(AppAutoref)     : appareilscom.setFlag(AppAutoref);
+    }
+    if (m_isRefracteurParametre)
+    {
+        bool m_isReseauRefracteur   = (m_settings->value("Param_Poste/PortRefracteur").toString() == RESEAU);
+        m_isReseauRefracteur?       appareilsreseau.setFlag(AppRefracteur)  : appareilscom.setFlag(AppRefracteur);
+    }
+    if (m_isTonoParametre)
+    {
+        bool m_isReseauTono         = (m_settings->value("Param_Poste/PortTono").toString() == RESEAU);
+        m_isReseauTono?             appareilsreseau.setFlag(AppTono)        : appareilscom.setFlag(AppTono);
+    }
+    if (appareilscom > 0)
+        Ouverture_Ports_Series(appareilscom);
+    if (appareilsreseau > 0)
+        Ouverture_Fichiers_Echange(appareilsreseau);
+}
+
+/*! ------------------------------------------------------------------------------------------------------------------------------------------
+GESTION DES FICHIERS ECHANGE XML DES APPAREILS DE REFRACTION ---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------*/
+bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
+{
+    if (appareils.testFlag(AppAutoref))
+    {
+        Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
+        Utils::mkpath(PATH_DIR_AUTOREF);
+    }
+    return true;
+}
+
+/*! ------------------------------------------------------------------------------------------------------------------------------------------
+GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------*/
+bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
+{
+    QString NomPort             = "";
+    m_portRefracteur            = "";
+    m_portFronto                = "";
+    m_portAutoref               = "";
+    m_portTono                  = "";
+    sp_portRefracteur           = Q_NULLPTR;
+    sp_portFronto               = Q_NULLPTR;
+    sp_portAutoref              = Q_NULLPTR;
+    sp_portTono                 = Q_NULLPTR;
+
     Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
     Datas::I()->mesurefronto    ->settypemesure(Refraction::Fronto);
     Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
     Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
 
 
-    if (m_isAutorefParametre || m_isRefracteurParametre || m_isFrontoParametre || m_isTonoParametre)
+    if (appareils == 0)
     {
         bool portseriedispo = false;
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
@@ -4168,7 +4190,7 @@ bool Procedures::Ouverture_Ports_Series()
         }
     }
     // PORT FRONTO
-    if (m_isFrontoParametre)
+    if (appareils.testFlag(AppFronto))
     {
         m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
         ReglePortFronto();
@@ -4247,7 +4269,7 @@ bool Procedures::Ouverture_Ports_Series()
     }
 
     // PORT REFRACTEUR
-    if (m_isRefracteurParametre)
+    if (appareils.testFlag(AppRefracteur))
     {
         m_portRefracteur = m_settings->value("Param_Poste/PortRefracteur").toString();
         ReglePortRefracteur();
@@ -4324,7 +4346,7 @@ bool Procedures::Ouverture_Ports_Series()
     }
 
     //PORT AUTOREF
-    if (m_isAutorefParametre)
+    if (appareils.testFlag(AppAutoref))
     {
         m_portAutoref    = m_settings->value("Param_Poste/PortAutoref").toString();
         ReglePortAutoref();
@@ -4398,7 +4420,7 @@ bool Procedures::Ouverture_Ports_Series()
             }
         }
     }
-    if (m_isTonoParametre)
+    if (appareils.testFlag(AppTono))
     {
         m_portTono       = m_settings->value("Param_Poste/PortTonometre").toString();
     }
@@ -4446,8 +4468,8 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     if ( Datas::I()->mesureacuite->isdataclean() && Datas::I()->mesurefinal->isdataclean() )
         return;
     if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
-        InsertMesure(Refracteur);
-    emit NouvMesure(Refracteur);
+        InsertMesure(MesureRefracteur);
+    emit NouvMesure(MesureRefracteur);
 }
 
 void Procedures::RegleRefracteur()
@@ -4498,7 +4520,7 @@ void Procedures::RegleRefracteur()
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
         /*! réglage de l'autoref */
-        if (m_flagreglagerefracteur.testFlag(Procedures::Autoref) && !Datas::I()->mesureautoref->isdataclean())
+        if (m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
         {
             initvariables();
             convertaxe(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
@@ -4529,7 +4551,7 @@ void Procedures::RegleRefracteur()
        }
 
         /*! réglage du fronto */
-        if (m_flagreglagerefracteur.testFlag(Procedures::Fronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -4808,8 +4830,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             //debugMesureRefraction(Datas::I()->mesurefronto);
             if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
             {
-                InsertMesure(Fronto);
-                emit NouvMesure(Fronto);
+                InsertMesure(MesureFronto);
+                emit NouvMesure(MesureFronto);
             }
             delete oldMesureFronto;
         }
@@ -4859,8 +4881,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             }
             if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
             {
-                InsertMesure(Kerato);
-                emit NouvMesure(Kerato);
+                InsertMesure(MesureKerato);
+                emit NouvMesure(MesureKerato);
             }
             delete oldMesureKerato;
         }
@@ -4897,8 +4919,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             //debugMesureRefraction(Datas::I()->mesureautoref);
             if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
             {
-                InsertMesure(Autoref);
-                emit NouvMesure(Autoref);
+                InsertMesure(MesureAutoref);
+                emit NouvMesure(MesureAutoref);
             }
             delete oldMesureAutoref;
         }
@@ -5025,8 +5047,8 @@ void Procedures::LectureDonneesRefracteur(QString Mesure)
             Datas::I()->mesuretono->setTOG(int(mTOOG.toDouble()));
             Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
             logmesure("LectureDonneesRefracteur() - nouvelle mesure tono -> TOD = " + QString::number(Datas::I()->mesuretono->TOD()) + " - TOG = " + QString::number(Datas::I()->mesuretono->TOG()));
-            InsertMesure(Tono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
-            emit NouvMesure(Tono);
+            InsertMesure(MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
+            emit NouvMesure(MesureTono);
         }
         debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
@@ -5249,7 +5271,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
     {
-        m_flagreglagerefracteur = Fronto;
+        m_flagreglagerefracteur = MesureFronto;
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
@@ -5257,9 +5279,9 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->waitForBytesWritten(100);
         }
-        InsertMesure(Fronto);
+        InsertMesure(MesureFronto);
     }
-    emit NouvMesure(Fronto);
+    emit NouvMesure(MesureFronto);
 }
 
 void Procedures::LectureDonneesFronto(QString Mesure)
@@ -5560,14 +5582,14 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
     {
-        m_flagreglagerefracteur = Autoref;
+        m_flagreglagerefracteur = MesureAutoref;
         // NIDEK RT-5100 - NIDEK RT-2100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
             if (!Datas::I()->mesurekerato->isdataclean())
-                InsertMesure(Kerato);
+                InsertMesure(MesureKerato);
             if (!Datas::I()->mesureautoref->isdataclean())
-                InsertMesure(Autoref);
+                InsertMesure(MesureAutoref);
             //Dans un premier temps, le PC envoie la requête d'envoi de données
             PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
@@ -5575,20 +5597,20 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
         }
     }
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
-        emit NouvMesure(Kerato);
+        emit NouvMesure(MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
-        emit NouvMesure(Autoref);
+        emit NouvMesure(MesureAutoref);
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
         {
-            InsertMesure(Tono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
-            emit NouvMesure(Tono);
+            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
+            emit NouvMesure(MesureTono);
         }
         if (!Datas::I()->mesurepachy->isdataclean())
         {
-            InsertMesure(Pachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
-            emit NouvMesure(Pachy);
+            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
+            emit NouvMesure(MesurePachy);
         }
     }
 }
@@ -6158,18 +6180,18 @@ QSerialPort* Procedures::PortTono()
 
 Procedures::TypeMesure Procedures::ConvertMesure(QString Mesure)
 {
-    if (Mesure == "P") return Fronto;
-    if (Mesure == "A") return Autoref;
-    if (Mesure == "R") return Refracteur;
-    return  None;
+    if (Mesure == "P") return MesureFronto;
+    if (Mesure == "A") return MesureAutoref;
+    if (Mesure == "R") return MesureRefracteur;
+    return  MesureNone;
 }
 
 QString Procedures::ConvertMesure(TypeMesure Mesure)
 {
     switch (Mesure) {
-    case Fronto:        return "P";
-    case Autoref:       return "A";
-    case Refracteur:    return "R";
+    case MesureFronto:        return "P";
+    case MesureAutoref:       return "A";
+    case MesureRefracteur:    return "R";
     default: return "";
     }
 }
@@ -6225,7 +6247,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
-    if (typemesure == Fronto)
+    if (typemesure == MesureFronto)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -6286,7 +6308,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
             listbinds[CP_PD_REFRACTIONS]                = Datas::I()->mesurefronto->ecartIP();
         Datas::I()->refractions->CreationRefraction(listbinds);
     }
-    else if (typemesure == Autoref)
+    else if (typemesure == MesureAutoref)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -6384,9 +6406,9 @@ void Procedures::InsertMesure(TypeMesure typemesure)
             db->StandardSQL (requete, tr("Erreur de mise à jour de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    else if (typemesure == Kerato)
+    else if (typemesure == MesureKerato)
     {
-        QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
+        QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(MesureAutoref) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok)
             return;
@@ -6398,7 +6420,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ")"
                     " VALUES (" +
                     QString::number(idPatient)  + ", '" +
-                    ConvertMesure(Autoref) + "', "
+                    ConvertMesure(MesureAutoref) + "', "
                     "CURDATE(), " +
                     (Datas::I()->mesurekerato->isnullLOD()? "null" : QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOD()? "null" : QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2)) + ", " +
@@ -6406,7 +6428,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     (Datas::I()->mesurekerato->isnullLOG()? "null" : QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOG()? "null" : QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOG()? "null" : QString::number(Datas::I()->mesurekerato->axeKOG()))       + ", " +
-                    "'" + ConvertMesure(Autoref) + "', " +
+                    "'" + ConvertMesure(MesureAutoref) + "', " +
                     (Datas::I()->mesurekerato->isnullLOD() || Datas::I()->mesurekerato->dioptriesK1OD() == 0.0? "null" : QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOD() || Datas::I()->mesurekerato->dioptriesK2OD() == 0.0? "null" : QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOG() || Datas::I()->mesurekerato->dioptriesK1OG() == 0.0? "null" : QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2)) + ", " +
@@ -6418,7 +6440,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         {
             req = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
                     CP_DATEKERATO_DATAOPHTA " = CURDATE(), "
-                    CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(Autoref) + "'";
+                    CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(MesureAutoref) + "'";
             if (!Datas::I()->mesurekerato->isnullLOD())
             {
                 req +=
@@ -6443,11 +6465,11 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                             ", " CP_DIOTRIESK2OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2);
 
             }
-            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(Autoref) + "'";
+            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(MesureAutoref) + "'";
             db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    else if (typemesure == Refracteur)
+    else if (typemesure == MesureRefracteur)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -6515,7 +6537,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
 
         Datas::I()->refractions->CreationRefraction(listbinds);
 
-        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Refracteur) + "'";
+        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(MesureRefracteur) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
             return;
@@ -6567,12 +6589,12 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     CP_AVLOG_DATAOPHTA " = '"       + mAVLOG + "'," +
                     CP_AVPOG_DATAOPHTA " = '"       + mAVPOG + "'," +
                     CP_ECARTIP_DATAOPHTA " = "      + PD +
-                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(Refracteur) + "'";
+                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(MesureRefracteur) + "'";
 
             db->StandardSQL (requete, tr("Erreur de mise à jour de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    else if (typemesure == Tono)
+    else if (typemesure == MesureTono)
     {
         Datas::I()->mesuretono->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_TONOMETRIE);
@@ -6586,7 +6608,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         Datas::I()->mesuretono->setid(db->selectMaxFromTable(CP_ID_TONO, TBL_TONOMETRIE,ok));
         db->unlocktables();
     }
-    else if (typemesure == Pachy)
+    else if (typemesure == MesurePachy)
     {
         Datas::I()->mesurepachy->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_PACHYMETRIE);
@@ -6600,6 +6622,6 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         Datas::I()->mesurepachy->setid(db->selectMaxFromTable(CP_ID_PACHY, TBL_PACHYMETRIE,ok));
         db->unlocktables();
     }
-    if (typemesure != Fronto && typemesure != Tono && typemesure != Pachy)
+    if (typemesure != MesureFronto && typemesure != MesureTono && typemesure != MesurePachy)
         Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }

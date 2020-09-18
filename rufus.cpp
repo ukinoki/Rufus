@@ -6389,7 +6389,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     SetDatasRefractionKerato();
     if (proc->PortRefracteur()!=Q_NULLPTR)
     {
-        proc->setFlagReglageRefracteur(Procedures::Autoref | Procedures::Fronto);
+        proc->setFlagReglageRefracteur(Procedures::MesureAutoref | Procedures::MesureFronto);
         proc->EnvoiDataPatientAuRefracteur();
     }
 
@@ -9604,7 +9604,7 @@ void Rufus::Pachymetrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        proc->InsertMesure(Procedures::Pachy);
+        proc->InsertMesure(Procedures::MesurePachy);
         AffichePachymetrie();
     }
     Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
@@ -9652,7 +9652,7 @@ void Rufus::Tonometrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        proc->InsertMesure(Procedures::Tono);
+        proc->InsertMesure(Procedures::MesureTono);
         QString tono = proc->HtmlTono();
         if (tono != "")
         {
@@ -9772,33 +9772,33 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
 void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
     if (findChildren<dlg_refraction*>().size()>0)
-        if (TypeMesure == Procedures::Refracteur
-                || TypeMesure == Procedures::Fronto
-                || TypeMesure == Procedures::Autoref)
+        if (TypeMesure == Procedures::MesureRefracteur
+                || TypeMesure == Procedures::MesureFronto
+                || TypeMesure == Procedures::MesureAutoref)
             return;
     if (currentpatient() == Q_NULLPTR
             || currentacte() == Q_NULLPTR)
         return;
 
     switch (TypeMesure) {
-    case  Procedures::Refracteur:
+    case  Procedures::MesureRefracteur:
         if (!Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean())
             ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlRefracteur()));
         RefractionMesure(dlg_refraction::Auto);
         break;
-    case Procedures::Autoref:
+    case Procedures::MesureAutoref:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlAutoref()));
         break;
-    case Procedures::Fronto:
+    case Procedures::MesureFronto:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlFronto()));
         break;
-    case Procedures::Kerato:
+    case Procedures::MesureKerato:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlKerato()));
         break;
-    case Procedures::Pachy:
+    case Procedures::MesurePachy:
         AffichePachymetrie();
         break;
-    case Procedures::Tono:
+    case Procedures::MesureTono:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlTono()));
         break;
     default:
