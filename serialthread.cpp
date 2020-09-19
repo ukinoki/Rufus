@@ -65,7 +65,7 @@ void SerialThread::LitPort()
     QString ReponsePort(reponseData);
     if (ReponsePort != "")
     {
-        emit reponse(ReponsePort);
+        emit newdatacom(ReponsePort);
         Port->clear();
     }
 }

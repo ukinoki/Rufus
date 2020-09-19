@@ -171,12 +171,15 @@ public:
 
 
     //! arrondit un int au multiple de 5 le plus proche
-    static int roundToNearestFive(int number)   { return static_cast<int>(number / 5. + .5) * 5; }
+    static int roundToNearestFive(int number)                   { return static_cast<int>(number / 5. + .5) * 5; }
+
+    //! arrondit un double au multiple de .25 le plus proche
+    static double roundToNearestPointTwentyFive(double number)  { return static_cast<double>(std::round(number*4)) / 4; }
 
     //! affiche la fiche enchantier
     static void EnChantier(bool avecMsg = false);
 
-    //! renvoie chaqque page d'un padf comme une image
+    //! renvoie chaque page d'un pdf comme une image
     static QList<QImage> calcImagefromPdf(QByteArray pdf);
 
     //! gestion des images en QJsonValue

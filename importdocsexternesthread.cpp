@@ -24,7 +24,7 @@ ImportDocsExternesThread::ImportDocsExternesThread()
     m_thread          .start();
 }
 
-void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listdocs)
+void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listappareils)
 {
     /* req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
           " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idlieuExercice);
@@ -40,9 +40,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
         m_encours = false;
         return;
     }
-    for (int itr=0; itr<listdocs.size(); itr++)
+    for (int itr=0; itr<listappareils.size(); itr++)
     {
-        QString NomDirDoc = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc = proc->pathDossierDocuments(listappareils.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -54,10 +54,10 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                  * idpatient
                 */
             // Titre du document------------------------------------------------------------------------------------------------------------------------------------------------
-            QString Titredoc    = listdocs.at(itr).at(0).toString();
+            QString Titredoc    = listappareils.at(itr).at(0).toString();
             QString Typedoc     = Titredoc;
             QString SousTypeDoc = Titredoc;
-            QString Appareil    = listdocs.at(itr).at(1).toString();
+            QString Appareil    = listappareils.at(itr).at(1).toString();
             QStringList listfich = QDir(NomDirDoc).entryList(QDir::Files | QDir::NoDotAndDotDot);
             for (int k=0; k<listfich.size(); k++)
             {

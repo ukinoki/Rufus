@@ -429,6 +429,7 @@ private:
     SerialThread            *t_threadFronto;
     SerialThread            *t_threadRefracteur;
     SerialThread            *t_threadAutoref;
+    QTimer                  *t_xmltimer;
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
@@ -455,6 +456,7 @@ public:
     Q_DECLARE_FLAGS(TypesAppareils, TypeAppareil)
 signals:
     void                    NouvMesure(Procedures::TypeMesure);
+    void                    newdataxml(const QDomDocument &xml);
 
 public:
     QSerialPort*            PortAutoref();
@@ -487,13 +489,15 @@ private:
     bool                    Ouverture_Ports_Series(TypesAppareils appareils);       //! ouvre les ports séries des appareils connectés en  port COM
     bool                    Ouverture_Fichiers_Echange(TypesAppareils appareils);   //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
     //LE FRONTO ----------------------------------------------------
-    void                    LectureDonneesFronto(QString Mesure);                   //! lit les données envoyées sur le port série du fronto
+    void                    LectureDonneesCOMFronto(QString Mesure);                //! lit les données envoyées sur le port série du fronto
     void                    ReponsePortSerie_Fronto(const QString &s);
     //L'AUTOREF ----------------------------------------------------
-    void                    LectureDonneesAutoref(QString Mesure);                  //! lit les données envoyées sur le port série du fronto
+    void                    LectureDonneesCOMAutoref(QString Mesure);               //! lit les données envoyées sur le port série du fronto
+    void                    LectureDonneesXMLAutoref(QDomDocument docxml);               //! lit les données envoyées sur le fichier échange XML du fronto
     void                    ReponsePortSerie_Autoref(const QString &s);
+    void                    ReponseXML_Autoref(const QDomDocument &docxml);
     //LE REFRACTEUR ------------------------------------------------
-    void                    LectureDonneesRefracteur(QString Mesure);               //! lit les données envoyées sur le port série du refracteur
+    void                    LectureDonneesCOMRefracteur(QString Mesure);            //! lit les données envoyées sur le port série du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
     void                    RegleRefracteur();
 

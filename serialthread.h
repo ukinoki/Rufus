@@ -31,7 +31,7 @@ public:
     void            run() Q_DECL_OVERRIDE;
 
 signals:
-    void            reponse(const QString &s);
+    void            newdatacom(const QString &s);
 
 private:
     QByteArray      reponseData;

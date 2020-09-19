@@ -116,6 +116,19 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
+    QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+    if (listfichxml.size())
+    {
+        const QString nomfichierxml      = PATH_DIR_AUTOREF "/" + listfichxml.at(0);
+        QFile xmldoc(nomfichierxml);
+        if (xmldoc.open(QIODevice::ReadOnly))
+        {
+            QDomDocument docxml;
+            docxml.setContent(&xmldoc);
+            LectureDonneesXMLAutoref(docxml);
+        }
+        //Utils::cleanfolder(PATH_DIR_AUTOREF);
+    }
 }
 
 void Procedures::ab(int i)
@@ -4145,6 +4158,29 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
         Utils::mkpath(PATH_DIR_AUTOREF);
     }
+    t_xmltimer = new QTimer(this);
+    t_xmltimer->start(1000);
+    connect(t_xmltimer,  &QTimer::timeout,     this,
+            [=]
+    {
+        if (appareils.testFlag(AppAutoref))
+        {
+            QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+            if (listfichxml.size())
+            {
+                const QString nomfichierxml      = PATH_DIR_AUTOREF "/" + listfichxml.at(0);
+                QFile xmldoc(nomfichierxml);
+                if (xmldoc.open(QIODevice::ReadOnly))
+                {
+                    QDomDocument docxml;
+                    docxml.setContent(&xmldoc);
+                    emit newdataxml(docxml);
+                }
+                //Utils::cleanfolder(PATH_DIR_AUTOREF);
+            }
+
+        }
+    });
     return true;
 }
 
@@ -4257,7 +4293,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             {
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
-                connect(t_threadFronto,  &SerialThread::reponse,     this, &Procedures::ReponsePortSerie_Fronto);
+                connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
             }
             else
             {
@@ -4334,7 +4370,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             {
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
                 t_threadRefracteur    ->transaction();
-                connect(t_threadRefracteur,  &SerialThread::reponse,     this, &Procedures::ReponsePortSerie_Refracteur);
+                connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
             }
             else
             {
@@ -4410,7 +4446,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             {
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
                 t_threadAutoref   ->transaction();
-                connect(t_threadAutoref,  &SerialThread::reponse,     this, &Procedures::ReponsePortSerie_Autoref);
+                connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
             }
             else
             {
@@ -4464,7 +4500,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     }
     Datas::I()->mesureacuite->cleandatas();
     Datas::I()->mesurefinal->cleandatas();
-    LectureDonneesRefracteur(m_mesureSerie);
+    LectureDonneesCOMRefracteur(m_mesureSerie);
     if ( Datas::I()->mesureacuite->isdataclean() && Datas::I()->mesurefinal->isdataclean() )
         return;
     if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
@@ -4686,13 +4722,13 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
     if (ref != Q_NULLPTR)
     {
         QString Formule = "OD : " + QString::number(ref->sphereOD());
-        if (ref->cylindreOD() > 0)
+        if (ref->cylindreOD() != 0)
             Formule += "(" + QString::number(ref->cylindreOD()) + " à " + QString::number(ref->axecylindreOD()) + "°)";
         Formule +=  " add." + QString::number(ref->addVPOD()) +  " VP";
         qDebug() << Utils::EnumDescription(QMetaEnum::fromType<Refraction::Mesure>(), ref->typemesure());
         qDebug() << Formule;
         Formule = "OG : " + QString::number(ref->sphereOG());
-        if (ref->cylindreOG() > 0)
+        if (ref->cylindreOG() != 0)
             Formule += "(" + QString::number(ref->cylindreOG()) + " à " + QString::number(ref->axecylindreOG()) + "°)";
         Formule +=  " add." + QString::number(ref->addVPOG()) +  " VP";
         qDebug() << Formule;
@@ -4744,7 +4780,7 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     return reponse;
 }
 
-void Procedures::LectureDonneesRefracteur(QString Mesure)
+void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
 {
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
@@ -5242,10 +5278,10 @@ QSerialPort *Procedures::PortFronto()
     return sp_portFronto;
 }
 
-// lire les ports séries
-//-----------------------------------------------------------------------------------------
-// Lecture du flux de données sur le port série du Fronto
-//-----------------------------------------------------------------------------------------
+//!  lire les ports séries
+//! -----------------------------------------------------------------------------------------
+//! Lecture du flux de données sur le port série du Fronto
+//! -----------------------------------------------------------------------------------------
 void Procedures::ReponsePortSerie_Fronto(const QString &s)
 {
     m_mesureSerie        = s;
@@ -5265,7 +5301,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         }
     }
     Datas::I()->mesurefronto->cleandatas();
-    LectureDonneesFronto(m_mesureSerie);
+    LectureDonneesCOMFronto(m_mesureSerie);
     if (Datas::I()->mesurefronto->isdataclean())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5284,7 +5320,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     emit NouvMesure(MesureFronto);
 }
 
-void Procedures::LectureDonneesFronto(QString Mesure)
+void Procedures::LectureDonneesCOMFronto(QString Mesure)
 {
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
@@ -5517,10 +5553,81 @@ QSerialPort* Procedures::PortAutoref()
     return sp_portAutoref;
 }
 
-// lire les ports séries
-//-----------------------------------------------------------------------------------------
-// Lecture du flux de données sur le port série de l'autoref
-//-----------------------------------------------------------------------------------------
+//! lire les fichiers xml des appareils de refractions séries
+//! -----------------------------------------------------------------------------------------
+//! Lecture du fichier xml de l'autoref
+//! -----------------------------------------------------------------------------------------
+void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
+{
+    bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
+    bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+    Datas::I()->mesureautoref   ->cleandatas();
+    if (autorefhaskerato)
+        Datas::I()->mesurekerato    ->cleandatas();
+    if (autorefhastonopachy)
+    {
+        Datas::I()->mesurepachy     ->cleandatas();
+        Datas::I()->mesuretono      ->cleandatas();
+    }
+
+    LectureDonneesXMLAutoref(xmldoc);
+    if ( !autorefhaskerato && !autorefhastonopachy && Datas::I()->mesureautoref->isdataclean())
+        return;
+    else if (autorefhaskerato && Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
+        return;
+    else if (autorefhastonopachy && Datas::I()->mesureautoref->isdataclean()
+        &&  Datas::I()->mesurekerato   ->isdataclean()
+        &&  Datas::I()->mesuretono      ->isdataclean()
+        &&  Datas::I()->mesurepachy     ->isdataclean())
+        return;
+    //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
+    if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
+    {
+        m_flagreglagerefracteur = MesureAutoref;
+        // NIDEK RT-5100 - NIDEK RT-2100
+        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        {
+            if (!Datas::I()->mesurekerato->isdataclean())
+                InsertMesure(MesureKerato);
+            if (!Datas::I()->mesureautoref->isdataclean())
+                InsertMesure(MesureAutoref);
+            //Dans un premier temps, le PC envoie la requête d'envoi de données
+            PortRefracteur()->clear();
+            PortRefracteur()->write(RequestToSendNIDEK());
+            PortRefracteur()->waitForBytesWritten(100);
+        }
+    }
+    if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
+        emit NouvMesure(MesureKerato);
+    if (!Datas::I()->mesureautoref->isdataclean())
+        emit NouvMesure(MesureAutoref);
+    if (autorefhastonopachy)
+    {
+        if (!Datas::I()->mesuretono->isdataclean())
+        {
+            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
+            emit NouvMesure(MesureTono);
+        }
+        if (!Datas::I()->mesurepachy->isdataclean())
+        {
+            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
+            emit NouvMesure(MesurePachy);
+        }
+    }
+
+}
+
+//! lire les ports séries
+//! -----------------------------------------------------------------------------------------
+//! Lecture du flux de données sur le port série de l'autoref
+//! -----------------------------------------------------------------------------------------
 void Procedures::ReponsePortSerie_Autoref(const QString &s)
 {
     m_mesureSerie        = s;
@@ -5569,7 +5676,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
         Datas::I()->mesuretono      ->cleandatas();
     }
 
-    LectureDonneesAutoref(m_mesureSerie);
+    LectureDonneesCOMAutoref(m_mesureSerie);
     if ( !autorefhaskerato && !autorefhastonopachy && Datas::I()->mesureautoref->isdataclean())
         return;
     else if (autorefhaskerato && Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
@@ -5615,7 +5722,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
     }
 }
 
-void Procedures::LectureDonneesAutoref(QString Mesure)
+void Procedures::LectureDonneesCOMAutoref(QString Mesure)
 {
     Logs::LogToFile("MesuresAutoref.txt", Mesure);
     int     a(0);
@@ -5982,6 +6089,258 @@ PL04.7N
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
 }
 
+void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
+{
+    /*! exemple de fichier xml pour un ARK-1s
+     *
+     *
+<?xml version="1.0" encoding="UTF-16"?>
+<?xml-stylesheet type="text/xsl" href="RKT_style.xsl"?>
+<Data>
+    <Company>NIDEK</Company>
+    <ModelName>ARK-1s</ModelName>
+    <ROMVersion>1.00.02 /5.05</ROMVersion>
+    <Version>1.01</Version>
+    <Date>2013/03/11</Date>
+    <Time>16:03:07</Time>
+    <Patient>
+        <No.>0003</No.>
+        <ID>4902205625223</ID>
+    </Patient>
+    <Comment> NIDEK ARK-1s</Comment>
+    <VD>12.00 mm</VD>
+    <WorkingDistance>40 cm</WorkingDistance>
+    <DiopterStep>0.01D</DiopterStep>
+    <AxisStep>1°</AxisStep>
+    <CylinderMode>-</CylinderMode>
+    <RefractiveIndex>1.3375</RefractiveIndex>
+    <R>
+        <AR>
+            <ARList No = "1">
+                <Sphere>-6.38</Sphere>
+                <Cylinder>-0.63</Cylinder>
+                <Axis>179</Axis>
+                <CataractMode>ON</CataractMode>
+                <ConfidenceIndex>9</ConfidenceIndex>
+                <SE>-6.70</SE>
+            </ARList>
+            <ARList No = "2">
+                <Error>COVR </Error>
+            </ARList>
+            <ARMedian>
+                <Sphere>-6.38</Sphere>
+                <Cylinder>-0.64</Cylinder>
+                <Axis>177</Axis>
+                <SE>-6.70</SE>
+            </ARMedian>
+            <TrialLens>
+                <Sphere>-6.25</Sphere>
+                <Cylinder>-0.75</Cylinder>
+                <Axis>177</Axis>
+            </TrialLens>
+            <ContactLens>
+                <Sphere>-5.93</Sphere>
+                <Cylinder>-0.54</Cylinder>
+                <Axis>177</Axis>
+                <SE>-6.20</SE>
+            </ContactLens>
+            <RingImage>
+                ARK_4902205625223 _20130311160307RA1.jpg
+            </RingImage>
+        </AR>
+        <VA>
+            <UCVA>&lt;0.1</UCVA>
+            <BCVA>1.0</BCVA>
+            <LVA>0.8</LVA>
+            <GVA>0.5</GVA>
+            <NVA>0.8</NVA>
+            <WorkingDistance>35 cm</WorkingDistance>
+        </VA>
+        <SR>
+            <Sphere>-6.25</Sphere>
+            <Cylinder>-0.75</Cylinder>
+            <Axis>177</Axis>
+            <SE>-6.75</SE>
+            <ADD>+1.75</ADD>
+            <WorkingDistance>35 cm</WorkingDistance>
+        </SR>
+        <LM>
+            <Sphere>-0.50</Sphere>
+            <Cylinder>-0.00</Cylinder>
+            <Axis>0</Axis>
+            <ADD>+3.00</ADD>
+            <ADD2>+3.50</ADD2>
+        </LM>
+        <KM>
+            <KMList No = "1">
+                <R1>
+                    <Radius>7.56</Radius>
+                    <Power>44.64</Power>
+                    <Axis>179</Axis>
+                </R1>
+                <R2>
+                    <Radius>7.29</Radius>
+                    <Power>46.30</Power>
+                    <Axis>89</Axis>
+                </R2>
+                <Average>
+                    <Radius>7.43</Radius>
+                    <Power>45.42</Power>
+                </Average>
+                <KMCylinder>
+                    <Power>-1.66</Power>
+                    <Axis>179</Axis>
+                </KMCylinder>
+            </KMList>
+            <KMMedian>
+                <R1>
+                    <Radius>7.55</Radius>
+                    <Power>44.70</Power>
+                    <Axis>178</Axis>
+                </R1>
+                <R2>
+                    <Radius>7.29</Radius>
+                    <Power>46.30</Power>
+                    <Axis>88</Axis>
+                </R2>
+                <Average>
+                    <Radius>7.42</Radius>
+                    <Power>45.49</Power>
+                </Average>
+                <KMCylinder>
+                    <Power>-1.60</Power>
+                    <Axis>178</Axis>
+                </KMCylinder>
+            </KMMedian>
+        </KM>
+        <CS>
+            <CSList No = "1">
+                <Size>12.1</Size>
+            </CSList>
+        </CS>
+        <PS>
+            <PSList No = "1">
+                <Size>4.7</Size>
+                <Lamp>ON</Lamp>
+            </PSList>
+        </PS>
+        <AC>
+            <Sphere>8.15</Sphere>
+            <MaxPS>4.1</MaxPS>
+            <MinPS>1.6</MinPS>
+            <AccImage>ARK_4902205625223_20130311160307RC1.jpg</AccImage>
+        </AC>
+        <RI>
+            <COIH>0.7</COIH>
+            <COIA>1</COIA>
+            <POI>0</POI>
+            <RetroImage>ARK_4902205625223_20130311160307RI1.jpg</RetroImage>
+        </RI>
+    </R>
+    <L>
+    </L>
+    <PD>
+        <PDList No = "1">
+            <FarPD>56</FarPD>
+            <RPD>28</RPD>
+            <LPD>28</LPD>
+            <NearPD>53</NearPD>
+         </PDList>
+    </PD>
+</Data>
+
+*/
+    Logs::LogToFile("MesuresAutoref.txt", docxml.toByteArray());
+    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
+    {
+        bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
+        bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+        bool autorefhasipmesure = (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
+                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK ARK-30"
+                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK AR-20");
+        QDomElement xml = docxml.documentElement();
+        for (int i=0; i<xml.childNodes().size(); i++)
+        {
+            QDomElement childnode = xml.childNodes().at(i).toElement();
+            if (childnode.tagName() == "R")
+            {
+                for (int j=0; j<childnode.childNodes().size(); j++)
+                {
+                    QDomElement childRnode = childnode.childNodes().at(j).toElement();
+                    if (childRnode.tagName() == "AR")
+                    {
+                        for (int k=0; k<childRnode.childNodes().size(); k++)
+                        {
+                            QDomElement childARnode = childRnode.childNodes().at(k).toElement();
+                            if (childARnode.tagName() == "ARMedian")
+                            {
+                                for (int l=0; l<childARnode.childNodes().size(); l++)
+                                {
+                                    QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
+                                    qDebug() << childARmednode.tagName() << childARmednode.text();
+                                    if (childARmednode.tagName() == "Sphere")
+                                        Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
+                                    if (childARmednode.tagName() == "Cylinder")
+                                        Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
+                                    if (childARmednode.tagName() == "Axis")
+                                        Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(childARmednode.text().toInt()));
+                                }
+                                debugMesure(Datas::I()->mesureautoref);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+        /*
+         *
+         * exemple de  parsing de xml
+        for (int i=0; i<xml.childNodes().size(); i++)     // on reprend chaque IOL un par un
+        {
+            QDomElement lensnode = xml.childNodes().at(i).toElement();
+            int idiol = lensnode.attributeNode("id").value().toInt();
+            for (int i=0; i<lensnode.childNodes().size(); i++)
+            {
+                QDomElement node = lensnode.childNodes().at(i).toElement();
+                if (node.tagName() == "Manufacturer")
+                    QString fabricant = node.text();
+                else if (node.tagName() == "Name")
+                    QString modele = node.text();
+                else if (node.tagName() == "Specifications")
+                    for (int i=0; i<node.childNodes().size(); i++)
+                    {
+                    }
+                else if (node.tagName() == "Availability")
+                    for (int i=0; i<node.childNodes().size(); i++)
+                    {
+                    }
+                else if (node.tagName() == "Constants" && node.attributeNode("type").value() == "nominal")
+                    for (int i=0; i<node.childNodes().size(); i++)
+                    {
+                   }
+            }
+        }
+    }*/
+}
 
 // -------------------------------------------------------------------------------------
 // Generation du resumé de l'autorefractometre
