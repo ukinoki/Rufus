@@ -116,19 +116,19 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
-    QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-    if (listfichxml.size())
-    {
-        const QString nomfichierxml      = PATH_DIR_AUTOREF "/" + listfichxml.at(0);
-        QFile xmldoc(nomfichierxml);
-        if (xmldoc.open(QIODevice::ReadOnly))
-        {
-            QDomDocument docxml;
-            docxml.setContent(&xmldoc);
-            LectureDonneesXMLAutoref(docxml);
-        }
-        //Utils::cleanfolder(PATH_DIR_AUTOREF);
-    }
+//    QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+//    if (listfichxml.size())
+//    {
+//        const QString nomfichierxml      = PATH_DIR_AUTOREF "/" + listfichxml.at(0);
+//        QFile xmldoc(nomfichierxml);
+//        if (xmldoc.open(QIODevice::ReadOnly))
+//        {
+//            QDomDocument docxml;
+//            docxml.setContent(&xmldoc);
+//            LectureDonneesXMLAutoref(docxml);
+//        }
+//        //Utils::cleanfolder(PATH_DIR_AUTOREF);
+//    }
 }
 
 void Procedures::ab(int i)
@@ -4709,8 +4709,30 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
 {
     if (titre != "")
         qDebug() << titre;
+    Pachymetrie *pachy = qobject_cast<Pachymetrie *>(mesure);
+    if (pachy != Q_NULLPTR)
+    {
+        QString Formule = "pachy OD : " + QString::number(pachy->pachyOD()) + "µ";
+        qDebug() << Formule;
+        Formule = "pachy OG : " + QString::number(pachy->pachyOG()) + "µ";
+        qDebug() << Formule;
+        return;
+    }
+    Tonometrie *tono = qobject_cast<Tonometrie *>(mesure);
+    if (tono != Q_NULLPTR)
+    {
+        QString Formule = "TO OD : " + QString::number(tono->TOD()) + "mmHg";
+        if (tono->TODcorrigee() >0)
+            Formule += " - corrigée : " + QString::number(tono->TODcorrigee()) + "mmHg";
+        qDebug() << Formule;
+        Formule = "TO OG : " + QString::number(tono->TOG()) + "mmHg";
+        if (tono->TOGcorrigee() >0)
+            Formule += " - corrigée : " + QString::number(tono->TOGcorrigee()) + "mmHg";
+        qDebug() << Formule;
+        return;
+    }
     Keratometrie *ker = qobject_cast<Keratometrie *>(mesure);
-    if (ker != Q_NULLPTR)
+    if (tono != Q_NULLPTR)
     {
         QString Formule = "OD : " + QString::number(ker->K1OD()) + "/" + QString::number(ker->K2OD()) + " "  + QString::number(ker->axeKOD());
         qDebug() << Formule;
@@ -4721,17 +4743,24 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
     MesureRefraction *ref = qobject_cast<MesureRefraction *>(mesure);
     if (ref != Q_NULLPTR)
     {
-        QString Formule = "OD : " + QString::number(ref->sphereOD());
+        QString Formule = "OD : " + QString::number(ref->sphereOD(),'f',2);
         if (ref->cylindreOD() != 0)
-            Formule += "(" + QString::number(ref->cylindreOD()) + " à " + QString::number(ref->axecylindreOD()) + "°)";
-        Formule +=  " add." + QString::number(ref->addVPOD()) +  " VP";
+            Formule += "(" + QString::number(ref->cylindreOD(),'f',2) + " à " + QString::number(ref->axecylindreOD()) + "°)";
+        if (ref->addVPOD() > 0.0)
+            Formule +=  " add." + QString::number(ref->addVPOD(),'f',2) +  " VP";
         qDebug() << Utils::EnumDescription(QMetaEnum::fromType<Refraction::Mesure>(), ref->typemesure());
         qDebug() << Formule;
-        Formule = "OG : " + QString::number(ref->sphereOG());
+        Formule = "OG : " + QString::number(ref->sphereOG(),'f',2);
         if (ref->cylindreOG() != 0)
-            Formule += "(" + QString::number(ref->cylindreOG()) + " à " + QString::number(ref->axecylindreOG()) + "°)";
-        Formule +=  " add." + QString::number(ref->addVPOG()) +  " VP";
+            Formule += "(" + QString::number(ref->cylindreOG(),'f',2) + " à " + QString::number(ref->axecylindreOG()) + "°)";
+        if (ref->addVPOG() > 0.0)
+            Formule +=  " add." + QString::number(ref->addVPOG(),'f',2) +  " VP";
         qDebug() << Formule;
+        if (ref->ecartIP() > 0)
+        {
+            Formule = "Ecart interpupillaire : " + QString::number(ref->ecartIP()) +  "mm";
+            qDebug() << Formule;
+        }
     }
 }
 
@@ -6276,11 +6305,13 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
         bool autorefhasipmesure = (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
                                 || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK ARK-30"
                                 || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK AR-20");
+        bool istonorefIII = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+        autorefhastonopachy = true;
         QDomElement xml = docxml.documentElement();
         for (int i=0; i<xml.childNodes().size(); i++)
         {
             QDomElement childnode = xml.childNodes().at(i).toElement();
-            if (childnode.tagName() == "R")
+            if (childnode.tagName() == "R")                         /*! OEIL DROIT  ------------------------------------------------------------------*/
             {
                 for (int j=0; j<childnode.childNodes().size(); j++)
                 {
@@ -6295,7 +6326,6 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                 for (int l=0; l<childARnode.childNodes().size(); l++)
                                 {
                                     QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
-                                    qDebug() << childARmednode.tagName() << childARmednode.text();
                                     if (childARmednode.tagName() == "Sphere")
                                         Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                     if (childARmednode.tagName() == "Cylinder")
@@ -6303,7 +6333,328 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                     if (childARmednode.tagName() == "Axis")
                                         Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(childARmednode.text().toInt()));
                                 }
-                                debugMesure(Datas::I()->mesureautoref);
+                            }
+                        }
+                    }
+                }
+            }
+            if (childnode.tagName() == "L")                         /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+            {
+                for (int j=0; j<childnode.childNodes().size(); j++)
+                {
+                    QDomElement childRnode = childnode.childNodes().at(j).toElement();
+                    if (childRnode.tagName() == "AR")
+                    {
+                        for (int k=0; k<childRnode.childNodes().size(); k++)
+                        {
+                            QDomElement childARnode = childRnode.childNodes().at(k).toElement();
+                            if (childARnode.tagName() == "ARMedian")
+                            {
+                                for (int l=0; l<childARnode.childNodes().size(); l++)
+                                {
+                                    QDomElement childARmednode = childARnode.childNodes().at(l).toElement();
+                                    if (childARmednode.tagName() == "Sphere")
+                                        Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
+                                    if (childARmednode.tagName() == "Cylinder")
+                                        Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
+                                    if (childARmednode.tagName() == "Axis")
+                                        Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(childARmednode.text().toInt()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (autorefhasipmesure)
+        {
+            Datas::I()->mesureautoref->setecartIP(0);
+            for (int i=0; i<xml.childNodes().size(); i++)
+            {
+                QDomElement childnode = xml.childNodes().at(i).toElement();
+                if (childnode.tagName() == "PD")                         /*! ECART INTERPUPILLAIRE  --------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childPDnode = childnode.childNodes().at(j).toElement();
+                        if (childPDnode.tagName() == "PDList" && childPDnode.attributeNode("No").value().toInt() == 1)
+                        {
+                            for (int k=0; k<childPDnode.childNodes().size(); k++)
+                            {
+                                QDomElement childPD1node = childPDnode.childNodes().at(k).toElement();
+                                if (childPD1node.tagName() == "FarPD")
+                                {
+                                    Datas::I()->mesureautoref->setecartIP(childPD1node.text().toInt());
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        if (autorefhaskerato)
+        {
+            //! Données de KERATOMETRIE --------------------------------------------------------------------------------------------------------
+            for (int i=0; i<xml.childNodes().size(); i++)
+            {
+                QDomElement childnode = xml.childNodes().at(i).toElement();
+                if (childnode.tagName() == "R")                         /*! OEIL DROIT  ------------------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childKnode = childnode.childNodes().at(j).toElement();
+                        if ((childKnode.tagName() == "KM" && !istonorefIII)
+                            || (childKnode.tagName() == "KM" && istonorefIII && (childKnode.attributeNode("condition").value() == "ø3.3mm")))
+                        {
+                            for (int k=0; k<childKnode.childNodes().size(); k++)
+                            {
+                                QDomElement childKMnode = childKnode.childNodes().at(k).toElement();
+                                if (childKMnode.tagName() == "KMMedian")
+                                {
+                                    for (int l=0; l<childKMnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childKMRmednode = childKMnode.childNodes().at(l).toElement();
+                                        if (childKMRmednode.tagName() == "R1")
+                                        {
+                                            for (int m=0; m<childKMRmednode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childKMR1mednode = childKMRmednode.childNodes().at(m).toElement();
+                                                if (childKMR1mednode.tagName() == "Radius")
+                                                    Datas::I()->mesurekerato->setK1OD(childKMR1mednode.text().toDouble());
+                                                if (childKMR1mednode.tagName() == "Power")
+                                                    Datas::I()->mesurekerato->setdioptriesK1OD(childKMR1mednode.text().toDouble());
+                                           }
+                                        }
+                                        if (childKMRmednode.tagName() == "R2")
+                                        {
+                                            for (int m=0; m<childKMRmednode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childKMR2mednode = childKMRmednode.childNodes().at(m).toElement();
+                                                if (childKMR2mednode.tagName() == "Radius")
+                                                    Datas::I()->mesurekerato->setK2OD(childKMR2mednode.text().toDouble());
+                                                if (childKMR2mednode.tagName() == "Power")
+                                                    Datas::I()->mesurekerato->setdioptriesK2OD(childKMR2mednode.text().toDouble());
+                                            }
+                                        }
+                                        if (childKMRmednode.tagName() == "KMCylinder")
+                                        {
+                                            for (int m=0; m<childKMRmednode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childKMCylmednode = childKMRmednode.childNodes().at(m).toElement();
+                                                if (childKMCylmednode.tagName() == "Axis")
+                                                    Datas::I()->mesurekerato->setaxeKOD(childKMCylmednode.text().toDouble());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (childnode.tagName() == "L")                         /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childKnode = childnode.childNodes().at(j).toElement();
+                        if (childKnode.tagName() == "KM")
+                        {
+                            for (int k=0; k<childKnode.childNodes().size(); k++)
+                            {
+                                QDomElement childKMnode = childKnode.childNodes().at(k).toElement();
+                                if (childKMnode.tagName() == "KMMedian")
+                                {
+                                    for (int l=0; l<childKMnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childKMRmednode = childKMnode.childNodes().at(l).toElement();
+                                        if (childKMRmednode.tagName() == "R1")
+                                        {
+                                            for (int m=0; m<childKMRmednode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childKMR1mednode = childKMRmednode.childNodes().at(m).toElement();
+                                                if (childKMR1mednode.tagName() == "Radius")
+                                                    Datas::I()->mesurekerato->setK1OG(childKMR1mednode.text().toDouble());
+                                                if (childKMR1mednode.tagName() == "Power")
+                                                    Datas::I()->mesurekerato->setdioptriesK1OG(childKMR1mednode.text().toDouble());
+                                           }
+                                        }
+                                        if (childKMRmednode.tagName() == "R2")
+                                        {
+                                            for (int m=0; m<childKMRmednode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childKMR2mednode = childKMRmednode.childNodes().at(m).toElement();
+                                                if (childKMR2mednode.tagName() == "Radius")
+                                                    Datas::I()->mesurekerato->setK2OG(childKMR2mednode.text().toDouble());
+                                                if (childKMR2mednode.tagName() == "Power")
+                                                    Datas::I()->mesurekerato->setdioptriesK2OG(childKMR2mednode.text().toDouble());
+                                            }
+                                        }
+                                        if (childKMRmednode.tagName() == "KMCylinder")
+                                        {
+                                            for (int m=0; m<childKMRmednode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childKMCylmednode = childKMRmednode.childNodes().at(m).toElement();
+                                                if (childKMCylmednode.tagName() == "Axis")
+                                                    Datas::I()->mesurekerato->setaxeKOG(childKMCylmednode.text().toDouble());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (autorefhastonopachy)
+        {
+            //! Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
+            for (int i=0; i<xml.childNodes().size(); i++)
+            {
+                QDomElement childnode = xml.childNodes().at(i).toElement();
+                if (childnode.tagName() == "R")                         /*! OEIL DROIT  ------------------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childTOnode = childnode.childNodes().at(j).toElement();
+                        if (childTOnode.tagName() == "NT")
+                        {
+                            for (int k=0; k<childTOnode.childNodes().size(); k++)
+                            {
+                                QDomElement childTODnode = childTOnode.childNodes().at(k).toElement();
+                                if (childTODnode.tagName() == "NTAverage")
+                                {
+                                    for (int l=0; l<childTODnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childTOnoncornode = childTODnode.childNodes().at(l).toElement();
+                                        if (childTOnoncornode.tagName() == "mmHg")
+                                        {
+                                            Datas::I()->mesuretono->setTOD(std::round(childTOnoncornode.text().toDouble()));
+                                            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+                                        }
+                                    }
+                                }
+                                if (childTODnode.tagName() == "CorrectedIOP")
+                                {
+                                    for (int l=0; l<childTODnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childTOcornode = childTODnode.childNodes().at(l).toElement();
+                                        if (childTOcornode.tagName() == "Corrected")
+                                        {
+                                            for (int m=0; m<childTOcornode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childTODcornode = childTOcornode.childNodes().at(m).toElement();
+                                                if (childTODcornode.tagName() == "mmHg")
+                                                {
+                                                    Datas::I()->mesuretono->setTODcorrigee(std::round(childTODcornode.text().toDouble()));
+                                                    Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (childnode.tagName() == "L")                         /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childTOnode = childnode.childNodes().at(j).toElement();
+                        if (childTOnode.tagName() == "NT")
+                        {
+                            for (int k=0; k<childTOnode.childNodes().size(); k++)
+                            {
+                                QDomElement childTOGnode = childTOnode.childNodes().at(k).toElement();
+                                if (childTOGnode.tagName() == "NTAverage")
+                                {
+                                    for (int l=0; l<childTOGnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childTOnoncornode = childTOGnode.childNodes().at(l).toElement();
+                                        if (childTOnoncornode.tagName() == "mmHg")
+                                            Datas::I()->mesuretono->setTOG(std::round(childTOnoncornode.text().toDouble()));
+                                        Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+                                    }
+                                }
+                                if (childTOGnode.tagName() == "CorrectedIOP")
+                                {
+                                    for (int l=0; l<childTOGnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childTOcornode = childTOGnode.childNodes().at(l).toElement();
+                                        if (childTOcornode.tagName() == "Corrected")
+                                        {
+                                            for (int m=0; m<childTOcornode.childNodes().size(); m++)
+                                            {
+                                                QDomElement childTOGcornode = childTOcornode.childNodes().at(m).toElement();
+                                                if (childTOGcornode.tagName() == "mmHg")
+                                                {
+                                                    Datas::I()->mesuretono->setTOGcorrigee(std::round(childTOGcornode.text().toDouble()));
+                                                    Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //! Données de PACHYMETRIE --------------------------------------------------------------------------------------------------------
+            for (int i=0; i<xml.childNodes().size(); i++)
+            {
+                QDomElement childnode = xml.childNodes().at(i).toElement();
+                if (childnode.tagName() == "R")                         /*! OEIL DROIT  ------------------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childpachynode = childnode.childNodes().at(j).toElement();
+                        if (childpachynode.tagName() == "PACHY")
+                        {
+                            for (int k=0; k<childpachynode.childNodes().size(); k++)
+                            {
+                                QDomElement childpachyDnode = childpachynode.childNodes().at(k).toElement();
+                                if (childpachyDnode.tagName() == "PACHYAverage")
+                                {
+                                    for (int l=0; l<childpachyDnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childpODnode = childpachyDnode.childNodes().at(l).toElement();
+                                        if (childpODnode.tagName() == "Thickness")
+                                        {
+                                            Datas::I()->mesurepachy->setpachyOD(childpODnode.text().toInt());
+                                            Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (childnode.tagName() == "L")                         /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                {
+                    for (int j=0; j<childnode.childNodes().size(); j++)
+                    {
+                        QDomElement childpachynode = childnode.childNodes().at(j).toElement();
+                        if (childpachynode.tagName() == "PACHY")
+                        {
+                            for (int k=0; k<childpachynode.childNodes().size(); k++)
+                            {
+                                QDomElement childpachyGnode = childpachynode.childNodes().at(k).toElement();
+                                if (childpachyGnode.tagName() == "PACHYAverage")
+                                {
+                                    for (int l=0; l<childpachyGnode.childNodes().size(); l++)
+                                    {
+                                        QDomElement childpOGnode = childpachyGnode.childNodes().at(l).toElement();
+                                        if (childpOGnode.tagName() == "Thickness")
+                                        {
+                                            Datas::I()->mesurepachy->setpachyOG(childpOGnode.text().toInt());
+                                            Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -6311,35 +6662,10 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
             }
         }
     }
-        /*
-         *
-         * exemple de  parsing de xml
-        for (int i=0; i<xml.childNodes().size(); i++)     // on reprend chaque IOL un par un
-        {
-            QDomElement lensnode = xml.childNodes().at(i).toElement();
-            int idiol = lensnode.attributeNode("id").value().toInt();
-            for (int i=0; i<lensnode.childNodes().size(); i++)
-            {
-                QDomElement node = lensnode.childNodes().at(i).toElement();
-                if (node.tagName() == "Manufacturer")
-                    QString fabricant = node.text();
-                else if (node.tagName() == "Name")
-                    QString modele = node.text();
-                else if (node.tagName() == "Specifications")
-                    for (int i=0; i<node.childNodes().size(); i++)
-                    {
-                    }
-                else if (node.tagName() == "Availability")
-                    for (int i=0; i<node.childNodes().size(); i++)
-                    {
-                    }
-                else if (node.tagName() == "Constants" && node.attributeNode("type").value() == "nominal")
-                    for (int i=0; i<node.childNodes().size(); i++)
-                    {
-                   }
-            }
-        }
-    }*/
+    debugMesure(Datas::I()->mesureautoref);
+    debugMesure(Datas::I()->mesurekerato);
+    debugMesure(Datas::I()->mesuretono);
+    debugMesure(Datas::I()->mesurepachy);
 }
 
 // -------------------------------------------------------------------------------------

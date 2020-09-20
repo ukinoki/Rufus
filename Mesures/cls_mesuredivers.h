@@ -128,12 +128,16 @@ public:
 private:
     int m_TOD           = 0;
     int m_TOG           = 0;
+    int m_TODcorrigee   = 0;
+    int m_TOGcorrigee   = 0;
     QDateTime m_timemesure = QDateTime();
     Mode m_modemesure   = NoMesure;
 
 public:
     int TOD() const                 { return m_TOD; }
     int TOG() const                 { return m_TOG; }
+    int TODcorrigee() const         { return m_TODcorrigee; }
+    int TOGcorrigee() const         { return m_TOGcorrigee; }
     QDateTime timemesure() const    { return m_timemesure; }
     Mode modemesure() const         { return m_modemesure; }
 
@@ -149,6 +153,18 @@ public:
         m_cleandatas = false;
         m_isnullOG = false;
     }
+    void setTODcorrigee(int to)
+    {
+        m_TODcorrigee = to;
+        m_cleandatas = false;
+        m_isnullOD = false;
+    }
+    void setTOGcorrigee(int to)
+    {
+        m_TOGcorrigee = to;
+        m_cleandatas = false;
+        m_isnullOG = false;
+    }
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
@@ -159,6 +175,8 @@ public:
         case Utils::NoLoSo:
             m_TOD           = 0;
             m_TOG           = 0;
+            m_TODcorrigee   = 0;
+            m_TOGcorrigee   = 0;
             m_timemesure    = QDateTime();
             m_modemesure    = NoMesure;
             m_cleandatas    = true;
@@ -167,12 +185,14 @@ public:
             break;
         case Utils::Droit:
             m_TOD           = 0;
+            m_TODcorrigee   = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
         case Utils::Gauche:
             m_TOG           = 0;
+            m_TOGcorrigee   = 0;
             m_isnullOG      = true;
             if (m_isnullOD)
                 m_cleandatas = true;
@@ -185,15 +205,18 @@ public:
         if (m_isnullOD & !m_isnullOG)
             return (other           ->isnullLOD()
                     && !other       ->isnullLOG()
-                    && m_TOG        == other->TOG()
+                    && m_TOGcorrigee== other->TOGcorrigee()
                     && m_modemesure == other->modemesure());
         else if (m_isnullOG && !m_isnullOD)
             return ( other          ->isnullLOG()
                     && !other       ->isnullLOD()
                     && m_TOD        == other->TOD()
+                    && m_TODcorrigee== other->TODcorrigee()
                     && m_modemesure == other->modemesure());
         return  (m_TOD              == other->TOD()
                 && m_TOG            == other->TOG()
+                && m_TODcorrigee== other->TODcorrigee()
+                && m_TOGcorrigee== other->TOGcorrigee()
                 && m_modemesure     == other->modemesure());
     }
 
@@ -231,11 +254,17 @@ public:
         if  (tono->isnullLOD())
             cleandatas(Utils::Droit);
         else
+        {
             setTOD(tono->TOD());
+            setTODcorrigee(tono->TODcorrigee());
+        }
         if  (tono->isnullLOG())
             cleandatas(Utils::Gauche);
         else
+        {
             setTOG(tono->TOG());
+            setTOGcorrigee(tono->TOGcorrigee());
+        }
         m_cleandatas    = false;
     }
 
