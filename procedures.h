@@ -430,6 +430,7 @@ private:
     SerialThread            *t_threadRefracteur;
     SerialThread            *t_threadAutoref;
     QTimer                  *t_xmltimer;
+    bool                    m_hasappareilrefractionconnecte = false;
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
@@ -447,11 +448,11 @@ public:
                 };  Q_ENUM(TypeMesure)
     Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
     enum TypeAppareil {
-                AppNone        = 0x0,
-                AppFronto      = 0x1,
-                AppAutoref     = 0x2,
-                AppRefracteur  = 0x4,
-                AppTono        = 0x8,
+                AppNone     = 0x0,
+                Fronto      = 0x1,
+                Autoref     = 0x2,
+                Refracteur  = 0x4,
+                Tonometre   = 0x8,
                 };  Q_ENUM(TypeAppareil)
     Q_DECLARE_FLAGS(TypesAppareils, TypeAppareil)
 signals:
@@ -463,6 +464,7 @@ public:
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();
+    bool                    HasAppareilRefractionConnecte();                        //! true si un appareil de refraction est connecté sur un port série ou sur le réseau
     void                    debugMesure(QObject *mesure, QString titre = "");
     //LE FRONTO ----------------------------------------------------
     QString                 HtmlFronto();                                           //! accesseur pour le html de mesure fronto à afficher;

@@ -127,7 +127,6 @@ Procedures::Procedures(QObject *parent) :
 //            docxml.setContent(&xmldoc);
 //            LectureDonneesXMLAutoref(docxml);
 //        }
-//        //Utils::cleanfolder(PATH_DIR_AUTOREF);
 //    }
 }
 
@@ -4125,27 +4124,28 @@ void Procedures::Ouverture_Appareils_Refraction()
     if (m_isFrontoParametre)
     {
         bool m_isReseauFronto       = (m_settings->value("Param_Poste/PortFronto").toString() == RESEAU);
-        m_isReseauFronto?           appareilsreseau.setFlag(AppFronto)      : appareilscom.setFlag(AppFronto);
+        m_isReseauFronto?           appareilsreseau.setFlag(Fronto)      : appareilscom.setFlag(Fronto);
     }
     if (m_isAutorefParametre)
     {
         bool m_isReseauAutoref      = (m_settings->value("Param_Poste/PortAutoref").toString() == RESEAU);
-        m_isReseauAutoref?          appareilsreseau.setFlag(AppAutoref)     : appareilscom.setFlag(AppAutoref);
+        m_isReseauAutoref?          appareilsreseau.setFlag(Autoref)     : appareilscom.setFlag(Autoref);
     }
     if (m_isRefracteurParametre)
     {
         bool m_isReseauRefracteur   = (m_settings->value("Param_Poste/PortRefracteur").toString() == RESEAU);
-        m_isReseauRefracteur?       appareilsreseau.setFlag(AppRefracteur)  : appareilscom.setFlag(AppRefracteur);
+        m_isReseauRefracteur?       appareilsreseau.setFlag(Refracteur)  : appareilscom.setFlag(Refracteur);
     }
     if (m_isTonoParametre)
     {
         bool m_isReseauTono         = (m_settings->value("Param_Poste/PortTono").toString() == RESEAU);
-        m_isReseauTono?             appareilsreseau.setFlag(AppTono)        : appareilscom.setFlag(AppTono);
+        m_isReseauTono?             appareilsreseau.setFlag(Tonometre)        : appareilscom.setFlag(Tonometre);
     }
     if (appareilscom > 0)
         Ouverture_Ports_Series(appareilscom);
     if (appareilsreseau > 0)
         Ouverture_Fichiers_Echange(appareilsreseau);
+    m_hasappareilrefractionconnecte = appareilscom >0 || appareilsreseau >0;
 }
 
 /*! ------------------------------------------------------------------------------------------------------------------------------------------
@@ -4153,7 +4153,7 @@ GESTION DES FICHIERS ECHANGE XML DES APPAREILS DE REFRACTION -------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
 {
-    if (appareils.testFlag(AppAutoref))
+    if (appareils.testFlag(Autoref))
     {
         Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
         Utils::mkpath(PATH_DIR_AUTOREF);
@@ -4163,7 +4163,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
     connect(t_xmltimer,  &QTimer::timeout,     this,
             [=]
     {
-        if (appareils.testFlag(AppAutoref))
+        if (appareils.testFlag(Autoref))
         {
             QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
             if (listfichxml.size())
@@ -4174,11 +4174,12 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                 {
                     QDomDocument docxml;
                     docxml.setContent(&xmldoc);
-                    emit newdataxml(docxml);
+                    ReponseXML_Autoref(docxml);
                 }
-                //Utils::cleanfolder(PATH_DIR_AUTOREF);
+                QStringList listfich = QDir(PATH_DIR_AUTOREF).entryList(QDir::Files | QDir::NoDotAndDotDot);
+                for(int i = 0; i < listfich.size(); ++i)
+                    QFile(PATH_DIR_AUTOREF "/" + listfich.at(i)).remove();
             }
-
         }
     });
     return true;
@@ -4226,7 +4227,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         }
     }
     // PORT FRONTO
-    if (appareils.testFlag(AppFronto))
+    if (appareils.testFlag(Fronto))
     {
         m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
         ReglePortFronto();
@@ -4305,7 +4306,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     }
 
     // PORT REFRACTEUR
-    if (appareils.testFlag(AppRefracteur))
+    if (appareils.testFlag(Refracteur))
     {
         m_portRefracteur = m_settings->value("Param_Poste/PortRefracteur").toString();
         ReglePortRefracteur();
@@ -4382,7 +4383,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     }
 
     //PORT AUTOREF
-    if (appareils.testFlag(AppAutoref))
+    if (appareils.testFlag(Autoref))
     {
         m_portAutoref    = m_settings->value("Param_Poste/PortAutoref").toString();
         ReglePortAutoref();
@@ -4456,7 +4457,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             }
         }
     }
-    if (appareils.testFlag(AppTono))
+    if (appareils.testFlag(Tonometre))
     {
         m_portTono       = m_settings->value("Param_Poste/PortTonometre").toString();
     }
@@ -4732,7 +4733,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
         return;
     }
     Keratometrie *ker = qobject_cast<Keratometrie *>(mesure);
-    if (tono != Q_NULLPTR)
+    if (ker != Q_NULLPTR)
     {
         QString Formule = "OD : " + QString::number(ker->K1OD()) + "/" + QString::number(ker->K2OD()) + " "  + QString::number(ker->axeKOD());
         qDebug() << Formule;
@@ -6280,6 +6281,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 
 */
     Logs::LogToFile("MesuresAutoref.txt", docxml.toByteArray());
+    bool autorefhastonopachy = false;
     if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
@@ -6301,12 +6303,11 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                           || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
                           || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
                           || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
-        bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+        autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
         bool autorefhasipmesure = (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
                                 || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK ARK-30"
                                 || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK AR-20");
         bool istonorefIII = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
-        autorefhastonopachy = true;
         QDomElement xml = docxml.documentElement();
         for (int i=0; i<xml.childNodes().size(); i++)
         {
@@ -6425,7 +6426,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                                 if (childKMR1mednode.tagName() == "Radius")
                                                     Datas::I()->mesurekerato->setK1OD(childKMR1mednode.text().toDouble());
                                                 if (childKMR1mednode.tagName() == "Power")
-                                                    Datas::I()->mesurekerato->setdioptriesK1OD(childKMR1mednode.text().toDouble());
+                                                    Datas::I()->mesurekerato->setdioptriesK1OD(Utils::roundToNearestPointTwentyFive(childKMR1mednode.text().toDouble()));
                                            }
                                         }
                                         if (childKMRmednode.tagName() == "R2")
@@ -6436,7 +6437,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                                 if (childKMR2mednode.tagName() == "Radius")
                                                     Datas::I()->mesurekerato->setK2OD(childKMR2mednode.text().toDouble());
                                                 if (childKMR2mednode.tagName() == "Power")
-                                                    Datas::I()->mesurekerato->setdioptriesK2OD(childKMR2mednode.text().toDouble());
+                                                    Datas::I()->mesurekerato->setdioptriesK2OD(Utils::roundToNearestPointTwentyFive(childKMR2mednode.text().toDouble()));
                                             }
                                         }
                                         if (childKMRmednode.tagName() == "KMCylinder")
@@ -6445,7 +6446,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                             {
                                                 QDomElement childKMCylmednode = childKMRmednode.childNodes().at(m).toElement();
                                                 if (childKMCylmednode.tagName() == "Axis")
-                                                    Datas::I()->mesurekerato->setaxeKOD(childKMCylmednode.text().toDouble());
+                                                    Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(childKMCylmednode.text().toInt()));
                                             }
                                         }
                                     }
@@ -6477,7 +6478,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                                 if (childKMR1mednode.tagName() == "Radius")
                                                     Datas::I()->mesurekerato->setK1OG(childKMR1mednode.text().toDouble());
                                                 if (childKMR1mednode.tagName() == "Power")
-                                                    Datas::I()->mesurekerato->setdioptriesK1OG(childKMR1mednode.text().toDouble());
+                                                    Datas::I()->mesurekerato->setdioptriesK1OG(Utils::roundToNearestPointTwentyFive(childKMR1mednode.text().toDouble()));
                                            }
                                         }
                                         if (childKMRmednode.tagName() == "R2")
@@ -6488,7 +6489,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                                 if (childKMR2mednode.tagName() == "Radius")
                                                     Datas::I()->mesurekerato->setK2OG(childKMR2mednode.text().toDouble());
                                                 if (childKMR2mednode.tagName() == "Power")
-                                                    Datas::I()->mesurekerato->setdioptriesK2OG(childKMR2mednode.text().toDouble());
+                                                    Datas::I()->mesurekerato->setdioptriesK2OG(Utils::roundToNearestPointTwentyFive(childKMR2mednode.text().toDouble()));
                                             }
                                         }
                                         if (childKMRmednode.tagName() == "KMCylinder")
@@ -6497,7 +6498,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                             {
                                                 QDomElement childKMCylmednode = childKMRmednode.childNodes().at(m).toElement();
                                                 if (childKMCylmednode.tagName() == "Axis")
-                                                    Datas::I()->mesurekerato->setaxeKOG(childKMCylmednode.text().toDouble());
+                                                    Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(childKMCylmednode.text().toInt()));
                                             }
                                         }
                                     }
@@ -6664,8 +6665,11 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
     }
     debugMesure(Datas::I()->mesureautoref);
     debugMesure(Datas::I()->mesurekerato);
-    debugMesure(Datas::I()->mesuretono);
-    debugMesure(Datas::I()->mesurepachy);
+    if (autorefhastonopachy)
+    {
+        debugMesure(Datas::I()->mesuretono);
+        debugMesure(Datas::I()->mesurepachy);
+    }
 }
 
 // -------------------------------------------------------------------------------------
@@ -6792,32 +6796,42 @@ QString Procedures::HtmlTono()
         QString larg =  "190";
         QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">";
         QString Methode = Tonometrie::ConvertMesure(tono->modemesure());
-        QString Tono, color;
+        QString Tono, color, Tonocor, colorcor;
         color = (tono->TOD() > 21? "red" : "blue");
         QString TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOD()) + "</font>";
+        if (tono->TODcorrigee() >0)
+        {
+            color = (tono->TODcorrigee() > 21? "red" : "blue");
+            TODcolor += "/<font color = \"" + color + "\">" + QString::number(tono->TODcorrigee()) + " " + tr("corr.") + "</font>";
+        }
         color = (tono->TOG() > 21? "red" : "blue");
         QString TOGcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOG()) + "</font>";
+        if (tono->TOGcorrigee() >0)
+        {
+            color = (tono->TOGcorrigee() > 21? "red" : "blue");
+            TOGcolor += "/<font color = \"" + color + "\">" + QString::number(tono->TOGcorrigee()) + " " + tr("corr.") + "</font>";
+        }
         if (tono->TOD() == 0 && tono->TOG() > 0)
             Tono = dd + tr("TOG:") + "</font> "
-                    + TOGcolor + "</b>" + tr(" à ")
+                    + TOGcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
         else if (tono->TOG() == 0 && tono->TOD() > 0)
             Tono = dd + tr("TOD:") + "</font> "
-                    + TODcolor + "</b>" + tr(" à ")
+                    + TODcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
-        else if (tono->TOD() == tono->TOG())
+        else if (tono->TOD() == tono->TOG() && tono->TODcorrigee() == tono->TOGcorrigee())
             Tono = dd + tr("TODG:") + "</font> "
-                    + TODcolor + "</b>" + tr(" à ")
+                    + TODcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
         else
-            Tono = dd + tr("TO:") + "</font> " + TODcolor + "/"
-                    + TOGcolor + "</b>" + tr(" à ")
+            Tono = dd + tr("TO:") + "</font> " + TODcolor + "  /  "
+                    + TOGcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
@@ -6825,7 +6839,6 @@ QString Procedures::HtmlTono()
         Reponse.insert(Reponse.lastIndexOf("</td>")-1, fd);             //! on met le dernier caractère en ancre
     }
     logmesure("setHtmlTono() -> new m_htmlMesureTono = " + Reponse);
-    tono = Q_NULLPTR;
     return Reponse;
 }
 
@@ -6854,13 +6867,17 @@ QString Procedures::HtmlPachy()
         }
         Reponse = dd + Reponse + fd + +")";           // on met le dernier caractère en ancre
     }
-    pachy = Q_NULLPTR;
     return Reponse;
 }
 
 QSerialPort* Procedures::PortTono()
 {
     return sp_portTono;
+}
+
+bool Procedures::HasAppareilRefractionConnecte()
+{
+    return m_hasappareilrefractionconnecte;
 }
 
 Procedures::TypeMesure Procedures::ConvertMesure(QString Mesure)
