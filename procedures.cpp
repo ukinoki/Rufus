@@ -6460,7 +6460,8 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                     for (int j=0; j<childnode.childNodes().size(); j++)
                     {
                         QDomElement childKnode = childnode.childNodes().at(j).toElement();
-                        if (childKnode.tagName() == "KM")
+                        if ((childKnode.tagName() == "KM" && !istonorefIII)
+                            || (childKnode.tagName() == "KM" && istonorefIII && (childKnode.attributeNode("condition").value() == "ø3.3mm")))
                         {
                             for (int k=0; k<childKnode.childNodes().size(); k++)
                             {
@@ -6728,9 +6729,14 @@ QString Procedures::HtmlAutoref()
     }
     else
         Reponse = ResultatOD + " / " + ResultatOG;
+    Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
+                           + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Reponse + "</td>";
+    if (autoref->ecartIP() >0)
+        Reponse += "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
+                + tr("EIP") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QString::number(autoref->ecartIP()) + "mm</td>";
+    Reponse += "</p>";
     autoref = Q_NULLPTR;
-    return  HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
-                           + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Reponse + "</td></p>";
+    return Reponse;
 }
 
 // -------------------------------------------------------------------------------------
@@ -6794,6 +6800,8 @@ QString Procedures::HtmlTono()
         QString const dd    = "<a name=\"" HTMLANCHOR_TODEBUT + QString::number(tono->id()) + "\"></a>";
         QString const fd    = "<a name=\"" HTMLANCHOR_TOFIN "\"></a>";
         QString larg =  "190";
+        if (tono->TODcorrigee() >0 || tono->TOGcorrigee() >0)
+            larg = "300";
         QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">";
         QString Methode = Tonometrie::ConvertMesure(tono->modemesure());
         QString Tono, color, Tonocor, colorcor;
@@ -6830,7 +6838,7 @@ QString Procedures::HtmlTono()
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
         else
-            Tono = dd + tr("TO:") + "</font> " + TODcolor + "  /  "
+            Tono = dd + tr("TO:") + "</font> " + TODcolor + " / "
                     + TOGcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"

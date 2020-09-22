@@ -1961,7 +1961,7 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
             ui->RyserSpinBox->setValue(         ref->ryserOG());
         }
     } // fin Oeil gauche coche
-    ui->EIPLabel->setText(ref->ecartIP() > 0? QString::number(ref->ecartIP()) : tr("inconnu"));
+    ui->EIPLabel->setText(tr("Ecart interpupillaire") + " " + (ref->ecartIP() > 0? QString::number(ref->ecartIP()) +"mm" : tr("inconnu")));
 }
 
 
@@ -3921,7 +3921,7 @@ void dlg_refraction::AfficheMesureFronto()
     ui->CylindreOG->setValuewithPrefix(Datas::I()->mesurefronto->cylindreOG());
     ui->AxeCylindreOG   ->setValue(Datas::I()->mesurefronto->axecylindreOG());
     ui->AddVPOG         ->setValue(Datas::I()->mesurefronto->addVPOG());
-    ui->EIPLabel->setText(Datas::I()->mesurefronto->ecartIP() > 0? QString::number(Datas::I()->mesurefronto->ecartIP()) : tr("inconnu"));
+    ui->EIPLabel->setText(tr("Ecart interpupillaire") + " " + (Datas::I()->mesurefronto->ecartIP() > 0? QString::number(Datas::I()->mesurefronto->ecartIP()) +"mm" : tr("inconnu")));
 }
 
 //-----------------------------------------------------------------------------------------
@@ -3944,7 +3944,7 @@ void dlg_refraction::AfficheMesureAutoref()
     ui->SphereOG->setValuewithPrefix(Datas::I()->mesureautoref->sphereOG());
     ui->CylindreOG->setValuewithPrefix(Datas::I()->mesureautoref->cylindreOG());
     ui->AxeCylindreOG       ->setValue(Datas::I()->mesureautoref->axecylindreOG());
-    ui->EIPLabel->setText(Datas::I()->mesureautoref->ecartIP() > 0? QString::number(Datas::I()->mesureautoref->ecartIP()) : tr("inconnu"));
+    ui->EIPLabel->setText(tr("Ecart interpupillaire") + " " + (Datas::I()->mesureautoref->ecartIP() > 0? QString::number(Datas::I()->mesureautoref->ecartIP()) +"mm" : tr("inconnu")));
     AfficheKerato();
 }
 
@@ -4056,7 +4056,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     default:
         break;
     }
-    ui->EIPLabel->setText(MesureRefracteur->ecartIP() > 0? QString::number(MesureRefracteur->ecartIP()) : tr("inconnu"));
+    ui->EIPLabel->setText(tr("Ecart interpupillaire") + " " + (MesureRefracteur->ecartIP() > 0? QString::number(MesureRefracteur->ecartIP()) +"mm" : tr("inconnu")));
     // qDebug() << "AVLOD = " + AVLOD << "AVPOD = " + MesuresRefracteur["AVPOD"].toString() << "AVLOG = " + AVLOG << "AVPOG = " + MesuresRefracteur["AVPOG"].toString();
     MesureRefracteur = Q_NULLPTR;
 }
