@@ -1997,7 +1997,6 @@ void dlg_refraction::MasquerObjetsOeilDecoche()
         Afficher_Oeil_Droit(false);
     if (!ui->OGCheckBox->isChecked())
         Afficher_Oeil_Gauche(false);
-    ui->EIPtitreLabel   ->setVisible(ui->OGCheckBox->isChecked() && ui->ODCheckBox->isChecked());
     ui->EIPLabel        ->setVisible(ui->OGCheckBox->isChecked() && ui->ODCheckBox->isChecked());
     if (ui->DepoliODCheckBox->isChecked())
         ui->RyserODCheckBox->setVisible(false);

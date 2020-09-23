@@ -141,6 +141,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::FiltreTable);
+    connect (ui->DetailsDepensesupPushButton,   &QPushButton::clicked,          this,   &dlg_depenses::AfficheDetailsDepenses);
     connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {EnregistreFacture(FACTURE);});
     connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
@@ -826,6 +827,50 @@ void dlg_depenses::SupprimerDepense()
             break;
         }
     CalculTotalDepenses();
+}
+
+/*! -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Affiche la ventilation des dépenses en fonction des modes de paiement: espèces, banque1, banque2...etc.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+void dlg_depenses::AfficheDetailsDepenses()
+{
+    double TotalEspèces = 0;
+    QMap<int, double> listcomptes;
+    QString Total;
+    QString tdwidth = "250";
+
+    if (wdg_bigtable->rowCount() > 0)
+        for (int k = 0; k < wdg_bigtable->rowCount(); k++)
+            if (!wdg_bigtable->isRowHidden(k))
+            {
+                Depense*dep = getDepenseFromRow(k);
+                if (dep->modepaiement() == "E")
+                    TotalEspèces += QLocale().toDouble(static_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3))->text());
+                else
+                {
+                    if (listcomptes.find(dep->comptebancaire()) == listcomptes.end())
+                        listcomptes.insert(dep->comptebancaire(),dep->montant());
+                    else
+                    {
+                        double total = listcomptes.find(dep->comptebancaire()).value();
+                        total += dep->montant();
+                        listcomptes.insert(dep->comptebancaire(),total);
+                    }
+                }
+            }
+    Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
+            + tr("Espèces")
+            + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QLocale().toString(TotalEspèces,'f',2) + "</td>";
+    for (auto it = listcomptes.begin(); it != listcomptes.end(); ++it)
+    {
+        Banque *bq = Datas::I()->banques->getById(it.key());
+        if (bq)
+            Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
+                    + bq->nom()
+                    + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QLocale().toString(it.value(),'f',2) + "</td>";
+    }
+    Total += "</p>";
+    proc->Edit(Total, this->windowTitle(), false);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

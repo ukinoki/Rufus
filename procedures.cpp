@@ -5265,7 +5265,6 @@ QString Procedures::HtmlRefracteur()
             Reponse = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG");
     }
     Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Reponse + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + currentuser()->login() + "</td></p>";
-    acuite = Q_NULLPTR;
     return Reponse;
 }
 
@@ -5546,7 +5545,6 @@ QString Procedures::HtmlFronto()
     }
     else
         Reponse = ResultatOD + " / " + ResultatOG;
-    fronto = Q_NULLPTR;
     return HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Reponse + "</p>";
 }
 
@@ -6735,7 +6733,6 @@ QString Procedures::HtmlAutoref()
         Reponse += "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                 + tr("EIP") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QString::number(autoref->ecartIP()) + "mm</td>";
     Reponse += "</p>";
-    autoref = Q_NULLPTR;
     return Reponse;
 }
 
@@ -6784,7 +6781,6 @@ QString Procedures::HtmlKerato()
                       "<td width=\"180\">"  + mK1OG +  tr(" à ") + mAxeKOG + "°/" + mK2OG
                       + " Km = " + mDioptrmOG + "</td></p>";
     }
-    kerato = Q_NULLPTR;
     return Reponse;
 }
 

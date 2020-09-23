@@ -160,7 +160,7 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,0,0,1,5,15">
+      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,0,0,1,5,0,15">
        <item>
         <widget class="UpPushButton" name="ExportupPushButton">
          <property name="minimumSize">
@@ -258,6 +258,29 @@
          </property>
          <property name="readOnly">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="UpPushButton" name="DetailsDepensesupPushButton">
+         <property name="minimumSize">
+          <size>
+           <width>124</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>124</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Details</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../assets/Images/images.qrc">
+           <normaloff>:/death_list.png</normaloff>:/death_list.png</iconset>
          </property>
         </widget>
        </item>
@@ -1010,6 +1033,11 @@ dépense</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpSmallButton</class>
+   <extends>QPushButton</extends>
+   <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
@@ -1018,11 +1046,6 @@ dépense</string>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpSmallButton</class>
-   <extends>QPushButton</extends>
-   <header>upsmallbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
