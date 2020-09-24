@@ -834,7 +834,7 @@ void dlg_depenses::SupprimerDepense()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AfficheDetailsDepenses()
 {
-    double TotalEspèces = 0, Global = 0;
+    double TotalEspeces = 0, Global = 0;
     QMap<int, double> listcomptes;
     QString Total;
     QString tdwidth = "200";
@@ -847,7 +847,7 @@ void dlg_depenses::AfficheDetailsDepenses()
                 if (dep)
                 {
                     if (dep->modepaiement() == "E")
-                        TotalEspèces += dep->montant();
+                        TotalEspeces += dep->montant();
                     else
                     {
                         if (listcomptes.find(dep->comptebancaire()) == listcomptes.end())
@@ -863,8 +863,8 @@ void dlg_depenses::AfficheDetailsDepenses()
             }
     Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
             + tr("Espèces")
-            + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(TotalEspèces,'f',2) + "</td>";
-    Global += TotalEspèces;
+            + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(TotalEspeces,'f',2) + "</td>";
+    Global += TotalEspeces;
     for (auto it = listcomptes.begin(); it != listcomptes.end(); ++it)
     {
         Banque *bq = Datas::I()->banques->getById(it.key());
