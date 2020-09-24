@@ -834,41 +834,51 @@ void dlg_depenses::SupprimerDepense()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AfficheDetailsDepenses()
 {
-    double TotalEspèces = 0;
+    double TotalEspèces = 0, Global = 0;
     QMap<int, double> listcomptes;
     QString Total;
-    QString tdwidth = "250";
+    QString tdwidth = "200";
 
     if (wdg_bigtable->rowCount() > 0)
         for (int k = 0; k < wdg_bigtable->rowCount(); k++)
             if (!wdg_bigtable->isRowHidden(k))
             {
                 Depense*dep = getDepenseFromRow(k);
-                if (dep->modepaiement() == "E")
-                    TotalEspèces += QLocale().toDouble(static_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3))->text());
-                else
+                if (dep)
                 {
-                    if (listcomptes.find(dep->comptebancaire()) == listcomptes.end())
-                        listcomptes.insert(dep->comptebancaire(),dep->montant());
+                    if (dep->modepaiement() == "E")
+                        TotalEspèces += dep->montant();
                     else
                     {
-                        double total = listcomptes.find(dep->comptebancaire()).value();
-                        total += dep->montant();
-                        listcomptes.insert(dep->comptebancaire(),total);
+                        if (listcomptes.find(dep->comptebancaire()) == listcomptes.end())
+                            listcomptes.insert(dep->comptebancaire(),dep->montant());
+                        else
+                        {
+                            double total = listcomptes.find(dep->comptebancaire()).value();
+                            total += dep->montant();
+                            listcomptes.insert(dep->comptebancaire(),total);
+                        }
                     }
                 }
             }
     Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
             + tr("Espèces")
-            + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QLocale().toString(TotalEspèces,'f',2) + "</td>";
+            + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(TotalEspèces,'f',2) + "</td>";
+    Global += TotalEspèces;
     for (auto it = listcomptes.begin(); it != listcomptes.end(); ++it)
     {
         Banque *bq = Datas::I()->banques->getById(it.key());
         if (bq)
+        {
             Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
                     + bq->nom()
-                    + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QLocale().toString(it.value(),'f',2) + "</td>";
+                    + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(it.value(),'f',2) + "</td>";
+            Global += it.value();
+        }
     }
+    Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
+            + tr("GLOBAL")
+            + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(Global,'f',2) + "</td>";
     Total += "</p>";
     proc->Edit(Total, this->windowTitle(), false);
 }
@@ -939,7 +949,10 @@ void dlg_depenses::CalculTotalDepenses()
     if (wdg_bigtable->rowCount() > 0)
         for (int k = 0; k < wdg_bigtable->rowCount(); k++)
             if (!wdg_bigtable->isRowHidden(k))
-                Total += QLocale().toDouble(static_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3))->text());
+            {
+                Depense*dep = getDepenseFromRow(k);
+                if (dep) Total += dep->montant();
+            }
     QString TotalRemise;
     TotalRemise = QLocale().toString(Total,'f',2);
     QString AnneeRubrique2035 = tr("Total général");
@@ -1494,8 +1507,8 @@ void dlg_depenses::FiltreTable()
             wdg_bigtable->setRowHidden(i,false);
         else
         {
-            QString rub = static_cast<UpLabel*>(wdg_bigtable->cellWidget(i,5))->text().mid(1);
-            wdg_bigtable->setRowHidden(i, rub!=filtre);
+            Depense *dep = getDepenseFromRow(i);
+            wdg_bigtable->setRowHidden(i, dep->idrubriquefiscale() != idrubrique);
         }
     }
     if (idx>0 && wdg_bigtable->isRowHidden(row))
