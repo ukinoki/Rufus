@@ -18,9 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_USER_H
 #define CLS_USER_H
 
-#include <QMap>
-#include <QVariant>
-#include <QDate>
 #include "cls_item.h"
 #include "macros.h"
 #include "log.h"
@@ -113,14 +110,17 @@ private:
                                                     //!< l'id du user assisté s'il est assistant
     int m_idUserParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
                                                     //!< l'id du user remplacé s'il est remplacé
-    int m_idUserComptable = ROLE_INDETERMINE;       //!< si le  user  est soignant et responsable de ses actes =>
-                                                        //!< son id s'il est libéral
-                                                        //!< l'id de son employeur s'il est salarié
-                                                        //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
-                                                        //!< . celui qu'il remplace si celui qu'il remplace est libéral
-                                                        //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
-
-public:
+    int m_idUserComptable = ROLE_INDETERMINE;       //!< si le  user est soignant
+                                                        //! s'il est responsable de ses actes =>
+                                                            //!< son id s'il est libéral
+                                                            //!< l'id de son employeur s'il est salarié
+                                                            //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
+                                                            //!< . celui qu'il remplace si celui qu'il remplace est libéral
+                                                            //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
+                                                        //! s'il n'est pas responsable de ses actes
+                                                            //! -2 = ROLE_VIDE - le comptable de l'acte sera enregistré au moment de l'enregistrement de la cotation
+                                                            //! ce sera l'id du user qui enregistrera la cotation
+public: 
     explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 

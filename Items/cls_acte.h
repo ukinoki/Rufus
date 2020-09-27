@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_ACTE_H
 #define CLS_ACTE_H
 
-#include <QDate>
 #include "cls_item.h"
 
 
@@ -34,7 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Acte : public Item
 {
-
+    Q_OBJECT
 private:
 
     int m_idPatient;            //!< id du Patient correspondant à l'acte

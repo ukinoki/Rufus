@@ -19,7 +19,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     PosteConnecte *post         = Q_NULLPTR;
     Banque *bq                  = Q_NULLPTR;
     User *usr                   = Q_NULLPTR;
-    SessionOperatoire *session  = Q_NULLPTR;
+    Session *session            = Q_NULLPTR;
+    SessionOperatoire *sessionop= Q_NULLPTR;
     Site *sit                   = Q_NULLPTR;
     Manufacturer *man           = Q_NULLPTR;
     TypeIntervention *typinterv = Q_NULLPTR;
@@ -572,35 +573,35 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        session = dynamic_cast<SessionOperatoire*>(item);
-        if (session)
+        sessionop = dynamic_cast<SessionOperatoire*>(item);
+        if (sessionop)
         {
             table = TBL_SESSIONSOPERATOIRES;
             ok = true;
             clause = CP_ID_SESSIONOPERATOIRE " = " + QString::number(item->id());
             if (field == CP_DATE_SESSIONOPERATOIRE )
             {
-                session->setdate(newvalue.toDate());
+                sessionop->setdate(newvalue.toDate());
                 Utils::CalcDateValueSQL(newvalue);
             }
             else if (field == CP_IDLIEU_SESSIONOPERATOIRE )
             {
-                session->setidlieu(newvalue.toInt());
+                sessionop->setidlieu(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_IDUSER_SESSIONOPERATOIRE )
             {
-                session->setiduser(newvalue.toInt());
+                sessionop->setiduser(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_IDAIDE_SESSIONOPERATOIRE )
             {
-                session->setidaide(newvalue.toInt());
+                sessionop->setidaide(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_INCIDENT_SESSIONOPERATOIRE)
             {
-                session->setincident(newvalue.toString());
+                sessionop->setincident(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
             break;
@@ -1250,6 +1251,49 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 bool a = newvalue.toBool();
                 msg->setasupprimer(a);
                 newvalue = (a? "1" : "null");
+            }
+            break;
+        }
+        session = dynamic_cast<Session*>(item);
+        if (session)
+        {
+            table = TBL_SESSIONS;
+            ok = true;
+            clause = CP_ID_SESSIONS " = " + QString::number(item->id());
+            if (field == CP_DATEDEBUT_SESSIONS )
+            {
+                session->setdatedebut(newvalue.toDateTime());
+                Utils::CalcDateTimeValueSQL(newvalue);
+            }
+            else if (field == CP_DATEFIN_SESSIONS )
+            {
+                session->setdatefin(newvalue.toDateTime());
+                Utils::CalcDateTimeValueSQL(newvalue);
+            }
+            else if (field == CP_IDLIEU_SESSIONS )
+            {
+                session->setidlieu(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_IDUSER_SESSIONS )
+            {
+                session->setiduser(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_IDSUPERVISEUR_SESSIONS )
+            {
+                session->setidsuperviseur(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_IDPARENT_SESSIONS )
+            {
+                session->setidparent(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_IDCOMPTABLE_SESSIONS )
+            {
+                session->setidcomptable(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
             }
             break;
         }

@@ -139,31 +139,6 @@ LOCK TABLES `Impressions` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `JournalSessions`
---
-
-DROP TABLE IF EXISTS `JournalSessions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `JournalSessions` (
-  `idJournalSessions` int(11) NOT NULL AUTO_INCREMENT,
-  `idSession` int(11) DEFAULT NULL,
-  `HeureDebut` datetime DEFAULT NULL,
-  `HeureFin` datetime DEFAULT NULL,
-  PRIMARY KEY (`idJournalSessions`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `JournalSessions`
---
-
-LOCK TABLES `JournalSessions` WRITE;
-/*!40000 ALTER TABLE `JournalSessions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `JournalSessions` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `LieuxExercice`
 --
 
@@ -445,7 +420,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,67,NULL,NULL,NULL,'/Users/serge/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,68,NULL,NULL,NULL,'/Users/serge/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -496,7 +471,8 @@ CREATE TABLE `Sessions` (
   `idParent` int(11) DEFAULT NULL COMMENT '-1 NON_RENSEIGNE\n-2 VIDE\n-3 INDETERMINE',
   `idComptable` int(11) DEFAULT NULL COMMENT '-1 NON_RENSEIGNE\n-2 VIDE\n-3 INDETERMINE',
   `idLieu` int(11) DEFAULT NULL,
-  `DateSession` date DEFAULT NULL,
+  `DebutSession` datetime DEFAULT NULL,
+  `FinSession` datetime DEFAULT NULL,
   PRIMARY KEY (`idSession`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

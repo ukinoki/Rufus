@@ -60,6 +60,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_posteconnecte.h"
 #include "cls_recettecomptable.h"
 #include "cls_refraction.h"
+#include "cls_session.h"
 #include "cls_site.h"
 #include "cls_ville.h"
 #include "cls_compte.h"
@@ -364,7 +365,7 @@ public:
     CommentLunet*           loadCommentLunetById(int idref);                    //! charge un commentaire défini par son id - utilisé pour renouveler les données en cas de modification
 
     /*
-     * Sessions
+     * Sessions opératoires
     */
 private:
     QJsonObject             loadSessionOpData(QVariantList refdata);            //! attribue le liste des datas à une session
@@ -443,6 +444,15 @@ public:
     QList<Message*>         loadAllMessagesByIdUser(int id);                        //! charge tous les messages reçus ou envoyes par un utilisateur
     Message*                loadMessageById(int idMotcle);                          //! charge un motclé défini par son id - utilisé pour renouveler les données en cas de modification
 //    QList<int>              loadListIdMotsClesByPat(int idpat);                     //! chagre les id des mots clés utilisés par un patient
+
+    /*
+     * Sessions
+    */
+private:
+    QJsonObject             loadSessionData(QVariantList refdata);                  //! attribue la liste des datas d'une session
+public:
+    Session*                loadSessionById(int idsession);                         //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
+
 };
 
 #endif // DataBase_H

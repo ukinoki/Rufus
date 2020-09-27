@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-09-2020/1");
+    qApp->setApplicationVersion("26-09-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -5508,6 +5508,7 @@ void Rufus::VerifVerrouDossier()
        {
            QString nomposte = (post->isadmin()? tr("administrateur") + " " : "") + post->nomposte();
            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
+           //ItemsList::update(Datas::I()->sessions->currentsession(), CP_ID_SESSIONS, QDateTime::currentDateTime());
            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),Icons::icSunglasses(), 1000);
        }
        mettreajourlasalledattente       = true;
@@ -5774,7 +5775,10 @@ void Rufus::closeEvent(QCloseEvent *)
     if (!m_utiliseTCP)
     {
         if (currentpost() != Q_NULLPTR)
+        {
             Datas::I()->postesconnectes->SupprimePosteConnecte(currentpost());
+            ItemsList::update(Datas::I()->sessions->currentsession(), CP_DATEFIN_SESSIONS, QDateTime::currentDateTime());
+        }
         Flags::I()->MAJFlagSalleDAttente();
         //!> on déverrouille les actes verrouillés en comptabilité par cet utilisateur s'il n'est plus connecté sur aucun poste
         bool usernotconnectedever = true;

@@ -2921,6 +2921,18 @@ bool Procedures::Connexion_A_La_Base()
 
     //initListeUsers();
     CalcLieuExercice();
+
+    /*! Création de la session */
+    QHash<QString, QVariant>                m_listbinds;
+    m_listbinds[CP_IDUSER_SESSIONS]         = currentuser()->id();
+    m_listbinds[CP_IDSUPERVISEUR_SESSIONS]  = currentuser()->idsuperviseur();
+    m_listbinds[CP_IDPARENT_SESSIONS]       = currentuser()->idparent();
+    m_listbinds[CP_IDCOMPTABLE_SESSIONS]    = currentuser()->idcomptable();
+    if (Datas::I()->sites->currentsite())
+        m_listbinds[CP_IDLIEU_SESSIONS]     = Datas::I()->sites->currentsite()->id();
+    m_listbinds[CP_DATEDEBUT_SESSIONS]      = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    Datas::I()->sessions->CreationSession(m_listbinds);
+
     if (Datas::I()->sites->currentsite() == Q_NULLPTR)
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;

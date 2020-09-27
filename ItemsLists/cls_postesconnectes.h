@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class PostesConnectes : public ItemsList
 {
-    /*! la classe userconnecté gère les connexions des utilisateurs
+    /*! la classe postesconnectes gère les connexions des utilisateurs
      * un utilisateur peut-être connecté sur plusieurs postes en même temps dans la même session
      * la clé n'du QMap des userconnectés est l'adresse mac du poste sur lequel le user est connecté,
      */

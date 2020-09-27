@@ -52,6 +52,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_mesurekerato.h"
 #include "cls_mesuredivers.h"
 #include "cls_lignescomptes.h"
+#include "cls_sessions.h"
 
 class Datas : public QObject
 {
@@ -89,6 +90,7 @@ public:
     Recettes *recettes;                     //!> toutes les recettes sur une période donnée
     Refractions *refractions;               //!> toutes les refractions d'un patient
     SessionsOperatoires *sessionsoperatoires; //!> les sessionsoperatoires d'un user
+    Sessions *sessions;                     //!> les sessions
     Sites *sites;                           //!< Les lieux de travail
     TiersPayants *tierspayants;             //!< tous les tiers payants
     TypesInterventions *typesinterventions; //!< tous les types d'interventions
