@@ -28,23 +28,23 @@ QMap<int, Session *> *Sessions::sessions() const
 }
 
 /*!
- * \brief Sessions::getById -> charge un Session à partir de son id
+ * \brief Sessions::getById -> charge une session à partir de son id
  * \param id
- * \param details si l'Session n'est pas dans liste et si details = LoadDetails => va chercher l'Session dans la BDD sinon, renvoie Q_NULLPTR
+ * \param details si la session n'est pas dans liste et si details = LoadDetails => va chercher la session dans la BDD sinon, renvoie Q_NULLPTR
  * \return
- * +++++ cette fonction n'ajoute pas l'Session à la map_Sessions quelquesoit son résultat
+ * +++++ cette fonction n'ajoute pas la session à la map_sessions quelquesoit son résultat
  */
 Session* Sessions::getById(int id, Item::LOADDETAILS details)
 {
     Session * sess = Q_NULLPTR;
-    QMap<int, Session*>::const_iterator itact = map_sessions->constFind(id);
-    if( itact == map_sessions->constEnd() )
+    QMap<int, Session*>::const_iterator itsession = map_sessions->constFind(id);
+    if( itsession == map_sessions->constEnd() )
     {
         if (details == Item::LoadDetails)
             sess = DataBase::I()->loadSessionById(id);
     }
     else
-        sess = const_cast<Session*>(itact.value());
+        sess = const_cast<Session*>(itsession.value());
     return sess;
 }
 

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-09-2020/1");
+    qApp->setApplicationVersion("29-09-2020/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -133,12 +133,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     t_timerCorrespondants        = new QTimer(this);     /* scrutation des modifs de la liste des correspondants */         //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerVerifMessages         = new QTimer(this);     /* scrutation des nouveaux message */                              //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerPosteConnecte         = new QTimer(this);     // mise à jour de la connexion à la base de données
-    t_timerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
-    t_timerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
+    t_timerVerifImportateurDocs  = new QTimer(this);     /* vérifie que le poste importateur des documents externes est toujours là */
+    t_timerExportDocs            = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base */            //! pas utilisé si rufusadmin est  utilisé
     t_timerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
-    t_timerImportDocsExternes    = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base
-    t_timerVerifVerrou           = new QTimer(this);     // utilisé en  l'absence de TCPServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
-    t_timerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
+    t_timerImportDocsExternes    = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base */        //! pas utilisé si rufusadmin est  utilisé
+    t_timerVerifVerrou           = new QTimer(this);     /* utilisé en  l'absence de TCPServer pour vérifier l'absence d'utilisateurs déconnectés dans la base*/    //! pas utilisé si rufusadmin est  utilisé
+    t_timerSupprDocs             = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer */
 
     gTimerPatientsVus   ->setSingleShot(true);           // il est singleshot et n'est démarré que quand on affiche la liste des patients vus
     gTimerPatientsVus   ->setInterval(20000);
@@ -5775,10 +5775,7 @@ void Rufus::closeEvent(QCloseEvent *)
     if (!m_utiliseTCP)
     {
         if (currentpost() != Q_NULLPTR)
-        {
             Datas::I()->postesconnectes->SupprimePosteConnecte(currentpost());
-            ItemsList::update(Datas::I()->sessions->currentsession(), CP_DATEFIN_SESSIONS, QDateTime::currentDateTime());
-        }
         Flags::I()->MAJFlagSalleDAttente();
         //!> on déverrouille les actes verrouillés en comptabilité par cet utilisateur s'il n'est plus connecté sur aucun poste
         bool usernotconnectedever = true;
@@ -5794,6 +5791,7 @@ void Rufus::closeEvent(QCloseEvent *)
         if (usernotconnectedever)
             db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(iduserposte));
     }
+    ItemsList::update(Datas::I()->sessions->currentsession(), CP_DATEFIN_SESSIONS, QDateTime::currentDateTime());
 }
 
 // ------------------------------------------------------------------------------------------
