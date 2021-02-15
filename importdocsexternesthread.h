@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include "procedures.h"
 #include "utils.h"
-
+#include <QFileSystemWatcher>
 
 /*! Cette classe tourne en tache de fond et importe les documents d'imagerie dans la base de données
  * DIFFERENTE POUR RUFUS ET RUFUSADMIN
@@ -265,6 +265,7 @@ private:
 
     bool                        m_compressiondocs;
     bool                        m_ok;
+    QFileSystemWatcher          *m_filewatcher;
     QString                     m_pathdirstockageprovisoire;
     QString                     m_pathdirstockageimagerie;
     QString                     m_pathdirOKtransfer;

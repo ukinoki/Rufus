@@ -630,6 +630,12 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> lista
 bool ImportDocsExternesThread::DefinitDossiersImagerie()
 {
     m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
+    if (m_pathdirstockageimagerie != "")
+    {
+        if (!m_filewatcher)
+            m_filewatcher = new QFileSystemWatcher(QStringList() << m_pathdirstockageimagerie);
+        //connect(m_filewatcher, &QFileSystemWatcher::directoryChanged, this, &ImportDocsExternesThread::RapatrieDocumentsThread);
+    }
     m_pathdirstockageprovisoire = m_pathdirstockageimagerie + NOM_DIR_PROV;
     if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {

@@ -213,7 +213,8 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
     else return UpSmallButton::CANCELBUTTON;
 }
 
-int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList textlist)
+
+int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList titresboutonslist)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
     msgbox  ->setText(Text);
@@ -226,16 +227,16 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
         UpSmallButton *butt =  dynamic_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
         if (butt!=Q_NULLPTR)
         {
-            if (textlist.size()>k)
-                butt->setText(textlist.at(k));
+            if (titresboutonslist.size()>k)
+                butt->setText(titresboutonslist.at(k));
             k++;
             if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
                 msgbox->disconnect(butt);
             connect(butt, &QPushButton::clicked, msgbox, [=] {msgbox->Repons(butt);});
         }
     }
-    msgbox  ->wdg_texteditlbl           ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->wdg_infolbl         ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
     int a = msgbox  ->exec();

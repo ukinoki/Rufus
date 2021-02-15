@@ -2909,10 +2909,16 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
         // On a coché Virement, le tiers est carte de crédit et on a oublié de renseigner la commission
         if (m_modiflignerecettepossible && (ui->TiersupComboBox->currentText() == "CB" && QLocale().toDouble(ui->CommissionlineEdit->text()) ==  0.0 && ui->VirementradioButton->isChecked()))
         {
-            Msg = tr("Vous avez oublié de mentionner le montant de la comission bancaire pour ce paiement par carte de crédit!");
-            ui->Commissionlabel->setFocus();
-            A = false;
-            break;
+            if (UpMessageBox::Question(this, tr("Vous avez oublié de mentionner le montant de la comission bancaire pour ce paiement par carte de crédit!"), tr("Continuer sans enregistrer de commission?"))
+                     == UpSmallButton::STARTBUTTON)
+                A = true;
+            else
+            {
+                ui->Commissionlabel->setFocus();
+                AfficheMsg = false;
+                A = false;
+                break;
+            }
         }
         // Le montant de la commission dépasse le montant du paiement commission
         if (m_modiflignerecettepossible && (QLocale().toDouble(ui->CommissionlineEdit->text()) > QLocale().toDouble(ui->MontantlineEdit->text())))
