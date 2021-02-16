@@ -32,6 +32,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> lista
     -> listdocs.at(i).at(1) = le nom de l'appareil*/
     if (m_encours)
         return;
+    m_listexams = listappareils;
+    if (m_listexams == QList<QVariantList>())
+        m_listexams = SetListeExamens();
+    if (m_listexams == QList<QVariantList>())
+    {
+        m_encours = false;
+        return;
+    }
     m_encours = true;
     m_listemessages.clear();
     m_datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
@@ -40,9 +48,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> lista
         m_encours = false;
         return;
     }
-    for (int itr=0; itr<listappareils.size(); itr++)
+    for (int itr=0; itr<m_listexams.size(); itr++)
     {
-        QString NomDirDoc = proc->pathDossierDocuments(listappareils.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc = proc->pathDossierDocuments(m_listexams.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -54,10 +62,10 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> lista
                  * idpatient
                 */
             // Titre du document------------------------------------------------------------------------------------------------------------------------------------------------
-            QString Titredoc    = listappareils.at(itr).at(0).toString();
+            QString Titredoc    = m_listexams.at(itr).at(0).toString();
             QString Typedoc     = Titredoc;
             QString SousTypeDoc = Titredoc;
-            QString Appareil    = listappareils.at(itr).at(1).toString();
+            QString Appareil    = m_listexams.at(itr).at(1).toString();
             QStringList listfich = QDir(NomDirDoc).entryList(QDir::Files | QDir::NoDotAndDotDot);
             for (int k=0; k<listfich.size(); k++)
             {
@@ -629,13 +637,6 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> lista
  */
 bool ImportDocsExternesThread::DefinitDossiersImagerie()
 {
-    m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
-    if (m_pathdirstockageimagerie != "")
-    {
-        if (!m_filewatcher)
-            m_filewatcher = new QFileSystemWatcher(QStringList() << m_pathdirstockageimagerie);
-        //connect(m_filewatcher, &QFileSystemWatcher::directoryChanged, this, &ImportDocsExternesThread::RapatrieDocumentsThread);
-    }
     m_pathdirstockageprovisoire = m_pathdirstockageimagerie + NOM_DIR_PROV;
     if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {
@@ -693,4 +694,13 @@ void ImportDocsExternesThread::EchecImport(QString txt)
         out << txt << "\n" ;
         echectrsfer.close();
     }
+}
+
+QList<QVariantList> ImportDocsExternesThread::SetListeExamens()
+{
+    QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
+                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
+    //qDebug()<< req;
+    m_listexams = db->StandardSelectSQL(req, m_ok);
+    return m_listexams;
 }

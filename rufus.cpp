@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-02-2021/1");
+    qApp->setApplicationVersion("16-02-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2369,6 +2369,15 @@ void Rufus::ExporteDocs()
 
 void Rufus::ImportDocsExternes()
 {
+//    m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
+//    if (m_pathdirstockageimagerie != "")
+//    {
+//        if (!m_filewatcher)
+//        {
+//            m_filewatcher = new QFileSystemWatcher(QStringList() << m_pathdirstockageimagerie);
+////            connect(m_filewatcher, &QFileSystemWatcher::directoryChanged, this, [=] {RapatrieDocumentsThread(QList<QVariantList>());});
+//        }
+//    }
     if (isPosteImport())
     {
         if (!m_importdocsexternesthread)

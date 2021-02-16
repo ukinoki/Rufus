@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ctime>
 #include <QDesktopServices>
+#include <QFileSystemWatcher>
 #include <QtGlobal>
 #include <QMainWindow>
 #include <QMenuBar>
@@ -108,6 +109,7 @@ private:
     QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
     QAction         *actionIOLs                     = Q_NULLPTR;
     QAction         *actionTiers                    = Q_NULLPTR;
+    QFileSystemWatcher              *m_filewatcher; /*! le filesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
 
     pyxinterf                       *m_pyxi;     // CZ001
 

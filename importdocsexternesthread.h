@@ -22,7 +22,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include "procedures.h"
 #include "utils.h"
-#include <QFileSystemWatcher>
 
 /*! Cette classe tourne en tache de fond et importe les documents d'imagerie dans la base de données
  * DIFFERENTE POUR RUFUS ET RUFUSADMIN
@@ -252,7 +251,7 @@ class ImportDocsExternesThread : public QObject
     Q_OBJECT
 public:
     explicit                    ImportDocsExternesThread();
-    void                        RapatrieDocumentsThread(QList<QVariantList> listdocs);
+    void                        RapatrieDocumentsThread(QList<QVariantList> listdocs = QList<QVariantList>()) ;
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
 signals:
@@ -265,7 +264,7 @@ private:
 
     bool                        m_compressiondocs;
     bool                        m_ok;
-    QFileSystemWatcher          *m_filewatcher;
+    QList<QVariantList>         m_listexams = QList<QVariantList>();
     QString                     m_pathdirstockageprovisoire;
     QString                     m_pathdirstockageimagerie;
     QString                     m_pathdirOKtransfer;
@@ -280,6 +279,7 @@ private:
 
     bool                        DefinitDossiersImagerie();
     void                        EchecImport(QString txt);
+    QList<QVariantList>         SetListeExamens();
 };
 
 #endif // IMPORTDOCSEXTERNESTHREAD_H

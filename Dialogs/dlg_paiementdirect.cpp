@@ -164,6 +164,11 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     if( m_useracrediter == Q_NULLPTR)
     {
+        if (currentuser()->isSecretaire())
+            m_useracrediter = map_comptables->cbegin().value();
+    }
+    if( m_useracrediter == Q_NULLPTR)
+    {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Le comptable n'est pas retrouvé"));
         m_initok = false;
         return;
