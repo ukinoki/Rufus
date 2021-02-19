@@ -26,8 +26,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class PosteConnecte : public Item
 {
 
-    /*! la classe userconnecté gère les connexions des utilisateurs
-     * un utilisateur peut -être connecté sur plusieurs posts en même temps dans la même session
+    /*! la classe PosteConnecte gère les connexions des utilisateurs
+     * un utilisateur peut -être connecté sur plusieurs postes en même temps dans la même session
      * la clé de la table correspond au couple iduser-macadress qui ne peut donc qu'être unique
      */
 public:
@@ -39,7 +39,7 @@ private:
     //!< m_stringid = l'adresses mac du poste connecté suivi de l'id de l'utilisateur séparé par " - "
 
     QString m_nomposte;                 //!< nom du poste connexté
-    QString m_macadress;                //!< macadress+login du poste connectéadresse IP du poste connecté
+    QString m_macadress;                //!< macadress+login du poste connecté
     QString m_ipadress;                 //!> l'adresse IP du poste connecté
     bool m_accesdistant;                //!> le poste connecte est en accès distant
     int m_idsuperviseur;                //!> l'id du superviseur

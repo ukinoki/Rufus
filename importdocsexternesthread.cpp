@@ -637,6 +637,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> lista
  */
 bool ImportDocsExternesThread::DefinitDossiersImagerie()
 {
+    m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
     m_pathdirstockageprovisoire = m_pathdirstockageimagerie + NOM_DIR_PROV;
     if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {
