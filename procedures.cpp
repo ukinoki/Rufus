@@ -4239,6 +4239,8 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         }
     }
     // PORT FRONTO
+//    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+//        qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
     if (appareils.testFlag(Fronto))
     {
         m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
@@ -4248,7 +4250,18 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion frontofocomètre"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
-            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR0")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR1")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR2")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR3"))      /*! nom des ports sous Big Sur */
+            {
+                if (m_portFronto == "COM1") NomPort = "0";
+                else if (m_portFronto == "COM2") NomPort = "1";
+                else if (m_portFronto == "COM3") NomPort = "2";
+                else if (m_portFronto == "COM4") NomPort = "3";
+                if (NomPort != "") break;
+            }
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))      /*! nom des ports sous driver FTDI (Startech) */
             {
                 if (m_portFronto == "COM1") NomPort = "A";
                 else if (m_portFronto == "COM2") NomPort = "B";
@@ -4256,7 +4269,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (m_portFronto == "COM4") NomPort = "D";
                 if (NomPort != "") break;
             }
-            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
             {
                 if (m_portFronto == "COM1") NomPort = "ttyUSB0";
                 else if (m_portFronto == "COM2") NomPort = "ttyUSB1";
@@ -4284,6 +4297,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         sp_portFronto->setParity(s_paramPortSerieFronto.parity);
                         sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
                         sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
+                        NomPort = QSerialPortInfo::availablePorts().at(i).portName();
                         break;
                     }
                 }
@@ -4297,13 +4311,14 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         sp_portFronto->setParity(s_paramPortSerieFronto.parity);
                         sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
                         sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
+                        NomPort = QSerialPortInfo::availablePorts().at(i).portName();
                         break;
                     }
                 }
             }
-            //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
+                qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
                 connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
@@ -4327,8 +4342,19 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion refracteur"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
-            //qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
-            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR0")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR1")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR2")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR3"))      /*! nom des ports sous Big Sur */
+            {
+                if (m_portRefracteur == "COM1") NomPort = "0";
+                else if (m_portRefracteur == "COM2") NomPort = "1";
+                else if (m_portRefracteur == "COM3") NomPort = "2";
+                else if (m_portRefracteur == "COM4") NomPort = "3";
+                if (NomPort != "")
+                    break;
+            }
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))      /*! nom des ports sous driver FTDI (Startech) */
             {
                 if (m_portRefracteur == "COM1") NomPort = "A";
                 else if (m_portRefracteur == "COM2") NomPort = "B";
@@ -4336,7 +4362,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (m_portRefracteur == "COM4") NomPort = "D";
                 if (NomPort != "") break;
             }
-            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
             {
                 if (m_portRefracteur == "COM1") NomPort = "ttyUSB0";
                 else if (m_portRefracteur == "COM2") NomPort = "ttyUSB1";
@@ -4361,6 +4387,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
                         sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
                         sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
+                        NomPort = QSerialPortInfo::availablePorts().at(i).portName();
                         break;
                     }
                 }
@@ -4374,13 +4401,14 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
                         sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
                         sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
+                        NomPort = QSerialPortInfo::availablePorts().at(i).portName();
                         break;
                     }
                 }
             }
-            //qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
             if (sp_portRefracteur->open(QIODevice::ReadWrite))
             {
+                qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
                 t_threadRefracteur    ->transaction();
                 connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
@@ -4404,7 +4432,18 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion autorefractomètre"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
-            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR0")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR1")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR2")
+                    || QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial-FT0G2WCR3"))      /*! nom des ports sous Big Sur */
+            {
+                if (m_portAutoref == "COM1") NomPort = "0";
+                else if (m_portAutoref == "COM2") NomPort = "1";
+                else if (m_portAutoref == "COM3") NomPort = "2";
+                else if (m_portAutoref == "COM4") NomPort = "3";
+                if (NomPort != "") break;
+            }
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))      /*! nom des ports sous driver FTDI (Startech) */
             {
                 if (m_portAutoref == "COM1") NomPort = "A";
                 else if (m_portAutoref == "COM2") NomPort = "B";
@@ -4412,7 +4451,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (m_portAutoref == "COM4") NomPort = "D";
                 if (NomPort != "") break;
             }
-            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
             {
                 if (m_portAutoref == "COM1") NomPort = "ttyUSB0";
                 else if (m_portAutoref == "COM2") NomPort = "ttyUSB1";
@@ -4437,6 +4476,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
                         sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
                         sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
+                        NomPort = QSerialPortInfo::availablePorts().at(i).portName();
                         break;
                     }
                 }
@@ -4450,13 +4490,14 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
                         sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
                         sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
+                        NomPort = QSerialPortInfo::availablePorts().at(i).portName();
                         break;
                     }
                 }
             }
-            //qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
             if (sp_portAutoref->open(QIODevice::ReadWrite))
             {
+                qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
                 t_threadAutoref   ->transaction();
                 connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
@@ -4638,7 +4679,7 @@ void Procedures::RegleRefracteur()
         }
 
         DTRbuff.append(QByteArray::fromHex("4"));               //EOT -> end of transmission
-        //qDebug() << "RegleRefracteur() - DTRBuff = " << DTRbuff;
+        qDebug() << "RegleRefracteur() - DTRBuff = " << DTRbuff;
         DataAEnvoyer = DTRbuff;
         QByteArray Data = DataAEnvoyer.toLocal8Bit();
         PortRefracteur()->clear();
