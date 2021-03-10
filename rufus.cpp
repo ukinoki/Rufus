@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("09-03-2021/1");
+    qApp->setApplicationVersion("10-03-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -4172,7 +4172,7 @@ void Rufus::RetrouveMontantActe()
     {
         QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
         QString MontantActe;
-        if( currentuser()->secteurconventionnel()>1 && !currentpatient()->iscmu())
+        if (currentuser()->secteurconventionnel()>1 && !currentpatient()->iscmu())
             MontantActe = QLocale().toString(listMontantActe.at(1).toDouble(),'f',2);
         else
             MontantActe = QLocale().toString(listMontantActe.at(0).toDouble(),'f',2);
@@ -4343,7 +4343,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 
     dlg_ask->AjouteLayButtons(UpDialog::ButtonOK);
 
-    /* on prépare 2 layout verticaux et une ligne
+    /*! on prépare 2 layout verticaux et une ligne
      *  detslayout qui va comporter un groupbox où on choisit le destinataire
      *  une ligne verticale pour séparer les 2 layouts
      *  msglayout qui comportera les éléments du message
@@ -4369,10 +4369,13 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
             msglayout       ->addWidget(checkpat);
         }
     }
-
-    QString req1 = "select " CP_ID_USR ", " CP_LOGIN_USR " from " TBL_UTILISATEURS " where " CP_ISDESACTIVE_USR " is NULL and " CP_LOGIN_USR " is not null";
-    QList<QVariantList> usrlist = db->StandardSelectSQL(req1, m_ok);
-    if (m_ok && usrlist.size()>0)
+    QList<User*> listactifs;
+    for (auto it =  Datas::I()->users->actifs()->constBegin(); it !=  Datas::I()->users->actifs()->constEnd(); ++it)
+    {
+        User *usr = const_cast<User*>(it.value());
+        listactifs << usr;
+    }
+    if (m_ok && listactifs.size()>0)
     {
         UsrGroupBox = new QGroupBox(dlg_ask);
         UsrGroupBox->setTitle(tr("Destinataire"));
@@ -4386,13 +4389,14 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
         line->setFrameShape(QFrame::HLine);
         line->setFixedHeight(1);
         vbox->addWidget(line);
-        for (int i=0; i<usrlist.size(); i++)
+        for (int i=0; i<listactifs.size(); i++)
         {
+            User* usr = listactifs.at(i);
             UpCheckBox *chk0 = new UpCheckBox();
-            chk0->setText(usrlist.at(i).at(1).toString());
-            chk0->setiD(usrlist.at(i).at(0).toInt());
+            chk0->setText(usr->login());
+            chk0->setiD(usr->id());
             if (idMsg>-1)
-                chk0->setChecked(map["listdestinataires"].toStringList().contains(usrlist.at(i).at(0).toString()));
+                chk0->setChecked(map["listdestinataires"].toStringList().contains(QString::number(usr->id())));
             chk0->setRowTable(1);
             connect(chk0,  &QCheckBox::clicked,  this,  [=] {OneusrChkBoxSendMsg(chk0->isChecked());});
             vbox->addWidget(chk0);

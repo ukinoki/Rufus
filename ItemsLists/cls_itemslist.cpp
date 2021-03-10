@@ -1203,7 +1203,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             ok = true;
             table = TBL_MESSAGES;
-            clause = CP_ID_MSG " = " + QString::number(dossier->id());
+            clause = CP_ID_MSG " = " + QString::number(msg->id());
             if (field == CP_IDEMETTEUR_MSG)
             {
                 msg->setidemetteur(newvalue.toInt());

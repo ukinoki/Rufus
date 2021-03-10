@@ -149,6 +149,7 @@ public:
     qlonglong NumPS() const;
     QString numOrdre() const;
     bool isAGA() const;
+    void setAGA(bool aga) {m_AGA = aga;}
     int idemployeur() const;
     int idcompteencaissementhonoraires() const;
     void setidcompteencaissementhonoraires(int id)
@@ -181,6 +182,7 @@ public:
     RESPONSABLE responsableactes() const;
 
     int secteurconventionnel() const;
+    void setsecteurconventionnel(int sectconventionnel) {m_secteur = sectconventionnel;}
     int idcomptepardefaut() const;
     QString mail() const;
     QString portable() const;
@@ -192,6 +194,7 @@ public:
     void setTypeCompta(int typeCompta)           { m_typeCompta = typeCompta; }
 
     bool isOPTAM();
+    void setOPTAM(bool optam) {m_OPTAM = optam;}
     bool useCCAM();
 
     bool isSecretaire();
