@@ -221,7 +221,6 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
         if (m_currentchirpatient->listidinterventions().size()>0)
             for (int i=0; i < m_currentchirpatient->listidinterventions().size(); ++i)
             {
-                int idinterv = m_currentchirpatient->listidinterventions().at(i).first;
                 int iduser = m_currentchirpatient->listidinterventions().at(i).second;
                 if (iduser == m_currentchiruser->id())
                 {

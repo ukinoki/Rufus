@@ -290,7 +290,7 @@ private:
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
     void                FiltreTable(QString nom = "", QString prenom = "");         //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
-    void                ChoixDossier(Patient *pat, int idacte = 0);
+    void                OuvrirDossier(Patient *pat, int idacte = 0);
     void                CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();

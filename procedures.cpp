@@ -4557,6 +4557,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     {
         if (m_mesureSerie == SendDataNIDEK("CRL"))
         {
+            PortRefracteur()->waitForReadyRead(100);
             RegleRefracteur();
             return;
         }
@@ -4686,24 +4687,11 @@ void Procedures::RegleRefracteur()
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
         }
-
         DTRbuff.append(QByteArray::fromHex("4"));               //EOT -> end of transmission
 
-        qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit();
-
-//        QByteArray DTSbuff;
-//        DTSbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
-//        DTSbuff.append("C**");                              //C**
-//        DTSbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
-//        DTSbuff.append("RS");                               //RS
-//        DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-//        DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-//        PortRefracteur()->clear();
-//        PortRefracteur()->write(QString(DTSbuff).toLocal8Bit());
-//        PortRefracteur()->waitForBytesWritten(100);
-
-        PortRefracteur()->clear();
+        //qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
         PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
+        PortRefracteur()->flush();
         PortRefracteur()->waitForBytesWritten(1000);
     }
 }
@@ -4845,8 +4833,8 @@ void Procedures::EnvoiDataPatientAuRefracteur()
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-            PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
+            PortRefracteur()->flush();
             PortRefracteur()->waitForBytesWritten(100);
         }
 }
@@ -4864,7 +4852,7 @@ QByteArray Procedures::RequestToSendNIDEK()
     DTSbuff.append("RS");                               //RS
     DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
     DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-    qDebug() << "RequestToSendNIDEK() - RTS Nidek = " << QString(DTSbuff).toLocal8Bit();
+    //qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
     return  QString(DTSbuff).toLocal8Bit();
 }
 
@@ -4878,9 +4866,9 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     DTRbuff.append("SD");                               //SD
     DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
     DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-    //return  QString(DTRbuff).toLocal8Bit();
     QByteArray reponse = QString(DTRbuff).toLocal8Bit();
     reponse += "\r";                                    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
+    //qDebug() << "SendDataNidek = " << reponse;
     return reponse;
 }
 
@@ -5190,7 +5178,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
             InsertMesure(MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
             emit NouvMesure(MesureTono);
         }
-        debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
+        //debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
 }
@@ -5397,8 +5385,8 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         if (m_mesureSerie == RequestToSendNIDEK())          //! le fronto demande la permission d'envoyer des données
         {
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
-            PortFronto()->clear();
             PortFronto()->write(SendDataNIDEK("CLM"));
+            PortFronto()->flush();
             PortFronto()->waitForBytesWritten(100);
             return;
         }
@@ -5414,8 +5402,8 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-            PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
+            PortRefracteur()->flush();
             PortRefracteur()->waitForBytesWritten(100);
         }
         InsertMesure(MesureFronto);
@@ -5701,8 +5689,8 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
             if (!Datas::I()->mesureautoref->isdataclean())
                 InsertMesure(MesureAutoref);
             //Dans un premier temps, le PC envoie la requête d'envoi de données
-            PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
+            PortRefracteur()->flush();
             PortRefracteur()->waitForBytesWritten(100);
         }
     }
@@ -5762,7 +5750,6 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             QString cmd;
             cmd = (autorefhaskerato? "CRK" : "CRM");     //! CRK ou CRM suivant que les appareils peuvent ou non envoyer la keratométrie
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
-            PortAutoref()->clear();
             PortAutoref()->write(SendDataNIDEK(cmd));
             PortAutoref()->waitForBytesWritten(100);
             return;
@@ -5800,8 +5787,8 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             if (!Datas::I()->mesureautoref->isdataclean())
                 InsertMesure(MesureAutoref);
             //Dans un premier temps, le PC envoie la requête d'envoi de données
-            PortRefracteur()->clear();
             PortRefracteur()->write(RequestToSendNIDEK());
+            PortRefracteur()->flush();
             PortRefracteur()->waitForBytesWritten(100);
         }
     }

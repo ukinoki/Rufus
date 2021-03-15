@@ -46,6 +46,7 @@ public:
     Acte*   getById(int id, Item::LOADDETAILS details = Item::LoadDetails);                 //!> charge un acte à partir de son id
     QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
     QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
+    QMap<int, Acte*> *listCourriersByUser(int iduser);                                     //!> renvoie laliste des actes pour lesqules un courreir est à faire pour un user donné
     void    initListeByPatient(Patient *pat, Item::UPDATE upd = Item::NoUpdate, bool quelesid = false);
                                                                                             //!> charge tous les actes d'un patient
 

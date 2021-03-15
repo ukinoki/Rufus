@@ -37,6 +37,8 @@ void Actes::setcurrentacte(Acte *act)
  * \brief Actes::initListe
  * Charge l'ensemble des actes
  * et les ajoute à la classe Actes
+ * upd = NoUpdate par defaut
+ * quelesid = false par défaut
  */
 void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
 {
@@ -128,6 +130,21 @@ QMap<int, Acte*>::const_iterator Actes::getAt(int idx)
     return actes()->constFind(actes()->keys().at(idx) );
 }
 
+QMap<int, Acte *> *Actes::listCourriersByUser(int iduser)
+{
+    QMap<int, Acte *> *listactes = new QMap<int, Acte *>;
+    QString req = "select " CP_ID_ACTES " from " TBL_ACTES " where " CP_COURRIERAFAIRE_ACTES " = 'T' and " CP_IDUSER_ACTES " = " + QString::number(iduser);
+    QList<QVariantList> acts  = DataBase::I()->StandardSelectSQL(req, m_ok);
+    if (m_ok)
+        for (int i=0; i<acts.size(); i++)
+        {
+            Acte *act = getById(acts.at(i).at(0).toInt());
+            if (act)
+                listactes->insert(act->id(), act);
+        }
+    return listactes;
+}
+
 void Actes::updateActe(Acte* acte)
 {
     if (acte == Q_NULLPTR)
@@ -149,7 +166,8 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
     QString comptable = (usr->idcomptable() > 0? QString::number(usr->idcomptable()) : "null");
     QString creerrequete =
             "INSERT INTO " TBL_ACTES
-            " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent, SuperViseurRemplacant, NumCentre, idLieu)"
+            " (" CP_IDPAT_ACTES ", " CP_IDUSER_ACTES ", " CP_DATE_ACTES ", " CP_HEURE_ACTES ", " CP_IDUSERCREATEUR_ACTES ", "
+               CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSERPARENT_ACTES ", " CP_SUPERVISEURREMPLACANT_ACTES ", " CP_NUMCENTRE_ACTES ", " CP_IDLIEU_ACTES ")"
             " VALUES (" +
             QString::number(pat->id()) + ", " +
             QString::number(usr->idsuperviseur()) + ", "

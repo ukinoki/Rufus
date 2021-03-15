@@ -2250,7 +2250,8 @@ void DataBase::loadMedicalDataPatient(QJsonObject &jData, bool &ok)
 QJsonObject DataBase::loadPatientAllData(int idPat)
 {
     QJsonObject jData{};
-    QString req = "SELECT PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " TBL_PATIENTS " where idPat = " + QString::number(idPat);
+    QString req = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
+                            CP_IDCREATEUR_PATIENTS " FROM " TBL_PATIENTS " where " CP_IDPAT_PATIENTS " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return jData;
@@ -2270,7 +2271,8 @@ Patient* DataBase::loadPatientById(int idPat, Patient *pat, Item::LOADDETAILS de
 {
     if (pat == Q_NULLPTR)
         pat = new Patient();
-    QString req = "SELECT PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " TBL_PATIENTS " where idPat = " + QString::number(idPat);
+    QString req = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
+                            CP_IDCREATEUR_PATIENTS " FROM " TBL_PATIENTS " where " CP_IDPAT_PATIENTS " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return Q_NULLPTR;
@@ -2329,9 +2331,13 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
             clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
     }
     clauselimit = " limit 1000";
-    QString req = "select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from"
-                   " (select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from " TBL_PATIENTS
-                   " force index(idx_nomprenom) order by patnom, patprenom) as idxpat";
+    QString req = "select " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", "
+                            CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
+                            CP_IDCREATEUR_PATIENTS
+                   " from (SELECT " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", "
+                                    CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
+                                    CP_IDCREATEUR_PATIENTS " from " TBL_PATIENTS
+                                  " force index(idx_nomprenom) order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ") as idxpat";
     req += clausewhere;
     req += clauselimit;
     //qDebug() << req;
