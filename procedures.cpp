@@ -4260,9 +4260,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             return false;
         }
     }
+    /*!
     for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         Logs::LogToFile("PortsSeries.txt", QSerialPortInfo::availablePorts().at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
-        // qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
+    qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
+    */
     // PORT FRONTO
     if (appareils.testFlag(Fronto))
     {
@@ -4274,11 +4276,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial-"))
+            if (nomgeneriqueduport.contains("usbserial"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
-                 * nom des ports sous BigSur  = "usbserial-FT0G2WCR" + no 0,1,2 ou 3
+                 * nom des ports sous BigSur  = "usbserial-F*****" + no 0,1,2 ou 3
                  * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
                 if (m_portFronto == "COM1")        NomPort = (lastchar.isDigit()? "0" : "A");
@@ -4308,7 +4310,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (nomduport.contains("usbserial"))
                 {
                     QString letter = nomduport.split("-").at(1);
-                    if (nomduport.right(1) == NomPort || letter.left(1) == NomPort)
+                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
                     {
                         sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
@@ -4337,7 +4339,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             }
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
-                qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
+                //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
                 connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
@@ -4363,11 +4365,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial-"))
+            if (nomgeneriqueduport.contains("usbserial"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
-                 * nom des ports sous BigSur  = "usbserial-FT0G2WCR" + no 0,1,2 ou 3
+                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
                  * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
                 if (m_portRefracteur == "COM1")         NomPort = (lastchar.isDigit()? "0" : "A");
@@ -4394,7 +4396,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (nomduport.contains("usbserial"))
                 {
                     QString letter = nomduport.split("-").at(1);
-                    if (nomduport.right(1) == NomPort || letter.left(1) == NomPort)
+                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
                     {
                         sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
@@ -4423,19 +4425,19 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             }
             if (sp_portRefracteur->open(QIODevice::ReadWrite))
             {
-                qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
+                //qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
                 t_threadRefracteur    ->transaction();
                 connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
                 if (msg != "")
                     msg += "\r";
-                msg = tr("Connexion refracteur OK sur ") + m_portRefracteur;
+                msg += tr("Connexion refracteur OK sur ") + m_portRefracteur;
             }
             else
             {
                 if (msg != "")
                     msg += "\r";
-                msg = tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
+                msg += tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
                 delete sp_portRefracteur;
                 sp_portRefracteur = Q_NULLPTR;
             }
@@ -4453,12 +4455,12 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial-"))
+            if (nomgeneriqueduport.contains("usbserial"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
-                 * nom des ports sous BigSur  = "usbserial-FT0G2WCR" + no 0,1,2 ou 3
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+                 * nom des ports sous driver FTDI (Startech) = "usbserial-F******" + lettre A,B,C ou D
                 */
                 if (m_portAutoref == "COM1")        NomPort = (lastchar.isDigit()? "0" : "A");
                 else if (m_portAutoref == "COM2")   NomPort = (lastchar.isDigit()? "1" : "B");
@@ -4484,7 +4486,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (nomduport.contains("usbserial"))
                 {
                     QString letter = nomduport.split("-").at(1);
-                    if (nomduport.right(1) == NomPort || letter.left(1) == NomPort)
+                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
                     {
                         sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
@@ -4513,19 +4515,19 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             }
             if (sp_portAutoref->open(QIODevice::ReadWrite))
             {
-                qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
+                //qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
                 t_threadAutoref   ->transaction();
                 connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
                 if (msg != "")
-                    msg += "\r";
-                msg = tr("Connexion autoref OK sur ") + m_portAutoref;
+                    msg += " \r";
+                msg += tr("Connexion autoref OK sur ") + m_portAutoref;
             }
             else
             {
                 if (msg != "")
                     msg += "\r";
-                msg = tr("Impossible de connecter l'autoref sur ") + m_portAutoref;
+                msg += tr("Impossible de connecter l'autoref sur ") + m_portAutoref;
                 delete sp_portAutoref;
                 sp_portAutoref = Q_NULLPTR;
             }
@@ -4575,7 +4577,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     {
         if (m_mesureSerie == SendDataNIDEK("CRL"))
         {
-            Logs::LogToFile("PortSerieRefracteur", "SDN = " + m_mesureSerie + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
+            //Logs::LogToFile("PortSerieRefracteur", "SDN = " + m_mesureSerie + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
             PortRefracteur()->waitForReadyRead(100);
             RegleRefracteur();
             return;
@@ -4712,7 +4714,8 @@ void Procedures::RegleRefracteur()
         }
         DTRbuff.append(QByteArray::fromHex("4"));               //EOT -> end of transmission
 
-        //qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
+        /*!
+        qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
         QString nompat = "";
         Patient *pat = Datas::I()->patients->getById(idpat);
         if (pat)
@@ -4720,6 +4723,7 @@ void Procedures::RegleRefracteur()
         Logs::LogToFile("PortSerieRefracteur.txt", "Datas = " + QString(DTRbuff).toLocal8Bit() + " - "
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
+        */
         PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
         PortRefracteur()->flush();
         PortRefracteur()->waitForBytesWritten(1000);
@@ -4868,9 +4872,12 @@ void Procedures::EnvoiDataPatientAuRefracteur(int idpat)
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-            Logs::LogToFile("PortSerieRefracteur", "RTS = " + RequestToSendNIDEK() + " - "
+            /*!
+            Logs::LogToFile("PortSerieRefracteur.txt", "RTS = " + RequestToSendNIDEK() + " - "
                             + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                             + (nompat != ""? " - " : "") + nompat);
+            qDebug() << "RTS = " + RequestToSendNIDEK();
+            */
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->flush();
             PortRefracteur()->waitForBytesWritten(100);
