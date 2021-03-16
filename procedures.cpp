@@ -4274,7 +4274,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial-FT0G2WCR"))
+            if (nomgeneriqueduport.contains("usbserial-"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
@@ -4363,7 +4363,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial-FT0G2WCR"))
+            if (nomgeneriqueduport.contains("usbserial-"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
@@ -4453,7 +4453,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial-FT0G2WCR"))
+            if (nomgeneriqueduport.contains("usbserial-"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
