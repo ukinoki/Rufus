@@ -476,7 +476,7 @@ public:
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
     void                    InsertMesure(TypeMesure typemesure = MesureAll);              //! enregistre la mesure de réfraction
-    void                    EnvoiDataPatientAuRefracteur();
+    void                    EnvoiDataPatientAuRefracteur(int idpat);
     static TypeMesure       ConvertMesure(QString Mesure);
     void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
     TypesMesures            FlagReglageRefracteur()                         { return m_flagreglagerefracteur; }

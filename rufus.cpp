@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-03-2021/1");
+    qApp->setApplicationVersion("16-03-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -212,7 +212,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ConnectSignals();
 
     //! 9 - libération des verrous de la compta
-    QString req = " delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(currentuser()->id());
+    QString req = " delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(currentuser()->id());
     db->StandardSQL(req);
 
     m_closeflag = false;
@@ -1130,8 +1130,8 @@ void Rufus::AppelPaiementDirect(Origin origin)
             for (int k=0;k<hauteur;k++)
             {
                 // On vérifie que chaque acte sélectionné n'est pas déjà en cours d'enregistrement sur un autre poste
-                QString req = "SELECT idActe FROM "  TBL_VERROUCOMPTAACTES
-                              " WHERE idActe = "  + ui->AccueilupTableWidget->item(debut+k,5)->text();
+                QString req = "SELECT " CP_IDACTE_VERROUCOMPTA " FROM "  TBL_VERROUCOMPTAACTES
+                              " WHERE " CP_IDACTE_VERROUCOMPTA " = "  + ui->AccueilupTableWidget->item(debut+k,5)->text();
                 QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                 if (!m_ok)
                     return;
@@ -1161,8 +1161,8 @@ void Rufus::AppelPaiementDirect(Origin origin)
         }
         // On vérifie que cet acte n'est pas déjà en cours d'enregistrement sur un autre poste
         QString req = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
-                      " WHERE idActe = "  + QString::number(currentacte()->id()) +
-                      " AND PosePar = " CP_ID_USR ;
+                      " WHERE " CP_IDACTE_VERROUCOMPTA " = "  + QString::number(currentacte()->id()) +
+                      " AND " CP_POSEPAR_VERROUCOMPTA " = " CP_ID_USR ;
         QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok)
             return;
@@ -3068,14 +3068,14 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     QString req = "select mcjoin.idPat, PatNom, PatPrenom, PatDDN, motcle"
                   " from " TBL_MOTSCLESJOINTURES " as mcjoin"
                   " left outer join " TBL_PATIENTS " pat"
-                  " on mcjoin.idPat = pat.IDPAT"
+                  " on mcjoin.idPat = pat." CP_IDPAT_PATIENTS
                   " left outer join " TBL_MOTSCLES " msc"
                   " on mcjoin.idmotcle = msc.idmotcle"
                   " where mcjoin.idmotcle in (";
     req += listidMc.at(0).toString();
     for (int i=1; i<listidMc.size(); i++)
         req += ", " + listidMc.at(i).toString();
-    req += ") order by patnom, patprenom";
+    req += ") order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
     QList<QVariantList> listpats = db->StandardSelectSQL(req, m_ok);
     if (!m_ok || listpats.size()==0)
     {
@@ -3256,14 +3256,14 @@ void Rufus::ImprimeListPatients(QVariant var)
     QString req = "select mcjoin.idPat, PatNom, PatPrenom, PatDDN, motcle"
                   " from " TBL_MOTSCLESJOINTURES " as mcjoin"
                   " left outer join " TBL_PATIENTS " pat"
-                  " on mcjoin.idPat = pat.IDPAT"
+                  " on mcjoin.idPat = pat." CP_IDPAT_PATIENTS
                   " left outer join " TBL_MOTSCLES " msc"
                   " on mcjoin.idmotcle = msc.idmotcle"
                   " where mcjoin.idmotcle in (";
     req += listidMc.at(0).toString();
     for (int i=1; i<listidMc.size(); i++)
         req += ", " +listidMc.at(i).toString();
-    req += ") order by patnom, patprenom";
+    req += ") order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
     QList<QVariantList> patlist = db->StandardSelectSQL(req,m_ok);
     int     gtotalNbreDossiers    = patlist.size();
     QDate   date = QDate::currentDate();
@@ -5804,7 +5804,7 @@ void Rufus::closeEvent(QCloseEvent *)
             }
         }
         if (usernotconnectedever)
-            db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(iduserposte));
+            db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(iduserposte));
     }
     ItemsList::update(Datas::I()->sessions->currentsession(), CP_DATEFIN_SESSIONS, QDateTime::currentDateTime());
 }
@@ -6407,7 +6407,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     if (proc->PortRefracteur()!=Q_NULLPTR)
     {
         proc->setFlagReglageRefracteur(Procedures::MesureAutoref | Procedures::MesureFronto);
-        proc->EnvoiDataPatientAuRefracteur();
+        proc->EnvoiDataPatientAuRefracteur(currentpatient()->id());
     }
 
     //5 - mise à jour du dossier en salle d'attente
@@ -6443,10 +6443,10 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     if (currentuser()->id() > 1) return;
     QString prenom = currentpatient()->prenom();
     QString Sexe = "";
-    QString req =   "select idpat from " TBL_PATIENTS
-                    " where patPrenom = '" + prenom + "'"
-                    " and (sexe is null or sexe = '')"
-                    " and patPrenom <> 'Dominique' and patPrenom <> 'Claude'";
+    QString req =   "select " CP_IDPAT_PATIENTS " from " TBL_PATIENTS
+                    " where " CP_PRENOM_PATIENTS " = '" + prenom + "'"
+                    " and (" CP_SEXE_PATIENTS " is null or " CP_SEXE_PATIENTS " = '')"
+                    " and " CP_PRENOM_PATIENTS " <> 'Dominique' and " CP_PRENOM_PATIENTS " <> 'Claude'";
     //qDebug() << req;
     QList<QVariantList> patlist = db->StandardSelectSQL(req, m_ok);
     if (patlist.size()>0)
@@ -6473,8 +6473,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
             else if (msgbox.clickedButton() == &FBouton)
                 Sexe = "F";
             if (Sexe != ""){
-                db->StandardSQL("update " TBL_PATIENTS " set sexe = '" + Sexe + "' where PatPrenom = '" + prenom + "' and (sexe is null or sexe = '')");
-                req ="select idpat from " TBL_PATIENTS " where sexe = ''";
+                db->StandardSQL("update " TBL_PATIENTS " set " CP_SEXE_PATIENTS " = '" + Sexe + "' where " CP_PRENOM_PATIENTS " = '" + prenom + "' and (" CP_SEXE_PATIENTS " is null or " CP_SEXE_PATIENTS " = '')");
+                req ="select " CP_IDPAT_PATIENTS " from " TBL_PATIENTS " where " CP_SEXE_PATIENTS " = ''";
                 QList<QVariantList> patlist = db->StandardSelectSQL(req,m_ok);
                 if (m_ok && patlist.size()>0)
                 UpMessageBox::Information(this, tr("Il reste ") + QString::number(patlist.size()) + tr(" dossiers pour lesquels le sexe n'est pas précisé"),"");
@@ -6623,7 +6623,7 @@ void Rufus::SortieAppli()
     }
 
     // le tab dossier est fermé, on vérifie s'il y a du monde en salle d'attente
-    QString req = "SELECT Statut, IdPat, PosteExamen FROM " TBL_SALLEDATTENTE " WHERE IdUser = '" + QString::number(currentuser()->id()) + "'";
+    QString req = "SELECT " CP_STATUT_SALDAT ", " CP_IDPAT_SALDAT ", " CP_POSTEEXAMEN_SALDAT " FROM " TBL_SALLEDATTENTE " WHERE " CP_IDUSER_SALDAT " = '" + QString::number(currentuser()->id()) + "'";
     QList<QVariantList> saldatlist = db->StandardSelectSQL(req,m_ok);
     if (m_ok && saldatlist.size()>0)
     {
@@ -7957,11 +7957,11 @@ void Rufus::InitVariables()
 int Rufus::RecherchePatient(QString PatNom, QString PatPrenom, QString PatDDN, QString MessageErreur)
 
 {
-    QString requete = "SELECT  idPat, PatNom, PatPrenom, PatDDN, PatCreeLe, PatCreePar"
+    QString requete = "SELECT " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DDN_PATIENTS ", " CP_DATECREATION_PATIENTS ", " CP_IDCREATEUR_PATIENTS
             " FROM " TBL_PATIENTS
-            " WHERE PatNom = '" + Utils::correctquoteSQL(PatNom) + "'"
-            " AND PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "'"
-            " AND PatDDN = '" + PatDDN +"'";
+            " WHERE " CP_NOM_PATIENTS " = '" + Utils::correctquoteSQL(PatNom) + "'"
+            " AND " CP_PRENOM_PATIENTS " = '" + Utils::correctquoteSQL(PatPrenom) + "'"
+            " AND " CP_DDN_PATIENTS " = '" + PatDDN +"'";
 
     QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok, MessageErreur);
     if (!m_ok)

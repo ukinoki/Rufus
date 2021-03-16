@@ -1122,7 +1122,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             ok = true;
             table = TBL_IMPRESSIONS;
-            clause = CP_ID_IMPRESSIONS " = " + QString::number(impr->id());
+            clause = CP_ID_IMPRESSIONS " = " + QString::number(item->id());
             if (field == CP_TEXTE_IMPRESSIONS)
             {
                 impr->settext(newvalue.toString());
@@ -1174,7 +1174,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             ok = true;
             table = TBL_DOSSIERSIMPRESSIONS;
-            clause = CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(dossier->id());
+            clause = CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(item->id());
             if (field == CP_TEXTE_DOSSIERIMPRESSIONS)
             {
                 dossier->settexte(newvalue.toString());
@@ -1203,7 +1203,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             ok = true;
             table = TBL_MESSAGES;
-            clause = CP_ID_MSG " = " + QString::number(msg->id());
+            clause = CP_ID_MSG " = " + QString::number(item->id());
             if (field == CP_IDEMETTEUR_MSG)
             {
                 msg->setidemetteur(newvalue.toInt());

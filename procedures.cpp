@@ -4233,7 +4233,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     sp_portFronto               = Q_NULLPTR;
     sp_portAutoref              = Q_NULLPTR;
     sp_portTono                 = Q_NULLPTR;
-
+    QString                     msg = "";
     Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
     Datas::I()->mesurefronto    ->settypemesure(Refraction::Fronto);
     Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
@@ -4260,9 +4260,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             return false;
         }
     }
+    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        Logs::LogToFile("PortsSeries.txt", QSerialPortInfo::availablePorts().at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
+        // qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
     // PORT FRONTO
-//    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-//        qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
     if (appareils.testFlag(Fronto))
     {
         m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
@@ -4340,10 +4341,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
                 connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
+                msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
             }
             else
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le frontofocomètre") + "\n" + sp_portFronto->errorString());
+                msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
                 delete sp_portFronto;
                 sp_portFronto = Q_NULLPTR;
             }
@@ -4425,10 +4427,15 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
                 t_threadRefracteur    ->transaction();
                 connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
+                if (msg != "")
+                    msg += "\r";
+                msg = tr("Connexion refracteur OK sur ") + m_portRefracteur;
             }
             else
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le refracteur") + "\n" + sp_portRefracteur->errorString());
+                if (msg != "")
+                    msg += "\r";
+                msg = tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
                 delete sp_portRefracteur;
                 sp_portRefracteur = Q_NULLPTR;
             }
@@ -4510,10 +4517,15 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
                 t_threadAutoref   ->transaction();
                 connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
+                if (msg != "")
+                    msg += "\r";
+                msg = tr("Connexion autoref OK sur ") + m_portAutoref;
             }
             else
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter l'autorefractomètre") + "\n" + sp_portAutoref->errorString());
+                if (msg != "")
+                    msg += "\r";
+                msg = tr("Impossible de connecter l'autoref sur ") + m_portAutoref;
                 delete sp_portAutoref;
                 sp_portAutoref = Q_NULLPTR;
             }
@@ -4523,6 +4535,12 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     {
         m_portTono       = m_settings->value("Param_Poste/PortTonometre").toString();
     }
+    if (msg != "")
+    {
+        qintptr z = 0;
+        ShowMessage::I()->PriorityMessage(msg, z, 3000);
+    }
+
     return false;
 }
 
@@ -4557,6 +4575,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
     {
         if (m_mesureSerie == SendDataNIDEK("CRL"))
         {
+            Logs::LogToFile("PortSerieRefracteur", "SDN = " + m_mesureSerie + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
             PortRefracteur()->waitForReadyRead(100);
             RegleRefracteur();
             return;
@@ -4590,6 +4609,7 @@ void Procedures::RegleRefracteur()
         QString CylindreOD, CylindreOG;
         QString SCAOD, SCAOG;
         QString DataAEnvoyer;
+        int idpat = 0;
 
         auto convertaxe = [&] (QString &finalvalue, int originvalue)
         {
@@ -4648,6 +4668,7 @@ void Procedures::RegleRefracteur()
                                                                 //SD
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
+            idpat = Datas::I()->mesureautoref->idpatient();
        }
 
         /*! réglage du fronto */
@@ -4686,10 +4707,19 @@ void Procedures::RegleRefracteur()
                                                                 //SD
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
+            if (idpat == 0)
+                idpat = Datas::I()->mesurefronto->idpatient();
         }
         DTRbuff.append(QByteArray::fromHex("4"));               //EOT -> end of transmission
 
         //qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
+        QString nompat = "";
+        Patient *pat = Datas::I()->patients->getById(idpat);
+        if (pat)
+            nompat = pat->prenom() + " " + pat->nom().toUpper();
+        Logs::LogToFile("PortSerieRefracteur.txt", "Datas = " + QString(DTRbuff).toLocal8Bit() + " - "
+                        + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
+                        + (nompat != ""? " - " : "") + nompat);
         PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
         PortRefracteur()->flush();
         PortRefracteur()->waitForBytesWritten(1000);
@@ -4826,17 +4856,26 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
     }
 }
 
-void Procedures::EnvoiDataPatientAuRefracteur()
+void Procedures::EnvoiDataPatientAuRefracteur(int idpat)
 {
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
     if (t_threadRefracteur!=Q_NULLPTR)
+    {
+        QString nompat = "";
+        Patient *pat = Datas::I()->patients->getById(idpat);
+        if (pat)
+            nompat = pat->prenom() + " " + pat->nom().toUpper();
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
+            Logs::LogToFile("PortSerieRefracteur", "RTS = " + RequestToSendNIDEK() + " - "
+                            + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
+                            + (nompat != ""? " - " : "") + nompat);
             PortRefracteur()->write(RequestToSendNIDEK());
             PortRefracteur()->flush();
             PortRefracteur()->waitForBytesWritten(100);
         }
+    }
 }
 
 QByteArray Procedures::RequestToSendNIDEK()

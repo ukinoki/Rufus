@@ -49,7 +49,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_DOCSASUPPRIMER                    "Images.DocsASupprimer"
 #define TBL_FACTURESASUPPRIMER                "Images.FacturesASupprimer"
 
-#define TBL_BILANORTHO                        "Ophtalmologie.bilanortho"
+#define TBL_BILANORTHO                        "Ophtalmologie.bilanortho"                         /*! pas fait */
 #define TBL_BIOMETRIES                        "Ophtalmologie.biometries"
 #define TBL_COMMENTAIRESLUNETTES              "Ophtalmologie.commentaireslunettes"
 #define TBL_DONNEES_OPHTA_PATIENTS            "Ophtalmologie.DonneesOphtaPatients"
@@ -64,10 +64,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_ACTES                             "rufus.Actes"
 #define TBL_APPAREILSCONNECTESCENTRE          "rufus.appareilsconnectescentre"
 #define TBL_APPAREILSREFRACTION               "rufus.AppareilsRefraction"
-#define TBL_CCAM                              "rufus.ccam"
+#define TBL_CCAM                              "rufus.ccam"                                      /*! pas fait */
 #define TBL_COMMERCIALS                       "rufus.Commercials"
 #define TBL_CORRESPONDANTS                    "rufus.correspondants"
-#define TBL_COTATIONS                         "rufus.cotations"
+#define TBL_COTATIONS                         "rufus.cotations"                                 /*! pas fait */
 #define TBL_DOSSIERSIMPRESSIONS               "rufus.Metadocuments"
 #define TBL_DONNEESSOCIALESPATIENTS           "rufus.donneessocialespatients"
 #define TBL_FLAGS                             "rufus.flags"
@@ -82,8 +82,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_MESSAGES                          "rufus.Messagerie"
 #define TBL_MESSAGESJOINTURES                 "rufus.MessagerieJointures"
 #define TBL_MOTIFSRDV                         "rufus.MotifsRDV"
-#define TBL_MOTSCLES                          "rufus.MotsCles"
-#define TBL_MOTSCLESJOINTURES                 "rufus.MotsClesJointures"
+#define TBL_MOTSCLES                          "rufus.MotsCles"                                  /*! pas fait */
+#define TBL_MOTSCLESJOINTURES                 "rufus.MotsClesJointures"                         /*! pas fait */
 #define TBL_PARAMSYSTEME                      "rufus.ParametresSysteme"
 #define TBL_PATIENTS                          "rufus.Patients"
 #define TBL_RENSEIGNEMENTSMEDICAUXPATIENTS    "rufus.renseignementsmedicauxpatients"
@@ -564,6 +564,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FAX_TIERS                                    "FaxTiers"
 #define CP_MAIL_TIERS                                   "MailTiers"
 #define CP_WEB_TIERS                                    "WebsiteTiers"
+
+                            //! Table ComptaMedicale.verrouscomptaactes
+#define CP_IDACTE_VERROUCOMPTA                          "idActe"
+#define CP_DATEVERROU_VERROUCOMPTA                       "DateTimeVerrou"
+#define CP_POSEPAR_VERROUCOMPTA                          "PosePar"
 
                             //! Table ComptaMedicale.rubriques2035
 #define CP_ID_2035                                      "idRubrique"
