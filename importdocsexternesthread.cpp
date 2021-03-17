@@ -699,8 +699,8 @@ void ImportDocsExternesThread::EchecImport(QString txt)
 
 QList<QVariantList> ImportDocsExternesThread::SetListeExamens()
 {
-    QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
+    QString req = "select distinct list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
+                  " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
     //qDebug()<< req;
     m_listexams = db->StandardSelectSQL(req, m_ok);
     return m_listexams;

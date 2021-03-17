@@ -133,7 +133,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
                   << new QStandardItem(QString::number(usr->id()));
             m_medecinsmodel->appendRow(items);
         }
-    m_medecinsmodel->sort(0, Qt::AscendingOrder);
+    m_medecinsmodel->sort(1, Qt::AscendingOrder);
     for (int i=0; i< m_medecinsmodel->rowCount(); ++i)
     {
         wdg_listmedecinscombo->addItem(m_medecinsmodel->item(i,0)->text());             //! le login
@@ -142,7 +142,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     if (Datas::I()->users->userconnected()->isMedecin())
     {
         wdg_listmedecinscombo->setCurrentIndex(wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id()));
-        wdg_listmedecinscombo->setEnabled(false);
+        //wdg_listmedecinscombo->setEnabled(false);
         ChoixMedecin(wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id()));
     }
     else
@@ -178,10 +178,10 @@ bool dlg_programmationinterventions::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
-    if (m_currentintervention)
-        delete m_currentintervention;
-    if (m_currentsession)
-        delete m_currentsession;
+//    if (m_currentintervention)
+//        delete m_currentintervention;
+//    if (m_currentsession)
+//        delete m_currentsession;
     m_currentintervention   = Q_NULLPTR;
     m_currentsession        = Q_NULLPTR;
 

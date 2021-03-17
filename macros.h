@@ -170,6 +170,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TEXTIMPORTANT_ACTES                          "CommentPointImportant"
 #define CP_NOCOTATION_ACTES                             "SansCotation"
 
+                            //! Table Rufus.appareilsconnectescentre
+#define CP_IDAPPAREIL_APPAREILS                         "idAppareil"
+#define CP_IDLIEU_APPAREILS                             "idLieu"
+
                             //! Table Rufus.Courriers
 #define CP_ID_IMPRESSIONS                               "idDocument"
 #define CP_TEXTE_IMPRESSIONS                            "TextDocument"
@@ -268,6 +272,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FORMATDOC_DOCSEXTERNES                       "FormatDoc"
 #define CP_IDLIEU_DOCSEXTERNES                          "idLieu"
 #define CP_IMPORTANCE_DOCSEXTERNES                      "Importance"
+
+                            //! Table rufus.listeappareils
+#define CP_ID_APPAREIL                                  "idAppareil"
+#define CP_TITREEXAMEN_APPAREIL                         "TitreExamen"
+#define CP_NOMAPPAREIL_APPAREIL                         "NomAppareil"
+#define CP_FORMAT_APPAREIL                              "Format"
 
                             //! Table rufus.MotsCles
 #define CP_ID_MOTCLE                                    "idMotCle"

@@ -588,7 +588,7 @@ void dlg_param::ChercheCodeCCAM(QString txt)
 
 void dlg_param::ChoixDossierStockageApp(UpPushButton *butt)
 {
-    QString req = "select TitreExamen, NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + QString::number(butt->iD());
+    QString req = "select " CP_TITREEXAMEN_APPAREIL ", " CP_NOMAPPAREIL_APPAREIL " from " TBL_LISTEAPPAREILS " where " CP_ID_APPAREIL " = " + QString::number(butt->iD());
     bool ok;
     QVariantList examdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     QString exam = "";
@@ -663,7 +663,7 @@ void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
         mode = Utils::Distant;
         id = ui->DistantDocupTableWidget->item(line->Row(),0)->text();
     }
-    QString req = "select NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + id;
+    QString req = "select " CP_NOMAPPAREIL_APPAREIL " from " TBL_LISTEAPPAREILS " where " CP_ID_APPAREIL " = " + id;
     bool ok;
     QVariantList appdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     QString app = "";
@@ -1344,9 +1344,9 @@ void dlg_param::SupprAppareil()
     if (ui->AppareilsConnectesupTableWidget->selectedItems().size()==0)
         return;
     bool ok;
-    QString req = " select list.TitreExamen, list.NomAppareil from " TBL_LISTEAPPAREILS " list, " TBL_APPAREILSCONNECTESCENTRE " appcon"
-                  " where list.idAppareil = appcon.idappareil"
-                  " and list.idappareil = " + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text();
+    QString req = " select list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_LISTEAPPAREILS " list, " TBL_APPAREILSCONNECTESCENTRE " appcon"
+                  " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS
+                  " and list." CP_ID_APPAREIL " = " + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text();
     QVariantList appdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || appdata.size()==0)
         return;
@@ -1362,9 +1362,9 @@ void dlg_param::SupprAppareil()
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        req = "delete from " TBL_APPAREILSCONNECTESCENTRE " where idAppareil = "
+        req = "delete from " TBL_APPAREILSCONNECTESCENTRE " where " CP_IDAPPAREIL_APPAREILS " = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite());
+              + " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
         db->StandardSQL(req);
         proc->settings()->remove(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocuments/" + appdata.at(1).toString());
         Remplir_Tables();
@@ -1490,8 +1490,8 @@ void dlg_param::ResetImprimante()
 void dlg_param::EnregistreAppareil()
 {
     if (!dlg_askappareil) return;
-    QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
-                  " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + dlg_askappareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
+    QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (" CP_IDAPPAREIL_APPAREILS ", " CP_IDLIEU_APPAREILS ") Values("
+                  " (select " CP_ID_APPAREIL " from " TBL_LISTEAPPAREILS " where " CP_NOMAPPAREIL_APPAREIL " = '" + dlg_askappareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
                   + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
     db->StandardSQL(req);
     dlg_askappareil->done(0);
@@ -2639,10 +2639,10 @@ void dlg_param::Remplir_Tables()
 
     //Remplissage Table Documents
 
-    QString  req = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
+    QString  req = "SELECT list." CP_ID_APPAREIL ", list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL ", " CP_FORMAT_APPAREIL
               " FROM "  TBL_APPAREILSCONNECTESCENTRE " appcon , " TBL_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(Datas::I()->sites->idcurrentsite()) +
-              " ORDER BY TitreExamen";
+              " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite()) +
+              " ORDER BY " CP_TITREEXAMEN_APPAREIL;
 
     QList<QVariantList> Applist = db->StandardSelectSQL(req, ok);
     if (!ok)
@@ -2768,8 +2768,8 @@ void dlg_param::Remplir_Tables()
     }
 
     m_listeappareils.clear();
-    req = "select NomAppareil from " TBL_LISTEAPPAREILS
-          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
+    req = "select " CP_NOMAPPAREIL_APPAREIL " from " TBL_LISTEAPPAREILS
+          " where " CP_ID_APPAREIL " not in (select " CP_IDAPPAREIL_APPAREILS " from " TBL_APPAREILSCONNECTESCENTRE " where " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
     QList<QVariantList> Appareilslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;

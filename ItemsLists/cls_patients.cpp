@@ -39,17 +39,9 @@ bool Patients::isfull()
 void Patients::setcurrentpatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
-    {
-        //delete m_currentpatient;
         return;
-    }
-    if (m_currentpatient != Q_NULLPTR)
-        if (m_currentpatient->id() != pat->id())
-        {
-            //delete m_currentpatient;
-            m_currentpatient = pat;
-        }
-
+    if (m_currentpatient->id() != pat->id())
+        m_currentpatient->resetdatas();
     if (!m_currentpatient->isalloaded())
         DataBase::I()->loadPatientById(pat->id(), m_currentpatient, Item::LoadDetails);
 }
@@ -57,13 +49,9 @@ void Patients::setcurrentpatient(Patient *pat)
 void Patients::setdossierpatientaouvrir(Patient *pat)
 {
     if (pat == Q_NULLPTR)
-        m_dossierpatientaouvrir = Q_NULLPTR;
-    if (m_dossierpatientaouvrir != Q_NULLPTR)
-        if (m_dossierpatientaouvrir->id() != pat->id())
-        {
-            //delete m_dossierpatientaouvrir;
-            m_dossierpatientaouvrir = pat;
-        }
+        return;
+    if (m_dossierpatientaouvrir->id() != pat->id())
+        m_dossierpatientaouvrir->resetdatas();
     if (!m_dossierpatientaouvrir->isalloaded())
         DataBase::I()->loadPatientById(pat->id(), m_dossierpatientaouvrir, Item::LoadDetails);
 }
