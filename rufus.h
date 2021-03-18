@@ -238,7 +238,7 @@ private:
 
     QStandardItemModel      *m_listepatientsmodel           = Q_NULLPTR;
     QStandardItemModel      *m_listesuperviseursmodel       = Q_NULLPTR;
-    QStandardItemModel      *m_listeparentsmodel            = Q_NULLPTR;
+    QStandardItemModel      *m_listesuperviseursaccueilmodel= Q_NULLPTR;
     QSortFilterProxyModel   *m_listepatientsproxymodel      = Q_NULLPTR;
     QSortFilterProxyModel   *m_DDNsortmodel                 = Q_NULLPTR;
     QSortFilterProxyModel   *m_prenomfiltersortmodel        = Q_NULLPTR;

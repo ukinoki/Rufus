@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("17-03-2021/3");
+    qApp->setApplicationVersion("18-03-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1854,12 +1854,12 @@ void Rufus::ActiveActeAccueil(int row)
 
 void Rufus::FiltreAccueil(int idx)
 {
-    int idparent        = wdg_accueilTab->tabData(idx).toInt();
+    int idsuperviseur        = wdg_accueilTab->tabData(idx).toInt();
     for(int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
         UpLabel *lbl = dynamic_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
-            ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idparent));
+            ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idsuperviseur));
     }
 }
 
@@ -8381,6 +8381,8 @@ void Rufus::ConnectCotationComboBox()
         ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), m_montantActe);
         if (currentacte()->idComptable() != currentuser()->idcomptable() && currentuser()->idcomptable() > 0)
             ItemsList::update(currentacte(), CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
+        if (currentacte()->idParent() != currentuser()->idparent() && currentuser()->idparent() > 0)
+            ItemsList::update(currentacte(), CP_IDUSERPARENT_ACTES, currentuser()->idparent());
         ui->GratuitpushButton->setVisible(ui->ActeCotationcomboBox->currentIndex() != 0);
     });
     connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),    this,
@@ -9070,11 +9072,11 @@ void Rufus::Remplir_SalDat()
             listpatvus << pat;
     }
     TableAMettreAJour   ->setRowCount(listpatvus.size());
-    if (m_listeparentsmodel == Q_NULLPTR)
-        delete m_listeparentsmodel;
-    m_listeparentsmodel = new QStandardItemModel(this);
+    if (m_listesuperviseursaccueilmodel == Q_NULLPTR)
+        delete m_listesuperviseursaccueilmodel;
+    m_listesuperviseursaccueilmodel = new QStandardItemModel(this);
     QStandardItem       *oitem0, *oitem1;
-    QList<int>          listidparents;
+    QList<int>          listidsuperviseurs;
     i = 0;
     foreach (PatientEnCours *patencours, listpatvus)
     {
@@ -9137,6 +9139,7 @@ void Rufus::Remplir_SalDat()
         NomPrenom = pat->nom().toUpper() + " " + pat->prenom();
         zw = actapayer->heure().toString("HH:mm");
         int idparent = actapayer->idParent();
+        int idsuperviseur = actapayer->idUserSuperviseur();
         label0->setText(" " + zw);                                                              // Heure acte
         label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
         QString Soignant = superviseurlogin;
@@ -9145,7 +9148,7 @@ void Rufus::Remplir_SalDat()
         label2->setText(" " + superviseurlogin);       // Soignant
         label3->setText(" " + actapayer->cotation());                                           // Cotation
         label4->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
-        label5->setText(QString::number(idparent));                                             // Parent
+        label5->setText(QString::number(idsuperviseur));                                             // Parent
         QString typpaiement = "";
         if (actapayer->montant() == 0.0)
             typpaiement = "Gratuit";
@@ -9160,15 +9163,15 @@ void Rufus::Remplir_SalDat()
             label4->setStyleSheet(color);
             label5->setStyleSheet(color);
         }
-        if (!listidparents.contains(idparent))
+        if (!listidsuperviseurs.contains(idsuperviseur))
         {
-            listidparents           << idparent;
-            oitem0                  = new QStandardItem(QString::number(idparent));
-            User *usr = Datas::I()->users->getById(idparent);
+            listidsuperviseurs           << idsuperviseur;
+            oitem0                  = new QStandardItem(QString::number(idsuperviseur));
+            User *usr = Datas::I()->users->getById(idsuperviseur);
             oitem1                  = new QStandardItem(usr? usr->login() : "");
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
-            m_listeparentsmodel     ->appendRow(listitems);
+            m_listesuperviseursaccueilmodel     ->appendRow(listitems);
         }
 
         connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label0);});
@@ -9196,15 +9199,15 @@ void Rufus::Remplir_SalDat()
     }
     while (wdg_accueilTab->count()>0)
         wdg_accueilTab->removeTab(0);
-    if (m_listeparentsmodel->rowCount() == 0)
+    if (m_listesuperviseursaccueilmodel->rowCount() == 0)
         wdg_accueilTab->setVisible(false);
     else
     {
         wdg_accueilTab->setVisible(true);
-        for (int i=0; i<m_listeparentsmodel->rowCount(); i++)
+        for (int i=0; i<m_listesuperviseursaccueilmodel->rowCount(); i++)
         {
-            wdg_accueilTab  ->insertTab(i,m_listeparentsmodel->item(i,1)->text());
-            wdg_accueilTab  ->setTabData(i, m_listeparentsmodel->item(i,0)->text());
+            wdg_accueilTab  ->insertTab(i,m_listesuperviseursaccueilmodel->item(i,1)->text());
+            wdg_accueilTab  ->setTabData(i, m_listesuperviseursaccueilmodel->item(i,0)->text());
         }
         if (ui->AccueilupTableWidget->selectedRanges().size()>0)
         {
