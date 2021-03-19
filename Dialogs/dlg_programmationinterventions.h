@@ -56,7 +56,7 @@ private:
                                                                                         * dans la liste des actes en cours et va modifier sa propriété m_intervention
                                                                                         */
 /*! les items */
-    Acte                *m_currentchiracte          = Q_NULLPTR;                        //! l'e user'acte concerné par le programme opératoire
+    Acte                *m_currentchiracte          = Q_NULLPTR;                        //! l'acte concerné par le programme opératoire
     User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
     Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
     SessionOperatoire   *m_currentsession           = Q_NULLPTR;                        //! la session en cours

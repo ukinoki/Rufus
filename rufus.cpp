@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("18-03-2021/1");
+    qApp->setApplicationVersion("19-03-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -7487,7 +7487,7 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        setcurrentpatient(Q_NULLPTR);
+        currentpatient()->resetdatas();
         setcurrentacte(Q_NULLPTR);
    }
     Flags::I()->MAJFlagSalleDAttente();
@@ -9602,7 +9602,7 @@ void Rufus::SupprimerDossier(Patient *pat)
     m_patients->SupprimePatient(pat);
     ItemsList::clearAll(m_listeactes->actes());
     setcurrentacte(Q_NULLPTR);
-    setcurrentpatient(Q_NULLPTR);
+    currentpatient()->resetdatas();
     ItemsList::clearAll(m_lignespaiements->lignespaiements());
     FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
     Flags::I()->MAJFlagSalleDAttente();

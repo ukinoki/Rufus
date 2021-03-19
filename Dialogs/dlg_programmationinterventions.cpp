@@ -141,9 +141,18 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     }
     if (Datas::I()->users->userconnected()->isMedecin())
     {
-        wdg_listmedecinscombo->setCurrentIndex(wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id()));
+        User *usr = Datas::I()->users->userconnected();
+        if (m_currentchiracte)
+            if (m_currentchiracte->isintervention())
+            {
+                usr = Datas::I()->users->getById(m_currentchiracte->idUserSuperviseur());
+                if (!usr)
+                    usr = Datas::I()->users->userconnected();
+            }
+        wdg_listmedecinscombo->setCurrentIndex(wdg_listmedecinscombo->findData(usr->id()));
         //wdg_listmedecinscombo->setEnabled(false);
-        ChoixMedecin(wdg_listmedecinscombo->findData(Datas::I()->users->userconnected()->id()));
+        connect(wdg_listmedecinscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    this, &dlg_programmationinterventions::ChoixMedecin);
+        ChoixMedecin(wdg_listmedecinscombo->findData(usr->id()));
     }
     else
     {
@@ -263,9 +272,18 @@ void dlg_programmationinterventions::ChoixSessionFrame()
 
 void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx)
 {
+    if (Datas::I()->sessionsoperatoires->sessions()->size() == 0)
+    {
+        ItemsList::clearAll(Datas::I()->interventions->interventions());
+        RemplirTreeInterventions();
+        return;
+    }
     UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
+    {
+        RemplirTreeInterventions();
         return;
+    }
     m_currentsession = dynamic_cast<SessionOperatoire*>(upitem->item());
     wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(m_currentsession != Q_NULLPTR);
     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(m_currentsession != Q_NULLPTR);
@@ -282,60 +300,63 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
         delete m_sessionsmodel;
     m_sessionsmodel = new QStandardItemModel(this);
     m_currentsession = Q_NULLPTR;
-    foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
-    {
-        QList<QStandardItem *> items;
-        QString nomsession = session->date().toString("dd-MMM-yy");
-        Site* site = Datas::I()->sites->getById(session->idlieu());
-        if (site != Q_NULLPTR)
-            nomsession += " - " + site->nom();
-        UpStandardItem *item = new UpStandardItem(nomsession, session);
-        if (site != Q_NULLPTR)
-            item->setForeground(QBrush(QColor("#" + Datas::I()->sites->getById(session->idlieu())->couleur())));
-        items << item << new UpStandardItem(session->date().toString("yyyy-MM-dd"));
-        m_sessionsmodel->appendRow(items);
-    }
-    m_sessionsmodel->sort(1, Qt::AscendingOrder);
-    m_sessionsmodel->takeColumn(1);
-    for (int i=0; i< m_sessionsmodel->rowCount(); ++i)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
-        if (itm != Q_NULLPTR)
-        {
-            SessionOperatoire* sess = dynamic_cast<SessionOperatoire*>(itm->item());
-            if (sess)
-                if (sess->incident() != "")
-                {
-                    UpStandardItem *itminc = new UpStandardItem(tr("Incident") + " : " + sess->incident(), sess);
-                    itminc ->setForeground(QBrush(QColor(Qt::red)));
-                    itminc ->setEditable(false);
-                    itm->appendRow(itminc);
-                }
-        }
-    }
+    QModelIndex idx = QModelIndex();
     wdg_sessionstreeView->setModel(m_sessionsmodel);
-
+    m_sessionsmodel->setColumnCount(2);
     m_sessionsmodel->setHeaderData(0, Qt::Horizontal, tr("Sessions"));
-    wdg_sessionstreeView->expandAll();
-    QModelIndex idx;
-    if (m_sessionsmodel->rowCount() >0)
+    if (Datas::I()->sessionsoperatoires->sessions()->size() >0)
     {
-        if (session == Q_NULLPTR)
-            idx = m_sessionsmodel->item(m_sessionsmodel->rowCount()-1)->index();        //! l'index de ce dernier item
-        else for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
+        foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
+        {
+            QList<QStandardItem *> items;
+            QString nomsession = session->date().toString("dd-MMM-yy");
+            Site* site = Datas::I()->sites->getById(session->idlieu());
+            if (site != Q_NULLPTR)
+                nomsession += " - " + site->nom();
+            UpStandardItem *item = new UpStandardItem(nomsession, session);
+            if (site != Q_NULLPTR)
+                item->setForeground(QBrush(QColor("#" + Datas::I()->sites->getById(session->idlieu())->couleur())));
+            items << item << new UpStandardItem(session->date().toString("yyyy-MM-dd"));
+            m_sessionsmodel->appendRow(items);
+        }
+        m_sessionsmodel->sort(1, Qt::AscendingOrder);
+        m_sessionsmodel->takeColumn(1);
+        for (int i=0; i< m_sessionsmodel->rowCount(); ++i)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
-            if (itm->item() == session)
+            if (itm != Q_NULLPTR)
             {
-                idx = itm->index();
-                break;
+                SessionOperatoire* sess = dynamic_cast<SessionOperatoire*>(itm->item());
+                if (sess)
+                    if (sess->incident() != "")
+                    {
+                        UpStandardItem *itminc = new UpStandardItem(tr("Incident") + " : " + sess->incident(), sess);
+                        itminc ->setForeground(QBrush(QColor(Qt::red)));
+                        itminc ->setEditable(false);
+                        itm->appendRow(itminc);
+                    }
             }
         }
-        wdg_sessionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-        wdg_sessionstreeView->selectionModel()->select(idx,QItemSelectionModel::Rows | QItemSelectionModel::Select);
-        wdg_sessionstreeView->setCurrentIndex(idx);
+        wdg_sessionstreeView->expandAll();
+        if (m_sessionsmodel->rowCount() >0)
+        {
+            if (session == Q_NULLPTR)
+                idx = m_sessionsmodel->item(m_sessionsmodel->rowCount()-1)->index();        //! l'index de ce dernier item
+            else for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
+            {
+                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
+                if (itm->item() == session)
+                {
+                    idx = itm->index();
+                    break;
+                }
+            }
+            wdg_sessionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+            wdg_sessionstreeView->selectionModel()->select(idx,QItemSelectionModel::Rows | QItemSelectionModel::Select);
+            wdg_sessionstreeView->setCurrentIndex(idx);
+        }
+        connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
     }
-    connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
     AfficheInterventionsSession(idx);
 }
 
@@ -763,8 +784,9 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("Interventions") : tr("Intervention")));
 
     bool incident = false;          //! va servir à indiquer si des incidents sont notés sur la session
-    if (m_currentsession->incident() != "")
-        incident = true;
+    if (m_currentsession)
+        if (m_currentsession->incident() != "")
+            incident = true;
     bool iollist = false;           //! va servir à indiquer si des implants sont prévus sur la session
     QStandardItem *rootNodeDate = m_interventionsmodel->invisibleRootItem();
     QList<QTime> listheures;

@@ -39,7 +39,10 @@ bool Patients::isfull()
 void Patients::setcurrentpatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
+    {
+        m_currentpatient->resetdatas();
         return;
+    }
     if (m_currentpatient->id() != pat->id())
         m_currentpatient->resetdatas();
     if (!m_currentpatient->isalloaded())
@@ -49,7 +52,10 @@ void Patients::setcurrentpatient(Patient *pat)
 void Patients::setdossierpatientaouvrir(Patient *pat)
 {
     if (pat == Q_NULLPTR)
+    {
+        m_dossierpatientaouvrir->resetdatas();
         return;
+    }
     if (m_dossierpatientaouvrir->id() != pat->id())
         m_dossierpatientaouvrir->resetdatas();
     if (!m_dossierpatientaouvrir->isalloaded())
