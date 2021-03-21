@@ -2861,7 +2861,7 @@ QList<QPair<int, int>> DataBase::loadIdInterventionsByPatientId(int id)         
     return listpair;
 }
 
-Intervention* DataBase::loadInterventionById(int idintervention)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+Intervention* DataBase::loadInterventionById(int idintervention, Intervention *interv)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 {
     Intervention *intervention = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
@@ -2874,7 +2874,10 @@ Intervention* DataBase::loadInterventionById(int idintervention)                
     if(!ok || interventiondata.size()==0)
         return intervention;
     QJsonObject data = loadInterventionData(interventiondata);
-    intervention = new Intervention(data);
+    if (interv == Q_NULLPTR)
+        intervention = new Intervention(data);
+    else
+        interv->setData(data);
     return intervention;
 }
 

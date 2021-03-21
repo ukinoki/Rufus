@@ -381,7 +381,7 @@ private:
 public:
     QList<Intervention*>    loadInterventionsBySessionId(int id);                       //! charge toutes les Interventions d'une session
     QList<QPair<int, int> > loadIdInterventionsByPatientId(int id);                     //! charge tous les id d'interventions d'un patient
-    Intervention*           loadInterventionById(int idintervention);                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+    Intervention*           loadInterventionById(int idintervention, Intervention* interv = Q_NULLPTR);                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
     Intervention*           loadInterventionByDateIdPatient(QDate date, int idpatient); //! charge une Intervention définie par sa sate et l'id du patient
 
     /*

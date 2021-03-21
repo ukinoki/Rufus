@@ -72,6 +72,18 @@ void Interventions::initListebySessionId(int id)
     addList(map_all, &listInterventions, Item::Update);
 }
 
+void Interventions::setcurrentintervention(Intervention *pat)
+{
+    if (pat == Q_NULLPTR)
+    {
+        m_currentintervention->resetdatas();
+        return;
+    }
+    if (m_currentintervention->id() != pat->id())
+        m_currentintervention->resetdatas();
+    DataBase::I()->loadInterventionById(pat->id(), m_currentintervention);
+}
+
 void Interventions::SupprimeIntervention(Intervention* intervention)
 {
     Supprime(map_all, intervention);

@@ -187,11 +187,9 @@ bool dlg_programmationinterventions::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
-//    if (m_currentintervention)
-//        delete m_currentintervention;
 //    if (m_currentsession)
 //        delete m_currentsession;
-    m_currentintervention   = Q_NULLPTR;
+    currentintervention()->resetdatas();
     m_currentsession        = Q_NULLPTR;
 
     m_currentchiruser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
@@ -212,7 +210,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                 auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
                 if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
                 {
-                    m_currentintervention = interv;
+                    setcurrentintervention(interv);
                     m_currentsession = const_cast<SessionOperatoire*>(it.value());
                 }
                 else
@@ -224,7 +222,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
      * on définit comme intervention en cours
      * la dernière intervention de ce patient qui a été faite par ce chirurgien
      */
-    if (!m_currentintervention)
+    if (currentintervention()->isnull())
     {
         Datas::I()->patients->initListeIdInterventions(m_currentchirpatient);
         if (m_currentchirpatient->listidinterventions().size()>0)
@@ -239,7 +237,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                         auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
                         if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
                         {
-                            m_currentintervention = interv;
+                            setcurrentintervention(interv);
                             m_currentsession = const_cast<SessionOperatoire*>(it.value());
                         }
                         else
@@ -290,7 +288,7 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(m_currentsession != Q_NULLPTR);
     if (m_currentsession)
         Datas::I()->interventions->initListebySessionId(m_currentsession->id());
-    RemplirTreeInterventions(m_currentintervention);
+    RemplirTreeInterventions(currentintervention());
 }
 
 void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* session)
@@ -699,7 +697,7 @@ void dlg_programmationinterventions::SupprimeSession()
         return;
     foreach (Intervention* interv, *Datas::I()->interventions->interventions())
     {
-        m_currentintervention = interv;
+        setcurrentintervention(interv);
         SupprimeIntervention();
     }
     Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(m_currentsession);
@@ -763,8 +761,8 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
     UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
-    m_currentintervention = dynamic_cast<Intervention*>(upitem->item());
-    if (m_currentintervention == Q_NULLPTR)
+    setcurrentintervention(dynamic_cast<Intervention*>(upitem->item()));
+    if (currentintervention()->isnull())
     {
         wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
         wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(false);
@@ -936,11 +934,23 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_interventionstreeView   ->setColumnWidth(0,340);
     wdg_interventionstreeView   ->header()->setSectionResizeMode(QHeaderView::Fixed);
     wdg_interventionstreeView   ->setSortingEnabled(false);
+    PositionneTreeInterventionsSurIntervention(intervention);
     connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+//    connect(wdg_interventionstreeView,  &QAbstractItemView::entered,    this,   [&](QModelIndex idx)
+//    {
+//        QStandardItem *itm = dynamic_cast<QStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
+//        if (itm)
+//            QToolTip::showText(cursor().pos(), itm->data().toString());
+//    });
+}
+
+void dlg_programmationinterventions::PositionneTreeInterventionsSurIntervention(Intervention* interv)
+{
     QModelIndex idx;
+    bool found = false;
     if (m_interventionsmodel->rowCount() >0)
     {
-        if (intervention == Q_NULLPTR)
+        if (interv == Q_NULLPTR)
         {
             idx = m_interventionsmodel->item(m_interventionsmodel->rowCount()-1)->index();        //! l'index du dernier item
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_interventionsmodel->item(m_interventionsmodel->rowCount()-1));
@@ -953,32 +963,33 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
         else for (int i=0; i<m_interventionsmodel->rowCount(); ++i)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_interventionsmodel->item(i));
-            QString heurestring = "- " + intervention->heure().toString("HH:mm") + " -";
+            QString heurestring = "- " + interv->heure().toString("HH:mm") + " -";
             if (itm->text() == heurestring)
             {
                 for (int j=0; j<itm->rowCount(); ++j)
                 {
                     UpStandardItem *childitm = dynamic_cast<UpStandardItem*>(itm->child(j,0));
-                    if (childitm->item() == intervention)
+                    if (childitm)
                     {
-                        idx = childitm->index();
-                        break;
+                        if (childitm->item())
+                        {
+                            if (childitm->item()->id() == interv->id())
+                            {
+                                idx = childitm->index();
+                                found = true;
+                                break;
+                            }
+                        }
                     }
                 }
+                if (found)
+                    break;
             }
         }
-
         wdg_interventionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-        wdg_interventionstreeView->selectionModel()->select(idx,QItemSelectionModel::Rows | QItemSelectionModel::Select);
         wdg_interventionstreeView->setCurrentIndex(idx);
+        wdg_interventionstreeView->selectionModel()->select(idx,QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
-    connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
-//    connect(wdg_interventionstreeView,  &QAbstractItemView::entered,    this,   [&](QModelIndex idx)
-//    {
-//        QStandardItem *itm = dynamic_cast<QStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
-//        if (itm)
-//            QToolTip::showText(cursor().pos(), itm->data().toString());
-//    });
     ChoixIntervention(idx);
 }
 
@@ -1024,8 +1035,8 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
         QString incident = incidenttxtedit->text();
         if (mode == "intervention")
         {
-            ItemsList::update(m_currentintervention, CP_INCIDENT_LIGNPRGOPERATOIRE, incident);
-            RemplirTreeInterventions(m_currentintervention);
+            ItemsList::update(currentintervention(), CP_INCIDENT_LIGNPRGOPERATOIRE, incident);
+            RemplirTreeInterventions(currentintervention());
         }
         else if (mode == "session")
         {
@@ -1411,8 +1422,8 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                 }
             }
             listbinds[CP_IDPATIENT_LIGNPRGOPERATOIRE]  = idpat;
-            m_currentintervention = Datas::I()->interventions->CreationIntervention(listbinds);
-            RemplirTreeInterventions(m_currentintervention);
+            setcurrentintervention(Datas::I()->interventions->CreationIntervention(listbinds));
+            RemplirTreeInterventions(currentintervention());
         }
         else                                                                                                            //! il s'agit de modifier l'intervention passée en paramètre de la fonction
         {
@@ -1518,19 +1529,19 @@ void dlg_programmationinterventions::CreerFicheIntervention()
 
 void dlg_programmationinterventions::ModifFicheIntervention()
 {
-    if (m_currentintervention != Q_NULLPTR)
-        FicheIntervention(m_currentintervention);
+    if (currentintervention() != Q_NULLPTR)
+        FicheIntervention(currentintervention());
 }
 
 void dlg_programmationinterventions::SupprimeIntervention()
 {
-    if (m_currentintervention == Q_NULLPTR)
+    if (currentintervention()->isnull())
         return;
     QString nomintervention = "";
-    TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
+    TypeIntervention *typ = Datas::I()->typesinterventions->getById(currentintervention()->idtypeintervention());
     if (typ)
         nomintervention += typ->typeintervention();
-    Patient * pat = Datas::I()->patients->getById(m_currentintervention->idpatient());
+    Patient * pat = Datas::I()->patients->getById(currentintervention()->idpatient());
     if (pat)
         nomintervention += " - " + pat->nom() + " " + pat->prenom();
     QString nomsession = m_currentsession->date().toString("dd-MMM-yy");
@@ -1539,13 +1550,16 @@ void dlg_programmationinterventions::SupprimeIntervention()
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer l'intervention"), nomintervention + "\n" + nomsession + " ?") != UpSmallButton::STARTBUTTON)
         return;
-    if (m_currentintervention->idacte() >0)
+    if (currentintervention()->idacte() >0)
     {
-        Acte * act = Datas::I()->actes->getById(m_currentintervention->idacte(), Item::NoLoadDetails);
+        Acte * act = Datas::I()->actes->getById(currentintervention()->idacte(), Item::NoLoadDetails);
         if (act != Q_NULLPTR)
             act->setidintervention(0);
     }
-    Datas::I()->interventions->SupprimeIntervention(m_currentintervention);
+    Intervention* interv = Datas::I()->interventions->getById(currentintervention()->id());
+    if (interv)
+        Datas::I()->interventions->SupprimeIntervention(interv);
+    currentintervention()->resetdatas();
     RemplirTreeInterventions();
 }
 

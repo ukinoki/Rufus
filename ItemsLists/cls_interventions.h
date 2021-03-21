@@ -31,6 +31,9 @@ public:
     explicit Interventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, Intervention*> *interventions() const;
+    Intervention *m_currentintervention = new Intervention();                 //!> l'intervention en cours
+    Intervention* currentintervention()                 { return m_currentintervention; }
+    void setcurrentintervention(Intervention *interv);
     int idsession() const { return m_idsession ; }
 
     Intervention* getById(int id, bool reload = false);

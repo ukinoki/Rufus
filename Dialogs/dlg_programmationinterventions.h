@@ -60,7 +60,11 @@ private:
     User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
     Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
     SessionOperatoire   *m_currentsession           = Q_NULLPTR;                        //! la session en cours
-    Intervention        *m_currentintervention      = Q_NULLPTR;                        //! l'intervention en cours
+
+    //! l'intervention en cours
+    Intervention*       currentintervention() const                     { return Datas::I()->interventions->currentintervention(); }
+    void                setcurrentintervention(Intervention *interv)    { Datas::I()->interventions->setcurrentintervention(interv); }
+
     TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                        //! le type d'intervention en cours
     Manufacturer        *m_currentmanufacturer      = Q_NULLPTR;                        //! le fabricant en cours
     IOL                 *m_currentIOL               = Q_NULLPTR;                        //! l'IOL en cours
@@ -104,10 +108,11 @@ private:
 /*! les interventions */
     void                ChoixIntervention(QModelIndex idx);
     void                ChoixInterventionFrame();
-    void                EnregistreIncidentIntervention()        {EnregistreIncident(m_currentintervention);}
+    void                EnregistreIncidentIntervention()        {EnregistreIncident(currentintervention());}
     void                FicheIntervention(Intervention *interv = Q_NULLPTR);                                            //! crée la fiche qui permet de modifier ou d'enregistrer une intervention
     void                SupprimeIntervention();
     void                RemplirTreeInterventions(Intervention *intervention = Q_NULLPTR);
+    void                PositionneTreeInterventionsSurIntervention(Intervention* interv);
     void                MenuContextuelInterventionsions();
     void                VerifExistIntervention(bool &ok, QComboBox *box);
     void                VerifFicheIntervention(bool &ok, QTimeEdit *timeedit, QComboBox *box, Patient *pat);
