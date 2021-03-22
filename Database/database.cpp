@@ -2783,9 +2783,9 @@ QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)              
     return list;
 }
 
-SessionOperatoire* DataBase::loadSessionOpById(int idsession)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
+SessionOperatoire* DataBase::loadSessionOpById(int idsession, SessionOperatoire *session)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 {
-    SessionOperatoire *session = Q_NULLPTR;
+    SessionOperatoire *sess = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE ", " CP_INCIDENT_SESSIONOPERATOIRE // 0-1-2-3-4
                     " FROM " TBL_SESSIONSOPERATOIRES
                     " WHERE " CP_ID_SESSIONOPERATOIRE " = " + QString::number(idsession) ;
@@ -2793,8 +2793,11 @@ SessionOperatoire* DataBase::loadSessionOpById(int idsession)                   
     if(!ok || sessiondata.size()==0)
         return session;
     QJsonObject data = loadSessionOpData(sessiondata);
-    session= new SessionOperatoire(data);
-    return session;
+    if (session == Q_NULLPTR)
+         sess = new SessionOperatoire(data);
+     else
+         session->setData(data);
+    return sess;
 }
 
 /*

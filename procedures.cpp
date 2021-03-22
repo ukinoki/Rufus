@@ -1206,13 +1206,14 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         baPied.resize(filePied_len + 1);
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
+        bool isaga = false;
         if (user)
         {
-            if( user->isAGA() )
-                baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté");
+            User *parent = Datas::I()->users->getById(user->idparent());
+            if (parent)
+                isaga = parent->isAGA();
         }
-        else
-            baPied.replace("{{AGA}}","");
+        baPied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
         Pied = baPied;
     }
     return Pied;

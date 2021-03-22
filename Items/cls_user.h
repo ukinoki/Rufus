@@ -83,9 +83,9 @@ private:
 
     int m_typeCompta = COMPTA_AVEC_COTATION_AVEC_COMPTABILITE;
 
-    bool m_AGA;
+    bool m_AGA = false;
     bool m_desactive = false;
-    bool m_OPTAM;
+    bool m_OPTAM = false;
     bool m_ccam;
 
     bool m_useCompta;

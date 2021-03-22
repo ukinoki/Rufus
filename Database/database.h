@@ -371,7 +371,7 @@ private:
     QJsonObject             loadSessionOpData(QVariantList refdata);            //! attribue le liste des datas à une session
 public:
     QList<SessionOperatoire *> loadSessionsOpByUserId(int id);                  //! charge toutes les sessions opératoires d'un user
-    SessionOperatoire*      loadSessionOpById(int idintervention);              //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
+    SessionOperatoire*      loadSessionOpById(int idintervention, SessionOperatoire *session = Q_NULLPTR);              //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
 
     /*
      * Interventions

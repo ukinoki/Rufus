@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-03-2021/1");
+    qApp->setApplicationVersion("22-03-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -7899,7 +7899,6 @@ void Rufus::InitMenus()
 void Rufus::InitVariables()
 {
     m_autorModifConsult         = false;
-    m_patients                  = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
     m_lignespaiements           = Datas::I()->lignespaiements;
     m_datepardefaut             = QDate::fromString("2000-01-01", "yyyy-MM-dd");
@@ -9598,11 +9597,15 @@ void Rufus::SupprimerDossier(Patient *pat)
     FermeDlgActesPrecedentsEtDocsExternes();
 
     //!. Suppression du dossier, reconstruction de la liste et du treeView
+    if (currentpatient()->id() == pat->id())
+        currentpatient()->resetdatas();
+    if (dossierpatientaouvrir()->id() == pat->id())
+        dossierpatientaouvrir()->resetdatas();
     Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
-    m_patients->SupprimePatient(pat);
+    m_patients->SupprimePatient(Datas::I()->patients->getById(pat->id()));
     ItemsList::clearAll(m_listeactes->actes());
+
     setcurrentacte(Q_NULLPTR);
-    currentpatient()->resetdatas();
     ItemsList::clearAll(m_lignespaiements->lignespaiements());
     FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
     Flags::I()->MAJFlagSalleDAttente();

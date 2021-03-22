@@ -187,10 +187,8 @@ bool dlg_programmationinterventions::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
-//    if (m_currentsession)
-//        delete m_currentsession;
     currentintervention()->resetdatas();
-    m_currentsession        = Q_NULLPTR;
+    currentsession()->resetdatas();
 
     m_currentchiruser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
     if (m_currentchiruser == Q_NULLPTR)
@@ -211,7 +209,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                 if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
                 {
                     setcurrentintervention(interv);
-                    m_currentsession = const_cast<SessionOperatoire*>(it.value());
+                    setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
                 }
                 else
                     delete interv;
@@ -238,7 +236,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                         if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
                         {
                             setcurrentintervention(interv);
-                            m_currentsession = const_cast<SessionOperatoire*>(it.value());
+                            setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
                         }
                         else
                             delete interv;
@@ -248,9 +246,9 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
             }
     }
     /*! si aucune intervention pour le patient en cours n'a été effectuée par le chirurgien en cours, on se positionne sur la dernière session de ce chirurgien */
-    if (!m_currentsession && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
-        m_currentsession = Datas::I()->sessionsoperatoires->sessions()->last();
-    RemplirTreeSessions(m_currentsession);
+    if (currentsession()->isnull() && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
+        setcurrentsession(Datas::I()->sessionsoperatoires->sessions()->last());
+    RemplirTreeSessions(currentsession());
 }
 
 void dlg_programmationinterventions::ChoixSessionFrame()
@@ -282,12 +280,12 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
         RemplirTreeInterventions();
         return;
     }
-    m_currentsession = dynamic_cast<SessionOperatoire*>(upitem->item());
-    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(m_currentsession != Q_NULLPTR);
-    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(m_currentsession != Q_NULLPTR);
-    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(m_currentsession != Q_NULLPTR);
-    if (m_currentsession)
-        Datas::I()->interventions->initListebySessionId(m_currentsession->id());
+    setcurrentsession(dynamic_cast<SessionOperatoire*>(upitem->item()));
+    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(!currentsession()->isnull());
+    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(!currentsession()->isnull());
+    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(!currentsession()->isnull());
+    if (!currentsession()->isnull())
+        Datas::I()->interventions->initListebySessionId(currentsession()->id());
     RemplirTreeInterventions(currentintervention());
 }
 
@@ -297,7 +295,7 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
     if (m_sessionsmodel == Q_NULLPTR)
         delete m_sessionsmodel;
     m_sessionsmodel = new QStandardItemModel(this);
-    m_currentsession = Q_NULLPTR;
+    currentsession()->resetdatas();
     QModelIndex idx = QModelIndex();
     wdg_sessionstreeView->setModel(m_sessionsmodel);
     m_sessionsmodel->setColumnCount(2);
@@ -438,8 +436,8 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
         listbinds[CP_IDUSER_SESSIONOPERATOIRE]  = m_currentchiruser->id();
         if (nwsession == Q_NULLPTR)
         {
-            m_currentsession = Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds);
-            RemplirTreeSessions(m_currentsession);
+            setcurrentsession(Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds));
+            RemplirTreeSessions(currentsession());
         }
         else
         {
@@ -455,7 +453,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
 
 void dlg_programmationinterventions::ModifSession()
 {
-    FicheSession(m_currentsession);
+    FicheSession(currentsession());
 }
 
 void dlg_programmationinterventions::ImprimeRapportIncident()
@@ -468,7 +466,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     // Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
 
-    int iduser = m_currentsession->iduser();
+    int iduser = currentsession()->iduser();
 
 //    //création de l'entête
     QString EnTete;
@@ -477,7 +475,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
         return;
     EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
     if (EnTete == "") return;
-    Site *sit = Datas::I()->sites->getById(m_currentsession->idlieu());
+    Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
     EnTete.replace("{{TITRE1}}"            , "<b>" + tr("RAPPORT D'INCIDENTS OPÉRATOIRES") +"</b>");
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
@@ -496,12 +494,12 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     QString cor = sit->nom() + "<br>" + sit->coordonnees().replace("\n", "<br>");
     lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
     lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
-    lign += "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("RAPPORTS D'INCIDENTS SUR LA SESSION CHIRURGICALE DU") + " " + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</b></span></font>" ;
+    lign += "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("RAPPORTS D'INCIDENTS SUR LA SESSION CHIRURGICALE DU") + " " + currentsession()->date().toString("dddd dd MMMM yyyy") + "</b></span></font>" ;
     lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
-    if (m_currentsession->incident() != "")
+    if (currentsession()->incident() != "")
     {
         lign += "<p align=\"left\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + "</b></span></font>" ;
-        lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + m_currentsession->incident() + "</span></td>" ;
+        lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
         lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
     }
     bool incidents = false;
@@ -544,7 +542,7 @@ void dlg_programmationinterventions::ImprimeSession()
     // Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
 
-    int iduser = m_currentsession->iduser();
+    int iduser = currentsession()->iduser();
 
 //    //création de l'entête
     QString EnTete;
@@ -553,13 +551,13 @@ void dlg_programmationinterventions::ImprimeSession()
         return;
     EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
     if (EnTete == "") return;
-    Site *sit = Datas::I()->sites->getById(m_currentsession->idlieu());
+    Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
     EnTete.replace("{{TITRE1}}"            , "<b>" + tr("PROGRAMME OPÉRATOIRE") +"</b>");
     EnTete.replace("{{PRENOM PATIENT}}"    , (sit? sit->nom() + " - " + sit->ville() : ""));
     EnTete.replace("{{NOM PATIENT}}"       , "");
     EnTete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
-    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + m_currentsession->date().toString("dddd dd MMMM yyyy") + "</font>");
+    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + currentsession()->date().toString("dddd dd MMMM yyyy") + "</font>");
 
     // création du pied
     QString Pied = proc->CalcPiedImpression(userEntete);
@@ -569,12 +567,12 @@ void dlg_programmationinterventions::ImprimeSession()
     double c = CORRECTION_td_width;
 
     QString lign = "";
-    if (m_currentsession->incident() != "")
+    if (currentsession()->incident() != "")
     {
-        QString incident = (m_currentsession->incident() ==""? " : " + tr("NEANT") : "");
+        QString incident = (currentsession()->incident() ==""? " : " + tr("NEANT") : "");
         lign +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + incident + "</b></span></font></td>" ;
-        if (m_currentsession->incident() != "")
-            lign +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + m_currentsession->incident() + "</span></td>" ;
+        if (currentsession()->incident() != "")
+            lign +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
         lign += HTML_RETOURLIGNE;
     }
     for (int i=0; i< m_interventionsmodel->rowCount(); ++i)
@@ -687,10 +685,10 @@ void dlg_programmationinterventions::ImprimeSession()
 
 void dlg_programmationinterventions::SupprimeSession()
 {
-    if (m_currentsession == Q_NULLPTR)
+    if (currentsession()->isnull())
         return;
-    QString nomsession = m_currentsession->date().toString("dd-MMM-yy");
-    Site* site = Datas::I()->sites->getById(m_currentsession->idlieu());
+    QString nomsession = currentsession()->date().toString("dd-MMM-yy");
+    Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
     if (site != Q_NULLPTR)
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer la session"), nomsession + " ?") != UpSmallButton::STARTBUTTON)
@@ -700,8 +698,10 @@ void dlg_programmationinterventions::SupprimeSession()
         setcurrentintervention(interv);
         SupprimeIntervention();
     }
-    Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(m_currentsession);
-    RemplirTreeSessions();
+    SessionOperatoire* session = Datas::I()->sessionsoperatoires->getById(currentsession()->id());
+    if (session)
+        Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(session);
+    currentsession()->resetdatas();
 }
 
 void dlg_programmationinterventions::MenuContextuelSessions()
@@ -782,8 +782,8 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("Interventions") : tr("Intervention")));
 
     bool incident = false;          //! va servir à indiquer si des incidents sont notés sur la session
-    if (m_currentsession)
-        if (m_currentsession->incident() != "")
+    if (!currentsession()->isnull())
+        if (currentsession()->incident() != "")
             incident = true;
     bool iollist = false;           //! va servir à indiquer si des implants sont prévus sur la session
     QStandardItem *rootNodeDate = m_interventionsmodel->invisibleRootItem();
@@ -958,6 +958,7 @@ void dlg_programmationinterventions::PositionneTreeInterventionsSurIntervention(
             {
                 UpStandardItem *childitm = dynamic_cast<UpStandardItem*>(itm->child(0,0));
                 idx = childitm->index();
+                found = true;
             }
         }
         else for (int i=0; i<m_interventionsmodel->rowCount(); ++i)
@@ -986,9 +987,12 @@ void dlg_programmationinterventions::PositionneTreeInterventionsSurIntervention(
                     break;
             }
         }
-        wdg_interventionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-        wdg_interventionstreeView->setCurrentIndex(idx);
-        wdg_interventionstreeView->selectionModel()->select(idx,QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        if (found)
+        {
+            wdg_interventionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+            wdg_interventionstreeView->setCurrentIndex(idx);
+            wdg_interventionstreeView->selectionModel()->select(idx,QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        }
     }
     ChoixIntervention(idx);
 }
@@ -1040,8 +1044,8 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
         }
         else if (mode == "session")
         {
-            ItemsList::update(m_currentsession, CP_INCIDENT_SESSIONOPERATOIRE, incident);
-            RemplirTreeSessions(m_currentsession);
+            ItemsList::update(currentsession(), CP_INCIDENT_SESSIONOPERATOIRE, incident);
+            RemplirTreeSessions(currentsession());
         }
         dlg_incident->close();
     });
@@ -1076,7 +1080,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i,0));
         if (itm)
             if (itm->item())
-                if (itm->item()->id() == m_currentsession->id())
+                if (itm->item()->id() == currentsession()->id())
                 {
                     sessioncombo  ->setCurrentIndex(i);
                     break;
@@ -1458,7 +1462,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                 AfficheInterventionsSession(idx);
             }
             else
-                RemplirTreeInterventions();
+                RemplirTreeInterventions(interv);
         }
         ModifStatutActeCorrespondant(idact);
         dlg_intervention->close();
@@ -1544,8 +1548,8 @@ void dlg_programmationinterventions::SupprimeIntervention()
     Patient * pat = Datas::I()->patients->getById(currentintervention()->idpatient());
     if (pat)
         nomintervention += " - " + pat->nom() + " " + pat->prenom();
-    QString nomsession = m_currentsession->date().toString("dd-MMM-yy");
-    Site* site = Datas::I()->sites->getById(m_currentsession->idlieu());
+    QString nomsession = currentsession()->date().toString("dd-MMM-yy");
+    Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
     if (site != Q_NULLPTR)
         nomsession += " - " + site->nom();
     if (UpMessageBox::Question(this, tr("Voulez-vous supprimer l'intervention"), nomintervention + "\n" + nomsession + " ?") != UpSmallButton::STARTBUTTON)
@@ -1815,7 +1819,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         // Préparation de l'état "liste des implants pour un fabricant" dans un QplainTextEdit
         //--------------------------------------------------------------------
 
-        int iduser = m_currentsession->iduser();
+        int iduser = currentsession()->iduser();
 
         //création de l'entête
         QString EnTete;
@@ -1837,12 +1841,12 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
 
         // creation du corps
         QString lign =  "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("COMMANDE D'IMPLANTS INTRAOCULAIRES") + "</b></span></font>" ;
-        Site *site = Datas::I()->sites->getById(m_currentsession->idlieu());
+        Site *site = Datas::I()->sites->getById(currentsession()->idlieu());
         QString sitadresse = "";
         if (site)
             sitadresse = site->nom() + " - " + site->coordonnees();
 
-        QString date = tr("Programme opératoire du") + " " + m_currentsession->date().toString("dddd dd MMMM yyyy");
+        QString date = tr("Programme opératoire du") + " " + currentsession()->date().toString("dddd dd MMMM yyyy");
         QString cor = man->coordonnees().replace("\n", "<br>");
         lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
         lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";

@@ -59,11 +59,14 @@ private:
     Acte                *m_currentchiracte          = Q_NULLPTR;                        //! l'acte concerné par le programme opératoire
     User                *m_currentchiruser          = Q_NULLPTR;                        //! le user dont on établit le programme opératoire
     Patient             *m_currentchirpatient       = Q_NULLPTR;                        //! le patient qu'on veut intégrer dans le programme
-    SessionOperatoire   *m_currentsession           = Q_NULLPTR;                        //! la session en cours
 
     //! l'intervention en cours
     Intervention*       currentintervention() const                     { return Datas::I()->interventions->currentintervention(); }
     void                setcurrentintervention(Intervention *interv)    { Datas::I()->interventions->setcurrentintervention(interv); }
+
+    //! la session en cours
+    SessionOperatoire*  currentsession() const                          { return Datas::I()->sessionsoperatoires->currentsession(); }
+    void                setcurrentsession(SessionOperatoire *session)   { Datas::I()->sessionsoperatoires->setcurrentsession(session); }
 
     TypeIntervention    *m_currenttypeintervention  = Q_NULLPTR;                        //! le type d'intervention en cours
     Manufacturer        *m_currentmanufacturer      = Q_NULLPTR;                        //! le fabricant en cours
@@ -98,7 +101,7 @@ private:
 /*! les sessions */
     void                ChoixSessionFrame();
     void                AfficheInterventionsSession(QModelIndex idx);
-    void                EnregistreIncidentSession()             {EnregistreIncident(m_currentsession);}
+    void                EnregistreIncidentSession()             {EnregistreIncident(currentsession());}
     void                RemplirTreeSessions(SessionOperatoire* session = Q_NULLPTR);
     void                MenuContextuelSessions();
     void                FicheSession(SessionOperatoire *session = Q_NULLPTR);                                           //! crée la fiche qui permet de modifier ou d'enregistrer une session

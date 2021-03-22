@@ -72,16 +72,16 @@ void Interventions::initListebySessionId(int id)
     addList(map_all, &listInterventions, Item::Update);
 }
 
-void Interventions::setcurrentintervention(Intervention *pat)
+void Interventions::setcurrentintervention(Intervention *interv)
 {
-    if (pat == Q_NULLPTR)
+    if (interv == Q_NULLPTR)
     {
         m_currentintervention->resetdatas();
         return;
     }
-    if (m_currentintervention->id() != pat->id())
+    if (m_currentintervention->id() != interv->id())
         m_currentintervention->resetdatas();
-    DataBase::I()->loadInterventionById(pat->id(), m_currentintervention);
+    DataBase::I()->loadInterventionById(interv->id(), m_currentintervention);
 }
 
 void Interventions::SupprimeIntervention(Intervention* intervention)
@@ -178,6 +178,18 @@ void SessionsOperatoires::initListebyUserId(int id)
     addList(map_all, &listsessions, Item::Update);
 }
 
+void SessionsOperatoires::setcurrentsession(SessionOperatoire *sess)
+{
+    if (sess == Q_NULLPTR)
+    {
+        m_currentsession->resetdatas();
+        return;
+    }
+    if (m_currentsession->id() != sess->id())
+        m_currentsession->resetdatas();
+    DataBase::I()->loadSessionOpById(sess->id(), m_currentsession);
+
+}
 
 void SessionsOperatoires::SupprimeSessionOperatoire(SessionOperatoire *session)
 {

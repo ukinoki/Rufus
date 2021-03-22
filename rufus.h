@@ -254,9 +254,7 @@ private:
     void                    setcurrentacte(Acte *act)               { Datas::I()->actes->setcurrentacte(act); }
     User*                   currentuser()                           { return Datas::I()->users->userconnected(); }
     PosteConnecte*          currentpost()                           { return Datas::I()->postesconnectes->currentpost(); }
-    Patients                *m_patients                     = Q_NULLPTR;
-    QMap<int, Patient*>     *map_patientstable              = Q_NULLPTR;
-    QMap<int, Patient*>     *map_patientssaldat             = Q_NULLPTR;
+    Patients                *m_patients                     = Datas::I()->patients;
     Actes                   *m_listeactes                   = Q_NULLPTR;
     LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
 
