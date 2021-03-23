@@ -248,7 +248,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
     /*! si aucune intervention pour le patient en cours n'a été effectuée par le chirurgien en cours, on se positionne sur la dernière session de ce chirurgien */
     if (currentsession()->isnull() && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
         setcurrentsession(Datas::I()->sessionsoperatoires->sessions()->last());
-    RemplirTreeSessions(currentsession());
+    RemplirTreeSessions();
 }
 
 void dlg_programmationinterventions::ChoixSessionFrame()
@@ -289,13 +289,12 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     RemplirTreeInterventions(currentintervention());
 }
 
-void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* session)
+void dlg_programmationinterventions::RemplirTreeSessions()
 {
     disconnect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
-    if (m_sessionsmodel == Q_NULLPTR)
+    if (m_sessionsmodel != Q_NULLPTR)
         delete m_sessionsmodel;
     m_sessionsmodel = new QStandardItemModel(this);
-    currentsession()->resetdatas();
     QModelIndex idx = QModelIndex();
     wdg_sessionstreeView->setModel(m_sessionsmodel);
     m_sessionsmodel->setColumnCount(2);
@@ -336,15 +335,20 @@ void dlg_programmationinterventions::RemplirTreeSessions(SessionOperatoire* sess
         wdg_sessionstreeView->expandAll();
         if (m_sessionsmodel->rowCount() >0)
         {
-            if (session == Q_NULLPTR)
+            if (currentsession()->isnull())
                 idx = m_sessionsmodel->item(m_sessionsmodel->rowCount()-1)->index();        //! l'index de ce dernier item
             else for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
             {
                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
-                if (itm->item() == session)
+                if (itm)
                 {
-                    idx = itm->index();
-                    break;
+                    SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(itm->item());
+                    if (session)
+                        if (session->id() == currentsession()->id())
+                        {
+                            idx = itm->index();
+                            break;
+                        }
                 }
             }
             wdg_sessionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
@@ -435,17 +439,15 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
         listbinds[CP_IDLIEU_SESSIONOPERATOIRE]  = idsite;
         listbinds[CP_IDUSER_SESSIONOPERATOIRE]  = m_currentchiruser->id();
         if (nwsession == Q_NULLPTR)
-        {
             setcurrentsession(Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds));
-            RemplirTreeSessions(currentsession());
-        }
         else
         {
             ItemsList::update(nwsession, CP_DATE_SESSIONOPERATOIRE, date);
             ItemsList::update(nwsession, CP_IDLIEU_SESSIONOPERATOIRE, idsite);
             ItemsList::update(nwsession, CP_INCIDENT_SESSIONOPERATOIRE, incidenttxtedit->toPlainText());
-            RemplirTreeSessions(nwsession);
         }
+        setcurrentsession(nwsession);
+        RemplirTreeSessions();
         dlg_session->close();
     });
     dlg_session->exec();
@@ -1045,7 +1047,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
         else if (mode == "session")
         {
             ItemsList::update(currentsession(), CP_INCIDENT_SESSIONOPERATOIRE, incident);
-            RemplirTreeSessions(currentsession());
+            RemplirTreeSessions();
         }
         dlg_incident->close();
     });
@@ -1740,26 +1742,58 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
 
 void dlg_programmationinterventions::CalcRangeBox(IOL *iol)
 {
-    if (iol!= Q_NULLPTR)
+    double actualpwr    = wdg_pwrIOLspinbox->value();
+    double actualpwrcyl = wdg_cylIOLspinbox->value();
+    bool pwrdefined = false;
+    bool cyldefined = false;
+    if (iol)
     {
         wdg_pwrIOLspinbox->setMinimum(iol->pwrmin());
         if (iol->pwrmax() > 0.0)
             wdg_pwrIOLspinbox->setMaximum(iol->pwrmax());
         wdg_choixcylwdg->setVisible(iol->istoric());
+        if ((actualpwr > iol->pwrmin() && actualpwr < iol->pwrmax())
+                || (iol->pwrmin() == 0 && iol->pwrmax() ==  0))
+        {
+            pwrdefined = true;
+            wdg_pwrIOLspinbox->setValue(actualpwr);
+        }
+        else
+        {
+            double midvalue = (iol->pwrmin() + iol->pwrmax()) /2;
+            midvalue = Utils::roundToNearestPointFifty(midvalue);
+            if (midvalue != 0.0)
+            {
+                pwrdefined = true;
+                wdg_pwrIOLspinbox->setValue(midvalue);
+            }
+        }
         if (iol->istoric())
         {
             wdg_cylIOLspinbox->setMinimum(iol->cylmin());
             if (iol->cylmax() > 0.0)
                 wdg_cylIOLspinbox->setMaximum(iol->cylmax());
+            if (actualpwrcyl > iol->cylmin() && actualpwr < iol->cylmax())
+                wdg_pwrIOLspinbox->setValue(actualpwrcyl);
+            else
+            {
+                double midvalue = Utils::roundToNearestPointFifty((iol->cylmin() + iol->cylmax()) /2);
+                if (midvalue != 0.0)
+                {
+                    cyldefined = true;
+                    wdg_cylIOLspinbox->setValue(midvalue);
+                }
+            }
         }
     }
-    else
+    if (!pwrdefined)
     {
         wdg_pwrIOLspinbox->setRange(-10.00, 35.00);
         wdg_cylIOLspinbox->setRange(0.0, 10.0);
+        wdg_pwrIOLspinbox->setValue(21.00);
     }
-    wdg_pwrIOLspinbox->setValue(21.00);
-    wdg_cylIOLspinbox->setValue(0.00);
+    if (!cyldefined)
+        wdg_cylIOLspinbox->setValue(0.00);
 }
 
 void dlg_programmationinterventions::FicheListeIOLs()

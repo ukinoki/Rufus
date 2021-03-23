@@ -176,6 +176,9 @@ public:
     //! arrondit un double au multiple de .25 le plus proche
     static double roundToNearestPointTwentyFive(double number)  { return static_cast<double>(std::round(number*4)) / 4; }
 
+    //! arrondit un double au multiple de .50 le plus proche
+    static double roundToNearestPointFifty(double number)  { return static_cast<double>(std::round(number*2)) / 2; }
+
     //! affiche la fiche enchantier
     static void EnChantier(bool avecMsg = false);
 

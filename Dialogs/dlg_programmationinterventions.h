@@ -102,7 +102,7 @@ private:
     void                ChoixSessionFrame();
     void                AfficheInterventionsSession(QModelIndex idx);
     void                EnregistreIncidentSession()             {EnregistreIncident(currentsession());}
-    void                RemplirTreeSessions(SessionOperatoire* session = Q_NULLPTR);
+    void                RemplirTreeSessions();
     void                MenuContextuelSessions();
     void                FicheSession(SessionOperatoire *session = Q_NULLPTR);                                           //! crée la fiche qui permet de modifier ou d'enregistrer une session
     void                ModifSession();
