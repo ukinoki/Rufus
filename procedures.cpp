@@ -4340,7 +4340,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             }
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
-                qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
+                //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
                 connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
@@ -4722,7 +4722,14 @@ void Procedures::RegleRefracteur()
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
         */
-        Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ");
+//        qint32 baud = port->baudRate();
+//        int timetowaitms= int (datas.size()*8*1000 / baud);
+//        timetowaitms += 10;
+//        qDebug() << " DTRbuff - Refracteur = " << QString(DTRbuff).toLocal8Bit();
+//        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
+//        PortRefracteur()->flush();
+//        PortRefracteur()->waitForBytesWritten(1000);
+        Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
     }
 }
 
@@ -5425,6 +5432,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         if (m_mesureSerie == RequestToSendNIDEK())          //! le fronto demande la permission d'envoyer des données
         {
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
+            //PortFronto()->waitForReadyRead(100);
             Utils::writeDatasSerialPort(PortFronto(), SendDataNIDEK("CLM"), " SendDataNIDEK(CLM) - Fronto = ");
             return;
         }
@@ -5753,7 +5761,7 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
 void Procedures::ReponsePortSerie_Autoref(const QString &s)
 {
     m_mesureSerie        = s;
-    //qDebug() << gMesureSerie;
+    //qDebug() << m_mesureSerie;
     bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
                       || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
                       || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"

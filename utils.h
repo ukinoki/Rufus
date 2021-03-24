@@ -191,7 +191,7 @@ public:
     static QImage imagemapFrom(const QJsonValue &val);
 
     //! écriture sur un port série d'un qByteArray
-    static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug);
+    static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
 
 
 };
