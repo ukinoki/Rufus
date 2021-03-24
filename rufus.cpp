@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-03-2021/1");
+    qApp->setApplicationVersion("24-03-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1251,7 +1251,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
-    if (currentpatient() != Q_NULLPTR)
+    if (!currentpatient()->isnull())
     {
         m_lignespaiements->initListeByPatient(currentpatient());
         if (currentacte() != Q_NULLPTR)
@@ -1280,7 +1280,7 @@ void Rufus::AppelPaiementTiers()
         Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
         Dlg_PmtTiers->show();
         connect(Dlg_PmtTiers, &QDialog::finished, this, [=]{
-            if (currentpatient() != Q_NULLPTR)
+            if (!currentpatient()->isnull())
             {
                 m_lignespaiements->initListeByPatient(currentpatient());
                 if (currentacte() != Q_NULLPTR && ui->tabDossier->isVisible())
@@ -2930,7 +2930,7 @@ void Rufus::MenuContextuelMotsCles()
 
 void Rufus::ChoixMenuContextuelMotsCles()
 {
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         return;
     dlg_listemotscles *ListMCDialog = new dlg_listemotscles();
     if (ListMCDialog->exec()==0)
@@ -4163,7 +4163,7 @@ void Rufus::RecettesSpeciales()
 
 void Rufus::RetrouveMontantActe()
 {
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         return;
     //TODO : SQL
     QString Cotation = ui->ActeCotationcomboBox->currentText();
@@ -5439,7 +5439,7 @@ void Rufus::VerifSalleDAttente()
 
 void Rufus::VerifCorrespondants()
 {
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         return;
     int flagcor = Flags::I()->flagCorrespondants();
     if (m_flagcorrespondants < flagcor)
@@ -6300,7 +6300,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 //  Afficher les éléments de la tables Patients
     if (pat == Q_NULLPTR)
         return;
-    if (pat != currentpatient())
+    if (pat->id() != currentpatient()->id())
         setcurrentpatient(pat);
     else
         Datas::I()->patients->loadAll(currentpatient(), Item::Update);
@@ -7428,7 +7428,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
         ListDialogDocs.at(n)->close();
-    if (currentpatient() != Q_NULLPTR)
+    if (!currentpatient()->isnull())
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());
 }
 
@@ -7975,7 +7975,7 @@ int Rufus::RecherchePatient(QString PatNom, QString PatPrenom, QString PatDDN, Q
 // ------------------------------------------------------------------------------------------
 void Rufus::MAJCorrespondant(QObject *obj)
 {
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         return;
     UpComboBox* cbox = dynamic_cast<UpComboBox*>(obj);
     if (cbox == Q_NULLPTR) return;
@@ -8079,7 +8079,7 @@ void Rufus::Monte20Lignes()
 ------------------------------------------------------------------------------------------------------------------------------------*/
 bool Rufus::NavigationConsult(ItemsList::POSITION i)
 {
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         return false;
     if(!AutorDepartConsult(false)) return false;
     //  Afficher les éléments de la tables Actes
@@ -8206,7 +8206,7 @@ void    Rufus::ModeSelectDepuisListe()
     ui->LListepushButton->setEnabled(false);
     ui->LNouvDossierpushButton->setEnabled(true);
     ui->LRecopierpushButton->setEnabled(false);
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         RecaleTableView(currentpatient());
     else if (m_listepatientsmodel->rowCount() > 0)
         RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtTop);
@@ -8473,7 +8473,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
 //    if (proc->FicheRefractionOuverte())
     if (findChildren<dlg_refraction*>().size()>0)
         return;
-    if (currentpatient() == Q_NULLPTR || currentacte() == Q_NULLPTR)
+    if (currentpatient()->isnull() || currentacte() == Q_NULLPTR)
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
@@ -8519,7 +8519,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
 
 void Rufus::SetDatasRefractionKerato()
 {
-    if (currentpatient() == Q_NULLPTR)
+    if (currentpatient()->isnull())
         return;
     QMapIterator<int, Refraction*> itref(*Datas::I()->refractions->refractions());
 
@@ -9799,7 +9799,7 @@ void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ou
                 || TypeMesure == Procedures::MesureFronto
                 || TypeMesure == Procedures::MesureAutoref)
             return;
-    if (currentpatient() == Q_NULLPTR
+    if (currentpatient()->isnull()
             || currentacte() == Q_NULLPTR)
         return;
 
@@ -10069,7 +10069,7 @@ void Rufus::TraiteTCPMessage(QString msg)
             Patient* pat = const_cast<Patient*>(it.value());
             Datas::I()->patients->loadAll(pat, Item::Update);
         }
-        if (currentpatient() != Q_NULLPTR)
+        if (!currentpatient()->isnull())
             if (currentpatient()->id() == msg.toInt())
             {
                 DataBase::I()->loadPatientById(msg.toInt(), currentpatient(), Item::LoadDetails);

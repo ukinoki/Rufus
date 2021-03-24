@@ -41,6 +41,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QSerialPort>
 #include <QTime>
 
 class Utils : public QObject
@@ -188,6 +189,9 @@ public:
     //! gestion des images en QJsonValue
     static QJsonValue jsonValFromImage(const QImage &p);
     static QImage imagemapFrom(const QJsonValue &val);
+
+    //! écriture sur un port série d'un qByteArray
+    static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug);
 
 
 };

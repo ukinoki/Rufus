@@ -1086,3 +1086,14 @@ QImage Utils::imagemapFrom(const QJsonValue &val)
     return QImage::fromData(QByteArray::fromBase64(encoded), "JPG");
 }
 
+void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug)
+{
+    qint32 baud = port->baudRate();
+    int timetowaitms = int (datas.size()*1000 / baud);
+    timetowaitms *= 2;
+    qDebug() << msgdebug << "timetowaitms" << timetowaitms;
+    port->write(datas);
+    port->flush();
+    port->waitForBytesWritten(timetowaitms);
+}
+

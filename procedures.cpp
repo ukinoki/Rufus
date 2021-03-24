@@ -4340,7 +4340,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             }
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
-                //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
+                qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
                 connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
@@ -4539,10 +4539,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         m_portTono       = m_settings->value("Param_Poste/PortTonometre").toString();
     }
     if (msg != "")
-    {
-        qintptr z = 0;
-        ShowMessage::I()->PriorityMessage(msg, z, 3000);
-    }
+        ShowMessage::I()->SplashMessage(msg, 3000);
 
     return false;
 }
@@ -4579,7 +4576,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
         if (m_mesureSerie == SendDataNIDEK("CRL"))
         {
             //Logs::LogToFile("PortSerieRefracteur", "SDN = " + m_mesureSerie + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
-            PortRefracteur()->waitForReadyRead(100);
+            //PortRefracteur()->waitForReadyRead(100);
             RegleRefracteur();
             return;
         }
@@ -4725,9 +4722,7 @@ void Procedures::RegleRefracteur()
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
         */
-        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
-        PortRefracteur()->flush();
-        PortRefracteur()->waitForBytesWritten(1000);
+        Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ");
     }
 }
 
@@ -4879,9 +4874,7 @@ void Procedures::EnvoiDataPatientAuRefracteur(int idpat)
                             + (nompat != ""? " - " : "") + nompat);
             qDebug() << "RTS = " + RequestToSendNIDEK();
             */
-            PortRefracteur()->write(RequestToSendNIDEK());
-            PortRefracteur()->flush();
-            PortRefracteur()->waitForBytesWritten(100);
+            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         }
     }
 }
@@ -5423,7 +5416,7 @@ QSerialPort *Procedures::PortFronto()
 void Procedures::ReponsePortSerie_Fronto(const QString &s)
 {
     m_mesureSerie        = s;
-    //qDebug() << gMesureSerie;
+    //qDebug() << m_mesureSerie;
 
     if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
      || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
@@ -5432,9 +5425,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         if (m_mesureSerie == RequestToSendNIDEK())          //! le fronto demande la permission d'envoyer des données
         {
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
-            PortFronto()->write(SendDataNIDEK("CLM"));
-            PortFronto()->flush();
-            PortFronto()->waitForBytesWritten(100);
+            Utils::writeDatasSerialPort(PortFronto(), SendDataNIDEK("CLM"), " SendDataNIDEK(CLM) - Fronto = ");
             return;
         }
     }
@@ -5448,11 +5439,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         m_flagreglagerefracteur = MesureFronto;
         // NIDEK RT-5100
         if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
-        {
-            PortRefracteur()->write(RequestToSendNIDEK());
-            PortRefracteur()->flush();
-            PortRefracteur()->waitForBytesWritten(100);
-        }
+            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         InsertMesure(MesureFronto);
     }
     emit NouvMesure(MesureFronto);
@@ -5736,9 +5723,7 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
             if (!Datas::I()->mesureautoref->isdataclean())
                 InsertMesure(MesureAutoref);
             //Dans un premier temps, le PC envoie la requête d'envoi de données
-            PortRefracteur()->write(RequestToSendNIDEK());
-            PortRefracteur()->flush();
-            PortRefracteur()->waitForBytesWritten(100);
+            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         }
     }
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
@@ -5797,8 +5782,8 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             QString cmd;
             cmd = (autorefhaskerato? "CRK" : "CRM");     //! CRK ou CRM suivant que les appareils peuvent ou non envoyer la keratométrie
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
-            PortAutoref()->write(SendDataNIDEK(cmd));
-            PortAutoref()->waitForBytesWritten(100);
+            //PortAutoref()->waitForReadyRead(100);
+            Utils::writeDatasSerialPort(PortAutoref(), SendDataNIDEK(cmd), " SendDataNIDEK(cmd) - Autoref = ");
             return;
         }
     }
@@ -5834,9 +5819,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             if (!Datas::I()->mesureautoref->isdataclean())
                 InsertMesure(MesureAutoref);
             //Dans un premier temps, le PC envoie la requête d'envoi de données
-            PortRefracteur()->write(RequestToSendNIDEK());
-            PortRefracteur()->flush();
-            PortRefracteur()->waitForBytesWritten(100);
+            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         }
     }
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
