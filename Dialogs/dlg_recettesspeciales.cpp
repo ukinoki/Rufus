@@ -683,7 +683,7 @@ void dlg_recettesspeciales::MetAJourFiche()
         connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged,                      this,   [=] {EnableModifiepushButton();});
 
         QString Paiement = ui->PaiementcomboBox->currentText();
-        bool modifiable;
+        bool modifiable = false;
 
         switch (m_mode) {
         case Enregistrer:
@@ -700,7 +700,8 @@ void dlg_recettesspeciales::MetAJourFiche()
             {
                 bool ok = true;
                 QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDRECSPEC_ARCHIVESCPT " = " + QString::number(m_idrecetteencours),ok);
-                modifiable = (listlignes.size() == 0);
+                if (ok)
+                    modifiable = (listlignes.size() == 0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
                 ui->CompteWidget    ->setVisible(modifiable);
@@ -712,7 +713,8 @@ void dlg_recettesspeciales::MetAJourFiche()
             {
                 bool ok = true;
                 QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_IDREMISECHQ_AUTRESRECETTES " from " TBL_RECETTESSPECIALES " where " CP_ID_AUTRESRECETTES " = " + QString::number(m_idrecetteencours),ok);
-                modifiable = !(listlignes.at(0).at(0).toInt()>0);
+                if (ok)
+                    modifiable = !(listlignes.at(0).at(0).toInt()>0);
                 ui->MontantlineEdit     ->setEnabled(modifiable);
                 ui->PaiementcomboBox    ->setEnabled(modifiable);
                 ui->BanqChequpComboBox  ->setEnabled(modifiable);
@@ -723,6 +725,17 @@ void dlg_recettesspeciales::MetAJourFiche()
                 ui->BanqueChequewidget  ->setVisible(modifiable);
             }
             break;
+        case Lire:
+            if (Paiement != ESPECES)
+                // on recherche si l'écriture existe dans archivesbanques et si c'est le cas, on ne peut pas modifier le montant
+            {
+                bool ok = true;
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDRECSPEC_ARCHIVESCPT " = " + QString::number(m_idrecetteencours),ok);
+                if (ok)
+                    modifiable = (listlignes.size() == 0);
+                ui->SupprimerupPushButton   ->setEnabled(modifiable);
+            }
+
         default:
             break;
         }
@@ -858,8 +871,6 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
     }
     else
         RegleAffichageFiche(TableVide);
-    ui->SupprimerupPushButton   ->setEnabled(wdg_bigtable->rowCount()>0);
-    ui->ModifierupPushButton    ->setEnabled(wdg_bigtable->rowCount()>0);
 }
 
 void dlg_recettesspeciales::closeEvent(QCloseEvent *event)

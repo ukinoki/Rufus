@@ -1,16 +1,13 @@
 /* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
-
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License,
 or any later version.
-
 RufusAdmin and Rufus are distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -196,7 +193,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         if (currentuser()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
-            if (QDate::currentDate() == docmt->date().date())
+            if (QDate::currentDate() == docmt->datetimeimpression().date())
                 menuImprime->addAction(paction_ModifierReimprimer);
             else
             {   // si on a un texte d'origine, on peut modifier le document - (pour les anciennes versions de Rufus, il n'y avait pas de texte d'origine)
@@ -365,7 +362,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             return;
         }
         wdg_inflabel->setParent(graphview_view);
-        QString sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
+        QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
         wdg_inflabel    ->setText(sstitre);
 
         m_typedoc           = VIDEO;
@@ -694,7 +691,7 @@ void dlg_docsexternes::ImprimeDoc()
         if (currentuser()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         {
-            if (QDate::currentDate() == docmt->date().date())           // si le document a été émis aujourd'hui, on propose de le modifier
+            if (QDate::currentDate() == docmt->datetimeimpression().date())           // si le document a été émis aujourd'hui, on propose de le modifier
                                                                         // dans ce cas, on va créer une copie qu'on va modifier
                                                                         // et on détruira le document d'origine à la fin
             {
@@ -901,7 +898,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     dlg->setFixedSize(200,100);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     dlg->setWindowTitle(tr("Modifier la date"));
-    dateedit->setDate(docmt->date().date());
+    dateedit->setDate(docmt->datetimeimpression().date());
     dateedit->setSelectedSection(QDateTimeEdit::DaySection);
 
     connect(dlg->OKButton,   &QPushButton::clicked, this,   [=]
@@ -1284,9 +1281,6 @@ void dlg_docsexternes::RemplirTreeView()
                                                 |   text = type + sous type document    |   |   text = datetime - pour le tri       |
                                                 |   data["id"] = id                     |   |_______________________________________|
                                                 |_______________________________________|
-
-
-
                 |---------------------------|           TRI PAR TYPE EXAMEN
                 |        typitem            |
                 |    text = type examen     |
@@ -1297,7 +1291,6 @@ void dlg_docsexternes::RemplirTreeView()
                                                 |   text = date + sous type document    |   |   text = datetime - pour le tri       |
                                                 |   data["id"] = id                     |   |_______________________________________|
                                                 |_______________________________________|
-
     */
     QStandardItem * rootNodeDate = m_tripardatemodel->invisibleRootItem();
     QStandardItem * rootNodeType = m_tripartypemodel->invisibleRootItem();
@@ -1308,8 +1301,8 @@ void dlg_docsexternes::RemplirTreeView()
 
     auto completelistes = [&] (QList<QDate> &dates, QStringList &typedocs, DocExterne* doc)
     {
-        if (!dates.contains(doc->date().date()))
-            dates << doc->date().date();
+        if (!dates.contains(doc->datetimeimpression().date()))
+            dates << doc->datetimeimpression().date();
         if (!typedocs.contains(doc->typedoc()))
             typedocs << doc->typedoc();
     };
@@ -1367,11 +1360,11 @@ void dlg_docsexternes::RemplirTreeView()
 
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
-        QString date = doc->date().toString(tr("dd-MM-yyyy"));
+        QString date = doc->datetimeimpression().toString(tr("dd-MM-yyyy"));
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));
-        pitemtridated       = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
-        pitemtridatet       = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
+        pitemtridated       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));
+        pitemtridatet       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));
         QMap<QString, QVariant> data;
         data                .insert("id", QString::number(doc->id()));
         QFont fontitem      = m_font;
@@ -1509,4 +1502,3 @@ void dlg_docsexternes::RemplirTreeView()
             AfficheCustomMenu(docmt);
     });
 }
-

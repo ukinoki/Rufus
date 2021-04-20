@@ -37,7 +37,7 @@ QString DocExterne::textentete() const              { return m_textentete;}
 QString DocExterne::textcorps() const               { return m_textcorps;}
 QString DocExterne::textorigine() const             { return m_textorigine;}
 QString DocExterne::textpied() const                { return m_textpied;}
-QDateTime DocExterne::date() const                  { return m_dateimpression;}
+QDateTime DocExterne::datetimeimpression() const    { return m_dateimpression;}
 
 int DocExterne::compression() const                 { return m_compression;}
 QString DocExterne::lienversfichier() const         { return m_lienversfichier;}

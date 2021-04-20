@@ -1336,7 +1336,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
     if (docmt != Q_NULLPTR)
     {
         iditem = QString::number(docmt->id());
-        date = docmt->date().toString(tr("d-M-yyyy"));
+        date = docmt->datetimeimpression().toString(tr("d-M-yyyy"));
         typedocmt = docmt->typedoc();
         soustypedocmt = docmt->soustypedoc();
         filename = docmt->lienversfichier();

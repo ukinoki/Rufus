@@ -81,7 +81,7 @@ public:
     QString textcorps() const;
     QString textorigine() const;
     QString textpied() const;
-    QDateTime date() const;
+    QDateTime datetimeimpression() const;
     QString lienversfichier() const;
     bool isALD() const;
     int useremetteur() const;

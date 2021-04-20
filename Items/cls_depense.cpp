@@ -41,7 +41,7 @@ QByteArray  Depense::factureblob() const        { return  m_blob;}
 
 Depense::Depense(QJsonObject data, QObject *parent) : Item(parent)
 {
-    m_auxarchives = Depense::NoLoSo;
+    m_auxarchives = Depense::Non;
     m_formatfacture = "";
     m_blob = QByteArray();
     setData(data);
