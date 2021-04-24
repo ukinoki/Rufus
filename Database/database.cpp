@@ -1435,7 +1435,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " left join " TBL_FACTURES " fac on dep." CP_IDFACTURE_DEPENSES " = fac." CP_ID_FACTURES
                         " left join " TBL_RUBRIQUES2035 " rub on dep." CP_REFFISCALE_DEPENSES " = rub." CP_REFFISCALE_2035
                         " WHERE dep." CP_IDUSER_DEPENSES " = " + QString::number(idUser);
-    //qDebug() << req;
+    /*! faire une recherche de l'archive en banque dans cette requête ralentit terriblement la requête ??? - on laisse tomber et on la fait au vol */
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
         return depenses;
@@ -1482,6 +1482,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
         arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
         archivee = ok && arcdata.size() > 0;
     }
+    //qDebug() << "archivee = " << archivee;
     dep->setarchivee(archivee);
 }
 

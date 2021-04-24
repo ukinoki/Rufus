@@ -1401,8 +1401,8 @@ void dlg_depenses::RedessineBigTable()
     else
         RegleAffichageFiche(TableVide);
     connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
-    wdg_supprimeruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
-    wdg_modifieruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
+    //wdg_supprimeruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
+    //wdg_modifieruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
 }
 
 void dlg_depenses::closeEvent(QCloseEvent *event)

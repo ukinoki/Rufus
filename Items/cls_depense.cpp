@@ -41,7 +41,9 @@ QByteArray  Depense::factureblob() const        { return  m_blob;}
 
 Depense::Depense(QJsonObject data, QObject *parent) : Item(parent)
 {
-    m_auxarchives = Depense::Non;
+    m_auxarchives = Depense::NoLoSo;
+    /*! faire une recherche de l'archive en banque au moment de l'établissement de la liste des dépenses
+     *  ralentit terriblement la requête (???) - on laisse tomber et on le fait au vol */
     m_formatfacture = "";
     m_blob = QByteArray();
     setData(data);
