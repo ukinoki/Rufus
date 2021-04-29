@@ -1,7 +1,7 @@
 language: cpp
 compiler: gcc
 sudo: require
-dist: trusty
+dist: bionic
 os: linux
  
 before_install:
