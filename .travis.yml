@@ -15,7 +15,7 @@ install:
   - sudo apt-get -y install qtmultimedia5-dev
   - source /opt/qt511/bin/qt511-env.sh
   - sudo apt-get -y install gcc-7 g++-7 cmake libyelp-dev yelp-tools libsecret-1-dev libnautilus-extension-dev libpulse-dev libpulse-mainloop-glib0       
-  - sudo apt-get -y install libopenjpeg-dev libopenjp2-7-dev libnss3-dev libpoppler-glib-dev libpoppler-qt5-dev libgtk2.0-dev
+  - sudo apt-get -y install libopenjp2-7-dev libnss3-dev libpoppler-glib-dev libpoppler-qt5-dev libgtk2.0-dev
   - wget https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz && tar -xf poppler-data-0.4.9.tar.gz
   - pushd poppler-data-0.4.9 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7 && sudo make install && popd
   - wget https://poppler.freedesktop.org/poppler-0.74.0.tar.xz && tar -xf poppler-0.74.0.tar.xz  
