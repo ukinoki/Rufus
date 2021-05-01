@@ -34,7 +34,7 @@ script:
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - rm ./linuxdeployqt-continuous-x86_64.AppImage
-  - bash upload.sh ./*.AppImage
+  - bash -u "ukinoki" upload.sh ./*.AppImage
  
 branches:
   only:
