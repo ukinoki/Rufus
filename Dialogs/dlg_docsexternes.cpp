@@ -811,7 +811,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
             {
                 if (docmt->idrefraction() > 0)
                     Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
-                Datas::I()->docsexternes->SupprimeDocumentExterne(docmt);
+                m_docsexternes->SupprimeDocumentExterne(docmt);
             }
             ActualiseDocsExternes();
             QModelIndex idx = getIndexFromId(m_model, idimpr);
@@ -1022,7 +1022,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         }
         if (docmt->idrefraction() > 0)
             Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
-        Datas::I()->docsexternes->SupprimeDocumentExterne(docmt);
+        m_docsexternes->SupprimeDocumentExterne(docmt);
         RemplirTreeView();
         wdg_listdocstreewiew->expandAll();
         if (idaafficher != "")
@@ -1361,6 +1361,7 @@ void dlg_docsexternes::RemplirTreeView()
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
         QString date = doc->datetimeimpression().toString(tr("dd-MM-yyyy"));
+        //qDebug() << date << doc->titre();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));
         pitemtridated       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));

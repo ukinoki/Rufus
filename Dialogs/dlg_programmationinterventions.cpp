@@ -704,6 +704,7 @@ void dlg_programmationinterventions::SupprimeSession()
     if (session)
         Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(session);
     currentsession()->resetdatas();
+    RemplirTreeSessions();
 }
 
 void dlg_programmationinterventions::MenuContextuelSessions()
