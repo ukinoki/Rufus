@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("30-06-2021/1");
+    qApp->setApplicationVersion("07-06-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -136,7 +136,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     t_timerVerifImportateurDocs  = new QTimer(this);     /* vérifie que le poste importateur des documents externes est toujours là */
     t_timerExportDocs            = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base */            //! pas utilisé si rufusadmin est  utilisé
     t_timerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
-    t_timerImportDocsExternes    = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base */        //! pas utilisé si rufusadmin est  utilisé
     t_timerVerifVerrou           = new QTimer(this);     /* utilisé en  l'absence de TCPServer pour vérifier l'absence d'utilisateurs déconnectés dans la base*/    //! pas utilisé si rufusadmin est  utilisé
     t_timerSupprDocs             = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer */
 
@@ -153,14 +152,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         t_timerSalDat                ->start(10000);
         t_timerCorrespondants        ->start(60000);
         t_timerActualiseDocsExternes ->start(60000);// "toutes les 60 secondes"
-        t_timerImportDocsExternes    ->start(60000);// "toutes les 60 secondes"
         t_timerVerifMessages         ->start(60000);// "toutes les 60 secondes"
     }
     else
     {
         t_timerExportDocs            ->start(10000);// "toutes les 10 secondes"
         t_timerActualiseDocsExternes ->start(10000);// "toutes les 10 secondes"
-        t_timerImportDocsExternes    ->start(10000);// "toutes les 10 secondes"
         t_timerSupprDocs             ->start(60000);// "toutes les 60 secondes"
         t_timerVerifMessages         ->start(10000);// "toutes les 10 secondes"
         if (!m_utiliseTCP)
@@ -182,7 +179,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         connect (t_timerVerifImportateurDocs,&QTimer::timeout,  this,   &Rufus::VerifImportateur);
         connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   [=] { if (isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant) VerifVerrouDossier();} );
         connect (t_timerVerifMessages,       &QTimer::timeout,  this,   &Rufus::VerifMessages);
-        connect (t_timerImportDocsExternes,  &QTimer::timeout,  this,   &Rufus::ImportDocsExternes);
+        //connect (t_timerImportDocsExternes,  &QTimer::timeout,  this,   &Rufus::ImportDocsExternes);
         if (db->ModeAccesDataBase() != Utils::Distant)
             connect(t_timerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
@@ -266,7 +263,38 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! 16 - suppression des anciens fichiers de log
     Logs::EpureLogs();
- }
+
+    //! 17 - surveillance du dossier d'imagerie
+    if (!m_utiliseTCP)
+    {
+        QString req =   "select distinct list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
+                        " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
+        //qDebug()<< req;
+        QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
+        if (m_ok && listdocs.size()>0)
+        {
+            for (int itr=0; itr<listdocs.size(); itr++)
+            {
+                QString nomdossier = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
+                m_filewatcher.addPath(nomdossier);
+                if (QDir(nomdossier).exists())
+                {
+                    QString titreexamen = listdocs.at(itr).at(0).toString();
+                    QString nomappareil = listdocs.at(itr).at(1).toString();
+                    m_listeappareils << (QStringList() << titreexamen << nomappareil << nomdossier);
+                    qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
+                    ImportNouveauDocExterne(nomdossier);
+                }
+                else
+                    qDebug() << "le dossier " + nomdossier + " n'existe pas";
+            }
+        }
+        // Surveillance du dossier d'imagerie ----------------------------------------------------------------------------------
+        if (m_listeappareils.size() > 0)
+        connect(&m_filewatcher,                                          &QFileSystemWatcher::directoryChanged,                   this,   [=](QString nomfile) { ImportNouveauDocExterne(nomfile); } );
+
+    }
+}
 
 Rufus::~Rufus()
 {
@@ -1401,7 +1429,6 @@ void Rufus::ConnectTimers(bool a)
             t_timerSalDat                ->start(10000);
             t_timerCorrespondants        ->start(60000);
             t_timerActualiseDocsExternes ->start(60000);
-            t_timerImportDocsExternes    ->start(60000);
             t_timerVerifMessages         ->start(60000);
         }
         else
@@ -1414,7 +1441,6 @@ void Rufus::ConnectTimers(bool a)
             t_timerVerifImportateurDocs  ->start(60000);
             t_timerExportDocs            ->start(10000);
             t_timerActualiseDocsExternes ->start(10000);
-            t_timerImportDocsExternes    ->start(10000);
             t_timerVerifMessages         ->start(10000);
             t_timerSupprDocs             ->start(60000);
         }
@@ -1430,7 +1456,6 @@ void Rufus::ConnectTimers(bool a)
             connect (t_timerVerifVerrou,            &QTimer::timeout,   this,   [=] { if (isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant) VerifVerrouDossier();} );
             connect (t_timerVerifMessages,          &QTimer::timeout,   this,   &Rufus::VerifMessages);
             connect (t_timerVerifImportateurDocs,   &QTimer::timeout,   this,   &Rufus::VerifImportateur);
-            connect (t_timerImportDocsExternes,     &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
             if (db->ModeAccesDataBase() != Utils::Distant)
                 connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         }
@@ -1443,7 +1468,6 @@ void Rufus::ConnectTimers(bool a)
         t_timerCorrespondants        ->disconnect();
         t_timerExportDocs            ->disconnect();
         t_timerActualiseDocsExternes ->disconnect();
-        t_timerImportDocsExternes    ->disconnect();
         t_timerVerifMessages         ->disconnect();
         t_timerPosteConnecte          ->disconnect();
         t_timerVerifVerrou           ->disconnect();
@@ -1453,7 +1477,6 @@ void Rufus::ConnectTimers(bool a)
         t_timerCorrespondants        ->stop();
         t_timerExportDocs            ->stop();
         t_timerActualiseDocsExternes ->stop();
-        t_timerImportDocsExternes    ->stop();
         t_timerVerifMessages         ->stop();
         t_timerPosteConnecte         ->stop();
         t_timerVerifVerrou           ->stop();
@@ -2369,17 +2392,8 @@ void Rufus::ExporteDocs()
     }
 }
 
-void Rufus::ImportDocsExternes()
+void Rufus::ImportNouveauDocExterne(QString nomdossier)
 {
-//    m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
-//    if (m_pathdirstockageimagerie != "")
-//    {
-//        if (!m_filewatcher)
-//        {
-//            m_filewatcher = new QFileSystemWatcher(QStringList() << m_pathdirstockageimagerie);
-////            connect(m_filewatcher, &QFileSystemWatcher::directoryChanged, this, [=] {RapatrieDocumentsThread(QList<QVariantList>());});
-//        }
-//    }
     if (isPosteImport())
     {
         if (!m_importdocsexternesthread)
@@ -2387,12 +2401,26 @@ void Rufus::ImportDocsExternes()
             m_importdocsexternesthread = new ImportDocsExternesThread();
             connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
         }
-        QString req = "select distinct list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                      " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
-        //qDebug()<< req;
-        QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
-        if (m_ok && listdocs.size()>0 && m_importdocsexternesthread != Q_NULLPTR)
-            m_importdocsexternesthread->RapatrieDocumentsThread(listdocs);
+        for (int itr=0; itr<m_listeappareils.size(); itr++)
+        {
+            if (m_listeappareils.at(itr).at(2) == nomdossier)
+            {
+                QString titreexamen = m_listeappareils.at(itr).at(0);
+                QString nomappareil = m_listeappareils.at(itr).at(1);
+                QDir dossier = QDir(nomdossier);
+                QStringList filters, listnomsfiles;
+                filters << "*.pdf" << "*.jpg";
+                listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
+                for (int it=0; it<listnomsfiles.size(); it++)
+                {
+                    QString nomfile = listnomsfiles.at(it);
+                    //qDebug() << "l'appareil " + nomappareil + " vient d'émettre le  " + titreexamen + " dans le fichier " + nomdossier+ "/" + nomfile;
+                    QStringList newdoclist = m_listeappareils.at(itr);
+                    //qDebug() << newdoclist.at(0) << newdoclist.at(1) << newdoclist.at(2);
+                    m_importdocsexternesthread->RapatrieDocumentsThread(newdoclist);
+                }
+            }
+        }
     }
 }
 

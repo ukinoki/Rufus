@@ -109,7 +109,8 @@ private:
     QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
     QAction         *actionIOLs                     = Q_NULLPTR;
     QAction         *actionTiers                    = Q_NULLPTR;
-    QFileSystemWatcher              *m_filewatcher; /*! le filesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
+    QFileSystemWatcher              m_filewatcher;                  /*! le filesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
+    QList<QStringList>              m_listeappareils;               /*! liste les noms des appareils, le titre des examens émis et leur dossier de destination */
 
     pyxinterf                       *m_pyxi;     // CZ001
 
@@ -144,9 +145,7 @@ private:
     void        FiltreAccueil(int idx);
     void        FiltreSalleDAttente();
     void        GestionComptes();
-    void        ImportDocsExternes();                           /*! vérifie si le poste est le poste responsable de l'import des documents d'imagerie et si oui
-                                                                lance le thread impotrtdocsexternesthread qui va importer les documents d'imagerie
-                                                                enregistrés sur les dossiers d'échanges par les appareils d'imagerie*/
+    void        ImportNouveauDocExterne(QString nomdossier);         /*! importe le document d'imagerie qui vient d'être émis par l'appareil nomapp*/
     void        VerifImportateur();                             /*! vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier(Patient *pat);
     void        ImprimeListPatients(QVariant var);
@@ -244,7 +243,7 @@ private:
     QSortFilterProxyModel   *m_prenomfiltersortmodel        = Q_NULLPTR;
     QTabBar                 *wdg_salledattenteTab, *wdg_accueilTab;
     QTimer                  *t_timerSalDat, *t_timerCorrespondants, *t_timerPosteConnecte, *t_timerVerifVerrou, *t_timerSupprDocs, *t_timerVerifImportateurDocs;
-    QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerImportDocsExternes, *t_timerVerifMessages;
+    QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerVerifMessages;
 
     Patient*                dossierpatientaouvrir() const           { return Datas::I()->patients->dossierpatientaouvrir(); }
     void                    setdossierpatientaouvrir(Patient *pat)  { Datas::I()->patients->setdossierpatientaouvrir(pat); }

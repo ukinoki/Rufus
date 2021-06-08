@@ -251,7 +251,7 @@ class ImportDocsExternesThread : public QObject
     Q_OBJECT
 public:
     explicit                    ImportDocsExternesThread();
-    void                        RapatrieDocumentsThread(QList<QVariantList> listdocs = QList<QVariantList>()) ;
+    void                        RapatrieDocumentsThread(QStringList newdoclist = QStringList()) ;
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
 signals:
@@ -264,7 +264,6 @@ private:
 
     bool                        m_compressiondocs;
     bool                        m_ok;
-    QList<QVariantList>         m_listexams = QList<QVariantList>();
     QString                     m_pathdirstockageprovisoire;
     QString                     m_pathdirstockageimagerie;
     QString                     m_pathdirOKtransfer;
@@ -279,7 +278,6 @@ private:
 
     bool                        DefinitDossiersImagerie();
     void                        EchecImport(QString txt);
-    QList<QVariantList>         SetListeExamens();
 };
 
 #endif // IMPORTDOCSEXTERNESTHREAD_H
