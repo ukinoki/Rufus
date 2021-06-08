@@ -282,17 +282,16 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                     QString titreexamen = listdocs.at(itr).at(0).toString();
                     QString nomappareil = listdocs.at(itr).at(1).toString();
                     m_listeappareils << (QStringList() << titreexamen << nomappareil << nomdossier);
-                    qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
+                    //qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
                     ImportNouveauDocExterne(nomdossier);
                 }
-                else
-                    qDebug() << "le dossier " + nomdossier + " n'existe pas";
+                //else
+                //    qDebug() << "le dossier " + nomdossier + " n'existe pas";
             }
         }
         // Surveillance du dossier d'imagerie ----------------------------------------------------------------------------------
         if (m_listeappareils.size() > 0)
         connect(&m_filewatcher,                                          &QFileSystemWatcher::directoryChanged,                   this,   [=](QString nomfile) { ImportNouveauDocExterne(nomfile); } );
-
     }
 }
 
