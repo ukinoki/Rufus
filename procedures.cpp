@@ -3582,6 +3582,16 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     return true;
 }
 
+//! la liste des appareils d'imagerie
+QList<QStringList> Procedures::listeappareils()
+{
+    return m_listeappareils;
+}
+void Procedures::setlisteappareils (QList<QStringList> list)
+{
+    m_listeappareils = list;
+}
+
 /*!
  * \brief Procedures::SetUserAllData(User *usr)
  * Charge les données bancaires d'un utilisateur

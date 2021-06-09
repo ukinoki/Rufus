@@ -17,6 +17,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "utils.h"
 
+Utils* Utils::instance =  Q_NULLPTR;
+Utils* Utils::I()
+{
+    if( !instance )
+        instance = new Utils();
+    return instance;
+}
+
+
 /*
  * Initialization des variables static const
 */
@@ -668,7 +677,7 @@ QString Utils::PrefixePlus(double Dioptr)                          // convertit 
 }
 
 /*! ++++ PLUS UTILISE - trop sensible aux choix de jeu de caractère et marche mal avec les blobs
- * \brief Procedures::DecomposeScriptSQL(QString nomficscript)
+ * \brief Utils::DecomposeScriptSQL(QString nomficscript)
  * Cette fonction va décomposer un script SQL en une suite d'instructions SQL utilisables par Qt
  * \param l'emplacement du fichier à traiter
  * \return une QStringList avec la liste des instructions
@@ -1099,4 +1108,3 @@ void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString m
     port->flush();
     port->waitForBytesWritten(timetowaitms);
 }
-

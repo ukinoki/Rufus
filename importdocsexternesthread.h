@@ -251,7 +251,8 @@ class ImportDocsExternesThread : public QObject
     Q_OBJECT
 public:
     explicit                    ImportDocsExternesThread();
-    void                        RapatrieDocumentsThread(QStringList newdoc = QStringList()) ;
+    void                        RapatrieDocumentsThread(QStringList newdoc) ;
+                                /*! la QStringList newdoc contient 2 éléments: le nom de l'appareil qui a émis l'examen et le nom du fichier émis */
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
 signals:

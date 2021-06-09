@@ -47,6 +47,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Utils : public QObject
 {
     Q_OBJECT
+private:
+    static Utils*      instance;
 public:
     enum Day {
                 Lundi       = 0x1,
@@ -65,6 +67,8 @@ public:
     enum ModeAcces { Poste = 0x1, ReseauLocal = 0x2, Distant = 0x4};     Q_ENUM(ModeAcces)
     enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum Period {Debut, Fin};
+
+    static Utils   *I();
 
     static QRegExp const rgx_rx;
     static QRegExp const rgx_AlphaNumeric;
@@ -193,6 +197,12 @@ public:
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
 
+    //! laliste des appareils d'imageire contenant pour chaque appareil: le titre de l'examen, le nom de l'appareil, le dossier de stockage des images émises
+private:
+    QList<QStringList> m_listeappareils;
+public:
+    void setlisteappareils (QList<QStringList> list) {m_listeappareils = list;};
+    QList<QStringList> listeappareils() {return m_listeappareils;};
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)

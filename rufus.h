@@ -110,7 +110,6 @@ private:
     QAction         *actionIOLs                     = Q_NULLPTR;
     QAction         *actionTiers                    = Q_NULLPTR;
     QFileSystemWatcher              m_filewatcher;                  /*! le filesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
-    QList<QStringList>              m_listeappareils;               /*! liste les noms des appareils, le titre des examens émis et leur dossier de destination */
 
     pyxinterf                       *m_pyxi;     // CZ001
 

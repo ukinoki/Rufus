@@ -242,7 +242,12 @@ public:
 /*! --------------------------------------------------------------------------------------------------------
 * l'import des documents
 * -------------------------------------------------------------------------------------------------------- */
+    //! la liste des appareils d'imagerie
+private:
+    QList<QStringList>      m_listeappareils;               /*! liste par appareil le titre de l'examen, le nom de l'appareil et le dossier de destination */
 public:
+    QList<QStringList>      listeappareils ();
+    void                    setlisteappareils (QList<QStringList> list);
     QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
     void                    setPosteImportDocs(bool a = true);

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("07-06-2021/1");
+    qApp->setApplicationVersion("09-06-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -267,6 +267,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 17 - surveillance du dossier d'imagerie
     if (!m_utiliseTCP)
     {
+        QList<QStringList> listappareils = QList<QStringList>();
+        proc->setlisteappareils(listappareils);
         QString req =   "select distinct list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
                         " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
         //qDebug()<< req;
@@ -275,14 +277,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         {
             for (int itr=0; itr<listdocs.size(); itr++)
             {
-                QString nomdossier = proc->pathDossierDocuments(listdocs.at(itr).at(1).toString(), db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
+                QString nomappareil = listdocs.at(itr).at(1).toString();
+                QString nomdossier = proc->pathDossierDocuments(nomappareil, db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
                 m_filewatcher.addPath(nomdossier);
                 if (QDir(nomdossier).exists())
                 {
                     QString titreexamen = listdocs.at(itr).at(0).toString();
-                    QString nomappareil = listdocs.at(itr).at(1).toString();
-                    m_listeappareils << (QStringList() << titreexamen << nomappareil << nomdossier);
+                    listappareils << (QStringList() << titreexamen << nomappareil << nomdossier);
                     //qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
+                    proc->setlisteappareils(listappareils);
                     ImportNouveauDocExterne(nomdossier);
                 }
                 //else
@@ -290,8 +293,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
         }
         // Surveillance du dossier d'imagerie ----------------------------------------------------------------------------------
-        if (m_listeappareils.size() > 0)
-        connect(&m_filewatcher,                                          &QFileSystemWatcher::directoryChanged,                   this,   [=](QString nomfile) { ImportNouveauDocExterne(nomfile); } );
+        if (proc->listeappareils().size() > 0)
+            connect(&m_filewatcher,     &QFileSystemWatcher::directoryChanged,  this,   [=](QString nomfile) { ImportNouveauDocExterne(nomfile); } );
     }
 }
 
@@ -2400,23 +2403,24 @@ void Rufus::ImportNouveauDocExterne(QString nomdossier)
             m_importdocsexternesthread = new ImportDocsExternesThread();
             connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
         }
-        for (int itr=0; itr<m_listeappareils.size(); itr++)
+        for (int itr=0; itr<proc->listeappareils().size(); itr++)
         {
-            if (m_listeappareils.at(itr).at(2) == nomdossier)
+            if (proc->listeappareils().at(itr).at(2) == nomdossier)
             {
-                QString titreexamen = m_listeappareils.at(itr).at(0);
-                QString nomappareil = m_listeappareils.at(itr).at(1);
-                QDir dossier = QDir(nomdossier);
+                QString nomappareil = proc->listeappareils().at(itr).at(1);
                 QStringList filters, listnomsfiles;
                 filters << "*.pdf" << "*.jpg";
                 listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
                 for (int it=0; it<listnomsfiles.size(); it++)
                 {
                     QString nomfile = listnomsfiles.at(it);
-                    //qDebug() << "l'appareil " + nomappareil + " vient d'émettre le  " + titreexamen + " dans le fichier " + nomdossier+ "/" + nomfile;
-                    QStringList newdoclist = m_listeappareils.at(itr);
-                    //qDebug() << newdoclist.at(0) << newdoclist.at(1) << newdoclist.at(2);
-                    m_importdocsexternesthread->RapatrieDocumentsThread(newdoclist);
+                    if (!nomfile.contains("smbtest"))
+                    {
+                        //qDebug() << "l'appareil " + nomappareil + " vient d'émettre le  " + titreexamen + " dans le fichier " + nomdossier+ "/" + nomfile;
+                        QStringList newdoclist = QStringList() << nomappareil << nomfile;
+                        //qDebug() << newdoclist.at(0) << newdoclist.at(1) << newdoclist.at(2);
+                        m_importdocsexternesthread->RapatrieDocumentsThread(newdoclist);
+                    }
                 }
             }
         }
