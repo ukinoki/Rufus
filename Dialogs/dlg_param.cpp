@@ -169,11 +169,19 @@ dlg_param::dlg_param(QWidget *parent) :
     ListPortsCOM << "-" << "COM1" << "COM2" << "COM3" << "COM4";
     ui->PortFrontoupComboBox    ->insertItems(0,ListPortsCOM);
     ui->PortFrontoupComboBox    ->addItem("Box");
+    ui->PortFrontoupComboBox    ->addItem(RESEAU);
     ui->PortAutorefupComboBox   ->insertItems(0,ListPortsCOM);
     ui->PortAutorefupComboBox   ->addItem("Box");
     ui->PortAutorefupComboBox   ->addItem(RESEAU);
     ui->PortRefracteurupComboBox->insertItems(0,ListPortsCOM);
+    ui->PortRefracteurupComboBox->addItem(RESEAU);
     ui->PortTonometreupComboBox ->insertItems(0,ListPortsCOM);
+    ui->PortTonometreupComboBox ->addItem(RESEAU);
+
+    ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
+    ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
+    ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(ui->NetworkPathRefracteurupLineEdit->text());
+    ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
 
     QString tip = tr("Indiquez ici l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
     ui->PosteStockageupLabel        ->setImmediateToolTip(tip);
@@ -230,6 +238,10 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->RefracteurupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/Refracteur").toString());
     ui->PortRefracteurupComboBox    ->setCurrentText(proc->settings()->value("Param_Poste/PortRefracteur").toString());
     ui->PortTonometreupComboBox     ->setCurrentText(proc->settings()->value("Param_Poste/PortTonometre").toString());
+    EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox,       ui->FrontoupComboBox->currentIndex());
+    EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox,      ui->AutorefupComboBox->currentIndex());
+    EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox,   ui->RefracteurupComboBox->currentIndex());
+    EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox,    ui->TonometreupComboBox->currentIndex());
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
@@ -741,18 +753,18 @@ void dlg_param::ClearCom(UpComboBox* box, int a)
     if (a==0)
     {
         if (box==ui->AutorefupComboBox)
-            ui->PortAutorefupComboBox->setCurrentIndex(0);
+            ui->PortAutorefupComboBox   ->setCurrentIndex(0);
         if (box==ui->FrontoupComboBox)
-            ui->PortFrontoupComboBox->setCurrentIndex(0);
+            ui->PortFrontoupComboBox    ->setCurrentIndex(0);
         if (box==ui->TonometreupComboBox)
-            ui->PortTonometreupComboBox->setCurrentIndex(0);
+            ui->PortTonometreupComboBox ->setCurrentIndex(0);
         if (box==ui->RefracteurupComboBox)
             ui->PortRefracteurupComboBox->setCurrentIndex(0);
     }
-    ui->PortAutorefupComboBox->setEnabled(ui->AutorefupComboBox->currentIndex()>0);
-    ui->PortFrontoupComboBox->setEnabled(ui->FrontoupComboBox->currentIndex()>0);
+    ui->PortAutorefupComboBox   ->setEnabled(ui->AutorefupComboBox->currentIndex()>0);
+    ui->PortFrontoupComboBox    ->setEnabled(ui->FrontoupComboBox->currentIndex()>0);
     ui->PortRefracteurupComboBox->setEnabled(ui->RefracteurupComboBox->currentIndex()>0);
-    ui->PortTonometreupComboBox->setEnabled(ui->TonometreupComboBox->currentIndex()>0);
+    ui->PortTonometreupComboBox ->setEnabled(ui->TonometreupComboBox->currentIndex()>0);
 }
 
 void dlg_param::ConnectTimers(bool a)
@@ -2093,6 +2105,10 @@ void dlg_param::ConnectSignals()
     connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,              this,   &dlg_param::RestaureBase);
     connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,              proc,   &Procedures::ReinitBase);
     connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,              this,   &dlg_param::EffaceProgrammationDataBackup);
+    connect(ui->PortFrontoupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox, a);});
+    connect(ui->PortAutorefupComboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox, a);});
+    connect(ui->PortRefracteurupComboBox,           QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox, a);});
+    connect(ui->PortTonometreupComboBox,            QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox, a);});
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -2166,6 +2182,32 @@ void dlg_param::EnableHorsNomenclature(bool enable)
     wdg_HNcotationswdgbuttonframe              ->setEnabled(autormodif);
     wdg_HNcotationswdgbuttonframe->wdg_modifBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
     wdg_HNcotationswdgbuttonframe->wdg_moinsBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
+}
+
+void dlg_param::EnableNetworkAppareilRefraction(UpComboBox *combo, int idx)
+{
+    QString currtext = combo->itemText(idx);
+    bool a = (currtext == RESEAU);
+    if (combo == ui->PortFrontoupComboBox)
+    {
+        ui->NetworkPathFrontoupLineEdit->setVisible(a);
+        ui->NetworkPathFrontoupPushButton->setVisible(a);
+    }
+    else if (combo == ui->PortAutorefupComboBox)
+    {
+        ui->NetworkPathAutorefupLineEdit->setVisible(a);
+        ui->NetworkPathAutorefupPushButton->setVisible(a);
+    }
+    else if (combo == ui->PortRefracteurupComboBox)
+    {
+        ui->NetworkPathRefracteurupLineEdit->setVisible(a);
+        ui->NetworkPathRefracteurupPushButton->setVisible(a);
+    }
+    else if (combo == ui->PortTonometreupComboBox)
+    {
+        ui->NetworkPathTonoupLineEdit->setVisible(a);
+        ui->NetworkPathTonoupPushButton->setVisible(a);
+    }
 }
 
 void dlg_param::EnableWidgContent(QWidget *widg, bool a)

@@ -115,6 +115,7 @@ private:
     void                DossierClesSSL();
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);
+    void                EnableNetworkAppareilRefraction(UpComboBox *combo, int idx);
     void                EnableOKModifPosteButton();
     void                EnregistreAppareil();
     void                EnregistreEmplacementServeur(int);
