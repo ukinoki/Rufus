@@ -45,6 +45,7 @@ public:
     bool                CotationsModifiees() const;
     bool                DataUserModifiees() const;
     QLineEdit           *wdg_CPDefautlineEdit, *wdg_VilleDefautlineEdit;
+    enum Mesure {Fronto, Autoref, Refracteur, Tono};      Q_ENUM(Mesure)
 
 private:
     Procedures              *proc                   = Procedures::I();
@@ -128,6 +129,7 @@ private:
     void                MAJActesCCAM(QWidget *widg, QString txt = "");
     void                MAJAssocCCAM(QWidget *widg, QString txt = "");
     void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
+    void                ModifDirMesure(enum Mesure mesure);
     void                ModifMDPAdmin();
     void                ParamMotifs();
     void                RegleAssocBoutons(QWidget *widg);

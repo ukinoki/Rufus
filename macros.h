@@ -978,7 +978,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define COM3                        "COM3"
 #define COM4                        "COM4"
 #define BOX                         "Box"
-#define RESEAU                      "Réseau"
+#define RESEAU                      "Network"
 
 //mots utilisés en macros dans les documents à imprimer
 #define STR_TITRUSER            "TITREUSER"

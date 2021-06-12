@@ -178,10 +178,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortTonometreupComboBox ->insertItems(0,ListPortsCOM);
     ui->PortTonometreupComboBox ->addItem(RESEAU);
 
-    ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
-    ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
-    ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(ui->NetworkPathRefracteurupLineEdit->text());
-    ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
 
     QString tip = tr("Indiquez ici l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
     ui->PosteStockageupLabel        ->setImmediateToolTip(tip);
@@ -230,18 +226,33 @@ dlg_param::dlg_param(QWidget *parent) :
             Listapp << listtono.at(i).at(0).toString() + " " + listtono.at(i).at(1).toString();
     ui->TonometreupComboBox->insertItems(0,Listapp);
 
+    ui->FrontoupComboBox            ->setCurrentText(proc->settings()->value("Param_Poste/Fronto").toString());
+    ui->PortFrontoupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/PortFronto").toString());
+    if (ui->PortFrontoupComboBox->currentText() == RESEAU)
+        ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value("Param_Poste/PortFronto/Reseau").toString());
+    EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox,       ui->PortFrontoupComboBox->currentIndex());
+    ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
+
     ui->AutorefupComboBox           ->setCurrentText(proc->settings()->value("Param_Poste/Autoref").toString());
     ui->PortAutorefupComboBox       ->setCurrentText(proc->settings()->value("Param_Poste/PortAutoref").toString());
-    ui->FrontoupComboBox            ->setCurrentText(proc->settings()->value("Param_Poste/Fronto").toString());
-    ui->TonometreupComboBox         ->setCurrentText(proc->settings()->value("Param_Poste/Tonometre").toString());
-    ui->PortFrontoupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/PortFronto").toString());
+    if (ui->PortAutorefupComboBox->currentText() == RESEAU)
+        ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value("Param_Poste/PortAutoref/Reseau").toString());
+    EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox,      ui->PortAutorefupComboBox->currentIndex());
+    ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
+
     ui->RefracteurupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/Refracteur").toString());
     ui->PortRefracteurupComboBox    ->setCurrentText(proc->settings()->value("Param_Poste/PortRefracteur").toString());
+    if (ui->PortRefracteurupComboBox->currentText() == RESEAU)
+        ui->NetworkPathRefracteurupLineEdit->setText(proc->settings()->value("Param_Poste/PortRefracteur/Reseau").toString());
+    EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox,   ui->PortRefracteurupComboBox->currentIndex());
+    ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(ui->NetworkPathRefracteurupLineEdit->text());
+
+    ui->TonometreupComboBox         ->setCurrentText(proc->settings()->value("Param_Poste/Tonometre").toString());
     ui->PortTonometreupComboBox     ->setCurrentText(proc->settings()->value("Param_Poste/PortTonometre").toString());
-    EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox,       ui->FrontoupComboBox->currentIndex());
-    EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox,      ui->AutorefupComboBox->currentIndex());
-    EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox,   ui->RefracteurupComboBox->currentIndex());
-    EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox,    ui->TonometreupComboBox->currentIndex());
+    if (ui->PortTonometreupComboBox->currentText() == RESEAU)
+        ui->NetworkPathTonoupLineEdit->setText(proc->settings()->value("Param_Poste/PortTonometre/Reseau").toString());
+    EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox,    ui->PortTonometreupComboBox->currentIndex());
+    ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
@@ -1698,6 +1709,62 @@ void dlg_param::ModifDirBackup()
                                            && m_parametres->heurebkup() != QTime());
 }
 
+void dlg_param::ModifDirMesure(Mesure mesure)
+{
+    QString dirmesureorigin ("");
+    QString dirmesure ("");
+    switch (mesure) {
+    case Fronto:
+        dirmesureorigin   = ui->DirBackupuplineEdit->text();
+        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du frontofocomètre\n"
+                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
+        if (dirmesure.contains(" "))
+            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+            return;
+
+        ui->NetworkPathFrontoupLineEdit ->setText(dirmesure);
+        ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(dirmesure);
+        break;
+    case Autoref:
+        dirmesureorigin   = ui->DirBackupuplineEdit->text();
+        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'autorefractomètre\n"
+                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
+        if (dirmesure.contains(" "))
+            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+            return;
+
+        ui->NetworkPathAutorefupLineEdit ->setText(dirmesure);
+        ui->NetworkPathAutorefupLineEdit ->setImmediateToolTip(dirmesure);
+        break;
+    case Refracteur:
+        dirmesureorigin   = ui->DirBackupuplineEdit->text();
+        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du refracteur\n"
+                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
+        if (dirmesure.contains(" "))
+            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+            return;
+
+        ui->NetworkPathRefracteurupLineEdit ->setText(dirmesure);
+        ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(dirmesure);
+        break;
+    case Tono:
+        dirmesureorigin   = ui->DirBackupuplineEdit->text();
+        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du tonomètre\n"
+                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
+        if (dirmesure.contains(" "))
+            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+            return;
+
+        ui->NetworkPathTonoupLineEdit ->setText(dirmesure);
+        ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(dirmesure);
+        break;
+    }
+}
+
 void dlg_param::ModifDateBackup()    //Modification de la date du backup
 {
     Utils::Days days;
@@ -2105,10 +2172,16 @@ void dlg_param::ConnectSignals()
     connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,              this,   &dlg_param::RestaureBase);
     connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,              proc,   &Procedures::ReinitBase);
     connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,              this,   &dlg_param::EffaceProgrammationDataBackup);
+
     connect(ui->PortFrontoupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox, a);});
     connect(ui->PortAutorefupComboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox, a);});
     connect(ui->PortRefracteurupComboBox,           QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox, a);});
     connect(ui->PortTonometreupComboBox,            QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox, a);});
+
+    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,              this,   [=] {ModifDirMesure(Fronto);});
+    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,              this,   [=] {ModifDirMesure(Autoref);});
+    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,              this,   [=] {ModifDirMesure(Refracteur);});
+    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,              this,   [=] {ModifDirMesure(Tono);});
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -2845,32 +2918,26 @@ bool dlg_param::Valide_Modifications()
             ui->PortAutorefupComboBox->setFocus();
             return false;
         }
-        if (ui->FrontoupComboBox->currentIndex()>0 && ui->PortFrontoupComboBox->currentIndex() == 0)
-        {
-            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de port pour le frontofocomètre ") + ui->FrontoupComboBox->currentText() + " !");
-            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
-            ui->PortFrontoupComboBox->setFocus();
-            return false;
-        }
-        if (ui->RefracteurupComboBox->currentIndex()>0 && ui->PortRefracteurupComboBox->currentIndex() == 0)
-        {
-            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de port COM pour le réfracteur ") + ui->RefracteurupComboBox->currentText() + " !");
-            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
-            ui->PortRefracteurupComboBox->setFocus();
-            return false;
-        }
-        if (ui->TonometreupComboBox->currentIndex()>0 && ui->PortTonometreupComboBox->currentIndex() == 0)
-        {
-            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de port COM pour le tonomètre ") + ui->TonometreupComboBox->currentText() + " !");
-            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
-            ui->PortTonometreupComboBox->setFocus();
-            return false;
-        }
         if (ui->AutorefupComboBox->currentIndex()==0 && ui->PortAutorefupComboBox->currentIndex() > 0)
         {
             UpMessageBox::Watch(this,tr("Vous avez spécifié un port COM pour l'autorefractomètre sans sélectionner de machine !"));
             ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
             ui->AutorefupComboBox->setFocus();
+            return false;
+        }
+        if (ui->AutorefupComboBox->currentIndex()>0 && ui->PortAutorefupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathAutorefupLineEdit->text()).exists())
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour l'autorefractomètre") + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortAutorefupComboBox->setFocus();
+            return false;
+        }
+
+        if (ui->FrontoupComboBox->currentIndex()>0 && ui->PortFrontoupComboBox->currentIndex() == 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de port pour le frontofocomètre ") + ui->FrontoupComboBox->currentText() + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortFrontoupComboBox->setFocus();
             return false;
         }
         if (ui->FrontoupComboBox->currentIndex()==0 && ui->PortFrontoupComboBox->currentIndex() > 0)
@@ -2880,11 +2947,41 @@ bool dlg_param::Valide_Modifications()
             ui->FrontoupComboBox->setFocus();
             return false;
         }
+        if (ui->FrontoupComboBox->currentIndex()>0 && ui->PortFrontoupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathFrontoupLineEdit->text()).exists())
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour le frontofocomètre") + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortFrontoupComboBox->setFocus();
+            return false;
+        }
+
+        if (ui->RefracteurupComboBox->currentIndex()>0 && ui->PortRefracteurupComboBox->currentIndex() == 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de port COM pour le réfracteur ") + ui->RefracteurupComboBox->currentText() + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortRefracteurupComboBox->setFocus();
+            return false;
+        }
         if (ui->RefracteurupComboBox->currentIndex()==0 && ui->PortRefracteurupComboBox->currentIndex() < 0)
         {
             UpMessageBox::Watch(this,tr("Vous avez spécifié un port COM pour le réfracteur sans sélectionner de machine !"));
             ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
             ui->RefracteurupComboBox->setFocus();
+            return false;
+        }
+        if (ui->RefracteurupComboBox->currentIndex()>0 && ui->PortRefracteurupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathRefracteurupLineEdit->text()).exists())
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour le refracteur") + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortRefracteurupComboBox->setFocus();
+            return false;
+        }
+
+        if (ui->TonometreupComboBox->currentIndex()>0 && ui->PortTonometreupComboBox->currentIndex() == 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de port COM pour le tonomètre ") + ui->TonometreupComboBox->currentText() + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortTonometreupComboBox->setFocus();
             return false;
         }
         if (ui->TonometreupComboBox->currentIndex()==0 && ui->PortTonometreupComboBox->currentIndex() > 0)
@@ -2894,6 +2991,14 @@ bool dlg_param::Valide_Modifications()
             ui->TonometreupComboBox->setFocus();
             return false;
         }
+        if (ui->TonometreupComboBox->currentIndex()>0 && ui->PortTonometreupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathTonoupLineEdit->text()).exists())
+        {
+            UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour le tonomètre") + " !");
+            ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
+            ui->PortTonometreupComboBox->setFocus();
+            return false;
+        }
+
         QString Base = Utils::getBaseFromMode(Utils::Poste);
         if (ui->PosteServcheckBox->isChecked())
             proc->settings()->setValue(Base + "/Active","YES");
@@ -2946,13 +3051,52 @@ bool dlg_param::Valide_Modifications()
         proc->settings()->setValue("Param_Imprimante/TailleTopMarge",ui->TopMargespinBox->text());
 
         proc->settings()->setValue("Param_Poste/Fronto",ui->FrontoupComboBox->currentText());
-        proc->settings()->setValue("Param_Poste/PortFronto",ui->PortFrontoupComboBox->currentText());
+        if (ui->FrontoupComboBox->currentText() == "-")
+            proc->settings()->setValue("Param_Poste/PortFronto", "");
+        else
+        {
+            proc->settings()->setValue("Param_Poste/PortFronto",ui->PortFrontoupComboBox->currentText());
+            if (ui->PortFrontoupComboBox->currentText() == RESEAU)
+                proc->settings()->setValue("Param_Poste/PortFronto/Reseau", ui->NetworkPathFrontoupLineEdit->text());
+            else
+                proc->settings()->setValue("Param_Poste/PortFronto/Reseau", "");
+        }
+
         proc->settings()->setValue("Param_Poste/Autoref",ui->AutorefupComboBox->currentText());
-        proc->settings()->setValue("Param_Poste/PortAutoref",ui->PortAutorefupComboBox->currentText());
+        if (ui->AutorefupComboBox->currentText() == "-")
+            proc->settings()->setValue("Param_Poste/PortAutoref", "");
+        else
+        {
+            proc->settings()->setValue("Param_Poste/PortAutoref",ui->PortAutorefupComboBox->currentText());
+            if (ui->PortAutorefupComboBox->currentText() == RESEAU)
+                proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", ui->NetworkPathAutorefupLineEdit->text());
+            else
+                proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", "");
+        }
+
         proc->settings()->setValue("Param_Poste/Refracteur",ui->RefracteurupComboBox->currentText());
         proc->settings()->setValue("Param_Poste/PortRefracteur",ui->PortRefracteurupComboBox->currentText());
+        if (ui->RefracteurupComboBox->currentText() == "-")
+            proc->settings()->setValue("Param_Poste/PortRefracteur", "");
+        else
+        {
+            if (ui->PortRefracteurupComboBox->currentText() == RESEAU)
+                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau", ui->NetworkPathRefracteurupLineEdit->text());
+            else
+                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau", "");
+        }
+
         proc->settings()->setValue("Param_Poste/Tonometre",ui->TonometreupComboBox->currentText());
         proc->settings()->setValue("Param_Poste/PortTonometre",ui->PortTonometreupComboBox->currentText());
+        if (ui->TonometreupComboBox->currentText() == "-")
+            proc->settings()->setValue("Param_Poste/PortTonometre", "");
+        else
+        {
+            if (ui->PortTonometreupComboBox->currentText() == RESEAU)
+                proc->settings()->setValue("Param_Poste/PortTonometre/Reseau", ui->NetworkPathTonoupLineEdit->text());
+            else
+                proc->settings()->setValue("Param_Poste/PortTonometre/Reseau", "");
+        }
 
         proc->settings()->setValue("Param_Poste/VilleParDefaut",wdg_VilleDefautlineEdit->text());
         proc->settings()->setValue("Param_Poste/CodePostalParDefaut",wdg_CPDefautlineEdit->text());
