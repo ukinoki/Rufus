@@ -121,7 +121,7 @@ private:
     void                VerifFicheIntervention(bool &ok, QTimeEdit *timeedit, QComboBox *box, Patient *pat);
 private slots:
     void                CreerFicheIntervention();
-    void                ModifFicheIntervention();
+    void                ModifIntervention();
 
 /*! les types d'interventions */
 private:

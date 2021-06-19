@@ -4198,22 +4198,23 @@ GESTION DES FICHIERS ECHANGE XML DES APPAREILS DE REFRACTION -------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
 {
+    QString pathdirautoref ("");
     if (appareils.testFlag(Autoref))
     {
         Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
-        Utils::mkpath(PATH_DIR_AUTOREF);
+        pathdirautoref = settings()->value("Param_Poste/PortAutoref/Reseau").toString();
     }
     t_xmltimer = new QTimer(this);
     t_xmltimer->start(1000);
     connect(t_xmltimer,  &QTimer::timeout,     this,
             [=]
     {
-        if (appareils.testFlag(Autoref))
+        if (appareils.testFlag(Autoref) && pathdirautoref != "")
         {
-            QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+            QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
             if (listfichxml.size())
             {
-                const QString nomfichierxml      = PATH_DIR_AUTOREF "/" + listfichxml.at(0);
+                const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
                 QFile xmldoc(nomfichierxml);
                 if (xmldoc.open(QIODevice::ReadOnly))
                 {
@@ -4221,9 +4222,9 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                     docxml.setContent(&xmldoc);
                     ReponseXML_Autoref(docxml);
                 }
-                QStringList listfich = QDir(PATH_DIR_AUTOREF).entryList(QDir::Files | QDir::NoDotAndDotDot);
+                QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for(int i = 0; i < listfich.size(); ++i)
-                    QFile(PATH_DIR_AUTOREF "/" + listfich.at(i)).remove();
+                    QFile(pathdirautoref + "/" + listfich.at(i)).remove();
             }
         }
     });

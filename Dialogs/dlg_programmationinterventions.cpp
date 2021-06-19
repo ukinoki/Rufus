@@ -187,9 +187,6 @@ bool dlg_programmationinterventions::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_programmationinterventions::ChoixMedecin(int idx)
 {
-    currentintervention()->resetdatas();
-    currentsession()->resetdatas();
-
     m_currentchiruser = Datas::I()->users->getById(wdg_listmedecinscombo->itemData(idx).toInt());
     if (m_currentchiruser == Q_NULLPTR)
         return;
@@ -220,7 +217,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
      * on définit comme intervention en cours
      * la dernière intervention de ce patient qui a été faite par ce chirurgien
      */
-    if (currentintervention()->isnull())
+    if (!currentintervention())
     {
         Datas::I()->patients->initListeIdInterventions(m_currentchirpatient);
         if (m_currentchirpatient->listidinterventions().size()>0)
@@ -246,7 +243,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
             }
     }
     /*! si aucune intervention pour le patient en cours n'a été effectuée par le chirurgien en cours, on se positionne sur la dernière session de ce chirurgien */
-    if (currentsession()->isnull() && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
+    if (!currentsession() && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
         setcurrentsession(Datas::I()->sessionsoperatoires->sessions()->last());
     RemplirTreeSessions();
 }
@@ -281,10 +278,10 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
         return;
     }
     setcurrentsession(dynamic_cast<SessionOperatoire*>(upitem->item()));
-    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(!currentsession()->isnull());
-    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(!currentsession()->isnull());
-    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(!currentsession()->isnull());
-    if (!currentsession()->isnull())
+    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(currentsession() != Q_NULLPTR);
+    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(currentsession() != Q_NULLPTR);
+    wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(currentsession() != Q_NULLPTR);
+    if (currentsession() != Q_NULLPTR)
         Datas::I()->interventions->initListebySessionId(currentsession()->id());
     RemplirTreeInterventions(currentintervention());
 }
@@ -335,7 +332,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
         wdg_sessionstreeView->expandAll();
         if (m_sessionsmodel->rowCount() >0)
         {
-            if (currentsession()->isnull())
+            if (currentsession() == Q_NULLPTR)
                 idx = m_sessionsmodel->item(m_sessionsmodel->rowCount()-1)->index();        //! l'index de ce dernier item
             else for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
             {
@@ -460,6 +457,8 @@ void dlg_programmationinterventions::ModifSession()
 
 void dlg_programmationinterventions::ImprimeRapportIncident()
 {
+    if (currentsession() == Q_NULLPTR)
+        return;
     bool AvecDupli   = false;
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = true;
@@ -536,6 +535,8 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
 
 void dlg_programmationinterventions::ImprimeSession()
 {
+    if (currentsession() == Q_NULLPTR)
+        return;
     bool AvecDupli   = false;
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = true;
@@ -687,7 +688,7 @@ void dlg_programmationinterventions::ImprimeSession()
 
 void dlg_programmationinterventions::SupprimeSession()
 {
-    if (currentsession()->isnull())
+    if (currentsession() == Q_NULLPTR)
         return;
     QString nomsession = currentsession()->date().toString("dd-MMM-yy");
     Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
@@ -703,7 +704,7 @@ void dlg_programmationinterventions::SupprimeSession()
     SessionOperatoire* session = Datas::I()->sessionsoperatoires->getById(currentsession()->id());
     if (session)
         Datas::I()->sessionsoperatoires->SupprimeSessionOperatoire(session);
-    currentsession()->resetdatas();
+    setcurrentsession(Q_NULLPTR);
     RemplirTreeSessions();
 }
 
@@ -731,7 +732,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
         connect (pAction_SupprSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeSession);
         if (Datas::I()->users->userconnected()->isMedecin())
         {
-            QString txt = (session->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette intervention"));
+            QString txt = (session->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette session"));
             QAction *pAction_IncidentSession = m_ctxtmenusessions->addAction(txt);
             connect (pAction_IncidentSession,        &QAction::triggered,    this,    &dlg_programmationinterventions::EnregistreIncidentSession);
         }
@@ -751,7 +752,7 @@ void dlg_programmationinterventions::ChoixInterventionFrame()
         CreerFicheIntervention();
         break;
     case WidgetButtonFrame::Modifier:
-        ModifFicheIntervention();
+        ModifIntervention();
         break;
     case WidgetButtonFrame::Moins:
         SupprimeIntervention();
@@ -765,7 +766,7 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
     if (upitem == Q_NULLPTR)
         return;
     setcurrentintervention(dynamic_cast<Intervention*>(upitem->item()));
-    if (currentintervention()->isnull())
+    if (currentintervention() == Q_NULLPTR)
     {
         wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
         wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(false);
@@ -785,7 +786,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("Interventions") : tr("Intervention")));
 
     bool incident = false;          //! va servir à indiquer si des incidents sont notés sur la session
-    if (!currentsession()->isnull())
+    if (currentsession() != Q_NULLPTR)
         if (currentsession()->incident() != "")
             incident = true;
     bool iollist = false;           //! va servir à indiquer si des implants sont prévus sur la session
@@ -1534,7 +1535,7 @@ void dlg_programmationinterventions::CreerFicheIntervention()
     FicheIntervention();
 }
 
-void dlg_programmationinterventions::ModifFicheIntervention()
+void dlg_programmationinterventions::ModifIntervention()
 {
     if (currentintervention() != Q_NULLPTR)
         FicheIntervention(currentintervention());
@@ -1542,7 +1543,7 @@ void dlg_programmationinterventions::ModifFicheIntervention()
 
 void dlg_programmationinterventions::SupprimeIntervention()
 {
-    if (currentintervention()->isnull())
+    if (currentintervention() == Q_NULLPTR)
         return;
     QString nomintervention = "";
     TypeIntervention *typ = Datas::I()->typesinterventions->getById(currentintervention()->idtypeintervention());
@@ -1566,7 +1567,7 @@ void dlg_programmationinterventions::SupprimeIntervention()
     Intervention* interv = Datas::I()->interventions->getById(currentintervention()->id());
     if (interv)
         Datas::I()->interventions->SupprimeIntervention(interv);
-    currentintervention()->resetdatas();
+    setcurrentintervention(Q_NULLPTR);
     RemplirTreeInterventions();
 }
 
@@ -1642,7 +1643,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
             return;
         }
         QAction *pAction_ModifIntervention = m_ctxtmenuinterventions->addAction(tr("Modifier cette intervention"));
-        connect (pAction_ModifIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::ModifFicheIntervention);
+        connect (pAction_ModifIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::ModifIntervention);
         QAction *pAction_SupprIntervention = m_ctxtmenuinterventions->addAction(tr("Supprimer cette intervention"));
         connect (pAction_SupprIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeIntervention);
         QAction *pAction_ImprIntervention = m_ctxtmenuinterventions->addAction(tr("Imprimer un document"));

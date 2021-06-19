@@ -24,14 +24,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Interventions : public ItemsList
 {
 private:
-    QMap<int, Intervention*> *map_all = Q_NULLPTR;    //!< la liste des interventions
+    QMap<int, Intervention*> *map_all = Q_NULLPTR;              //!< la liste des interventions
     int m_idsession = 0;                                        //!< l'id de la session concernée par la map
 
 public:
     explicit Interventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, Intervention*> *interventions() const;
-    Intervention *m_currentintervention = new Intervention();                 //!> l'intervention en cours
+    Intervention *m_currentintervention = Q_NULLPTR;            //!> l'intervention en cours
     Intervention* currentintervention()                 { return m_currentintervention; }
     void setcurrentintervention(Intervention *interv);
     int idsession() const { return m_idsession ; }
@@ -48,14 +48,14 @@ public:
 class SessionsOperatoires : public ItemsList
 {
 private:
-    QMap<int, SessionOperatoire*> *map_all = Q_NULLPTR;        //!< la liste des sessions
-    int m_iduser = 0;                                               //!< l'id du user concerné par la map
+    QMap<int, SessionOperatoire*> *map_all = Q_NULLPTR;         //!< la liste des sessions
+    int m_iduser = 0;                                           //!< l'id du user concerné par la map
 
 public:
     explicit SessionsOperatoires(QObject *parent = Q_NULLPTR);
 
     QMap<int, SessionOperatoire*> *sessions() const;
-    SessionOperatoire *m_currentsession = new SessionOperatoire();                 //!> la session en cours
+    SessionOperatoire *m_currentsession = Q_NULLPTR;            //!> la session en cours
     SessionOperatoire* currentsession()               { return m_currentsession; }
     void setcurrentsession(SessionOperatoire *sess);
     int iduser() const                      { return m_iduser ; }
