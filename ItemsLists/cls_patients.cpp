@@ -27,7 +27,6 @@ Patients::Patients(QObject *parent) : ItemsList(parent)
     map_patientstable         = new QMap<int, Patient*>();
     map_patientssaldat        = new QMap<int, Patient*>();
     m_currentpatient        = new Patient();
-    m_dossierpatientaouvrir = new Patient();
     m_full                  = false;
 }
 
@@ -51,15 +50,7 @@ void Patients::setcurrentpatient(Patient *pat)
 
 void Patients::setdossierpatientaouvrir(Patient *pat)
 {
-    if (pat == Q_NULLPTR)
-    {
-        m_dossierpatientaouvrir->resetdatas();
-        return;
-    }
-    if (m_dossierpatientaouvrir->id() != pat->id())
-        m_dossierpatientaouvrir->resetdatas();
-    if (!m_dossierpatientaouvrir->isalloaded())
-        DataBase::I()->loadPatientById(pat->id(), m_dossierpatientaouvrir, Item::LoadDetails);
+    m_dossierpatientaouvrir = pat;
 }
 
 DonneesOphtaPatient* Patients::donneesophtacurrentpatient()
@@ -81,7 +72,7 @@ void Patients::actualiseDonneesOphtaCurrentPatient()
 
 /*! charge les données du patient corresondant à l'id * \brief Patients::getById
  * \param id l'id du patient recherché
- * \param all =false  -> ne charge que les données d'identité - =true -> charge les données sociales et médicales
+ * \param loaddetails = NoLoadDetails  -> ne charge que les données d'identité - = LoadDetails -> charge les données sociales et médicales
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
@@ -167,7 +158,10 @@ void Patients::initListeIdInterventions(Patient *pat)
 void Patients::SupprimePatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
+    {
+        qDebug() << "nullpatient";
         return;
+    }
     //!. Suppression des bilans orthoptiques
     DataBase::I()->StandardSQL("DELETE FROM " TBL_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " TBL_ACTES " where idPat = " + QString::number(pat->id()) + ")");
     //!. Suppression des actes
@@ -210,12 +204,10 @@ void Patients::SupprimePatient(Patient *pat)
         map_patients->remove(pat->id());
     }
     int id = pat->id();
-    if (pat != m_currentpatient && pat != m_dossierpatientaouvrir)
+    if (pat != m_currentpatient)
         delete pat;
     if (m_currentpatient->id() == id)
        m_currentpatient->resetdatas();
-    if (m_dossierpatientaouvrir->id() == id)
-        m_dossierpatientaouvrir->resetdatas();
 }
 
 void Patients::updatePatient(Patient *pat)

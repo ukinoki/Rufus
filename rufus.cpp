@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("19-06-2021/1");
+    qApp->setApplicationVersion("23-06-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1024,7 +1024,7 @@ void Rufus::MAJPatientsVus()
         label1->setAlignment(Qt::AlignLeft);
         label3->setAlignment(Qt::AlignLeft);
         label4->setAlignment(Qt::AlignRight);
-        Patient *pat = m_patients->getById(rsgnmt["idpat"].toInt());
+        Patient *pat = Datas::I()->patients->getById(rsgnmt["idpat"].toInt());
 
         connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label0);});
         connect (label1,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label1);});
@@ -1058,7 +1058,7 @@ void Rufus::AfficheToolTip(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    m_patients->loadAll(pat, Item::Update);
+    Datas::I()->patients->loadAll(pat, Item::Update);
     QString Msg = "";
     if (pat->datedenaissance().isValid())
     {
@@ -1394,7 +1394,7 @@ void Rufus::ChoixMG()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::CherchePatientParID(int id)
 {
-    Patient *pat = m_patients->getById(id);
+    Patient *pat = Datas::I()->patients->getById(id);
     if (pat != Q_NULLPTR)
     {
         ui->CreerNomlineEdit->setText(pat->nom());
@@ -2567,7 +2567,7 @@ void Rufus::ImprimeDossier(Patient *pat)
 
 void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool queLePdf, QString nomdossier)
 {
-    Patient *pat = m_patients->getById(listeactes.at(0)->idPatient());
+    Patient *pat = Datas::I()->patients->getById(listeactes.at(0)->idPatient());
     if (pat == Q_NULLPTR)
         return;
     if (focusWidget() != Q_NULLPTR)
@@ -2828,7 +2828,7 @@ void Rufus::DropPatient(QByteArray data)
     QMap<int,QVariant>  dataMap;
     datastream >> row >> col >> dataMap;
     int idpat = dataMap.value(0).toInt();
-    InscritEnSalDat(m_patients->getById(idpat));
+    InscritEnSalDat(Datas::I()->patients->getById(idpat));
 }
 
 bool Rufus::InscritEnSalDat(Patient *pat)
@@ -2985,7 +2985,7 @@ void Rufus::ChoixMenuContextuelMotsCles()
 
 void Rufus::RechercheParID()
 {
-    if (!m_patients->isfull())
+    if (!Datas::I()->patients->isfull())
         FiltreTable();
     dlg_rechParId                 = new UpDialog();
     dlg_rechParId                 ->setAttribute(Qt::WA_DeleteOnClose);
@@ -3239,7 +3239,7 @@ void Rufus::AfficheCourriersAFaire()
         {
             int idacte      = modele->itemFromIndex(idx)->accessibleDescription().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
-            OuvrirDossier(m_patients->getById(idPat), idacte);
+            OuvrirDossier(Datas::I()->patients->getById(idPat), idacte);
             dlg_listPatients->close();
         });
         m_menuContextuel->exec(cursor().pos());
@@ -3254,7 +3254,7 @@ void Rufus::AfficheCourriersAFaire()
             QModelIndex idx = mdlist.at(0);
             int idacte      = modele->itemFromIndex(idx)->accessibleDescription().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
-            OuvrirDossier(m_patients->getById(idPat), idacte);
+            OuvrirDossier(Datas::I()->patients->getById(idPat), idacte);
             dlg_listPatients->close();
         }
     });
@@ -3433,8 +3433,9 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
 {
     if (idpat == 0)
         return;
-    setdossierpatientaouvrir(Datas::I()->patients->getById(idpat));
-    if (dossierpatientaouvrir() == Q_NULLPTR)
+    Patient *pat = Datas::I()->patients->getById(idpat, Item::LoadDetails);
+    setdossierpatientaouvrir(pat);
+    if (pat == Q_NULLPTR)
         return;
     if (choix == "Autre Dossier")
     {
@@ -3641,8 +3642,9 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
 {
     if (idpat == 0)
         return;
-    setdossierpatientaouvrir(Datas::I()->patients->getById(idpat));
-    if (dossierpatientaouvrir() == Q_NULLPTR)
+    Patient *pat = Datas::I()->patients->getById(idpat, Item::LoadDetails);
+    setdossierpatientaouvrir(pat);
+    if (pat == Q_NULLPTR)
         return;
     if (choix == "Reprendre")
         OuvrirDossier(dossierpatientaouvrir());
@@ -3883,7 +3885,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     if (pat == Q_NULLPTR)
         return;
     if (recalclesdonnees)
-        m_patients->loadAll(pat, Item::Update);
+        Datas::I()->patients->loadAll(pat, Item::Update);
     ui->TerraintreeWidget->clear();
     bool a = false;
     ui->TerraintreeWidget->setColumnCount(2);
@@ -4390,7 +4392,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 
     if (id>-1)
     {
-        Patient *pat = m_patients->getById(id);
+        Patient *pat = Datas::I()->patients->getById(id);
         if (pat)
         {
             checkpat       = new UpCheckBox(dlg_ask);
@@ -4997,7 +4999,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
                 QString nomprenom ("");
-                Patient *pat = m_patients->getById(msg->idpatient());
+                Patient *pat = Datas::I()->patients->getById(msg->idpatient());
                 if (pat != Q_NULLPTR)
                     nomprenom = pat->prenom() + " " + pat->nom();
                 if (nomprenom != "")
@@ -5134,7 +5136,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
                 QString nomprenom ("");
-                Patient *pat = m_patients->getById(msg->idpatient());
+                Patient *pat = Datas::I()->patients->getById(msg->idpatient());
                 if (pat != Q_NULLPTR)
                     nomprenom = pat->prenom() + " " + pat->nom();
                 if (nomprenom != "")
@@ -5216,7 +5218,7 @@ void Rufus::MsgResp(int idmsg)
     QString nomprenom = "";
     if (msg->idpatient() > 0)
     {
-        Patient *pat = m_patients->getById(msg->idpatient());
+        Patient *pat = Datas::I()->patients->getById(msg->idpatient());
         if (pat != Q_NULLPTR)
             nomprenom = tr("à propos de ") + "<b>" + pat->prenom() + " " + pat->nom() + "</b>";
     }
@@ -6878,7 +6880,7 @@ void    Rufus::CalcNbDossiers()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::FiltreTable(QString nom, QString prenom)
 {
-    m_patients->initListeTable(nom, prenom, true);
+    Datas::I()->patients->initListeTable(nom, prenom, true);
                 //! mettre en place un filtre directement sur la liste est moins rapide que de réinterroger la BDD directement en SQL
     Remplir_ListePatients_TableView() ;   //FiltreTable()
     if (m_listepatientsmodel->rowCount()>0)
@@ -7060,7 +7062,7 @@ void Rufus::CreerDossier()
             msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
-                InscritEnSalDat(m_patients->getById(idPat));
+                InscritEnSalDat(Datas::I()->patients->getById(idPat));
         }
         return;
     }
@@ -7100,8 +7102,8 @@ void Rufus::CreerDossier()
         if (!IdentificationPatient(dlg_identificationpatient::Creation, pat))
         {
             Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
-            m_patients->SupprimePatient(pat);
-            m_patients->initListeTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
+            Datas::I()->patients->SupprimePatient(pat);
+            Datas::I()->patients->initListeTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
             return;
         }
         FiltreTable(pat->nom(), pat->prenom());
@@ -7198,13 +7200,7 @@ void Rufus::CreerMenu()
     connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::ModeCreationDossier);
     connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::ModeSelectDepuisListe);
     connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] {
-                                                                                                            Patient *pat = Q_NULLPTR;
-                                                                                                            if (ui->tabWidget->currentWidget() == ui->tabList)
-                                                                                                            {
-                                                                                                                if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() > 0)
-                                                                                                                    pat = getPatientFromSelectionInTable();
-                                                                                                            }
-                                                                                                            else pat = currentpatient();
+                                                                                                            Patient *pat = currentpatient();
                                                                                                             if (pat != Q_NULLPTR)
                                                                                                                 SupprimerDossier(pat);
                                                                                                         });
@@ -7360,7 +7356,7 @@ void Rufus::ExporteActe(Acte *act)
 {
     if (act == Q_NULLPTR)
         return;
-    Patient *pat = m_patients->getById(act->idPatient());
+    Patient *pat = Datas::I()->patients->getById(act->idPatient());
     if (pat == Q_NULLPTR)
         return;
     QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + pat->nom() + " " + pat->prenom() + " - " + act->date().toString("d MMM yyyy");
@@ -8672,7 +8668,7 @@ bool Rufus::Remplir_ListePatients_TableView()
     if (m_listepatientsmodel != Q_NULLPTR)
         delete m_listepatientsmodel;
     m_listepatientsmodel = new QStandardItemModel(this);
-    for (auto it = m_patients->patientstable()->constBegin(); it != m_patients->patientstable()->constEnd(); ++it)
+    for (auto it = Datas::I()->patients->patientstable()->constBegin(); it != Datas::I()->patients->patientstable()->constEnd(); ++it)
     {
         Patient *pat = const_cast<Patient*>(it.value());
         pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                   // id                           -> utilisé pour le drop event
@@ -8761,7 +8757,7 @@ void Rufus::Remplir_SalDat()
             PatientEnCours *pat = dynamic_cast<PatientEnCours*>(itm->item());
             if (pat != Q_NULLPTR)
             {
-                //qDebug() << m_patients->getById(pat->id())->nom() + " " + m_patients->getById(pat->id())->prenom() + " " + pat->statut();
+                //qDebug() << Datas::I()->patients->getById(pat->id())->nom() + " " + Datas::I()->patients->getById(pat->id())->prenom() + " " + pat->statut();
                 listpat << pat;
             }
         }
@@ -8789,8 +8785,8 @@ void Rufus::Remplir_SalDat()
     QList<int>          listidusers;
     foreach (PatientEnCours* patencours, listpatsaldat)
     {
-        auto it = m_patients->patientssaldat()->find(patencours->id());
-        if (it == m_patients->patientssaldat()->end())
+        auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
+        if (it == Datas::I()->patients->patientssaldat()->end())
             continue;
         Patient *pat                = it.value();
         QMap<QString, QVariant> rsgnmt;
@@ -9053,8 +9049,8 @@ void Rufus::Remplir_SalDat()
                 html += "<p class=\"p2\">ZZzzz...</p>";
             else
             {
-                auto it = m_patients->patientssaldat()->find(patencours->id());
-                if (it == m_patients->patientssaldat()->end())
+                auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
+                if (it == Datas::I()->patients->patientssaldat()->end())
                     continue;
                 Patient *pat                = it.value();
                 if (pat != Q_NULLPTR)
@@ -9097,7 +9093,7 @@ void Rufus::Remplir_SalDat()
     QList<PatientEnCours*> listpatvus;
     foreach (PatientEnCours* pat, listpat)
     {
-        //qDebug() << m_patients->getById(pat->id())->nom() + " " + m_patients->getById(pat->id())->prenom() + " " + pat->statut();
+        //qDebug() << Datas::I()->patients->getById(pat->id())->nom() + " " + Datas::I()->patients->getById(pat->id())->prenom() + " " + pat->statut();
         if (pat->statut() == RETOURACCUEIL)
             listpatvus << pat;
     }
@@ -9110,8 +9106,8 @@ void Rufus::Remplir_SalDat()
     i = 0;
     foreach (PatientEnCours *patencours, listpatvus)
     {
-        auto it = m_patients->patientssaldat()->find(patencours->id());
-        if (it == m_patients->patientssaldat()->end())
+        auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
+        if (it == Datas::I()->patients->patientssaldat()->end())
             continue;
         Patient *pat                = it.value();
         Acte* actapayer             = Datas::I()->actes->getById(patencours->idacteapayer());
@@ -9628,12 +9624,8 @@ void Rufus::SupprimerDossier(Patient *pat)
     FermeDlgActesPrecedentsEtDocsExternes();
 
     //!. Suppression du dossier, reconstruction de la liste et du treeView
-    if (currentpatient()->id() == pat->id())
-        currentpatient()->resetdatas();
-    if (dossierpatientaouvrir()->id() == pat->id())
-        dossierpatientaouvrir()->resetdatas();
     Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
-    m_patients->SupprimePatient(Datas::I()->patients->getById(pat->id()));
+    Datas::I()->patients->SupprimePatient(pat);
     ItemsList::clearAll(m_listeactes->actes());
 
     setcurrentacte(Q_NULLPTR);
@@ -9725,7 +9717,7 @@ void Rufus::Tonometrie()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::FiltreTableparDDN()
 {
-    m_patients->initListeByDDN(ui->CreerDDNdateEdit->date());
+    Datas::I()->patients->initListeByDDN(ui->CreerDDNdateEdit->date());
     Remplir_ListePatients_TableView();
 }
 
@@ -9943,7 +9935,7 @@ void Rufus::LireLaCV()
             " AND   UPPER(PatPrenom) LIKE '" + prenomPat.toUpper() + "%'" +
             " AND   PatDDN = '" + zdat + "'";
     FiltreTable(nomPat.toUpper(), prenomPat.toUpper());
-    if (m_patients->patientstable()->size() == 0)       // aucun patient trouvé
+    if (Datas::I()->patients->patientstable()->size() == 0)       // aucun patient trouvé
         {
         // si rien trouvé, deuxième recherche sur date de naissance seule
         requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe  "
@@ -10106,9 +10098,6 @@ void Rufus::TraiteTCPMessage(QString msg)
                 DataBase::I()->loadPatientById(msg.toInt(), currentpatient(), Item::LoadDetails);
                 ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(currentpatient()));
             }
-        if (dossierpatientaouvrir() != Q_NULLPTR)
-            if (dossierpatientaouvrir()->id() == msg.toInt())
-                setdossierpatientaouvrir(Datas::I()->patients->getById(msg.toInt(), Item::LoadDetails));
     }
     else if (msg.contains(TCPMSG_ListeStringIdPostesConnectes))
     {

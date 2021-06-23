@@ -40,7 +40,6 @@ private:
     void addList(QList<User*> listusr);
     void mapsclean(User *usr = Q_NULLPTR);
     User* m_useradmin = Q_NULLPTR;
-    User* m_nulluser = new User;
 
 public:
     //GETTER

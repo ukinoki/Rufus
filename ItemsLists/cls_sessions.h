@@ -33,7 +33,7 @@ public:
     QMap<int, Session *> *sessions() const;
 
     Session*    getById(int id, Item::LOADDETAILS details = Item::LoadDetails);                 //!> charge une session à partir de son id
-    Session* currentsession() { return m_currentsession; };
+    Session*    currentsession() { return m_currentsession; };
 
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 

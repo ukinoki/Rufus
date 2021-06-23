@@ -357,7 +357,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
     AfficheInterventionsSession(idx);
 }
 
-void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
+void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
 {
     UpDialog            *dlg_session = new UpDialog(this);
     dlg_session->setAttribute(Qt::WA_DeleteOnClose);
@@ -402,7 +402,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
     incidentLay    ->setSpacing(5);
     incidentLay    ->setContentsMargins(0,0,0,0);
     wdg_incident   ->setLayout(incidentLay);
-    wdg_incident   ->setVisible(nwsession != Q_NULLPTR);
+    wdg_incident   ->setVisible(session != Q_NULLPTR);
 
 
     dlg_session->dlglayout()   ->insertWidget(0, wdg_incident);
@@ -411,11 +411,11 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
     dlg_session->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_session->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
-    if (nwsession != Q_NULLPTR)
+    if (session != Q_NULLPTR)
     {
-        dateedit        ->setDate(nwsession->date());
-        sitecombo       ->setCurrentIndex(sitecombo->findData(nwsession->idlieu()));
-        incidenttxtedit ->setText(nwsession->incident());
+        dateedit        ->setDate(session->date());
+        sitecombo       ->setCurrentIndex(sitecombo->findData(session->idlieu()));
+        incidenttxtedit ->setText(session->incident());
     }
     connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
     {
@@ -435,15 +435,14 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *nwsession)
         listbinds[CP_DATE_SESSIONOPERATOIRE]    = date.toString("yyyy-MM-dd");
         listbinds[CP_IDLIEU_SESSIONOPERATOIRE]  = idsite;
         listbinds[CP_IDUSER_SESSIONOPERATOIRE]  = m_currentchiruser->id();
-        if (nwsession == Q_NULLPTR)
+        if (session == Q_NULLPTR)
             setcurrentsession(Datas::I()->sessionsoperatoires->CreationSessionOperatoire(listbinds));
         else
         {
-            ItemsList::update(nwsession, CP_DATE_SESSIONOPERATOIRE, date);
-            ItemsList::update(nwsession, CP_IDLIEU_SESSIONOPERATOIRE, idsite);
-            ItemsList::update(nwsession, CP_INCIDENT_SESSIONOPERATOIRE, incidenttxtedit->toPlainText());
+            ItemsList::update(session, CP_DATE_SESSIONOPERATOIRE, date);
+            ItemsList::update(session, CP_IDLIEU_SESSIONOPERATOIRE, idsite);
+            ItemsList::update(session, CP_INCIDENT_SESSIONOPERATOIRE, incidenttxtedit->toPlainText());
         }
-        setcurrentsession(nwsession);
         RemplirTreeSessions();
         dlg_session->close();
     });
