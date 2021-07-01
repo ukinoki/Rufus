@@ -397,10 +397,13 @@ void dlg_listemotscles::RemplirTableView()
                                                                         m_textdelegate = line->text();
                                                                       });
     wdg_tblview->setItemDelegateForColumn(1,line);
-    QList<int> listidMC = DataBase::I()->loadListIdMotsClesByPat(m_currentpatient->id());
     m_listidmotsclesdepart.clear();
-    for (int i=0; i<listidMC.size(); i++)
-        m_listidmotsclesdepart << listidMC.at(i);
+    if (m_currentpatient != Q_NULLPTR)
+    {
+        QList<int> listidMC = DataBase::I()->loadListIdMotsClesByPat(m_currentpatient->id());
+        for (int i=0; i<listidMC.size(); i++)
+            m_listidmotsclesdepart << listidMC.at(i);
+    }
     if (m_model == Q_NULLPTR)
         delete m_model;
     m_model = new UpStandardItemModel(this);

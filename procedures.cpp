@@ -7057,8 +7057,6 @@ void Procedures::InsertMesure(TypeMesure typemesure)
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
-    if (Datas::I()->patients->currentpatient()->isnull())
-        return;
     if (Datas::I()->Datas::I()->actes->currentacte() == Q_NULLPTR)
         return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();

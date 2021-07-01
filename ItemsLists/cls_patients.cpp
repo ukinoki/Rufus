@@ -26,7 +26,6 @@ Patients::Patients(QObject *parent) : ItemsList(parent)
     map_patients              = new QMap<int, Patient*>();
     map_patientstable         = new QMap<int, Patient*>();
     map_patientssaldat        = new QMap<int, Patient*>();
-    m_currentpatient        = new Patient();
     m_full                  = false;
 }
 
@@ -37,13 +36,9 @@ bool Patients::isfull()
 
 void Patients::setcurrentpatient(Patient *pat)
 {
-    if (pat == Q_NULLPTR)
-    {
-        m_currentpatient->resetdatas();
+    m_currentpatient = pat;
+    if (m_currentpatient == Q_NULLPTR)
         return;
-    }
-    if (m_currentpatient->id() != pat->id())
-        m_currentpatient->resetdatas();
     if (!m_currentpatient->isalloaded())
         DataBase::I()->loadPatientById(pat->id(), m_currentpatient, Item::LoadDetails);
 }
@@ -122,30 +117,63 @@ void Patients::initListeSalDat(QList<int> listidaajouter)
 {
     /*! on recrée la liste des patients en cours
      */
+    int id = 0;
+    if (m_currentpatient != Q_NULLPTR)
+        id = m_currentpatient->id();
     QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
     //clearAll(map_patientssaldat);
     epurelist(map_patientssaldat, &listpatients);
     addList(map_patientssaldat, &listpatients, Item::Update);
+    if (id != 0)
+    {
+        auto it = map_patientssaldat->find(id);
+        if (it != map_patientssaldat->end())
+            setcurrentpatient(it.value());
+        else
+            setcurrentpatient(getById(id, Item::LoadDetails));
+    }
 }
 
 void Patients::initListeTable(QString nom, QString prenom, bool filtre)
 {
     /*! on recrée une liste des patients pour remplir la table
      */
+    int id = 0;
+    if (m_currentpatient != Q_NULLPTR)
+        id = m_currentpatient->id();
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
     m_full = (nom == "" && prenom == "");
     //clearAll(map_patientstable);
     epurelist(map_patientstable, &listpatients);
     addList(map_patientstable, &listpatients, Item::Update);
+    if (id != 0)
+    {
+        auto it = map_patientstable->find(id);
+        if (it != map_patientstable->end())
+            setcurrentpatient(it.value());
+        else
+            setcurrentpatient(getById(id, Item::LoadDetails));
+    }
 }
 
 void Patients::initListeByDDN(QDate DDN)
 {
+    int id = 0;
+    if (m_currentpatient != Q_NULLPTR)
+        id = m_currentpatient->id();
     QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
     //clearAll(map_patientstable);
     epurelist(map_patientstable, &listpatients);
     addList(map_patientstable, &listpatients, Item::Update);
+    if (id != 0)
+    {
+        auto it = map_patientstable->find(id);
+        if (it != map_patientstable->end())
+            setcurrentpatient(it.value());
+        else
+            setcurrentpatient(getById(id, Item::LoadDetails));
+    }
 }
 
 void Patients::initListeIdInterventions(Patient *pat)
@@ -158,10 +186,7 @@ void Patients::initListeIdInterventions(Patient *pat)
 void Patients::SupprimePatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
-    {
-        qDebug() << "nullpatient";
         return;
-    }
     //!. Suppression des bilans orthoptiques
     DataBase::I()->StandardSQL("DELETE FROM " TBL_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " TBL_ACTES " where idPat = " + QString::number(pat->id()) + ")");
     //!. Suppression des actes
@@ -206,8 +231,9 @@ void Patients::SupprimePatient(Patient *pat)
     int id = pat->id();
     if (pat != m_currentpatient)
         delete pat;
-    if (m_currentpatient->id() == id)
-       m_currentpatient->resetdatas();
+    if (m_currentpatient != Q_NULLPTR)
+        if (m_currentpatient->id() == id)
+            m_currentpatient = Q_NULLPTR;
 }
 
 void Patients::updatePatient(Patient *pat)

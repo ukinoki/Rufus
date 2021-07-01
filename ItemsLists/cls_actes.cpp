@@ -187,12 +187,9 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
         return Q_NULLPTR;
     }
     int idacte = DataBase::I()->selectMaxFromTable(CP_ID_ACTES, TBL_ACTES, m_ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
-    if (!m_ok)
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
     DataBase::I()->unlocktables();
+    if (!m_ok)
+        return Q_NULLPTR;
     act = new Acte();
     act->setid(idacte);
     act->setidpatient(pat->id());

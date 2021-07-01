@@ -78,6 +78,7 @@ void Flags::MAJflagCorrespondants()
 
 void Flags::MAJFlagSalleDAttente()
 {
+
     int a = 1;
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
     QString MAJreq = "insert into " TBL_FLAGS " (" CP_MAJFLAGSALDAT_FLAGS ") VALUES (1)";

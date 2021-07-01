@@ -85,7 +85,7 @@ private:
     QMap<int, Patient*> *map_patients;                                                      //!< une liste fourre tout
     QMap<int, Patient*> *map_patientstable;                                                 //!< la liste des patients de la table listepatients
     QMap<int, Patient*> *map_patientssaldat;                                                //!< la liste des patients en salle d'attente
-    Patient *m_currentpatient           = new Patient();                                    //!> le patient dont le dossier est ouvert
+    Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
     Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
 
     bool m_full;                                                                            //! la liste contient tous les patients de la base

@@ -1049,6 +1049,7 @@ void dlg_paiementdirect::ValidePaiement()
     case EnregistrePaiement:
     {
         if (VerifCoherencePaiement())
+        {
             switch (EnregistreRecette()) {
             case Impossible:
             case OK:
@@ -1068,6 +1069,7 @@ void dlg_paiementdirect::ValidePaiement()
             default:
                 break;
             }
+        }
        break;
     }
     default:
