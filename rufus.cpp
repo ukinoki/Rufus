@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("01-07-2021/1");
+    qApp->setApplicationVersion("05-07-2021/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -6890,13 +6890,10 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
     {
         if (ui->tabWidget->indexOf(ui->tabDossier) > 0 && currentpatient() != Q_NULLPTR)
         {
-            if (currentpatient() != Q_NULLPTR)
+            if (currentpatient()->id() == pat->id())
             {
-                if (currentpatient()->id() == pat->id())
-                {
-                    ui->tabWidget->setCurrentWidget(ui->tabDossier);
-                    return;
-                }
+                ui->tabWidget->setCurrentWidget(ui->tabDossier);
+                return;
             }
             else
             {
