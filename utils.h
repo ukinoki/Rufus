@@ -152,6 +152,7 @@ public:
 
     //! renvoie la valeur littérale d'un enum (à condition d'avoir placé la macro Q_ENUM(nomdelenum) dans la définition de l'enum
     static QString EnumDescription(QMetaEnum metaEnum, int val);
+    // p.e.         qDebug() << Utils::EnumDescription(QMetaEnum::fromType<Refraction::Mesure>(), ref->typemesure());
 
     //! calcule la taille idéale d'une police
     static void CalcFontSize(QFont &font);
@@ -197,7 +198,7 @@ public:
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
 
-    //! laliste des appareils d'imageire contenant pour chaque appareil: le titre de l'examen, le nom de l'appareil, le dossier de stockage des images émises
+    //! la liste des appareils d'imagerie contenant pour chaque appareil: le titre de l'examen, le nom de l'appareil, le dossier de stockage des images émises
 private:
     QList<QStringList> m_listeappareils;
 public:

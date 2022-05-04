@@ -499,7 +499,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     if (currentsession()->incident() != "")
     {
         lign += "<p align=\"left\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + "</b></span></font>" ;
-        lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
+        lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*500)) + "\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
         lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
     }
     bool incidents = false;
@@ -521,7 +521,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
                     entete += " - " + typ->typeintervention();
                 lign +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"><td width=\"" + QString::number(int(c*400)) + "\"><span style=\"font-size:8pt;\"><b>" + entete + "</b></span></td>" ;
                 QString inc = interv->incident();
-                lign +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
+                lign +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"" + QString::number(int(c*400)) + "\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
             }
         }
     }
@@ -1348,7 +1348,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         {
             if (Datas::I()->manufacturers->getById(wdg_manufacturercombo->currentData().toInt()) == Q_NULLPTR)
             {
-                UpMessageBox::Watch(this, tr("Ce farbicant n'est pas retrouvé"));
+                UpMessageBox::Watch(this, tr("Ce fabricant n'est pas retrouvé"));
                 return;
             }
             if (Datas::I()->iols->getById(wdg_IOLcombo->currentData().toInt()) == Q_NULLPTR)
@@ -1436,6 +1436,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         {
             int oldidsession = interv->idsession();
             DataBase::I()->UpdateTable(TBL_LIGNESPRGOPERATOIRES, listbinds, "where " CP_ID_LIGNPRGOPERATOIRE " = " + QString::number(interv->id()));
+            /*
             interv->setheure(heure);
             interv->setidsession(idsession);
             interv->setidtypeintervention(idtype);
@@ -1443,6 +1444,18 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             interv->setanesthesie(Intervention::ConvertModeAnesthesie(anesth));
             interv->setobservation(ObservtextEdit->toPlainText());
             interv->setidacte(idact);
+            if (wdg_IOLchk->isChecked())
+            {
+                interv->setidIOL(m_currentIOL->id());
+                interv->setpuissanceIOL(wdg_pwrIOLspinbox->value());
+                interv->setpuissanceIOL(wdg_cylIOLspinbox->value());
+            }
+            else
+            {
+                interv->setidIOL(0);
+                interv->setpuissanceIOL(0);
+                interv->setcylindreIOL(0);
+            }*/
 
             Datas::I()->interventions->initListebySessionId(idsession);
             if (idsession != oldidsession) // on a changé de session, on change la session active

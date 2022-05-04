@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileDialog>
 #include <QFontDialog>
 #include <QDesktopWidget>
+#include <QFileSystemWatcher>
 #include <QHostInfo>
 #include <QInputDialog>
 #include <QKeyEvent>
@@ -420,7 +421,8 @@ public:
 private:
     bool                    m_dlgrefractionouverte;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
-    QSerialPort             *sp_portAutoref, *sp_portRefracteur, *sp_portTono, *sp_portFronto;
+    QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
+    bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
     struct Settings {
         qint32 baudRate;
         QSerialPort::DataBits dataBits;
@@ -431,10 +433,9 @@ private:
     Settings                s_paramPortSerieAutoref;
     Settings                s_paramPortSerieFronto;
     Settings                s_paramPortSerieRefracteur;
-    SerialThread            *t_threadFronto;
-    SerialThread            *t_threadRefracteur;
-    SerialThread            *t_threadAutoref;
-    QTimer                  *t_xmltimer;
+    SerialThread            *t_threadFronto = Q_NULLPTR;
+    SerialThread            *t_threadRefracteur = Q_NULLPTR;
+    SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
@@ -469,6 +470,9 @@ public:
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();
+    bool                    LANAutoref()       {return m_LANAutoref;};
+    bool                    LANFronto()        {return m_LANFronto;};
+    bool                    LANRefracteur()    {return m_LANRefracteur;};
     bool                    HasAppareilRefractionConnecte();                        //! true si un appareil de refraction est connecté sur un port série ou sur le réseau
     void                    debugMesure(QObject *mesure, QString titre = "");
     //LE FRONTO ----------------------------------------------------
@@ -489,6 +493,9 @@ public:
 
 private:
     QString                 m_mesureSerie;
+    QFileSystemWatcher      m_filewatcherfronto;                                    /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
+    QFileSystemWatcher      m_filewatcherautoref;                                   /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml autoref */
+    QFileSystemWatcher      m_filewatcherrefracteur;                                /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml refracteur */
     TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
     TypesMesures            m_flagreglagerefracteur = MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
@@ -497,16 +504,21 @@ private:
     bool                    Ouverture_Fichiers_Echange(TypesAppareils appareils);   //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
     //LE FRONTO ----------------------------------------------------
     void                    LectureDonneesCOMFronto(QString Mesure);                //! lit les données envoyées sur le port série du fronto
+    void                    LectureDonneesXMLFronto(QDomDocument docxml);           //! lit les données envoyées sur le fichier échange XML du fronto
     void                    ReponsePortSerie_Fronto(const QString &s);
+    void                    ReponseXML_Fronto(const QDomDocument &docxml);
     //L'AUTOREF ----------------------------------------------------
     void                    LectureDonneesCOMAutoref(QString Mesure);               //! lit les données envoyées sur le port série du fronto
-    void                    LectureDonneesXMLAutoref(QDomDocument docxml);               //! lit les données envoyées sur le fichier échange XML du fronto
+    void                    LectureDonneesXMLAutoref(QDomDocument docxml);          //! lit les données envoyées sur le fichier échange XML de l'autoref
     void                    ReponsePortSerie_Autoref(const QString &s);
     void                    ReponseXML_Autoref(const QDomDocument &docxml);
     //LE REFRACTEUR ------------------------------------------------
     void                    LectureDonneesCOMRefracteur(QString Mesure);            //! lit les données envoyées sur le port série du refracteur
+    void                    LectureDonneesXMLRefracteur(QDomDocument docxml);       //! lit les données envoyées sur le fichier échange XML du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
-    void                    RegleRefracteur();
+    void                    RegleRefracteurCOM();                                   //! règle le refracteur par le port Com
+    void                    RegleRefracteurXML();                                   //! règle le refracteur par le réseau
+    void                    ReponseXML_Refracteur(const QDomDocument &docxml);
 
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);

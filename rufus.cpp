@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-07-2021/1");
+    qApp->setApplicationVersion("02-05-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -6426,7 +6426,16 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     Datas::I()->patients->setDonneesOphtaCurrentPatient();
     Datas::I()->refractions->initListebyPatId(currentpatient()->id());
     SetDatasRefractionKerato();
-    if (proc->PortRefracteur()!=Q_NULLPTR)
+    /*! Cette fonction va créer 3 mesures
+     * une de fronto qui reprendra la dernière prescription de verres du patient
+     * une autoref qui reprendra la dernière mesure d'autoref du patient
+     * et une de subjectif qui reprendra la dernière mesure d'acuité du patient
+     Le refracteur sera réglé avec
+     * la mesure fronto créée en fronto et refraction finale
+     * la mesure autoref créée en autoref
+     * et la mesure acuité créée en refraction subjective
+     */
+    if (proc->PortRefracteur()!=Q_NULLPTR || proc->LANRefracteur())
     {
         proc->setFlagReglageRefracteur(Procedures::MesureAutoref | Procedures::MesureFronto);
         proc->EnvoiDataPatientAuRefracteur(currentpatient()->id());
@@ -7450,7 +7459,7 @@ bool Rufus::FermeDossier(Patient *patient)
 {
     if (patient == Q_NULLPTR)
         return false;
-    //qDebug() << "FermeDossier() " << patient << patient->nom()  << patient->prenom() << patient->id();
+    qDebug() << "FermeDossier() " << patient << patient->nom()  << patient->prenom() << patient->id();
     bool a = true;
     UpMessageBox msgbox;
     msgbox.setInformativeText(tr("Garder le dossier en salle d'attente?"));

@@ -1960,6 +1960,11 @@ void dlg_impressions::ConfigMode(Mode mode)
         if (!m_currentdossier)
             return;
         DisableLines();
+        int row = ui->DossiersupTableView->currentIndex().row();
+        UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
+        if (!itmdef)
+            return;
+        bool publicdossier = (itmdef->data(Qt::DecorationRole) != QPixmap());
         for (int i=0; i<m_dossiersmodel->rowCount(); i++)
         {
             QStandardItem *itm = m_dossiersmodel->item(i);
@@ -1975,7 +1980,7 @@ void dlg_impressions::ConfigMode(Mode mode)
                 Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
                 bool a = listid.contains(doc->id());
                 itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
-                itm->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+                itm->setFlags(publicdossier && ! doc->ispublic()? Qt::ItemIsEnabled : Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
                 m_docsmodel->item(i,5)->setText((a?"0":"1") + doc->resume());
             }
         }
@@ -1993,7 +1998,6 @@ void dlg_impressions::ConfigMode(Mode mode)
         ui->OKupPushButton->setText(tr("Enregistrer"));
         ui->OKupPushButton->setEnabled(false);
         wdg_docsbuttonframe->searchline()->clear();
-        int row = ui->DossiersupTableView->currentIndex().row();
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
         if (itm)
         {
@@ -2069,6 +2073,11 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_docsbuttonframe->searchline()->clear();
         FiltreListe();
         DisableLines();
+        int row = ui->DossiersupTableView->currentIndex().row();
+        UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
+        if (!itmdef)
+            return;
+        bool publicdossier = (itmdef->data(Qt::DecorationRole) != QPixmap());
         for (int i=0; i<m_docsmodel->rowCount(); i++)
         {
             QStandardItem *itm = m_docsmodel->item(i,0);
@@ -2078,7 +2087,10 @@ void dlg_impressions::ConfigMode(Mode mode)
                 itm->setCheckState(Qt::Unchecked);
                 Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
                 if (doc)
+                {
+                    itm->setFlags(publicdossier && ! doc->ispublic()? Qt::ItemIsEnabled : Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
                     m_docsmodel->item(i,5)->setText("1" + doc->resume());
+                }
             }
         }
         m_docsmodel->sort(5);
@@ -2373,7 +2385,16 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
             {
                 Impression *doc= dynamic_cast<Impression*>(itm->item());
                 if (doc)
+                {
+                    if (publicdossier && !doc->ispublic())
+                    {
+                        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Vous ne pouvez pas enregistre le document") + " " + doc->resume()
+                                            + " " + tr("dans ce dossier car ce dossier est public et pas le document"));
+                        ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
+                        return false;
+                    }
                     listid << doc->id();
+                }
             }
     }
     if (listid.size() == 0)

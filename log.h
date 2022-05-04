@@ -79,12 +79,12 @@ public:
     }
     static void LogToDir(QString NomDir, QString msg)
     {
-        //syntaxe = LogToFile("test.txt", texte);
+        //syntaxe = LogToDir("test.dir", texte);
         QDir targetdir;
         QString dir = dirlog() + "/" + NomDir;
         if (!targetdir.exists(dir))
             targetdir.mkdir(dir);
-        QString fileName(dir + "/" + datelog());
+        QString fileName(dir + "/" + datelog() + ".txt");
         QFile testfile(fileName);
         if (testfile.open(QIODevice::Append))
         {
