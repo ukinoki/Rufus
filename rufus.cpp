@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("02-05-2022/1");
+    qApp->setApplicationVersion("06-05-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -8571,14 +8571,32 @@ void Rufus::SetDatasRefractionKerato()
     Datas::I()->mesurepachy     ->cleandatas();
 
     /*! Autoref     on cherche à régler la position autoref du refracteur - on utilise la dernière mesure d'acuité pour ça
-                    * si on en n'a pas, on cherche la dernière mesure de fronto */
+     *  parce qu'elle sera aussi mise en refraction subjective
+     *  (chez Nidek, on ne peut pas régler directement la réfraction subjective autrement qu'en réglant l'autoref...
+                    * si on en n'a pas, on cherche la dernière mesure de fronto
+                    * Si on utilise un Glasspop on va lui rentrer la mesure du joour d'autoref si on en a une puisque le Galsspop ne veut pas savoir s'il y a eu une refraction antérieure
+ */
     itref.toBack();
-    while (itref.hasPrevious()) {
-        itref.previous();
-        if (itref.value()->typemesure() == Refraction::Acuite)
-        {
-            Datas::I()->mesureautoref->setdatas(const_cast<Refraction*>(itref.value()));
-            itref.toFront();
+    if (proc->settings()->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop")
+        while (itref.hasPrevious()) {  // si on a un autoref frais du jour on le prend
+            itref.previous();
+            if (Datas::I()->actes->getById(itref.value()->idacte()) != Q_NULLPTR)
+                if (itref.value()->typemesure() == Refraction::Autoref && Datas::I()->actes->getById(itref.value()->idacte())->date() == QDate::currentDate())
+                {
+                    Datas::I()->mesureautoref->setdatas(const_cast<Refraction*>(itref.value()));
+                    itref.toFront();
+                }
+        }
+    if (Datas::I()->mesureautoref->isdataclean())
+    {
+        itref.toBack();
+        while (itref.hasPrevious()) {
+            itref.previous();
+            if (itref.value()->typemesure() == Refraction::Acuite)
+            {
+                Datas::I()->mesureautoref->setdatas(const_cast<Refraction*>(itref.value()));
+                itref.toFront();
+            }
         }
     }
     if (Datas::I()->mesureautoref->isdataclean())
@@ -8594,13 +8612,14 @@ void Rufus::SetDatasRefractionKerato()
         }
     }
 
-    /*! Fronto      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition ou de fronto */
+    /*! Fronto et Final    on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition ou de fronto */
     itref.toBack();
     while (itref.hasPrevious()) {
         itref.previous();
         if ((itref.value()->typemesure() == Refraction::Prescription || itref.value()->typemesure() == Refraction::Fronto) && itref.value()->distance() != Refraction::Pres)
         {
             Datas::I()->mesurefronto->setdatas(const_cast<Refraction*>(itref.value()));
+            Datas::I()->mesurefinal->setdatas(const_cast<Refraction*>(itref.value()), false);
             itref.toFront();
         }
     }
@@ -8615,8 +8634,6 @@ void Rufus::SetDatasRefractionKerato()
         {
             Datas::I()->mesureacuite->setdatas(const_cast<Refraction*>(itref.value()), false);
             itref.toFront();
-
-
         }
     }
     if (Datas::I()->mesureacuite->isdataclean())
@@ -8627,10 +8644,6 @@ void Rufus::SetDatasRefractionKerato()
             Datas::I()->mesureacuite->setdatas(Datas::I()->mesurefronto);
     }
 
-    /*! Final      on cherche à régler les positions fronto et final du refracteur - on utilise la dernière mesure de prescrition pour ça
-                    * si on n'en a pas, on cherche la dernière mesure de fronto */
-    if (!Datas::I()->mesurefronto ->isdataclean())
-        Datas::I()->mesurefinal->setdatas(Datas::I()->mesurefronto);
     if (DataBase::I()->donneesOphtaPatient()->ismesurekerato())
     {
         Datas::I()->mesurekerato->setK1OD(DataBase::I()->donneesOphtaPatient()->K1OD());
@@ -8644,6 +8657,10 @@ void Rufus::SetDatasRefractionKerato()
         Datas::I()->mesurekerato->setdioptriesK1OG(DataBase::I()->donneesOphtaPatient()->dioptriesK1OG());
         Datas::I()->mesurekerato->setdioptriesK2OG(DataBase::I()->donneesOphtaPatient()->dioptriesK2OG());
     }
+    Datas::I()->mesureautoref   ->ConversionCylindreNeg();
+    Datas::I()->mesurefronto    ->ConversionCylindreNeg();
+    Datas::I()->mesureacuite    ->ConversionCylindreNeg();
+    Datas::I()->mesurefinal     ->ConversionCylindreNeg();
 
     //proc->debugMesure(Datas::I()->mesurekerato);
 }

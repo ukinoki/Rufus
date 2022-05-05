@@ -116,18 +116,6 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
-//    QStringList listfichxml = QDir(PATH_DIR_AUTOREF).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-//    if (listfichxml.size())
-//    {
-//        const QString nomfichierxml      = PATH_DIR_AUTOREF "/" + listfichxml.at(0);
-//        QFile xmldoc(nomfichierxml);
-//        if (xmldoc.open(QIODevice::ReadOnly))
-//        {
-//            QDomDocument docxml;
-//            docxml.setContent(&xmldoc);
-//            LectureDonneesXMLAutoref(docxml);
-//        }
-//    }
 }
 
 void Procedures::ab(int i)
@@ -4933,27 +4921,9 @@ void Procedures::RegleRefracteurXML()
                         QDomElement s = LMxml.createElement("S");
                         lm.appendChild(s);
                         {
-                            QDomElement sph = LMxml.createElement("Sphere");
-                            sph.setAttribute("unit","D");
-                            {
-                                QDomText val = LMxml.createTextNode("-2.00");
-                                sph.appendChild(val);
-                            }
-                            s.appendChild(sph);
-                            QDomElement cyl = LMxml.createElement("Cylinder");
-                            cyl.setAttribute("unit","D");
-                            {
-                                QDomText val = LMxml.createTextNode("-1.50");
-                                cyl.appendChild(val);
-                            }
-                            s.appendChild(cyl);
-                            QDomElement ax = LMxml.createElement("Axis");
-                            ax.setAttribute("unit","deg");
-                            {
-                                QDomText val = LMxml.createTextNode("143");
-                                ax.appendChild(val);
-                            }
-                            s.appendChild(ax);
+                            s.appendChild(LMxml.createElement("Sphere"));
+                            s.appendChild(LMxml.createElement("Cylinder"));
+                            s.appendChild(LMxml.createElement("Axis"));
                             s.appendChild(LMxml.createElement("SE"));
                             s.appendChild(LMxml.createElement("ADD"));
                             s.appendChild(LMxml.createElement("ADD2"));
@@ -4987,7 +4957,7 @@ void Procedures::RegleRefracteurXML()
                             QDomElement ax = LMxml.createElement("Axis");
                             ax.setAttribute("unit","deg");
                             {
-                                QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesureautoref->axecylindreOD()));
+                                QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->axecylindreOD()));
                                 ax.appendChild(val);
                             }
                             r.appendChild(ax);
@@ -5030,7 +5000,7 @@ void Procedures::RegleRefracteurXML()
                             QDomElement ax = LMxml.createElement("Axis");
                             ax.setAttribute("unit","deg");
                             {
-                                QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesureautoref->axecylindreOG()));
+                                QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->axecylindreOG()));
                                 ax.appendChild(val);
                             }
                             l.appendChild(ax);
@@ -5059,6 +5029,7 @@ void Procedures::RegleRefracteurXML()
                     {
                         QDomElement pdb = LMxml.createElement("Distance");
                         pdb.setAttribute("Unit","mm");
+                        if (Datas::I()->mesurefronto->ecartIP()>0)
                         {
                             QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->ecartIP()));
                             pdb.appendChild(val);
@@ -5079,24 +5050,12 @@ void Procedures::RegleRefracteurXML()
                         {
                             QDomElement length = LMxml.createElement("Length");
                             length.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("23");
-                                length.appendChild(val);
-                            }
                             s.appendChild(length);
                             QDomElement chwidth = LMxml.createElement("Length");
                             chwidth.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("18");
-                                chwidth.appendChild(val);
-                            }
                             s.appendChild(chwidth);
                             QDomElement chlength = LMxml.createElement("Length");
                             chlength.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("23");
-                                chlength.appendChild(val);
-                            }
                             s.appendChild(chlength);
                             s.appendChild(LMxml.createElement("Index"));
                             QDomElement gtrs = LMxml.createElement("GreenTransmittance");
@@ -5108,24 +5067,12 @@ void Procedures::RegleRefracteurXML()
                         {
                             QDomElement length = LMxml.createElement("Length");
                             length.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("23");
-                                length.appendChild(val);
-                            }
                             r.appendChild(length);
                             QDomElement chwidth = LMxml.createElement("Length");
                             chwidth.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("18");
-                                chwidth.appendChild(val);
-                            }
                             r.appendChild(chwidth);
                             QDomElement chlength = LMxml.createElement("Length");
                             chlength.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("23");
-                                chlength.appendChild(val);
-                            }
                             r.appendChild(chlength);
                             r.appendChild(LMxml.createElement("Index"));
                             QDomElement gtrs = LMxml.createElement("GreenTransmittance");
@@ -5137,24 +5084,12 @@ void Procedures::RegleRefracteurXML()
                         {
                             QDomElement length = LMxml.createElement("Length");
                             length.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("23");
-                                length.appendChild(val);
-                            }
                             l.appendChild(length);
                             QDomElement chwidth = LMxml.createElement("Length");
                             chwidth.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("18");
-                                chwidth.appendChild(val);
-                            }
                             l.appendChild(chwidth);
                             QDomElement chlength = LMxml.createElement("Length");
                             chlength.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("23");
-                                chlength.appendChild(val);
-                            }
                             l.appendChild(chlength);
                             l.appendChild(LMxml.createElement("Index"));
                             QDomElement gtrs = LMxml.createElement("GreenTransmittance");
@@ -5167,18 +5102,10 @@ void Procedures::RegleRefracteurXML()
                             QDomElement neth = LMxml.createElement("NetHPrism");
                             neth.setAttribute("unit","pri");
                             neth.setAttribute("base","in");
-                            {
-                                QDomText val = LMxml.createTextNode("3");
-                                neth.appendChild(val);
-                            }
                             netprism.appendChild(neth);
                             QDomElement netv = LMxml.createElement("NetVPrism");
                             netv.setAttribute("unit","pri");
                             netv.setAttribute("base","out");
-                            {
-                                QDomText val = LMxml.createTextNode("2");
-                                netv.appendChild(val);
-                            }
                             netprism.appendChild(netv);
                         }
                         QDomElement inside = LMxml.createElement("Inside");
@@ -5186,17 +5113,9 @@ void Procedures::RegleRefracteurXML()
                         {
                             QDomElement r = LMxml.createElement("InsideR");
                             r.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("2.0");
-                                r.appendChild(val);
-                            }
                             inside.appendChild(r);
                             QDomElement l = LMxml.createElement("InsideL");
                             l.setAttribute("unit","mm");
-                            {
-                                QDomText val = LMxml.createTextNode("1.0");
-                                l.appendChild(val);
-                            }
                             inside.appendChild(l);
                         }
                     }
@@ -5391,32 +5310,11 @@ void Procedures::RegleRefracteurXML()
                 QDomElement lm = ARxml.createElement("LM");
                 r.appendChild(lm);
                 {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    lm.appendChild(sph);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->sphereOD(),'f',2));
-                        sph.appendChild(val);
-                    }
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    lm.appendChild(cyl);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->cylindreOD(),'f',2));
-                        cyl.appendChild(val);
-                    }
-                    QDomElement ax = ARxml.createElement("Axis");
-                    lm.appendChild(ax);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->axecylindreOD()));
-                        ax.appendChild(val);
-                    }
-                    QDomElement add = ARxml.createElement("ADD");
-                    lm.appendChild(add);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2));
-                        add.appendChild(val);
-                    }
-                    QDomElement add2 = ARxml.createElement("ADD2");
-                    lm.appendChild(add2);
+                    lm.appendChild(ARxml.createElement("Sphere"));
+                    lm.appendChild(ARxml.createElement("Cylinder"));
+                    lm.appendChild(ARxml.createElement("Axis"));
+                    lm.appendChild(ARxml.createElement("ADD"));
+                    lm.appendChild(ARxml.createElement("ADD2"));
                 }
                 QDomElement km = ARxml.createElement("KM");
                 r.appendChild(km);
@@ -5659,32 +5557,11 @@ void Procedures::RegleRefracteurXML()
                 QDomElement lm = ARxml.createElement("LM");
                 l.appendChild(lm);
                 {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    lm.appendChild(sph);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->sphereOG(),'f',2));
-                        sph.appendChild(val);
-                    }
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    lm.appendChild(cyl);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->cylindreOG(),'f',2));
-                        cyl.appendChild(val);
-                    }
-                    QDomElement ax = ARxml.createElement("Axis");
-                    lm.appendChild(ax);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->axecylindreOG()));
-                        ax.appendChild(val);
-                    }
-                    QDomElement add = ARxml.createElement("ADD");
-                    lm.appendChild(add);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2));
-                        add.appendChild(val);
-                    }
-                    QDomElement add2 = ARxml.createElement("ADD2");
-                    lm.appendChild(add2);
+                    lm.appendChild(ARxml.createElement("Sphere"));
+                    lm.appendChild(ARxml.createElement("Cylinder"));
+                    lm.appendChild(ARxml.createElement("Axis"));
+                    lm.appendChild(ARxml.createElement("ADD"));
+                    lm.appendChild(ARxml.createElement("ADD2"));
                 }
                 QDomElement km = ARxml.createElement("KM");
                 l.appendChild(km);
@@ -5829,6 +5706,7 @@ void Procedures::RegleRefracteurXML()
                 {
                     QDomElement fpd = ARxml.createElement("FarPD");
                     pdl.appendChild(fpd);
+                    if (Datas::I()->mesurefronto->ecartIP()>0)
                     {
                         QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->ecartIP()));
                         fpd.appendChild(val);
@@ -8524,6 +8402,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
         }
         if (autorefhaskerato)
         {
+            QString DiametreKeratoAUtiliserTonorefIII = "2.4mm";
             //! Données de KERATOMETRIE --------------------------------------------------------------------------------------------------------
             for (int i=0; i<xml.childNodes().size(); i++)
             {
@@ -8534,7 +8413,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                     {
                         QDomElement K = childnode.childNodes().at(j).toElement();
                         if ((K.tagName() == "KM" && !istonorefIII)
-                         || (K.tagName() == "KM" && istonorefIII && (K.attributeNode("condition").value() == "ø3.3mm" || K.attributeNode("condition").value() == "Φ3.3mm")))
+                         || (K.tagName() == "KM" && istonorefIII && (K.attributeNode("condition").value() == "ø"+ DiametreKeratoAUtiliserTonorefIII || K.attributeNode("condition").value() == "Φ" + DiametreKeratoAUtiliserTonorefIII)))
                         {
                             for (int k=0; k<K.childNodes().size(); k++)
                             {
@@ -8587,7 +8466,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                     {
                         QDomElement K = childnode.childNodes().at(j).toElement();
                         if ((K.tagName() == "KM" && !istonorefIII)
-                         || (K.tagName() == "KM" && istonorefIII && (K.attributeNode("condition").value() == "ø3.3mm" || K.attributeNode("condition").value() == "Φ3.3mm")))
+                         || (K.tagName() == "KM" && istonorefIII && (K.attributeNode("condition").value() == "ø" + DiametreKeratoAUtiliserTonorefIII || K.attributeNode("condition").value() == "Φ" + DiametreKeratoAUtiliserTonorefIII)))
                         {
                             for (int k=0; k<K.childNodes().size(); k++)
                             {

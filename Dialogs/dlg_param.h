@@ -129,8 +129,8 @@ private:
     void                MAJActesCCAM(QWidget *widg, QString txt = "");
     void                MAJAssocCCAM(QWidget *widg, QString txt = "");
     void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
-    void                ModifPathEchangeAppareilMesure(enum Mesure mesure);                        /*! indique l'emplacement réseau d'un appareil de refraction*/
-    void                ModifPathDirEchangeMesure(enum Mesure mesure);                      /*! indique l'emplacement réseau du fichier d'échange d'un appreil de refraction*/
+    void                ModifPathEchangeReglageRefracteur(enum Mesure mesure);              /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
+    void                ModifPathDirEchangeMesure(enum Mesure mesure);                      /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
     void                ParamMotifs();
     void                RegleAssocBoutons(QWidget *widg);

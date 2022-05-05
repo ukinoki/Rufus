@@ -769,6 +769,8 @@ void dlg_param::ChoixFontpushButtonClicked()
 
 void dlg_param::ClearCom(UpComboBox* box, int a)
 {
+    if (box == Q_NULLPTR)
+        return;
     if (a==0)
     {
         if (box==ui->AutorefupComboBox)
@@ -779,6 +781,7 @@ void dlg_param::ClearCom(UpComboBox* box, int a)
             ui->PortTonometreupComboBox ->setCurrentIndex(0);
         if (box==ui->RefracteurupComboBox)
             ui->PortRefracteurupComboBox->setCurrentIndex(0);
+        EnableNetworkAppareilRefraction(box,0);
     }
     ui->PortAutorefupComboBox   ->setEnabled(ui->AutorefupComboBox->currentIndex()>0);
     ui->PortFrontoupComboBox    ->setEnabled(ui->FrontoupComboBox->currentIndex()>0);
@@ -1729,7 +1732,7 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
 
         ui->NetworkPathFrontoupLineEdit ->setText(dirmesure);
         ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(dirmesure);
-        proc->settings()->setValue("Param_Poste/PortFronto/Reseau", ui->NetworkPathFrontoupLineEdit->text());
+        m_modifposte = true;
         break;
     case Autoref:
         dirmesureorigin   = ui->DirBackupuplineEdit->text();
@@ -1741,7 +1744,7 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
             return;
 
         ui->NetworkPathAutorefupLineEdit ->setText(dirmesure);
-        ui->NetworkPathAutorefupLineEdit ->setImmediateToolTip(dirmesure);
+        m_modifposte = true;
         proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", ui->NetworkPathAutorefupLineEdit->text());
         break;
     case Refracteur:
@@ -1755,7 +1758,7 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
 
         ui->NetworkPathRefracteurupLineEdit ->setText(dirmesure);
         ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(dirmesure);
-        proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau", ui->NetworkPathRefracteurupLineEdit->text());
+        m_modifposte = true;
         break;
     case Tono:
         dirmesureorigin   = ui->DirBackupuplineEdit->text();
@@ -1768,12 +1771,12 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
 
         ui->NetworkPathTonoupLineEdit ->setText(dirmesure);
         ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(dirmesure);
-        proc->settings()->setValue("Param_Poste/PortTonometre/Reseau", ui->NetworkPathTonoupLineEdit->text());
+        m_modifposte = true;
         break;
     }
 }
 
-void dlg_param::ModifPathEchangeAppareilMesure(Mesure mesure)
+void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
 {
     QString dirmesureorigin ("");
     QString dirmesure ("");
@@ -1794,7 +1797,7 @@ void dlg_param::ModifPathEchangeAppareilMesure(Mesure mesure)
         }
         ui->NetworkPathEchangeFrontoupLineEdit ->setText(dirmesure);
         ui->NetworkPathEchangeFrontoupLineEdit ->setImmediateToolTip(dirmesure);
-        proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressFronto", dirmesure);
+        m_modifposte = true;
         break;
     case Autoref:
         dirmesureorigin   = ui->DirBackupuplineEdit->text();
@@ -2216,8 +2219,8 @@ void dlg_param::ConnectSignals()
     connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Refracteur);});
     connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Tono);});
 
-    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,              this,   [=] {ModifPathEchangeAppareilMesure(Fronto);});
-    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathEchangeAppareilMesure(Autoref);});
+    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Fronto);});
+    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Autoref);});
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -2295,6 +2298,8 @@ void dlg_param::EnableHorsNomenclature(bool enable)
 
 void dlg_param::EnableNetworkAppareilRefraction(UpComboBox *combo, int idx)
 {
+    if (combo == Q_NULLPTR)
+        return;
     QString currtext = combo->itemText(idx);
     bool a = (currtext == RESEAU);
     if (combo == ui->PortFrontoupComboBox)
