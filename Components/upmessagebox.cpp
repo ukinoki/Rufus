@@ -243,6 +243,7 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
     int repons = msgbox->clickedButton()->ButtonStyle();
     if (a==0)
         repons = UpSmallButton::CANCELBUTTON;
+    //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<UpSmallButton::StyleBouton>(), repons);
     delete msgbox;
     return repons;
 }

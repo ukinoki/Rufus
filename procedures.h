@@ -494,8 +494,14 @@ public:
 private:
     QString                 m_mesureSerie;
     QFileSystemWatcher      m_filewatcherfronto;                                    /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
+    QDateTime               m_filewatcherfrontocreated = QDateTime();               /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
+    QString                 m_filewatcherfrontofile = "";                           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     QFileSystemWatcher      m_filewatcherautoref;                                   /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml autoref */
+    QDateTime               m_filewatcherautorefcreated = QDateTime();              /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
+    QString                 m_filewatcherautoreffile = "";                          /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     QFileSystemWatcher      m_filewatcherrefracteur;                                /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml refracteur */
+    QDateTime               m_filewatcherrefracteurcreated = QDateTime();           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
+    QString                 m_filewatcherrefracteurfile = "";                       /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
     TypesMesures            m_flagreglagerefracteur = MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP

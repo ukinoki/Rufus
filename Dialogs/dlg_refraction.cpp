@@ -1912,6 +1912,7 @@ void dlg_refraction::RemplitChamps(Refraction *ref)
 {
     if (ref == Q_NULLPTR)
         return;
+    ref->ConversionCylindreNeg();
     // Remplissage des champs Oeil Droit
     ui->ODCheckBox->setChecked(ref->isODmesure());
     if (ref->isODmesure())

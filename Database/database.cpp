@@ -2663,7 +2663,10 @@ QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //!
         QJsonObject data = loadRefractionData(reflist.at(i));
         Refraction *ref = new Refraction(data);
         if (ref != Q_NULLPTR)
+        {
+            ref->ConversionCylindreNeg();
             list << ref;
+        }
     }
     return list;
 }

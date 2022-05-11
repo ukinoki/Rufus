@@ -4186,6 +4186,45 @@ GESTION DES FICHIERS ECHANGE XML DES APPAREILS DE REFRACTION -------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
 {
+    auto lecturefichier = [] (TypeAppareil appareil, QString pathdirappareil, QStringList listfichxml)
+    {
+        QString app = "";
+        switch (appareil)
+        {
+        case Fronto:        app = "le frontofocomètre";     break;
+        case Autoref:       app = "l'autorefractomètre";    break;
+        case Refracteur:    app = "le refracteur";          break;
+        default: break;
+        }
+        const QString nomfichierxml      = pathdirappareil + "/" + listfichxml.at(0);
+        QFile xmldoc(nomfichierxml);
+        QDomDocument docxml;
+        if (xmldoc.open(QIODevice::ReadOnly))
+        {
+            docxml.setContent(&xmldoc);
+            xmldoc.remove();
+        }
+
+        if ((Datas::I()->actes->currentacte() != Q_NULLPTR && Datas::I()->actes->currentacte()->date() == QDate::currentDate())
+                || UpMessageBox::Question(Q_NULLPTR,
+                                          tr("Une mesure vient d'être émise par ") + app + tr(" mais la date de l'acte actuellement affiché n'est pas celle d'aujour'hui."),
+                                          "\n" +
+                                          tr("Voulez-vous quand même enregistrer cette mesure?"),
+                                          UpDialog::ButtonOK | UpDialog::ButtonCancel, QStringList() << tr("Annuler") << tr("Enregistrer la mesure"))
+                == UpSmallButton::STARTBUTTON)
+        {
+            switch (appareil)
+            {
+            case Fronto:        Procedures::I()->ReponseXML_Fronto(docxml);     break;
+            case Autoref:       Procedures::I()->ReponseXML_Autoref(docxml);    break;
+            case Refracteur:    Procedures::I()->ReponseXML_Refracteur(docxml); break;
+            default: break;
+            }
+        }
+        QStringList listfich = QDir(pathdirappareil).entryList(QDir::Files | QDir::NoDotAndDotDot);
+            for(int i = 0; i < listfich.size(); ++i)
+                QFile(pathdirappareil + "/" + listfich.at(i)).remove();
+    };
     QString pathdirfronto ("");
     QString pathdirautoref ("");
     QString pathdirrefracteur ("");
@@ -4213,85 +4252,65 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
     }
 
     if (appareils.testFlag(Autoref) && pathdirautoref != "")
-    {
-        connect(&m_filewatcherautoref,     &QFileSystemWatcher::directoryChanged,  this,   [=]
+        connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
         {
             QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
             if (listfichxml.size())
             {
-                if (Datas::I()->actes->currentacte() != Q_NULLPTR)
-                    if (Datas::I()->actes->currentacte()->date() == QDate::currentDate())
-                    {
-                        const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
-                        QFile xmldoc(nomfichierxml);
-                        if (xmldoc.open(QIODevice::ReadOnly))
-                        {
-                            QDomDocument docxml;
-                            docxml.setContent(&xmldoc);
-                            xmldoc.remove();
-                            ReponseXML_Autoref(docxml);
-                        }
-                    }
+                /*! le patacaisse qui suit est nécessaire pour contourner un bug connu de Qt. Le signal directroychanged est parfois émis 2 fois et déclenche alors un double enregistrement de la mesure. */
+                const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
+                QFile xmldoc(nomfichierxml);
+                if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).created()))
+                {
+                    m_filewatcherautoreffile = listfichxml.at(0);
+                    m_filewatcherautorefcreated = QFileInfo(xmldoc).created();
+                    lecturefichier(Autoref, pathdirautoref, listfichxml);
+                }
                 QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for(int i = 0; i < listfich.size(); ++i)
                     QFile(pathdirautoref + "/" + listfich.at(i)).remove();
             }
-        }
-    );}
+        });
 
     if (appareils.testFlag(Fronto) && pathdirfronto != "")
-    {
-        connect(&m_filewatcherfronto,     &QFileSystemWatcher::directoryChanged,  this,   [=]
+        connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
         {
             QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
             if (listfichxml.size())
             {
-                if (Datas::I()->actes->currentacte() != Q_NULLPTR)
-                    if (Datas::I()->actes->currentacte()->date() == QDate::currentDate())
-                    {
-                        const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
-                        QFile xmldoc(nomfichierxml);
-                        if (xmldoc.open(QIODevice::ReadOnly))
-                        {
-                            QDomDocument docxml;
-                            docxml.setContent(&xmldoc);
-                            xmldoc.remove();
-                            ReponseXML_Fronto(docxml);
-                        }
-                    }
+                const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
+                QFile xmldoc(nomfichierxml);
+                if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).created()))
+                {
+                    m_filewatcherfrontofile = listfichxml.at(0);
+                    m_filewatcherfrontocreated = QFileInfo(xmldoc).created();
+                    lecturefichier(Fronto, pathdirfronto, listfichxml);
+                }
                 QStringList listfich = QDir(pathdirfronto).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for(int i = 0; i < listfich.size(); ++i)
                     QFile(pathdirfronto + "/" + listfich.at(i)).remove();
             }
-        }
-    );}
+        });
 
     if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
-    {
-        connect(&m_filewatcherrefracteur,     &QFileSystemWatcher::directoryChanged,  this,   [=]
+        connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=]
         {
             QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
             if (listfichxml.size())
             {
-                if (Datas::I()->actes->currentacte() != Q_NULLPTR)
-                    if (Datas::I()->actes->currentacte()->date() == QDate::currentDate())
-                    {
-                        const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
-                        QFile xmldoc(nomfichierxml);
-                        if (xmldoc.open(QIODevice::ReadOnly))
-                        {
-                            QDomDocument docxml;
-                            docxml.setContent(&xmldoc);
-                            xmldoc.remove();
-                            ReponseXML_Refracteur(docxml);
-                        }
-                    }
+                const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
+                QFile xmldoc(nomfichierxml);
+                if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).created()))
+                {
+                    m_filewatcherrefracteurfile = listfichxml.at(0);
+                    m_filewatcherrefracteurcreated = QFileInfo(xmldoc).created();
+                    lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
+                }
                 QStringList listfich = QDir(pathdirrefracteur).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for(int i = 0; i < listfich.size(); ++i)
                     QFile(pathdirrefracteur + "/" + listfich.at(i)).remove();
             }
         });
-    }
     return true;
 }
 

@@ -129,6 +129,27 @@ QString Refraction::ConvertMesure(Refraction::Mesure Mesure)
     }
 }
 
+void Refraction::ConversionCylindreNeg()
+{
+    if (m_cylindreOD > 0 && (m_sphereOD + m_cylindreOD < 20))
+    {
+        m_sphereOD += m_cylindreOD;
+        m_cylindreOD = m_cylindreOD * -1;
+        if (m_axecylindreOD >= 90)
+            m_axecylindreOD -= 90;
+        else
+            m_axecylindreOD += 90;
+    }
+    if (m_cylindreOG>0 && (m_sphereOG + m_cylindreOG < 20))
+    {
+        m_sphereOG += m_cylindreOG;
+        m_cylindreOG = m_cylindreOG * -1;
+        if (m_axecylindreOG >= 90)
+            m_axecylindreOG -= 90;
+        else
+            m_axecylindreOG += 90;
+    }
+};
 void Refraction::setdataclean(Mesure mesure)
 {
     m_data[CP_SPHEREOD_REFRACTIONS]           = 0;

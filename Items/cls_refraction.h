@@ -209,10 +209,11 @@ public:
 
     void setdataclean(Refraction::Mesure mesure = Refraction::NoMesure);
 
-    static Distance    ConvertDistance(QString distance);
-    static QString     ConvertDistance(Refraction::Distance distance);
-    static Mesure      ConvertMesure(QString Mesure);
-    static QString     ConvertMesure(Refraction::Mesure Mesure);
+    static Distance     ConvertDistance(QString distance);
+    static QString      ConvertDistance(Refraction::Distance distance);
+    static Mesure       ConvertMesure(QString Mesure);
+    static QString      ConvertMesure(Refraction::Mesure Mesure);
+    void                ConversionCylindreNeg();
 };
 
 #endif // CLS_REFRACTION_H
