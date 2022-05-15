@@ -21,8 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    //! la date doit impérativement être composé de date version au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("11-05-2022/1");
+    //! la date doit impérativement être composée au format "00-00-0000" / n°version
+    qApp->setApplicationVersion("15-05-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -6094,6 +6094,7 @@ void Rufus::AfficheActe(Acte* acte)
     Datas::I()->actes->setcurrentacte(acte);
     if (acte == Q_NULLPTR)
         return;
+
     int nbActes (0);
     int noActe (0);
     //1.  Retrouver l'acte défini par son idActe et afficher les champs
@@ -7131,6 +7132,7 @@ void Rufus::CreerDossier()
             }
             else if (msgbox.clickedButton() == &OuvrirBouton)
             {
+                Datas::I()->patients->setcurrentpatient(pat);
                 CreerActe(pat);
                 AfficheDossier(pat);
             }
@@ -9525,9 +9527,16 @@ void Rufus::SupprimerActe(Acte *act)
 
     // on supprime l'acte -------------------------------------------------------------------------------------------------
     m_listeactes->SupprimeActe(act);
-
-    // On affiche la nouvelle consultation
-    AfficheActe(nouvact);                           //! depuis SupprimerActe(Acte *act)
+    if (m_listeactes->actes()->size() == 0)
+    {
+        ui->Acteframe->setVisible(false);
+        ui->CreerActepushButton_2->setVisible(true);
+        ui->CreerBOpushButton_2->setVisible(true);
+        ui->idActelineEdit->clear();
+        Datas::I()->actes->setcurrentacte(Q_NULLPTR);
+    }
+    else
+        AfficheActe(nouvact);                           //! depuis SupprimerActe(Acte *act)
 
     // On met à jour l'affichage éventuel de dlg_actesprecedents
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();

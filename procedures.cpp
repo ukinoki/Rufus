@@ -4191,9 +4191,9 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         QString app = "";
         switch (appareil)
         {
-        case Fronto:        app = "le frontofocomètre";     break;
-        case Autoref:       app = "l'autorefractomètre";    break;
-        case Refracteur:    app = "le refracteur";          break;
+        case Fronto:        app = tr("le frontofocomètre");     break;
+        case Autoref:       app = tr("l'autorefractomètre");    break;
+        case Refracteur:    app = tr("le refracteur");          break;
         default: break;
         }
         const QString nomfichierxml      = pathdirappareil + "/" + listfichxml.at(0);
@@ -4205,20 +4205,23 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
             xmldoc.remove();
         }
 
-        if ((Datas::I()->actes->currentacte() != Q_NULLPTR && Datas::I()->actes->currentacte()->date() == QDate::currentDate())
-                || UpMessageBox::Question(Q_NULLPTR,
+        if (Datas::I()->actes->currentacte() != Q_NULLPTR)
+        {
+            if (Datas::I()->actes->currentacte()->date() == QDate::currentDate()
+              || UpMessageBox::Question(Q_NULLPTR,
                                           tr("Une mesure vient d'être émise par ") + app + tr(" mais la date de l'acte actuellement affiché n'est pas celle d'aujour'hui."),
                                           "\n" +
                                           tr("Voulez-vous quand même enregistrer cette mesure?"),
                                           UpDialog::ButtonOK | UpDialog::ButtonCancel, QStringList() << tr("Annuler") << tr("Enregistrer la mesure"))
                 == UpSmallButton::STARTBUTTON)
-        {
-            switch (appareil)
             {
-            case Fronto:        Procedures::I()->ReponseXML_Fronto(docxml);     break;
-            case Autoref:       Procedures::I()->ReponseXML_Autoref(docxml);    break;
-            case Refracteur:    Procedures::I()->ReponseXML_Refracteur(docxml); break;
-            default: break;
+                switch (appareil)
+                {
+                case Fronto:        Procedures::I()->ReponseXML_Fronto(docxml);     break;
+                case Autoref:       Procedures::I()->ReponseXML_Autoref(docxml);    break;
+                case Refracteur:    Procedures::I()->ReponseXML_Refracteur(docxml); break;
+                default: break;
+                }
             }
         }
         QStringList listfich = QDir(pathdirappareil).entryList(QDir::Files | QDir::NoDotAndDotDot);
@@ -4233,14 +4236,17 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         m_LANAutoref = true;
         Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
         pathdirautoref = settings()->value("Param_Poste/PortAutoref/Reseau").toString();
-        m_filewatcherautoref.addPath(pathdirautoref);
+        t_xmltimer = new QTimer(this);
+        //m_filewatcherautoref.addPath(pathdirautoref);
     }
     if (appareils.testFlag(Fronto))
     {
         m_LANFronto = true;
         Datas::I()->mesurefronto   ->settypemesure(Refraction::Fronto);
         pathdirfronto = settings()->value("Param_Poste/PortFronto/Reseau").toString();
-        m_filewatcherfronto.addPath(pathdirfronto);
+        if (t_xmltimer == Q_NULLPTR)
+            t_xmltimer = new QTimer(this);
+        //m_filewatcherfronto.addPath(pathdirfronto);
     }
     if (appareils.testFlag(Refracteur))
     {
@@ -4248,69 +4254,117 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
         Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
         pathdirrefracteur = settings()->value("Param_Poste/PortRefracteur/Reseau").toString();
-        m_filewatcherrefracteur.addPath(pathdirrefracteur);
+        if (t_xmltimer == Q_NULLPTR)
+            t_xmltimer = new QTimer(this);
+        //m_filewatcherrefracteur.addPath(pathdirrefracteur);
     }
+     if (t_xmltimer != Q_NULLPTR)
+         t_xmltimer->start(1000);
 
-    if (appareils.testFlag(Autoref) && pathdirautoref != "")
-        connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
-        {
-            QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-            if (listfichxml.size())
-            {
-                /*! le patacaisse qui suit est nécessaire pour contourner un bug connu de Qt. Le signal directroychanged est parfois émis 2 fois et déclenche alors un double enregistrement de la mesure. */
-                const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
-                QFile xmldoc(nomfichierxml);
-                if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).created()))
-                {
-                    m_filewatcherautoreffile = listfichxml.at(0);
-                    m_filewatcherautorefcreated = QFileInfo(xmldoc).created();
-                    lecturefichier(Autoref, pathdirautoref, listfichxml);
-                }
-                QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
-                for(int i = 0; i < listfich.size(); ++i)
-                    QFile(pathdirautoref + "/" + listfich.at(i)).remove();
-            }
-        });
+     connect(t_xmltimer,  &QTimer::timeout,     this,
+             [=]
+     {
+         if (appareils.testFlag(Autoref) && pathdirautoref != "")
+         {
+             QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+             if (listfichxml.size())
+             {
+                 const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
+                 QFile xmldoc(nomfichierxml);
+                 lecturefichier(Autoref, pathdirautoref, listfichxml);
+                 QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
+                 for(int i = 0; i < listfich.size(); ++i)
+                     QFile(pathdirautoref + "/" + listfich.at(i)).remove();
+             }
+         }
+         if (appareils.testFlag(Fronto) && pathdirfronto != "")
+         {
+             QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+             if (listfichxml.size())
+             {
+                 const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
+                 QFile xmldoc(nomfichierxml);
+                 lecturefichier(Fronto, pathdirfronto, listfichxml);
+                 QStringList listfich = QDir(pathdirfronto).entryList(QDir::Files | QDir::NoDotAndDotDot);
+                 for(int i = 0; i < listfich.size(); ++i)
+                     QFile(pathdirfronto + "/" + listfich.at(i)).remove();
+             }
+         }
+         if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
+         {
+             QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+             if (listfichxml.size())
+             {
+                 const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
+                 QFile xmldoc(nomfichierxml);
+                 lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
+                 QStringList listfich = QDir(pathdirrefracteur).entryList(QDir::Files | QDir::NoDotAndDotDot);
+                 for(int i = 0; i < listfich.size(); ++i)
+                     QFile(pathdirrefracteur + "/" + listfich.at(i)).remove();
+             }
+         }
+     });
 
-    if (appareils.testFlag(Fronto) && pathdirfronto != "")
-        connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
-        {
-            QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-            if (listfichxml.size())
-            {
-                const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
-                QFile xmldoc(nomfichierxml);
-                if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).created()))
-                {
-                    m_filewatcherfrontofile = listfichxml.at(0);
-                    m_filewatcherfrontocreated = QFileInfo(xmldoc).created();
-                    lecturefichier(Fronto, pathdirfronto, listfichxml);
-                }
-                QStringList listfich = QDir(pathdirfronto).entryList(QDir::Files | QDir::NoDotAndDotDot);
-                for(int i = 0; i < listfich.size(); ++i)
-                    QFile(pathdirfronto + "/" + listfich.at(i)).remove();
-            }
-        });
+//    if (appareils.testFlag(Autoref) && pathdirautoref != "")
+//        connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
+//        {
+//            QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+//            if (listfichxml.size())
+//            {
+//                /*! le patacaisse qui suit est nécessaire pour contourner un bug connu de Qt. Le signal directroychanged est parfois émis 2 fois et déclenche alors un double enregistrement de la mesure. */
+//                const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
+//                QFile xmldoc(nomfichierxml);
+//                if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).created()))
+//                {
+//                    m_filewatcherautoreffile = listfichxml.at(0);
+//                    m_filewatcherautorefcreated = QFileInfo(xmldoc).created();
+//                    lecturefichier(Autoref, pathdirautoref, listfichxml);
+//                }
+//                QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
+//                for(int i = 0; i < listfich.size(); ++i)
+//                    QFile(pathdirautoref + "/" + listfich.at(i)).remove();
+//            }
+//        });
 
-    if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
-        connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=]
-        {
-            QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-            if (listfichxml.size())
-            {
-                const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
-                QFile xmldoc(nomfichierxml);
-                if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).created()))
-                {
-                    m_filewatcherrefracteurfile = listfichxml.at(0);
-                    m_filewatcherrefracteurcreated = QFileInfo(xmldoc).created();
-                    lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
-                }
-                QStringList listfich = QDir(pathdirrefracteur).entryList(QDir::Files | QDir::NoDotAndDotDot);
-                for(int i = 0; i < listfich.size(); ++i)
-                    QFile(pathdirrefracteur + "/" + listfich.at(i)).remove();
-            }
-        });
+//    if (appareils.testFlag(Fronto) && pathdirfronto != "")
+//        connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
+//        {
+//            QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+//            if (listfichxml.size())
+//            {
+//                const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
+//                QFile xmldoc(nomfichierxml);
+//                if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).created()))
+//                {
+//                    m_filewatcherfrontofile = listfichxml.at(0);
+//                    m_filewatcherfrontocreated = QFileInfo(xmldoc).created();
+//                    lecturefichier(Fronto, pathdirfronto, listfichxml);
+//                }
+//                QStringList listfich = QDir(pathdirfronto).entryList(QDir::Files | QDir::NoDotAndDotDot);
+//                for(int i = 0; i < listfich.size(); ++i)
+//                    QFile(pathdirfronto + "/" + listfich.at(i)).remove();
+//            }
+//        });
+
+//    if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
+//        connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=]
+//        {
+//            QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+//            if (listfichxml.size())
+//            {
+//                const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
+//                QFile xmldoc(nomfichierxml);
+//                if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).created()))
+//                {
+//                    m_filewatcherrefracteurfile = listfichxml.at(0);
+//                    m_filewatcherrefracteurcreated = QFileInfo(xmldoc).created();
+//                    lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
+//                }
+//                QStringList listfich = QDir(pathdirrefracteur).entryList(QDir::Files | QDir::NoDotAndDotDot);
+//                for(int i = 0; i < listfich.size(); ++i)
+//                    QFile(pathdirrefracteur + "/" + listfich.at(i)).remove();
+//            }
+//        });
     return true;
 }
 
@@ -4859,38 +4913,21 @@ void Procedures::RegleRefracteurXML()
                 {
                     QDomElement company = LMxml.createElement("Company");
                     Common.appendChild(company);
-                    {
-                        QDomText t = LMxml.createTextNode("NIDEK");
-                        company.appendChild(t);
-                    }
+                        company.appendChild(LMxml.createTextNode("NIDEK"));
                     QDomElement model = LMxml.createElement("ModelName");
                     Common.appendChild(model);
-                    {
-                        QDomText u = LMxml.createTextNode("LM-1800PD");
-                        model.appendChild(u);
-                    }
-                    QDomElement nomachine = LMxml.createElement("MachineNo");
-                    Common.appendChild(nomachine);
-                    QDomElement rom = LMxml.createElement("ROMVersion");
-                    Common.appendChild(rom);
+                        model.appendChild(LMxml.createTextNode("LM-1800PD"));
+                    Common.appendChild(LMxml.createElement("MachineNo"));
+                    Common.appendChild(LMxml.createElement("ROMVersion"));
                     QDomElement version = LMxml.createElement("Version");
                     Common.appendChild(version);
-                    {
-                        QDomText u = LMxml.createTextNode("NIDEK_V1.01");
-                        version.appendChild(u);
-                    }
+                        version.appendChild(LMxml.createTextNode("NIDEK_V1.01"));
                     QDomElement date = LMxml.createElement("Date");
                     Common.appendChild(date);
-                    {
-                        QDomText w = LMxml.createTextNode(QDate::currentDate().toString(tr("yyyy/MM/dd")));
-                        date.appendChild(w);
-                    }
+                        date.appendChild(LMxml.createTextNode(QDate::currentDate().toString(tr("yyyy/MM/dd"))));
                     QDomElement time = LMxml.createElement("Time");
                     Common.appendChild(time);
-                    {
-                        QDomText x = LMxml.createTextNode(QTime::currentTime().toString(tr("HH:mm:ss")));
-                        time.appendChild(x);
-                    }
+                        time.appendChild(LMxml.createTextNode(QTime::currentTime().toString(tr("HH:mm:ss"))));
                     QDomElement patient = LMxml.createElement("Patient");
                     Common.appendChild(patient);
                     {

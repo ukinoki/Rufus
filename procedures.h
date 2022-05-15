@@ -503,6 +503,7 @@ private:
     QDateTime               m_filewatcherrefracteurcreated = QDateTime();           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherrefracteurfile = "";                       /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    QTimer *t_xmltimer = Q_NULLPTR;
     TypesMesures            m_flagreglagerefracteur = MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    Ouverture_Appareils_Refraction();
