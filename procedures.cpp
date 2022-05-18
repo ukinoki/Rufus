@@ -2362,7 +2362,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
             QProcess dumpProcess(parent());
             dumpProcess.start(task);
-            dumpProcess.waitForFinished();
+            dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend prafois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
+                                                      * et dans ce cas le processus est interrompu avant que toute la base soit créée */
              if (dumpProcess.exitStatus() == QProcess::NormalExit)
                 a = dumpProcess.exitCode();
             if (a != 0)
@@ -4228,6 +4229,13 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
             for(int i = 0; i < listfich.size(); ++i)
                 QFile(pathdirappareil + "/" + listfich.at(i)).remove();
     };
+    bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
+                             * au démarrage du système le signal rirectirychanged ne marche ps bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
+                             * il faut redémarrer une Rufus pour que ça se décide à marcher
+                             * On peut utiliser un timer à la place. C'est nettement moins élégant mais ça marche très bien.
+                             * Il suffit de mettre ce bool à true pour utiliser le timer */
+    QTimer t_xmltimer;
+
     QString pathdirfronto ("");
     QString pathdirautoref ("");
     QString pathdirrefracteur ("");
@@ -4236,17 +4244,16 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         m_LANAutoref = true;
         Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
         pathdirautoref = settings()->value("Param_Poste/PortAutoref/Reseau").toString();
-        t_xmltimer = new QTimer(this);
-        //m_filewatcherautoref.addPath(pathdirautoref);
+        if (!usetimer)
+            m_filewatcherautoref.addPath(pathdirautoref);
     }
     if (appareils.testFlag(Fronto))
     {
         m_LANFronto = true;
         Datas::I()->mesurefronto   ->settypemesure(Refraction::Fronto);
         pathdirfronto = settings()->value("Param_Poste/PortFronto/Reseau").toString();
-        if (t_xmltimer == Q_NULLPTR)
-            t_xmltimer = new QTimer(this);
-        //m_filewatcherfronto.addPath(pathdirfronto);
+        if (!usetimer)
+            m_filewatcherfronto.addPath(pathdirfronto);
     }
     if (appareils.testFlag(Refracteur))
     {
@@ -4254,117 +4261,101 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
         Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
         pathdirrefracteur = settings()->value("Param_Poste/PortRefracteur/Reseau").toString();
-        if (t_xmltimer == Q_NULLPTR)
-            t_xmltimer = new QTimer(this);
-        //m_filewatcherrefracteur.addPath(pathdirrefracteur);
+        if (!usetimer)
+            m_filewatcherrefracteur.addPath(pathdirrefracteur);
     }
-     if (t_xmltimer != Q_NULLPTR)
-         t_xmltimer->start(1000);
+    if (usetimer)
+    {
+        t_xmltimer.start(1000);
+        connect(&t_xmltimer,  &QTimer::timeout,     this,
+                [=]
+        {
+            if (appareils.testFlag(Autoref) && pathdirautoref != "")
+            {
+                QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    lecturefichier(Autoref, pathdirautoref, listfichxml);
+                }
+            }
+            if (appareils.testFlag(Fronto) && pathdirfronto != "")
+            {
+                QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    lecturefichier(Fronto, pathdirfronto, listfichxml);
+                }
+            }
+            if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
+            {
+                QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
+                }
+            }
+        });
+    }
+    else
+    {
+       if (appareils.testFlag(Autoref) && pathdirautoref != "")
+            connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
+            {
+                QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    /*! le patacaisse qui suit est nécessaire pour contourner un bug connu de Qt. Le signal directroychanged est parfois émis 2 fois et déclenche alors un double enregistrement de la mesure. */
+                    const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).created()))
+                    {
+                        m_filewatcherautoreffile = listfichxml.at(0);
+                        m_filewatcherautorefcreated = QFileInfo(xmldoc).created();
+                        lecturefichier(Autoref, pathdirautoref, listfichxml);
+                    }
+                }
+            });
 
-     connect(t_xmltimer,  &QTimer::timeout,     this,
-             [=]
-     {
-         if (appareils.testFlag(Autoref) && pathdirautoref != "")
-         {
-             QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-             if (listfichxml.size())
-             {
-                 const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
-                 QFile xmldoc(nomfichierxml);
-                 lecturefichier(Autoref, pathdirautoref, listfichxml);
-                 QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
-                 for(int i = 0; i < listfich.size(); ++i)
-                     QFile(pathdirautoref + "/" + listfich.at(i)).remove();
-             }
-         }
-         if (appareils.testFlag(Fronto) && pathdirfronto != "")
-         {
-             QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-             if (listfichxml.size())
-             {
-                 const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
-                 QFile xmldoc(nomfichierxml);
-                 lecturefichier(Fronto, pathdirfronto, listfichxml);
-                 QStringList listfich = QDir(pathdirfronto).entryList(QDir::Files | QDir::NoDotAndDotDot);
-                 for(int i = 0; i < listfich.size(); ++i)
-                     QFile(pathdirfronto + "/" + listfich.at(i)).remove();
-             }
-         }
-         if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
-         {
-             QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-             if (listfichxml.size())
-             {
-                 const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
-                 QFile xmldoc(nomfichierxml);
-                 lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
-                 QStringList listfich = QDir(pathdirrefracteur).entryList(QDir::Files | QDir::NoDotAndDotDot);
-                 for(int i = 0; i < listfich.size(); ++i)
-                     QFile(pathdirrefracteur + "/" + listfich.at(i)).remove();
-             }
-         }
-     });
+        if (appareils.testFlag(Fronto) && pathdirfronto != "")
+            connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
+            {
+                QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).created()))
+                    {
+                        m_filewatcherfrontofile = listfichxml.at(0);
+                        m_filewatcherfrontocreated = QFileInfo(xmldoc).created();
+                        lecturefichier(Fronto, pathdirfronto, listfichxml);
+                    }
+                }
+            });
 
-//    if (appareils.testFlag(Autoref) && pathdirautoref != "")
-//        connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
-//        {
-//            QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-//            if (listfichxml.size())
-//            {
-//                /*! le patacaisse qui suit est nécessaire pour contourner un bug connu de Qt. Le signal directroychanged est parfois émis 2 fois et déclenche alors un double enregistrement de la mesure. */
-//                const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
-//                QFile xmldoc(nomfichierxml);
-//                if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).created()))
-//                {
-//                    m_filewatcherautoreffile = listfichxml.at(0);
-//                    m_filewatcherautorefcreated = QFileInfo(xmldoc).created();
-//                    lecturefichier(Autoref, pathdirautoref, listfichxml);
-//                }
-//                QStringList listfich = QDir(pathdirautoref).entryList(QDir::Files | QDir::NoDotAndDotDot);
-//                for(int i = 0; i < listfich.size(); ++i)
-//                    QFile(pathdirautoref + "/" + listfich.at(i)).remove();
-//            }
-//        });
-
-//    if (appareils.testFlag(Fronto) && pathdirfronto != "")
-//        connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
-//        {
-//            QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-//            if (listfichxml.size())
-//            {
-//                const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
-//                QFile xmldoc(nomfichierxml);
-//                if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).created()))
-//                {
-//                    m_filewatcherfrontofile = listfichxml.at(0);
-//                    m_filewatcherfrontocreated = QFileInfo(xmldoc).created();
-//                    lecturefichier(Fronto, pathdirfronto, listfichxml);
-//                }
-//                QStringList listfich = QDir(pathdirfronto).entryList(QDir::Files | QDir::NoDotAndDotDot);
-//                for(int i = 0; i < listfich.size(); ++i)
-//                    QFile(pathdirfronto + "/" + listfich.at(i)).remove();
-//            }
-//        });
-
-//    if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
-//        connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=]
-//        {
-//            QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
-//            if (listfichxml.size())
-//            {
-//                const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
-//                QFile xmldoc(nomfichierxml);
-//                if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).created()))
-//                {
-//                    m_filewatcherrefracteurfile = listfichxml.at(0);
-//                    m_filewatcherrefracteurcreated = QFileInfo(xmldoc).created();
-//                    lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
-//                }
-//                QStringList listfich = QDir(pathdirrefracteur).entryList(QDir::Files | QDir::NoDotAndDotDot);
-//                for(int i = 0; i < listfich.size(); ++i)
-//                    QFile(pathdirrefracteur + "/" + listfich.at(i)).remove();
-//            }
-//        });
+        if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
+            connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=]
+            {
+                QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).created()))
+                    {
+                        m_filewatcherrefracteurfile = listfichxml.at(0);
+                        m_filewatcherrefracteurcreated = QFileInfo(xmldoc).created();
+                        lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
+                    }
+                }
+            });
+    }
     return true;
 }
 

@@ -493,6 +493,8 @@ public:
 
 private:
     QString                 m_mesureSerie;
+
+    /*! Tout ce qui est en rapport avec la récupération des données de refraction par le réseau */
     QFileSystemWatcher      m_filewatcherfronto;                                    /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
     QDateTime               m_filewatcherfrontocreated = QDateTime();               /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherfrontofile = "";                           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
@@ -502,8 +504,9 @@ private:
     QFileSystemWatcher      m_filewatcherrefracteur;                                /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml refracteur */
     QDateTime               m_filewatcherrefracteurcreated = QDateTime();           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherrefracteurfile = "";                       /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
+    /*! fin récupération des données de refraction par le réseau */
+
     TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
-    QTimer *t_xmltimer = Q_NULLPTR;
     TypesMesures            m_flagreglagerefracteur = MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    Ouverture_Appareils_Refraction();
