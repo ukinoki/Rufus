@@ -495,6 +495,7 @@ private:
     QString                 m_mesureSerie;
 
     /*! Tout ce qui est en rapport avec la récupération des données de refraction par le réseau */
+    QTimer                  t_xmltimer;
     QFileSystemWatcher      m_filewatcherfronto;                                    /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
     QDateTime               m_filewatcherfrontocreated = QDateTime();               /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherfrontofile = "";                           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */

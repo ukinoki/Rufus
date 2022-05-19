@@ -4234,7 +4234,6 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                              * il faut redémarrer une Rufus pour que ça se décide à marcher
                              * On peut utiliser un timer à la place. C'est nettement moins élégant mais ça marche très bien.
                              * Il suffit de mettre ce bool à true pour utiliser le timer */
-    QTimer t_xmltimer;
 
     QString pathdirfronto ("");
     QString pathdirautoref ("");
