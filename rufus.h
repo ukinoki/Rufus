@@ -109,7 +109,10 @@ private:
     QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
     QAction         *actionIOLs                     = Q_NULLPTR;
     QAction         *actionTiers                    = Q_NULLPTR;
-    QFileSystemWatcher              m_filewatcher;                  /*! le filesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
+
+    /*! IMPORT DES FICIERS D'IMAGERIE */
+    QTimer                          t_timerfilewatcher;             /*! utilisé à la place du QfileSystemWatcher dont le signal directorychanged bugue trop */
+    QFileSystemWatcher              m_filewatcher;                  /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
 
     pyxinterf                       *m_pyxi;     // CZ001
 
@@ -144,7 +147,11 @@ private:
     void        FiltreAccueil(int idx);
     void        FiltreSalleDAttente();
     void        GestionComptes();
-    void        ImportNouveauDocExterne(QString nomdossier);         /*! importe le document d'imagerie qui vient d'être émis par l'appareil nomapp*/
+    void        ImportNouveauDocExterne(QString nomdossier);    /*! importe le document d'imagerie qui vient d'être émis par l'appareil nomapp
+                                                                 * importe les fichiers d'imagerie quand on utilise le QFileSystemWatcher m_filewatcher*/
+    void        VerifDocsDossiersEchanges();                    /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop
+                                                                 * importe les fichiers d'imagerie quand on utilise le QTimer t_timerfilewatcher */
+    void        VerifDossiersImagerie();
     void        VerifImportateur();                             /*! vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier(Patient *pat);
     void        ImprimeListPatients(QVariant var);

@@ -4230,10 +4230,11 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                 QFile(pathdirappareil + "/" + listfich.at(i)).remove();
     };
     bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
-                             * au démarrage du système le signal rirectirychanged ne marche ps bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
+                             * au démarrage du système le signal directorychanged ne marche pas bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
                              * il faut redémarrer une Rufus pour que ça se décide à marcher
                              * On peut utiliser un timer à la place. C'est nettement moins élégant mais ça marche très bien.
-                             * Il suffit de mettre ce bool à true pour utiliser le timer */
+                             * Il suffit de mettre ce bool à true pour utiliser le timer
+                             * Le code pour le QFileSystemWatcher a été conservé au cas où le problème serait résolu */
 
     QString pathdirfronto ("");
     QString pathdirautoref ("");

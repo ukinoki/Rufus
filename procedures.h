@@ -89,9 +89,6 @@ public:
     QSettings*              settings() const { return m_settings; }
 
 
-
-
-
 /*! --------------------------------------------------------------------------------------------------------
 * opérations sur la base de données, le système et les datas
 * -------------------------------------------------------------------------------------------------------- */
@@ -495,14 +492,14 @@ private:
     QString                 m_mesureSerie;
 
     /*! Tout ce qui est en rapport avec la récupération des données de refraction par le réseau */
-    QTimer                  t_xmltimer;
-    QFileSystemWatcher      m_filewatcherfronto;                                    /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
+    QTimer                  t_xmltimer;                                             /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop */
+    QFileSystemWatcher      m_filewatcherfronto;                                    /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
     QDateTime               m_filewatcherfrontocreated = QDateTime();               /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherfrontofile = "";                           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
-    QFileSystemWatcher      m_filewatcherautoref;                                   /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml autoref */
+    QFileSystemWatcher      m_filewatcherautoref;                                   /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml autoref */
     QDateTime               m_filewatcherautorefcreated = QDateTime();              /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherautoreffile = "";                          /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
-    QFileSystemWatcher      m_filewatcherrefracteur;                                /*! le filesystemwatcher surveille les dossiers où sont enregistrés les resultats xml refracteur */
+    QFileSystemWatcher      m_filewatcherrefracteur;                                /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml refracteur */
     QDateTime               m_filewatcherrefracteurcreated = QDateTime();           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherrefracteurfile = "";                       /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     /*! fin récupération des données de refraction par le réseau */
