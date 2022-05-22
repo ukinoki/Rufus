@@ -142,15 +142,15 @@ private:
     void        EnableButtons();
     void        EnregistreDocScanner(Patient *pat);
     void        EnregistreVideo(Patient *pat);
-    void        ExporteDocs();                                  /*! exporte les documents d'imagerie inscrits dans la base pra les postes idstants
+    void        ExporteDocs();                                  /*! exporte les documents d'imagerie inscrits dans la base par les postes distants
                                                                 pour les archiver en fichiers standards sur le HD du serveur*/
     void        FiltreAccueil(int idx);
     void        FiltreSalleDAttente();
     void        GestionComptes();
-    void        ImportNouveauDocExterne(QString nomdossier);    /*! importe le document d'imagerie qui vient d'être émis par l'appareil nomapp
-                                                                 * importe les fichiers d'imagerie quand on utilise le QFileSystemWatcher m_filewatcher*/
-    void        VerifDocsDossiersEchanges();                    /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop
-                                                                 * importe les fichiers d'imagerie quand on utilise le QTimer t_timerfilewatcher */
+    void        ImportNouveauDocExterne(AppareilImagerie *appareil);    /*! importe le document d'imagerie qui vient d'être émis par l'appareil nomapp
+                                                                       * importe les fichiers d'imagerie au lancement du programme et quand on utilise le QFileSystemWatcher m_filewatcher*/
+    void        VerifDocsDossiersEchanges();                          /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop
+                                                                       * importe les fichiers d'imagerie quand on utilise le QTimer t_timerfilewatcher */
     void        VerifDossiersImagerie();
     void        VerifImportateur();                             /*! vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier(Patient *pat);

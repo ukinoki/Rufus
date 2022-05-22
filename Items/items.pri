@@ -37,6 +37,7 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_lignepaiement.cpp
 
 HEADERS += $$PWD/cls_acte.h \
+    $$PWD/cls_appareilimagerie.h \
     $$PWD/cls_commentlunet.h \
     $$PWD/cls_commercial.h \
     $$PWD/cls_compte.h \

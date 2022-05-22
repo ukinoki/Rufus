@@ -3572,13 +3572,15 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 }
 
 //! la liste des appareils d'imagerie
-QList<QStringList> Procedures::listeappareils()
+QList<AppareilImagerie*> Procedures::listeappareils()
 {
     return m_listeappareils;
 }
-void Procedures::setlisteappareils (QList<QStringList> list)
+void Procedures::setlisteappareils (QList<AppareilImagerie*> listappareils)
 {
-    m_listeappareils = list;
+    for (int i=0; i < m_listeappareils.size(); i++)
+        delete m_listeappareils.at(i);
+    m_listeappareils = listappareils;
 }
 
 /*!

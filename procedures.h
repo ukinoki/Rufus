@@ -67,6 +67,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "uptoolbar.h"
 #include "upmessagebox.h"
+#include "cls_appareilimagerie.h"
 
 #include "database.h"
 #include "gbl_datas.h"
@@ -242,10 +243,10 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
     //! la liste des appareils d'imagerie
 private:
-    QList<QStringList>      m_listeappareils;               /*! liste par appareil le titre de l'examen, le nom de l'appareil et le dossier de destination */
+    QList<AppareilImagerie*> m_listeappareils;               /*! liste par appareil le titre de l'examen, le nom de l'appareil et le dossier de destination */
 public:
-    QList<QStringList>      listeappareils ();
-    void                    setlisteappareils (QList<QStringList> list);
+    QList<AppareilImagerie*> listeappareils ();
+    void                    setlisteappareils (QList<AppareilImagerie*> list);
     QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
     void                    setPosteImportDocs(bool a = true);

@@ -24,16 +24,11 @@ ImportDocsExternesThread::ImportDocsExternesThread()
     m_thread          .start();
 }
 
-void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
+void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *appareil, QString nomfiledoc)
 {
-    /*!
-    -> newdoc.at(0) = le titre de l'examen
-    -> newdoc.at(1) = le nom de l'appareil
-    -> newdoc.at(2) = le nom du fichier à importer
-    */
     if (m_encours)
         return;
-    if (newdoc == QStringList())
+    if (appareil == Q_NULLPTR)
     {
         m_encours = false;
         return;
@@ -53,25 +48,16 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
      * idpatient
      */
 
-    QString NomDirDoc;  // le dossier où a été exporté le document
-    QString Titredoc;
-    for (int itr=0; itr<proc->listeappareils().size(); itr++)
-    {
-        if (proc->listeappareils().at(itr).at(1) == newdoc.at(0))
-        {
-            NomDirDoc   = proc->listeappareils().at(itr).at(2);
-            Titredoc    = proc->listeappareils().at(itr).at(0);
-        }
-    }
+    QString NomDirDoc   = appareil->nomdossierechange();
+    QString Titredoc    = appareil->titreexamen();
     if (NomDirDoc == "")
         NomDirDoc = "Triumph Speed Triple 1050 2011";
 
     // Titre du document------------------------------------------------------------------------------------------------------------------------------------------------
     QString Typedoc     = Titredoc;
     QString SousTypeDoc = Titredoc;
-    QString Appareil    = newdoc.at(0);
-    QString nomdoc      = newdoc.at(1);
-    QString CheminFichierImage = NomDirDoc + "/" + nomdoc;
+    QString Appareil    = appareil->nomappareil();
+    QString CheminFichierImage = NomDirDoc + "/" + nomfiledoc;
     QFile   jnaltrsferfile(m_pathdirOKtransfer + "/0JournalTransferts - " + m_datetransfer + ".txt");
     QString commentechec;
 
@@ -91,7 +77,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     else if (Appareil == "TOPCON ALADDIN II")
     {
         //1051_MIGUEL_JEAN-ROBERT_01-06-1948_Aladdin_06_06_2018_13_16.pdf
-        QStringList listn   = nomdoc.split("_");
+        QStringList listn   = nomfiledoc.split("_");
         datestring          = "";
         int n               = listn.size();
         if (n>4)
@@ -110,9 +96,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "TOPCON TRITON")
     {
-        if (nomdoc.split("_").size()>3)
+        if (nomfiledoc.split("_").size()>3)
         {
-            datestring  = nomdoc.split("_").at(3);
+            datestring  = nomfiledoc.split("_").at(3);
             datestring  = datestring.left(8);
         }
         Titredoc    = "OCT - Topcon";
@@ -121,25 +107,25 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "CANON CR-2")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring  = nomdoc.split("_").at(1);
+            datestring  = nomfiledoc.split("_").at(1);
             datestring  = datestring.left(8);
         }
         Titredoc    = "RNM - Canon";
         Typedoc     = "RNM";
-        QString cote = ((nomdoc.split("_").at(2) == "R")? tr("OD") : tr("OG"));
+        QString cote = ((nomfiledoc.split("_").at(2) == "R")? tr("OD") : tr("OG"));
         SousTypeDoc = "Canon " + cote;
     }
     else if (Appareil == "OTI SLO") {
-        datestring  = nomdoc.mid(nomdoc.indexOf("-")+1,8);
+        datestring  = nomfiledoc.mid(nomfiledoc.indexOf("-")+1,8);
         Titredoc    = "OCT - OTI";
         Typedoc     = "OCT";
         SousTypeDoc = "OTI";
     }
     else if (Appareil == "OPTOVUE")
     {
-        QStringList list = nomdoc.split("_");
+        QStringList list = nomfiledoc.split("_");
         if (list.size()>7)
         {
             datestring  = list.at(7);
@@ -151,9 +137,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "NIDEK-OCT")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring = nomdoc.split("_").at(1);
+            datestring = nomfiledoc.split("_").at(1);
             datestring = datestring.left(8);
         }
         Titredoc    = "OCT - Nidek";
@@ -162,26 +148,26 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "CANON-OCT")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring = nomdoc.split("_").at(1);
+            datestring = nomfiledoc.split("_").at(1);
             datestring = datestring.left(8);
         }
         Titredoc    = "OCT - Canon";
         Typedoc     = "OCT";
-        QString cote = (nomdoc.contains("BothEyes")? tr("ODG") : ((nomdoc.split("_").at(4) == "R")? tr("OD") : tr("OG")));
-        QString typeexam = nomdoc.split("_").at(3);
+        QString cote = (nomfiledoc.contains("BothEyes")? tr("ODG") : ((nomfiledoc.split("_").at(4) == "R")? tr("OD") : tr("OG")));
+        QString typeexam = nomfiledoc.split("_").at(3);
         if (typeexam == "OCTA")     typeexam = "AngioOCT";
         if (typeexam == "Disc3D")   typeexam = "Glaucome";
         SousTypeDoc = "Canon " + typeexam + " " + cote;
         if (typeexam == "Disc3D")   typeexam = "Glaucome";
-        datetimecreation = datestring + "-" + nomdoc.split("_").at(2);
+        datetimecreation = datestring + "-" + nomfiledoc.split("_").at(2);
     }
     else if (Appareil == "NIDEK-RNM")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring = nomdoc.split("_").at(1);
+            datestring = nomfiledoc.split("_").at(1);
             datestring = datestring.left(8);
         }
         Titredoc    = "RNM - Nidek";
@@ -190,9 +176,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "SPECTRALIS")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring = nomdoc.split("_").at(1);
+            datestring = nomfiledoc.split("_").at(1);
             datestring = datestring.left(8);
         }
         Titredoc    = "OCT - Heidelberg";
@@ -201,12 +187,12 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "NAVIS-EX")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring = nomdoc.split("_").at(1);
+            datestring = nomfiledoc.split("_").at(1);
             datestring = datestring.left(8);
         }
-        QString AbregeTitre = nomdoc.split("_").at(3);
+        QString AbregeTitre = nomfiledoc.split("_").at(3);
         if (AbregeTitre == "OT") {
             Titredoc    = "OCT - Nidek";
             Typedoc     = "OCT";
@@ -240,21 +226,21 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
                     */
 
         QRegExp re("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}Z-"); //! correspond aux sections 2,3,et 4 avant 2019 et 3,4 et 5 après
-        if (nomdoc.contains(re))
+        if (nomfiledoc.contains(re))
         {
             int idxdate;
             Titredoc    = "RNM - Eidon ";
             Typedoc     = "RNM";
-            idxdate = nomdoc.indexOf(re);
-            datestring = nomdoc.mid(idxdate,10).replace("-","");
-            datetimecreation = datestring + "-" + nomdoc.mid(idxdate + 11,8).replace("_","");
+            idxdate = nomfiledoc.indexOf(re);
+            datestring = nomfiledoc.mid(idxdate,10).replace("-","");
+            datetimecreation = datestring + "-" + nomfiledoc.mid(idxdate + 11,8).replace("_","");
             QString details (""), cote("");
-            if (nomdoc.split(re).size()>1)
-                details = nomdoc.split(re).at(1);
+            if (nomfiledoc.split(re).size()>1)
+                details = nomfiledoc.split(re).at(1);
             else
             {
                 commentechec =  tr("nom invalide");
-                EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+                EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                 return;
             }
             if (details.split("-").size()>0)
@@ -272,15 +258,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
         else
         {
             commentechec =  tr("nom invalide");
-            EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
             return;
         }
     }
     else if (Appareil == "OPTOS Daytona series")
     {
-        if (nomdoc.split("-").size()>1)
+        if (nomfiledoc.split("-").size()>1)
         {
-            datestring = nomdoc.split("-").at(1);
+            datestring = nomfiledoc.split("-").at(1);
             datestring = datestring.left(8);
         }
         Titredoc    = "RNM - Optos";
@@ -289,9 +275,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     }
     else if (Appareil == "ZEISS CIRRUS 5000")
     {
-        if (nomdoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>1)
         {
-            datestring = nomdoc.split("_").at(7);
+            datestring = nomfiledoc.split("_").at(7);
             datestring = datestring.left(8);
         }
         Titredoc    = "OCT - Zeiss";
@@ -301,8 +287,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     else if (Appareil == "ION Imaging")
     {
         //! 37214_0D_20200522_1848188838.01.e.jpg
-        if (nomdoc.split("_").size()>1)
-            datestring = nomdoc.split("_").at(2);
+        if (nomfiledoc.split("_").size()>1)
+            datestring = nomfiledoc.split("_").at(2);
         Titredoc    = "Photo - ION";
         Typedoc     = "Imagerie SA";
         SousTypeDoc = "ION";
@@ -311,24 +297,24 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     if (!QDate().fromString(datestring,"yyyyMMdd").isValid())
     {
         commentechec =  tr("date invalide") + " -> " + datestring;
-        EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         return;
     }
 
     datestring = QDate().fromString(datestring,"yyyyMMdd").toString("yyyy-MM-dd");
 
     // Format du document------------------------------------------------------------------------------------------------------------------------------------------------
-    QString formatdoc = QFileInfo(nomdoc).suffix().toLower();
+    QString formatdoc = QFileInfo(nomfiledoc).suffix().toLower();
     if (formatdoc != "pdf" && formatdoc != "jpg" && formatdoc != "jpeg")
     {
         commentechec = tr("format invalide") + " -> " + formatdoc;
-        EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         return;
     }
 
     // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
     QByteArray ba;
-    QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + nomdoc;
+    QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + nomfiledoc;
     QString szorigin, szfinal;
     // on vide le dossier provisoire
     QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
@@ -372,7 +358,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     else
     {
         commentechec =  tr("Impossible d'ouvrir le fichier");
-        EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         return;
     }
     //qDebug()<< "ba.size() = " + QString::number(ba.size());
@@ -380,11 +366,11 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     // IdPatient------------------------------------------------------------------------------------------------------------------------------------------------
     QString req(""), idPatient("");
     if (Appareil == "TOPCON ALADDIN")   {
-        QStringList listn = nomdoc.split("_");
+        QStringList listn = nomfiledoc.split("_");
         if (listn.size()<5)
         {
             commentechec =  tr("Impossible d'ouvrir le fichier");
-            EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
             return;
         }
         QString nom     = Utils::capitilize(listn.at(0));
@@ -401,74 +387,74 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
         if (!m_ok || patlst.size()==0)
         {
             commentechec =  tr("Impossible d'ouvrir le fichier");
-            EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
             return;
         }
         idPatient = patlst.at(0).toString();
         //qDebug() << idPatient;
     }
     else if (Appareil == "TOPCON ALADDIN II")
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     else if (Appareil == "TOPCON TRITON")
-        idPatient           = nomdoc.split("_").at(2);
+        idPatient           = nomfiledoc.split("_").at(2);
     else if (Appareil == "CANON CR-2")
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     else if (Appareil == "OTI SLO")
-        idPatient           = nomdoc.split("-").at(0);
+        idPatient           = nomfiledoc.split("-").at(0);
     else if (Appareil == "OPTOVUE")
     {
-        if (nomdoc.split("__").size()>0)
+        if (nomfiledoc.split("__").size()>0)
         {
-            idPatient       = nomdoc.split("__").at(1);
+            idPatient       = nomfiledoc.split("__").at(1);
             if (idPatient.split("_").size()>0)
                 idPatient   = idPatient.split("_").at(0);
         }
     }
     else if (Appareil == "NIDEK-OCT")   {
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     }
     else if (Appareil == "CANON-OCT")   {
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     }
     else if (Appareil == "NIDEK-RNM")   {
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     }
     else if (Appareil == "SPECTRALIS")   {
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     }
     else if (Appareil == "NAVIS-EX")   {
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     }
     else if (Appareil == "EIDON")   {
-        if (nomdoc.split("-").at(0).toInt()>0)
-            idPatient           = nomdoc.split("-").at(0);
+        if (nomfiledoc.split("-").at(0).toInt()>0)
+            idPatient           = nomfiledoc.split("-").at(0);
         else
-            idPatient           = nomdoc.split("-").at(2);
+            idPatient           = nomfiledoc.split("-").at(2);
     }
     else if (Appareil == "OPTOS Daytona series")   {
-        idPatient           = nomdoc.split("-").at(0);
+        idPatient           = nomfiledoc.split("-").at(0);
     }
     else if (Appareil == "ZEISS CIRRUS 5000")
     {
-        idPatient           = nomdoc.split("_").at(3);
+        idPatient           = nomfiledoc.split("_").at(3);
     }
     else if (Appareil == "ION Imaging")
     {
         //! 37214_0D_20200522_1848188838.01.e.jpg
-        idPatient           = nomdoc.split("_").at(0);
+        idPatient           = nomfiledoc.split("_").at(0);
     }
 
     bool b=true;
     if (idPatient.toInt(&b)<1)
     {
         commentechec = tr("idPatient invalide") + " -> " + idPatient;
-        EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         return;
     }
     if (!b)
     {
         commentechec = tr("idPatient invalide") + " -> " + idPatient;
-        EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         return;
     }
     QString identpat;
@@ -476,7 +462,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
     if (!m_ok || patlst.size()==0)
     {
         commentechec =  tr("Pas de patient pour cet idPatient") + " -> " + idPatient;
-        EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         return;
     }
     identpat = patlst.at(0).toString() + " " + patlst.at(1).toString();
@@ -495,7 +481,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
             + SousTypeDoc + "_"
             + datetimecreation
             + "-" + QString::number(idimpr)
-            + "." + QFileInfo(nomdoc).suffix();
+            + "." + QFileInfo(nomfiledoc).suffix();
 
     if (m_acces == Local)
     {
@@ -518,7 +504,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
         if(db->StandardSQL(req))
         {
             QString CheminOKTransfrDoc          = m_pathdirOKtransfer + "/" + NomFileDoc;
-            QString CheminOKTransfrDocOrigin    = m_pathdirOKtransferorigin + "/" + nomdoc;
+            QString CheminOKTransfrDocOrigin    = m_pathdirOKtransferorigin + "/" + nomfiledoc;
             file_image.copy(CheminOKTransfrDoc);
             QFile CC(CheminOKTransfrDoc);
             CC.open(QIODevice::ReadWrite);
@@ -537,7 +523,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
             if (jnaltrsferfile.open(QIODevice::Append))
             {
                 QTextStream out(&jnaltrsferfile);
-                out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
+                out << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                 jnaltrsferfile.close();
             }
             if (file_origine.remove())
@@ -557,8 +543,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
         }
         else
         {
-            commentechec = tr("impossible d'enregistrer ") + nomdoc;
-            EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            commentechec = tr("impossible d'enregistrer ") + nomfiledoc;
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         }
     }
     else if (m_acces == Distant)
@@ -586,7 +572,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
         {
             delete doc;
             file_image.remove();
-            QString CheminOKTransfrDocOrigin    = m_pathdirOKtransferorigin + "/" + nomdoc;
+            QString CheminOKTransfrDocOrigin    = m_pathdirOKtransferorigin + "/" + nomfiledoc;
             file_origine.copy(CheminOKTransfrDocOrigin);
             QFile CO(CheminOKTransfrDocOrigin);
             CO.open(QIODevice::ReadWrite);
@@ -597,7 +583,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
             if (jnaltrsferfile.open(QIODevice::Append))
             {
                 QTextStream out(&jnaltrsferfile);
-                out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
+                out << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                 jnaltrsferfile.close();
             }
             if (file_origine.remove())
@@ -617,8 +603,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QStringList newdoc)
         }
         else
         {
-            commentechec = tr("impossible d'enregistrer ") + nomdoc;
-            EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            commentechec = tr("impossible d'enregistrer ") + nomfiledoc;
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         }
     }
 

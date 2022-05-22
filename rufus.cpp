@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-05-2022/1");
+    qApp->setApplicationVersion("22-05-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2363,35 +2363,24 @@ void Rufus::ExporteDocs()
     }
 }
 
-void Rufus::ImportNouveauDocExterne(QString nomdossier)
+void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
 {
     if (isPosteImport())
     {
-        if (!m_importdocsexternesthread)
+        if (m_importdocsexternesthread == Q_NULLPTR)
         {
             m_importdocsexternesthread = new ImportDocsExternesThread();
             connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
         }
-        for (int itr=0; itr<proc->listeappareils().size(); itr++)
+        QString nomdossier  = appareil->nomdossierechange();
+        QStringList filters, listnomsfiles;
+        filters << "*.pdf" << "*.jpg";
+        listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
+        for (int it=0; it<listnomsfiles.size(); it++)
         {
-            if (proc->listeappareils().at(itr).at(2) == nomdossier)
-            {
-                QString nomappareil = proc->listeappareils().at(itr).at(1);
-                QStringList filters, listnomsfiles;
-                filters << "*.pdf" << "*.jpg";
-                listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
-                for (int it=0; it<listnomsfiles.size(); it++)
-                {
-                    QString nomfile = listnomsfiles.at(it);
-                    if (!nomfile.contains("smbtest"))
-                    {
-                        //qDebug() << "l'appareil " + nomappareil + " vient d'émettre le  " + titreexamen + " dans le fichier " + nomdossier+ "/" + nomfile;
-                        QStringList newdoclist = QStringList() << nomappareil << nomfile;
-                        //qDebug() << newdoclist.at(0) << newdoclist.at(1) << newdoclist.at(2);
-                        m_importdocsexternesthread->RapatrieDocumentsThread(newdoclist);
-                    }
-                }
-            }
+            QString nomfiledoc = listnomsfiles.at(it);
+            if (!nomfiledoc.contains("smbtest"))
+                m_importdocsexternesthread->RapatrieDocumentsThread(appareil, nomfiledoc);
         }
     }
 }
@@ -5477,15 +5466,16 @@ void Rufus::VerifDocsDossiersEchanges()
 {
     if (isPosteImport())
     {
-        if (!m_importdocsexternesthread)
+        if (m_importdocsexternesthread == Q_NULLPTR)
         {
             m_importdocsexternesthread = new ImportDocsExternesThread();
             connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
         }
-        for (int itr=0; Utils::I()->listeappareils().size(); itr++)
+        for (int itr=0; itr<proc->listeappareils().size(); itr++)
         {
-            QString appareil =  Utils::I()->listeappareils().at(itr).at(1);
-            QString nomdossier =  Utils::I()->listeappareils().at(itr).at(2);  /*! le dossier où sont exportés les documents d'un appareil donné */
+            AppareilImagerie *appareil = proc->listeappareils().at(itr);
+            QString nomappareil =  appareil->nomappareil();
+            QString nomdossier =  appareil->nomdossierechange();  /*! le dossier où sont exportés les documents d'un appareil donné */
             if (nomdossier != "")
                 if (QDir(nomdossier).exists())
                 {
@@ -5495,14 +5485,9 @@ void Rufus::VerifDocsDossiersEchanges()
                     if (listnomsfiles.size() > 0)
                         for (int it=0; it<listnomsfiles.size(); it++)
                         {
-                            QString nomfile = listnomsfiles.at(it);
-                            if (!nomfile.contains("smbtest"))
-                            {
-                                //qDebug() << "l'appareil " + nomappareil + " vient d'émettre le  " + titreexamen + " dans le fichier " + nomdossier+ "/" + nomfile;
-                                QStringList newdoclist = QStringList() << appareil << nomfile;
-                                //qDebug() << newdoclist.at(0) << newdoclist.at(1) << newdoclist.at(2);
-                                m_importdocsexternesthread->RapatrieDocumentsThread(newdoclist);
-                            }
+                            QString nomfiledoc = listnomsfiles.at(it);
+                            if (!nomfiledoc.contains("smbtest"))
+                                 m_importdocsexternesthread->RapatrieDocumentsThread(appareil, nomfiledoc);
                         }
                 }
         }
@@ -5631,6 +5616,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     }
 
     bool statut = isPosteImport();
+    //qDebug()<< statut;
     QString ImportateurDocs = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
@@ -5697,17 +5683,17 @@ void Rufus::VerifDossiersImagerie()
 {
     if (isPosteImport())
     {
-        QList<QStringList> listappareils = QList<QStringList>();
+        QList<AppareilImagerie*> listappareils = QList<AppareilImagerie*>();
         proc->setlisteappareils(listappareils);
         bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
                              * au démarrage du système le signal directorychanged ne marche pas bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
-                             * il faut redémarrer une Rufus pour que ça se décide à marcher
+                             * il faut redémarrer Rufus pour que ça se décide à marcher
                              * On peut utiliser un timer à la place. C'est nettement moins élégant mais ça marche très bien.
                              * Il suffit de mettre ce bool à true pour utiliser le timer
                              * Le code pour le QFileSystemWatcher a été conservé au cas où le problème serait résolu */
 
         QString req =   "select distinct list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                                                                                                                                                                               " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
+                        " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
         //qDebug()<< req;
         QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
         if (m_ok && listdocs.size()>0)
@@ -5721,9 +5707,9 @@ void Rufus::VerifDossiersImagerie()
                 if (QDir(nomdossier).exists())
                 {
                     QString titreexamen = listdocs.at(itr).at(0).toString();
-                    listappareils << (QStringList() << titreexamen << nomappareil << nomdossier);
+                    AppareilImagerie *appareil = new AppareilImagerie(titreexamen, nomappareil, nomdossier);
+                    listappareils << appareil;
                     //qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
-                    ImportNouveauDocExterne(nomdossier);
                 }
                 //else
                 //    qDebug() << "le dossier " + nomdossier + " n'existe pas";
@@ -5733,12 +5719,23 @@ void Rufus::VerifDossiersImagerie()
         if (listappareils.size() > 0)
         {
             proc->setlisteappareils(listappareils);
+            for (int it=0; it<listappareils.size(); it++)
+                ImportNouveauDocExterne(listappareils.at(it));
             if (!usetimer)
-                connect(&m_filewatcher,     &QFileSystemWatcher::directoryChanged,  this,   [=](QString nomdossier) { ImportNouveauDocExterne(nomdossier); } );
+            {
+                disconnect (&m_filewatcher, nullptr, nullptr, nullptr);
+                connect(&m_filewatcher,     &QFileSystemWatcher::directoryChanged,  this,   [=](QString nomdossier)
+                {
+                    for (int i=0; i<proc->listeappareils().size(); i++)
+                        if (proc->listeappareils().at(i)->nomdossierechange() == nomdossier)
+                            ImportNouveauDocExterne(proc->listeappareils().at(i));
+                } );
+            }
             else
             {
+                t_timerfilewatcher.stop();
+                disconnect (&t_timerfilewatcher, nullptr, nullptr, nullptr);
                 t_timerfilewatcher.start(5000);
-                t_timerfilewatcher.disconnect();
                 connect (&t_timerfilewatcher,   &QTimer::timeout,   this, &Rufus::VerifDocsDossiersEchanges);
             }
         }
