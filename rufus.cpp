@@ -5684,7 +5684,6 @@ void Rufus::VerifDossiersImagerie()
     if (isPosteImport())
     {
         QList<AppareilImagerie*> listappareils = QList<AppareilImagerie*>();
-        proc->setlisteappareils(listappareils);
         bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
                              * au démarrage du système le signal directorychanged ne marche pas bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
                              * il faut redémarrer Rufus pour que ça se décide à marcher
@@ -5716,9 +5715,9 @@ void Rufus::VerifDossiersImagerie()
             }
         }
         // Surveillance du dossier d'imagerie ----------------------------------------------------------------------------------
+        proc->setlisteappareils(listappareils);
         if (listappareils.size() > 0)
         {
-            proc->setlisteappareils(listappareils);
             for (int it=0; it<listappareils.size(); it++)
                 ImportNouveauDocExterne(listappareils.at(it));
             if (!usetimer)
