@@ -8480,7 +8480,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                                 if (KMR1.tagName() == "Radius" && KMR1.text().toDouble() > 0)
                                                     Datas::I()->mesurekerato->setK1OD(KMR1.text().toDouble());
                                                 if (KMR1.tagName() == "Power" && KMR1.text().toDouble() > 0)
-                                                    Datas::I()->mesurekerato->setdioptriesK1OD(Utils::roundToNearestPointTwentyFive(KMR1.text().toDouble()));
+                                                    Datas::I()->mesurekerato->setdioptriesK1OD(round(KMR1.text().toDouble()*10)/10);
                                            }
                                         }
                                         if (KMR.tagName() == "R2")
@@ -8491,7 +8491,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                                                 if (KMR2.tagName() == "Radius" && KMR2.text().toDouble() > 0)
                                                     Datas::I()->mesurekerato->setK2OD(KMR2.text().toDouble());
                                                 if (KMR2.tagName() == "Power" && KMR2.text().toDouble() > 0)
-                                                    Datas::I()->mesurekerato->setdioptriesK2OD(Utils::roundToNearestPointTwentyFive(KMR2.text().toDouble()));
+                                                    Datas::I()->mesurekerato->setdioptriesK2OD(round(KMR2.text().toDouble()*10)/10);
                                             }
                                         }
                                         if (KMR.tagName() == "KMCylinder")
@@ -8720,15 +8720,15 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
             }
         }
     }
-    debugMesure(Datas::I()->mesureautoref);
-    debugMesure(Datas::I()->mesurekerato);
-    if (autorefhastonopachy)
-    {
-        if (!Datas::I()->mesuretono->isdataclean())
-            debugMesure(Datas::I()->mesuretono);
-        if (!Datas::I()->mesurepachy->isdataclean())
-            debugMesure(Datas::I()->mesurepachy);
-    }
+//    debugMesure(Datas::I()->mesureautoref);
+//    debugMesure(Datas::I()->mesurekerato);
+//    if (autorefhastonopachy)
+//    {
+//        if (!Datas::I()->mesuretono->isdataclean())
+//            debugMesure(Datas::I()->mesuretono);
+//        if (!Datas::I()->mesurepachy->isdataclean())
+//            debugMesure(Datas::I()->mesurepachy);
+//    }
 }
 
 void Procedures::LectureDonneesXMLFronto(QDomDocument docxml)
@@ -9012,12 +9012,12 @@ QString Procedures::HtmlKerato()
         QString mAxeKOD     = QString::number(kerato->axeKOD());
         QString mDioptrK1OD = QLocale().toString(kerato->dioptriesK1OD(),'f',1);
         QString mDioptrK2OD = QLocale().toString(kerato->dioptriesK2OD(),'f',1);
-        QString mDioptrKOD  = Utils::PrefixePlus(kerato->dioptriesKOD());
+        QString mDioptrKOD  = Utils::PrefixePlus(Utils::roundToNearestPointTwentyFive(kerato->dioptriesKOD()));
         QString mDioptrmOD  = QString::number(kerato->dioptriesKMOD(),'f',1);
         if (QLocale().toDouble(mDioptrK1OD)!=0.0)
             Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"160\">" + mK1OD + "/" + mK2OD + " - Km = " + mKOD + "</td>"
-                      "<td width=\"240\">" + mDioptrK1OD + "/" + mDioptrK2OD + " -> " + mDioptrKOD +  tr(" à ") + mAxeKOD + "° - Km = " + mDioptrmOD + "D</td></p>";
+                      "<td width=\"240\">" + mDioptrK1OD + "/" + mDioptrK2OD + " -> <font color = \"" COULEUR_TITRES "\">" + mDioptrKOD +  tr(" à ") + mAxeKOD + "°</font> - Km = " + mDioptrmOD + "D</td></p>";
         else
             Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + tr(" à ") + mAxeKOD + "°/" + mK2OD
@@ -9031,12 +9031,12 @@ QString Procedures::HtmlKerato()
         QString mAxeKOG     = QString::number(kerato->axeKOG());
         QString mDioptrK1OG = QLocale().toString(kerato->dioptriesK1OG(),'f',1);
         QString mDioptrK2OG = QLocale().toString(kerato->dioptriesK2OG(),'f',1);
-        QString mDioptrKOG  = Utils::PrefixePlus(kerato->dioptriesKOG());
+        QString mDioptrKOG  = Utils::PrefixePlus(Utils::roundToNearestPointTwentyFive(kerato->dioptriesKOG()));
         QString mDioptrmOG  = QString::number(kerato->dioptriesKMOG(),'f',1);
         if (QLocale().toDouble(mDioptrK1OG)!=0.0)
             Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"160\">" + mK1OG + "/" + mK2OG + " - Km = " + mKOG + "</td>"
-                      "<td width=\"240\">" + mDioptrK1OG + "/" + mDioptrK2OG + " -> " + mDioptrKOG +  tr(" à ") + mAxeKOG + "° - Km = " + mDioptrmOG + "D</td></p>";
+                      "<td width=\"240\">" + mDioptrK1OG + "/" + mDioptrK2OG + " -> <font color = \"" COULEUR_TITRES "\">" + mDioptrKOG +  tr(" à ") + mAxeKOG + "°</font> - Km = " + mDioptrmOG + "D</td></p>";
         else
             Reponse += HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">"  + mK1OG +  tr(" à ") + mAxeKOG + "°/" + mK2OG
@@ -9063,44 +9063,71 @@ QString Procedures::HtmlTono()
         QString title = HTML_RETOURLIGNE "<td width=\"" + larg + "\"><b><font color = \"" COULEUR_TITRES "\">";
         QString Methode = Tonometrie::ConvertMesure(tono->modemesure());
         QString Tono, color, Tonocor, colorcor;
-        color = (tono->TOD() > 21? "red" : "blue");
-        QString TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOD()) + "</font>";
-        if (tono->TODcorrigee() >0)
-        {
-            color = (tono->TODcorrigee() > 21? "red" : "blue");
-            TODcolor += "/<font color = \"" + color + "\">" + QString::number(tono->TODcorrigee()) + " " + tr("corr.") + "</font>";
-        }
-        color = (tono->TOG() > 21? "red" : "blue");
-        QString TOGcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOG()) + "</font>";
-        if (tono->TOGcorrigee() >0)
-        {
-            color = (tono->TOGcorrigee() > 21? "red" : "blue");
-            TOGcolor += "/<font color = \"" + color + "\">" + QString::number(tono->TOGcorrigee()) + " " + tr("corr.") + "</font>";
-        }
         if (tono->TOD() == 0 && tono->TOG() > 0)
+        {
+            color = (tono->TOG() > 21? "red" : "blue");
+            QString TOGcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOG()) + "</font>";
+            if (tono->TOGcorrigee() >0)
+            {
+                color = (tono->TOGcorrigee() > 21? "red" : "blue");
+                TOGcolor += " (/<font color = \"" + color + "\">" + QString::number(tono->TOGcorrigee()) + " " + tr("corr.") + "</font>)";
+            }
             Tono = dd + tr("TOG:") + "</font> "
                     + TOGcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
+        }
         else if (tono->TOG() == 0 && tono->TOD() > 0)
+        {
+            color = (tono->TOD() > 21? "red" : "blue");
+            QString TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOD()) + "</font>";
+            if (tono->TODcorrigee() >0)
+            {
+                color = (tono->TODcorrigee() > 21? "red" : "blue");
+                TODcolor += " (<font color = \"" + color + "\">" + QString::number(tono->TODcorrigee()) + " " + tr("corr.") + "</font>)";
+            }
             Tono = dd + tr("TOD:") + "</font> "
                     + TODcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
+        }
         else if (tono->TOD() == tono->TOG() && tono->TODcorrigee() == tono->TOGcorrigee())
+        {
+            color = (tono->TOD() > 21? "red" : "blue");
+            QString TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOD()) + "</font>";
+            if (tono->TODcorrigee() >0)
+            {
+                color = (tono->TODcorrigee() > 21? "red" : "blue");
+                TODcolor += " (/<font color = \"" + color + "\">" + QString::number(tono->TODcorrigee()) + " " + tr("corr.") + "</font>)";
+            }
             Tono = dd + tr("TODG:") + "</font> "
                     + TODcolor + "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
+        }
         else
-            Tono = dd + tr("TOD:") + "</font> " + TODcolor + " / " + (tono->TOGcorrigee() >0 && tono->TODcorrigee()>0? "<font color = \"" COULEUR_TITRES "\">" + tr("TOG: ") + "</font>" :"")
-                    + TOGcolor + "</b> " + tr("à") + " "
+        {
+            color = (tono->TOD() > 21? "red" : "blue");
+            QString TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOD()) + "</font>";
+            color = (tono->TOG() > 21? "red" : "blue");
+            QString TOGcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOG()) + "</font>";
+            Tono = dd + tr("TO:") + "</font> " + TODcolor + " / " + TOGcolor;
+            if (tono->TODcorrigee() >0 || tono->TOGcorrigee() >0)
+            {
+                color = (tono->TODcorrigee() > 21? "red" : "blue");
+                TODcolor = "<font color = \"" + color + "\">" + QString::number(tono->TODcorrigee()) + "</font>";
+                color = (tono->TOGcorrigee() > 21? "red" : "blue");
+                TOGcolor = "<font color = \"" + color + "\">" + QString::number(tono->TOGcorrigee()) + "</font>";
+                Tono += " (" + TODcolor + " / " + TOGcolor + " " + tr("corr.") + ")";
+            }
+            Tono += "</b> " + tr("à") + " "
                     + QTime::currentTime().toString("H")
                     + "H (" + Methode + ")</td><td>"
                     + currentuser()->login();
+        }
         Reponse = title + Tono + "</td></p>";
         Reponse.insert(Reponse.lastIndexOf("</td>")-1, fd);             //! on met le dernier caractère en ancre
     }

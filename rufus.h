@@ -79,6 +79,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "styles.h"
 #include "tcpsocket.h"
 #include "upsystemtrayicon.h"
+#include "cls_rendezvous.h"
 
 
 namespace Ui {

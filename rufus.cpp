@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-05-2022/1");
+    qApp->setApplicationVersion("29-05-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -157,7 +157,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
     {
         t_timerExportDocs            ->start(10000);// "toutes les 10 secondes"
-        t_timerActualiseDocsExternes ->start(10000);// "toutes les 10 secondes"
+        t_timerActualiseDocsExternes ->start(5000); // "toutes les 10 secondes"
         t_timerSupprDocs             ->start(60000);// "toutes les 60 secondes"
         t_timerVerifMessages         ->start(10000);// "toutes les 10 secondes"
         if (!m_utiliseTCP)
@@ -174,18 +174,18 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         m_flagcorrespondants    = Flags::I()->flagCorrespondants();
         m_flagsalledattente     = Flags::I()->flagSalleDAttente();
         m_flagmessages          = Flags::I()->flagMessages();
-        connect (t_timerSalDat,              &QTimer::timeout,  this,   &Rufus::VerifSalleDAttente);
-        connect (t_timerCorrespondants,      &QTimer::timeout,  this,   &Rufus::VerifCorrespondants);
-        connect (t_timerVerifImportateurDocs,&QTimer::timeout,  this,   &Rufus::VerifImportateur);
-        connect (t_timerVerifVerrou,         &QTimer::timeout,  this,   [=] { if (isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant) VerifVerrouDossier();} );
-        connect (t_timerVerifMessages,       &QTimer::timeout,  this,   &Rufus::VerifMessages);
+        connect (t_timerSalDat,                 &QTimer::timeout,  this,   &Rufus::VerifSalleDAttente);
+        connect (t_timerCorrespondants,         &QTimer::timeout,  this,   &Rufus::VerifCorrespondants);
+        connect (t_timerVerifImportateurDocs,   &QTimer::timeout,  this,   &Rufus::VerifImportateur);
+        connect (t_timerVerifVerrou,            &QTimer::timeout,  this,   [=] { if (isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant) VerifVerrouDossier();} );
+        connect (t_timerVerifMessages,          &QTimer::timeout,  this,   &Rufus::VerifMessages);
         //connect (t_timerImportDocsExternes,  &QTimer::timeout,  this,   &Rufus::ImportDocsExternes);
         if (db->ModeAccesDataBase() != Utils::Distant)
-            connect(t_timerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
+            connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
+        connect (t_timerActualiseDocsExternes,  &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     }
     connect (t_timerPosteConnecte,           &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
-    connect (t_timerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,              &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
 
     //! 7 - Nettoyage des erreurs éventuelles de la salle d'attente
@@ -1417,7 +1417,6 @@ void Rufus::ConnectTimers(bool a)
         t_timerVerifVerrou   ->start(60000);
 
         connect (t_timerPosteConnecte,              &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
-        connect (t_timerActualiseDocsExternes,      &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         if (!m_utiliseTCP)
         {
             connect (t_timerSalDat,                 &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
@@ -1427,6 +1426,7 @@ void Rufus::ConnectTimers(bool a)
             connect (t_timerVerifImportateurDocs,   &QTimer::timeout,   this,   &Rufus::VerifImportateur);
             if (db->ModeAccesDataBase() != Utils::Distant)
                 connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
+            connect (t_timerActualiseDocsExternes,  &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         }
 
     }
@@ -1438,7 +1438,7 @@ void Rufus::ConnectTimers(bool a)
         t_timerExportDocs            ->disconnect();
         t_timerActualiseDocsExternes ->disconnect();
         t_timerVerifMessages         ->disconnect();
-        t_timerPosteConnecte          ->disconnect();
+        t_timerPosteConnecte         ->disconnect();
         t_timerVerifVerrou           ->disconnect();
         t_timerSupprDocs             ->disconnect();
         t_timerVerifImportateurDocs  ->stop();
@@ -1766,7 +1766,7 @@ void Rufus::CreerBilanOrtho()
 
     Dlg_BlOrtho->close();
     delete Dlg_BlOrtho;
-    MAJDocsExternes();  //CreerBilanOrtho()
+    MAJDocsExternes();                  //CreerBilanOrtho()
 }
 
 void Rufus::CreerDossierpushButtonClicked()
@@ -1801,7 +1801,7 @@ void Rufus::EnregistreDocScanner(Patient *pat)
     Dlg_DocsScan->exec();
     if (currentpatient() != Q_NULLPTR)
         if (pat == currentpatient())
-            MAJDocsExternes();
+            MAJDocsExternes();          //EnregistreDocScanner()
 }
 
 void Rufus::EnregistreVideo(Patient *pat)
@@ -1812,7 +1812,7 @@ void Rufus::EnregistreVideo(Patient *pat)
     Dlg_DocsVideo->exec();
     if (currentpatient() != Q_NULLPTR)
         if (pat == currentpatient())
-            MAJDocsExternes();
+            MAJDocsExternes();          //EnregistreVideo()
 }
 
 void Rufus::FiltreSalleDAttente()
@@ -2520,7 +2520,7 @@ void Rufus::ImprimeDossier(Patient *pat)
             ImprimeListActes(listeactesaimprimer, toutledossier);
         }
     }
-    MAJDocsExternes();
+    MAJDocsExternes();              // ImprimeDossier()
 }
 
 void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool queLePdf, QString nomdossier)
@@ -5734,7 +5734,7 @@ void Rufus::VerifDossiersImagerie()
             {
                 t_timerfilewatcher.stop();
                 disconnect (&t_timerfilewatcher, nullptr, nullptr, nullptr);
-                t_timerfilewatcher.start(5000);
+                t_timerfilewatcher.start(2500);
                 connect (&t_timerfilewatcher,   &QTimer::timeout,   this, &Rufus::VerifDocsDossiersEchanges);
             }
         }
@@ -7494,7 +7494,7 @@ void Rufus::ExporteActe(Acte *act)
                         tr("Le dossier ") + pat->nom() + " " + pat->prenom() + " - " + act->date().toString("d MMM yyyy") +
                         tr(" a été créé sur le bureau") + msg );
     }
-    MAJDocsExternes();
+    MAJDocsExternes();              //ExporteActe()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8253,7 +8253,7 @@ void    Rufus::FicheImpressions(Patient *pat)
     delete Dlg_Imprs;
     if (currentpatient() != Q_NULLPTR)
         if (aa && currentpatient()->id() == pat->id())
-            MAJDocsExternes();              // depuis dlg_impressions
+            MAJDocsExternes();              // depuis FicheImpression()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8344,7 +8344,7 @@ void Rufus::ProgrammationIntervention(Patient *pat, Acte *act)
     });
     dlg_progr->exec();
     if (dlg_progr->docimprime())
-        MAJDocsExternes();
+        MAJDocsExternes();                  //ProgrammationIntervention()
     dlg_progr->disconnect();
     delete dlg_progr;
 }
@@ -8586,7 +8586,7 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
         else if (Dlg_Refraction->ResultatPrescription() != "")  // C'est une prescription de verres correcteurs
         {
             // mettre à jour docsexterns
-            MAJDocsExternes(); //Refraction()
+            MAJDocsExternes();              //Refraction()
 
             // si le dernier caractère n'est pas un retour à la ligne, on en rajoute un
             QString Date = "";
@@ -10155,10 +10155,11 @@ void Rufus::TraiteTCPMessage(QString msg)
     else if (msg.contains(TCPMSG_MAJDocsExternes))
     {
         /* le message a le format suivant idpatient + TCPMSG_MAJDocsExternes) */
+        //qDebug() << msg;
         msg.remove(TCPMSG_MAJDocsExternes);
         if (currentuser()->isSoignant() && currentpatient() != Q_NULLPTR)
             if (currentpatient()->id() == msg.toInt())
-                MAJDocsExternes();                  // depuis le tcpsocket
+                MAJDocsExternes();              // depuis le tcpsocket
     }
     else if (msg.contains(TCPMSG_MAJPatient))
     {

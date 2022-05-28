@@ -70,7 +70,7 @@ void TcpSocket::TraiteDonneesRecues()
     while (bytesAvailable() > 0)
     {
         m_bufferarray.append(readAll());
-        while ((m_datasize == 0 && m_bufferarray.size() >= 4) || (m_datasize > 0 && m_bufferarray.size() >= m_datasize)) // on n'a toujours pas la teille du message ou on n'a pas le message complet
+        while ((m_datasize == 0 && m_bufferarray.size() >= 4) || (m_datasize > 0 && m_bufferarray.size() >= m_datasize)) // on n'a toujours pas la taille du message ou on n'a pas le message complet
         {
             if (m_datasize == 0 && m_bufferarray.size() >= 4)                // on a les 4 premiers caractères => on a la taille du message
             {

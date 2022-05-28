@@ -38,6 +38,7 @@ SOURCES += $$PWD/cls_acte.cpp \
 
 HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_appareilimagerie.h \
+    $$PWD/cls_rendezvous.h \
     $$PWD/cls_commentlunet.h \
     $$PWD/cls_commercial.h \
     $$PWD/cls_compte.h \
@@ -55,6 +56,7 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_posteconnecte.h \
     $$PWD/cls_recettecomptable.h \
     $$PWD/cls_refraction.h \
+    $$PWD/cls_rendezvous.h \
     $$PWD/cls_session.h \
     $$PWD/cls_user.h \
     $$PWD/cls_depense.h \
