@@ -188,6 +188,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
 {
     m_mode = mode;
     wdg_buttonframe->setEnabled(m_mode == Selection);
+    wdg_buttonframe->searchline()->setReadOnly(m_mode != Selection);
 
     if (mode == Selection)
     {
@@ -198,7 +199,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
 
         CancelButton->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
         CancelButton->setImmediateToolTip(tr("Annuler et fermer la fiche"));
-        OKButton->setImmediateToolTip(tr("Imprimer\nla sélection"));
+        OKButton->setImmediateToolTip(tr("Enregistrer\net fermer"));
         if (mc)
             selectcurrentMotCle(mc, QAbstractItemView::PositionAtCenter);
 
@@ -217,6 +218,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
     {
         if (!mc)
             return;
+        wdg_buttonframe->searchline()->setText("");
         DisableLines();
         for (int i=0; i<m_model->rowCount(); ++i)
         {
@@ -243,6 +245,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
     }
     else if (mode == Creation)
     {
+        wdg_buttonframe->searchline()->setText("");
         if (m_model->rowCount() > 0)
             DisableLines();
         int row = 0;
@@ -449,6 +452,7 @@ void dlg_listemotscles::RemplirTableView()
                                                                                                                         {
                                                                                                                             OKButton->setEnabled(true);
                                                                                                                             EnableButtons(m_currentmotcle);
+                                                                                                                            wdg_buttonframe->searchline()->setText(m_currentmotcle->motcle());
                                                                                                                         }
                                                                                                                         });
         connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée

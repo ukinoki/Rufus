@@ -51,6 +51,11 @@ Depense* Depenses::getById(int id)
     return Depense.value();
 }
 
+void Depenses::setidrubrique(Depense *dep)
+{
+    dep->setidrubriquefiscale(DataBase::I()->GetidRubriqueFiscale(dep));
+}
+
 /*!
  * \brief Depenseses::initListeByUser
  * Charge l'ensemble des depenses pour le user
@@ -141,6 +146,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     dep->setidcomptebancaire(Compte);
     dep->setnocheque(Nocheque);
     dep->setidfacture(idFacture);
+    setidrubrique(dep);
     add(map_depenses, dep);
     return dep;
 }

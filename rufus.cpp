@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-05-2022/1");
+    qApp->setApplicationVersion("31-05-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -131,7 +131,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerPatientsVus            = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
     t_timerSalDat                = new QTimer(this);     /* scrutation des modifs de la salle d'attente */                  //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerCorrespondants        = new QTimer(this);     /* scrutation des modifs de la liste des correspondants */         //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    t_timerVerifMessages         = new QTimer(this);     /* scrutation des nouveaux message */                              //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    t_timerVerifMessages         = new QTimer(this);     /* scrutation des nouveaux messages */                             //! utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     t_timerPosteConnecte         = new QTimer(this);     // mise à jour de la connexion à la base de données
     t_timerVerifImportateurDocs  = new QTimer(this);     /* vérifie que le poste importateur des documents externes est toujours là */
     t_timerExportDocs            = new QTimer(this);     /* utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base */            //! pas utilisé si rufusadmin est  utilisé
@@ -157,7 +157,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
     {
         t_timerExportDocs            ->start(10000);// "toutes les 10 secondes"
-        t_timerActualiseDocsExternes ->start(5000); // "toutes les 10 secondes"
+        t_timerActualiseDocsExternes ->start(5000); // "toutes les 5 secondes"
         t_timerSupprDocs             ->start(60000);// "toutes les 60 secondes"
         t_timerVerifMessages         ->start(10000);// "toutes les 10 secondes"
         if (!m_utiliseTCP)
@@ -5755,7 +5755,7 @@ void Rufus::ActualiseDocsExternes()
     if (currentpatient() != Q_NULLPTR)
     {
         docs->initListeByPatient(currentpatient());
-        OuvrirDocsExternes(docs);   // depuis le timer gTimerVerifGestDocs ou le bouton ui->OuvreDocsExternspushButton
+        OuvrirDocsExternes(docs);
     }
 }
 

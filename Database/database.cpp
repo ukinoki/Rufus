@@ -1499,6 +1499,16 @@ QStringList DataBase::ListeRubriquesFiscales()
     return ListeRubriques;
 }
 
+int DataBase::GetidRubriqueFiscale(Depense *dep)
+{
+    QString req = "SELECT idRubrique FROM " TBL_RUBRIQUES2035 " where "  CP_REFFISCALE_2035 " = '" + Utils::correctquoteSQL(dep->rubriquefiscale()) + "'";
+    qDebug() << req;
+    QList<QVariantList> deplist = StandardSelectSQL(req,ok);
+    if(!ok || deplist.size()==0)
+        return 0;
+    return deplist.at(0).at(0).toInt();
+}
+
 QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur Comp)
 {
     QString op = "=";

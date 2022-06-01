@@ -507,6 +507,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             else if (field == CP_REFFISCALE_DEPENSES)
             {
                 dep->setrubriquefiscale(newvalue.toString());
+                dep->setidrubriquefiscale(DataBase::I()->GetidRubriqueFiscale(dep));
                 Utils::CalcStringValueSQL(newvalue);
             }
             else if (field == CP_OBJET_DEPENSES)

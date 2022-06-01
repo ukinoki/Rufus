@@ -254,6 +254,8 @@ public:
     QStringList             ListeRubriquesFiscales();                               //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035
     QList<Depense*>         VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
                                                                                     //! comme son nom l'indique
+    int                     GetidRubriqueFiscale(Depense *dep);                     //! retrouve l'id de la rubrique fisclae d'une dépense
+
     int                     getIdMaxTableComptesTableArchives();                    //! comme son nom l'indique
     QList<Archive*>         loadArchiveByDate(QDate date, Compte *compte, int intervalle);
                                                                                     //! charge les archives contenues entre 6 mois avant date et date pour le compte donné

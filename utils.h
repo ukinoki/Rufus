@@ -198,13 +198,6 @@ public:
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
 
-    //! la liste des appareils d'imagerie contenant pour chaque appareil: le titre de l'examen, le nom de l'appareil, le dossier de stockage des images émises
-private:
-    QList<QStringList> m_listeappareils;
-public:
-    void setlisteappareils (QList<QStringList> list) {m_listeappareils = list;};
-    QList<QStringList> listeappareils() {return m_listeappareils;};
-
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

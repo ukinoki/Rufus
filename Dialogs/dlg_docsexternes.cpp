@@ -1230,9 +1230,10 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_docsexternes::RemplirTreeView()
 {
-    if (m_docsexternes->docsexternes()->size() == 0){
+    if (m_docsexternes->docsexternes()->size() == 0)
+    {
         reject();
-        return;  // si on ne met pas ça, le reject n'est pas effectué...
+        return;  // si on ne met pas ça, le reject n'est pas effectué.
     }
     if (wdg_alldocsupcheckbox->isChecked())
         m_modefiltre = FiltreSans;
