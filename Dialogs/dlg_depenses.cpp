@@ -105,12 +105,12 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->RefFiscalecomboBox->insertItems(0,ListeRubriques);
     ui->RefFiscalecomboBox->setCurrentText(ListeRubriques.at(0));
 
-    m_listemoyensdepaiement << tr("Carte de crédit");
-    m_listemoyensdepaiement << tr("Chèque");
-    m_listemoyensdepaiement << tr("Espèces");
-    m_listemoyensdepaiement << tr("Prélèvement");
-    m_listemoyensdepaiement << tr("Virement");
-    m_listemoyensdepaiement << tr("TIP");
+    m_listemoyensdepaiement << tr(CARTECREDIT);
+    m_listemoyensdepaiement << tr(CHEQUE);
+    m_listemoyensdepaiement << tr(ESPECES);
+    m_listemoyensdepaiement << tr(PRELEVEMENT);
+    m_listemoyensdepaiement << tr(VIREMENT);
+    m_listemoyensdepaiement << tr(TIP);
     ui->PaiementcomboBox->insertItems(0,m_listemoyensdepaiement );
     ui->PaiementcomboBox->setCurrentText(m_listemoyensdepaiement.at(0));
 
@@ -418,9 +418,9 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
         if (dep)
         {
-            bool vis = (dep->modepaiement()!="E");
+            bool vis = (dep->modepaiement()!=ESP);
             ui->ComptesupComboBox->setVisible(vis);
-            if (dep->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
+            if (dep->modepaiement() != ESP)            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
             {
                 compte = ui->ComptesupComboBox->currentData().toInt();
                 ui->ComptesupComboBox   ->setVisible(true);
@@ -448,7 +448,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         ui->DateDepdateEdit     ->setDate(QDate::currentDate());
         ui->ObjetlineEdit       ->setText("");
         ui->MontantlineEdit     ->setText("0,00");
-        ui->ComptesupComboBox   ->setVisible(!(ui->PaiementcomboBox->currentText() == tr("Espèces") || ui->PaiementcomboBox->currentText() == ""));
+        ui->ComptesupComboBox   ->setVisible(!(ui->PaiementcomboBox->currentText() == tr(ESPECES) || ui->PaiementcomboBox->currentText() == ""));
         ui->RefFiscalecomboBox  ->setCurrentText("");
         wdg_enreguppushbutton       ->setText(tr("Enregistrer"));
         ui->OKupPushButton      ->setShortcut(QKeySequence());
@@ -511,7 +511,7 @@ void dlg_depenses::ChangeUser(int)
 
 void dlg_depenses::ChoixPaiement()
 {
-    ui->ComptesupComboBox->setVisible(ui->PaiementcomboBox->currentText() != tr("Espèces") && ui->PaiementcomboBox->currentText() != "");
+    ui->ComptesupComboBox->setVisible(ui->PaiementcomboBox->currentText() != tr(ESPECES) && ui->PaiementcomboBox->currentText() != "");
 }
 
 void dlg_depenses::ConvertitDoubleMontant()
@@ -550,7 +550,7 @@ void dlg_depenses::EnregistreDepense()
         Erreur = tr("le mode de paiement");
     else if (ui->RefFiscalecomboBox->currentText() == "")
         Erreur = tr("la rubrique fiscale");
-    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr("Espèces"))
+    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr(ESPECES))
         Erreur = tr("le compte bancaire");
 
     if (Erreur != "")
@@ -617,12 +617,12 @@ void dlg_depenses::EnregistreDepense()
     // Insertion de l'écriture dans la table depenses
     QString Paiement, m;
     Paiement = ui->PaiementcomboBox->currentText();
-    if (Paiement == tr("Espèces"))              m = "E";
-    else if (Paiement == tr("Virement"))        m = "V";
-    else if (Paiement == tr("Carte de crédit")) m = "B";
-    else if (Paiement == tr("Chèque"))          m = "C";
-    else if (Paiement == tr("Prélèvement"))     m = "P";
-    else if (Paiement == tr("TIP"))             m = "T";
+    if (Paiement == tr(ESPECES))              m = ESP;
+    else if (Paiement == tr(VIREMENT))        m = VRMT;
+    else if (Paiement == tr(CARTECREDIT))     m = CB;
+    else if (Paiement == tr(CHEQUE))          m = CHQ;
+    else if (Paiement == tr(PRELEVEMENT))     m = PLVMT;
+    else if (Paiement == tr(TIP))             m = TP;
 
     bool ok = true;
     QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << CP_FAMFISCALE_2035,
@@ -640,13 +640,13 @@ void dlg_depenses::EnregistreDepense()
                                         "",                                                         //! Monnaie
                                         0,                                                          //! idRec
                                         m,                                                          //! ModePaiement
-                                        (m!="E"? idCompte.toInt() : 0),                             //! Compte
+                                        (m!=ESP? idCompte.toInt() : 0),                             //! Compte
                                         0,                                                          //! NoCheque
                                         0);                                                         //! idFacture
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'une opération bancaire
-    if (m != "E")
+    if (m != ESP)
     {
-        if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
+        if (Paiement == tr(VIREMENT)) Paiement = tr("Virement débiteur");
         int a = db->getIdMaxTableComptesTableArchives();
         QHash<QString, QString> listsets;
         listsets.insert(CP_ID_LIGNCOMPTES,              QString::number(a));
@@ -846,7 +846,7 @@ void dlg_depenses::AfficheDetailsDepenses()
                 Depense*dep = getDepenseFromRow(k);
                 if (dep)
                 {
-                    if (dep->modepaiement() == "E")
+                    if (dep->modepaiement() == ESP)
                         TotalEspeces += dep->montant();
                     else
                     {
@@ -862,7 +862,7 @@ void dlg_depenses::AfficheDetailsDepenses()
                 }
             }
     Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
-            + tr("Espèces")
+            + tr(ESPECES)
             + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(TotalEspeces,'f',2) + "</td>";
     Global += TotalEspeces;
     for (auto it = listcomptes.begin(); it != listcomptes.end(); ++it)
@@ -1086,7 +1086,7 @@ void dlg_depenses::MetAJourFiche()
         ui->MontantlineEdit->setText(QLocale().toString(m_depenseencours->montant(),'f',2));
         QString A = m_depenseencours->modepaiement();                                                         // Mode de paiement - col = 4
         QString B = "";
-        if (A == "E")           A = tr("Espèces");
+        if (A == ESP)           A = tr(ESPECES);
         else
         {
             int idx = m_userencours->listecomptesbancaires(true).indexOf(m_depenseencours->comptebancaire());
@@ -1102,7 +1102,7 @@ void dlg_depenses::MetAJourFiche()
         ui->ComptesupComboBox   ->setVisible(B != "");
         ui->RefFiscalecomboBox  ->setCurrentText(m_depenseencours->rubriquefiscale());
         AfficheFacture(m_depenseencours);
-        if (m_depenseencours->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
+        if (m_depenseencours->modepaiement() != ESP)            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
         {
             if (m_depenseencours->isArchivee() == Depense::NoLoSo)
                 db->loadDepenseArchivee(m_depenseencours);
@@ -1145,7 +1145,7 @@ void dlg_depenses::ModifierDepense()
         Erreur = tr("le mode de paiement");
     else if (ui->RefFiscalecomboBox->currentText() == "")
         Erreur = tr("la rubrique fiscale");
-    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr("Espèces"))
+    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr(ESPECES))
         Erreur = tr("le compte bancaire");
 
     if (Erreur != "")
@@ -1217,12 +1217,12 @@ void dlg_depenses::ModifierDepense()
     // Correction de l'écriture dans la table depenses
     QString Paiement, m;
     Paiement = ui->PaiementcomboBox->currentText();
-    if (Paiement == tr("Espèces"))              m = "E";
-    else if (Paiement == tr("Virement"))        m = "V";
-    else if (Paiement == tr("Carte de crédit")) m = "B";
-    else if (Paiement == tr("Chèque"))          m = "C";
-    else if (Paiement == tr("Prélèvement"))     m = "P";
-    else if (Paiement == tr("TIP"))             m = "T";
+    if (Paiement == tr(ESPECES))              m = ESP;
+    else if (Paiement == tr(VIREMENT))        m = VRMT;
+    else if (Paiement == tr(CARTECREDIT))     m = CB;
+    else if (Paiement == tr(CHEQUE))          m = CHQ;
+    else if (Paiement == tr(PRELEVEMENT))     m = PLVMT;
+    else if (Paiement == tr(TIP))             m = TP;
     bool ok = true;
     QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << CP_FAMFISCALE_2035,
                                                                        TBL_RUBRIQUES2035, ok,
@@ -1236,16 +1236,16 @@ void dlg_depenses::ModifierDepense()
         ItemsList::update(dep, CP_REFFISCALE_DEPENSES,      ui->RefFiscalecomboBox->currentText());
         ItemsList::update(dep, CP_FAMILLEFISCALE_DEPENSES,  FamFiscale);
         ItemsList::update(dep, CP_MODEPAIEMENT_DEPENSES,    m);
-        ItemsList::update(dep, CP_COMPTE_DEPENSES,          (m!="E"? ui->ComptesupComboBox->currentData().toInt() : QVariant()));
+        ItemsList::update(dep, CP_COMPTE_DEPENSES,          (m!=ESP? ui->ComptesupComboBox->currentData().toInt() : QVariant()));
     }
     
     // Correction de l'écriture dans la table lignescomptes
-    if (Paiement == tr("Espèces"))
+    if (Paiement == tr(ESPECES))
         db->SupprRecordFromTable(dep->id(), CP_IDDEP_LIGNCOMPTES, TBL_LIGNESCOMPTES);
     else
     {
         Paiement = ui->PaiementcomboBox->currentText();
-        if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
+        if (Paiement == tr(VIREMENT)) Paiement = tr("Virement débiteur");
 
         // on recherche si l'écriture existe dans lignescomptes et si c'est le cas, on la modifie
         QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_LIGNCOMPTES,
@@ -1259,7 +1259,7 @@ void dlg_depenses::ModifierDepense()
            listsets.insert(CP_MONTANT_LIGNCOMPTES,          QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
            listsets.insert(CP_DEBITCREDIT_LIGNCOMPTES,      "0");
            listsets.insert(CP_TYPEOPERATION_LIGNCOMPTES,    Paiement);
-           listsets.insert(CP_IDCOMPTE_LIGNCOMPTES,         (m!="E"? ui->ComptesupComboBox->currentData().toString() : "null"));
+           listsets.insert(CP_IDCOMPTE_LIGNCOMPTES,         (m!=ESP? ui->ComptesupComboBox->currentData().toString() : "null"));
            DataBase::I()->UpdateTable(TBL_LIGNESCOMPTES, listsets, "where " CP_IDDEP_LIGNCOMPTES " = " + idDep);
         }
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
@@ -1340,7 +1340,7 @@ void dlg_depenses::ModifierDepense()
         A = dep->modepaiement();                                                                                                // Mode de paiement - col = 4
         QString B = "";
         QString C = "";
-        if (A == "E")  A = tr("Espèces");
+        if (A == ESP)  A = tr(ESPECES);
         else
         {
             int idx = m_userencours->listecomptesbancaires(true).indexOf(dep->comptebancaire());
@@ -1350,7 +1350,7 @@ void dlg_depenses::ModifierDepense()
             }
             B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
             A = Utils::ConvertitModePaiement(A);
-            if (A == tr("Chèque"))
+            if (A == tr(CHEQUE))
                 if (dep->nocheque() > 0)
                     C += " " + QString::number(dep->nocheque());
         }
@@ -1951,7 +1951,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     QString B = "";
     QString C = "";
     QString mode = Utils::ConvertitModePaiement(A);
-    if (A != "E")
+    if (A != ESP)
     {
         int idx = m_userencours->listecomptesbancaires(true).indexOf(dep->comptebancaire());
         if( idx == -1 )
@@ -1959,7 +1959,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
             //ATTENTION ERROR
         }
         B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
-        if (A == tr("Chèque"))
+        if (A == tr(CHEQUE))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());
     }

@@ -943,6 +943,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TIP                 "TIP"
 #define ESPECES             "Espèces"
 #define CARTECREDIT         "Carte de crédit"
+#define GRATUIT             "Acte gratuit"
+#define IMPAYE              "Impayé"
+
+//Modes Paiements comptables
+#define TRS                 "T"       // plutôt un type de paiement d'acte qu'un mode de paiement comptable
+#define TP                  "T"       // Abrégé pour TIP
+#define ESP                 "E"
+#define GRAT                "G"
+#define CHQ                 "C"
+#define IMP                 "I"
+#define VRMT                "V"
+#define PLVMT               "P"
+#define CB                  "B"
 
 // ancres et comentaires html
 #define HTMLCOMMENT_LINUX           "<!LINUX>"

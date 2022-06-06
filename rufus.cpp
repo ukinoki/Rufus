@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("31-05-2022/1");
+    qApp->setApplicationVersion("06-06-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -974,11 +974,11 @@ void Rufus::MAJPatientsVus()
         label0->setText(" " + zw);                                                          // Heure acte
         label1->setText(" " + NomPrenom);                                                   // Nom + Prénom
         QString P=patlist.at(i).at(9).toString();
-        if (P == "E")           P = "Espèces";
-        else if (P == "C")      P = "Chèque";
-        else if (P == "I")      P = "Impayé";
-        else if (P == "G")      P = "Gratuit";
-        else if (P == "T")
+        if (P == ESP)           P = ESPECES;
+        else if (P == CHQ)      P = CHEQUE;
+        else if (P == IMP)      P = IMPAYE;
+        else if (P == GRAT)     P = "Gratuit";
+        else if (P == TRS)
         {
             P = patlist.at(i).at(10).toString();
             if (P == "CB")      P = "Carte";
@@ -6314,16 +6314,16 @@ void Rufus::AfficheActeCompta(Acte *acte)
 
     //2. on recherche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
 
-    if (acte->paiementType() == "T"  && acte->paiementTiers() != "CB") ui->PaiementlineEdit->setText(acte->paiementTiers());
+    if (acte->paiementType() == TRS  && acte->paiementTiers() != "CB") ui->PaiementlineEdit->setText(acte->paiementTiers());
 
     QString txtpaiement = Utils::ConvertitModePaiement(acte->paiementType());
-    if (acte->paiementType() == "T"
-            && acte->paiementTiers() == "CB") txtpaiement = tr("carte de crédit");
-     else if (acte->paiementType() == "T") txtpaiement = acte->paiementTiers();
+    if (acte->paiementType() == TRS
+            && acte->paiementTiers() == "CB") txtpaiement = tr(CARTECREDIT);
+     else if (acte->paiementType() == TRS) txtpaiement = acte->paiementTiers();
     ui->PaiementlineEdit->setText(txtpaiement);
 
     // on calcule le montant payé pour l'acte
-    if (acte->paiementType() != "G" || acte->paiementType() != "I")
+    if (acte->paiementType() != GRAT || acte->paiementType() != IMP)
     {
         double TotalPaye = 0;
         for (auto it = m_lignespaiements->lignespaiements()->constBegin(); it != m_lignespaiements->lignespaiements()->constEnd(); ++it)
@@ -6340,11 +6340,10 @@ void Rufus::AfficheActeCompta(Acte *acte)
         ui->PayelineEdit->setText(QLocale().toString(TotalPaye,'f',2));
     }
 
-    if (acte->paiementType() == "B"
-        ||(acte->paiementType() == "T"
+    if ((acte->paiementType() == TRS
             && acte->paiementTiers() == "CB")
-        || acte->paiementType() == "C"
-        || acte->paiementType() == "E")
+        || acte->paiementType() == CHQ
+        || acte->paiementType() == ESP)
     {
         ui->PaiementLabel->setVisible(true);
         ui->PaiementLabel->setText("Paiement:");
@@ -6354,8 +6353,8 @@ void Rufus::AfficheActeCompta(Acte *acte)
         ui->PaiementlineEdit->setGeometry(79,4,91,18);
         return;
     }
-    if (acte->paiementType() == "G"
-        || acte->paiementType() == "I")
+    if (acte->paiementType() == GRAT
+        || acte->paiementType() == IMP)
     {
         ui->PaiementLabel->setVisible(false);
         ui->PayeLabel->setVisible(false);
@@ -6364,7 +6363,7 @@ void Rufus::AfficheActeCompta(Acte *acte)
         ui->PaiementlineEdit->setGeometry(8,4,164,18);
         return;
     }
-    if (acte->paiementType() == "T"
+    if (acte->paiementType() == TRS
             && acte->paiementTiers() != "CB")
     {
         ui->PaiementLabel->setText("Tiers");
@@ -7907,7 +7906,7 @@ void Rufus::InitWidgets()
     ui->AccueilupTableWidget        ->FixLargeurTotale();
     ui->PatientsVusupTableWidget    ->FixLargeurTotale();
 
-    ui->GratuitpushButton->setImmediateToolTip(tr("Acte gratuit"));
+    ui->GratuitpushButton->setImmediateToolTip(tr(GRATUIT));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8420,8 +8419,8 @@ void    Rufus::ReconstruitListesCotations()
 
     QStandardItemModel *cotationmodel = new QStandardItemModel(this);
     UpStandardItem *pitem0;
-    pitem0 = new UpStandardItem(tr("Acte gratuit"));
-    pitem0->setData(QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
+    pitem0 = new UpStandardItem(tr(GRATUIT));
+    pitem0->setData(QStringList() << "0.00" << "0.00" << tr(GRATUIT));
     cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
     for (auto it = Datas::I()->cotations->cotations()->constBegin(); it != Datas::I()->cotations->cotations()->constEnd(); ++it)
     {
@@ -8434,7 +8433,7 @@ void    Rufus::ReconstruitListesCotations()
         cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
     }
 
-    ui->ActeCotationcomboBox->addItem(tr("Acte gratuit"),QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
+    ui->ActeCotationcomboBox->addItem(tr(GRATUIT),QStringList() << "0.00" << "0.00" << tr(GRATUIT));
     for (auto it = Datas::I()->cotations->cotations()->constBegin(); it != Datas::I()->cotations->cotations()->constEnd(); ++it)
     {
         Cotation* cot = const_cast<Cotation*>(it.value());
@@ -8444,7 +8443,7 @@ void    Rufus::ReconstruitListesCotations()
         ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
     }
 
-    QCompleter *comp = new QCompleter(QStringList() << tr("Acte gratuit") << db->loadTypesCotations());
+    QCompleter *comp = new QCompleter(QStringList() << tr(GRATUIT) << db->loadTypesCotations());
     comp->setCaseSensitivity(Qt::CaseInsensitive);
     comp->popup()->setFont(ui->ActeMontantlineEdit->font());
     comp->setMaxVisibleItems(5);
@@ -9485,10 +9484,10 @@ void Rufus::SupprimerActe(Acte *act)
         if(m_ok && pmtlist.size()>0)
             for (int j=0; j<pmtlist.size(); j++)
             {
-                if (pmtlist.at(j).at(0).toString() == "V")                                     Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des versements enregistrés.");
-                if (pmtlist.at(j).at(0).toString() == "V" && pmtlist.at(j).at(1).toString() == "CB") Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par carte de crédit enregistrés.");
-                if (pmtlist.at(j).at(0).toString() == "C" && pmtlist.at(j).at(2).toInt() > 0)        Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés.");
-                if (pmtlist.at(j).at(0).toString() == "C" && pmtlist.at(j).at(2).toInt() == 0)       Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés."
+                if (pmtlist.at(j).at(0).toString() == VRMT)                                             Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des versements enregistrés.");
+                if (pmtlist.at(j).at(0).toString() == VRMT && pmtlist.at(j).at(1).toString() == "CB")   Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par carte de crédit enregistrés.");
+                if (pmtlist.at(j).at(0).toString() == CHQ && pmtlist.at(j).at(2).toInt() > 0)           Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés.");
+                if (pmtlist.at(j).at(0).toString() == CHQ && pmtlist.at(j).at(2).toInt() == 0)          Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés."
                                                                                                                 "\nCe ou ces chèques ne sont pas encaissés."
                                                                                                                 "\nVous devez modifier l'écriture correspondante pour pouvoir supprimer l'acte.");
                 if (Messg != "")
@@ -9630,13 +9629,13 @@ void Rufus::SupprimerDossier(Patient *pat)
         QVariantList pmydata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok);
         if (!m_ok)
             return;
-        if (pmydata.at(0).toString() == "V")
+        if (pmydata.at(0).toString() == VRMT)
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des versements enregistrés.");
-        if (pmydata.at(0).toString() == "V" && pmydata.at(1).toString() == "CB")
+        if (pmydata.at(0).toString() == VRMT && pmydata.at(1).toString() == "CB")
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des paiements par carte de crédit enregistrés.");
-        if (pmydata.at(0).toString() == "C" && pmydata.at(2).toInt() > 0)
+        if (pmydata.at(0).toString() == CHQ && pmydata.at(2).toInt() > 0)
             Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés.");
-        if (pmydata.at(0).toString() == "C" && pmydata.at(2).toInt() == 0)
+        if (pmydata.at(0).toString() == CHQ && pmydata.at(2).toInt() == 0)
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des paiements par chèque enregistrés."
                     "\nCe ou ces chèques ne sont pas encaissés."
                     "\nVous devez modifier l'écriture correspondante pour pouvoir supprimer l'acte.");

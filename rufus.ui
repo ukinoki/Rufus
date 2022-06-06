@@ -152,7 +152,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideLeft</enum>
@@ -1257,7 +1257,7 @@ d'attente </string>
                   <x>0</x>
                   <y>0</y>
                   <width>698</width>
-                  <height>100</height>
+                  <height>99</height>
                  </rect>
                 </property>
                </widget>
@@ -4677,7 +4677,7 @@ color : gray;
      <x>0</x>
      <y>0</y>
      <width>1339</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

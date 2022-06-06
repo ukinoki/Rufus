@@ -665,7 +665,7 @@ void dlg_paiementdirect::ModifiePaiement()
             ui->GratuitradioButton->setChecked(true);
         else if (ModePaiement == tr("Carte bancaire"))
             ui->CarteCreditradioButton->setChecked(true);
-        else if (ModePaiement == tr("Chèque"))
+        else if (ModePaiement == tr(CHEQUE))
             ui->ChequeradioButton->setChecked(true);
         else if (ModePaiement != tr("Non enregistré"))
         {
@@ -721,8 +721,8 @@ void dlg_paiementdirect::ModifiePaiement()
         {
             m_listidactesamodifier     << ui->DetailupTableWidget->item(i,0)->text().toInt();
             m_montantactesamodifier   << QString::number(QLocale().toDouble(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-2)->text()),'f',2);
-            if(ui->EspecesradioButton->isChecked())     m_modepaiementdirectamodifier = "E";
-            if(ui->ChequeradioButton->isChecked())      m_modepaiementdirectamodifier = "C";
+            if(ui->EspecesradioButton->isChecked())     m_modepaiementdirectamodifier = ESP;
+            if(ui->ChequeradioButton->isChecked())      m_modepaiementdirectamodifier = CHQ;
         }
         requete = "SELECT "
                     CP_ID_LIGNRECETTES ", "
@@ -760,7 +760,7 @@ void dlg_paiementdirect::ModifiePaiement()
                                 tr("Il a été enregistré il y a plus de 90 jours!"));
             m_modiflignerecettepossible = false;
         }
-        else if (recettedata.at(5).toString() == "C" && recettedata.at(13).toInt() > 0)     //             . c'est un chèque et il a été déposé en banque
+        else if (recettedata.at(5).toString() == CHQ && recettedata.at(13).toInt() > 0)     //             . c'est un chèque et il a été déposé en banque
         {
             UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"), tr("Le chèque a été déposé en banque!"));
             m_modiflignerecettepossible = false;
@@ -1600,7 +1600,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             ui->dateEdit->setDate(recdata.at(2).toDate());
             QRadioButton *RadioAClicker = Q_NULLPTR;
             QString mp = recdata.at(5).toString();
-            if (mp == "V")
+            if (mp == VRMT)
             {
                 if (recdata.at(9).toString() ==  "O" && recdata.at(10).toString() == "CB" && m_mode == VoirListeActes)
                     RadioAClicker = ui->CarteCreditradioButton;
@@ -1609,8 +1609,8 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 QString Commission = QLocale().toString(recdata.at(11).toDouble(),'f',2);
                 ui->CommissionlineEdit->setText(Commission);
             }
-            if (mp == "E") RadioAClicker = ui->EspecesradioButton;
-            if (mp == "C") RadioAClicker = ui->ChequeradioButton;
+            if (mp == ESP) RadioAClicker = ui->EspecesradioButton;
+            if (mp == CHQ) RadioAClicker = ui->ChequeradioButton;
             if (RadioAClicker != Q_NULLPTR)
                 RadioAClicker->setChecked(true);
             ui->ComptesupComboBox->clearEditText();
@@ -1620,7 +1620,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 //qDebug() << recdata.at(7).toString() + " - " + ui->ComptesupComboBox->currentData().toString() + " - " + ui->ComptesupComboBox->currentText();
             }
             ui->TierscomboBox->setCurrentText(recdata.at(10).toString());
-            if (mp == "C")
+            if (mp == CHQ)
             {
                 ui->EnAttentecheckBox->setChecked(recdata.at(14).toString() == "1");
                 ui->TireurChequelineEdit->setText(recdata.at(6).toString());
@@ -1834,7 +1834,7 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
             if (m_mode == VoirListeActes)
                 LabelARemplir << tr("Mode paiement");
             if (m_mode == EnregistrePaiement)
-                LabelARemplir << tr("Impayé");
+                LabelARemplir << tr(IMPAYE);
             else
                 LabelARemplir << tr("Payé");
             LabelARemplir << tr("Reste dû");
@@ -2251,7 +2251,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
         1. Remplissage ui->ListeupTableWidget -- tous les paiements en attente en dehors de ceux de la salle d'attente
         càd ceux:
         . pour lesquels (aucune ligne de paiement n'a été enregistrée
-        . OU le type de paiement enregistré est "impayé")
+        . OU le type de paiement enregistré est IMPAYE)
         . ET qui ne sont pas en salle d'attente en attente de paiement
         . ET dont le montant de l'acte n'est pas nul
         */
@@ -2512,7 +2512,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                     A = Tablelist.at(i).at(7).toString();
                     if (TableARemplir == ui->ListeupTableWidget)
                     {
-                        if (A == "I")
+                        if (A == IMP)
                         {
                             QLabel * lbl = new QLabel();
                             lbl->setAlignment(Qt::AlignCenter);
@@ -2578,11 +2578,11 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 if (m_mode == VoirListeActes)
                 {
                     A = Tablelist.at(i).at(8).toString();
-                    if (A == "T") A = Tablelist.at(i).at(9).toString();
-                    if (A == "E") A = tr("Espèces");
-                    if (A == "C") A = tr("Chèque");
-                    if (A == "I") A = tr("Impayé");
-                    if (A == "G") A = tr("Gratuit");
+                    if (A == TRS) A = Tablelist.at(i).at(9).toString();
+                    if (A == ESP) A = tr(ESPECES);
+                    if (A == CHQ) A = tr(CHEQUE);
+                    if (A == IMP) A = tr(IMPAYE);
+                    if (A == GRAT) A = tr("Gratuit");
                     if (A == "CB")  A = tr("Carte bancaire");
                     if (TableARemplir == ui->ListeupTableWidget)
                     {
@@ -2703,7 +2703,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 col++;
 
                 QString mp = Tablelist.at(i).at(4).toString();
-                if (mp == "V" && Tablelist.at(i).at(9).toString() == "CB")
+                if (mp == VRMT && Tablelist.at(i).at(9).toString() == "CB")
                     A = tr("Virement carte bancaire");
                 else
                     A = Tablelist.at(i).at(9).toString();                                             // Payeur
@@ -2712,9 +2712,9 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 TableARemplir->setItem(i,col,pItem3);
                 col++;
 
-                if (mp == "V") A = tr("Virement");
-                if (mp == "E") A = tr("Espèces");
-                if (mp == "C") A = tr("Chèque");                                                    // Type paiement
+                if (mp == VRMT) A = tr(VIREMENT);
+                if (mp == ESP) A = tr(ESPECES);
+                if (mp == CHQ) A = tr(CHEQUE);                                                    // Type paiement
                 pItem4 = new QTableWidgetItem() ;
                 pItem4->setText(A);
                 pItem4->setTextAlignment(Qt::AlignCenter);
@@ -2722,7 +2722,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 col++;
 
 
-                if (mp == "C")
+                if (mp == CHQ)
                     A = Tablelist.at(i).at(16).toDate().toString(tr("dd-MM-yyyy"));                   // Date validation
                 else
                     A = Tablelist.at(i).at(2).toDate().toString(tr("dd-MM-yyyy"));
@@ -2863,7 +2863,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
             EnregRecetterequete +=  ", " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text()));            // Montant
             if (ui->ChequeradioButton->isChecked())
             {
-                EnregRecetterequete += ",'C";                                                                           // Mode de paiement = chèque
+                EnregRecetterequete += ",'" CHQ;                                                                        // Mode de paiement = chèque
                 EnregRecetterequete += "','" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text());                // Tireur chèque
                 EnregRecetterequete += "','" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText());         // BanqueCheque
                 if (ui->EnAttentecheckBox->isChecked())                                                                 // EnAttente
@@ -2873,12 +2873,12 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                 EnregRecetterequete += ",null";                                                                         // CompteVirement
             }
             else if (ui->CarteCreditradioButton->isChecked())                                                           // Mode de paiement = carte de crédit
-                EnregRecetterequete += ",'B',null,null,null,null";
+                EnregRecetterequete += ",'" CB "',null,null,null,null";
             else if (ui->EspecesradioButton->isChecked())                                                               // Mode de paiement = espèces
-                EnregRecetterequete += ",'E',null,null,null,null";
+                EnregRecetterequete += ",'" ESP "',null,null,null,null";
             else if (ui->VirementradioButton->isChecked())                                                              // Mode de paiement = virement
             {
-                EnregRecetterequete += ",'V',null,null,null";
+                EnregRecetterequete += ",'" VRMT "',null,null,null";
                 idCompte = ui->ComptesupComboBox->currentData().toString();
                 EnregRecetterequete += "," + idCompte;
             }

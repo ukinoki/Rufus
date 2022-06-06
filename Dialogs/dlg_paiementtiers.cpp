@@ -1157,17 +1157,17 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
             EnregRecetterequete +=  ", " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text()));            // Montant
             if (ui->ChequeradioButton->isChecked())
             {
-                EnregRecetterequete += ",'C";                                                                           // Mode de paiement = chèque
+                EnregRecetterequete += ",'" CHQ;                                                                        // Mode de paiement = chèque
                 EnregRecetterequete += "','" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text());                // Tireur chèque
                 EnregRecetterequete += "','" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText());         // BanqueCheque
                     EnregRecetterequete += "',null";
                 EnregRecetterequete += ",null";                                                                         // CompteVirement
             }
             else if (ui->EspecesradioButton->isChecked())                                                               // Mode de paiement = espèces
-                EnregRecetterequete += ",'E',null,null,null,null";
+                EnregRecetterequete += ",'" ESP "',null,null,null,null";
             else if (ui->VirementradioButton->isChecked())                                                              // Mode de paiement = virement
             {
-                EnregRecetterequete += ",'V',null,null,null";
+                EnregRecetterequete += ",'" VRMT "',null,null,null";
                 idCompte = ui->ComptesupComboBox->currentData().toString();
                 EnregRecetterequete += "," + idCompte;
             }
@@ -1270,7 +1270,7 @@ dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
                 }
                 InsertDeprequete += ", '" + Utils::correctquoteSQL(famfiscdata.at(0).toString()) + "'";
                 InsertDeprequete += ", " + QString::number(m_idrecette);                                                          // idRec
-                InsertDeprequete += ", 'P'";                                                                                    // ModePaiement = P pour prélèvement
+                InsertDeprequete += ", '" PLVMT "'";                                                                              // ModePaiement = P pour prélèvement
                 InsertDeprequete += ", " + idCompte + ")";
                 if (!db->StandardSQL(InsertDeprequete))
                 {
@@ -1577,21 +1577,21 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         ui->dateEdit->setDate(rec->date());
         QRadioButton *RadioAClicker = Q_NULLPTR;
         QString mp = rec->modepaiement();
-        if (mp == "V")
+        if (mp == VRMT)
         {
             RadioAClicker = ui->VirementradioButton;
             QString Commission = QLocale().toString(rec->commission(),'f',2);
             ui->CommissionlineEdit->setText(Commission);
         }
-        else if (mp == "E") RadioAClicker = ui->EspecesradioButton;
-        else if (mp == "C") RadioAClicker = ui->ChequeradioButton;
+        else if (mp == ESP) RadioAClicker = ui->EspecesradioButton;
+        else if (mp == CHQ) RadioAClicker = ui->ChequeradioButton;
         if (RadioAClicker != Q_NULLPTR)
             RadioAClicker->setChecked(true);
         ui->ComptesupComboBox->clearEditText();
         if (rec->compteid() > 0)
             ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
         ui->TiersupComboBox->setCurrentText(rec->payeur());
-        if (mp == "C")
+        if (mp == CHQ)
         {
             ui->TireurChequelineEdit->setText(rec->tireurcheque());
             ui->BanqueChequecomboBox->setCurrentText(rec->banquecheaque());
@@ -1691,21 +1691,21 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     ui->dateEdit    ->setDate(rec->date());
     QRadioButton *RadioAClicker = Q_NULLPTR;
     QString mp      = rec->modepaiement();
-    if (mp == "V")
+    if (mp == VRMT)
     {
         RadioAClicker       = ui->VirementradioButton;
         QString Commission  = QLocale().toString(rec->commission(),'f',2);
         ui->CommissionlineEdit->setText(Commission);
     }
-    else if (mp == "E") RadioAClicker = ui->EspecesradioButton;
-    else if (mp == "C") RadioAClicker = ui->ChequeradioButton;
+    else if (mp == ESP) RadioAClicker = ui->EspecesradioButton;
+    else if (mp == CHQ) RadioAClicker = ui->ChequeradioButton;
     if (RadioAClicker != Q_NULLPTR)
         RadioAClicker   ->setChecked(true);
     ui->ComptesupComboBox->clearEditText();
     if (rec->compteid() > 0)
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
     ui->TiersupComboBox->setCurrentText(rec->payeur());
-    if (mp == "C")
+    if (mp == CHQ)
     {
         ui->TireurChequelineEdit    ->setText(rec->tireurcheque());
         ui->BanqueChequecomboBox    ->setCurrentText(rec->banquecheaque());
@@ -1716,7 +1716,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     /* Verifier si on peut modifier la recette - impossible si:
  . c'est un chèque et il a été déposé en banque
  . c'est un virement et il a été pointé sur le compte*/
-    if (rec->modepaiement() == "C" && rec->idremisecheque() > 0)                                                //!> c'est un chèque et il a été déposé en banque
+    if (rec->modepaiement() == CHQ && rec->idremisecheque() > 0)                                                //!> c'est un chèque et il a été déposé en banque
     {
         UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
                                 tr("Le chèque a été déposé en banque!"));
@@ -1863,7 +1863,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
             //Nettoyer Depenses  et comptes au besoin si une commission avait été enregistrée
             if (rec->commission() > 0)
             {
-                  if (mp == "V")
+                  if (mp == VRMT)
                 {
                     //Nettoyer et mettre en mémoire les commissions et les dépenses correspondantes éventuelles
                       m_lignecommissioncompteamodifier.clear();
@@ -2434,9 +2434,9 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
                  if (TableARemplir == ui->ListeupTableWidget)
                 {
                     A = reclist.at(i).at(8).toString();
-                    if (A == "T") A = reclist.at(i).at(9).toString();
-                    if (A == "E") A = tr("Espèces");
-                    if (A == "C") A = tr("Chèque");
+                    if (A == TRS) A = reclist.at(i).at(9).toString();
+                    if (A == ESP) A = tr(ESPECES);
+                    if (A == CHQ) A = tr(CHEQUE);
                     if (A == "CB")  A = tr("Carte bancaire");
                     pItem6 = new QTableWidgetItem() ;
                     pItem6->setTextAlignment(Qt::AlignCenter);
@@ -2523,7 +2523,7 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
             col++;
 
             QString mp = reclist.at(i).at(4).toString();
-            if (mp == "V" && reclist.at(i).at(9).toString() == "CB")
+            if (mp == VRMT && reclist.at(i).at(9).toString() == "CB")
                 A = tr("Virement carte bancaire");
             else
                 A = reclist.at(i).at(9).toString();                                                 // Payeur
@@ -2532,9 +2532,9 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
             TableARemplir->setItem(i,col,pItem3);
             col++;
 
-            if (mp == "V") A = tr("Virement");
-            if (mp == "E") A = tr("Espèces");
-            if (mp == "C") A = tr("Chèque");                                                   // Type paiement
+            if (mp == VRMT) A = tr(VIREMENT);
+            if (mp == ESP) A = tr(ESPECES);
+            if (mp == CHQ) A = tr(CHEQUE);                                                   // Type paiement
             pItem4 = new QTableWidgetItem() ;
             pItem4->setText(A);
             pItem4->setTextAlignment(Qt::AlignCenter);
@@ -2542,7 +2542,7 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
             col++;
 
 
-            if (mp == "C")
+            if (mp == CHQ)
                 A = reclist.at(i).at(16).toDate().toString(tr("dd-MM-yyyy"));                        // Date validation
             else
                 A = reclist.at(i).at(2).toDate().toString(tr("dd-MM-yyyy"));

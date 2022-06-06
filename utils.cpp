@@ -751,14 +751,14 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
 
 QString Utils::ConvertitModePaiement(QString mode)
 {
-    if (mode == "E")       mode = QObject::tr("Espèces");
-    else if (mode == "B")  mode = QObject::tr("Carte de crédit");
-    else if (mode == "T")  mode = QObject::tr("TIP");
-    else if (mode == "V")  mode = QObject::tr("Virement");
-    else if (mode == "P")  mode = QObject::tr("Prélèvement");
-    else if (mode == "C")  mode = QObject::tr("Chèque");
-    else if (mode == "G")  mode = QObject::tr("Acte gratuit");
-    else if (mode == "I")  mode = QObject::tr("Impayé");
+    if (mode == ESP)        mode = QObject::tr(ESPECES);
+    else if (mode == CB)    mode = QObject::tr(CARTECREDIT);
+    else if (mode == TP)    mode = QObject::tr(TIP);
+    else if (mode == VRMT)  mode = QObject::tr(VIREMENT);
+    else if (mode == PLVMT) mode = QObject::tr(PRELEVEMENT);
+    else if (mode == CHQ)   mode = QObject::tr(CHEQUE);
+    else if (mode == GRAT)  mode = QObject::tr(GRATUIT);
+    else if (mode == IMP)   mode = QObject::tr(IMPAYE);
     return mode;
 }
 

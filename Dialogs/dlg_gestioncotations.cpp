@@ -68,7 +68,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     dlglayout()                 ->insertWidget(0, wdg_codewidg);
 
     UpLabel *tiplabel           = new UpLabel();
-    tiplabel                    ->setText("Tip");
+    tiplabel                    ->setText(TIP);
     QHBoxLayout *tiplay         = new QHBoxLayout;
     tiplay                      ->insertWidget(0, tiplabel);
     tiplay                      ->insertSpacerItem(1, new QSpacerItem(10,5));

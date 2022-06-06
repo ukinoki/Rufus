@@ -292,9 +292,9 @@ void dlg_recettesspeciales::EnregistreRecette()
 
     // Insertion de l'écriture dans la table autresrecettes
     QString idRec, m;
-    if (Paiement == ESPECES)              m = "E";
-    else if (Paiement == VIREMENT)        m = "V";
-    else if (Paiement == CHEQUE)          m = "C";
+    if (Paiement == ESPECES)              m = ESP;
+    else if (Paiement == VIREMENT)        m = VRMT;
+    else if (Paiement == CHEQUE)          m = CHQ;
 
     QStringList listtables;
     listtables << TBL_RECETTESSPECIALES << TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES;
@@ -317,9 +317,9 @@ void dlg_recettesspeciales::EnregistreRecette()
             "', " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
             ", '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) +
             "', '" + m +
-            "', " + (m=="V"||m=="E"? ui->ComptesupComboBox->currentData().toString()    : "null") +
-            ", "  + (m=="C"? "'" + ui->TireurlineEdit->text() + "'"  : "null") +
-            ", "  + (m=="C"? "'" + ui->BanqChequpComboBox->currentText() + "'"  : "null") + ")",tr("Impossible d'enregister cete recette!")))
+            "', " + (m==VRMT||m==ESP? ui->ComptesupComboBox->currentData().toString()    : "null") +
+            ", "  + (m==CHQ? "'" + ui->TireurlineEdit->text() + "'"  : "null") +
+            ", "  + (m==CHQ? "'" + ui->BanqChequpComboBox->currentText() + "'"  : "null") + ")",tr("Impossible d'enregister cete recette!")))
 
     {
         db->rollback();
@@ -640,9 +640,9 @@ void dlg_recettesspeciales::MetAJourFiche()
         ui->ComptesupComboBox   ->setCurrentIndex(-1);
         ui->BanqChequpComboBox  ->setCurrentIndex(-1);
 
-        if (A == "E")
+        if (A == ESP)
             A = ESPECES;
-        else if (A == "V")
+        else if (A == VRMT)
         {
             if (recette.at(6).toInt()>0)
             {
@@ -658,7 +658,7 @@ void dlg_recettesspeciales::MetAJourFiche()
             }
             A = VIREMENT;
         }
-        else if (A == "C")
+        else if (A == CHQ)
         {
             if (recette.at(7).toString() != "")
             {
@@ -771,12 +771,12 @@ void dlg_recettesspeciales::ModifierRecette()
     }
     QString ancpaiement = listpaiements.at(0).at(0).toString();
 
-    if (ancpaiement == "E")
+    if (ancpaiement == ESP)
     {
         db->SupprRecordFromTable(m_idrecetteencours, CP_ID_AUTRESRECETTES, TBL_RECETTESSPECIALES);
         EnregistreRecette();
     }
-    else if (ancpaiement == "C")
+    else if (ancpaiement == CHQ)
     {
         if (listpaiements.at(0).at(3).toInt()>0)                // le cheque a été remis en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecette
             db->StandardSQL("update " TBL_RECETTESSPECIALES " set "
@@ -795,7 +795,7 @@ void dlg_recettesspeciales::ModifierRecette()
             EnregistreRecette();
         }
     }
-    else if (ancpaiement == "V")
+    else if (ancpaiement == VRMT)
     {
         QString         Paiement = ui->PaiementcomboBox->currentText();
         bool ok = true;
@@ -1070,9 +1070,9 @@ void dlg_recettesspeciales::RemplitBigTable()
 
             A = recette.at(9).toString();                                                                  // Paiement - col = 4
             QString B = "";
-            if (A == "E")
+            if (A == ESP)
                 A = ESPECES;
-            else if (A == "V")
+            else if (A == VRMT)
             {
                 if (recette.at(10).toInt() > 0)
                 {
@@ -1086,7 +1086,7 @@ void dlg_recettesspeciales::RemplitBigTable()
                 }
                 A = VIREMENT + (B==""? "" : " " + B);
             }
-            else if (A == "C")
+            else if (A == CHQ)
             {
                 B = recette.at(11).toString();
                 A = CHEQUE + (B==""? "" : " " + B);

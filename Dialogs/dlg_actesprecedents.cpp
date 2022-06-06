@@ -329,13 +329,13 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
         //2. on recheche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
         QString txtpaiement = Utils::ConvertitModePaiement(acte->paiementType());
-        if (acte->paiementType() == "T"
-                && acte->paiementTiers() == "CB") txtpaiement = tr("carte de crédit");
-         else if (acte->paiementType() == "T") txtpaiement = acte->paiementTiers();
+        if (acte->paiementType() == TRS
+                && acte->paiementTiers() == "CB") txtpaiement = tr(CARTECREDIT);
+         else if (acte->paiementType() == TRS) txtpaiement = acte->paiementTiers();
         ui->PaiementlineEdit->setText(txtpaiement);
 
         // on calcule le montant payé pour l'acte
-        if (acte->paiementType() != "G" || acte->paiementType() != "I")
+        if (acte->paiementType() != GRAT || acte->paiementType() != IMP)
         {
             double TotalPaye = 0;
             for (auto it = m_listepaiements->lignespaiements()->constBegin(); it != m_listepaiements->lignespaiements()->constEnd(); ++it)
@@ -353,10 +353,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         }
 
 
-        if (acte->paiementType() == "B"
-              ||(acte->paiementType() == "T" && acte->paiementTiers() == "CB")
-              || acte->paiementType() == "C"
-              || acte->paiementType() == "E")
+        if ((acte->paiementType() == TRS && acte->paiementTiers() == "CB")
+              || acte->paiementType() == CHQ
+              || acte->paiementType() == ESP)
         {
             ui->PaiementLabel->setVisible(true);
             ui->PaiementLabel->setText("Paiement:");
@@ -365,8 +364,8 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
             ui->Comptaframe->setFixedHeight(74);
             ui->PaiementlineEdit->setGeometry(79,25,91,18);
         }
-        else if (acte->paiementType() == "G"
-                 || acte->paiementType() == "I")
+        else if (acte->paiementType() == GRAT
+                 || acte->paiementType() == IMP)
         {
             ui->PaiementLabel->setVisible(false);
             ui->PayeLabel->setVisible(false);
@@ -374,7 +373,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
             ui->Comptaframe->setFixedHeight(50);
             ui->PaiementlineEdit->setGeometry(8,25,164,18);
         }
-        if (acte->paiementType() == "T" && acte->paiementTiers() != "CB")
+        if (acte->paiementType() == TRS && acte->paiementTiers() != "CB")
         {
             ui->PaiementLabel->setText("Tiers");
             ui->PaiementLabel->setVisible(true);
