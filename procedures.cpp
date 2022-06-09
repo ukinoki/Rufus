@@ -4884,6 +4884,43 @@ void Procedures::RegleRefracteurXML()
      * Datas::I()->mesureautoref    qui met en autoref la dernière mesure d'autoref du patient
      * Datas::I()->mesureacuité     qui met en subjectif la dernière mesure d'acuité du patient
      */
+    auto envoiedatas = [] (QDomDocument xml, QString codecname, QTextCodec *codec, Procedures::TypeMesure typmesure)
+    {
+        QString Adress ("");
+        QString typfile("");
+        if (typmesure == Procedures::MesureAutoref)
+        {
+            Adress = Procedures::I()->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressAutoref").toString();
+            typfile = "ARK";
+        }
+        else if (typmesure == Procedures::MesureFronto)
+        {
+            Adress = Procedures::I()->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressFronto").toString();
+            typfile = "LM";
+        }
+        else
+            return;
+        QDir Dir(Adress);
+        if (!Dir.exists(Adress))
+            Dir.mkdir(Adress);
+        QStringList listfichar = Dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+        for(int i = 0; i < listfichar.size(); ++i)
+            QFile(Adress + "/" + listfichar.at(i)).remove();
+        QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
+        QFile file(filename);
+        if (file.open(QIODevice::ReadWrite))
+        {
+            QTextStream stream( &file );
+            stream.setCodec(codec);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
+            QString strxml = xml.toString();
+            stream << strxml;
+            file.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
+                                  | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
+                                  | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                                  | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+            file.close();
+        }
+    };
 // ----------------- CONNECTION LAN
     if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-6100"
      || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop")
@@ -4895,7 +4932,8 @@ void Procedures::RegleRefracteurXML()
         */
 
 /*! LE FRONTO */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        bool ExistMesureFronto = m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean();
+        if (ExistMesureFronto)
         {
             QDomDocument LMxml("");
             QDomElement ophtalmology = LMxml.createElement("Ophtalmology");
@@ -5170,31 +5208,12 @@ void Procedures::RegleRefracteurXML()
                     }
                 }
             }
-            QString lmxml = LMxml.toString();
-            QString AdressFronto = settings()->value("Param_Poste/PortRefracteur/Reseau/AdressFronto").toString();
-            QDir DirFronto(AdressFronto);
-            if (!DirFronto.exists(AdressFronto))
-                DirFronto.mkdir(AdressFronto);
-            QStringList listfichlm = DirFronto.entryList(QDir::Files | QDir::NoDotAndDotDot);
-            for(int i = 0; i < listfichlm.size(); ++i)
-                QFile(AdressFronto + "/" + listfichlm.at(i)).remove();
-            QString filenamelm = AdressFronto + "/LM_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
-            QFile LMfile(filenamelm);
-            if (LMfile.open(QIODevice::ReadWrite))
-            {
-                QTextStream stream( &LMfile );
-                stream.setCodec(codec);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
-                stream << lmxml;
-                LMfile.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                                  | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                                  | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                                  | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                LMfile.close();
-            }
+            envoiedatas(LMxml, codecname, codec, Procedures::MesureFronto);
         }
 
 /*! L'AUTOREF */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+        bool ExistMesureAutoref = m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean();
+        if (ExistMesureAutoref)
         {
             QDomDocument ARxml("");
             QDomElement Data = ARxml.createElement("Data");
@@ -5769,27 +5788,16 @@ void Procedures::RegleRefracteurXML()
                 }
             }
 
-            QString arxml = ARxml.toString();
-            QString AdressAutoref = settings()->value("Param_Poste/PortRefracteur/Reseau/AdressAutoref").toString();
-            QDir DirAutoref(AdressAutoref);
-            if (!DirAutoref.exists(AdressAutoref))
-                DirAutoref.mkdir(AdressAutoref);
-            QStringList listfichar = DirAutoref.entryList(QDir::Files | QDir::NoDotAndDotDot);
-            for(int i = 0; i < listfichar.size(); ++i)
-                QFile(AdressAutoref + "/" + listfichar.at(i)).remove();
-            QString filenamear = AdressAutoref + "/ARK_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
-            QFile ARfile(filenamear);
-            if (ARfile.open(QIODevice::ReadWrite))
+            /*! Pour le Glasspop, on met un délai de 3 secondes avant l'envoi des datas refracteur sinon il s'emmêle les crayons s'il y a des données données LM */
+            if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop" && ExistMesureFronto)
             {
-                QTextStream stream( &ARfile );
-                stream.setCodec(codec);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
-                stream << arxml;
-                ARfile.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                ARfile.close();
+                QTimer tim;
+                tim.setSingleShot(true);
+                connect(&tim, &QTimer::timeout, this, [=] { envoiedatas(ARxml, codecname, codec, Procedures::MesureAutoref); });
+                tim.start(3000);
             }
+            else
+                envoiedatas(ARxml, codecname, codec, Procedures::MesureAutoref);
         }
     }
 }
