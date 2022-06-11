@@ -382,6 +382,22 @@ la sélection</string>
     </property>
    </widget>
   </widget>
+  <widget class="QCheckBox" name="DocsPublicscheckBox">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>345</y>
+     <width>221</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Afficher les dcocuments publics</string>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

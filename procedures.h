@@ -493,7 +493,8 @@ private:
     QString                 m_mesureSerie;
 
     /*! Tout ce qui est en rapport avec la récupération des données de refraction par le réseau */
-    QTimer                  t_xmltimer;                                             /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop */
+    QTimer                  t_xmlwatchtimer;                                        /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop */
+    QTimer                  t_xmlfiletimer;                                         /*! permet d'introduire un décalage entre l'enregistrement des données AR ET LM pour le Glasspop pour contourner un bug du Glasspop */
     QFileSystemWatcher      m_filewatcherfronto;                                    /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
     QDateTime               m_filewatcherfrontocreated = QDateTime();               /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherfrontofile = "";                           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */

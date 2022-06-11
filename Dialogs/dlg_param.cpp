@@ -231,6 +231,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value("Param_Poste/PortFronto/Reseau").toString());
     EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox,       ui->PortFrontoupComboBox->currentIndex());
     ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
+    ui->NetworkPathFrontoupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le frontofocomètre"));
 
     ui->AutorefupComboBox               ->setCurrentText(proc->settings()->value("Param_Poste/Autoref").toString());
     ui->PortAutorefupComboBox           ->setCurrentText(proc->settings()->value("Param_Poste/PortAutoref").toString());
@@ -238,6 +239,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value("Param_Poste/PortAutoref/Reseau").toString());
     EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox,      ui->PortAutorefupComboBox->currentIndex());
     ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
+    ui->NetworkPathAutorefupPushButton  ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par l'autorefractomètre"));
 
     ui->RefracteurupComboBox            ->setCurrentText(proc->settings()->value("Param_Poste/Refracteur").toString());
     ui->PortRefracteurupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/PortRefracteur").toString());
@@ -248,11 +250,11 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->NetworkPathEchangeAutorefupLineEdit->setText(proc->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressAutoref").toString());
     }
     EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox,   ui->PortRefracteurupComboBox->currentIndex());
-    ui->NetworkPathRefracteurupPushButton       ->setImmediateToolTip(tr("Emplacement du fichier d'échange du refracteur"));
+    ui->NetworkPathRefracteurupPushButton       ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le refracteur"));
     ui->NetworkPathRefracteurupLineEdit         ->setImmediateToolTip(ui->NetworkPathRefracteurupLineEdit->text());
-    ui->NetworkPathEchangeFrontoupPushButton    ->setImmediateToolTip(tr("Emplacement du fichier d'échange du frontofocomètre"));
+    ui->NetworkPathEchangeFrontoupPushButton    ->setImmediateToolTip(tr("Emplacement du fichier de mesures du frontofocomètre à envoyer au réfracteur"));
     ui->NetworkPathEchangeFrontoupLineEdit      ->setImmediateToolTip(ui->NetworkPathEchangeFrontoupLineEdit->text());
-    ui->NetworkPathEchangeAutorefupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier d'échange de l'autorefractomètre"));
+    ui->NetworkPathEchangeAutorefupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures de l'autorefractomètre à envoyer au réfracteur"));
     ui->NetworkPathEchangeAutorefupLineEdit     ->setImmediateToolTip(ui->NetworkPathEchangeAutorefupLineEdit->text());
 
     ui->TonometreupComboBox             ->setCurrentText(proc->settings()->value("Param_Poste/Tonometre").toString());
@@ -261,6 +263,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->NetworkPathTonoupLineEdit   ->setText(proc->settings()->value("Param_Poste/PortTonometre/Reseau").toString());
     EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox,    ui->PortTonometreupComboBox->currentIndex());
     ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
+    ui->NetworkPathTonoupPushButton     ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le tonomètre"));
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);

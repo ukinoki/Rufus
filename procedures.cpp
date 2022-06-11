@@ -3005,7 +3005,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     // Création du compte administrateur dans la table utilisateurs
     QString req = "insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "','" NOM_ADMINISTRATEUR "', '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "')";
     db->StandardSQL (req);
-    // Création du permier utilisateur dans la table utilisateurs
+    // Création du premier utilisateur dans la table utilisateurs
     //qDebug() << req;
     m_idcentre               = 1;
     m_usecotation            = true;
@@ -3021,8 +3021,13 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     currentuser()->setidsuperviseur(idusr);
     currentuser()->setidcomptable(idusr);
     currentuser()->setidparent(idusr);
+    // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
+    req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = null";
+    db->StandardSQL (req);
+    req = "update " TBL_DOSSIERSIMPRESSIONS " set " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(idusr) + ", " CP_PUBLIC_DOSSIERIMPRESSIONS " = null";
+    db->StandardSQL (req);
 
-    if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
+    if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été créé"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
                                currentuser()->titre() + " "  + currentuser()->prenom() + " " + currentuser()->nom() + ", " + currentuser()->fonction()
                                + "\n\n" +
@@ -4268,8 +4273,8 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
     }
     if (usetimer)
     {
-        t_xmltimer.start(1000);
-        connect(&t_xmltimer,  &QTimer::timeout,     this,
+        t_xmlwatchtimer.start(1000);
+        connect(&t_xmlwatchtimer,  &QTimer::timeout,     this,
                 [=]
         {
             if (appareils.testFlag(Autoref) && pathdirautoref != "")
@@ -4884,8 +4889,10 @@ void Procedures::RegleRefracteurXML()
      * Datas::I()->mesureautoref    qui met en autoref la dernière mesure d'autoref du patient
      * Datas::I()->mesureacuité     qui met en subjectif la dernière mesure d'acuité du patient
      */
-    auto envoiedatas = [] (QDomDocument xml, QString codecname, QTextCodec *codec, Procedures::TypeMesure typmesure)
+    auto EnregistreFileDatasXML = [] (QDomDocument xml, Procedures::TypeMesure typmesure)
     {
+        const QByteArray codecname = "UTF16LE";
+        QTextCodec *codec = QTextCodec::codecForName(codecname);
         QString Adress ("");
         QString typfile("");
         if (typmesure == Procedures::MesureAutoref)
@@ -4903,9 +4910,9 @@ void Procedures::RegleRefracteurXML()
         QDir Dir(Adress);
         if (!Dir.exists(Adress))
             Dir.mkdir(Adress);
-        QStringList listfichar = Dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-        for(int i = 0; i < listfichar.size(); ++i)
-            QFile(Adress + "/" + listfichar.at(i)).remove();
+        QStringList listfiles = Dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+        for(int i = 0; i < listfiles.size(); ++i)
+            QFile(Adress + "/" + listfiles.at(i)).remove();
         QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
         QFile file(filename);
         if (file.open(QIODevice::ReadWrite))
@@ -4921,12 +4928,11 @@ void Procedures::RegleRefracteurXML()
             file.close();
         }
     };
-// ----------------- CONNECTION LAN
+
+
     if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-6100"
      || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop")
     {
-        const QByteArray codecname = "UTF16LE";
-        QTextCodec *codec = QTextCodec::codecForName(codecname);
         /*! Il faut régler le réfracteur en créant un fichier xml pour l'autoref et un pour le fronto à partir des données du dossier du patient en cours
          * Il faut déposer ces fichiers dans le dossier réseau correspondant surveillé par le refracteur
         */
@@ -5208,7 +5214,7 @@ void Procedures::RegleRefracteurXML()
                     }
                 }
             }
-            envoiedatas(LMxml, codecname, codec, Procedures::MesureFronto);
+            EnregistreFileDatasXML(LMxml, Procedures::MesureFronto);
         }
 
 /*! L'AUTOREF */
@@ -5218,7 +5224,6 @@ void Procedures::RegleRefracteurXML()
             QDomDocument ARxml("");
             QDomElement Data = ARxml.createElement("Data");
             ARxml.appendChild(Data);
-
             QDomElement company = ARxml.createElement("Company");
             Data.appendChild(company);
             {
@@ -5791,13 +5796,13 @@ void Procedures::RegleRefracteurXML()
             /*! Pour le Glasspop, on met un délai de 3 secondes avant l'envoi des datas refracteur sinon il s'emmêle les crayons s'il y a des données données LM */
             if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop" && ExistMesureFronto)
             {
-                QTimer tim;
-                tim.setSingleShot(true);
-                connect(&tim, &QTimer::timeout, this, [=] { envoiedatas(ARxml, codecname, codec, Procedures::MesureAutoref); });
-                tim.start(3000);
+                t_xmlfiletimer.setSingleShot(true);
+                t_xmlfiletimer.setInterval(3000);
+                t_xmlfiletimer.start();
+                connect(&t_xmlfiletimer, &QTimer::timeout, this, [=] { EnregistreFileDatasXML(ARxml, Procedures::MesureAutoref); });
             }
             else
-                envoiedatas(ARxml, codecname, codec, Procedures::MesureAutoref);
+                EnregistreFileDatasXML(ARxml, Procedures::MesureAutoref);
         }
     }
 }
