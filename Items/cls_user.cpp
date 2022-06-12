@@ -80,6 +80,7 @@ void User::setData(QJsonObject data)
 
     Utils::setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
     Utils::setDataDate(data, CP_DATECREATIONMDP_USR, m_datecreationMDP);
+    Utils::setDataBool(data, CP_AFFICHEDOCSPUBLICS_USR, m_affichedocspublics);
     m_data = data;
     /*qDebug() << login();
 

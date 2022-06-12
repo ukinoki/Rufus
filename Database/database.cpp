@@ -852,7 +852,7 @@ QList<User*> DataBase::loadUsers()
             CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
             CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
             CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR ", " CP_ISMEDECIN_USR ", " // 25,26,27,28,29
-            CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR                                                                                   // 30,31,32
+            CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", " CP_AFFICHEDOCSPUBLICS_USR                                                    // 30,31,32,33
             " from " TBL_UTILISATEURS;
 
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
@@ -895,6 +895,7 @@ QList<User*> DataBase::loadUsers()
         userData[CP_ISMEDECIN_USR]                      = usrdata.at(29).toInt();
         userData[CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR] = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
         userData[CP_DATECREATIONMDP_USR]                = usrdata.at(32).toDate().toString("yyyy-MM-dd");
+        userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(33).toInt() == 1);
         User *usr = new User(userData);
         users << usr;
     }

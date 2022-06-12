@@ -58,6 +58,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
         }
     });
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
+    connect (ui->DocsPublicscheckBox,           &QCheckBox::clicked,                    this,   [=](bool a) {ItemsList::update(currentuser(), CP_AFFICHEDOCSPUBLICS_USR,a);});
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
     connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
@@ -108,10 +109,11 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->dateImpressiondateEdit->setMaximumDate(QDate::currentDate());
 
     ui->DupliOrdocheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
+    ui->DocsPublicscheckBox->setChecked(currentuser()->affichedocspublics());
 
 
     ui->textFrame->installEventFilter(this);
-    m_opacityeffect             = new QGraphicsOpacityEffect();
+    m_opacityeffect  = new QGraphicsOpacityEffect();
     t_timerefface    = new QTimer(this);
 
     ui->ALDcheckBox->setChecked(m_currentpatient->isald());

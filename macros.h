@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          69  // version de la base de données
+#define VERSION_BASE                          70  // version de la base de données
 #define VERSION_RESSOURCES                    34  // version des fichiers de ressources
 
 // Les bases
@@ -389,6 +389,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_DATEDERNIERECONNEXION_USR                    "DateDerniereConnexion"
 #define CP_DATECREATIONMDP_USR                          "DateCreationMDP"
 #define CP_USERBARCODE_USR                              "UserBarCode"
+#define CP_AFFICHEDOCSPUBLICS_USR                       "AfficheDocsPublics"
 
                             //! Table Rufus.correspondants
 #define CP_ID_CORRESP                                   "idCor"

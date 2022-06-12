@@ -420,7 +420,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,69,NULL,NULL,NULL,'/Users/serge/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,70,NULL,NULL,NULL,'/Users/serge/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -996,6 +996,7 @@ CREATE TABLE `utilisateurs` (
   `DateDerniereConnexion` datetime DEFAULT NULL,
   `DateCreationMDP` date DEFAULT NULL,
   `UserBarCode` blob,
+  `AfficheDocsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les documents rendus publics par leur createur dans la fiche Impressions',
   PRIMARY KEY (`idUser`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

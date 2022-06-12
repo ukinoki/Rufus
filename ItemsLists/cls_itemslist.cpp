@@ -570,6 +570,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 usr->setdesactive(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
             }
+            if (field == CP_AFFICHEDOCSPUBLICS_USR )
+            {
+                usr->setaffichedocspublics(newvalue.toBool());
+                newvalue = (newvalue.toBool()? "1" : "null");
+            }
             else
                 ok = false;
             break;

@@ -61,14 +61,15 @@ private:
     QString m_droits = "";              //!> les droits de l'utilisateur - correspond à l'enum METIER -> Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
     QString m_mail = "";                //!> le mail
     QString m_titre = "";               //!< titre, ex: Docteur
-    QString m_fonction = "";            //! la fonction précise de l'utilisateur
+    QString m_fonction = "";            //!< la fonction précise de l'utilisateur
     QString m_specialite = "";          //!> la spécialité
     QString m_numCO = "";               //!> le no du conseil de l'ordre
     QString m_portable = "";            //!> le no de téléphone portable
     QString m_web = "";                 //!> le site web
     QString m_memo = "";                //!> memo sur l'utilisateur
     QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
-    QString m_policeAttribut = "";      //! lle choix d'attribut de la police d'écran
+    QString m_policeAttribut = "";      //!> le choix d'attribut de la police d'écran
+    bool m_affichedocspublics = true;   //!> affiche les odcs publics des autres utilisateurs dans la fiche impressions
 
     int m_soignant;
     qlonglong m_numPS;
@@ -178,6 +179,8 @@ public:
                     Utils::CalcFontSize(policeEcran);
                     return policeEcran; }
     QString policeattribut() const  { return m_policeAttribut; }
+    bool    affichedocspublics() const { return m_affichedocspublics; }
+    void    setaffichedocspublics(bool aff)  { m_affichedocspublics = aff; }
 
     RESPONSABLE responsableactes() const;
 
