@@ -120,6 +120,7 @@ private:
     void                        MenuContextuelTexteDocument();
     void                        MetAJour(QString texte, bool pourVisu = true);
     void                        OrdoAvecDupli(bool);
+    bool                        RecopieDocument(Impression *doc);
     void                        Remplir_TableView();
     void                        selectAllDocuments();
     void                        selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);

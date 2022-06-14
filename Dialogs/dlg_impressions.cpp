@@ -58,7 +58,11 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
         }
     });
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
-    connect (ui->DocsPublicscheckBox,           &QCheckBox::clicked,                    this,   [=](bool a) {ItemsList::update(currentuser(), CP_AFFICHEDOCSPUBLICS_USR,a);});
+    connect (ui->DocsPublicscheckBox,           &QCheckBox::clicked,                    this,   [=](bool a)
+                                                                                                {
+                                                                                                    ItemsList::update(currentuser(), CP_AFFICHEDOCSPUBLICS_USR,a);
+                                                                                                    FiltreListe();
+                                                                                                });
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
     connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
@@ -410,11 +414,13 @@ QString dlg_impressions::DossierToolTip(DossierImpression *dossier)
 
 void dlg_impressions::EnableDocsButtons(Impression* doc)
 {
-    wdg_docsbuttonframe->wdg_modifBouton->setEnabled(doc);
+//    qDebug() << "doc->iduser()" << doc->iduser();
+//    qDebug() << "currentuser()->id()" << currentuser()->id();
     if (doc)
+    {
         wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(doc->iduser() == currentuser()->id());
-    else
-        wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
+        wdg_docsbuttonframe->wdg_modifBouton->setEnabled(doc->iduser() == currentuser()->id());
+    }
 }
 
 void dlg_impressions::EnableDossiersButtons(DossierImpression *dossier)
@@ -517,6 +523,13 @@ void dlg_impressions::FiltreListe()
         QString txtachercher = wdg_docsbuttonframe->searchline()->text().toUpper();
         bool cache = !txt.contains(txtachercher);
         ui->DocsupTableView->setRowHidden(j, cache);
+        if (!ui->DocsupTableView->isRowHidden(j))
+        {
+            Impression *doc = getDocumentFromIndex(m_docsmodel->index(j,0));
+            if (doc)
+                if (doc->iduser() != currentuser()->id())
+                    ui->DocsupTableView->setRowHidden(m_docsmodel->getRowFromItem(doc),!currentuser()->affichedocspublics());
+        }
     }
 }
 
@@ -641,20 +654,32 @@ void dlg_impressions::MenuContextuelDocuments()
     QAction *pAction_PublicDoc;
     QAction *pAction_EditableDoc;
     QAction *pAction_AdminDoc;
-    pAction_ModifDoc                = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce document"));
-    pAction_SupprDoc                = menucontextuel.addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
-    pAction_CreerDoc                = menucontextuel.addAction(Icons::icCreer(), tr("Créer un document"));
-    if (m_currentdocument->ispublic())
-        pAction_PublicDoc           = menucontextuel.addAction(tr("Privé"));
-    else
-        pAction_PublicDoc           = menucontextuel.addAction(tr("Public"));
-    if (!m_currentdocument->iseditable())
-        pAction_EditableDoc         = menucontextuel.addAction(tr("Editable"));
-    else
-        pAction_EditableDoc         = menucontextuel.addAction(tr("Non modifiable"));
-    if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
+    QAction *pAction_RecopierDoc;
+    if (m_currentdocument->iduser() == currentuser()->id())
     {
-        /*!
+        pAction_ModifDoc                = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce document"));
+        pAction_SupprDoc                = menucontextuel.addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
+        connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Modifier");});
+        connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Supprimer");});
+    }
+    pAction_CreerDoc                = menucontextuel.addAction(Icons::icCreer(), tr("Créer un document"));
+    if (m_currentdocument->iduser() == currentuser()->id())
+    {
+        if (m_currentdocument->ispublic())
+            pAction_PublicDoc           = menucontextuel.addAction(tr("Privé"));
+        else
+            pAction_PublicDoc           = menucontextuel.addAction(tr("Public"));
+        connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Public");});
+        pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
+        if (!m_currentdocument->iseditable())
+            pAction_EditableDoc         = menucontextuel.addAction(tr("Editable"));
+        else
+            pAction_EditableDoc         = menucontextuel.addAction(tr("Non modifiable"));
+        pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
+        connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Editable");});
+        if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
+        {
+            /*!
         QAction *pAction_PrescripDoc;
         if (m_currentdocument->isprescription())
             pAction_PrescripDoc         = menucontextuel.addAction(tr("Prescription"));
@@ -663,21 +688,20 @@ void dlg_impressions::MenuContextuelDocuments()
         connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Prescription");});
         pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
         */
-        if (!m_currentdocument->ismedical())
-            pAction_AdminDoc            = menucontextuel.addAction(tr("Document médical"));
-        else
-            pAction_AdminDoc            = menucontextuel.addAction(tr("Document administratif"));
-        connect (pAction_AdminDoc,  &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Administratif");});
+            if (!m_currentdocument->ismedical())
+                pAction_AdminDoc            = menucontextuel.addAction(tr("Document médical"));
+            else
+                pAction_AdminDoc            = menucontextuel.addAction(tr("Document administratif"));
+            connect (pAction_AdminDoc,  &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Administratif");});
+        }
     }
-
-    pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
-    pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
-
-    connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Modifier");});
-    connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Supprimer");});
+    if (m_currentdocument->iduser() != currentuser()->id())
+    {
+        pAction_RecopierDoc           = menucontextuel.addAction(Icons::icCopy(), tr("Recopier ce document"));
+        pAction_RecopierDoc ->setToolTip(tr("Recopier ce document dans sa propre collection de documents"));
+        connect (pAction_RecopierDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Recopier");});
+    }
     connect (pAction_CreerDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Creer");});
-    connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Public");});
-    connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Editable");});
 
     // ouvrir le menu
     menucontextuel.exec(cursor().pos());
@@ -989,6 +1013,10 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
             if (m_mode == Selection)
                 ItemsList::update(m_currentdocument, CP_PRESCRIPTION_IMPRESSIONS,false);
         }
+    }
+    else if (choix  == "Recopier")
+    {
+        RecopieDocument(m_currentdocument);
     }
     /*!
     else if (choix  == "Prescription")
@@ -1755,15 +1783,8 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
             if (listdocs.at(i).at(0).toString().toUpper() == str.toUpper())
             {
                 a = true;
-                QString b = " " + tr("créé par vous");
                 if (listdocs.at(i).at(1).toInt() != currentuser()->id())
-                {
-                    if (Datas::I()->users->getById(listdocs.at(i).at(1).toInt()) != Q_NULLPTR)
-                        b =  " " + tr("créé par") + " " + Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->login();
-                    else
-                        b = "";
-                }
-                UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom") + b);
+                    UpMessageBox::Watch(this,tr("Vous avez déjà créé un") + " " + nom + " " + tr("portant ce nom"));
                 break;
             }
         }
@@ -2232,7 +2253,9 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
 {
     int row = idx.row();
+    qDebug() << "row" << row;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
+    qDebug() << "item" << itm->item();
     if (itm)
         return dynamic_cast<Impression*>(itm->item());
     else
@@ -2340,6 +2363,34 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
         SetDocumentToRow(m_currentdocument,row);
         m_docsmodel->sort(5);
     }
+    return true;
+}
+
+// ----------------------------------------------------------------------------------
+// Creation du Document dans la base.
+// ----------------------------------------------------------------------------------
+bool dlg_impressions::RecopieDocument(Impression *doc)
+{
+    int row = m_docsmodel->getRowFromItem(doc);
+    // Creation du Document dans la table
+    if (ChercheDoublon(m_currentdocument->resume(), row))
+    {
+        ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
+        return false;
+    }
+
+    m_docslistbinds[CP_TEXTE_IMPRESSIONS]           = m_currentdocument->texte();
+    m_docslistbinds[CP_RESUME_IMPRESSIONS]          = m_currentdocument->resume();
+    m_docslistbinds[CP_IDUSER_IMPRESSIONS]          = currentuser()->id();
+    m_docslistbinds[CP_DOCPUBLIC_IMPRESSIONS]       = QVariant();
+    m_docslistbinds[CP_PRESCRIPTION_IMPRESSIONS]    = (m_currentdocument->isprescription()? "1" : QVariant());
+    m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (m_currentdocument->iseditable()?     "1" : QVariant());
+    m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (m_currentdocument->ismedical()?      "1" : QVariant());
+    m_currentdocument = Q_NULLPTR;
+    m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
+    Remplir_TableView();
+    FiltreListe();
+    m_docsmodel->sort(5);
     return true;
 }
 
@@ -3254,11 +3305,15 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
+        m_currentdocument = Q_NULLPTR;
         int row = m_docsmodel->getRowFromItem(doc);
+        int iddoc = doc->id();
         db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
+        //nettoyage de la table metadocs
+        db->StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoc));
         Datas::I()->impressions->SupprimeImpression(doc);
         if (row>-1 && row < m_docsmodel->rowCount())
-            m_docsmodel->removeRow(row); //! declenche le signal si la rox current est la row suppriméecurrentrowchanged et mcurrentdocument devient le document suivant ou qnullptre s'il n'y a pas de suivant
+            m_docsmodel->removeRow(row); //! declenche le signal currentrowchanged si la row current est la row supprimée et mcurrentdocument devient le document suivant ou qnullptre s'il n'y a pas de suivant
         if (m_docsmodel->rowCount() == 0)
             ConfigMode(CreationDOC);
         else
@@ -3268,6 +3323,8 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
                 row = m_docsmodel->rowCount()-1;
             if(m_docsmodel->rowCount()>0)
             {
+                qDebug() << "row suppr" << row;
+                Remplir_TableView();
                 doc = getDocumentFromIndex(m_docsmodel->index(row,0));
                 if (doc)
                     selectcurrentDocument(doc);
