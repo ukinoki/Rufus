@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-06-2022/1");
+    qApp->setApplicationVersion("16-06-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -378,8 +378,15 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
         if (ListDialogDocs.size()>0)
             for (int i=0; i< ListDialogDocs.size();++i)
+            {
                 if (ListDialogDocs.at(i)->currentpatient() == currentpatient())
+                {
+                    ListDialogDocs.at(i)->setVisible(true);
                     return;
+                }
+                else
+                    ListDialogDocs.at(i)->close();
+            }
     }
     if (docs->docsexternes()->size()>0)
     {

@@ -220,9 +220,9 @@ void dlg_docsvideo::ValideFiche()
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
     QString NomOnglet;
-    if (db->ModeAccesDataBase() == Utils::Poste)          NomOnglet = tr("Monoposte");
-    if (db->ModeAccesDataBase() == Utils::ReseauLocal)    NomOnglet = tr("Réseau local");
-    QString NomDirStockageImagerie  = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossierImagerie").toString();
+    if (db->ModeAccesDataBase() == Utils::Poste)                NomOnglet = tr("Monoposte");
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)     NomOnglet = tr("Réseau local");
+    QString NomDirStockageImagerie = Procedures::I()->AbsolutePathDirImagerie();
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");

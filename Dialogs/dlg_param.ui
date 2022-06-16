@@ -1009,7 +1009,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>true</bool>
@@ -1251,7 +1251,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>130</y>
+              <y>70</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1264,15 +1264,15 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>160</y>
+              <y>100</y>
               <width>550</width>
-              <height>140</height>
+              <height>200</height>
              </rect>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>145</height>
+              <height>200</height>
              </size>
             </property>
             <property name="selectionMode">
@@ -1344,38 +1344,6 @@ un serveur hébergé sur le réseau local</string>
             </property>
             <property name="text">
              <string>Chemin depuis ce poste du dossier d'imagerie sur le serveur</string>
-            </property>
-           </widget>
-           <widget class="UpLabel" name="ServeurLocalStockageupLabel">
-            <property name="geometry">
-             <rect>
-              <x>360</x>
-              <y>70</y>
-              <width>311</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>Emplacement du dossier d'imagerie sur le serveur</string>
-            </property>
-           </widget>
-           <widget class="UpLabel" name="PathServeurLocalStockageupLabel">
-            <property name="geometry">
-             <rect>
-              <x>360</x>
-              <y>95</y>
-              <width>490</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </widget>
@@ -1543,7 +1511,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>130</y>
+              <y>70</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1559,15 +1527,15 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>160</y>
+              <y>100</y>
               <width>550</width>
-              <height>145</height>
+              <height>200</height>
              </rect>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>145</height>
+              <height>200</height>
              </size>
             </property>
             <property name="contextMenuPolicy">
@@ -1642,38 +1610,6 @@ un serveur hébergé sur le réseau local</string>
             </property>
             <property name="frame">
              <bool>true</bool>
-            </property>
-           </widget>
-           <widget class="UpLabel" name="ServeurStockageupLabel">
-            <property name="geometry">
-             <rect>
-              <x>360</x>
-              <y>70</y>
-              <width>311</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>Emplacement du dossier d'imagerie sur le serveur</string>
-            </property>
-           </widget>
-           <widget class="UpLabel" name="PathServeurStockageupLabel">
-            <property name="geometry">
-             <rect>
-              <x>360</x>
-              <y>95</y>
-              <width>490</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </widget>

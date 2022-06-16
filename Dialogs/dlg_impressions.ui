@@ -105,7 +105,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QCheckBox" name="PrescriptioncheckBox">
+       <widget class="UpCheckBox" name="PrescriptioncheckBox">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -128,7 +128,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QCheckBox" name="DocEditcheckBox">
+       <widget class="UpCheckBox" name="DocEditcheckBox">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -157,7 +157,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QCheckBox" name="DocAdministratifcheckBox">
+       <widget class="UpCheckBox" name="DocAdministratifcheckBox">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -186,7 +186,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QCheckBox" name="DocPubliccheckBox">
+       <widget class="UpCheckBox" name="DocPubliccheckBox">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
         </property>
@@ -382,7 +382,7 @@ la sélection</string>
     </property>
    </widget>
   </widget>
-  <widget class="QCheckBox" name="DocsPublicscheckBox">
+  <widget class="UpCheckBox" name="DocsPublicscheckBox">
    <property name="geometry">
     <rect>
      <x>520</x>
@@ -414,6 +414,11 @@ la sélection</string>
    <class>UpTableView</class>
    <extends>QTableView</extends>
    <header>uptableview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header location="global">upcheckbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

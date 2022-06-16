@@ -2468,16 +2468,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString NomDirStockageImagerie = PATH_DIR_IMAGERIE;
         if (OKImages || OKVideos || OKFactures)
         {
-            NomDirStockageImagerie = (PremierDemarrage? PATH_DIR_IMAGERIE : m_parametres->dirimagerieserveur());
-            if (!QDir(NomDirStockageImagerie).exists())
+            NomDirStockageImagerie = PATH_DIR_IMAGERIE;
+            if (!QDir(PATH_DIR_IMAGERIE).exists())
             {
-                bool exist = QDir().exists(PATH_DIR_IMAGERIE);
-                QString existdir = (exist? "" : "\n" + tr("Créez-le au besoin"));
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage d'imagerie"),
                                     tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
-                                    tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE +
-                                    existdir);
-                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_RUFUS + (exist? PATH_DIR_IMAGERIE : ""));
+                                    tr("Utilisez de préférence le dossier ") + QDir::homePath() + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
+                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
                 dialogimg.setViewMode(QFileDialog::List);
                 dialogimg.setFileMode(QFileDialog::DirectoryOnly);
                 bool b = (dialogimg.exec()>0);
@@ -2493,7 +2490,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
                     return false;
                 }
-                m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", NomDirStockageImagerie);
                 if (!PremierDemarrage)
                     db->setdirimagerie(NomDirStockageImagerie);
             }
@@ -2572,6 +2568,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             if (a != 0)
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
                             QFile::remove(PATH_FILE_SCRIPTRESTORE);
+                            db->setdirimagerie(NomDirStockageImagerie);
                        }
                     }
                 }
@@ -3871,6 +3868,8 @@ bool Procedures::PremierDemarrage()
                 return false;
              if (db->ModeAccesDataBase() == Utils::ReseauLocal)
                  db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString());
+             else
+                 db->setdirimagerie(PATH_DIR_IMAGERIE);
              m_parametres = db->parametres();
 
              // Création de l'utilisateur

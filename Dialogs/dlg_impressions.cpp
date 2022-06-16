@@ -45,6 +45,9 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableView);
     wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
+    ui->DocsPublicscheckBox->setImmediateToolTip(tr("Cocher cette case pour visualiser les documents rendus publics par les autres utilisateurs\n"
+                                                    "Ces documents sont affichés en caractères italiques bleus"));
+
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
     connect (wdg_docsbuttonframe->searchline(), &QLineEdit::textEdited,                 this,   &dlg_impressions::FiltreListe);
@@ -1892,17 +1895,18 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_docsbuttonframe             ->setEnabled(true);
         ui->DocPubliccheckBox           ->setChecked(false);
         ui->DocPubliccheckBox           ->setEnabled(false);
-        ui->DocPubliccheckBox           ->setToolTip("");
+        ui->DocPubliccheckBox           ->setImmediateToolTip("");
         ui->DocsupTableView             ->setEnabled(true);
         ui->DocsupTableView             ->setStyleSheet("");
         wdg_dossiersbuttonframe         ->setEnabled(true);
         ui->DossiersupTableView         ->setEnabled(true);
         ui->DocEditcheckBox             ->setChecked(false);
         ui->DocEditcheckBox             ->setEnabled(false);
-        ui->DocEditcheckBox             ->setToolTip("");
+        ui->DocEditcheckBox             ->setImmediateToolTip("");
         ui->DocAdministratifcheckBox    ->setChecked(false);
         ui->DocAdministratifcheckBox    ->setEnabled(false);
-        ui->DocAdministratifcheckBox    ->setToolTip("");
+        ui->DocAdministratifcheckBox    ->setImmediateToolTip("");
+        ui->PrescriptioncheckBox        ->setImmediateToolTip("");
         ui->Expliclabel                 ->setText(tr("SELECTION - Cochez les dossiers ou les documents que vous voulez imprimer")
                                                      + "\n" + tr("clic souris ou touche F5 pour sélectionner/déselectionner"));
         wdg_docsbuttonframe->wdg_modifBouton    ->setEnabled(false);
@@ -1940,8 +1944,7 @@ void dlg_impressions::ConfigMode(Mode mode)
             return;
          DisableLines();
         ui->upTextEdit->setText(m_currentdocument->texte());
-        ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(m_currentdocument,false));
-        ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
+
         ui->DocsupTableView->setEnabled(true);
         ui->DocsupTableView->setStyleSheet("");
         wdg_docsbuttonframe->setEnabled(false);
@@ -1949,11 +1952,22 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->textFrame->setEnabled(true);
         ui->Expliclabel->setText(tr("DOCUMENTS - MODIFICATION"));
+
+        ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(m_currentdocument,false));
+        ui->DocPubliccheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit visible par tous les utilisateurs"));
+
         ui->DocEditcheckBox->setEnabled(true);
-        ui->DocEditcheckBox->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
+        ui->DocEditcheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit affiché pour pouvoir être modifié avant son impression"));
+
         ui->DocAdministratifcheckBox->setEnabled(true);
-        ui->DocAdministratifcheckBox->setToolTip(tr("si cette option est cochée\nle document est considéré comme purement administratif"));
-        ui->PrescriptioncheckBox    ->setEnabled(true);
+        ui->DocAdministratifcheckBox->setImmediateToolTip(tr("Cocher cette case si ce document est administratif"));
+
+        ui->PrescriptioncheckBox->setEnabled(true);
+        ui->PrescriptioncheckBox->setImmediateToolTip(tr("Cocher cette case pour que le documment soit considéré comme une prescription\n"
+                                                      "Il ne sera accessible qu'au personnel soignant\n"
+                                                      "Un duplicata sera imprimé\n"
+                                                      "le nom du patient apparaîtra dans l'en-tête"));
+
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
         if (!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist())
@@ -2052,20 +2066,29 @@ void dlg_impressions::ConfigMode(Mode mode)
                     m_docsmodel->item(i,5)->setText("1" + doc->resume());
             }
         }
-        ui->DocPubliccheckBox->setChecked(false);
-        ui->DocPubliccheckBox->setEnabled(true);
-        ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
         ui->DossiersupTableView->setEnabled(false);
         wdg_dossiersbuttonframe->setEnabled(false);
+
+        ui->Expliclabel->setText(tr("DOCUMENTS - CREATION - Remplissez les champs définissant le document que vous voulez créer"));
+
         ui->DocEditcheckBox->setEnabled(true);
         ui->DocEditcheckBox->setChecked(false);
-        ui->DocEditcheckBox->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
-        ui->Expliclabel->setText(tr("DOCUMENTS - CREATION - Remplissez les champs définissant le document que vous voulez créer"));
+        ui->DocEditcheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit affiché pour pouvoir être modifié avant son impression"));
+
+        ui->DocPubliccheckBox->setChecked(false);
+        ui->DocPubliccheckBox->setEnabled(true);
+        ui->DocPubliccheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit visible par tous les utilisateurs"));
+
         ui->PrescriptioncheckBox->setChecked(false);
         ui->PrescriptioncheckBox->setEnabled(true);
+        ui->PrescriptioncheckBox->setImmediateToolTip(tr("Cocher cette case pour que le documment soit considéré comme une prescription\n"
+                                                      "Il ne sera accessible qu'au personnel soignant\n"
+                                                      "Un duplicata sera imprimé\n"
+                                                      "le nom du patient apparaîtra dans l'en-tête"));
+
         ui->DocAdministratifcheckBox->setEnabled(true);
         ui->DocAdministratifcheckBox->setChecked(!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist());
-        ui->DocAdministratifcheckBox->setToolTip(tr("si cette option est cochée\nle document est considéré comme purement administratif"));
+        ui->DocAdministratifcheckBox->setImmediateToolTip(tr("Cocher cette case si le document est un document administratif"));
         wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);

@@ -143,11 +143,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->NomuplineEdit->setFont(font);
     ui->TitreuplineEdit->setFont(font);
 
-    ui->PathServeurLocalStockageupLabel ->setStyleSheet("QLabel { background-color : white;}");
-    ui->PathServeurLocalStockageupLabel ->setImmediateToolTip(tr("Cet emplacement ne peut être modifié qu'en modifiant l'emplacement du serveur d'imagerie dans une session Rufus en monoposte sur le serveur"));
-    ui->PathServeurStockageupLabel      ->setStyleSheet("QLabel { background-color : white;}");
-    ui->PathServeurStockageupLabel      ->setImmediateToolTip(tr("Cet emplacement ne peut être modifié qu'en modifiant l'emplacement du serveur d'imagerie dans une session Rufus en monoposte sur le serveur"));
-
     ui->LockParamUserupLabel                ->setPixmap(Icons::pxVerrouiller());
     ui->LockParamPosteupLabel               ->setPixmap(Icons::pxVerrouiller());
     ui->LockParamGeneralupLabel             ->setPixmap(Icons::pxVerrouiller());
@@ -360,11 +355,6 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + "/Serveur").toString());
         ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
         ui->LocalPathStockageupLineEdit ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString());
-        bool local = DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal;
-        ui->ServeurLocalStockageupLabel      ->setVisible(local);
-        ui->PathServeurLocalStockageupLabel  ->setVisible(local);
-        if (local)
-            ui->PathServeurLocalStockageupLabel ->setText(m_parametres->dirimagerieserveur());
     }
     Base = Utils::getBaseFromMode(Utils::Distant);
     c = (proc->settings()->value(Base + "/Active").toString() == "YES");
@@ -388,11 +378,6 @@ dlg_param::dlg_param(QWidget *parent) :
         }
         ui->DossierClesSSLupLineEdit    ->setText(proc->settings()->value(Base + "/DossierClesSSL").toString());
         ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
-        bool distant = DataBase::I()->ModeAccesDataBase() == Utils::Distant;
-        ui->ServeurStockageupLabel      ->setVisible(distant);
-        ui->PathServeurStockageupLabel  ->setVisible(distant);
-        if (distant)
-            ui->PathServeurStockageupLabel  ->setText(m_parametres->dirimagerieserveur());
     }
 
     if (db->ModeAccesDataBase() == (Utils::Poste))
@@ -1901,7 +1886,6 @@ void dlg_param::DirPosteStockage()
     }
     ui->PosteStockageupLineEdit->setText(url.path());
     db->setdirimagerie(url.path());
-    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + "/DossierImagerie", url.path());
 }
 
 void dlg_param::DossierClesSSL()
