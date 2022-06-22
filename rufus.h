@@ -322,7 +322,7 @@ private:
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(DocsExternes *docs);
-    void                FicheImpressions(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
+    void                ImprimeDocument(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                ProgrammationIntervention(Patient *pat, Acte *act = Q_NULLPTR);

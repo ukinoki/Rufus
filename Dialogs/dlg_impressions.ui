@@ -380,6 +380,9 @@ la sélection</string>
       <height>600</height>
      </size>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SingleSelection</enum>
+    </property>
    </widget>
   </widget>
   <widget class="UpCheckBox" name="DocsPublicscheckBox">

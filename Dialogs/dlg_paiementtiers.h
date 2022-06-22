@@ -37,7 +37,7 @@ public:
     Ui::dlg_paiementtiers   *ui;
     bool                    initOK() const;
     enum Mode               {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};    Q_ENUM(Mode)
-    enum OrdreTri           {Alphabetique, Chronologique};                                  Q_ENUM(OrdreTri)
+    enum OrdreTri           {AlphabetiqueAscendant, AlphabetiqueDescendant, ChronologiqueAscendant,  ChronologiqueDescendant};                                  Q_ENUM(OrdreTri)
     enum TypeTable          {Actes,Paiements};                                              Q_ENUM(TypeTable)
     enum ResultEnregRecette {Impossible, Annul, OK};                                        Q_ENUM(ResultEnregRecette)
 

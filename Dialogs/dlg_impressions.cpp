@@ -196,6 +196,7 @@ void dlg_impressions::Annulation()
             QModelIndex idx = m_dossiersmodel->index(row,1);
             ui->DossiersupTableView->closePersistentEditor(idx);
             m_dossiersmodel->setData(idx, m_currentdossier->resume());
+            SetDossierToRow(m_currentdossier,row);
             EnableDossiersButtons(m_currentdossier);
         }
         else if (m_mode == CreationDOSS)
@@ -222,6 +223,7 @@ void dlg_impressions::Annulation()
             QModelIndex idx = m_docsmodel->index(row,1);
             ui->DocsupTableView->closePersistentEditor(idx);
             m_docsmodel->setData(idx, m_currentdocument->resume());
+            SetDocumentToRow(m_currentdocument,row);
             EnableDocsButtons(m_currentdocument);
         }
         else if (m_mode == CreationDOC)
@@ -1748,51 +1750,40 @@ int dlg_impressions::AskDialog(QString titre)
 // ----------------------------------------------------------------------------------
 bool dlg_impressions::ChercheDoublon(QString str, int row)
 {
-    DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
-    Impression *doc = getDocumentFromIndex(m_docsmodel->index(row,0));
-    QString req, nom;
-    switch (m_mode) {
-    case CreationDOC:
-        req = "select " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS " from " TBL_IMPRESSIONS;
-        nom = tr("document");
-        break;
-    case ModificationDOC:
-        req = "select " CP_RESUME_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS " from " TBL_IMPRESSIONS " where " CP_ID_IMPRESSIONS " <> " + QString::number(doc->id());
-        nom = tr("document");
-        break;
-    case CreationDOSS:
-        req = "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS;
-        nom = tr("dossier");
-        break;
-    case ModificationDOSS:
-        if (dossier)
+    Impression *doc = Q_NULLPTR;
+    DossierImpression *dossier = Q_NULLPTR;
+
+    if (m_mode == CreationDOC || m_mode == ModificationDOC)  {
+        doc = getDocumentFromIndex(m_docsmodel->index(row,0));
+        if (doc)
         {
-            req = "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " where idmetadocument <> " + QString::number(dossier->id());
-            nom = tr("dossier");
-        }
-        else return false;
-        break;
-    default:
-        return false;
-    }
-    bool a = false;
-    QList<QVariantList> listdocs;
-    bool ok;
-    listdocs = db->StandardSelectSQL(req,ok);
-    if (listdocs.size() > 0)
-    {
-        for (int i=0; i<listdocs.size() ; i++)
-        {
-            if (listdocs.at(i).at(0).toString().toUpper() == str.toUpper())
+            for (auto itimpr = Datas::I()->impressions->impressions()->begin(); itimpr != Datas::I()->impressions->impressions()->end();)
             {
-                a = true;
-                if (listdocs.at(i).at(1).toInt() != currentuser()->id())
-                    UpMessageBox::Watch(this,tr("Vous avez déjà créé un") + " " + nom + " " + tr("portant ce nom"));
-                break;
+                if (itimpr.value()->resume().toUpper() == str.toUpper() && itimpr.value()->iduser()  == currentuser()->id() && itimpr.value()->id() != doc->id())
+                {
+                    UpMessageBox::Watch(this,tr("Vous avez déjà créé un document portant ce nom"));
+                    return true;
+                }
+                ++ itimpr;
             }
         }
     }
-    return a;
+    else if (m_mode == CreationDOSS || m_mode == ModificationDOSS)  {
+        dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
+        if (dossier)
+        {
+            for (auto itdoss = Datas::I()->metadocuments->dossiersimpressions()->begin(); itdoss != Datas::I()->metadocuments->dossiersimpressions()->end();)
+            {
+                if (itdoss.value()->resume().toUpper() == str.toUpper() && itdoss.value()->iduser()  == currentuser()->id() && itdoss.value()->id() != dossier->id())
+                {
+                    UpMessageBox::Watch(this,tr("Vous avez déjà créé un dossier portant ce nom"));
+                    return true;
+                }
+                ++ itdoss;
+            }
+        }
+    }
+    return false;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2276,10 +2267,10 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
 {
     int row = idx.row();
-    qDebug() << "row" << row;
+    if (row < 0)
+        return Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
-    qDebug() << "item" << itm->item();
-    if (itm)
+    if (itm != Q_NULLPTR)
         return dynamic_cast<Impression*>(itm->item());
     else
         return Q_NULLPTR;
@@ -2288,8 +2279,10 @@ Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
 DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
 {
     int row = idx.row();
+    if (row < 0)
+        return Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
-    if (itm)
+    if (itm != Q_NULLPTR)
         return dynamic_cast<DossierImpression*>(itm->item());
     else
         return Q_NULLPTR;
@@ -2339,21 +2332,22 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     qApp->focusWidget()->clearFocus();
     QString resume = Utils::trimcapitilize(m_textdocdelegate, true, false, false).left(50);
     resume = Utils::capitilize(resume, true);
+    QString titre = tr(m_mode == CreationDOC? "Creation de document" : "Modification de document");
     if (resume.length() < 1)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
+        UpMessageBox::Watch(Q_NULLPTR, titre, tr("Veuillez renseigner le champ Résumé, SVP !"));
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
         return false;
     }
     if (resume == tr("Nouveau document"))
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
+        UpMessageBox::Watch(Q_NULLPTR, titre, tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
         return false;
     }
     if (ui->upTextEdit->document()->toPlainText().length() < 1)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Document, SVP !"));
+        UpMessageBox::Watch(Q_NULLPTR, titre, tr("Veuillez renseigner le champ Document, SVP !"));
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));        return false;
     }
     // Creation du Document dans la table
@@ -3161,7 +3155,7 @@ void dlg_impressions::selectAllDocuments()
 
 void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::ScrollHint hint)
 {
-    ui->DocsupTableView->selectionModel()->clear(); //! declenche le signal currentrowchanged et mcurrentdocument devient Q_NULLPTR
+    ui->DocsupTableView->selectionModel()->reset();
     m_currentdocument = doc;
     if (!m_currentdocument)
         EnableDocsButtons();
@@ -3188,7 +3182,7 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
 
 void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstractItemView::ScrollHint hint)
 {
-    ui->DossiersupTableView->selectionModel()->clear(); //! declenche le signal currentrowchanged et mcurrentdocument devient Q_NULLPTR
+    ui->DossiersupTableView->selectionModel()->reset();
     m_currentdossier = dossier;
     if (!m_currentdossier)
         EnableDossiersButtons();

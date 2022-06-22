@@ -22,7 +22,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_docsexternes  = Docs;
 
     setAttribute(Qt::WA_ShowWithoutActivating);
-    setAttribute(Qt::WA_DeleteOnClose);
+    // setAttribute(Qt::WA_DeleteOnClose);                      ne marche pas
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     installEventFilter(this);
     QList<QScreen*> listscreens = QGuiApplication::screens();

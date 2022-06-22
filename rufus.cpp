@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("16-06-2022/1");
+    qApp->setApplicationVersion("22-06-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -316,7 +316,7 @@ void Rufus::ConnectSignals()
     connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   &Rufus::OuvrirActesPrecspushButtonClicked);
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
-    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {FicheImpressions(currentpatient());});
+    connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {ImprimeDocument(currentpatient());});
     connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelListePatients);
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {OuvrirDossier(getPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getPatientFromCursorPositionInTable());});
@@ -432,6 +432,9 @@ void Rufus::MAJDocsExternes()
     }
     else if (currentuser()->isSoignant())
     {
+        Datas::I()->docsexternes->actualise();
+        if (Datas::I()->docsexternes->NouveauDocumentExterne())
+            Datas::I()->docsexternes->setNouveauDocumentExterneFalse();
         if (Datas::I()->docsexternes->docsexternes()->size()>0)
         {
             dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP, this);
@@ -3428,7 +3431,7 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
     else if (choix == "Modifier")
         IdentificationPatient(dlg_identificationpatient::Modification,dossierpatientaouvrir());     //! depuis menu contextuel ListePatients
     else if (choix == "Document")
-        FicheImpressions(dossierpatientaouvrir());
+        ImprimeDocument(dossierpatientaouvrir());
     else if (choix == "ImprimeAncienDoc") {
         DocsExternes *docs = new DocsExternes;
         docs->initListeByPatient(dossierpatientaouvrir());
@@ -3627,7 +3630,7 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
     else if (choix == "Copie")
         RecopierDossier(dossierpatientaouvrir());
     else if (choix == "Document")
-        FicheImpressions(dossierpatientaouvrir());
+        ImprimeDocument(dossierpatientaouvrir());
     else if (choix == "Intervention")
         ProgrammationIntervention(dossierpatientaouvrir());                                         //! depuis menu contextuel ListePatients
     else if (choix == "Motif")  //! il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
@@ -7279,7 +7282,7 @@ void Rufus::CreerMenu()
                                                                                                         });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(currentacte());});
     // Documents
-    connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {FicheImpressions(currentpatient());});
+    connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {ImprimeDocument(currentpatient());});
     connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
     connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
     connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
@@ -7510,10 +7513,16 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
 {
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     for (int n = 0; n <  ListDialog.size(); n++)
+    {
         ListDialog.at(n)->close();
+        delete ListDialog.at(n);
+    }
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
+    {
         ListDialogDocs.at(n)->close();
+        delete ListDialogDocs.at(n);
+    }
     if (currentpatient() != Q_NULLPTR)
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());
 }
@@ -8206,7 +8215,7 @@ void    Rufus::OuvrirActesPrecedents()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Ouvrir la fiche dlg_impressions------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::FicheImpressions(Patient *pat)
+void    Rufus::ImprimeDocument(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
@@ -8259,7 +8268,7 @@ void    Rufus::FicheImpressions(Patient *pat)
     delete Dlg_Imprs;
     if (currentpatient() != Q_NULLPTR)
         if (aa && currentpatient()->id() == pat->id())
-            MAJDocsExternes();              // depuis FicheImpression()
+            MAJDocsExternes();              // depuis ImprimeDoculent()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

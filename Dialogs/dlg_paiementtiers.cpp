@@ -125,7 +125,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 
     ReconstruitListeBanques();
     ReconstruitListeTiers();
-    m_ordretri = Chronologique;
+    m_ordretri = ChronologiqueAscendant;
 
     ui->RecImageLabel->setVisible(false);
     t_timerrecord = new QTimer(this);
@@ -431,12 +431,54 @@ void dlg_paiementtiers::ChangeUtilisateur()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::ClassementListes(int col)
 {
-    if (m_mode==VoirListePaiementsTiers && col!= 2) return;
-    if (m_mode==EnregistrePaiementTiers && col!= 3) return;
-    if (m_ordretri == Chronologique)
-        m_ordretri = Alphabetique;
-    else
-        m_ordretri = Chronologique;
+    if (m_mode==VoirListePaiementsTiers) // col1 = Date col2 = NomPrénom
+    {
+        if (col== 1)
+        {
+            switch (m_ordretri) {
+                case ChronologiqueAscendant:
+                    m_ordretri = ChronologiqueDescendant;
+                    break;
+                default:
+                    m_ordretri = ChronologiqueAscendant;
+            }
+        }
+        else if (col== 2)
+        {
+            switch (m_ordretri) {
+                case AlphabetiqueAscendant:
+                    m_ordretri = AlphabetiqueDescendant;
+                    break;
+                default:
+                    m_ordretri = AlphabetiqueAscendant;
+            }
+        }
+        else return;
+    }
+    if (m_mode==EnregistrePaiementTiers) // col2 = Date col3 = NomPrénom
+    {
+        if (col== 2)
+        {
+            switch (m_ordretri) {
+                case ChronologiqueAscendant:
+                    m_ordretri = ChronologiqueDescendant;
+                    break;
+                default:
+                    m_ordretri = ChronologiqueAscendant;
+            }
+        }
+        else if (col== 3)
+        {
+            switch (m_ordretri) {
+                case AlphabetiqueAscendant:
+                    m_ordretri = AlphabetiqueDescendant;
+                    break;
+                default:
+                    m_ordretri = AlphabetiqueAscendant;
+            }
+        }
+        else return;
+    }
     TrieListe(ui->ListeupTableWidget);
     FiltreListe(ui->CherchePatientupLineEdit->text());
 }
@@ -2736,10 +2778,26 @@ void dlg_paiementtiers::TrieListe(QTableWidget *TableATrier )
 
     if (TableATrier == ui->ListeupTableWidget)
     {
-        if (m_ordretri == Chronologique)
+        if (m_ordretri == ChronologiqueAscendant)
             TableATrier->sortItems(ncol - 1,Qt::DescendingOrder);
-        else
+        else if (m_ordretri == ChronologiqueDescendant)
+            TableATrier->sortItems(ncol - 1,Qt::AscendingOrder);
+        else if (m_ordretri == AlphabetiqueAscendant)
+        {
+            if (m_mode == EnregistrePaiementTiers)
+                ColonneATrier = 3;
+            else
+                ColonneATrier = 2;
             TableATrier->sortItems(ColonneATrier,Qt::AscendingOrder);
+        }
+        else if (m_ordretri == AlphabetiqueDescendant)
+        {
+            if (m_mode == EnregistrePaiementTiers)
+                ColonneATrier = 3;
+            else
+                ColonneATrier = 2;
+            TableATrier->sortItems(ColonneATrier,Qt::DescendingOrder);
+        }
     }
     if (TableATrier == ui->DetailupTableWidget)
     {
