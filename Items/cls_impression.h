@@ -62,25 +62,28 @@ public:
 class DossierImpression : public Item
 {
 private:
-    int m_dossierimpression = 0;
-    int m_iduser = 0;
-    QString m_textedossier = "";
-    QString m_resumedossier = "";
-    bool m_public = false;
+    int m_iduser = 0;                           //! l'id du créateur/propriétaire du dossier
+    QString m_textedossier = "";                //! le texte du dossier
+    QString m_resumedossier = "";               //! le résumé du dossier
+    bool m_public = false;                      //! le dossier est public
+    bool m_listdocsloaded = false;              //! la liste des documents du dossier a été chargée en mémoire
+    QList<int> m_listiddocs = QList<int>();     //! la liste des documents du dossier
 
 public:
     explicit DossierImpression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
     int iduser() const;
-    QString texte() const;
     QString resume() const;
     bool ispublic() const;
-    void settexte(const QString &textedossier);
+    bool haslistdocsloaded() const { return m_listdocsloaded; }
+    QList<int> listiddocs() const { return m_listiddocs; }
+
     void setresume(const QString &resumedossier);
     void setiduser(int id);
     void setpublic(bool pblic);
+    void setlistdocsloaded (bool listodcsloaded) { m_listdocsloaded = listodcsloaded; }
+    void setlistiddocs(QList<int> listiddocs) { m_listiddocs = listiddocs; }
 };
 
 #endif // CLS_IMPRESSION_H

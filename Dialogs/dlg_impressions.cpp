@@ -125,8 +125,8 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
     ui->ALDcheckBox->setChecked(m_currentpatient->isald());
 
-    //nettoyage de la table metadocs
-    db->StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " not in (select " CP_ID_IMPRESSIONS " from " TBL_IMPRESSIONS ")");
+    // supprime les jointures inutilisées
+    db->NettoieJointures();
 
     Remplir_TableView();
     if (m_docsmodel->rowCount() == 0)
@@ -401,18 +401,18 @@ QString dlg_impressions::DossierToolTip(DossierImpression *dossier)
 {
     if (!dossier)
         return "";
+    if (!dossier->haslistdocsloaded())
+        Datas::I()->metadocuments->loadlistedocs(dossier);
+    QList<int> listiddocs = dossier->listiddocs();
     QString resume = "";
-    bool ok;
-    QString req = "select " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
-            " where " CP_ID_IMPRESSIONS " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS
-            " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id()) + ")";
-    //UpMessageBox::Watch(this,req);
-    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-    if (listdocs.size()>0)
+    for (int i=0; i<listiddocs.size(); i++)
     {
-        resume += listdocs.at(0).at(0).toString();
-        for (int i = 1; i< listdocs.size(); i++)
-            resume += "\n" + listdocs.at(i).at(0).toString();
+        Impression *impr = Datas::I()->impressions->getById(listiddocs.at(i));
+        if (impr)
+        {
+            resume += ( i>0? "\n" : "");
+            resume += impr->resume();
+        }
     }
     return resume;
 }
@@ -1791,7 +1791,13 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
 // ----------------------------------------------------------------------------------
 void dlg_impressions::CocheLesDocs(int iddoss, bool A)
 {
-    QList<int> listiddocs = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(Datas::I()->metadocuments->getById(iddoss));
+    DossierImpression *dossier = Datas::I()->metadocuments->getById(iddoss);
+    if (!dossier)
+        return;
+    if (!dossier->haslistdocsloaded())
+        Datas::I()->metadocuments->loadlistedocs(dossier);
+    QList<int> listiddocs = dossier->listiddocs();
+
     for (int k=0; k<m_docsmodel->rowCount(); k++)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(k,0));
@@ -1815,14 +1821,15 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
                             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(j,0));
                             if (itm)
                             {
-                                DossierImpression * dossier = getDossierFromIndex(itm->index());
-                                if (dossier)
-                                    if (dossier->id() != iddoss)
+                                DossierImpression * dossieraverifier = getDossierFromIndex(itm->index());
+                                if (dossieraverifier)
+                                    if (dossieraverifier->id() != iddoss)
                                     {
                                         if (itm->checkState()==Qt::Checked)
                                         {
-                                            QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(dossier);
-                                            if (listid.contains(doc->id()))
+                                            if (!dossieraverifier->haslistdocsloaded())
+                                                Datas::I()->metadocuments->loadlistedocs(dossieraverifier);
+                                            if (dossieraverifier->listiddocs().contains(doc->id()))
                                             {
                                                 a = true;
                                                 break;
@@ -2004,12 +2011,16 @@ void dlg_impressions::ConfigMode(Mode mode)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
             if (itm)
             {
-                QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(m_currentdossier);
+                if (!m_currentdossier->haslistdocsloaded())
+                    Datas::I()->metadocuments->loadlistedocs(m_currentdossier);
                 Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
-                bool a = listid.contains(doc->id());
-                itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
-                itm->setFlags(publicdossier && ! doc->ispublic()? Qt::ItemIsEnabled : Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
-                m_docsmodel->item(i,5)->setText((a?"0":"1") + doc->resume());
+                if (doc)
+                {
+                    bool a = m_currentdossier->listiddocs().contains(doc->id());
+                    itm->setCheckState(a? Qt::Checked : Qt::Unchecked);
+                    itm->setFlags(publicdossier && ! doc->ispublic()? Qt::ItemIsEnabled : Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+                    m_docsmodel->item(i,5)->setText((a?"0":"1") + doc->resume());
+                }
             }
         }
         m_docsmodel->sort(5);
@@ -2110,12 +2121,8 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_docsbuttonframe->searchline()->clear();
         FiltreListe();
         DisableLines();
-        int row = ui->DossiersupTableView->currentIndex().row();
-        UpStandardItem *itmdef = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,2));
-        if (!itmdef)
-            return;
-        bool publicdossier = (itmdef->data(Qt::DecorationRole) != QPixmap());
-        for (int i=0; i<m_docsmodel->rowCount(); i++)
+        bool publicdossier = (m_currentdossier? m_currentdossier->ispublic() : false);
+        for (int i=0; i<m_docsmodel->rowCount(); i++) // on ne peut pas rendre public un dossier qui contient des documents non publics
         {
             QStandardItem *itm = m_docsmodel->item(i,0);
             if (itm)
@@ -2125,7 +2132,7 @@ void dlg_impressions::ConfigMode(Mode mode)
                 Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
                 if (doc)
                 {
-                    itm->setFlags(publicdossier && ! doc->ispublic()? Qt::ItemIsEnabled : Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+                    itm->setFlags(publicdossier && !doc->ispublic()? Qt::ItemIsEnabled : Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
                     m_docsmodel->item(i,5)->setText("1" + doc->resume());
                 }
             }
@@ -2298,21 +2305,24 @@ User* dlg_impressions::userentete() const
 // ----------------------------------------------------------------------------------
 bool dlg_impressions::hasDocumentPrive(DossierImpression *dossier)
 {
-    bool ok;
     if (!m_currentdossier)
         return false;
-    QString req = "select " CP_ID_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS " from " TBL_IMPRESSIONS
-                  " where " CP_ID_IMPRESSIONS
-                  " in (select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(dossier->id()) + ")"
-                  " and " CP_DOCPUBLIC_IMPRESSIONS " is null";
-    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-    if (listdocs.size()>0)
+    if (!m_currentdossier->haslistdocsloaded())
+        Datas::I()->metadocuments->loadlistedocs(m_currentdossier);
+    for (int i=0; i<dossier->listiddocs().size(); i++)
     {
-        UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre public ce dossier.\nIl incorpore le document\n- ") +
-                            listdocs.at(0).at(1).toString() + tr(" -\nqui est un document privé!"));
-        return true;
+        Impression *impr = Datas::I()->impressions->getById(dossier->listiddocs().at(i));
+        if (impr)
+        {
+            if (!impr->ispublic())
+            {
+                UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre public ce dossier.\nIl incorpore le document\n- ") +
+                                    impr->resume() + tr(" -\nqui est un document privé!"));
+                return true;
+            }
+        }
     }
-    else return false;
+    return false;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2474,17 +2484,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         return false;
     }
     if (m_mode == ModificationDOSS)
-    {
-        db->SupprRecordFromTable(m_currentdossier->id(), CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS, TBL_JOINTURESIMPRESSIONS);
-        QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
-        for (int i=0; i<listid.size(); i++)
-        {
-            req += "(" + QString::number(m_currentdossier->id()) + ", " + QString::number(listid.at(i)) + ")";
-            if (i<listid.size()-1)
-                req += ",";
-        }
-        db->StandardSQL(req);
-    }
+        Datas::I()->metadocuments->setlistedocs(m_currentdossier,listid);
 
     // Enregistrement du Dossier dans la table
 
@@ -3324,10 +3324,8 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
     {
         m_currentdocument = Q_NULLPTR;
         int row = m_docsmodel->getRowFromItem(doc);
-        int iddoc = doc->id();
-        db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         //nettoyage de la table metadocs
-        db->StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoc));
+        db->SupprRecordFromTable(doc->id(), CP_IDDOCUMENT_JOINTURESIMPRESSIONS , TBL_JOINTURESIMPRESSIONS);
         Datas::I()->impressions->SupprimeImpression(doc);
         if (row>-1 && row < m_docsmodel->rowCount())
             m_docsmodel->removeRow(row); //! declenche le signal currentrowchanged si la row current est la row supprimée et mcurrentdocument devient le document suivant ou qnullptre s'il n'y a pas de suivant
@@ -3430,9 +3428,8 @@ void dlg_impressions::VerifDossiers()
                 DossierImpression *dossier = dynamic_cast<DossierImpression*>(itm->item());
                 if (dossier)
                 {
-                    QList<int> listid = Datas::I()->metadocuments->initListeIdDococumentsFromsDossier(dossier);
                     bool a = false;
-                    for (int k=0; k<listid.size(); k++)
+                    for (int k=0; k<dossier->listiddocs().size(); k++)
                     {
                         for (int l=0; l<m_docsmodel->rowCount(); l++)
                         {

@@ -163,21 +163,20 @@ void DossiersImpressions::initListe()
     m_isfull = true;
 }
 
-QList<int> DossiersImpressions::initListeIdDococumentsFromsDossier(DossierImpression *dossier)
+void DossiersImpressions::loadlistedocs(DossierImpression *dossier)
 {
-    QList<int> listid = QList<int>();
+    QList<int> listid = DataBase::I()->initListeIdDococumentsFromIdDossier(dossier->id());
+    dossier->setlistiddocs(listid);
+    dossier->setlistdocsloaded(true);
+}
+
+void DossiersImpressions::setlistedocs(DossierImpression *dossier, QList<int> listiddocs)
+{
     if (!dossier)
-        return listid;
-    bool ok;
-    int iddoss = dossier->id();
-    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(iddoss);
-    QList<QVariantList> listdocmts = DataBase::I()->StandardSelectSQL(req,ok);
-    if (listdocmts.size() > 0)
-    {
-        for (int i=0; i<listdocmts.size(); i++)
-            listid << listdocmts.at(i).at(0).toInt();
-    }
-    return listid;
+        return;
+    DataBase::I()->setListeIdDococumentsIdDossier(dossier->id(),listiddocs);
+    dossier->setlistiddocs(listiddocs);
+    dossier->setlistdocsloaded(true);
 }
 
 void DossiersImpressions::SupprimeDossierImpression(DossierImpression* impr)
@@ -210,8 +209,7 @@ DossierImpression* DossiersImpressions::CreationDossierImpression(QHash<QString,
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champ  = itset.key();
-        if (champ == CP_TEXTE_DOSSIERIMPRESSIONS)              data[champ] = itset.value().toString();
-        else if (champ == CP_RESUME_DOSSIERIMPRESSIONS)        data[champ] = itset.value().toString();
+        if (champ == CP_RESUME_DOSSIERIMPRESSIONS)        data[champ] = itset.value().toString();
         else if (champ == CP_IDUSER_DOSSIERIMPRESSIONS)        data[champ] = itset.value().toInt();
         else if (champ == CP_PUBLIC_DOSSIERIMPRESSIONS)        data[champ] = (itset.value().toInt() == 1);
     }

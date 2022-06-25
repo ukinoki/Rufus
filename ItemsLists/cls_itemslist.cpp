@@ -1181,12 +1181,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             ok = true;
             table = TBL_DOSSIERSIMPRESSIONS;
             clause = CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(item->id());
-            if (field == CP_TEXTE_DOSSIERIMPRESSIONS)
-            {
-                dossier->settexte(newvalue.toString());
-                Utils::CalcStringValueSQL(newvalue);
-            }
-            else if (field == CP_RESUME_DOSSIERIMPRESSIONS)
+            if (field == CP_RESUME_DOSSIERIMPRESSIONS)
             {
                 dossier->setresume(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);

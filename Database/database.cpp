@@ -1223,7 +1223,6 @@ QJsonObject DataBase::loadDossierImpressionData(QVariantList dossierdata)
 {
     QJsonObject data{};
     data[CP_ID_DOSSIERIMPRESSIONS]     = dossierdata.at(1).toInt();
-    data[CP_TEXTE_DOSSIERIMPRESSIONS]  = dossierdata.at(4).toString();
     data[CP_RESUME_DOSSIERIMPRESSIONS] = dossierdata.at(0).toString();
     data[CP_IDUSER_DOSSIERIMPRESSIONS] = dossierdata.at(2).toInt();
     data[CP_PUBLIC_DOSSIERIMPRESSIONS] = (dossierdata.at(3).toInt()==1);
@@ -1232,12 +1231,13 @@ QJsonObject DataBase::loadDossierImpressionData(QVariantList dossierdata)
 
 QList<DossierImpression*> DataBase::loadDossiersImpressions()
 {
-    QList<DossierImpression*> dossiers;
-    QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS
+    QList<DossierImpression*> dossiers = QList<DossierImpression*>();
+    QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
                        " WHERE " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(m_iduserConnected);
                 req += " UNION \n";
-                req += "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_ID_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
+                req += "select " CP_RESUME_DOSSIERIMPRESSIONS ", " CP_ID_DOSSIERIMPRESSIONS ", " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS
+                       " from " TBL_DOSSIERSIMPRESSIONS
                        " where " CP_IDUSER_DOSSIERIMPRESSIONS " not in\n"
                        " (select met." CP_ID_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS " as met, "
                        TBL_JOINTURESIMPRESSIONS " as joi, "
@@ -1246,7 +1246,7 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
                        " and joi." CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = doc." CP_ID_IMPRESSIONS "\n"
                        " and doc." CP_DOCPUBLIC_IMPRESSIONS " is null)\n";
                 req += " ORDER BY " CP_RESUME_DOSSIERIMPRESSIONS ";";
-//    qDebug() << req;
+    // qDebug() << req;
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return dossiers;
@@ -1263,7 +1263,7 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
 DossierImpression* DataBase::loadDossierImpressionById(int id)
 {
     DossierImpression* dossier = Q_NULLPTR;
-    QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS ", " CP_TEXTE_DOSSIERIMPRESSIONS
+    QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
                        " WHERE " CP_ID_DOSSIERIMPRESSIONS " = " + QString::number(id);
 //    qDebug() << req;
@@ -1274,6 +1274,51 @@ DossierImpression* DataBase::loadDossierImpressionById(int id)
     dossier = new DossierImpression(jData);
     return dossier;
 }
+
+QList<int> DataBase::initListeIdDococumentsFromIdDossier(int id)
+{
+    QList<int> listid = QList<int>();
+    bool ok;
+    QString req = "select " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(id);
+    QList<QVariantList> listdocmts = StandardSelectSQL(req,ok);
+    if (listdocmts.size() > 0)
+    {
+        for (int i=0; i<listdocmts.size(); i++)
+            listid << listdocmts.at(i).at(0).toInt();
+    }
+    return listid;
+}
+
+
+void DataBase::setListeIdDococumentsIdDossier(int iddossier, QList<int> listiddocs)
+{
+    SupprRecordFromTable(iddossier, CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS, TBL_JOINTURESIMPRESSIONS);
+    QString req     = "insert into " TBL_JOINTURESIMPRESSIONS " (" CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS "," CP_IDDOCUMENT_JOINTURESIMPRESSIONS ") Values ";
+    for (int i=0; i<listiddocs.size(); i++)
+    {
+        req += "(" + QString::number(iddossier) + ", " + QString::number(listiddocs.at(i)) + ")";
+        if (i<listiddocs.size()-1)
+            req += ",";
+    }
+    StandardSQL(req);
+}
+
+void DataBase::NettoieJointures()
+{
+    // nettoyage des documents qui n'existent plus
+    StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " not in (select " CP_ID_IMPRESSIONS " from " TBL_IMPRESSIONS ")");
+    // nettoyage des doublons
+    StandardSQL("DELETE " TBL_JOINTURESIMPRESSIONS
+    " FROM " TBL_JOINTURESIMPRESSIONS
+    " LEFT OUTER JOIN ( "
+            "SELECT MIN(" CP_ID_JOINTURESIMPRESSIONS ") as " CP_ID_JOINTURESIMPRESSIONS " , " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS
+            " FROM " TBL_JOINTURESIMPRESSIONS
+            " GROUP BY " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS
+            ") AS table_1"
+    " ON " TBL_JOINTURESIMPRESSIONS "." CP_ID_JOINTURESIMPRESSIONS " = table_1." CP_ID_JOINTURESIMPRESSIONS
+    " WHERE table_1." CP_ID_JOINTURESIMPRESSIONS " IS NULL");
+}
+
 
 
 /*******************************************************************************************************************************************************************

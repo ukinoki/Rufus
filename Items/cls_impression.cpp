@@ -77,8 +77,6 @@ void Impression::setData(QJsonObject data)
  * Dossiers impression
 */
 
-void DossierImpression::settexte(const QString &textedossier)   { m_textedossier = textedossier;
-                                                                  m_data[CP_TEXTE_DOSSIERIMPRESSIONS] = textedossier; }
 void DossierImpression::setresume(const QString &resumedossier) { m_resumedossier = resumedossier;
                                                                   m_data[CP_RESUME_DOSSIERIMPRESSIONS] = resumedossier; }
 void DossierImpression::setpublic(bool pblic)                   { m_public = pblic;
@@ -91,9 +89,7 @@ DossierImpression::DossierImpression(QJsonObject data, QObject *parent) : Item(p
     setData(data);
 }
 
-int DossierImpression::id() const                { return m_dossierimpression; }
 int DossierImpression::iduser() const            { return m_iduser; }
-QString DossierImpression::texte() const         { return m_textedossier; }
 QString DossierImpression::resume() const        { return m_resumedossier; }
 
 bool DossierImpression::ispublic() const         { return m_public; }
@@ -102,9 +98,8 @@ void DossierImpression::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, CP_ID_DOSSIERIMPRESSIONS, m_dossierimpression);
+    Utils::setDataInt(data, CP_ID_DOSSIERIMPRESSIONS, m_id);
     Utils::setDataInt(data, CP_IDUSER_DOSSIERIMPRESSIONS, m_iduser);
-    Utils::setDataString(data, CP_TEXTE_DOSSIERIMPRESSIONS, m_textedossier);
     Utils::setDataString(data, CP_RESUME_DOSSIERIMPRESSIONS, m_resumedossier);
     Utils::setDataBool(data, CP_PUBLIC_DOSSIERIMPRESSIONS, m_public);
     m_data = data;
