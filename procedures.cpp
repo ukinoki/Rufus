@@ -2251,9 +2251,21 @@ void Procedures::CalcTimeBupRestore()
     QString Volumelitteral = Utils::getExpressionSize(volume);
     QString timelitteral;
     if (Volumelitteral.right(2) == "Go")
-        timelitteral = QString::number(time/60000,'f',0) + tr(" minutes");
+    {
+        QString timeb = QString::number(time/60000,'f',0);
+        if (timeb != "0")
+            timelitteral = timeb + tr(" minutes");
+        else
+            timelitteral = tr("moins d'une minute");
+    }
     else if (Volumelitteral.right(2) == "To")
-        timelitteral = QString::number(time/60000/60,'f',0) + tr(" heures");
+    {
+        QString timeb = QString::number(time/60000/60,'f',0);
+        if (timeb != "0")
+            timelitteral = timeb + tr(" heures");
+        else
+            timelitteral = tr("moins d'une heure");
+    }
     else
         timelitteral = tr("moins d'une minute");
     QString color = m_freespace>volume? "green": "red";
@@ -2362,7 +2374,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
             QProcess dumpProcess(parent());
             dumpProcess.start(task);
-            dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend prafois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
+            dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
                                                       * et dans ce cas le processus est interrompu avant que toute la base soit créée */
              if (dumpProcess.exitStatus() == QProcess::NormalExit)
                 a = dumpProcess.exitCode();
@@ -2468,12 +2480,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString NomDirStockageImagerie = PATH_DIR_IMAGERIE;
         if (OKImages || OKVideos || OKFactures)
         {
-            NomDirStockageImagerie = PATH_DIR_IMAGERIE;
             if (!QDir(PATH_DIR_IMAGERIE).exists())
             {
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage d'imagerie"),
                                     tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
-                                    tr("Utilisez de préférence le dossier ") + QDir::homePath() + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
+                                    tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
                 QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
                 dialogimg.setViewMode(QFileDialog::List);
                 dialogimg.setFileMode(QFileDialog::DirectoryOnly);
@@ -2490,8 +2501,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
                     return false;
                 }
-                if (!PremierDemarrage)
-                    db->setdirimagerie(NomDirStockageImagerie);
+                db->setdirimagerie(NomDirStockageImagerie);
             }
         }
 
@@ -3809,8 +3819,8 @@ bool Procedures::PremierDemarrage()
                               "Cette installation ne peut aboutir si vous n'avez pas de serveur MySQL installé.\n"
                               "Dans ce cas, il vous faut annuler et installer un serveur MySQL sur cet ordinateur ou sur un autre poste du réseau.\n\n"
                               "Commencez par choisir la situation qui décrit le mieux votre installation de Rufus.\n\n"
-                              "1. J'installe Rufus sur ce poste et ce poste se connecte à une base patients qui existe dèjà sur le serveur\n"
-                              "2. J'installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer sur le serveur\n"));
+                              "1. J'installe Rufus sur ce poste et ce poste se connectera à une base patients qui existe dèjà\n"
+                              "2. J'installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer\n"));
     msgbox.setIcon(QMessageBox::Information);
 
     msgbox.addButton(&AnnulBouton,          QMessageBox::AcceptRole);
@@ -3838,6 +3848,15 @@ bool Procedures::PremierDemarrage()
     Utils::mkpath(PATH_DIR_FACTURES);
     Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_FACTURES);
     Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_FRONTO);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
+    Utils::mkpath(PATH_DIR_TONO);
+    Utils::mkpath(PATH_DIR_AUTOREF);
+    Utils::mkpath(PATH_DIR_FRONTO);
+
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QString login (""), MDP("");
     if (protoc == BaseExistante)
@@ -3900,14 +3919,14 @@ void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
     m_settings->setValue("Param_Imprimante/TailleTopMarge","3");
     m_settings->setValue("Param_Imprimante/ApercuAvantImpression","NO");
     m_settings->setValue("PyxInterf/PyxvitalPath", QDir::homePath() + "/Documents/Pyxvital");
-    m_settings->setValue("Param_Poste/Autoref","-");
-    m_settings->setValue("Param_Poste/Refracteur","-");
-    m_settings->setValue("Param_Poste/Fronto","-");
-    m_settings->setValue("Param_Poste/Tonometre","-");
-    m_settings->setValue("Param_Poste/PortAutoref","-");
-    m_settings->setValue("Param_Poste/PortRefracteur","-");
-    m_settings->setValue("Param_Poste/PortFronto","-");
-    m_settings->setValue("Param_Poste/PortTonometre","-");
+    m_settings->setValue(Param_Poste_Autoref,"-");
+    m_settings->setValue(Param_Poste_Refracteur,"-");
+    m_settings->setValue(Param_Poste_Fronto,"-");
+    m_settings->setValue(Param_Poste_Tono,"-");
+    m_settings->setValue(Param_Poste_PortAutoref,"-");
+    m_settings->setValue(Param_Poste_PortRefracteur,"-");
+    m_settings->setValue(Param_Poste_PortFronto,"-");
+    m_settings->setValue(Param_Poste_PortTono,"-");
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
     m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGERIE);
@@ -4151,29 +4170,29 @@ bool Procedures::VerifRessources(QString Nomfile)
 void Procedures::Ouverture_Appareils_Refraction()
 {
     TypesAppareils appareilscom, appareilsreseau;
-    bool m_isFrontoParametre    = (m_settings->value("Param_Poste/Fronto").toString() != "-"
-                                && m_settings->value("Param_Poste/Fronto").toString() != ""
-                                && m_settings->value("Param_Poste/PortFronto").toString() != "Box");
-    bool m_isAutorefParametre   = (m_settings->value("Param_Poste/Autoref").toString() != "-"
-                                && m_settings->value("Param_Poste/Autoref").toString() != ""
-                                && m_settings->value("Param_Poste/PortAutoref").toString() != "Box");
-    bool m_isRefracteurParametre= (m_settings->value("Param_Poste/Refracteur").toString() != "-"
-                                && m_settings->value("Param_Poste/Refracteur").toString() != "");
-    bool m_isTonoParametre      = (m_settings->value("Param_Poste/Tonometre").toString() != "-"
-                                && m_settings->value("Param_Poste/Tonometre").toString() != "");
+    bool m_isFrontoParametre    = (m_settings->value(Param_Poste_Fronto).toString() != "-"
+                                && m_settings->value(Param_Poste_Fronto).toString() != ""
+                                && m_settings->value(Param_Poste_PortFronto).toString() != "Box");
+    bool m_isAutorefParametre   = (m_settings->value(Param_Poste_Autoref).toString() != "-"
+                                && m_settings->value(Param_Poste_Autoref).toString() != ""
+                                && m_settings->value(Param_Poste_PortAutoref).toString() != "Box");
+    bool m_isRefracteurParametre= (m_settings->value(Param_Poste_Refracteur).toString() != "-"
+                                && m_settings->value(Param_Poste_Refracteur).toString() != "");
+    bool m_isTonoParametre      = (m_settings->value(Param_Poste_Tono).toString() != "-"
+                                && m_settings->value(Param_Poste_Tono).toString() != "");
     if (m_isFrontoParametre)
     {
-        bool m_isReseauFronto       = (m_settings->value("Param_Poste/PortFronto").toString() == RESEAU);
+        bool m_isReseauFronto       = (m_settings->value(Param_Poste_PortFronto).toString() == RESEAU);
         m_isReseauFronto?           appareilsreseau.setFlag(Fronto)      : appareilscom.setFlag(Fronto);
     }
     if (m_isAutorefParametre)
     {
-        bool m_isReseauAutoref      = (m_settings->value("Param_Poste/PortAutoref").toString() == RESEAU);
+        bool m_isReseauAutoref      = (m_settings->value(Param_Poste_PortAutoref).toString() == RESEAU);
         m_isReseauAutoref?          appareilsreseau.setFlag(Autoref)     : appareilscom.setFlag(Autoref);
     }
     if (m_isRefracteurParametre)
     {
-        bool m_isReseauRefracteur   = (m_settings->value("Param_Poste/PortRefracteur").toString() == RESEAU);
+        bool m_isReseauRefracteur   = (m_settings->value(Param_Poste_PortRefracteur).toString() == RESEAU);
         m_isReseauRefracteur?       appareilsreseau.setFlag(Refracteur) : appareilscom.setFlag(Refracteur);
     }
     if (m_isTonoParametre)
@@ -4249,7 +4268,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
     {
         m_LANAutoref = true;
         Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
-        pathdirautoref = settings()->value("Param_Poste/PortAutoref/Reseau").toString();
+        pathdirautoref = settings()->value(Param_Poste_PortAutoref_Reseau).toString();
         if (!usetimer)
             m_filewatcherautoref.addPath(pathdirautoref);
     }
@@ -4257,7 +4276,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
     {
         m_LANFronto = true;
         Datas::I()->mesurefronto   ->settypemesure(Refraction::Fronto);
-        pathdirfronto = settings()->value("Param_Poste/PortFronto/Reseau").toString();
+        pathdirfronto = settings()->value(Param_Poste_PortFronto_Reseau).toString();
         if (!usetimer)
             m_filewatcherfronto.addPath(pathdirfronto);
     }
@@ -4266,7 +4285,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         m_LANRefracteur = true;
         Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
         Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
-        pathdirrefracteur = settings()->value("Param_Poste/PortRefracteur/Reseau").toString();
+        pathdirrefracteur = settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
         if (!usetimer)
             m_filewatcherrefracteur.addPath(pathdirrefracteur);
     }
@@ -4413,7 +4432,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     // PORT FRONTO
     if (appareils.testFlag(Fronto))
     {
-        m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
+        m_portFronto     = m_settings->value(Param_Poste_PortFronto).toString();
         ReglePortFronto();
         bool a           = (m_portFronto != "");
         if (!a)
@@ -4502,7 +4521,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     // PORT REFRACTEUR
     if (appareils.testFlag(Refracteur))
     {
-        m_portRefracteur = m_settings->value("Param_Poste/PortRefracteur").toString();
+        m_portRefracteur = m_settings->value(Param_Poste_PortRefracteur).toString();
         //UpMessageBox::Watch(Q_NULLPTR, m_portRefracteur);
         ReglePortRefracteur();
         bool a           = (m_portRefracteur != "");
@@ -4593,7 +4612,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     //PORT AUTOREF
     if (appareils.testFlag(Autoref))
     {
-        m_portAutoref    = m_settings->value("Param_Poste/PortAutoref").toString();
+        m_portAutoref    = m_settings->value(Param_Poste_PortAutoref).toString();
         ReglePortAutoref();
         bool a           = (m_portAutoref != "");
         if (!a)
@@ -4681,7 +4700,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     }
     if (appareils.testFlag(Tonometre))
     {
-        m_portTono       = m_settings->value("Param_Poste/PortTonometre").toString();
+        m_portTono       = m_settings->value(Param_Poste_PortTono).toString();
     }
     if (msg != "")
         ShowMessage::I()->SplashMessage(msg, 3000);
@@ -4692,7 +4711,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
 bool Procedures::ReglePortRefracteur()
 {
     bool a = true;
-    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
@@ -4716,7 +4735,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 {
     //qDebug() << s;
     m_mesureSerie        = s;
-    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
         if (m_mesureSerie == SendDataNIDEK("CRL"))
         {
@@ -4753,8 +4772,8 @@ void Procedures::RegleRefracteurCOM()
     };
 
     // ----------------- CONNECTION SERIE
-    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
-     || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")       
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
+     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
 
         QString AxeOD, AxeOG;
@@ -4896,12 +4915,12 @@ void Procedures::RegleRefracteurXML()
         QString typfile("");
         if (typmesure == Procedures::MesureAutoref)
         {
-            Adress = Procedures::I()->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressAutoref").toString();
+            Adress = Procedures::I()->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
             typfile = "ARK";
         }
         else if (typmesure == Procedures::MesureFronto)
         {
-            Adress = Procedures::I()->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressFronto").toString();
+            Adress = Procedures::I()->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
             typfile = "LM";
         }
         else
@@ -4929,8 +4948,8 @@ void Procedures::RegleRefracteurXML()
     };
 
 
-    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-6100"
-     || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-6100"
+     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK Glasspop")
     {
         /*! Il faut régler le réfracteur en créant un fichier xml pour l'autoref et un pour le fronto à partir des données du dossier du patient en cours
          * Il faut déposer ces fichiers dans le dossier réseau correspondant surveillé par le refracteur
@@ -5793,7 +5812,7 @@ void Procedures::RegleRefracteurXML()
             }
 
             /*! Pour le Glasspop, on met un délai de 3 secondes avant l'envoi des datas refracteur sinon il s'emmêle les crayons s'il y a des données données LM */
-            if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop" && ExistMesureFronto)
+            if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK Glasspop" && ExistMesureFronto)
             {
                 t_xmlfiletimer.setSingleShot(true);
                 t_xmlfiletimer.setInterval(3000);
@@ -5950,7 +5969,7 @@ void Procedures::EnvoiDataPatientAuRefracteur(int idpat)
         if (pat)
             nompat = pat->prenom() + " " + pat->nom().toUpper();
         // NIDEK RT-5100
-        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
         {
             /*!
             Logs::LogToFile("PortSerieRefracteur.txt", "RTS = " + RequestToSendNIDEK() + " - "
@@ -6020,8 +6039,8 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
-     || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
+     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
         /*
 NIDEK RT-5100 ID             DA2016/12/30
@@ -6613,8 +6632,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-6100 - Glasspop =======================================================================================================================================
-    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-6100"
-        || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK Glasspop")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-6100"
+        || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK Glasspop")
     {
         QDomElement xml = docxml.documentElement();
 
@@ -7309,7 +7328,7 @@ QString Procedures::HtmlRefracteur()
 bool Procedures::ReglePortFronto()
 {
     bool a = true;
-    if (m_settings->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
+    if (m_settings->value(Param_Poste_Fronto).toString()=="TOMEY TL-3000C")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
@@ -7317,8 +7336,8 @@ bool Procedures::ReglePortFronto()
         s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (m_settings->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
-          || m_settings->value("Param_Poste/Fronto").toString()=="HUVITZ CLM7000")
+    else if (m_settings->value(Param_Poste_Fronto).toString()=="VISIONIX VL1000"
+          || m_settings->value(Param_Poste_Fronto).toString()=="HUVITZ CLM7000")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud9600;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
@@ -7326,9 +7345,9 @@ bool Procedures::ReglePortFronto()
         s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
-          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
-          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
+    else if (m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800P"
+          || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800PD"
+          || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-500")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud9600;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data8;
@@ -7354,9 +7373,9 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     m_mesureSerie        = s;
     //qDebug() << m_mesureSerie;
 
-    if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
-     || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
-     || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
+    if (m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800P"
+     || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800PD"
+     || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-500")
     {
         if (m_mesureSerie == RequestToSendNIDEK())          //! le fronto demande la permission d'envoyer des données
         {
@@ -7375,7 +7394,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     {
         m_flagreglagerefracteur = MesureFronto;
         // NIDEK RT-5100
-        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
             Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         InsertMesure(MesureFronto);
     }
@@ -7396,7 +7415,7 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
     QString mesureOD, mesureOG;
 
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (m_settings->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
+    if (m_settings->value(Param_Poste_Fronto).toString()=="TOMEY TL-3000C")
     {
         /* Le fichier de sortie ressemble à ça
         .
@@ -7443,8 +7462,8 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
         }
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
     }
-    else if (m_settings->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
-          || m_settings->value("Param_Poste/Fronto").toString()=="HUVITZ CLM7000")
+    else if (m_settings->value(Param_Poste_Fronto).toString()=="VISIONIX VL1000"
+          || m_settings->value(Param_Poste_Fronto).toString()=="HUVITZ CLM7000")
     {
         /* Le fichier de sortie ressemble à ça
             LM2RK   No=00036   R: S=-04.50 C=-00.50 A=103 PX=+00.25 PY=+04.00 PD=00.0 ADD=+2.00 UR=  0   L: S=-05.00 C=-00.50 A=110 PX=+00.00 PY=+05.50 PD=00.0 ADD=+5.00 UL=  0   E$
@@ -7480,9 +7499,9 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
         }
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
     }
-    else if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
-          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
-          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
+    else if (m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800P"
+          || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800PD"
+          || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-500")
     {
         // OEIL DROIT -----------------------------------------------------------------------------
         int idxOD = Mesure.indexOf(" R");
@@ -7584,18 +7603,18 @@ QString Procedures::HtmlFronto()
 bool Procedures::ReglePortAutoref()
 {
     bool a = true;
-    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+    if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-20"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III")
 
     {
         s_paramPortSerieAutoref.baudRate       = QSerialPort::Baud9600;
@@ -7620,15 +7639,15 @@ QSerialPort* Procedures::PortAutoref()
 //! -----------------------------------------------------------------------------------------
 void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
 {
-    bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
-    bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+    bool autorefhaskerato    = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30");
+    bool autorefhastonopachy = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III");
     Datas::I()->mesureautoref   ->cleandatas();
     if (autorefhaskerato)
         Datas::I()->mesurekerato    ->cleandatas();
@@ -7653,7 +7672,7 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
     {
         m_flagreglagerefracteur = MesureAutoref;
         // NIDEK RT-5100 - NIDEK RT-2100
-        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
         {
             if (!Datas::I()->mesurekerato->isdataclean())
                 InsertMesure(MesureKerato);
@@ -7698,7 +7717,7 @@ void Procedures::ReponseXML_Fronto(const QDomDocument &xmldoc)
     {
         m_flagreglagerefracteur = MesureFronto;
         // NIDEK RT-5100
-        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
             Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         InsertMesure(MesureFronto);
     }
@@ -7730,28 +7749,28 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 {
     m_mesureSerie        = s;
     //qDebug() << m_mesureSerie;
-    bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                      || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
-    bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+    bool autorefhaskerato    = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+                      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30");
+    bool autorefhastonopachy = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III");
 
-    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
+    if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-20")
     {
         if (m_mesureSerie == RequestToSendNIDEK())       //! l'autoref demande la permission d'envoyer des données
         {
@@ -7788,7 +7807,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
     {
         m_flagreglagerefracteur = MesureAutoref;
         // NIDEK RT-5100 - NIDEK RT-2100
-        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
         {
             if (!Datas::I()->mesurekerato->isdataclean())
                 InsertMesure(MesureKerato);
@@ -7868,18 +7887,18 @@ void Procedures::LectureDonneesCOMAutoref(QString Mesure)
 
     // TRADUCTION DES DONNEES EN FONCTION DE L'AUTOREF
 
-    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
+    if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-20")
     {
 
 /*! NIDEK ARK-1a - exemple de fichier de sortie *//*
@@ -8028,18 +8047,18 @@ SL11.7
 PL04.7N
 000461E4
 */
-        bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
-        bool autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
-        bool autorefhasipmesure = (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
-                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK ARK-30"
-                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK AR-20");
+        bool autorefhaskerato    = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30");
+        bool autorefhastonopachy = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III");
+        bool autorefhasipmesure = (m_settings->value(Param_Poste_Autoref).toString() != "NIDEK HandyRef-K"
+                                || m_settings->value(Param_Poste_Autoref).toString() != "NIDEK ARK-30"
+                                || m_settings->value(Param_Poste_Autoref).toString() != "NIDEK AR-20");
 
         a               = Mesure.indexOf("VD");
         a               = Mesure.length() - a -1;
@@ -8347,32 +8366,32 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 */
     Logs::LogToFile("MesuresAutoref.txt", docxml.toByteArray());
     bool autorefhastonopachy = false;
-    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
+    if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1S"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30"
+     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-20")
     {
-        bool autorefhaskerato    = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                          || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30");
-        autorefhastonopachy = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
-        bool autorefhasipmesure = (m_settings->value("Param_Poste/Autoref").toString() != "NIDEK HandyRef-K"
-                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK ARK-30"
-                                || m_settings->value("Param_Poste/Autoref").toString() != "NIDEK AR-20");
-        bool istonorefIII = (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III");
+        bool autorefhaskerato    = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III"
+                          || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30");
+        autorefhastonopachy = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III");
+        bool autorefhasipmesure = (m_settings->value(Param_Poste_Autoref).toString() != "NIDEK HandyRef-K"
+                                || m_settings->value(Param_Poste_Autoref).toString() != "NIDEK ARK-30"
+                                || m_settings->value(Param_Poste_Autoref).toString() != "NIDEK AR-20");
+        bool istonorefIII = (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III");
         QDomElement xml = docxml.documentElement();
         for (int i=0; i<xml.childNodes().size(); i++)
         {
@@ -8878,7 +8897,7 @@ void Procedures::LectureDonneesXMLFronto(QDomDocument docxml)
 </Ophthalmology>
 */
     Logs::LogToFile("MesuresFronto.txt", docxml.toByteArray());
-    QString fronto =m_settings->value("Param_Poste/Fronto").toString();
+    QString fronto =m_settings->value(Param_Poste_Fronto).toString();
     if (fronto=="NIDEK LM-1800" || fronto=="NIDEK LM-500" || fronto=="NIDEK LM-7")
     {
         QDomElement xml = docxml.documentElement();

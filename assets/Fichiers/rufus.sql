@@ -290,7 +290,6 @@ DROP TABLE IF EXISTS `Metadocuments`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Metadocuments` (
   `idMetaDocument` int(11) NOT NULL AUTO_INCREMENT,
-  `TextMetaDocument` blob,
   `ResumeMetaDocument` varchar(100) NOT NULL,
   `idUser` int(11) DEFAULT NULL,
   `Public` int(1) DEFAULT NULL,
@@ -304,7 +303,7 @@ CREATE TABLE `Metadocuments` (
 
 LOCK TABLES `Metadocuments` WRITE;
 /*!40000 ALTER TABLE `Metadocuments` DISABLE KEYS */;
-INSERT INTO `Metadocuments` VALUES (1,'Consentement éclairé cataracte\nCourrier préopératoire cataracte','Dossier préopératoire cataracte',2,1),(2,'Ordonnance\nPrécaution hygiène lentilles','Lentilles',2,NULL),(5,'Consentement éclairé\nInformation sur les honoraires\nOrdonnnance préopératoire','Dossier préopératoire glaucome',2,NULL),(6,'Infos post opératoire cataracte\nPOST-OPÉRATOIRE','Dossier post-opératoire cataracte',2,NULL),(9,NULL,'Dossier préopératoire réfractive',2,1);
+INSERT INTO `Metadocuments` VALUES (1,'Dossier préopératoire cataracte',2,1),(2,'Lentilles',2,NULL),(5,'Dossier préopératoire glaucome',2,NULL),(6,'Dossier post-opératoire cataracte',2,NULL),(9,'Dossier préopératoire réfractive',2,1);
 /*!40000 ALTER TABLE `Metadocuments` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -235,7 +235,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
                             //! Table Rufus.Metadocuments
 #define CP_ID_DOSSIERIMPRESSIONS                        "idMetaDocument"
-#define CP_TEXTE_DOSSIERIMPRESSIONS                     "TextMetaDocument"
 #define CP_RESUME_DOSSIERIMPRESSIONS                    "ResumeMetaDocument"
 #define CP_IDUSER_DOSSIERIMPRESSIONS                    "idUser"
 #define CP_PUBLIC_DOSSIERIMPRESSIONS                    "Public"
@@ -367,7 +366,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FAX_USR                                      "UserFax"         //!> pas utilisé
 #define CP_WEBSITE_USR                                  "UserWeb"
 #define CP_MAIL_USR                                     "UserMail"
-#define CP_MEMO_USR                                     "UserMemo"       //!> pas utilisé
+#define CP_MEMO_USR                                     "UserMemo"        //!> pas utilisé
 #define CP_IDCOMPTEPARDEFAUT_USR                        "IdCompteParDefaut"
 #define CP_NUMPS_USR                                    "UserNumPS"
 #define CP_NUMCO_USR                                    "UserNumCO"
@@ -809,11 +808,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_OKConnexion                          "OKConnexion"                                       /*! fin du message de confirmation de la connexion */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
-#define ARRIVE                                  "Arrivé"
-#define ENCOURS                                 "En cours"
-#define ENATTENTENOUVELEXAMEN                   "En attente de nouvel examen par "
-#define RETOURACCUEIL                           "Retour accueil"
-#define ENCOURSEXAMEN                           "En cours de consultation avec "
+#define ARRIVE                                  tr("Arrivé")
+#define ENCOURS                                 tr("En cours")
+#define ENATTENTENOUVELEXAMEN                   tr("En attente de nouvel examen par ")
+#define RETOURACCUEIL                           tr("Retour accueil")
+#define ENCOURSEXAMEN                           tr("En cours de consultation avec ")
 
 // Les fichiers et répertoires divers
 #define NOM_DIR_RUFUS                           "/Documents/Rufus"
@@ -827,9 +826,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_DIR_IMAGES                          "/Images"
 #define NOM_DIR_VIDEOS                          "/Videos"
 #define NOM_DIR_PROV                            "/Prov"
+#define NOM_DIR_REFRACTION                      "/Refraction"
 #define NOM_DIR_FRONTO                          "/Fronto"
 #define NOM_DIR_AUTOREF                         "/Autoref"
 #define NOM_DIR_REFRACTEUR                      "/Refracteur"
+#define NOM_DIR_REFRACTEURIN                    "/In"
+#define NOM_DIR_REFRACTEUROUT                   "/Out"
 #define NOM_DIR_TONO                            "/Tono"
 #define NOM_DIR_LOGS                            "/Logs"
 #define NOM_DIR_ECHECSTRANSFERTS                "/EchecsTransferts"
@@ -847,6 +849,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_FILE_PDF                            "/pdf.pdf"
 #define NOM_FILE_XMLAUTOREF                     "/AR.xml"
 #define NOM_FILE_XMLFRONTO                      "/LM.xml"
+#define NOM_FILE_TONO                           "/TO.xml"
 
 #define PATH_DIR_RUFUS                          QDir::homePath() + NOM_DIR_RUFUS
 #define PATH_DIR_RUFUSADMIN                     QDir::homePath() + NOM_DIR_RUFUSADMIN
@@ -858,14 +861,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_DIR_ORIGINAUX                      PATH_DIR_IMAGERIE NOM_DIR_ORIGINAUX
 #define PATH_DIR_FACTURESSANSLIEN               PATH_DIR_IMAGERIE NOM_DIR_FACTURESSANSLIEN
 #define PATH_DIR_DOSSIERECHANGE                 PATH_DIR_IMAGERIE NOM_DIR_DOSSIERECHANGE
+#define PATH_DIR_REFRACTION                     PATH_DIR_DOSSIERECHANGE NOM_DIR_REFRACTION
 #define PATH_DIR_VIDEOS                         PATH_DIR_IMAGERIE NOM_DIR_VIDEOS
 #define PATH_DIR_PROV                           PATH_DIR_IMAGERIE NOM_DIR_PROV
 #define PATH_DIR_ECHECSTRANSFERTS               PATH_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS
 
-#define PATH_DIR_FRONTO                         PATH_DIR_PROV NOM_DIR_FRONTO
-#define PATH_DIR_AUTOREF                        PATH_DIR_PROV NOM_DIR_AUTOREF
-#define PATH_DIR_REFRACTEUR                     PATH_DIR_PROV NOM_DIR_REFRACTEUR
-#define PATH_DIR_TONO                           PATH_DIR_PROV NOM_DIR_TONO
+#define PATH_DIR_FRONTO                         PATH_DIR_REFRACTION NOM_DIR_FRONTO
+#define PATH_DIR_AUTOREF                        PATH_DIR_REFRACTION NOM_DIR_AUTOREF
+#define PATH_DIR_TONO                           PATH_DIR_REFRACTION NOM_DIR_TONO
+#define PATH_DIR_REFRACTEUR                     PATH_DIR_REFRACTION NOM_DIR_REFRACTEUR
+#define PATH_DIR_REFRACTEUR_IN                  PATH_DIR_REFRACTEUR NOM_DIR_REFRACTEURIN
+#define PATH_DIR_REFRACTEUR_AUTOREFIN           PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF
+#define PATH_DIR_REFRACTEUR_FRONTOIN            PATH_DIR_REFRACTEUR_IN NOM_DIR_FRONTO
+#define PATH_DIR_REFRACTEUR_TONOIN              PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO
+#define PATH_DIR_REFRACTEUR_OUT                 PATH_DIR_REFRACTEUR NOM_DIR_REFRACTEUROUT
 
 #define PATH_FILE_ENTETEORDO                    PATH_DIR_RESSOURCES NOM_FILE_ENTETEORDO
 #define PATH_FILE_CORPSORDO                     PATH_DIR_RESSOURCES NOM_FILE_CORPSORDO
@@ -1041,5 +1050,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define RDV_HEURE               "HEURE"
 #define RDV_IDSUPERVISEUR       "IDSUPERVISEUR"
 
+//QSettings
+#define Param_Poste_PortFronto                          "Param_Poste/PortFronto"
+#define Param_Poste_PortAutoref                         "Param_Poste/PortAutoref"
+#define Param_Poste_PortTono                            "Param_Poste/PortTonometre"
+#define Param_Poste_PortRefracteur                      "Param_Poste/PortRefracteur"
+#define Param_Poste_PortFronto_Reseau                   Param_Poste_PortFronto "/Reseau"
+#define Param_Poste_PortAutoref_Reseau                  Param_Poste_PortAutoref "/Reseau"
+#define Param_Poste_PortTono_Reseau                     Param_Poste_PortTono "/Reseau"
+#define Param_Poste_PortRefracteur_Reseau               Param_Poste_PortRefracteur "/Reseau"
+#define Param_Poste_PortRefracteur_Reseau_AdressAutoref Param_Poste_PortRefracteur_Reseau "AdressAutoref"
+#define Param_Poste_PortRefracteur_Reseau_AdressFronto  Param_Poste_PortRefracteur_Reseau "/AdressFronto"
+#define Param_Poste_Fronto                              "Param_Poste/Fronto"
+#define Param_Poste_Autoref                             "Param_Poste/Autoref"
+#define Param_Poste_Tono                                "Param_Poste/Tonometre"
+#define Param_Poste_Refracteur                          "Param_Poste/Refracteur"
 
 #endif // MACROS_H

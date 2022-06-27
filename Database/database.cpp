@@ -1246,7 +1246,7 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
                        " and joi." CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = doc." CP_ID_IMPRESSIONS "\n"
                        " and doc." CP_DOCPUBLIC_IMPRESSIONS " is null)\n";
                 req += " ORDER BY " CP_RESUME_DOSSIERIMPRESSIONS ";";
-    // qDebug() << req;
+    //qDebug() << req;
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return dossiers;

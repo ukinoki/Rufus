@@ -388,14 +388,15 @@ la sélection</string>
   <widget class="UpCheckBox" name="DocsPublicscheckBox">
    <property name="geometry">
     <rect>
-     <x>520</x>
-     <y>345</y>
-     <width>221</width>
-     <height>20</height>
+     <x>560</x>
+     <y>320</y>
+     <width>181</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>Afficher les documents publics</string>
+    <string>Afficher les dossiers
+et documents publics</string>
    </property>
    <property name="checked">
     <bool>false</bool>

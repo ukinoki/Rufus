@@ -45,8 +45,8 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableView);
     wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
-    ui->DocsPublicscheckBox->setImmediateToolTip(tr("Cocher cette case pour visualiser les documents rendus publics par les autres utilisateurs\n"
-                                                    "Ces documents sont affichés en caractères italiques bleus"));
+    ui->DocsPublicscheckBox->setImmediateToolTip(tr("Cocher cette case pour visualiser les dossiers et documents rendus publics par leurs créateurs\n"
+                                                    "Ces dossiers et documents sont affichés en caractères italiques bleus"));
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
@@ -535,6 +535,13 @@ void dlg_impressions::FiltreListe()
                 if (doc->iduser() != currentuser()->id())
                     ui->DocsupTableView->setRowHidden(m_docsmodel->getRowFromItem(doc),!currentuser()->affichedocspublics());
         }
+    }
+    for (int j=0; j<m_dossiersmodel->rowCount(); j++)
+    {
+        DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(j,0));
+        if (dossier)
+            if (dossier->iduser() != currentuser()->id())
+                ui->DossiersupTableView->setRowHidden(m_dossiersmodel->getRowFromItem(dossier),!currentuser()->affichedocspublics());
     }
 }
 
@@ -3395,22 +3402,21 @@ bool dlg_impressions::VerifDocumentPublic(Impression *doc, bool msg)
 {
     if (!doc)
         return false;
-    bool ok;
-    QString req = "select " CP_ID_DOSSIERIMPRESSIONS ", " CP_RESUME_DOSSIERIMPRESSIONS " from " TBL_DOSSIERSIMPRESSIONS
-                  " where " CP_ID_DOSSIERIMPRESSIONS " in (select " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS
-                  " from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " = " + QString::number(doc->id()) +
-                  ") and " CP_PUBLIC_DOSSIERIMPRESSIONS " =1";
-    QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
-    if (listdossiers.size()>0)
+    for (auto itdossier = Datas::I()->metadocuments->dossiersimpressions()->begin(); itdossier != Datas::I()->metadocuments->dossiersimpressions()->end();)
     {
-        if (msg)
+        DossierImpression *dossier = itdossier.value();
+        if (dossier)
+        if (!dossier->haslistdocsloaded())
+            Datas::I()->metadocuments->loadlistedocs(dossier);
+        if (dossier->listiddocs().contains(doc->id()))
         {
-            UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre privé ce document"), tr("Il est incorporé dans le dossier public\n- ") + listdossiers.at(0).at(1).toString() +
+            if (msg)
+                UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre privé ce document"), tr("Il est incorporé dans le dossier public\n- ") + dossier->resume() +
                              tr(" -\nVous devez d'abord rendre ce dossier privé!"));
+            return false;
         }
-        return false;
     }
-    else return true;
+    return true;
 }
 
 // ----------------------------------------------------------------------------------

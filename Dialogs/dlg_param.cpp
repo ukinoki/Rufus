@@ -220,42 +220,42 @@ dlg_param::dlg_param(QWidget *parent) :
             Listapp << listtono.at(i).at(0).toString() + " " + listtono.at(i).at(1).toString();
     ui->TonometreupComboBox->insertItems(0,Listapp);
 
-    ui->FrontoupComboBox                ->setCurrentText(proc->settings()->value("Param_Poste/Fronto").toString());
-    ui->PortFrontoupComboBox            ->setCurrentText(proc->settings()->value("Param_Poste/PortFronto").toString());
+    ui->FrontoupComboBox                ->setCurrentText(proc->settings()->value(Param_Poste_Fronto).toString());
+    ui->PortFrontoupComboBox            ->setCurrentText(proc->settings()->value(Param_Poste_PortFronto).toString());
     if (ui->PortFrontoupComboBox->currentText() == RESEAU)
-        ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value("Param_Poste/PortFronto/Reseau").toString());
+        ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortFronto_Reseau).toString());
     EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox,       ui->PortFrontoupComboBox->currentIndex());
     ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
     ui->NetworkPathFrontoupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le frontofocomètre"));
 
-    ui->AutorefupComboBox               ->setCurrentText(proc->settings()->value("Param_Poste/Autoref").toString());
-    ui->PortAutorefupComboBox           ->setCurrentText(proc->settings()->value("Param_Poste/PortAutoref").toString());
+    ui->AutorefupComboBox               ->setCurrentText(proc->settings()->value(Param_Poste_Autoref).toString());
+    ui->PortAutorefupComboBox           ->setCurrentText(proc->settings()->value(Param_Poste_PortAutoref).toString());
     if (ui->PortAutorefupComboBox->currentText() == RESEAU)
-        ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value("Param_Poste/PortAutoref/Reseau").toString());
+        ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString());
     EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox,      ui->PortAutorefupComboBox->currentIndex());
     ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
     ui->NetworkPathAutorefupPushButton  ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par l'autorefractomètre"));
 
-    ui->RefracteurupComboBox            ->setCurrentText(proc->settings()->value("Param_Poste/Refracteur").toString());
-    ui->PortRefracteurupComboBox        ->setCurrentText(proc->settings()->value("Param_Poste/PortRefracteur").toString());
+    ui->RefracteurupComboBox            ->setCurrentText(proc->settings()->value(Param_Poste_Refracteur).toString());
+    ui->PortRefracteurupComboBox        ->setCurrentText(proc->settings()->value(Param_Poste_PortRefracteur).toString());
     if (ui->PortRefracteurupComboBox->currentText() == RESEAU)
     {
-        ui->NetworkPathRefracteurupLineEdit->setText(proc->settings()->value("Param_Poste/PortRefracteur/Reseau").toString());
-        ui->NetworkPathEchangeFrontoupLineEdit->setText(proc->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressFronto").toString());
-        ui->NetworkPathEchangeAutorefupLineEdit->setText(proc->settings()->value("Param_Poste/PortRefracteur/Reseau/AdressAutoref").toString());
+        ui->NetworkPathRefracteurupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString());
+        ui->NetworkPathEchangeFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString());
+        ui->NetworkPathEchangeAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString());
     }
     EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox,   ui->PortRefracteurupComboBox->currentIndex());
     ui->NetworkPathRefracteurupPushButton       ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le refracteur"));
     ui->NetworkPathRefracteurupLineEdit         ->setImmediateToolTip(ui->NetworkPathRefracteurupLineEdit->text());
-    ui->NetworkPathEchangeFrontoupPushButton    ->setImmediateToolTip(tr("Emplacement du fichier de mesures du frontofocomètre à envoyer au réfracteur"));
+    ui->NetworkPathEchangeFrontoupPushButton    ->setImmediateToolTip(tr("Emplacement du fichier de mesures de frontofocomètre élaborées par Rufus à envoyer au réfracteur"));
     ui->NetworkPathEchangeFrontoupLineEdit      ->setImmediateToolTip(ui->NetworkPathEchangeFrontoupLineEdit->text());
-    ui->NetworkPathEchangeAutorefupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures de l'autorefractomètre à envoyer au réfracteur"));
+    ui->NetworkPathEchangeAutorefupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures d'autorefractomètre élaborées par Rufus à envoyer au réfracteur"));
     ui->NetworkPathEchangeAutorefupLineEdit     ->setImmediateToolTip(ui->NetworkPathEchangeAutorefupLineEdit->text());
 
-    ui->TonometreupComboBox             ->setCurrentText(proc->settings()->value("Param_Poste/Tonometre").toString());
-    ui->PortTonometreupComboBox         ->setCurrentText(proc->settings()->value("Param_Poste/PortTonometre").toString());
+    ui->TonometreupComboBox             ->setCurrentText(proc->settings()->value(Param_Poste_Tono).toString());
+    ui->PortTonometreupComboBox         ->setCurrentText(proc->settings()->value(Param_Poste_PortTono).toString());
     if (ui->PortTonometreupComboBox->currentText() == RESEAU)
-        ui->NetworkPathTonoupLineEdit   ->setText(proc->settings()->value("Param_Poste/PortTonometre/Reseau").toString());
+        ui->NetworkPathTonoupLineEdit   ->setText(proc->settings()->value(Param_Poste_PortTono_Reseau).toString());
     EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox,    ui->PortTonometreupComboBox->currentIndex());
     ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
     ui->NetworkPathTonoupPushButton     ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le tonomètre"));
@@ -605,8 +605,12 @@ void dlg_param::ChercheCodeCCAM(QString txt)
     }
 }
 
-void dlg_param::ChoixDossierStockageApp(UpPushButton *butt)
+void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
 {
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+
     QString req = "select " CP_TITREEXAMEN_APPAREIL ", " CP_NOMAPPAREIL_APPAREIL " from " TBL_LISTEAPPAREILS " where " CP_ID_APPAREIL " = " + QString::number(butt->iD());
     bool ok;
     QVariantList examdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
@@ -621,39 +625,36 @@ void dlg_param::ChoixDossierStockageApp(UpPushButton *butt)
     else if (ui->DistantDocupTableWidget->isAncestorOf(butt))
         mode = Utils::Distant;
     QString dir = proc->pathDossierDocuments(exam, mode);
-    if (dir == "")
-        dir = PATH_DIR_RUFUS;
-    QFileDialog dialog(this, "", dir);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
-    {
-        QDir dockdir = dialog.directory();
-        int row;
-        UpLineEdit *line = Q_NULLPTR;
-        switch (mode) {
-        case Utils::Poste:
-            row = ui->MonoDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
-            line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
-            if (line!=Q_NULLPTR)
-                line->setText(dockdir.path());
-            break;
-        case Utils::ReseauLocal:
-            row = ui->LocalDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
-            line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
-            if (line!=Q_NULLPTR)
-                line->setText(dockdir.path());
-            break;
-        case Utils::Distant:
-            row = ui->DistantDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
-            line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
-            if (line!=Q_NULLPTR)
-                line->setText(dockdir.path());
-            break;
-        }
-        proc->settings()->setValue(Utils::getBaseFromMode(mode) + "/DossiersDocuments/" + exam, dockdir.path());
+    if (dir == "" || !QDir(dir).exists())
+        dir = PATH_DIR_DOSSIERECHANGE;
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    if (url == QUrl())
+        return;
+    int row;
+    UpLineEdit *line = Q_NULLPTR;
+    switch (mode) {
+    case Utils::Poste:
+        row = ui->MonoDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
+        line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
+        if (line!=Q_NULLPTR)
+            line->setText(url.path());
+        break;
+    case Utils::ReseauLocal:
+        row = ui->LocalDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
+        line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
+        if (line!=Q_NULLPTR)
+            line->setText(url.path());
+        break;
+    case Utils::Distant:
+        row = ui->DistantDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
+        line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
+        if (line!=Q_NULLPTR)
+            line->setText(url.path());
+        break;
     }
+    proc->settings()->setValue(Utils::getBaseFromMode(mode) + "/DossiersDocuments/" + exam, url.path());
 }
+
 
 void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
 {
@@ -1116,18 +1117,14 @@ void dlg_param::startImmediateBackup()
     if (proc->AutresPostesConnectes())
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
-    QString dirSauv         = QFileDialog::getExistingDirectory(this,
-                                                                tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
-                                                                   "Le nom de dossier ne doit pas contenir d'espace"),
-                                                                (QDir(dirsauvorigin).exists()? dirsauvorigin : QDir::homePath()),
-                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (dirSauv.contains(" "))
-    {
-        UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+    if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
+        dirsauvorigin = PATH_DIR_DOSSIERECHANGE;
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
+                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
+    if (url == QUrl())
         return;
-    }
-    if (dirSauv != "")
-        proc->ImmediateBackup(dirSauv, false);
+    if (QDir(url.path()).exists())
+        proc->ImmediateBackup(url.path(), false);
 }
 
 void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
@@ -1688,15 +1685,17 @@ void dlg_param::ModifDirBackup()
     if (db->ModeAccesDataBase() != Utils::Poste)
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
-    QString dirSauv         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
-                                                                "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-    if (dirSauv.contains(" "))
-        UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-    if (dirsauvorigin == dirSauv || dirSauv.contains(" "))
+    if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
+        dirsauvorigin = PATH_DIR_DOSSIERECHANGE;
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
+                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
+    if (dirsauvorigin == url.path() || url == QUrl())
+        return;
+    if (!QDir(url.path()).exists())
         return;
 
-    ui->DirBackupuplineEdit ->setText(dirSauv);
-    db->setdirbkup(dirSauv);
+    ui->DirBackupuplineEdit ->setText(url.path());
+    db->setdirbkup(url.path());
     proc->ParamAutoBackup();
     ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
                                            && QDir(m_parametres->dirbkup()).exists()
@@ -1706,104 +1705,92 @@ void dlg_param::ModifDirBackup()
 
 void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
 {
-    QString dirmesureorigin ("");
-    QString dirmesure ("");
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+    QString pathappareil;
+    QUrl url;
+    QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil\n"
+                                "Le nom de dossier ne doit pas contenir d'espace");
     switch (mesure) {
     case Fronto:
-        dirmesureorigin   = ui->DirBackupuplineEdit->text();
-        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du frontofocomètre\n"
-                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-        if (dirmesure.contains(" "))
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+        pathappareil = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
+        if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = QDir::homePath();
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        if (url == QUrl())
             return;
-
-        ui->NetworkPathFrontoupLineEdit ->setText(dirmesure);
-        ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(dirmesure);
-        m_modifposte = true;
+        ui->NetworkPathFrontoupLineEdit ->setText(url.path());
+        ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(url.path());
+        proc->settings()->setValue(Param_Poste_PortFronto_Reseau, url.path());
         break;
     case Autoref:
-        dirmesureorigin   = ui->DirBackupuplineEdit->text();
-        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'autorefractomètre\n"
-                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-        if (dirmesure.contains(" "))
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+        pathappareil = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
+        if (pathappareil == "")
+            pathappareil = QDir::homePath();
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        if (url == QUrl())
             return;
-
-        ui->NetworkPathAutorefupLineEdit ->setText(dirmesure);
-        m_modifposte = true;
-        proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", ui->NetworkPathAutorefupLineEdit->text());
+        ui->NetworkPathAutorefupLineEdit ->setText(url.path());
+        ui->NetworkPathAutorefupLineEdit ->setImmediateToolTip(url.path());
+        proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, url.path());
         break;
     case Refracteur:
-        dirmesureorigin   = ui->DirBackupuplineEdit->text();
-        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du refracteur\n"
-                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-        if (dirmesure.contains(" "))
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
+        if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = QDir::homePath();
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        if (url == QUrl())
             return;
-
-        ui->NetworkPathRefracteurupLineEdit ->setText(dirmesure);
-        ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(dirmesure);
-        m_modifposte = true;
+        ui->NetworkPathRefracteurupLineEdit ->setText(url.path());
+        ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(url.path());
+        proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, url.path());
         break;
     case Tono:
-        dirmesureorigin   = ui->DirBackupuplineEdit->text();
-        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du tonomètre\n"
-                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-        if (dirmesure.contains(" "))
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-        if (dirmesureorigin == dirmesure || dirmesure.contains(" "))
+        pathappareil = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
+        if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = QDir::homePath();
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        if (url == QUrl())
             return;
-
-        ui->NetworkPathTonoupLineEdit ->setText(dirmesure);
-        ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(dirmesure);
-        m_modifposte = true;
+        ui->NetworkPathTonoupLineEdit ->setText(url.path());
+        ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(url.path());
+        proc->settings()->setValue(Param_Poste_PortTono_Reseau, url.path());
         break;
     }
 }
 
 void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
 {
-    QString dirmesureorigin ("");
-    QString dirmesure ("");
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+    QUrl url = QUrl();
+    QString pathappareil;
+    QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil\n"
+                                "Le nom de dossier ne doit pas contenir d'espace");
     switch (mesure) {
     case Fronto:
-        dirmesureorigin   = ui->DirBackupuplineEdit->text();
-        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures du frontofocometre\n"
-                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-        if (dirmesure.contains(" "))
-        {
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
+        if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = QDir::homePath();
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        if (url == QUrl())
             return;
-        }
-        if (dirmesureorigin == dirmesure)
-        {
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Le dossier doit être différent du dossier de sauvegarde de la base"));
-            return;
-        }
-        ui->NetworkPathEchangeFrontoupLineEdit ->setText(dirmesure);
-        ui->NetworkPathEchangeFrontoupLineEdit ->setImmediateToolTip(dirmesure);
-        m_modifposte = true;
+        proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, url.path());
+        ui->NetworkPathEchangeFrontoupLineEdit ->setText(url.path());
+        ui->NetworkPathEchangeFrontoupLineEdit ->setImmediateToolTip(url.path());
         break;
     case Autoref:
-        dirmesureorigin   = ui->DirBackupuplineEdit->text();
-        dirmesure         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'autorefractometre\n"
-                                                                    "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-        if (dirmesure.contains(" "))
-        {
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
+        if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = QDir::homePath();
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        if (url == QUrl())
             return;
-        }
-        if (dirmesureorigin == dirmesure)
-        {
-            UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Le dossier doit être différent du dossier de sauvegarde de la base"));
-            return;
-        }
-        ui->NetworkPathEchangeAutorefupLineEdit ->setText(dirmesure);
-        ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(dirmesure);
-        proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressAutoref", dirmesure);
+        ui->NetworkPathEchangeAutorefupLineEdit ->setText(url.path());
+        ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(url.path());
+        proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, url.path());
         break;
     case Refracteur:
     case Tono:
@@ -1845,9 +1832,11 @@ void dlg_param::DirLocalStockage()
      * avec la fonction static, on utilise la boîte de dialog du système
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
-    if (dir == "")
+    if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
-    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    if (url == QUrl())
+        return;
     ui->LocalPathStockageupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", url.path());
 }
@@ -1858,27 +1847,26 @@ void dlg_param::DirDistantStockage()
      * avec la fonction static, on utilise la boîte de dialog du système
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
-    if (dir == "")
+    if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
-    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    if (url == QUrl())
+        return;
     ui->DistantStockageupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", url.path());
 }
 
 void dlg_param::DirPosteStockage()
 {
-    if (db->ModeAccesDataBase() != Utils::Poste)
-    {
-        UpMessageBox::Watch(this, tr("Impossible de modifier ce paramètre"), tr("Vous devez être connecté sur le serveur de ce poste pour\npouvoir modifier le répertoire de stockage des documents"));
-        return;
-    }
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
     QString dir = ui->PosteStockageupLineEdit->text();
-    if (dir == "")
+    if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
-    QUrl url = QFileDialog::getExistingDirectoryUrl(this, "", dir, QFileDialog::ShowDirsOnly);
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    if (url == QUrl())
+        return;
     if (!QDir::match(PATH_DIR_RUFUS "/*", url.path()))
     {
         UpMessageBox::Watch(this, tr("Vous devez choisir un sous-dossier du dossier Rufus"), PATH_DIR_RUFUS);
@@ -1891,20 +1879,18 @@ void dlg_param::DirPosteStockage()
 void dlg_param::DossierClesSSL()
 {
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
-    if (dir == "")
+    if (dir == "" || !QDir(dir).exists())
     {
         dir = "/etc/mysql";
+        ui->DossierClesSSLupLineEdit->setText(dir);
         proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dir);
+        return;
     }
-    QFileDialog dialog(this, "", dir);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
-    {
-        QDir dockdir = dialog.directory();
-        ui->DossierClesSSLupLineEdit->setText(dockdir.path());
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dockdir.path());
-    }
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    if (url == QUrl())
+        return;
+    ui->DossierClesSSLupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", url.path());
 }
 
 void dlg_param::EffaceProgrammationDataBackup()
@@ -2847,15 +2833,16 @@ void dlg_param::Remplir_Tables()
         line5a->setRow(i);
         line5b->setRow(i);
         line5c->setRow(i);
+
         ui->MonoDocupTableWidget->setCellWidget(i,col,line5a);
         ui->LocalDocupTableWidget->setCellWidget(i,col,line5b);
         ui->DistantDocupTableWidget->setCellWidget(i,col,line5c);
-        connect(line5a,                    &UpLineEdit::textEdited,         this,   &dlg_param::EnableOKModifPosteButton);
-        connect(line5b,                    &UpLineEdit::textEdited,         this,   &dlg_param::EnableOKModifPosteButton);
-        connect(line5c,                    &UpLineEdit::textEdited,         this,   &dlg_param::EnableOKModifPosteButton);
-        connect(line5a,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5a, txt);});
-        connect(line5b,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5b, txt);});
-        connect(line5c,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5c, txt);});
+        connect(line5a,                    &UpLineEdit::textChanged,         this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line5b,                    &UpLineEdit::textChanged,         this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line5c,                    &UpLineEdit::textChanged,         this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line5a,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5a, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
+        connect(line5b,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5b, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
+        connect(line5c,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5c, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
         line5a->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
         line5b->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
@@ -2902,9 +2889,9 @@ void dlg_param::Remplir_Tables()
         ui->MonoDocupTableWidget->setCellWidget(i,col,widg);
         ui->LocalDocupTableWidget->setCellWidget(i,col,widg1);
         ui->DistantDocupTableWidget->setCellWidget(i,col,widg2);
-        connect(dossbouton,     &QPushButton::clicked,  this,   [=] {ChoixDossierStockageApp(dossbouton);});
-        connect(dossbouton1,    &QPushButton::clicked,  this,   [=] {ChoixDossierStockageApp(dossbouton1);});
-        connect(dossbouton2,    &QPushButton::clicked,  this,   [=] {ChoixDossierStockageApp(dossbouton2);});
+        connect(dossbouton,     &QPushButton::clicked,  this,   [=] {ChoixDossierEchangeAppareilImagerie(dossbouton);});
+        connect(dossbouton1,    &QPushButton::clicked,  this,   [=] {ChoixDossierEchangeAppareilImagerie(dossbouton1);});
+        connect(dossbouton2,    &QPushButton::clicked,  this,   [=] {ChoixDossierEchangeAppareilImagerie(dossbouton2);});
 
         pItem6->setText(Applist.at(i).at(3).toString());                             // Format
         ui->AppareilsConnectesupTableWidget->setItem(i,col,pItem6);
@@ -3079,74 +3066,74 @@ bool dlg_param::Valide_Modifications()
         proc->settings()->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->text());
         proc->settings()->setValue("Param_Imprimante/TailleTopMarge",ui->TopMargespinBox->text());
 
-        proc->settings()->setValue("Param_Poste/Fronto",ui->FrontoupComboBox->currentText());
+        proc->settings()->setValue(Param_Poste_Fronto,ui->FrontoupComboBox->currentText());
         if (ui->FrontoupComboBox->currentText() == "-")
         {
-            proc->settings()->setValue("Param_Poste/PortFronto", "");
-            proc->settings()->setValue("Param_Poste/PortFronto/Reseau", "");
+            proc->settings()->setValue(Param_Poste_PortFronto, "");
+            proc->settings()->setValue(Param_Poste_PortFronto_Reseau, "");
         }
         else
         {
-            proc->settings()->setValue("Param_Poste/PortFronto",ui->PortFrontoupComboBox->currentText());
+            proc->settings()->setValue(Param_Poste_PortFronto,ui->PortFrontoupComboBox->currentText());
             if (ui->PortFrontoupComboBox->currentText() == RESEAU)
-                proc->settings()->setValue("Param_Poste/PortFronto/Reseau", ui->NetworkPathFrontoupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortFronto_Reseau, ui->NetworkPathFrontoupLineEdit->text());
             else
-                proc->settings()->setValue("Param_Poste/PortFronto/Reseau", "");
+                proc->settings()->setValue(Param_Poste_PortFronto_Reseau, "");
         }
 
-        proc->settings()->setValue("Param_Poste/Autoref",ui->AutorefupComboBox->currentText());
+        proc->settings()->setValue(Param_Poste_Autoref,ui->AutorefupComboBox->currentText());
         if (ui->AutorefupComboBox->currentText() == "-")
         {
-            proc->settings()->setValue("Param_Poste/PortAutoref", "");
-            proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", "");
+            proc->settings()->setValue(Param_Poste_PortAutoref, "");
+            proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, "");
         }
         else
         {
-            proc->settings()->setValue("Param_Poste/PortAutoref",ui->PortAutorefupComboBox->currentText());
+            proc->settings()->setValue(Param_Poste_PortAutoref,ui->PortAutorefupComboBox->currentText());
             if (ui->PortAutorefupComboBox->currentText() == RESEAU)
-                proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", ui->NetworkPathAutorefupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, ui->NetworkPathAutorefupLineEdit->text());
             else
-                proc->settings()->setValue("Param_Poste/PortAutoref/Reseau", "");
+                proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, "");
         }
 
-        proc->settings()->setValue("Param_Poste/Refracteur",ui->RefracteurupComboBox->currentText());
-        proc->settings()->setValue("Param_Poste/PortRefracteur",ui->PortRefracteurupComboBox->currentText());
+        proc->settings()->setValue(Param_Poste_Refracteur,ui->RefracteurupComboBox->currentText());
+        proc->settings()->setValue(Param_Poste_PortRefracteur,ui->PortRefracteurupComboBox->currentText());
         if (ui->RefracteurupComboBox->currentText() == "-")
         {
-            proc->settings()->setValue("Param_Poste/PortRefracteur", "");
-            proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau", "");
-            proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressFronto", "");
-            proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressAutoref", "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur, "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, "");
         }
         else
         {
             if (ui->PortRefracteurupComboBox->currentText() == RESEAU)
             {
-                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau", ui->NetworkPathRefracteurupLineEdit->text());
-                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressFronto", ui->NetworkPathEchangeFrontoupLineEdit->text());
-                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressAutoref", ui->NetworkPathEchangeAutorefupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, ui->NetworkPathRefracteurupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, ui->NetworkPathEchangeFrontoupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, ui->NetworkPathEchangeAutorefupLineEdit->text());
             }
             else
             {
-                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau", "");
-                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressFronto", "");
-                proc->settings()->setValue("Param_Poste/PortRefracteur/Reseau/AdressAutoref", "");
+                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, "");
+                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, "");
+                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, "");
             }
         }
 
-        proc->settings()->setValue("Param_Poste/Tonometre",ui->TonometreupComboBox->currentText());
-        proc->settings()->setValue("Param_Poste/PortTonometre",ui->PortTonometreupComboBox->currentText());
+        proc->settings()->setValue(Param_Poste_Tono,ui->TonometreupComboBox->currentText());
+        proc->settings()->setValue(Param_Poste_PortTono,ui->PortTonometreupComboBox->currentText());
         if (ui->TonometreupComboBox->currentText() == "-")
         {
-            proc->settings()->setValue("Param_Poste/PortTonometre", "");
-            proc->settings()->setValue("Param_Poste/PortTonometre/Reseau", "");
+            proc->settings()->setValue(Param_Poste_PortTono, "");
+            proc->settings()->setValue(Param_Poste_PortTono_Reseau, "");
         }
         else
         {
             if (ui->PortTonometreupComboBox->currentText() == RESEAU)
-                proc->settings()->setValue("Param_Poste/PortTonometre/Reseau", ui->NetworkPathTonoupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortTono_Reseau, ui->NetworkPathTonoupLineEdit->text());
             else
-                proc->settings()->setValue("Param_Poste/PortTonometre/Reseau", "");
+                proc->settings()->setValue(Param_Poste_PortTono_Reseau, "");
         }
 
         proc->settings()->setValue("Param_Poste/VilleParDefaut",wdg_VilleDefautlineEdit->text());

@@ -106,8 +106,7 @@ private:
     void                EnableSupprAppareilBouton();
     void                FermepushButtonClicked();
     void                ChercheCodeCCAM(QString);
-    void                ChoixDossierStockageApp(UpPushButton *butt);
-    void                EnregDossierStockageApp(UpLineEdit *line, QString dir);
+    void                ChoixDossierEchangeAppareilImagerie(UpPushButton *butt);
     void                ChoixFontpushButtonClicked();
     void                ClearCom(UpComboBox *box, int);
     void                DirLocalStockage();
@@ -119,6 +118,7 @@ private:
     void                EnableNetworkAppareilRefraction(UpComboBox *combo, int idx);
     void                EnableOKModifPosteButton();
     void                EnregistreAppareil();
+    void                EnregDossierStockageApp(UpLineEdit *line, QString dir);
     void                EnregistreEmplacementServeur(int);
     void                EnregistreNouvMDPAdmin();
     void                FiltreActesOphtaSeulmt(bool);
