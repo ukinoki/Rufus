@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QBuffer>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QFileDialog>
 #include <QJsonDocument>
 #include <QRegExp>
 #include <QHostAddress>
@@ -29,6 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QProcess>
 #include <QJsonObject>
 #include <QTextCodec>
+#include <QUrl>
 #include <cmath>
 
 #include "uplineedit.h"
@@ -124,6 +126,7 @@ public:
     static bool                     mkpath(QString path);
     static void                     cleanfolder(QString path);
     static double                   mmToInches(double mm);
+    static QUrl                     getExistingDirectoryUrl(QWidget *parent, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(QDir::homePath()), QStringList listnomsaeliminer = QStringList(), bool ExclureNomAvecEspace = true);
 
     //! refraction
     static QString                  PrefixePlus(double);                           //! convertit en QString signé + ou - les valeurs QDouble de dioptries

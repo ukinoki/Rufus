@@ -661,6 +661,29 @@ void Utils::cleanfolder(const QString DirPath)
 
 double Utils::mmToInches(double mm )  { return mm * 0.039370147; }
 
+QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirdefaut, QStringList listnomsaeliminer, bool ExclureNomAvecEspace)
+{
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+    QUrl url = Dirdefaut;
+    url = QFileDialog::getExistingDirectoryUrl(parent, title, url, QFileDialog::ShowDirsOnly);
+    if (url.path() == "")
+        return QUrl();
+    if (ExclureNomAvecEspace)
+            if (url.path().contains(" "))
+            {
+                UpMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+                return QUrl();
+            }
+    if (listnomsaeliminer.contains(url.path()))
+    {
+        UpMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Le dossier doit être différent"));
+        return QUrl();
+    }
+    return url;
+}
+
 
 QString Utils::PrefixePlus(double Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
 {
