@@ -735,8 +735,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
 
-    User *userEntete = Datas::I()->users->getById(docmt->iduser());
-    if (userEntete == Q_NULLPTR)
+    if (currentuser() == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         delete Etat_textEdit;
@@ -744,7 +743,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     }
 
     //création de l'entête
-    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(QDate::currentDate(), userEntete);
+    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(QDate::currentDate(), currentuser());
     Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
     if (Entete == "")
     {
@@ -758,7 +757,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? m_docsexternes->patient()->nom().toUpper() : ""));
 
     //création du pied
-    Pied = proc->CalcPiedImpression(userEntete, docmt->format() == PRESCRIPTIONLUNETTES, ALD);
+    Pied = proc->CalcPiedImpression(currentuser(), docmt->format() == PRESCRIPTIONLUNETTES, ALD);
 
     // creation du corps de l'ordonnance
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
@@ -787,7 +786,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         Utils::nettoieHTML(Corps);
 
         QHash<QString, QVariant> listbinds;
-        listbinds[CP_IDUSER_DOCSEXTERNES]        = docmt->iduser();
+        listbinds[CP_IDUSER_DOCSEXTERNES]        = currentuser()->id();
         listbinds[CP_IDPAT_DOCSEXTERNES]         = docmt->idpatient();
         listbinds[CP_TYPEDOC_DOCSEXTERNES]       = docmt->typedoc();
         listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = docmt->soustypedoc();

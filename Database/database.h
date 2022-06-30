@@ -234,7 +234,7 @@ private:
 public:
     QList<DossierImpression*>   loadDossiersImpressions();                              //! charge tous les dossiers de documents imprimables de la  table courriers
     DossierImpression*          loadDossierImpressionById(int id);                      //! charge un dossier de documents imprimables à partir de son id
-    void                        NettoieJointures();                                     //! supprime les jointures inutilisées
+    void                        NettoieJointuresDossiersImpressions();                  //! supprime les jointures comortant des erreurs
     QList<int>                  initListeIdDococumentsFromIdDossier(int id);            //! charge la liste de documents d'un dossier
     void                        setListeIdDococumentsIdDossier(int iddossier, QList<int> listiddocs);
                                                                                         //! actualise la liste de documents d'un dossier

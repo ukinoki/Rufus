@@ -90,10 +90,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     {
         QString dirkey = "/etc/mysql";
         QSettings *m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString() != "")
-            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString() != "")
+            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         else
-            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL",dirkey);
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         QDir dirtorestore(dirkey);
         //qDebug() << dirtorestore.absolutePath();
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
@@ -1303,12 +1303,16 @@ void DataBase::setListeIdDococumentsIdDossier(int iddossier, QList<int> listiddo
     StandardSQL(req);
 }
 
-void DataBase::NettoieJointures()
+void DataBase::NettoieJointuresDossiersImpressions()
 {
+    QString req;
+
     // nettoyage des documents qui n'existent plus
-    StandardSQL("delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " not in (select " CP_ID_IMPRESSIONS " from " TBL_IMPRESSIONS ")");
+    req = "delete from " TBL_JOINTURESIMPRESSIONS " where " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " not in (select " CP_ID_IMPRESSIONS " from " TBL_IMPRESSIONS ")";
+    StandardSQL(req);
+
     // nettoyage des doublons
-    StandardSQL("DELETE " TBL_JOINTURESIMPRESSIONS
+    req = "DELETE " TBL_JOINTURESIMPRESSIONS
     " FROM " TBL_JOINTURESIMPRESSIONS
     " LEFT OUTER JOIN ( "
             "SELECT MIN(" CP_ID_JOINTURESIMPRESSIONS ") as " CP_ID_JOINTURESIMPRESSIONS " , " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS
@@ -1316,7 +1320,17 @@ void DataBase::NettoieJointures()
             " GROUP BY " CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS ", " CP_IDDOCUMENT_JOINTURESIMPRESSIONS
             ") AS table_1"
     " ON " TBL_JOINTURESIMPRESSIONS "." CP_ID_JOINTURESIMPRESSIONS " = table_1." CP_ID_JOINTURESIMPRESSIONS
-    " WHERE table_1." CP_ID_JOINTURESIMPRESSIONS " IS NULL");
+    " WHERE table_1." CP_ID_JOINTURESIMPRESSIONS " IS NULL";
+    StandardSQL(req);
+
+    // suppressiosn des jointures correspondant à des documents privés contenus dans des dossiers publics
+    req = "delete  from " TBL_JOINTURESIMPRESSIONS " where "
+                CP_IDMETADOCUMENT_JOINTURESIMPRESSIONS  " in "
+                "(select " CP_ID_DOSSIERIMPRESSIONS " from "  TBL_DOSSIERSIMPRESSIONS " where " CP_PUBLIC_DOSSIERIMPRESSIONS " is not null)"
+                " and " CP_IDDOCUMENT_JOINTURESIMPRESSIONS " in "
+                "(select " CP_ID_IMPRESSIONS " from  " TBL_IMPRESSIONS " where " CP_DOCPUBLIC_IMPRESSIONS " is null)";
+    //qDebug() << req;
+    StandardSQL(req);
 }
 
 
@@ -1548,7 +1562,7 @@ QStringList DataBase::ListeRubriquesFiscales()
 int DataBase::GetidRubriqueFiscale(Depense *dep)
 {
     QString req = "SELECT idRubrique FROM " TBL_RUBRIQUES2035 " where "  CP_REFFISCALE_2035 " = '" + Utils::correctquoteSQL(dep->rubriquefiscale()) + "'";
-    qDebug() << req;
+    //qDebug() << req;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
         return 0;

@@ -82,6 +82,7 @@ private:
     UpStandardItemModel         *m_docsmodel = Q_NULLPTR;
     QString                     m_textdocdelegate = "";
     QString                     m_textdossierdelegate = "";
+    QMenu                       *m_menucontextuel_doc = Q_NULLPTR;
 
     bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);

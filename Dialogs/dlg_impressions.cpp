@@ -126,7 +126,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->ALDcheckBox->setChecked(m_currentpatient->isald());
 
     // supprime les jointures inutilisées
-    db->NettoieJointures();
+    db->NettoieJointuresDossiersImpressions();
 
     Remplir_TableView();
     if (m_docsmodel->rowCount() == 0)
@@ -659,34 +659,40 @@ void dlg_impressions::MenuContextuelDocuments()
     m_currentdocument = getDocumentFromIndex(idx);
     if (!m_currentdocument)
         return;
-    QMenu menucontextuel;
+    if (m_menucontextuel_doc == Q_NULLPTR)
+        m_menucontextuel_doc= new QMenu(this);
+    else
+        m_menucontextuel_doc->clear();
     QAction *pAction_ModifDoc;
     QAction *pAction_SupprDoc;
     QAction *pAction_CreerDoc;
-    QAction *pAction_PublicDoc;
+    QAction *pAction_PublicDoc = Q_NULLPTR;
     QAction *pAction_EditableDoc;
     QAction *pAction_AdminDoc;
     QAction *pAction_RecopierDoc;
     if (m_currentdocument->iduser() == currentuser()->id())
     {
-        pAction_ModifDoc                = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce document"));
-        pAction_SupprDoc                = menucontextuel.addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
+        pAction_ModifDoc                = m_menucontextuel_doc->addAction(Icons::icEditer(), tr("Modifier ce document"));
+        pAction_SupprDoc                = m_menucontextuel_doc->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
         connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Modifier");});
         connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Supprimer");});
     }
-    pAction_CreerDoc                = menucontextuel.addAction(Icons::icCreer(), tr("Créer un document"));
+    pAction_CreerDoc                = m_menucontextuel_doc->addAction(Icons::icCreer(), tr("Créer un document"));
     if (m_currentdocument->iduser() == currentuser()->id())
     {
         if (m_currentdocument->ispublic())
-            pAction_PublicDoc           = menucontextuel.addAction(tr("Privé"));
+        {
+            pAction_PublicDoc       = m_menucontextuel_doc->addAction(tr("Privé"));
+            pAction_PublicDoc       ->setEnabled(VerifDocumentPublic(m_currentdocument,false));
+        }
         else
-            pAction_PublicDoc           = menucontextuel.addAction(tr("Public"));
+            pAction_PublicDoc       = m_menucontextuel_doc->addAction(tr("Public"));
         connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Public");});
-        pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
+        pAction_PublicDoc       ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
         if (!m_currentdocument->iseditable())
-            pAction_EditableDoc         = menucontextuel.addAction(tr("Editable"));
+            pAction_EditableDoc         = m_menucontextuel_doc->addAction(tr("Editable"));
         else
-            pAction_EditableDoc         = menucontextuel.addAction(tr("Non modifiable"));
+            pAction_EditableDoc         = m_menucontextuel_doc->addAction(tr("Non modifiable"));
         pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
         connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Editable");});
         if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
@@ -694,29 +700,29 @@ void dlg_impressions::MenuContextuelDocuments()
             /*!
         QAction *pAction_PrescripDoc;
         if (m_currentdocument->isprescription())
-            pAction_PrescripDoc         = menucontextuel.addAction(tr("Prescription"));
+            pAction_PrescripDoc         = m_menucontextuel_doc->addAction(tr("Prescription"));
         else
-            pAction_PrescripDoc         = menucontextuel.addAction(Icons::icBlackCheck(), tr("Prescription"));
+            pAction_PrescripDoc         = m_menucontextuel_doc->addAction(Icons::icBlackCheck(), tr("Prescription"));
         connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Prescription");});
         pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
         */
             if (!m_currentdocument->ismedical())
-                pAction_AdminDoc            = menucontextuel.addAction(tr("Document médical"));
+                pAction_AdminDoc            = m_menucontextuel_doc->addAction(tr("Document médical"));
             else
-                pAction_AdminDoc            = menucontextuel.addAction(tr("Document administratif"));
+                pAction_AdminDoc            = m_menucontextuel_doc->addAction(tr("Document administratif"));
             connect (pAction_AdminDoc,  &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Administratif");});
         }
     }
     if (m_currentdocument->iduser() != currentuser()->id())
     {
-        pAction_RecopierDoc           = menucontextuel.addAction(Icons::icCopy(), tr("Recopier ce document"));
+        pAction_RecopierDoc           = m_menucontextuel_doc->addAction(Icons::icCopy(), tr("Recopier ce document"));
         pAction_RecopierDoc ->setToolTip(tr("Recopier ce document dans sa propre collection de documents"));
         connect (pAction_RecopierDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Recopier");});
     }
     connect (pAction_CreerDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Creer");});
 
     // ouvrir le menu
-    menucontextuel.exec(cursor().pos());
+    m_menucontextuel_doc->exec(cursor().pos());
 }
 
 void dlg_impressions::MenuContextuelDossiers()
@@ -977,14 +983,18 @@ void dlg_impressions::ChoixMenuContextuelDocument(QString choix)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,2));
         if (itm)
         {
-            if(itm->data(Qt::DecorationRole) == QPixmap())
+            ItemsList::update(m_currentdocument, CP_DOCPUBLIC_IMPRESSIONS,m_currentdocument->ispublic()? false:true);
+            if(m_currentdocument->ispublic())
+            {
                 itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+                if (m_menucontextuel_doc != Q_NULLPTR)
+                    if (m_menucontextuel_doc->activeAction() != Q_NULLPTR)
+                        m_menucontextuel_doc->activeAction()->setEnabled(VerifDocumentPublic(m_currentdocument,false));
+            }
             else
                 itm->setData(QPixmap(),Qt::DecorationRole);
-            if (m_mode == Selection)
-                ItemsList::update(m_currentdocument, CP_DOCPUBLIC_IMPRESSIONS,itm->data(Qt::DecorationRole) != QPixmap());
         }
-        ui->DocPubliccheckBox->toggle();
+        ui->DocPubliccheckBox->setChecked(m_currentdocument->ispublic());
     }
     else if (choix  == "Editable")
     {
@@ -1764,14 +1774,13 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
         doc = getDocumentFromIndex(m_docsmodel->index(row,0));
         if (doc)
         {
-            for (auto itimpr = Datas::I()->impressions->impressions()->begin(); itimpr != Datas::I()->impressions->impressions()->end();)
+            for (auto itimpr = Datas::I()->impressions->impressions()->begin(); itimpr != Datas::I()->impressions->impressions()->end(); ++itimpr)
             {
                 if (itimpr.value()->resume().toUpper() == str.toUpper() && itimpr.value()->iduser()  == currentuser()->id() && itimpr.value()->id() != doc->id())
                 {
                     UpMessageBox::Watch(this,tr("Vous avez déjà créé un document portant ce nom"));
                     return true;
                 }
-                ++ itimpr;
             }
         }
     }
@@ -1779,14 +1788,13 @@ bool dlg_impressions::ChercheDoublon(QString str, int row)
         dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
         if (dossier)
         {
-            for (auto itdoss = Datas::I()->metadocuments->dossiersimpressions()->begin(); itdoss != Datas::I()->metadocuments->dossiersimpressions()->end();)
+            for (auto itdoss = Datas::I()->metadocuments->dossiersimpressions()->begin(); itdoss != Datas::I()->metadocuments->dossiersimpressions()->end(); ++itdoss)
             {
                 if (itdoss.value()->resume().toUpper() == str.toUpper() && itdoss.value()->iduser()  == currentuser()->id() && itdoss.value()->id() != dossier->id())
                 {
                     UpMessageBox::Watch(this,tr("Vous avez déjà créé un dossier portant ce nom"));
                     return true;
                 }
-                ++ itdoss;
             }
         }
     }
@@ -1947,7 +1955,7 @@ void dlg_impressions::ConfigMode(Mode mode)
     {
         if (!m_currentdocument)
             return;
-         DisableLines();
+        DisableLines();
         ui->upTextEdit->setText(m_currentdocument->texte());
 
         ui->DocsupTableView->setEnabled(true);
@@ -1957,8 +1965,8 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->textFrame->setEnabled(true);
         ui->Expliclabel->setText(tr("DOCUMENTS - MODIFICATION"));
-
-        ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(m_currentdocument,false));
+        if (!m_currentdocument->ispublic())
+            ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(m_currentdocument,false));
         ui->DocPubliccheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit visible par tous les utilisateurs"));
 
         ui->DocEditcheckBox->setEnabled(true);
@@ -3345,7 +3353,6 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
                 row = m_docsmodel->rowCount()-1;
             if(m_docsmodel->rowCount()>0)
             {
-                qDebug() << "row suppr" << row;
                 Remplir_TableView();
                 doc = getDocumentFromIndex(m_docsmodel->index(row,0));
                 if (doc)
@@ -3402,18 +3409,28 @@ bool dlg_impressions::VerifDocumentPublic(Impression *doc, bool msg)
 {
     if (!doc)
         return false;
-    for (auto itdossier = Datas::I()->metadocuments->dossiersimpressions()->begin(); itdossier != Datas::I()->metadocuments->dossiersimpressions()->end();)
+    for (auto itdossier = Datas::I()->metadocuments->dossiersimpressions()->begin(); itdossier != Datas::I()->metadocuments->dossiersimpressions()->end(); ++itdossier)
     {
         DossierImpression *dossier = itdossier.value();
         if (dossier)
-        if (!dossier->haslistdocsloaded())
-            Datas::I()->metadocuments->loadlistedocs(dossier);
-        if (dossier->listiddocs().contains(doc->id()))
         {
-            if (msg)
-                UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre privé ce document"), tr("Il est incorporé dans le dossier public\n- ") + dossier->resume() +
-                             tr(" -\nVous devez d'abord rendre ce dossier privé!"));
-            return false;
+            if (dossier->ispublic() && dossier->iduser() == currentuser()->id())
+            {
+                if (!dossier->haslistdocsloaded())
+                    Datas::I()->metadocuments->loadlistedocs(dossier);
+                if (dossier->listiddocs().contains(doc->id()))
+                {
+//                    for (int i=0; i<dossier->listiddocs().size(); ++i) {
+//                        Impression *  impr = Datas::I()->impressions->getById(dossier->listiddocs().at(i));
+//                        if (impr)
+//                            qDebug() << impr->id() << impr->resume() << dossier->resume();
+//                    }
+                    if (msg)
+                        UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre privé ce document"), tr("Il est incorporé dans le dossier public\n- ") + dossier->resume() +
+                                            tr(" -\nVous devez d'abord rendre ce dossier privé!"));
+                    return false;
+                }
+            }
         }
     }
     return true;

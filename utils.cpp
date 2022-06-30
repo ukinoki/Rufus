@@ -1119,7 +1119,7 @@ void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString m
         timetowaitms= int (datas.size()*8*1000 / baud);
         timetowaitms += 10;
     }
-    qDebug() << msgdebug << "timetowaitms" << timetowaitms;
+    //qDebug() << msgdebug << "timetowaitms" << timetowaitms;
     port->write(datas);
     port->flush();
     port->waitForBytesWritten(timetowaitms);

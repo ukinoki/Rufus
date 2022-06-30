@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-06-2022/1");
+    qApp->setApplicationVersion("30-06-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1983,7 +1983,7 @@ void Rufus::ExporteDocs()
             */
             if (!pix.save(CheminOKTransfrProv, "jpeg"))
             {
-                qDebug() << "erreur";
+                //qDebug() << "erreur";
                 return;
             }
             if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
@@ -2213,7 +2213,7 @@ void Rufus::ExporteDocs()
         */
             if (!pix.save(CheminOKTransfrProv, "jpeg"))
             {
-                qDebug() << "erreur";
+                //qDebug() << "erreur";
                 return;
             }
             if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))

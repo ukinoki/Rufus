@@ -370,13 +370,13 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + "/Serveur").toString());
         ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+        QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         if (dir == "")
         {
             dir = "/etc/mysql";
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dir);
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
         }
-        ui->DossierClesSSLupLineEdit    ->setText(proc->settings()->value(Base + "/DossierClesSSL").toString());
+        ui->DossierClesSSLupLineEdit    ->setText(proc->settings()->value(Base + Dossier_ClesSSL).toString());
         ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
     }
 
@@ -1878,19 +1878,19 @@ void dlg_param::DirPosteStockage()
 
 void dlg_param::DossierClesSSL()
 {
-    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
     if (dir == "" || !QDir(dir).exists())
     {
         dir = "/etc/mysql";
         ui->DossierClesSSLupLineEdit->setText(dir);
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", dir);
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
         return;
     }
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
     if (url == QUrl())
         return;
     ui->DossierClesSSLupLineEdit->setText(url.path());
-    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL", url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
 }
 
 void dlg_param::EffaceProgrammationDataBackup()
@@ -2333,7 +2333,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
         anc         = dlg_askMDP->findChild<UpLineEdit*>(m_ancienMDP)->text();
         nouv        = dlg_askMDP->findChild<UpLineEdit*>(m_nouveauMDP)->text();
         confirm     = dlg_askMDP->findChild<UpLineEdit*>(m_confirmeMDP)->text();
-        qDebug() << anc << nouv << confirm;
+        //qDebug() << anc << nouv << confirm;
 
         if (anc == "")
         {

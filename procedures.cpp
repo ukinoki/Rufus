@@ -738,10 +738,10 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     QString keys = "";
     if (useSSL)
     {
-        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString() != "")
-            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL").toString();
+        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString() != "")
+            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         else
-            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierClesSSL",dirkey);
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
     for (int i=0; i<ListNomFiles.size(); i++)

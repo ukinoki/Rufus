@@ -1066,4 +1066,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_Poste_Tono                                "Param_Poste/Tonometre"
 #define Param_Poste_Refracteur                          "Param_Poste/Refracteur"
 
+#define Dossier_ClesSSL                                 "/DossierClesSSL"
+
 #endif // MACROS_H
