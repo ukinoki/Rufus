@@ -31,7 +31,7 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    restoreGeometry(proc->settings()->value("PositionsFiches/PositionRemiseCheques").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche "RemiseCheques").toByteArray());
 
     connect (ui->AnnulupPushButton,                         &QPushButton::clicked,                  this,   &dlg_remisecheques::AnnulupPushButton);
     connect (ui->ListeChequesupTableWidget,                 &QTableWidget::cellEntered,             this,   &dlg_remisecheques::ToolTip);
@@ -784,7 +784,7 @@ void dlg_remisecheques::keyPressEvent ( QKeyEvent * event )
 
 void dlg_remisecheques::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue("PositionsFiches/PositionRemiseCheques", saveGeometry());
+    proc->settings()->setValue(Position_Fiche "RemiseCheques", saveGeometry());
     event->accept();
 }
 

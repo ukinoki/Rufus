@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsscanner.h"
 
 dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionDocsScanner", parent)
+    UpDialog(PATH_FILE_INI, Position_Fiche "DocsScanner", parent)
 {
     m_mode           = mode;
     if ( m_mode == Document)
@@ -51,7 +51,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         return;
     }
 
-    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocsScannes").toString();
+    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_DocsScannes).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_uptable         = new UpTableWidget(this);
@@ -244,7 +244,7 @@ void dlg_docsscanner::ChangeFile()
         font.setPointSize(12);
         wdg_inflabel->setFont(font);
         wdg_inflabel    ->setGeometry(10,wdg_uptable->viewport()->height()-40,350,25);
-        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocsScannes", m_docpath);
+        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_DocsScannes, m_docpath);
     }
 }
 

@@ -35,7 +35,7 @@ dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
     Init_variables();
     ConnectSignals();
 
-    restoreGeometry(proc->settings()->value("PositionsFiches/PositionRefraction").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche "Refraction").toByteArray());
     //!> Recherche si Mesure en cours et affichage - la fiche a été appelée par un instrument de mesure
     if (m_modeouverture == Auto)
         AfficheMesureRefracteur();
@@ -61,7 +61,7 @@ void dlg_refraction::closeEvent(QCloseEvent *)
             accept();
         else
             reject();
-        proc->settings()->setValue("PositionsFiches/PositionRefraction", saveGeometry());
+        proc->settings()->setValue(Position_Fiche "Refraction", saveGeometry());
     }
 }
 
@@ -1438,7 +1438,7 @@ int     dlg_refraction::idrefraction() const
 bool    dlg_refraction::Imprimer_Ordonnance()
 {
     QString Corps, Entete, Pied;
-    bool AvecDupli   = (proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
+    bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = false;
 

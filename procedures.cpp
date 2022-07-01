@@ -66,21 +66,21 @@ Procedures::Procedures(QObject *parent) :
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QSet<int> ports = QSet<int>::fromList(QList<int>() << 3306 << 3307);
     bool k =    (
-                  m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
+                  m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Active).toString() == "YES"
                   &&
-                  ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt()) != ports.end() )
+                  ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Port).toInt()) != ports.end() )
                 )
                 ||
                 (
-                  m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
-                  && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
-                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt()) != ports.end() )
+                  m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Active).toString() == "YES"
+                  && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Serveur).toString() != ""
+                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Port).toInt()) != ports.end() )
                 )
                 ||
                 (
-                  m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
-                  && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
-                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt()) != ports.end() )
+                  m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Active).toString() == "YES"
+                  && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Serveur).toString() != ""
+                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt()) != ports.end() )
                 );
     if (!k)
     {
@@ -144,7 +144,7 @@ QMap<Utils::Period, QDate> Procedures::ChoixDate(QWidget *parent)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::pathDossierDocuments(QString Appareil, Utils::ModeAcces mode)
 {
-    QString cle = Utils::getBaseFromMode( mode ) + "/DossiersDocuments/" + Appareil;
+    QString cle = Utils::getBaseFromMode( mode ) + Dossier_Documents + Appareil;
     QString dossier = m_settings->value(cle).toString();
     return dossier;
 }
@@ -729,7 +729,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
     else
-        host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
+        host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
     bool useSSL = (db->ModeAccesDataBase() == Utils::Distant);
     QString login = LOGIN_SQL;
     if (useSSL)
@@ -1487,7 +1487,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)
 {
     QString         rep("");
-    QString         geometry("PositionsFiches/PositionEdit");
+    QString         geometry(Position_Fiche "Edit");
     UpDialog        *gAsk           = new UpDialog();
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     QList<QScreen*> listscreens = QGuiApplication::screens();
@@ -1814,13 +1814,13 @@ void Procedures::Print(QPrinter *Imprimante, QImage image)
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::ApercuAvantImpression()
 {
-    return (m_settings->value("Param_Imprimante/ApercuAvantImpression").toString() == "YES");
+    return (m_settings->value(Imprimante_ApercuAvantImpression).toString() == "YES");
 }
 
 QString Procedures::CodePostalParDefaut()
 {
     QSettings set(PATH_FILE_INI, QSettings::IniFormat);
-    return set.value("Param_Poste/CodePostalParDefaut").toString();
+    return set.value(CodePostal_Defaut).toString();
 }
 
 QString Procedures::SessionStatus()
@@ -1983,7 +1983,7 @@ QString Procedures::AbsolutePathDirImagerie()
     if (db->ModeAccesDataBase() == Utils::Poste)
         path = m_parametres->dirimagerieserveur();
     else
-        path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossierImagerie").toString();
+        path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
     return path;
 }
 
@@ -2066,40 +2066,40 @@ QString Procedures::nomImprimante()
 
 int Procedures::TailleEnTete()
 {
-    return m_settings->value("Param_Imprimante/TailleEnTete").toInt();
+    return m_settings->value(Imprimante_TailleEnTete).toInt();
 }
 
 int Procedures::TailleEnTeteALD()
 {
-    return m_settings->value("Param_Imprimante/TailleEnTeteALD").toInt();
+    return m_settings->value(Imprimante_TailleEnTeteALD).toInt();
 }
 
 int Procedures::TaillePieddePage()
 {
-    return m_settings->value("Param_Imprimante/TaillePieddePage").toInt();
+    return m_settings->value(Imprimante_TaillePieddePage).toInt();
 }
 
 int Procedures::TaillePieddePageOrdoLunettes()
 {
-    return m_settings->value("Param_Imprimante/TaillePieddePageOrdoLunettes").toInt();
+    return m_settings->value(Imprimante_TaillePieddePageOrdoLunettes).toInt();
 }
 
 int Procedures::TailleTopMarge()
 {
-    return m_settings->value("Param_Imprimante/TailleTopMarge").toInt();
+    return m_settings->value(Imprimante_TailleTopMarge).toInt();
 }
 
 QString Procedures::VilleParDefaut()
 {
     QSettings set(PATH_FILE_INI, QSettings::IniFormat);
-    return set.value("Param_Poste/VilleParDefaut").toString();
+    return set.value(Ville_Defaut).toString();
 }
 
 void Procedures::setPosteImportDocs(bool a)
 {
     /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
     * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
-    * if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")
+    * if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
 
     * si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
     * si a = false, on retire le poste en cours et on met NULL à la place. */
@@ -2113,7 +2113,7 @@ void Procedures::setPosteImportDocs(bool a)
     QString IpAdress("NULL");
     if (a)
     {
-        if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() ==  "YES")
+        if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
             IpAdress = QHostInfo::localHostName() + " - prioritaire" ;
         else
             IpAdress = QHostInfo::localHostName();
@@ -2292,7 +2292,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (db->ModeAccesDataBase() == Utils::Poste)
             Hote = tr("ce poste");
         else
-            Hote = tr("le serveur ") + m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
+            Hote = tr("le serveur ") + m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
         msgbox.setInformativeText(tr("Vous avez choisi de créer une base vierge sur ") + Hote + "\n" +
                                   tr("Si une base de données Rufus existe sur ce serveur, "
                                      "elle sera définitivement effacée pour être remplacée par cette base vierge.\n"
@@ -2826,11 +2826,11 @@ bool Procedures::VerifBaseEtRessources()
         }
     }
     //verification des fichiers ressources
-    if (m_settings->value("Param_Poste/VersionRessources").toInt() < VERSION_RESSOURCES)
+    if (m_settings->value(Poste_VersionRessources).toInt() < VERSION_RESSOURCES)
     {
         PremierParametrageRessources();
-        m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
-        m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
+        m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
+        m_settings->setValue(Poste_VersionRessources, VERSION_RESSOURCES);
         ShowMessage::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
     }
     return true;
@@ -2839,16 +2839,16 @@ bool Procedures::VerifBaseEtRessources()
 
 void Procedures::ReconstruitListeModesAcces()
 {
-    if ( m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Active").toString() == "YES"
-       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + "/Port").toInt() == 3307) )
+    if ( m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Active).toString() == "YES"
+       && (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Port).toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Port).toInt() == 3307) )
         m_listemodesacces << Utils::Poste;
-    if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Active").toString() == "YES"
-       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Serveur").toString() != ""
-       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/Port").toInt() == 3307) )
+    if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Active).toString() == "YES"
+       && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Serveur).toString() != ""
+       && (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Port).toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Port).toInt() == 3307) )
         m_listemodesacces <<  Utils::ReseauLocal;
-    if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Active").toString() == "YES"
-       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Serveur").toString() != ""
-       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + "/Port").toInt() == 3307) )
+    if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Active).toString() == "YES"
+       && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Serveur).toString() != ""
+       && (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt() == 3306 || m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt() == 3307) )
         m_listemodesacces << Utils::Distant;
 }
 
@@ -2908,9 +2908,9 @@ bool Procedures::Connexion_A_La_Base()
     if( db->ModeAccesDataBase() == Utils::Poste )
         server = "localhost";
     else
-        server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString();
+        server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
-    int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Port").toInt();
+    int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
 
     db->initParametresConnexionSQL(server, port);
     if (!IdentificationUser())
@@ -3029,9 +3029,9 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     currentuser()->setidcomptable(idusr);
     currentuser()->setidparent(idusr);
     // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
-    req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = null";
+    req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = 1";
     db->StandardSQL (req);
-    req = "update " TBL_DOSSIERSIMPRESSIONS " set " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(idusr) + ", " CP_PUBLIC_DOSSIERIMPRESSIONS " = null";
+    req = "update " TBL_DOSSIERSIMPRESSIONS " set " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(idusr) + ", " CP_PUBLIC_DOSSIERIMPRESSIONS " = 1";
     db->StandardSQL (req);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été créé"),
@@ -3062,8 +3062,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         }
         delete Dlg_GestUsr;
     }
-    m_settings->setValue("Param_Poste/VilleParDefaut","Flayat");
-    m_settings->setValue("Param_Poste/CodePostalParDefaut","23260");
+    m_settings->setValue(Ville_Defaut,"Flayat");
+    m_settings->setValue(CodePostal_Defaut,"23260");
     m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
@@ -3292,10 +3292,10 @@ QString Procedures::DefinitDossierImagerie()
         path = db->parametres()->dirimagerieserveur();
         break;
     case Utils::ReseauLocal:
-        path = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
+        path = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
         break;
     case Utils::Distant:
-        path = settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
+        path = settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
     }
     return path;
 }
@@ -3886,7 +3886,7 @@ bool Procedures::PremierDemarrage()
              if (!RestaureBase(true, true))
                 return false;
              if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/Serveur").toString());
+                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString());
              else
                  db->setdirimagerie(PATH_DIR_IMAGERIE);
              m_parametres = db->parametres();
@@ -3912,12 +3912,12 @@ bool Procedures::PremierDemarrage()
 -----------------------------------------------------------------------------------------------------------------*/
 void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
 {
-    m_settings->setValue("Param_Imprimante/TailleEnTete","45");
-    m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
-    m_settings->setValue("Param_Imprimante/TaillePieddePage","20");
-    m_settings->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes","40");
-    m_settings->setValue("Param_Imprimante/TailleTopMarge","3");
-    m_settings->setValue("Param_Imprimante/ApercuAvantImpression","NO");
+    m_settings->setValue(Imprimante_TailleEnTete,"45");
+    m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
+    m_settings->setValue(Imprimante_TaillePieddePage,"20");
+    m_settings->setValue(Imprimante_TaillePieddePageOrdoLunettes,"40");
+    m_settings->setValue(Imprimante_TailleTopMarge,"3");
+    m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
     m_settings->setValue("PyxInterf/PyxvitalPath", QDir::homePath() + "/Documents/Pyxvital");
     m_settings->setValue(Param_Poste_Autoref,"-");
     m_settings->setValue(Param_Poste_Refracteur,"-");
@@ -3927,11 +3927,11 @@ void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
     m_settings->setValue(Param_Poste_PortRefracteur,"-");
     m_settings->setValue(Param_Poste_PortFronto,"-");
     m_settings->setValue(Param_Poste_PortTono,"-");
-    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
-    m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
+    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NO");
+    m_settings->setValue(Poste_VersionRessources, VERSION_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGERIE);
     QString NomDirImg = (modifdirimagerie? PATH_DIR_IMAGERIE : db->parametres()->dirimagerieserveur());
-    m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", NomDirImg);
+    m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, NomDirImg);
     if (modifdirimagerie)
         db->setdirimagerie(NomDirImg);
 }
@@ -4008,7 +4008,7 @@ void Procedures::PremierParametrageRessources()
                        | QFileDevice::ReadGroup | QFileDevice::WriteGroup
                        | QFileDevice::ReadOwner | QFileDevice::WriteOwner
                        | QFileDevice::ReadUser  | QFileDevice::WriteUser);
-    m_settings->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
+    m_settings->setValue(Poste_VersionRessources,VERSION_RESSOURCES);
  }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -4098,17 +4098,17 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         else if (Dlg_ParamConnex->ui->LocalradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::ReseauLocal);
-            m_settings->setValue(Base + "/Serveur",   Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
+            m_settings->setValue(Base + Param_Serveur,   Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
             db->setModeacces(Utils::ReseauLocal);
         }
         else if (Dlg_ParamConnex->ui->DistantradioButton->isChecked())
         {
             Base = Utils::getBaseFromMode(Utils::Distant);
-            m_settings->setValue(Base + "/Serveur",    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
+            m_settings->setValue(Base + Param_Serveur,    Utils::calcIP(Dlg_ParamConnex->ui->IPlineEdit->text(), false));
             db->setModeacces(Utils::Distant);
         }
-        m_settings->setValue(Base + "/Active",    "YES");
-        m_settings->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
+        m_settings->setValue(Base + Param_Active,    "YES");
+        m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
         m_connexionbaseOK = true;
         MDP = Dlg_ParamConnex->ui->MDPlineEdit->text();

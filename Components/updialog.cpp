@@ -23,7 +23,7 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
     m_enregistreposition    = true;
     m_position              = NomPosition;
     m_nomfichierini         = NomSettings;
-    m_settings              = new QSettings(m_nomfichierini, QSettings::IniFormat);
+    m_settings              = new QSettings(m_nomfichierini, QSettings::IniFormat, this);
     restoreGeometry(m_settings->value(m_position).toByteArray());
     AjouteLay();
     setStageCount(0);

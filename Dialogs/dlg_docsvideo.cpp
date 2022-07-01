@@ -24,7 +24,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     m_currentpatient = pat;
     setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
 
-    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersVideos").toString();
+    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_visuvideowdg          = new QVideoWidget(this);
@@ -159,7 +159,7 @@ void dlg_docsvideo::ChangeFile()
         wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
-        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersVideos", m_docpath);
+        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos, m_docpath);
     }
 }
 

@@ -31,7 +31,7 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
 
     m_currentact= acte;
 
-    restoreGeometry(proc->settings()->value("PositionsFiches/PositionBilanOrtho").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche "BilanOrtho").toByteArray());
 
     XELlist << "-";
     XELlist << "Xt";
@@ -659,7 +659,7 @@ void    dlg_bilanortho::AfficheCombobox(int i, QWidget *widg)
 
 void dlg_bilanortho::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue("PositionsFiches/PositionBilanOrtho", saveGeometry());
+    proc->settings()->setValue(Position_Fiche "BilanOrtho", saveGeometry());
     event->accept();
 }
 

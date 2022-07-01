@@ -267,11 +267,11 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_villeCP   ->move(15,10);
        wdg_villeCP->ui->CPlabel      ->setText(tr("Code postal par défaut"));
        wdg_villeCP->ui->Villelabel   ->setText(tr("Ville par défaut"));
-       wdg_VilleDefautlineEdit                 ->setText(proc->settings()->value("Param_Poste/VilleParDefaut").toString());
-       wdg_CPDefautlineEdit                    ->completer()->setCurrentRow(proc->settings()->value("Param_Poste/CodePostalParDefaut").toInt());
+       wdg_VilleDefautlineEdit                 ->setText(proc->settings()->value(Ville_Defaut).toString());
+       wdg_CPDefautlineEdit                    ->completer()->setCurrentRow(proc->settings()->value(CodePostal_Defaut).toInt());
        // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
        // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-       wdg_CPDefautlineEdit                    ->setText(proc->settings()->value("Param_Poste/CodePostalParDefaut").toString());
+       wdg_CPDefautlineEdit                    ->setText(proc->settings()->value(CodePostal_Defaut).toString());
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
@@ -325,7 +325,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     QString Base;
     Base = Utils::getBaseFromMode(Utils::Poste);
-    a = (proc->settings()->value(Base + "/Active").toString() == "YES");
+    a = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
     ui->MonoConnexionupLabel        ->setVisible(a);
@@ -337,11 +337,11 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->PosteStockageupLabel        ->setVisible(poste);
         ui->PosteStockageupLineEdit     ->setVisible(poste);
         ui->PosteStockageupPushButton   ->setVisible(poste);
-        ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
+        ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
         ui->PosteStockageupLineEdit     ->setText(m_parametres->dirimagerieserveur());
     }
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);
-    b = (proc->settings()->value(Base + "/Active").toString() == "YES");
+    b = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->LocalServcheckBox               ->setChecked(b);
     ui->Localframe                      ->setVisible(b);
     ui->LocalConnexionupLabel           ->setVisible(b);
@@ -352,12 +352,12 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->LocalPathStockageupPushButton   ->setVisible(b);
     if (b)
     {
-        ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + "/Serveur").toString());
-        ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
-        ui->LocalPathStockageupLineEdit ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString());
+        ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + Param_Serveur).toString());
+        ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
+        ui->LocalPathStockageupLineEdit ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString());
     }
     Base = Utils::getBaseFromMode(Utils::Distant);
-    c = (proc->settings()->value(Base + "/Active").toString() == "YES");
+    c = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->DistantServcheckBox         ->setChecked(c);
     ui->Distantframe                ->setVisible(c);
     ui->DistantConnexionupLabel     ->setVisible(c);
@@ -368,8 +368,8 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DistantStockageupPushButton ->setVisible(c);
     if (c)
     {
-        ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + "/Serveur").toString());
-        ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + "/Port").toString());
+        ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + Param_Serveur).toString());
+        ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
         QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         if (dir == "")
         {
@@ -377,7 +377,7 @@ dlg_param::dlg_param(QWidget *parent) :
             proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
         }
         ui->DossierClesSSLupLineEdit    ->setText(proc->settings()->value(Base + Dossier_ClesSSL).toString());
-        ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString());
+        ui->DistantStockageupLineEdit   ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString());
     }
 
     if (db->ModeAccesDataBase() == (Utils::Poste))
@@ -389,14 +389,14 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->ParamtabWidget->setCurrentIndex(0);
 
-    ui->EntetespinBox->setValue(proc->settings()->value("Param_Imprimante/TailleEnTete").toInt());
-    ui->EnteteALDspinBox->setValue(proc->settings()->value("Param_Imprimante/TailleEnTeteALD").toInt());
-    ui->PiedDePagespinBox->setValue(proc->settings()->value("Param_Imprimante/TaillePieddePage").toInt());
-    ui->PiedDePageOrdoLunettesspinBox->setValue(proc->settings()->value("Param_Imprimante/TaillePieddePageOrdoLunettes").toInt());
-    ui->TopMargespinBox->setValue(proc->settings()->value("Param_Imprimante/TailleTopMarge").toInt());
-    ui->ApercuImpressioncheckBox->setChecked(proc->settings()->value("Param_Imprimante/ApercuAvantImpression").toString() ==  "YES");
-    ui->OrdoAvecDuplicheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() ==  "YES");
-    QString A = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString();
+    ui->EntetespinBox->setValue(proc->settings()->value(Imprimante_TailleEnTete).toInt());
+    ui->EnteteALDspinBox->setValue(proc->settings()->value(Imprimante_TailleEnTeteALD).toInt());
+    ui->PiedDePagespinBox->setValue(proc->settings()->value(Imprimante_TaillePieddePage).toInt());
+    ui->PiedDePageOrdoLunettesspinBox->setValue(proc->settings()->value(Imprimante_TaillePieddePageOrdoLunettes).toInt());
+    ui->TopMargespinBox->setValue(proc->settings()->value(Imprimante_TailleTopMarge).toInt());
+    ui->ApercuImpressioncheckBox->setChecked(proc->settings()->value(Imprimante_ApercuAvantImpression).toString() ==  "YES");
+    ui->OrdoAvecDuplicheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() ==  "YES");
+    QString A = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
     if (A=="YES")
         ui->PrioritaireImportDocscheckBox->setChecked(true);
     else if (A=="NO")
@@ -404,7 +404,7 @@ dlg_param::dlg_param(QWidget *parent) :
     else
     {
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NORM");
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NORM");
     }
     t_timerverifimportdocs.start(500);
     connect (&t_timerverifimportdocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
@@ -652,7 +652,7 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
             line->setText(url.path());
         break;
     }
-    proc->settings()->setValue(Utils::getBaseFromMode(mode) + "/DossiersDocuments/" + exam, url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(mode) + Dossier_Documents + exam, url.path());
 }
 
 
@@ -690,7 +690,7 @@ void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
     if (ok && appdata.size()>0)
         app = appdata.at(0).toString();
     if (app != "")
-        proc->settings()->setValue(Utils::getBaseFromMode(mode) + "/DossiersDocuments/" + app, dir);
+        proc->settings()->setValue(Utils::getBaseFromMode(mode) + Dossier_Documents + app, dir);
     else
         UpMessageBox::Watch(this,tr("Impossible de retrouver le nom de l'appareil"));
 
@@ -743,7 +743,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_param::ChoixFontpushButtonClicked()
 {
-    dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, "PositionsFiches/PositionFontDialog");
+    dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, Position_Fiche "FontDialog");
     Dlg_Fonts->setFont(qApp->font());
     Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
@@ -1381,7 +1381,7 @@ void dlg_param::SupprAppareil()
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
               + " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
         db->StandardSQL(req);
-        proc->settings()->remove(Utils::getBaseFromMode(db->ModeAccesDataBase()) + "/DossiersDocuments/" + appdata.at(1).toString());
+        proc->settings()->remove(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Documents + appdata.at(1).toString());
         Remplir_Tables();
     }
 }
@@ -1716,6 +1716,8 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
         if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = PATH_DIR_FRONTO;
+        if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
@@ -1726,7 +1728,9 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         break;
     case Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
-        if (pathappareil == "")
+        if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = PATH_DIR_AUTOREF;
+        if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
@@ -1738,6 +1742,8 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Refracteur:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
         if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = PATH_DIR_REFRACTEUR_OUT;
+        if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
@@ -1749,6 +1755,8 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Tono:
         pathappareil = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
         if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = PATH_DIR_TONO;
+        if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
@@ -1773,6 +1781,8 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
     case Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
         if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = PATH_DIR_REFRACTEUR_FRONTOIN;
+        if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
@@ -1784,6 +1794,8 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
     case Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
         if (pathappareil == "" || !QDir(pathappareil).exists())
+            pathappareil = PATH_DIR_REFRACTEUR_AUTOREFIN;
+        if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
@@ -1831,14 +1843,14 @@ void dlg_param::DirLocalStockage()
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
-    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie").toString();
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
     if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
     if (url == QUrl())
         return;
     ui->LocalPathStockageupLineEdit->setText(url.path());
-    proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/DossierImagerie", url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie, url.path());
 }
 
 void dlg_param::DirDistantStockage()
@@ -1846,14 +1858,14 @@ void dlg_param::DirDistantStockage()
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
-    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie").toString();
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
     if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
     if (url == QUrl())
         return;
     ui->DistantStockageupLineEdit->setText(url.path());
-    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + "/DossierImagerie", url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, url.path());
 }
 
 void dlg_param::DirPosteStockage()
@@ -3021,50 +3033,50 @@ bool dlg_param::Valide_Modifications()
 
         QString Base = Utils::getBaseFromMode(Utils::Poste);
         if (ui->PosteServcheckBox->isChecked())
-            proc->settings()->setValue(Base + "/Active","YES");
+            proc->settings()->setValue(Base + Param_Active,"YES");
         else
-            proc->settings()->setValue(Base + "/Active","NO");
-        proc->settings()->setValue(Base + "/Port",ui->SQLPortPostecomboBox->currentText());
+            proc->settings()->setValue(Base + Param_Active,"NO");
+        proc->settings()->setValue(Base + Param_Port,ui->SQLPortPostecomboBox->currentText());
 
         Base = Utils::getBaseFromMode(Utils::ReseauLocal);
         if (ui->LocalServcheckBox->isChecked())
-            proc->settings()->setValue(Base + "/Active","YES");
+            proc->settings()->setValue(Base + Param_Active,"YES");
         else
-            proc->settings()->setValue(Base + "/Active","NO");
-        proc->settings()->setValue(Base + "/Serveur",Utils::calcIP(ui->EmplacementLocaluplineEdit->text(), false));
+            proc->settings()->setValue(Base + Param_Active,"NO");
+        proc->settings()->setValue(Base + Param_Serveur,Utils::calcIP(ui->EmplacementLocaluplineEdit->text(), false));
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
-        proc->settings()->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
+        proc->settings()->setValue(Base + Param_Port,ui->SQLPortLocalcomboBox->currentText());
 
         Base = Utils::getBaseFromMode(Utils::Distant);
         if (ui->DistantServcheckBox->isChecked())
-            proc->settings()->setValue(Base + "/Active","YES");
+            proc->settings()->setValue(Base + Param_Active,"YES");
         else
-            proc->settings()->setValue(Base + "/Active","NO");
+            proc->settings()->setValue(Base + Param_Active,"NO");
         if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
-            proc->settings()->setValue(Base + "/Serveur", Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));
+            proc->settings()->setValue(Base + Param_Serveur, Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));
         else
-            proc->settings()->setValue(Base + "/Serveur", ui->EmplacementDistantuplineEdit->text());
+            proc->settings()->setValue(Base + Param_Serveur, ui->EmplacementDistantuplineEdit->text());
         db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());
-        proc->settings()->setValue(Base + "/Port",ui->SQLPortDistantcomboBox->currentText());
-        proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->value());
-        proc->settings()->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->value());
-        proc->settings()->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->value());
-        proc->settings()->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->value());
+        proc->settings()->setValue(Base + Param_Port,ui->SQLPortDistantcomboBox->currentText());
+        proc->settings()->setValue(Imprimante_TailleEnTete,ui->EntetespinBox->value());
+        proc->settings()->setValue(Imprimante_TailleEnTeteALD,ui->EnteteALDspinBox->value());
+        proc->settings()->setValue(Imprimante_TaillePieddePage,ui->PiedDePagespinBox->value());
+        proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes,ui->PiedDePageOrdoLunettesspinBox->value());
         QString OK = (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO");
-        proc->settings()->setValue("Param_Imprimante/ApercuAvantImpression", OK);
+        proc->settings()->setValue(Imprimante_ApercuAvantImpression, OK);
         OK = (ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO");
-        proc->settings()->setValue("Param_Imprimante/OrdoAvecDupli",OK);
+        proc->settings()->setValue(Imprimante_OrdoAvecDupli,OK);
         if (ui->PrioritaireImportDocscheckBox->isChecked())
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","YES");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"YES");
         else if (ui->NonImportDocscheckBox->isChecked())
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NO");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NO");
         else
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs","NORM");
-        proc->settings()->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->text());
-        proc->settings()->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->text());
-        proc->settings()->setValue("Param_Imprimante/TaillePieddePage",ui->PiedDePagespinBox->text());
-        proc->settings()->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes",ui->PiedDePageOrdoLunettesspinBox->text());
-        proc->settings()->setValue("Param_Imprimante/TailleTopMarge",ui->TopMargespinBox->text());
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NORM");
+        proc->settings()->setValue(Imprimante_TailleEnTete,ui->EntetespinBox->text());
+        proc->settings()->setValue(Imprimante_TailleEnTeteALD,ui->EnteteALDspinBox->text());
+        proc->settings()->setValue(Imprimante_TaillePieddePage,ui->PiedDePagespinBox->text());
+        proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes,ui->PiedDePageOrdoLunettesspinBox->text());
+        proc->settings()->setValue(Imprimante_TailleTopMarge,ui->TopMargespinBox->text());
 
         proc->settings()->setValue(Param_Poste_Fronto,ui->FrontoupComboBox->currentText());
         if (ui->FrontoupComboBox->currentText() == "-")
@@ -3136,8 +3148,8 @@ bool dlg_param::Valide_Modifications()
                 proc->settings()->setValue(Param_Poste_PortTono_Reseau, "");
         }
 
-        proc->settings()->setValue("Param_Poste/VilleParDefaut",wdg_VilleDefautlineEdit->text());
-        proc->settings()->setValue("Param_Poste/CodePostalParDefaut",wdg_CPDefautlineEdit->text());
+        proc->settings()->setValue(Ville_Defaut,wdg_VilleDefautlineEdit->text());
+        proc->settings()->setValue(CodePostal_Defaut,wdg_CPDefautlineEdit->text());
 
         m_modifposte = false;
     }

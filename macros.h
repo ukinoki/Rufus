@@ -1067,5 +1067,30 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_Poste_Refracteur                          "Param_Poste/Refracteur"
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
+#define Dossier_Imagerie                                "/DossierImagerie"
+#define Dossier_DocsScannes                             "/DossiersDocsScannes"
+#define Dossier_Videos                                  "/DossiersVideos"
+#define Dossier_Documents                               "/DossiersDocuments/"
+
+#define Param_SSL                                       "/SSL"
+#define Param_Serveur                                   "/Serveur"
+#define Param_Port                                      "/Port"
+#define Param_Active                                     "/Active"
+
+#define Imprimante_TailleEnTete                         "Param_Imprimante/TailleEnTete"
+#define Imprimante_TailleEnTeteALD                      "Param_Imprimante/TailleEnTeteALD"
+#define Imprimante_TaillePieddePage                     "Param_Imprimante/TaillePieddePage"
+#define Imprimante_TaillePieddePageOrdoLunettes         "Param_Imprimante/TaillePieddePageOrdoLunettes"
+#define Imprimante_TailleTopMarge                       "Param_Imprimante/TailleTopMarge"
+#define Imprimante_ApercuAvantImpression                "Param_Imprimante/ApercuAvantImpression"
+#define Imprimante_OrdoAvecDupli                        "Param_Imprimante/OrdoAvecDupli"
+
+#define PrioritaireGestionDocs                          "/PrioritaireGestionDocs"
+
+#define Ville_Defaut                                    "Param_Poste/VilleParDefaut"
+#define CodePostal_Defaut                               "Param_Poste/CodePostalParDefaut"
+
+#define Poste_VersionRessources                         "Param_Poste/VersionRessources"
+#define Position_Fiche                                  "PositionsFiches/Position"
 
 #endif // MACROS_H

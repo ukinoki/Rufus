@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("30-06-2022/1");
+    qApp->setApplicationVersion("01-07-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -55,7 +55,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     m_parametres = db->parametres();
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
-    restoreGeometry(proc->settings()->value("PositionsFiches/Rufus").toByteArray());
+    if (proc->settings()->value("PositionsFiches/Rufus") != QVariant())
+    {
+        restoreGeometry(proc->settings()->value("PositionsFiches/Rufus").toByteArray());
+        proc->settings()->remove("PositionsFiches/Rufus");
+    }
+    else
+        restoreGeometry(proc->settings()->value(Position_Fiche "Rufus").toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
@@ -3818,7 +3824,7 @@ void Rufus::MAJPosteConnecte()
 {
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
-    proc->settings()->setValue("PositionsFiches/Rufus", saveGeometry());
+    proc->settings()->setValue(Position_Fiche "Rufus", saveGeometry());
     if (currentpost() != Q_NULLPTR)
     {
         ItemsList::update(currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
@@ -4577,7 +4583,7 @@ void Rufus::setTitre()
     if (db->ModeAccesDataBase() == Utils::Distant)
     {
         modeconnexion = tr("accès distant - connexion ");
-        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + "/SSL").toString() != "NO")
+        if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Param_SSL).toString() != "NO")
             modeconnexion += tr("cryptée (SSL)");
         else
             modeconnexion += tr("non cryptée");
@@ -5630,14 +5636,14 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     QString ImportateurDocs = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
-        if ((proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString() == "NORM")
+        if ((proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() == "NORM")
                 && db->ModeAccesDataBase() != Utils::Distant)
              proc->setPosteImportDocs();
     }
     else
     {
         QString Adr = "";
-        QString B = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + "/PrioritaireGestionDocs").toString();
+        QString B = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
         if (B == "YES")
             Adr = QHostInfo::localHostName() + " - prioritaire";
         else if (B == "NORM")

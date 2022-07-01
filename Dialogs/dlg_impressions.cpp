@@ -35,7 +35,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     setWindowIcon(Icons::icLoupe());
 
 
-    restoreGeometry(proc->settings()->value("PositionsFiches/PositionDocuments").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche "Documents").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
@@ -115,7 +115,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->dateImpressiondateEdit->setDate(QDate::currentDate());
     ui->dateImpressiondateEdit->setMaximumDate(QDate::currentDate());
 
-    ui->DupliOrdocheckBox->setChecked(proc->settings()->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
+    ui->DupliOrdocheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     ui->DocsPublicscheckBox->setChecked(currentuser()->affichedocspublics());
 
 
@@ -166,6 +166,25 @@ QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString> > dlg_impressions::mapd
     return map_docsaimprimer;
 }
 
+void dlg_impressions::AfficheDocsPublicsAutresUtilisateurs(bool affiche)
+{
+    wdg_docsbuttonframe->searchline()->setText("");
+    for (int j=0; j<m_docsmodel->rowCount(); j++)
+    {
+        Impression *doc = getDocumentFromIndex(m_docsmodel->index(j,0));
+        if (doc)
+            if (doc->iduser() != currentuser()->id())
+                ui->DocsupTableView->setRowHidden(m_docsmodel->getRowFromItem(doc),!affiche);
+    }
+    for (int j=0; j<m_dossiersmodel->rowCount(); j++)
+    {
+        DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(j,0));
+        if (dossier)
+            if (dossier->iduser() != currentuser()->id())
+                ui->DossiersupTableView->setRowHidden(m_dossiersmodel->getRowFromItem(dossier),!affiche);
+    }
+}
+
 void dlg_impressions::AfficheTexteDocument(Impression *doc)
 {
     if (m_mode == Selection)
@@ -208,6 +227,7 @@ void dlg_impressions::Annulation()
         else
             Remplir_TableView();
         ConfigMode(Selection);
+        AfficheDocsPublicsAutresUtilisateurs(currentuser()->affichedocspublics());
         break;
     }
     case Selection:
@@ -522,6 +542,7 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
 void dlg_impressions::FiltreListe()
 {
     EnableLines();
+    bool affiche = currentuser()->affichedocspublics();
     for (int j=0; j<m_docsmodel->rowCount(); j++)
     {
         QString txt = m_docsmodel->item(j,1)->data(Qt::DisplayRole).toString().toUpper();
@@ -533,7 +554,7 @@ void dlg_impressions::FiltreListe()
             Impression *doc = getDocumentFromIndex(m_docsmodel->index(j,0));
             if (doc)
                 if (doc->iduser() != currentuser()->id())
-                    ui->DocsupTableView->setRowHidden(m_docsmodel->getRowFromItem(doc),!currentuser()->affichedocspublics());
+                    ui->DocsupTableView->setRowHidden(m_docsmodel->getRowFromItem(doc),!affiche);
         }
     }
     for (int j=0; j<m_dossiersmodel->rowCount(); j++)
@@ -541,7 +562,7 @@ void dlg_impressions::FiltreListe()
         DossierImpression *dossier = getDossierFromIndex(m_dossiersmodel->index(j,0));
         if (dossier)
             if (dossier->iduser() != currentuser()->id())
-                ui->DossiersupTableView->setRowHidden(m_dossiersmodel->getRowFromItem(dossier),!currentuser()->affichedocspublics());
+                ui->DossiersupTableView->setRowHidden(m_dossiersmodel->getRowFromItem(dossier),!affiche);
     }
 }
 
@@ -1135,6 +1156,7 @@ void dlg_impressions::OKpushButtonClicked()
             ConfigMode(Selection);
             selectcurrentDossier(m_currentdossier);
         }
+        AfficheDocsPublicsAutresUtilisateurs(currentuser()->affichedocspublics());
         break;
     case Selection:                                                         // -> On imprime le
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
@@ -1583,7 +1605,7 @@ void dlg_impressions::OKpushButtonClicked()
 
 void dlg_impressions::OrdoAvecDupli(bool a)
 {
-    proc->settings()->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
+    proc->settings()->setValue(Imprimante_OrdoAvecDupli,(a? "YES" : "NO"));
 }
 
 
@@ -1663,7 +1685,7 @@ bool dlg_impressions::event(QEvent *event)
 }
 void dlg_impressions::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue("PositionsFiches/PositionDocuments",saveGeometry());
+    proc->settings()->setValue(Position_Fiche "Documents",saveGeometry());
     event->accept();
 }
 
@@ -2060,6 +2082,7 @@ void dlg_impressions::ConfigMode(Mode mode)
             ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
             ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
         }
+        AfficheDocsPublicsAutresUtilisateurs(false);
     }
     else if (mode == CreationDOC)
     {
@@ -2185,6 +2208,7 @@ void dlg_impressions::ConfigMode(Mode mode)
         ui->DossiersupTableView->scrollTo(m_dossiersmodel->index(0,1), QAbstractItemView::EnsureVisible);
         ui->DossiersupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
         ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(0,1));
+        AfficheDocsPublicsAutresUtilisateurs(false);
     }
     if (!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist())
     {
