@@ -13,8 +13,8 @@ BEGIN
         IF tot=0
         THEN
             ALTER TABLE `rufus`.`utilisateurs`
-			ADD COLUMN `AfficheDocsPublics` TINYINT(1) NULL DEFAULT 1 COMMENT 'Affiche les documents rendus publics par leur createur dans la fiche Impressions' AFTER `UserBarCode`;
-		END IF;
+            ADD COLUMN `AfficheDocsPublics` TINYINT(1) NULL DEFAULT 1 COMMENT 'Affiche les documents rendus publics par leur createur dans la fiche Impressions' AFTER `UserBarCode`;
+        END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 70;
 END|
 

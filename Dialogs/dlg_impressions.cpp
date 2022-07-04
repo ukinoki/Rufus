@@ -2115,11 +2115,11 @@ void dlg_impressions::ConfigMode(Mode mode)
         ui->DocEditcheckBox->setChecked(false);
         ui->DocEditcheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit affiché pour pouvoir être modifié avant son impression"));
 
-        ui->DocPubliccheckBox->setChecked(false);
+        ui->DocPubliccheckBox->setChecked(true);
         ui->DocPubliccheckBox->setEnabled(true);
         ui->DocPubliccheckBox->setImmediateToolTip(tr("Cocher cette case pour que le document soit visible par tous les utilisateurs"));
 
-        ui->PrescriptioncheckBox->setChecked(false);
+        ui->PrescriptioncheckBox->setChecked(Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist());
         ui->PrescriptioncheckBox->setEnabled(true);
         ui->PrescriptioncheckBox->setImmediateToolTip(tr("Cocher cette case pour que le documment soit considéré comme une prescription\n"
                                                       "Il ne sera accessible qu'au personnel soignant\n"
@@ -2128,7 +2128,7 @@ void dlg_impressions::ConfigMode(Mode mode)
 
         ui->DocAdministratifcheckBox->setEnabled(true);
         ui->DocAdministratifcheckBox->setChecked(!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist());
-        ui->DocAdministratifcheckBox->setImmediateToolTip(tr("Cocher cette case si le document est un document administratif"));
+        ui->DocAdministratifcheckBox->setImmediateToolTip(tr("Cocher cette case si le document est un document administratif, accessible à tous les utilisateurs"));
         wdg_docsbuttonframe->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);
@@ -2137,7 +2137,7 @@ void dlg_impressions::ConfigMode(Mode mode)
 
         ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setEnabled(true);
-        ui->AnnulupPushButton->setToolTip(tr("Revenir au mode\nsélection de document"));
+        ui->AnnulupPushButton->setImmediateToolTip(tr("Revenir au mode\nsélection de document"));
         ui->OKupPushButton->setText(tr("Enregistrer\nle document"));
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
@@ -2145,9 +2145,14 @@ void dlg_impressions::ConfigMode(Mode mode)
         m_currentdocument = new Impression;
         m_currentdocument->setresume(tr("Nouveau document"));
         m_currentdocument->setiduser(currentuser()->id());
+        m_currentdocument->setmedical(Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist());
+        m_currentdocument->setprescription(Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist());
+        m_currentdocument->setpublic(true);
+        m_currentdocument->seteditable(false);
         SetDocumentToRow(m_currentdocument, 0);
         m_docsmodel->item(0,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         m_docsmodel->item(0,0)->setFlags(Qt::NoItemFlags);
+
         ui->DocsupTableView->setFocus();
         ui->DocsupTableView->scrollTo(m_docsmodel->index(0,1), QAbstractItemView::EnsureVisible);
         ui->DocsupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);

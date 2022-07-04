@@ -1715,7 +1715,9 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     switch (mesure) {
     case Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
-        if (pathappareil == "" || !QDir(pathappareil).exists())
+        if (pathappareil == "")
+            pathappareil = PATH_DIR_FRONTO;
+        else if (!QDir(pathappareil).exists())
             pathappareil = PATH_DIR_FRONTO;
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
@@ -1728,7 +1730,9 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         break;
     case Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
-        if (pathappareil == "" || !QDir(pathappareil).exists())
+        if (pathappareil == "")
+            pathappareil = PATH_DIR_AUTOREF;
+        else if (!QDir(pathappareil).exists())
             pathappareil = PATH_DIR_AUTOREF;
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
@@ -1741,7 +1745,9 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         break;
     case Refracteur:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
-        if (pathappareil == "" || !QDir(pathappareil).exists())
+        if (pathappareil == "")
+            pathappareil = PATH_DIR_REFRACTEUR_OUT;
+        else if (!QDir(pathappareil).exists())
             pathappareil = PATH_DIR_REFRACTEUR_OUT;
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
@@ -1754,7 +1760,9 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         break;
     case Tono:
         pathappareil = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
-        if (pathappareil == "" || !QDir(pathappareil).exists())
+        if (pathappareil == "")
+            pathappareil = PATH_DIR_TONO;
+        else if (!QDir(pathappareil).exists())
             pathappareil = PATH_DIR_TONO;
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
@@ -1780,7 +1788,9 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
     switch (mesure) {
     case Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
-        if (pathappareil == "" || !QDir(pathappareil).exists())
+        if (pathappareil == "")
+            pathappareil = PATH_DIR_REFRACTEUR_FRONTOIN;
+        else if (!QDir(pathappareil).exists())
             pathappareil = PATH_DIR_REFRACTEUR_FRONTOIN;
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
@@ -1793,7 +1803,9 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
         break;
     case Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
-        if (pathappareil == "" || !QDir(pathappareil).exists())
+        if (pathappareil == "")
+            pathappareil = PATH_DIR_REFRACTEUR_AUTOREFIN;
+        else if (!QDir(pathappareil).exists())
             pathappareil = PATH_DIR_REFRACTEUR_AUTOREFIN;
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();

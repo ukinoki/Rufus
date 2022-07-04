@@ -190,6 +190,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MAJFLAGCORRESPONDANTS_FLAGS                  "MAJflagMG"
 #define CP_MAJFLAGMESSAGES_FLAGS                        "MAJflagMessages"
 #define CP_MAJFLAGUSERDISTANT_FLAGS                     "flagUserDistant"
+#define CP_MAJFLAGIMPRESSIONS_FLAGS                     "MAJflagImpressions"
 
                             //! Table Rufus.LieuxExercice
 #define CP_ID_SITE                                      "idLieu"

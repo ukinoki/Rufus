@@ -28,5 +28,6 @@
         <file>majbase68.sql</file>
         <file>majbase69.sql</file>
         <file>majbase70.sql</file>
+        <file>majbase71prov.sql</file>
     </qresource>
 </RCC>

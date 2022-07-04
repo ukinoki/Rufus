@@ -28,7 +28,7 @@ private:
     QString m_texte = "";
     QString m_resume = "";
     QString m_conclusion = "";
-    bool m_public = false;
+    bool m_public = true;
     bool m_prescription = false;
     bool m_editable = false;
     bool m_medical = false;

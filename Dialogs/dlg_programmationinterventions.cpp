@@ -283,7 +283,13 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(currentsession() != Q_NULLPTR);
     if (currentsession() != Q_NULLPTR)
         Datas::I()->interventions->initListebySessionId(currentsession()->id());
-    RemplirTreeInterventions(currentintervention());
+    if (currentintervention() != Q_NULLPTR)
+        if (currentintervention()->idsession() == currentsession()->id())
+        {
+            RemplirTreeInterventions(currentintervention());
+            return;
+        }
+    RemplirTreeInterventions();
 }
 
 void dlg_programmationinterventions::RemplirTreeSessions()
@@ -296,6 +302,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
     wdg_sessionstreeView->setModel(m_sessionsmodel);
     m_sessionsmodel->setColumnCount(2);
     m_sessionsmodel->setHeaderData(0, Qt::Horizontal, tr("Sessions"));
+    m_sessionsmodel->setHeaderData(1, Qt::Horizontal, "");
     if (Datas::I()->sessionsoperatoires->sessions()->size() >0)
     {
         foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
@@ -353,8 +360,16 @@ void dlg_programmationinterventions::RemplirTreeSessions()
             wdg_sessionstreeView->setCurrentIndex(idx);
         }
         connect(wdg_sessionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::AfficheInterventionsSession);
+        AfficheInterventionsSession(idx);
     }
-    AfficheInterventionsSession(idx);
+    else
+    {
+        wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(false);
+        wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(false);
+        wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(true);
+    }
+    wdg_interventionstreeView->setVisible(Datas::I()->sessionsoperatoires->sessions()->size() >0);
+    wdg_buttoninterventionframe->setVisible(Datas::I()->sessionsoperatoires->sessions()->size() >0);
 }
 
 void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
@@ -791,145 +806,156 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     bool iollist = false;           //! va servir à indiquer si des implants sont prévus sur la session
     QStandardItem *rootNodeDate = m_interventionsmodel->invisibleRootItem();
     QList<QTime> listheures;
-
-    foreach (Intervention *interv, *Datas::I()->interventions->interventions())
-    {
-        // créations des entêtes par heure
-        if (!listheures.contains(interv->heure()))
-            listheures << interv->heure();
-    }
-    UpStandardItem *itempat = Q_NULLPTR;
-    UpStandardItem *itemobs = Q_NULLPTR;
-    UpStandardItem *itemiol = Q_NULLPTR;
-    UpStandardItem *itemddn = Q_NULLPTR;
-    UpStandardItem *itemtyp = Q_NULLPTR;
-    UpStandardItem *iteminc = Q_NULLPTR;
-    UpStandardItem *heureitem = Q_NULLPTR;
-    // Tri par date
-    std::sort(listheures.begin(), listheures.end());
-    for (int i=0; i<listheures.size(); ++i)
-    {
-        QString heurestring = listheures.at(i).toString("HH:mm");
-        heureitem    = new UpStandardItem("- " + heurestring + " -");
-        heureitem    ->setForeground(QBrush(QColor(Qt::darkGreen)));
-        heureitem    ->setEditable(false);
-        heureitem    ->setIcon(Icons::icDate());
-        rootNodeDate ->appendRow(heureitem);
-    }
-    int a = 0;
-    foreach (Intervention *interv, *Datas::I()->interventions->interventions())
-    {
-        QString heure = "- " + interv->heure().toString("HH:mm") + " -";
-        QList<QStandardItem *> listitemsheure = m_interventionsmodel->findItems(heure);
-        if (listitemsheure.size()>0)
-        {
-            QString nompatient = "";
-            Patient * pat = Datas::I()->patients->getById(interv->idpatient(), Item::LoadDetails);
-            if (!pat)
-                continue;
-            nompatient  = pat->nom().toUpper() + " " + pat->prenom();
-            itempat     = new UpStandardItem(nompatient, interv);
-            QFont fontitem = m_font;
-            fontitem    .setBold(true);
-            itempat     ->setFont(fontitem);
-            itempat     ->setForeground(QBrush(QColor(Qt::darkBlue)));
-            itempat     ->setEditable(false);
-            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itempat << new QStandardItem(QString::number(a) + "a"));             //! nom du patient
-
-            TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());                                  //! type d'intervention et anesthésie
-            if (typ)
-            {
-                QString typinterv = typ->typeintervention().toUpper();
-                if (interv->cote() != Utils::NoLoSo)
-                    typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
-                itemtyp = new UpStandardItem();
-                itemtyp ->setForeground(QBrush(QColor(Qt::darkBlue)));
-                if (interv->anesthesie() != Intervention::NoLoSo)                                                                           //! type d'anesthésie
-                {
-                    QString anesth = "";
-                    switch (interv->anesthesie()) {
-                    case Intervention::Locale:          anesth = tr("Anesthésie locale");           break;
-                    case Intervention::LocoRegionale:   anesth = tr("Anesthésie locoregionale");    break;
-                    case Intervention::Generale:        anesth = tr("Anesthésie générale");         break;
-                    default: break;
-                    }
-                    typinterv += " - " + anesth;
-                   if (interv->anesthesie() == Intervention::Generale)
-                        itemtyp ->setForeground(QBrush(QColor(Qt::red)));
-                }
-                itemtyp->setText("\t" + typinterv);
-                itemtyp->setitem(interv);
-                itemtyp ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtyp << new QStandardItem(QString::number(a) + "b"));
-            }
-            QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
-            QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
-                    + " " + pat->datedenaissance().toString("dd-MM-yyyy")
-                    + " - " + mapage["toString"].toString();
-            if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
-            {
-                QString tel = tr("Tel") + " ";
-                if (pat->telephone() != "")
-                {
-                    tel += pat->telephone();
-                    if (pat->portable() != "")
-                        tel += " - " + pat->portable();
-                }
-                else
-                    tel += pat->portable();
-                sexeddntel += "- " + tel;
-            }
-            itemddn = new UpStandardItem("\t" + sexeddntel, interv);
-            itemddn ->setForeground(QBrush(QColor(Qt::darkGray)));
-            itemddn ->setEditable(false);
-            listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemddn << new QStandardItem(QString::number(a) + "c"));
-
-            if (interv->idIOL()>0)                                                                                                          //! IOL
-            {
-                iollist = true;
-                QString ioltxt = "";
-                IOL *iol = Datas::I()->iols->getById(interv->idIOL());
-                if (iol != Q_NULLPTR)
-                {
-                    Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
-                    if (man != Q_NULLPTR)
-                        ioltxt += man->nom().toUpper() + " " + iol->modele() + " ";
-                }
-                ioltxt += Utils::PrefixePlus(interv->puissanceIOL());
-                if (interv->cylindreIOL() != 0.0)
-                    ioltxt += " Cyl. " + Utils::PrefixePlus(interv->cylindreIOL());
-                itemiol = new UpStandardItem("\t" + tr("Implant") + " : " + ioltxt, interv);
-                itemiol ->setEditable(false);
-                if (iol)
-                {
-                    QString ttip = iol->tooltip(true);
-                    itemiol->setData(ttip);
-                }
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemiol << new QStandardItem(QString::number(a) + "d"));
-            }
-            if (interv->observation() != "")                                                                                                //! observation
-            {
-                itemobs = new UpStandardItem("\t" + tr("Remarque") + " : " + interv->observation(), interv);
-                itemobs ->setForeground(QBrush(QColor(Qt::red)));
-                itemobs ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "e"));
-            }
-            if (interv->incident() != "")                                                                                                   //! incident
-            {
-                incident = true;
-                iteminc = new UpStandardItem("\t" + tr("Incident") + " : " + interv->incident(), interv);
-                iteminc ->setForeground(QBrush(QColor(Qt::red)));
-                iteminc ->setEditable(false);
-                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << iteminc << new QStandardItem(QString::number(a) + "f"));
-            }
-        }
-        listitemsheure.at(0)->sortChildren(1);
-        ++a;
-    }
-    wdg_incidentbutt    ->setEnabled(incident);
-    wdg_commandeIOLbutt ->setEnabled(iollist);
     PrintButton         ->setEnabled(Datas::I()->interventions->interventions()->size() >0);
     wdg_interventionstreeView->setModel(m_interventionsmodel);
+    if (Datas::I()->interventions->interventions()->size()>0)
+    {
+        foreach (Intervention *interv, *Datas::I()->interventions->interventions())
+        {
+            // créations des entêtes par heure
+            if (!listheures.contains(interv->heure()))
+                listheures << interv->heure();
+        }
+        UpStandardItem *itempat = Q_NULLPTR;
+        UpStandardItem *itemobs = Q_NULLPTR;
+        UpStandardItem *itemiol = Q_NULLPTR;
+        UpStandardItem *itemddn = Q_NULLPTR;
+        UpStandardItem *itemtyp = Q_NULLPTR;
+        UpStandardItem *iteminc = Q_NULLPTR;
+        UpStandardItem *heureitem = Q_NULLPTR;
+        // Tri par date
+        std::sort(listheures.begin(), listheures.end());
+        for (int i=0; i<listheures.size(); ++i)
+        {
+            QString heurestring = listheures.at(i).toString("HH:mm");
+            heureitem    = new UpStandardItem("- " + heurestring + " -");
+            heureitem    ->setForeground(QBrush(QColor(Qt::darkGreen)));
+            heureitem    ->setEditable(false);
+            heureitem    ->setIcon(Icons::icDate());
+            rootNodeDate ->appendRow(heureitem);
+        }
+        int a = 0;
+        foreach (Intervention *interv, *Datas::I()->interventions->interventions())
+        {
+            QString heure = "- " + interv->heure().toString("HH:mm") + " -";
+            QList<QStandardItem *> listitemsheure = m_interventionsmodel->findItems(heure);
+            if (listitemsheure.size()>0)
+            {
+                QString nompatient = "";
+                Patient * pat = Datas::I()->patients->getById(interv->idpatient(), Item::LoadDetails);
+                if (!pat)
+                    continue;
+                nompatient  = pat->nom().toUpper() + " " + pat->prenom();
+                itempat     = new UpStandardItem(nompatient, interv);
+                QFont fontitem = m_font;
+                fontitem    .setBold(true);
+                itempat     ->setFont(fontitem);
+                itempat     ->setForeground(QBrush(QColor(Qt::darkBlue)));
+                itempat     ->setEditable(false);
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itempat << new QStandardItem(QString::number(a) + "a"));             //! nom du patient
+
+                TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());                                  //! type d'intervention et anesthésie
+                if (typ)
+                {
+                    QString typinterv = typ->typeintervention().toUpper();
+                    if (interv->cote() != Utils::NoLoSo)
+                        typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
+                    itemtyp = new UpStandardItem();
+                    itemtyp ->setForeground(QBrush(QColor(Qt::darkBlue)));
+                    if (interv->anesthesie() != Intervention::NoLoSo)                                                                           //! type d'anesthésie
+                    {
+                        QString anesth = "";
+                        switch (interv->anesthesie()) {
+                        case Intervention::Locale:          anesth = tr("Anesthésie locale");           break;
+                        case Intervention::LocoRegionale:   anesth = tr("Anesthésie locoregionale");    break;
+                        case Intervention::Generale:        anesth = tr("Anesthésie générale");         break;
+                        default: break;
+                        }
+                        typinterv += " - " + anesth;
+                        if (interv->anesthesie() == Intervention::Generale)
+                            itemtyp ->setForeground(QBrush(QColor(Qt::red)));
+                    }
+                    itemtyp->setText("\t" + typinterv);
+                    itemtyp->setitem(interv);
+                    itemtyp ->setEditable(false);
+                    listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtyp << new QStandardItem(QString::number(a) + "b"));
+                }
+                QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
+                QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
+                        + " " + pat->datedenaissance().toString("dd-MM-yyyy")
+                        + " - " + mapage["toString"].toString();
+                if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
+                {
+                    QString tel = tr("Tel") + " ";
+                    if (pat->telephone() != "")
+                    {
+                        tel += pat->telephone();
+                        if (pat->portable() != "")
+                            tel += " - " + pat->portable();
+                    }
+                    else
+                        tel += pat->portable();
+                    sexeddntel += "- " + tel;
+                }
+                itemddn = new UpStandardItem("\t" + sexeddntel, interv);
+                itemddn ->setForeground(QBrush(QColor(Qt::darkGray)));
+                itemddn ->setEditable(false);
+                listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemddn << new QStandardItem(QString::number(a) + "c"));
+
+                if (interv->idIOL()>0)                                                                                                          //! IOL
+                {
+                    iollist = true;
+                    QString ioltxt = "";
+                    IOL *iol = Datas::I()->iols->getById(interv->idIOL());
+                    if (iol != Q_NULLPTR)
+                    {
+                        Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                        if (man != Q_NULLPTR)
+                            ioltxt += man->nom().toUpper() + " " + iol->modele() + " ";
+                    }
+                    ioltxt += Utils::PrefixePlus(interv->puissanceIOL());
+                    if (interv->cylindreIOL() != 0.0)
+                        ioltxt += " Cyl. " + Utils::PrefixePlus(interv->cylindreIOL());
+                    itemiol = new UpStandardItem("\t" + tr("Implant") + " : " + ioltxt, interv);
+                    itemiol ->setEditable(false);
+                    if (iol)
+                    {
+                        QString ttip = iol->tooltip(true);
+                        itemiol->setData(ttip);
+                    }
+                    listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemiol << new QStandardItem(QString::number(a) + "d"));
+                }
+                if (interv->observation() != "")                                                                                                //! observation
+                {
+                    itemobs = new UpStandardItem("\t" + tr("Remarque") + " : " + interv->observation(), interv);
+                    itemobs ->setForeground(QBrush(QColor(Qt::red)));
+                    itemobs ->setEditable(false);
+                    listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemobs << new QStandardItem(QString::number(a) + "e"));
+                }
+                if (interv->incident() != "")                                                                                                   //! incident
+                {
+                    incident = true;
+                    iteminc = new UpStandardItem("\t" + tr("Incident") + " : " + interv->incident(), interv);
+                    iteminc ->setForeground(QBrush(QColor(Qt::red)));
+                    iteminc ->setEditable(false);
+                    listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << iteminc << new QStandardItem(QString::number(a) + "f"));
+                }
+            }
+            listitemsheure.at(0)->sortChildren(1);
+            ++a;
+        }
+        wdg_incidentbutt    ->setEnabled(incident);
+        wdg_commandeIOLbutt ->setEnabled(iollist);
+        connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    }
+    else
+    {
+        wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
+        wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(false);
+        wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(true);
+        wdg_incidentbutt    ->setEnabled(false);
+        wdg_commandeIOLbutt ->setEnabled(false);
+    }
     m_interventionsmodel->setHeaderData(0, Qt::Horizontal, tr("Interventions"));
     m_interventionsmodel->setHeaderData(1, Qt::Horizontal, "");
     m_interventionsmodel->setHeaderData(2, Qt::Horizontal, "");
@@ -937,8 +963,9 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_interventionstreeView   ->setColumnWidth(0,340);
     wdg_interventionstreeView   ->header()->setSectionResizeMode(QHeaderView::Fixed);
     wdg_interventionstreeView   ->setSortingEnabled(false);
-    PositionneTreeInterventionsSurIntervention(intervention);
-    connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
+    if (Datas::I()->interventions->interventions()->size()>0)
+        PositionneTreeInterventionsSurIntervention(intervention);
+
 //    connect(wdg_interventionstreeView,  &QAbstractItemView::entered,    this,   [&](QModelIndex idx)
 //    {
 //        QStandardItem *itm = dynamic_cast<QStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
