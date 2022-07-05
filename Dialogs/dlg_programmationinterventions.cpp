@@ -363,13 +363,11 @@ void dlg_programmationinterventions::RemplirTreeSessions()
         AfficheInterventionsSession(idx);
     }
     else
-    {
-        wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(false);
-        wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(false);
-        wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(true);
-    }
+        setcurrentsession(Q_NULLPTR);
     wdg_interventionstreeView->setVisible(Datas::I()->sessionsoperatoires->sessions()->size() >0);
     wdg_buttoninterventionframe->setVisible(Datas::I()->sessionsoperatoires->sessions()->size() >0);
+    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(currentsession()!=Q_NULLPTR);
+    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(currentsession()!=Q_NULLPTR);
 }
 
 void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
@@ -944,17 +942,11 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
             listitemsheure.at(0)->sortChildren(1);
             ++a;
         }
-        wdg_incidentbutt    ->setEnabled(incident);
-        wdg_commandeIOLbutt ->setEnabled(iollist);
         connect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
     }
     else
     {
-        wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
-        wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(false);
-        wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(true);
-        wdg_incidentbutt    ->setEnabled(false);
-        wdg_commandeIOLbutt ->setEnabled(false);
+        setcurrentintervention(Q_NULLPTR);
     }
     m_interventionsmodel->setHeaderData(0, Qt::Horizontal, tr("Interventions"));
     m_interventionsmodel->setHeaderData(1, Qt::Horizontal, "");
@@ -965,6 +957,10 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     wdg_interventionstreeView   ->setSortingEnabled(false);
     if (Datas::I()->interventions->interventions()->size()>0)
         PositionneTreeInterventionsSurIntervention(intervention);
+    wdg_incidentbutt    ->setEnabled(incident);
+    wdg_commandeIOLbutt ->setEnabled(iollist);
+    wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(currentintervention() != Q_NULLPTR);
+    wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(currentintervention() != Q_NULLPTR);
 
 //    connect(wdg_interventionstreeView,  &QAbstractItemView::entered,    this,   [&](QModelIndex idx)
 //    {
