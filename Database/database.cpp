@@ -823,6 +823,12 @@ QJsonObject DataBase::loadAdminData()
     return loadUserData(usrid.at(0).toInt());
 }
 
+void DataBase::NettoieTableUsers()
+{
+    QString req = "delete from " TBL_UTILISATEURS " where " CP_LOGIN_USR " is null or " CP_NOM_USR " is null";
+    StandardSQL(req);
+}
+
 QList<User*> DataBase::loadUsersShortListe()
 {
     QList<User*> users;

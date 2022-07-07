@@ -24,6 +24,15 @@ BEGIN
                 ALTER TABLE `rufus`.`flags`
                 ADD COLUMN `MAJflagImpressions` INT(11) NULL DEFAULT NULL AFTER `flagUserDistant`;
             END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT COLUMN_KEY
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'Soignant') as chp;
+            IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                CHANGE COLUMN `Soignant` `Soignant` TINYINT(1) NULL DEFAULT NULL COMMENT '1 = ophtalmo\n2 = orthoptiste\n3 = autre\n4 = Non soignant\n5 = societe comptable\n6 = neutre (poste qui n’interviendra pas sur les données)' ;
+            END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 71;
 END|
 

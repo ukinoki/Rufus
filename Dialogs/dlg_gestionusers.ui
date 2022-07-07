@@ -454,7 +454,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../assets/Images/images.qrc">:/password.png</pixmap>
+          <pixmap resource="../../RufusAdmin/assets/Images/images.qrc">:/password.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -474,7 +474,7 @@
 lieux d'activité</string>
          </property>
          <property name="icon">
-          <iconset resource="../assets/Images/images.qrc">
+          <iconset resource="../../RufusAdmin/assets/Images/images.qrc">
            <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
          </property>
          <property name="iconSize">
@@ -1032,7 +1032,7 @@ pour l'enregistrement des actes</string>
            <x>5</x>
            <y>0</y>
            <width>280</width>
-           <height>205</height>
+           <height>195</height>
           </rect>
          </property>
          <property name="focusPolicy">
@@ -1067,7 +1067,7 @@ pour l'enregistrement des actes</string>
           <property name="geometry">
            <rect>
             <x>8</x>
-            <y>50</y>
+            <y>45</y>
             <width>161</width>
             <height>22</height>
            </rect>
@@ -1086,7 +1086,7 @@ pour l'enregistrement des actes</string>
           <property name="geometry">
            <rect>
             <x>8</x>
-            <y>75</y>
+            <y>65</y>
             <width>111</width>
             <height>22</height>
            </rect>
@@ -1105,7 +1105,7 @@ pour l'enregistrement des actes</string>
           <property name="geometry">
            <rect>
             <x>8</x>
-            <y>125</y>
+            <y>105</y>
             <width>161</width>
             <height>22</height>
            </rect>
@@ -1120,11 +1120,11 @@ pour l'enregistrement des actes</string>
            <string>Secrétaire</string>
           </property>
          </widget>
-         <widget class="UpRadioButton" name="AutreNonSoignantupRadioButton">
+         <widget class="UpRadioButton" name="AutreFonctionupRadioButton">
           <property name="geometry">
            <rect>
             <x>8</x>
-            <y>150</y>
+            <y>125</y>
             <width>111</width>
             <height>22</height>
            </rect>
@@ -1136,14 +1136,14 @@ pour l'enregistrement des actes</string>
            <enum>Qt::NoContextMenu</enum>
           </property>
           <property name="text">
-           <string>Autre</string>
+           <string>Autre fonction</string>
           </property>
          </widget>
          <widget class="UpLineEdit" name="AutreFonctionuplineEdit">
           <property name="geometry">
            <rect>
             <x>125</x>
-            <y>150</y>
+            <y>125</y>
             <width>150</width>
             <height>21</height>
            </rect>
@@ -1156,7 +1156,7 @@ pour l'enregistrement des actes</string>
           <property name="geometry">
            <rect>
             <x>125</x>
-            <y>75</y>
+            <y>65</y>
             <width>150</width>
             <height>21</height>
            </rect>
@@ -1169,7 +1169,7 @@ pour l'enregistrement des actes</string>
           <property name="geometry">
            <rect>
             <x>8</x>
-            <y>175</y>
+            <y>145</y>
             <width>161</width>
             <height>22</height>
            </rect>
@@ -1188,13 +1188,32 @@ pour l'enregistrement des actes</string>
           <property name="geometry">
            <rect>
             <x>125</x>
-            <y>100</y>
+            <y>90</y>
             <width>121</width>
             <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>Médecin</string>
+          </property>
+         </widget>
+         <widget class="UpRadioButton" name="NeutreupRadioButton">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>165</y>
+            <width>161</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="text">
+           <string>Neutre</string>
           </property>
          </widget>
         </widget>
@@ -1431,7 +1450,7 @@ pour l'enregistrement des actes</string>
 inactifs</string>
    </property>
    <property name="icon">
-    <iconset resource="../assets/Images/images.qrc">
+    <iconset resource="../../RufusAdmin/assets/Images/images.qrc">
      <normaloff>:/3DcursorOFF.png</normaloff>:/3DcursorOFF.png</iconset>
    </property>
    <property name="iconSize">
@@ -1492,7 +1511,7 @@ inactifs</string>
   <tabstop>AutreSoignantupRadioButton</tabstop>
   <tabstop>AutreSoignantupLineEdit</tabstop>
   <tabstop>SecretaireupRadioButton</tabstop>
-  <tabstop>AutreNonSoignantupRadioButton</tabstop>
+  <tabstop>AutreFonctionupRadioButton</tabstop>
   <tabstop>AutreFonctionuplineEdit</tabstop>
   <tabstop>RPPSupLineEdit</tabstop>
   <tabstop>NumCOupLineEdit</tabstop>
@@ -1512,8 +1531,6 @@ inactifs</string>
   <tabstop>ResponsableupRadioButton</tabstop>
   <tabstop>AssistantupRadioButton</tabstop>
  </tabstops>
- <resources>
-  <include location="../assets/Images/images.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

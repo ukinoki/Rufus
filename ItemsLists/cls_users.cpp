@@ -178,6 +178,7 @@ bool Users::recalcStatut(User *usr)
  */
 void Users::initListe()
 {
+    DataBase::I()->NettoieTableUsers();
     int idcomptable     = User::ROLE_INDETERMINE;
     int idparent        = User::ROLE_INDETERMINE;
     int idsuperviseur   = User::ROLE_INDETERMINE;

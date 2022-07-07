@@ -197,6 +197,7 @@ public:
     QList<User*>            loadUsersShortListe();                                  //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
     QJsonObject             loadUserData(int idUser);                               //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
     QJsonObject             loadAdminData();                                        //! complète tous les renseignements concernant l'utilisateur admin
+    void                    NettoieTableUsers();                                    //! Elimine les enregistrements corrompus de la table utilisateurs
 
     /*
      * Postes connectés

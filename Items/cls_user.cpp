@@ -113,6 +113,7 @@ User::METIER User::metier() const
     case 3: return AutreSoignant;
     case 4: return NonSoignant;
     case 5: return SocieteComptable;
+    case 6: return Neutre;
     }
     return NoMetier;
 }
@@ -167,6 +168,7 @@ bool User::isOrthoptist()                           { return metier() == Orthopt
 bool User::isAutreSoignant()                        { return metier() == AutreSoignant; }
 bool User::isNonSoignant()                          { return metier() == NonSoignant; }
 bool User::isSocComptable()                         { return metier() == SocieteComptable; }
+bool User::isNeutre()                               { return metier() == Neutre; }
 bool User::isComptable()                            { return isLiberal() || isSocComptable(); }
 bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
 bool User::isLiberal()                              { return isSoignant() && modeenregistrementhonoraires() == Liberal; }

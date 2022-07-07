@@ -937,6 +937,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define AUTREFONCTION           "a"
 #define SECRETAIRE              "s"
 #define SOCIETECOMPTABLE        "SEL"
+#define NEUTRE                  "neutre"
 
 #define HAUTEUR_SANS_ORDONNANCE_MINI                    191                 // Hauteur du formulaire Refraction sans la partie ordonnance sans detail sans observ
 #define HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL             335                 // Hauteur du formulaire Refraction sans la partie ordonnance avec detail sans observ

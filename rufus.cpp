@@ -4380,6 +4380,10 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     for (auto it =  Datas::I()->users->actifs()->constBegin(); it !=  Datas::I()->users->actifs()->constEnd(); ++it)
     {
         User *usr = const_cast<User*>(it.value());
+        if( usr->id() == currentuser()->id() )
+            continue;
+        if (usr->isadmin() || usr->isNeutre())
+            continue;
         listactifs << usr;
     }
     if (m_ok && listactifs.size()>0)

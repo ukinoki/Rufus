@@ -43,7 +43,7 @@ public: //static
     static int COMPTA_SANS_COTATION_AVEC_COMPTABILITE; //3
 
     enum ENREGISTREMENTHONORAIRES {Liberal, Salarie, Retrocession, NoCompta};                       Q_ENUM(ENREGISTREMENTHONORAIRES)
-    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier};    Q_ENUM(METIER)
+    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier, Neutre};    Q_ENUM(METIER)
     enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};               Q_ENUM(RESPONSABLE)
 
 private:
@@ -149,6 +149,7 @@ public:
     QString specialite() const;
     qlonglong NumPS() const;
     QString numOrdre() const;
+    bool isadmin() const                    { return m_login == NOM_ADMINISTRATEUR; }
     bool isAGA() const;
     void setAGA(bool aga) {m_AGA = aga;}
     int idemployeur() const;
@@ -208,6 +209,7 @@ public:
     bool isAutreSoignant();
     bool isNonSoignant();
     bool isSocComptable();
+    bool isNeutre();
     bool isSoignant();
     bool isComptable();
     bool isLiberal();

@@ -63,6 +63,8 @@ private:
     bool                    m_ophtalmo;
     bool                    m_orthoptist;
     bool                    m_autresoignant;
+    bool                    m_autrenonsoignant;
+    bool                    m_neutre;
     bool                    m_medecin;
     bool                    m_soccomptable;
     bool                    m_assistant;

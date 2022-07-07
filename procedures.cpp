@@ -3304,12 +3304,12 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 {
     if (currentuser()->isSoignant() )
     {
-        dlg_askUser                = new UpDialog();
-        dlg_askUser                ->AjouteLayButtons();
-        dlg_askUser                ->setAccessibleName(QString::number(currentuser()->id()));
-        dlg_askUser->setdata(currentuser());
-        QVBoxLayout *boxlay     = new QVBoxLayout;
-        dlg_askUser->dlglayout()   ->insertLayout(0,boxlay);
+        dlg_askUser                 = new UpDialog();
+        dlg_askUser                 ->AjouteLayButtons();
+        dlg_askUser                 ->setAccessibleName(QString::number(currentuser()->id()));
+        dlg_askUser                 ->setdata(currentuser());
+        QVBoxLayout *boxlay         = new QVBoxLayout;
+        dlg_askUser->dlglayout()    ->insertLayout(0,boxlay);
 
         QGroupBox *boxrole      = new QGroupBox(dlg_askUser);
         boxrole                 ->setAccessibleName("Role");
@@ -3659,6 +3659,10 @@ void Procedures::CalcUserSuperviseur()
         if( usr->id() == user->id() )
             continue;
         if( currentuser()->isMedecin() && !usr->isMedecin() )
+            continue;
+        if( currentuser()->isOrthoptist() && !usr->isSoignant() )
+            continue;
+        if (usr->isadmin() || usr->isNeutre())
             continue;
         listUserFound << usr;
     }
