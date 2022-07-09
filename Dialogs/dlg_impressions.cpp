@@ -3259,8 +3259,6 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
 
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
-    QPalette palette;
-    palette.setColor(QPalette::Text,QColor(0,0,140));
 
     UpStandardItem *pitem0 = new UpStandardItem("", doc);
     pitem0->setCheckable(true);

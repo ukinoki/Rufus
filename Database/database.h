@@ -366,7 +366,7 @@ public:
 private:
     QJsonObject             loadCommentLunetData(QVariantList refdata);         //! attribue le liste des datas à un commentaire lunette
 public:
-    QList<CommentLunet*>    loadCommentsLunetsByListidUser(QList<int> listid);  //! charge tous les commentaires lunettes
+    QList<CommentLunet*>    loadCommentsLunets();                               //! charge tous les commentaires lunettes
     CommentLunet*           loadCommentLunetById(int idref);                    //! charge un commentaire défini par son id - utilisé pour renouveler les données en cas de modification
 
     /*

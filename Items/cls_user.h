@@ -69,7 +69,8 @@ private:
     QString m_memo = "";                //!> memo sur l'utilisateur
     QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
     QString m_policeAttribut = "";      //!> le choix d'attribut de la police d'écran
-    bool m_affichedocspublics = true;   //!> affiche les odcs publics des autres utilisateurs dans la fiche impressions
+    bool m_affichedocspublics = true;   //!> affiche les docs publics des autres utilisateurs dans la fiche impressions
+    bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
 
     int m_soignant;
     qlonglong m_numPS;
@@ -182,6 +183,8 @@ public:
     QString policeattribut() const  { return m_policeAttribut; }
     bool    affichedocspublics() const { return m_affichedocspublics; }
     void    setaffichedocspublics(bool aff)  { m_affichedocspublics = aff; }
+    bool    affichecommentslunettespublics() const { return m_affichecommentslunettespublics; }
+    void    setaffichecommentslunettespublics(bool aff)  { m_affichecommentslunettespublics = aff; }
 
     RESPONSABLE responsableactes() const;
 

@@ -89,7 +89,7 @@ void dlg_refraction::ConnectSignals()
     connect (ui->OGPrescritCheckBox,                &QCheckBox::stateChanged,                   this,     [=] (int a) {PrescritCheckBox_Changed(ui->OGPrescritCheckBox, a);});
     connect (ui->PlanODCheckBox,                    &QCheckBox::stateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanODCheckBox, a);});
     connect (ui->PlanOGCheckBox,                    &QCheckBox::stateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanOGCheckBox, a);});
-    connect (ui->PrescriptionRadioButton,           &QRadioButton::clicked,                     this,     &dlg_refraction::RadionButtonPrescription_clicked);
+    connect (ui->PrescriptionRadioButton,           &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonPrescription_clicked);
 
     connect (ui->RefractionRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonRefraction_Clicked);
     connect (ui->RyserODCheckBox,                   &QCheckBox::stateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserODCheckBox, a);});
@@ -152,7 +152,7 @@ void dlg_refraction::RadioButtonRefraction_Clicked()
     if(!ui->CycloplegieCheckBox->isChecked())   ui->V2RadioButton->setChecked(true);
     RegleAffichageFiche();
 }
-void dlg_refraction::RadionButtonPrescription_clicked()
+void dlg_refraction::RadioButtonPrescription_clicked()
 {
     m_mode = Refraction::Prescription;
     ui->ODPrescritCheckBox->setChecked(ui->ODCheckBox->isChecked());
@@ -167,6 +167,8 @@ void dlg_refraction::RadionButtonPrescription_clicked()
             ui->VLPrescritRadioButton->setChecked(true);
         else ui->V2PrescritRadioButton->setChecked(true);
     }
+    Datas::I()->commentslunets->initListe();
+    m_commentaire           = CommentaireObligatoire();
     RegleAffichageFiche();
 }
 
@@ -470,11 +472,18 @@ void dlg_refraction::Commentaires()
     dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires();
     if (Dlg_Comments->exec() > 0)
     {
-        m_commentaire =  Dlg_Comments->Commentaire();
-        ResumePrescription();
-        m_commentaireresume = Dlg_Comments->CommentaireResume();
+        m_commentaire = "";
+        for (int i=0; i<Dlg_Comments->ListeCommentaires().size(); ++i) {
+            CommentLunet *com = Dlg_Comments->ListeCommentaires().at(i);
+            if (com)
+            {
+                m_commentaire += (m_commentaire!= ""? "\n" + com->texte() : com->texte());
+                m_commentaireresume += (m_commentaireresume!= ""? " - " + com->resume() : com->resume());
+            }
+            ResumePrescription();
+        }
+        Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
     }
-    Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_Comments;
 }
 
@@ -919,7 +928,6 @@ void dlg_refraction::Init_variables()
     m_affichedetail          = false;
 
     ui->DateDateEdit        ->setDate(QDate::currentDate());
-    m_commentaire           = CommentaireObligatoire();
     m_commentaireresume     = "";
     m_escapeflag              = true;
 }
@@ -1459,7 +1467,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     if (Pied == "") return false;
 
     // creation du corps de l'ordonnance
-    Corps = proc->CalcCorpsImpression(ui->ResumePrescriptionTextEdit->toPlainText());
+    Corps = proc->CalcCorpsImpression(ui->ResumePrescriptionTextEdit->toHtml());
     if (Corps == "") return false;
 
     QTextEdit *Etat_textEdit = new QTextEdit;
@@ -1694,20 +1702,13 @@ MesureRefraction* dlg_refraction::CalcMesureRefraction()
 QString dlg_refraction::CommentaireObligatoire()
 {
     QString rep ("");
-    bool ok;
-    QString req = "SELECT TextComment"
-                  " FROM "  TBL_COMMENTAIRESLUNETTES
-                  " WHERE idUser = " + QString::number(Datas::I()->users->userconnected()->id()) +
-                  " and ParDefautComment = 1"
-                  " ORDER BY ResumeComment";
-    QList<QVariantList> commentlist = db->StandardSelectSQL(req,ok);
-    if (ok && commentlist.size()>0)
-        foreach (const QVariant &comment, commentlist)
-        {
-            rep += comment.toString();
-            if (comment != commentlist.last())
-                rep += "\n";
-        }
+    for (auto itcom = Datas::I()->commentslunets->commentaires()->constBegin(); itcom != Datas::I()->commentslunets->commentaires()->constEnd(); itcom ++)
+    {
+        CommentLunet *com = itcom.value();
+        if (com->isdefaut())
+            if (com->iduser() == currentuser()->id())
+                rep += (rep != ""? "\n" + com->texte() : com->texte());
+    }
     return rep;
 }
 
@@ -2034,7 +2035,7 @@ void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
             RemplitChamps(ref);
             m_mode = ref->typemesure();
             if (m_mode == Refraction::Prescription)
-                RadionButtonPrescription_clicked();
+                RadioButtonPrescription_clicked();
             else
                 RegleAffichageFiche();
         }
@@ -2178,7 +2179,7 @@ void dlg_refraction::RechercheMesureEnCours()
             AfficheKerato();
             // on passe au mode de mesure suivant
             if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)
-                RadionButtonPrescription_clicked();
+                RadioButtonPrescription_clicked();
             else if (Reponse == Refraction::Fronto)
             {
                 m_mode = Refraction::Autoref;
@@ -3432,9 +3433,15 @@ void dlg_refraction::ResumePrescription()
         Resultat = Resultat + "\n" + tr("2 montures");
 
     //4-6 Les commentaires
-    Resultat = Resultat + "\n" + m_commentaire;
-    if (ui->CommentairePrescriptionTextEdit->document()->toPlainText() > "")
-        Resultat = Resultat + "\n" + ui->CommentairePrescriptionTextEdit->document()->toPlainText();
+    QTextEdit txtedit;
+    txtedit.setText(Resultat);
+    Resultat = txtedit.toHtml();
+    if (ui->CommentairePrescriptionTextEdit->toPlainText() != "")
+        Resultat += HTML_RETOURLIGNE + ui->CommentairePrescriptionTextEdit->toHtml();
+    Resultat += HTML_RETOURLIGNE "<td width=\"60\">""</td>";
+    txtedit.setText(m_commentaire);
+    m_commentaire = txtedit.toHtml();
+    Resultat += HTML_RETOURLIGNE "<td width=\"500\"><span style=\"font-size:10pt;color:blue\"><b>" + m_commentaire.toUpper() + "</b></span></td>";
 
     ui->ResumePrescriptionTextEdit->setText(Resultat);
 }
@@ -3999,7 +4006,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     }
     else
     {
-        RadionButtonPrescription_clicked();
+        RadioButtonPrescription_clicked();
         m_mode = Refraction::Prescription;
         MesureRefracteur = Datas::I()->mesurefinal;
     }

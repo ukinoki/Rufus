@@ -32,7 +32,7 @@ public:
     QMap<int, CommentLunet*> *commentaires() const;
 
     CommentLunet* getById(int id, bool reload = false);
-    void initListeByListUsers(QList<int> listid);
+    void initListe();
 
     //!> actions sur les enregistrements
     void                SupprimeCommentLunet(CommentLunet *comment);

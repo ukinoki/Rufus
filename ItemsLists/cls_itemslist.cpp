@@ -575,6 +575,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 usr->setaffichedocspublics(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
             }
+            if (field == CP_AFFICHECOMMENTSPUBLICS_USR )
+            {
+                usr->setaffichecommentslunettespublics(newvalue.toBool());
+                newvalue = (newvalue.toBool()? "1" : "null");
+            }
             else
                 ok = false;
             break;

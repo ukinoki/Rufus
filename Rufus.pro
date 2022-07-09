@@ -130,4 +130,35 @@ DISTFILES += \
     _Diagrams/Gestion des documents sous Rufus.pdf \
     _Diagrams/Recuperation_CCAM-howto.txt \
     _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
-    assets/A_faire.odt
+    assets/A_faire.odt \
+    assets/Fichiers/ComptaMedicale.sql \
+    assets/Fichiers/Corps_OrdoALD.txt \
+    assets/Fichiers/Corps_Ordonnance.txt \
+    assets/Fichiers/Entete_OrdoALD.txt \
+    assets/Fichiers/Entete_Ordonnance.txt \
+    assets/Fichiers/Images.sql \
+    assets/Fichiers/Ophtalmologie.sql \
+    assets/Fichiers/Pied_Ordonnance.txt \
+    assets/Fichiers/Pied_Ordonnance_Lunettes.txt \
+    assets/Fichiers/majbase54.sql \
+    assets/Fichiers/majbase55.sql \
+    assets/Fichiers/majbase56.sql \
+    assets/Fichiers/majbase57.sql \
+    assets/Fichiers/majbase58.sql \
+    assets/Fichiers/majbase59.sql \
+    assets/Fichiers/majbase60.sql \
+    assets/Fichiers/majbase61.sql \
+    assets/Fichiers/majbase62.sql \
+    assets/Fichiers/majbase63.sql \
+    assets/Fichiers/majbase64.sql \
+    assets/Fichiers/majbase65.sql \
+    assets/Fichiers/majbase66.sql \
+    assets/Fichiers/majbase67.sql \
+    assets/Fichiers/majbase68.sql \
+    assets/Fichiers/majbase69.sql \
+    assets/Fichiers/majbase70.sql \
+    assets/Fichiers/majbase71.sql \
+    assets/Fichiers/oplus.sql \
+    assets/Fichiers/pdf.pdf \
+    assets/Fichiers/recupccam.sql \
+    assets/Fichiers/rufus.sql

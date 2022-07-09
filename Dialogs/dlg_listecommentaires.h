@@ -30,9 +30,8 @@ public:
     dlg_listecommentaires(QWidget *parent = Q_NULLPTR);
     ~dlg_listecommentaires();
 
-    QString Commentaire() const         { return m_commentaire; }
-    QString CommentaireResume() const   { return m_commentaireresume; }
-    enum Mode                           {Selection, Modification, Creation};     Q_ENUM(Mode)
+    QList<CommentLunet*>        ListeCommentaires() const   { return m_listcommentaires;}
+    enum Mode                   {Selection, Modification, Creation};     Q_ENUM(Mode)
 
 private:
     DataBase                    *db              = DataBase::I();
@@ -41,16 +40,17 @@ private:
     Mode                        m_mode;
     UpTableView                 *wdg_tblview;
     UpTextEdit                  *wdg_comtxt;
+    UpCheckBox                  *wdg_publicchkbox;
     WidgetButtonFrame           *wdg_buttonframe;
     UpStandardItemModel         *m_model = Q_NULLPTR;
     CommentLunet                *m_currentcomment = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
-    QString                     m_commentaire = "";
-    QString                     m_commentaireresume = "";
+    QList<CommentLunet*>        m_listcommentaires = QList<CommentLunet*>();
     QString                     m_textdelegate = "";
 
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
+    void                        AfficheCommentsPublics(bool a);
     void                        Annulation();
     bool                        ChercheDoublon(QString str, int row);
     void                        ChoixButtonFrame();

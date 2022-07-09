@@ -419,7 +419,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,70,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,71,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -877,7 +877,8 @@ CREATE TABLE `flags` (
   `MAJflagSalDat` int(11) DEFAULT NULL,
   `MAJflagMG` int(11) DEFAULT NULL,
   `MAJflagMessages` int(11) DEFAULT NULL,
-  `flagUserDistant` int(11) DEFAULT NULL
+  `flagUserDistant` int(11) DEFAULT NULL,
+  `MAJflagImpressions` INT(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -887,7 +888,7 @@ CREATE TABLE `flags` (
 
 LOCK TABLES `flags` WRITE;
 /*!40000 ALTER TABLE `flags` DISABLE KEYS */;
-INSERT INTO `flags` VALUES (3,NULL,NULL,NULL);
+INSERT INTO `flags` VALUES (3,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `flags` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1115,7 +1116,7 @@ CREATE TABLE `utilisateurs` (
   `IdCompteParDefaut` int(11) DEFAULT NULL,
   `UserNumPS` bigint(12) DEFAULT NULL,
   `UserNumCO` varchar(25) DEFAULT NULL,
-  `Soignant` int(11) DEFAULT NULL COMMENT '1 = ophtalmo\n2 = orthoptiste\n3 = autre\n4 = Non soignant\n5 = societe comptable\n6 = neutre (poste qui n’interviendra pas sur les données)',
+  `Soignant` int(11) DEFAULT NULL COMMENT '1 = ophtalmo\n2 = orthoptiste\n3 = autre\n4 = Non soignant\n5 = societe comptable\n6 = neutre (poste ne modifiant pas les donnees et sans affichage des donnees medicales)',
   `Medecin` int(1) DEFAULT NULL,
   `ResponsableActes` int(11) DEFAULT NULL COMMENT '1 = effectue exlusivement des actes sous sa responsabilite\n2 = effectue des actes sous sa responsabilite et sous celle des autres users\n3 = n effectue aucun acte sous sa responsabilite',
   `UserEnregHonoraires` tinyint(1) DEFAULT NULL COMMENT '1 = liberal\n2 = salarie\n3 = retrocession\n4 = pas de comptabilite',
@@ -1134,6 +1135,7 @@ CREATE TABLE `utilisateurs` (
   `DateCreationMDP` date DEFAULT NULL,
   `UserBarCode` blob,
   `AfficheDocsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les documents rendus publics par leur createur dans la fiche Impressions',
+  `AfficheCommentsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les commentaires de lunettes rendus publics par leur createur dans la fiche commentaires lunettes',
   PRIMARY KEY (`idUser`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

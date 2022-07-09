@@ -23,10 +23,11 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionCommentaires", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    wdg_tblview = new UpTableView();
-    wdg_comtxt = new UpTextEdit();
-    wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
-    wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
+    wdg_tblview         = new UpTableView();
+    wdg_comtxt          = new UpTextEdit();
+    wdg_publicchkbox    = new UpCheckBox();
+    wdg_buttonframe     = new WidgetButtonFrame(wdg_tblview);
+    wdg_buttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     CancelButton    ->disconnect();
@@ -52,19 +53,17 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     wdg_comtxt->setFixedHeight(80);
     wdg_tblview->installEventFilter(this);
 
+    wdg_publicchkbox->setText(tr("Afficher les commentaires publics\ndes autres utilisateurs"));
+    wdg_publicchkbox->setChecked(currentuser()->affichecommentslunettespublics());
+    buttonslayout()->insertWidget(0, wdg_publicchkbox);
+
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_listecommentaires::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_listecommentaires::Annulation);
     connect (wdg_comtxt,        &QTextEdit::textChanged,    this,   [&] { OKButton->setEnabled(true);});
     connect (wdg_comtxt,        &UpTextEdit::dblclick,      this,   &dlg_listecommentaires::dblClicktextEdit);
     connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_listecommentaires::ChoixButtonFrame);
+    connect (wdg_publicchkbox,  &QCheckBox::clicked,        this,   [&](bool a) {AfficheCommentsPublics(a);});
 
-    QList<int> listiduser;
-    listiduser << currentuser()->id();
-    if (currentuser()->idsuperviseur() != currentuser()->id())
-        listiduser << currentuser()->idsuperviseur();
-    if ((currentuser()->idparent() != currentuser()->idsuperviseur()) && (currentuser()->idparent() != currentuser()->id()))
-        listiduser << currentuser()->idparent();
-    Datas::I()->commentslunets->initListeByListUsers(listiduser);
     RemplirTableView();
     if (m_model->rowCount()>0)
     {
@@ -103,6 +102,21 @@ void dlg_listecommentaires::keyPressEvent(QKeyEvent * event )
     }
     default:
         break;
+    }
+}
+
+// ----------------------------------------------------------------------------------
+// Affiche ou non les commentaires publics des autres utilisateurs
+// ----------------------------------------------------------------------------------
+void dlg_listecommentaires::AfficheCommentsPublics(bool a)
+{
+    ItemsList::update(currentuser(), CP_AFFICHECOMMENTSPUBLICS_USR,a);
+    for (int j=0; j<m_model->rowCount(); j++)
+    {
+        CommentLunet *com = getCommentFromIndex(m_model->index(j,0));
+        if (com)
+            if (com->iduser() != currentuser()->id())
+                wdg_tblview->setRowHidden(m_model->getRowFromItem(com),!a);
     }
 }
 
@@ -209,7 +223,7 @@ void dlg_listecommentaires::ChoixMenuContextuel(QString choix)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row,2));
         if (itm)
         {
-            if(itm->data(Qt::DecorationRole) != QPixmap())
+            if(itm->data(Qt::DecorationRole) == QPixmap())
                 itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
             else
                 itm->setData(QPixmap(),Qt::DecorationRole);
@@ -217,9 +231,37 @@ void dlg_listecommentaires::ChoixMenuContextuel(QString choix)
         if (m_mode == Selection)
             ItemsList::update(m_currentcomment, CP_PARDEFAUT_COMLUN,!m_currentcomment->isdefaut());
     }
+    else if (choix  == "Public")
+    {
+        int row = m_model->getRowFromItem(m_currentcomment);
+        if (row== -1)
+            return;
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row,3));
+        if (itm)
+        {
+            if(itm->data(Qt::DecorationRole) == QPixmap())
+                itm->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+            else
+                itm->setData(QPixmap(),Qt::DecorationRole);
+        }
+        if (m_mode == Selection)
+            ItemsList::update(m_currentcomment, CP_PUBLIC_COMLUN,!m_currentcomment->ispublic());
+    }
     else if (choix  == "Creer")
     {
         ConfigMode(Creation,m_currentcomment);
+    }
+    else if (choix  == "Recopier")
+    {
+        // Creation du Document dans la table
+        m_listbinds[CP_TEXT_COMLUN]     = m_currentcomment->texte();
+        m_listbinds[CP_RESUME_COMLUN]   = m_currentcomment->resume();
+        m_listbinds[CP_IDUSER_COMLUN]   = currentuser()->id();
+        m_listbinds[CP_PARDEFAUT_COMLUN]= (m_currentcomment->isdefaut()?  "1" : QVariant());
+        m_listbinds[CP_PUBLIC_COMLUN]   = QVariant();
+        m_currentcomment = Q_NULLPTR;
+        m_currentcomment = Datas::I()->commentslunets->CreationCommentLunet(m_listbinds);
+        RemplirTableView();
     }
 }
 
@@ -442,6 +484,8 @@ void dlg_listecommentaires::MenuContextuel()
     QAction *pAction_Suppr;
     QAction *pAction_Creer;
     QAction *pAction_ParDefaut;
+    QAction *pAction_Public;
+    QAction *pAction_Recopier;
 
     pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
     connect (pAction_Creer,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Creer");});
@@ -449,19 +493,31 @@ void dlg_listecommentaires::MenuContextuel()
     QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
     m_currentcomment = getCommentFromIndex(idx);
     if (m_currentcomment)
-        if (m_currentcomment->iduser() == currentuser()->id())
     {
-        pAction_Modif                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce commentaire"));
-        pAction_Suppr                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce commentaire"));
-        menuContextuel->addSeparator();
-        if (!m_currentcomment->isdefaut())
-            pAction_ParDefaut                = menuContextuel->addAction(Icons::icBlackCheck(), tr("Par défaut"));
+        if (m_currentcomment->iduser() == currentuser()->id())
+        {
+            pAction_Modif                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce commentaire"));
+            pAction_Suppr                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce commentaire"));
+            menuContextuel->addSeparator();
+            if (m_currentcomment->isdefaut())
+                pAction_ParDefaut               = menuContextuel->addAction(Icons::icBlackCheck(), tr("Par défaut"));
+            else
+                pAction_ParDefaut               = menuContextuel->addAction("Par défaut") ;
+            if (m_currentcomment->ispublic() && m_currentcomment->iduser() == currentuser()->id())
+                pAction_Public                  = menuContextuel->addAction(Icons::icBlackCheck(), tr("Public"));
+            else
+                pAction_Public                  = menuContextuel->addAction("Public") ;
+            pAction_ParDefaut->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
+            connect (pAction_ParDefaut,  &QAction::triggered, this,   [=] {ChoixMenuContextuel("ParDefaut");});
+            connect (pAction_Public,     &QAction::triggered, this,   [=] {ChoixMenuContextuel("Public");});
+            connect (pAction_Modif,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Modifier");});
+            connect (pAction_Suppr,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Supprimer");});
+        }
         else
-            pAction_ParDefaut                = menuContextuel->addAction("Par défaut") ;
-        pAction_ParDefaut->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
-        connect (pAction_ParDefaut,          &QAction::triggered, this,   [=] {ChoixMenuContextuel("ParDefaut");});
-        connect (pAction_Modif,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Modifier");});
-        connect (pAction_Suppr,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Supprimer");});
+        {
+            pAction_Recopier             = menuContextuel->addAction(Icons::icCopy(), tr("Recopier ce commentaire"));
+            connect (pAction_Recopier,   &QAction::triggered, this,   [=] {ChoixMenuContextuel("Recopier");});
+        }
     }
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -490,14 +546,17 @@ void dlg_listecommentaires::RemplirTableView()
     pitem0->setTextAlignment(Qt::AlignCenter);
     m_model->setHorizontalHeaderItem(0,pitem0);
     QStandardItem *pitem1   = new QStandardItem(tr("TITRES DES COMMENTAIRES"));
-    pitem0->setEditable(false);
-    pitem0->setTextAlignment(Qt::AlignLeft);
-    m_model->setHorizontalHeaderItem(1,pitem1);
-    QStandardItem *pitem2   = new QStandardItem();
     pitem1->setEditable(false);
+    pitem1->setTextAlignment(Qt::AlignLeft);
+    m_model->setHorizontalHeaderItem(1,pitem1);
+    QStandardItem *pitem2   = new QStandardItem(Icons::pxBlackCheck().scaled(15,15),"");    // par défaut
+    pitem2->setEditable(false);
     m_model->setHorizontalHeaderItem(2,pitem2);
+    QStandardItem *pitem3   = new QStandardItem(Icons::icFamily(),"");    // public
+    pitem3->setEditable(false);
+    m_model->setHorizontalHeaderItem(3,pitem3);
     m_model->setRowCount(Datas::I()->commentslunets->commentaires()->size());
-    m_model->setColumnCount(3);
+    m_model->setColumnCount(4);
     for (int i=0; i<Datas::I()->commentslunets->commentaires()->size(); i++)
     {
         CommentLunet *com = Datas::I()->commentslunets->commentaires()->values().at(i);
@@ -517,9 +576,11 @@ void dlg_listecommentaires::RemplirTableView()
         wdg_tblview->setColumnWidth(0,30);      // Check
         wdg_tblview->setColumnWidth(1,380);     // Resumé
         wdg_tblview->setColumnWidth(2,30);      // DefautIcon
+        wdg_tblview->setColumnWidth(3,30);      // PublicIcon
         wdg_tblview->FixLargeurTotale();
         wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
         ConfigMode(Selection);
+        AfficheCommentsPublics(currentuser()->affichecommentslunettespublics());
         connect(wdg_tblview,     &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
                                                                                                             CommentLunet *com = getCommentFromIndex(idx);
                                                                                                             if (com)
@@ -609,22 +670,33 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row, bool res
         return;
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
+
     UpStandardItem *pitem0 = new UpStandardItem("", com);
     pitem0->setCheckable(true);
-    if (com->isdefaut())
+    if (com->isdefaut() && com->iduser() == currentuser()->id())
         pitem0->setCheckState(Qt::Checked);
     m_model->setItem(row,0,pitem0);
     QModelIndex index = m_model->index(row, 1, QModelIndex());
     m_model->setData(index, com->resume());
     if (com->iduser() != currentuser()->id())
-        m_model->itemFromIndex(index)->setFont(disabledFont);
+        {
+            m_model->itemFromIndex(index)->setFont(disabledFont);
+            m_model->itemFromIndex(index)->setForeground(QBrush(QColor(0,0,140)));
+        }
     UpStandardItem *pitem1 = new UpStandardItem("", com);
-    if (com->isdefaut())
+    if (com->isdefaut() && com->iduser() == currentuser()->id())                   // par défaut
         pitem1->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
     else
         pitem1->setData(QPixmap(),Qt::DecorationRole);
     pitem1->setFlags(Qt::NoItemFlags);
     m_model->setItem(row,2, pitem1);
+    UpStandardItem *pitem2 = new UpStandardItem("", com);
+    if (com->ispublic())                                                            // public
+        pitem2->setData(Icons::pxBlackCheck().scaled(15,15),Qt::DecorationRole);
+    else
+        pitem2->setData(QPixmap(),Qt::DecorationRole);
+    pitem2->setFlags(Qt::NoItemFlags);
+    m_model->setItem(row,3, pitem2);
     if(!resizecolumn)
         return;
 
@@ -632,6 +704,7 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row, bool res
     wdg_tblview->setColumnWidth(0,30);      // Check
     wdg_tblview->setColumnWidth(1,380);     // Resumé
     wdg_tblview->setColumnWidth(2,30);      // DefautIcon
+    wdg_tblview->setColumnWidth(3,30);      // Public
 }
 
 // ----------------------------------------------------------------------------------
@@ -703,14 +776,9 @@ void dlg_listecommentaires::Validation()
             {
                 CommentLunet *com = dynamic_cast<CommentLunet*>(itm->item());
                 if (com)
-                {
-                    m_commentaire       += com->texte() + "\n";
-                    m_commentaireresume += " - " + com->resume();
-                }
+                    m_listcommentaires << com;
             }
         }
-        if (m_commentaireresume != "")
-            m_commentaireresume = "\n" + m_commentaireresume;
         accept();
     }
 }

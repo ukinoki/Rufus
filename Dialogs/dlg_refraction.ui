@@ -1654,6 +1654,9 @@ et fermer</string>
        <property name="styleSheet">
         <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
        </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
        <property name="textInteractionFlags">
         <set>Qt::NoTextInteraction</set>
        </property>
@@ -1927,14 +1930,14 @@ prédéfini</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

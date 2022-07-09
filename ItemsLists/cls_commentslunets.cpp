@@ -55,9 +55,9 @@ CommentLunet* CommentsLunets::getById(int id, bool reload)
  * Charge l'ensemble des commentaires
  * et les ajoute à la classe CommentsLunets
  */
-void CommentsLunets::initListeByListUsers(QList<int> listid)
+void CommentsLunets::initListe()
 {
-    QList<CommentLunet*> listCommentsLunets = DataBase::I()->loadCommentsLunetsByListidUser(listid);
+    QList<CommentLunet*> listCommentsLunets = DataBase::I()->loadCommentsLunets();
     epurelist(map_all, &listCommentsLunets);
     addList(map_all, &listCommentsLunets, Item::Update);
 }

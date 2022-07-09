@@ -68,56 +68,56 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     // Close le plus à droite et OK juste avant Close
     if (Button.testFlag(ButtonRecord))
     {
-        RecordButton    = new UpSmallButton();
-        RecordButton    ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
-        wdg_buttonslayout      ->addWidget(RecordButton);
+        RecordButton        = new UpSmallButton();
+        RecordButton        ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
+        wdg_buttonslayout   ->addWidget(RecordButton);
     }
     if (Button.testFlag(ButtonCancel))
     {
-        CancelButton    = new UpSmallButton();
-        CancelButton    ->setShortcut(QKeySequence("F12"));
-        CancelButton    ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-        wdg_buttonslayout      ->addWidget(CancelButton);
+        CancelButton        = new UpSmallButton();
+        CancelButton        ->setShortcut(QKeySequence("F12"));
+        CancelButton        ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
+        wdg_buttonslayout   ->addWidget(CancelButton);
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }
     if (Button.testFlag(ButtonPrint))
     {
-        PrintButton     = new UpSmallButton();
-        PrintButton     ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
-        PrintButton     ->setShortcut(QKeySequence("Meta+P"));
-        wdg_buttonslayout      ->addWidget(PrintButton);
+        PrintButton         = new UpSmallButton();
+        PrintButton         ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
+        PrintButton         ->setShortcut(QKeySequence("Meta+P"));
+        wdg_buttonslayout   ->addWidget(PrintButton);
     }
     if (Button.testFlag(ButtonSuppr))
     {
-        SupprButton     = new UpSmallButton();
-        SupprButton     ->setUpButtonStyle(UpSmallButton::SUPPRBUTTON);
-        wdg_buttonslayout      ->addWidget(SupprButton);
+        SupprButton         = new UpSmallButton();
+        SupprButton         ->setUpButtonStyle(UpSmallButton::SUPPRBUTTON);
+        wdg_buttonslayout   ->addWidget(SupprButton);
     }
     if (Button.testFlag(ButtonEdit))
     {
-        EditButton     = new UpSmallButton();
-        EditButton     ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
-        wdg_buttonslayout     ->addWidget(EditButton);
+        EditButton          = new UpSmallButton();
+        EditButton          ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
+        wdg_buttonslayout   ->addWidget(EditButton);
     }
     if (Button.testFlag(ButtonOK))
     {
-        OKButton        = new UpSmallButton();
-        OKButton        ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-        OKButton        ->setShortcut(QKeySequence("Meta+Return"));
-        wdg_buttonslayout      ->addWidget(OKButton);
+        OKButton            = new UpSmallButton();
+        OKButton            ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+        OKButton            ->setShortcut(QKeySequence("Meta+Return"));
+        wdg_buttonslayout   ->addWidget(OKButton);
     }
     if (Button.testFlag(ButtonClose))
     {
-        CloseButton     = new UpSmallButton();
-        CloseButton     ->setUpButtonStyle(UpSmallButton::CLOSEBUTTON);
-        CloseButton     ->setShortcut(QKeySequence("Meta+P"));
-        wdg_buttonslayout      ->addWidget(CloseButton);
+        CloseButton         = new UpSmallButton();
+        CloseButton         ->setUpButtonStyle(UpSmallButton::CLOSEBUTTON);
+        CloseButton         ->setShortcut(QKeySequence("Meta+P"));
+        wdg_buttonslayout   ->addWidget(CloseButton);
     }
     if (Button.testFlag(ButtonOups))
     {
-        CloseButton     = new UpSmallButton();
-        CloseButton     ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
-        wdg_buttonslayout      ->addWidget(CloseButton);
+        CloseButton         = new UpSmallButton();
+        CloseButton         ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
+        wdg_buttonslayout   ->addWidget(CloseButton);
     }
     UpdateTabOrder();
     setStageCount(1);

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-07-2022/1");
+    qApp->setApplicationVersion("08-07-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -295,7 +295,8 @@ void Rufus::ConnectSignals()
     connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   &Rufus::ChercherDepuisListe);
     connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   &Rufus::MajusculeCreerNom);
     connect (ui->CreerPrenomlineEdit,                               &QLineEdit::textEdited,                             this,   &Rufus::MajusculeCreerPrenom);
-    connect (ui->CreerDossierpushButton,                            &QPushButton::clicked,                              this,   &Rufus::CreerDossierpushButtonClicked);
+    if (!currentuser()->isNeutre())
+        connect (ui->CreerDossierpushButton,                        &QPushButton::clicked,                              this,   &Rufus::CreerDossierpushButtonClicked);
     connect (ui->DernierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Fin);});
     connect (ui->EnregistrePaiementpushButton,                      &QPushButton::clicked,                              this,   [=] {AppelPaiementDirect(BoutonPaiement);});
     connect (ui->FermepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
@@ -305,10 +306,14 @@ void Rufus::ConnectSignals()
     connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
     connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::ModeSelectDepuisListe);
     connect (ui->LListepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::ModeSelectDepuisListe);
-    connect (ui->LNouvDossierpushButton,                            &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
-    connect (ui->LRecopierpushButton,                               &QPushButton::clicked,                              this,   [=] {RecopierDossier();});
+    if (!currentuser()->isNeutre())
+    {
+        connect (ui->LNouvDossierpushButton,                        &QPushButton::clicked,                              this,   &Rufus::ModeCreationDossier);
+        connect (ui->LRecopierpushButton,                           &QPushButton::clicked,                              this,   [=] {RecopierDossier();});
+    }
     connect (ui->SendMessagepushButton,                             &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map, currentpatient()->id());});
-    connect (ui->LSendMessagepushButton,                            &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map);});
+    if (!currentuser()->isNeutre())
+        connect (ui->LSendMessagepushButton,                        &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map);});
     connect (ui->MGupComboBox,                                      QOverload<int>::of(&QComboBox::activated),          this,   &Rufus::ChoixMG);
     connect (ui->AutresCorresp1upComboBox,                          QOverload<int>::of(&QComboBox::activated),          this,   [=] {ChoixCor(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          QOverload<int>::of(&QComboBox::activated),          this,   [=] {ChoixCor(ui->AutresCorresp2upComboBox);});
@@ -323,8 +328,11 @@ void Rufus::ConnectSignals()
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   &Rufus::OuvrirActesPrecspushButtonClicked);
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
     connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {ImprimeDocument(currentpatient());});
-    connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelListePatients);
-    connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {OuvrirDossier(getPatientFromCursorPositionInTable());});
+    if (!currentuser()->isNeutre())
+    {
+        connect (ui->PatientsListeTableView,                        &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelListePatients);
+        connect (ui->PatientsListeTableView,                        &QTableView::doubleClicked,                         this,   [=] {OuvrirDossier(getPatientFromCursorPositionInTable());});
+    }
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   &Rufus::EnableButtons);
     connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   &Rufus::AffichePatientsVusWidget);
@@ -1104,8 +1112,15 @@ void Rufus::AfficheMenu(QMenu *menu)
 
     if (menu == menuDossier)
     {
+        actionOuvrirDossier         ->setVisible(!currentuser()->isNeutre());
+        actionCreerDossier          ->setVisible(!currentuser()->isNeutre());
+        actionRecopierDossier       ->setVisible(!currentuser()->isNeutre());
         actionSupprimerDossier->setEnabled(true);
         actionSupprimerDossier->setVisible(ui->tabWidget->currentWidget() == ui->tabDossier && currentuser()->isSoignant());
+    }
+    if (menu == menuEdition)
+    {
+        actionParametres         ->setVisible(!currentuser()->isNeutre());
     }
     if (menu == menuDocuments)
     {
@@ -1789,7 +1804,7 @@ void Rufus::CreerDossierpushButtonClicked()
 {
     if (m_mode == NouveauDossier)
         CreerDossier();
-    else if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() > 0)
+    else if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() > 0 && !currentuser()->isNeutre())
         OuvrirDossier(getPatientFromSelectionInTable());
 }
 
@@ -3526,6 +3541,8 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
 
 void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 {
+    if (currentuser()->isNeutre())
+        return;
     int idpat (0);
     if (labelClicked == Q_NULLPTR) return;
     QMap<QString, QVariant> rsgnmt = labelClicked->datas();
@@ -3572,6 +3589,8 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 
 void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
 {
+    if (currentuser()->isNeutre())
+        return;
     int idpat(0);
     QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
     if (labelClicked == Q_NULLPTR) return;
@@ -5829,7 +5848,8 @@ void Rufus::keyPressEvent (QKeyEvent * event )
                 if (m_mode == NouveauDossier)
                     CreerDossier();
                 else if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() > 0)
-                    OuvrirDossier(getPatientFromSelectionInTable());
+                    if (!currentuser()->isNeutre())
+                        OuvrirDossier(getPatientFromSelectionInTable());
             }
 
         }

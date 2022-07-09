@@ -356,7 +356,7 @@ CREATE TABLE `commentaireslunettes` (
 
 LOCK TABLES `commentaireslunettes` WRITE;
 /*!40000 ALTER TABLE `commentaireslunettes` DISABLE KEYS */;
-INSERT INTO `commentaireslunettes` VALUES (16,'Varilux Digitime Room','Varilux Digitime Room',0,1,1),(17,'IntolÃ©rance aux verres progressifs','IntolÃ©rance aux verres progressifs',0,1,1),(18,'Verres bifocaux','Verres bifocaux',0,1,1),(19,'Prescription de verres teintÃ©s ne remplissant pas les conditions de remboursement prÃ©vues au TIPS','TeintÃ©s non TIPS',0,1,1),(20,'Varilux Digitime Mid','Varilux Digitime Mid',NULL,1,1),(21,'Varilux Digitime  Near','Varilux Digitime Near',NULL,1,1),(22,'Verres de proximitÃ© en VP','Verres de proximitÃ©',0,1,1),(23,'Evolution de la correction supÃ©rieure Ã  0,50 dioptrie','Evolution > 0,5',NULL,1,NULL),(24,'Verres progressifs','Nouveau Commentaire',NULL,2,NULL);
+INSERT INTO `commentaireslunettes` VALUES (16,'Varilux Digitime Room','Varilux Digitime Room',NULL,1,1),(17,'IntolŽrance aux verres progressifs','IntolŽrance aux verres progressifs',NULL,1,1),(18,'Verres bifocaux','Verres bifocaux',NULL,1,1),(19,'Prescription de verres teintŽs ne remplissant pas les conditions de remboursement prŽvues au TIPS','TeintŽs non TIPS',NULL,1,1),(20,'Varilux Digitime Mid','Varilux Digitime Mid',NULL,1,1),(21,'Varilux Digitime  Near','Varilux Digitime Near',NULL,1,1),(22,'Verres de proximitŽ en VP','Verres de proximitŽ',NULL,1,1),(23,'Evolution de la correction supŽrieure ˆ 0,50 dioptrie','Evolution > 0,5',NULL,1,NULL),(24,'Verres progressifs','Nouveau Commentaire',NULL,2,NULL);
 /*!40000 ALTER TABLE `commentaireslunettes` ENABLE KEYS */;
 UNLOCK TABLES;
 

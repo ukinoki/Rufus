@@ -49,6 +49,7 @@ private:
 
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
+    User*                   currentuser() { return Datas::I()->users->userconnected(); }
     int                     m_idrefraction;
     QStringList             m_stringliste1, m_stringliste2;
     Refraction::Mesure      m_mode;
@@ -107,7 +108,7 @@ private:
     // les CheckBox, RadioButton,...etc...
     void                    RadioButtonAutoref_Clicked();
     void                    DeuxMonturesPrescritradioButton_Clicked();
-    void                    RadionButtonPrescription_clicked();
+    void                    RadioButtonPrescription_clicked();
     void                    RadioButtonRefraction_Clicked();
     void                    UneMonturePrescritRadioButton_Clicked();
     void                    VPrescritRadioButton_Clicked();
