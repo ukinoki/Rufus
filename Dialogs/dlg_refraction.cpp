@@ -469,21 +469,24 @@ void dlg_refraction::AnnulPushButton_Clicked()
 
 void dlg_refraction::Commentaires()
 {
-    dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires();
+    dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires(m_listcommentaires);
     if (Dlg_Comments->exec() > 0)
     {
+        Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
         m_commentaire = "";
-        for (int i=0; i<Dlg_Comments->ListeCommentaires().size(); ++i) {
-            CommentLunet *com = Dlg_Comments->ListeCommentaires().at(i);
+        m_commentaireresume = "";
+        m_listcommentaires = Dlg_Comments->ListeCommentaires();
+        for (int i=0; i<m_listcommentaires.size(); ++i) {
+            CommentLunet *com = m_listcommentaires.at(i);
             if (com)
             {
                 m_commentaire += (m_commentaire!= ""? "\n" + com->texte() : com->texte());
-                m_commentaireresume += (m_commentaireresume!= ""? " - " + com->resume() : com->resume());
+                if ((com->isdefaut() && com->iduser() != currentuser()->id()) || !com->isdefaut())
+                    m_commentaireresume += (m_commentaireresume!= ""? " - " + com->resume() : com->resume());
             }
-            ResumePrescription();
         }
-        Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
     }
+    ResumePrescription();
     delete Dlg_Comments;
 }
 
@@ -1707,7 +1710,10 @@ QString dlg_refraction::CommentaireObligatoire()
         CommentLunet *com = itcom.value();
         if (com->isdefaut())
             if (com->iduser() == currentuser()->id())
+            {
                 rep += (rep != ""? "\n" + com->texte() : com->texte());
+                m_listcommentaires << com;
+            }
     }
     return rep;
 }

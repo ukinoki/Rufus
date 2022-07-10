@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 
-dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
+dlg_listecommentaires::dlg_listecommentaires(QList<CommentLunet*> listecommentaires, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionCommentaires", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -64,6 +64,7 @@ dlg_listecommentaires::dlg_listecommentaires(QWidget *parent) :
     connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_listecommentaires::ChoixButtonFrame);
     connect (wdg_publicchkbox,  &QCheckBox::clicked,        this,   [&](bool a) {AfficheCommentsPublics(a);});
 
+    m_listcommentaires = listecommentaires;
     RemplirTableView();
     if (m_model->rowCount()>0)
     {
@@ -300,7 +301,7 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
                 if (itm->checkState() == Qt::Checked)
                     nbCheck ++;
         }
-        OKButton->setEnabled(nbCheck);
+        OKButton->setEnabled(true);
     }
 
     if (mode == Modification)
@@ -531,15 +532,17 @@ void dlg_listecommentaires::RemplirTableView()
 {
     wdg_tblview->disconnect();
     wdg_tblview->selectionModel()->disconnect();
-    if (m_model == Q_NULLPTR)
+    if (m_model != Q_NULLPTR)
         delete m_model;
     m_model = new UpStandardItemModel();
     UpLineDelegate *line = new UpLineDelegate();
-    connect(line,   &UpLineDelegate::textEdited, this, [&] { OKButton->setEnabled(true);});
-    connect(line,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
-                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
-                                                                        m_textdelegate = line->text();
-                                                                      });
+    connect(line,   &UpLineDelegate::textEdited, this, [=] { OKButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, this, [=]  (QWidget *editor)
+    {
+        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+        if (line)
+            m_textdelegate = line->text();
+    });
     wdg_tblview->setItemDelegateForColumn(1,line);
     QStandardItem *pitem0   = new QStandardItem(Icons::icImprimer(),"");
     pitem0->setEditable(false);
@@ -562,12 +565,12 @@ void dlg_listecommentaires::RemplirTableView()
         CommentLunet *com = Datas::I()->commentslunets->commentaires()->values().at(i);
         setCommentToRow(com, i, false);
     }
+    QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
+    wdg_tblview->setModel(m_model);
+    delete m;
     if (m_model->rowCount()>0)
     {
         m_model->sort(1);
-        QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-        wdg_tblview->setModel(m_model);
-        delete m;
         wdg_tblview->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
         QHeaderView *verticalHeader = wdg_tblview->verticalHeader();
         verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
@@ -604,32 +607,6 @@ void dlg_listecommentaires::RemplirTableView()
                                                                                                                         EnableButtons(m_currentcomment);
                                                                                                                     }
                                                                                                                 });
-        connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
-            QStandardItem *itm = m_model->itemFromIndex(idx);
-            if (itm)
-            {
-                if(itm->isCheckable())
-                {
-                    if (itm->checkState() == Qt::Checked)
-                        OKButton->setEnabled(true);
-                    else
-                    {
-                        bool ok = false;
-                        for (int i=0; i<m_model->rowCount(); ++i)
-                        {
-                            QStandardItem *itmc = m_model->item(i);
-                            if (itmc)
-                                if(itmc->checkState() == Qt::Checked)
-                                {
-                                    ok = true;
-                                    i = m_model->rowCount();
-                                }
-                        }
-                        OKButton->setEnabled(ok);
-                    }
-                }
-            }
-        });
         m_currentcomment = Q_NULLPTR;
     }
     else
@@ -638,7 +615,9 @@ void dlg_listecommentaires::RemplirTableView()
 
 void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractItemView::ScrollHint hint)
 {
-    wdg_tblview->selectionModel()->clear();
+    if (wdg_tblview->selectionModel())
+        if (wdg_tblview->selectionModel()->selectedIndexes().size() >0)
+            wdg_tblview->selectionModel()->clear();
     m_currentcomment = com;
     if (!m_currentcomment)
         EnableButtons();
@@ -673,7 +652,7 @@ void dlg_listecommentaires::setCommentToRow(CommentLunet *com, int row, bool res
 
     UpStandardItem *pitem0 = new UpStandardItem("", com);
     pitem0->setCheckable(true);
-    if (com->isdefaut() && com->iduser() == currentuser()->id())
+    if (m_listcommentaires.contains(com))
         pitem0->setCheckState(Qt::Checked);
     m_model->setItem(row,0,pitem0);
     QModelIndex index = m_model->index(row, 1, QModelIndex());
@@ -768,6 +747,7 @@ void dlg_listecommentaires::Validation()
     }
     else if (m_mode == Selection)
     {
+        m_listcommentaires.clear();
         for (int i =0 ; i < m_model->rowCount(); i++)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
@@ -776,7 +756,9 @@ void dlg_listecommentaires::Validation()
             {
                 CommentLunet *com = dynamic_cast<CommentLunet*>(itm->item());
                 if (com)
+                {
                     m_listcommentaires << com;
+                }
             }
         }
         accept();

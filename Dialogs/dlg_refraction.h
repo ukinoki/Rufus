@@ -57,6 +57,7 @@ private:
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     upDoubleValidator       *m_val;
+    QList<CommentLunet*>    m_listcommentaires = QList<CommentLunet*>();
 
     bool                    m_ok;
     bool                    m_affichedetail;

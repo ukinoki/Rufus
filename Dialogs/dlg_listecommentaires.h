@@ -27,7 +27,7 @@ class dlg_listecommentaires : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_listecommentaires(QWidget *parent = Q_NULLPTR);
+    dlg_listecommentaires(QList<CommentLunet *> listecommentaires = QList<CommentLunet *>(), QWidget *parent = Q_NULLPTR);
     ~dlg_listecommentaires();
 
     QList<CommentLunet*>        ListeCommentaires() const   { return m_listcommentaires;}
