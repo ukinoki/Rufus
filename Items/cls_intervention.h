@@ -157,7 +157,7 @@ public:
 
 /*!
  * \brief classe TypeIntervention
- * l'ensemble des informations concernant un type d'intervention
+ * l'ensemble des informations concernant un type d'intervention - géré par la table TypesInterventions
  */
 
 class TypeIntervention : public Item

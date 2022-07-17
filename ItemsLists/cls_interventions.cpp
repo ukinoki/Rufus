@@ -250,6 +250,26 @@ TypeIntervention* TypesInterventions::getById(int id, bool reload)
     return itref.value();
 }
 
+QCompleter* TypesInterventions::completer()
+{
+    QStandardItemModel *model = new QStandardItemModel();
+    for (auto it = map_all->constBegin(); it != map_all->constEnd(); ++it)
+    {
+        TypeIntervention *typ = const_cast<TypeIntervention*>(it.value());
+        if (typ)
+            model->appendRow(new QStandardItem(typ->typeintervention()));
+    }
+    model->sort(0);
+    if (m_completer != Q_NULLPTR)
+        delete m_completer;
+    m_completer = new QCompleter();
+    m_completer->setModel(model);
+    m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+    m_completer->setCompletionMode(QCompleter::InlineCompletion);
+    return m_completer;
+}
+
+
 /*!
  * \brief TypeInterventions::initListe
  * Charge l'ensemble des TypeInterventions
@@ -301,4 +321,38 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     if (typ != Q_NULLPTR)
         map_all->insert(typ->id(), typ);
     return typ;
+}
+
+bool TypesInterventions::isThisTypUsed(TypeIntervention* typ)
+{
+    if (!typ)
+        return false;
+    bool ok;
+    QString req = "select " CP_ID_LIGNPRGOPERATOIRE " from " TBL_LIGNESPRGOPERATOIRES " where " CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE  " = " + QString::number(typ->id());
+    //qDebug() << req;
+    return (DataBase::I()->StandardSelectSQL(req, ok).size()>0);
+}
+
+UpStandardItemModel* TypesInterventions::listetypesinterventionsmodel(bool reconstruit)
+{
+    if (reconstruit || m_listetypesinterventionsmodel != Q_NULLPTR)
+    {
+        if (m_listetypesinterventionsmodel != Q_NULLPTR)
+            delete m_listetypesinterventionsmodel;
+        m_listetypesinterventionsmodel = new UpStandardItemModel(this);
+        for (auto it = typeinterventions()->constBegin(); it != typeinterventions()->constEnd();++it)
+        {
+            QList<QStandardItem *> items;
+            TypeIntervention* typ = it.value();
+            if (typ)
+            {
+                UpStandardItem *itemtyp = new UpStandardItem(typ->typeintervention(), typ);
+                UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
+                items << itemtyp << itemccam;
+                m_listetypesinterventionsmodel->appendRow(items);
+            }
+        }
+        m_listetypesinterventionsmodel->sort(0, Qt::AscendingOrder);
+    }
+    return m_listetypesinterventionsmodel;
 }

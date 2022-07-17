@@ -30,6 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_identificationiol.h"
 #include "dlg_listeiols.h"
 #include "dlg_listemanufacturers.h"
+#include "dlg_listetypesinterventions.h"
 #include "updoublevalidator.h"
 
 class dlg_programmationinterventions : public UpDialog
@@ -45,7 +46,7 @@ private:
     QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);
-    QStandardItemModel              *m_typeinterventionsmodel   = new QStandardItemModel(this);
+    UpStandardItemModel             *m_typeinterventionsmodel   = new UpStandardItemModel(this);
     QStandardItemModel              *m_manufacturersmodel       = new QStandardItemModel(this);
     QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
     QFont                           m_font = QApplication::font();
@@ -125,7 +126,6 @@ private slots:
 
 /*! les types d'interventions */
 private:
-    void                ReconstruitListeTypeInterventions();
     void                FicheTypeIntervention(QString txt);
 
 /*! les fabricants */

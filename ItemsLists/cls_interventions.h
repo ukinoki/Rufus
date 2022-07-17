@@ -68,15 +68,24 @@ public:
     SessionOperatoire*  CreationSessionOperatoire(QHash<QString, QVariant> sets);
 };
 
+
+#include <QCompleter>
+#include <upstandarditem.h>
+#include <upstandarditemmodel.h>
+
 class TypesInterventions : public ItemsList
 {
 private:
     QMap<int, TypeIntervention*> *map_all = Q_NULLPTR;    //!< la liste des TypeInterventions
+    QCompleter *m_completer = Q_NULLPTR;
+    UpStandardItemModel  *m_listetypesinterventionsmodel = Q_NULLPTR;
 
 public:
     explicit TypesInterventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, TypeIntervention*> *typeinterventions() const;
+    QCompleter*         completer();
+    UpStandardItemModel* listetypesinterventionsmodel(bool reconstruit =  false);
 
     TypeIntervention*   getById(int id, bool reload = false);
     void                initListe();
@@ -84,6 +93,7 @@ public:
     //!> actions sur les enregistrements
     void                SupprimeTypeIntervention(TypeIntervention *typeintervention);
     TypeIntervention*   CreationTypeIntervention(QHash<QString, QVariant> sets);
+    bool                isThisTypUsed(TypeIntervention* typ);
 };
 
 #endif // INTERVENTIONS_H

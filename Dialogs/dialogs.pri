@@ -3,6 +3,7 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/dlg_actesprecedents.cpp \
+    $$PWD/dlg_listetypesinterventions.cpp \
     $$PWD/dlg_autresmesures.cpp \
     $$PWD/dlg_bilanortho.cpp \
     $$PWD/dlg_choixdate.cpp \
@@ -46,6 +47,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_refractionlistemesures.cpp
 
 HEADERS += $$PWD/dlg_actesprecedents.h \
+    $$PWD/dlg_listetypesinterventions.h \
     $$PWD/dlg_autresmesures.h \
     $$PWD/dlg_bilanortho.h \
     $$PWD/dlg_choixdate.h \

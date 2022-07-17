@@ -162,7 +162,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
     Datas::I()->typesinterventions->initListe();
-    ReconstruitListeTypeInterventions();
+    m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -271,7 +271,7 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
         RemplirTreeInterventions();
         return;
     }
-    UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->itemFromIndex(idx));
+    UpStandardItem *upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
     {
         RemplirTreeInterventions();
@@ -282,7 +282,10 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(currentsession() != Q_NULLPTR);
     wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(currentsession() != Q_NULLPTR);
     if (currentsession() != Q_NULLPTR)
+    {
         Datas::I()->interventions->initListebySessionId(currentsession()->id());
+        wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(Datas::I()->interventions->interventions()->size()==0);
+    }
     if (currentintervention() != Q_NULLPTR)
         if (currentintervention()->idsession() == currentsession()->id())
         {
@@ -363,11 +366,13 @@ void dlg_programmationinterventions::RemplirTreeSessions()
         AfficheInterventionsSession(idx);
     }
     else
+    {
         setcurrentsession(Q_NULLPTR);
+        wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(false);
+        wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(false);
+    }
     wdg_interventionstreeView->setVisible(Datas::I()->sessionsoperatoires->sessions()->size() >0);
     wdg_buttoninterventionframe->setVisible(Datas::I()->sessionsoperatoires->sessions()->size() >0);
-    wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(currentsession()!=Q_NULLPTR);
-    wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(currentsession()!=Q_NULLPTR);
 }
 
 void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
@@ -1135,14 +1140,50 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     QHBoxLayout *choixinterventionLay = new QHBoxLayout();
     UpLabel* lblinterv = new UpLabel;
     lblinterv               ->setText(tr("Type d'intervention"));
+
     UpComboBox *interventioncombo = new UpComboBox();
     interventioncombo       ->setFixedSize(QSize(150,28));
     interventioncombo       ->setEditable(true);
     interventioncombo       ->setModel(m_typeinterventionsmodel);
     interventioncombo       ->setCurrentIndex(-1);
     interventioncombo       ->setInsertPolicy(QComboBox::NoInsert);
+    interventioncombo       ->setCompleter(Datas::I()->typesinterventions->completer());
+
+    UpSmallButton *gestionTypIntervButton = new UpSmallButton(dlg_intervention);
+    gestionTypIntervButton  ->setImmediateToolTip(tr("gérer les types d'intervention"));
+    gestionTypIntervButton  ->setIcon(Icons::icEditer());
+    int szicon  = 20;
+    int geo     = szicon + 4;
+    gestionTypIntervButton  ->setIconSize(QSize(szicon,szicon));
+    gestionTypIntervButton  ->setFlat(true);
+    gestionTypIntervButton  ->setFixedSize(geo,geo);
+    gestionTypIntervButton  ->setFocusPolicy(Qt::NoFocus);
+    gestionTypIntervButton  ->setContextMenuPolicy(Qt::NoContextMenu);
+    gestionTypIntervButton  ->setStyleSheet(QStringLiteral("border: 0px"));
+    connect(gestionTypIntervButton, &QPushButton::clicked, dlg_intervention,   [=]
+    {
+        TypeIntervention *typ = Q_NULLPTR;
+        UpStandardItem *itmitv = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel->item(interventioncombo->currentIndex()));
+        if (itmitv)
+            if (itmitv->item())
+                typ = dynamic_cast<TypeIntervention*>(itmitv->item());
+        dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, this);
+        if (dlgtyp->exec()>0)
+        {
+            m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
+            interventioncombo       ->setModel(m_typeinterventionsmodel);
+            interventioncombo       ->setCompleter(Datas::I()->typesinterventions->completer());
+            typ = dlgtyp->currenttype();
+            if (typ)
+                interventioncombo->setCurrentIndex(interventioncombo->findText(typ->typeintervention()));
+        }
+        delete dlgtyp;
+    });
+
     choixinterventionLay    ->addWidget(lblinterv);
     choixinterventionLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    choixinterventionLay    ->addWidget(gestionTypIntervButton);
+    choixinterventionLay    ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Fixed,QSizePolicy::Fixed));
     choixinterventionLay    ->addWidget(interventioncombo);
     choixinterventionLay    ->setSpacing(5);
     choixinterventionLay    ->setContentsMargins(0,0,0,0);
@@ -1698,23 +1739,6 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
 
 /*! les types d'intervention ----------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void dlg_programmationinterventions::ReconstruitListeTypeInterventions()
-{
-    if (m_typeinterventionsmodel == Q_NULLPTR)
-        delete m_typeinterventionsmodel;
-    m_typeinterventionsmodel = new QStandardItemModel(this);
-    foreach (TypeIntervention* typ, *Datas::I()->typesinterventions->typeinterventions())
-    {
-        QList<QStandardItem *> items;
-        UpStandardItem *itemtyp = new UpStandardItem(typ->typeintervention(), typ);
-        UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
-        UpStandardItem *itemid = new UpStandardItem(QString::number(typ->id()), typ);
-        items << itemtyp << itemccam << itemid;
-        m_typeinterventionsmodel->appendRow(items);
-    }
-    m_typeinterventionsmodel->sort(0, Qt::AscendingOrder);
-}
-
 void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
 {
     UpDialog            *dlg_typintervention = new UpDialog(this);
@@ -1768,7 +1792,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
         if (m_currenttypeintervention != Q_NULLPTR)
             delete m_currenttypeintervention;
         m_currenttypeintervention = Datas::I()->typesinterventions->CreationTypeIntervention(listbinds);
-        ReconstruitListeTypeInterventions();
+        m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
         dlg_typintervention->close();
     });
     dlg_typintervention->exec();
