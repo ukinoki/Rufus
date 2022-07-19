@@ -19,6 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Acte *act, QWidget *parent) : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
 {
+    setcurrentsession(Q_NULLPTR);
+    setcurrentintervention(Q_NULLPTR);
     m_currentchirpatient    = pat;
     m_currentchiracte       = act;
 
@@ -197,21 +199,20 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
      *  et si oui, on se positionne dessus
      */
     if (m_currentchiracte)
-        if (m_currentchiracte->isintervention())
+    {
+        Intervention *interv = Datas::I()->interventions->getById(m_currentchiracte->idIntervention());
+        if (interv)
         {
-            Intervention *interv = Datas::I()->interventions->getById(m_currentchiracte->idIntervention());
-            if (interv)
+            auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
+            if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
             {
-                auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
-                if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
-                {
-                    setcurrentintervention(interv);
-                    setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
-                }
-                else
-                    delete interv;
+                setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
+                setcurrentintervention(interv);
             }
+            else
+                delete interv;
         }
+    }
     /*! si on n'a pas défini d'intervention en cours,
      * on fait la liste des interventions du patient en cours
      * on définit comme intervention en cours
@@ -232,8 +233,16 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                         auto it = Datas::I()->sessionsoperatoires->sessions()->constFind(interv->idsession());
                         if (it != Datas::I()->sessionsoperatoires->sessions()->cend())
                         {
-                            setcurrentintervention(interv);
-                            setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
+                            if (currentsession() == Q_NULLPTR)
+                            {
+                                setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
+                                setcurrentintervention(interv);
+                            }
+                            else if (currentsession()->date() < const_cast<SessionOperatoire*>(it.value())->date())
+                            {
+                                setcurrentsession(const_cast<SessionOperatoire*>(it.value()));
+                                setcurrentintervention(interv);
+                            }
                         }
                         else
                             delete interv;
@@ -242,9 +251,31 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                 }
             }
     }
-    /*! si aucune intervention pour le patient en cours n'a été effectuée par le chirurgien en cours, on se positionne sur la dernière session de ce chirurgien */
+    /*! si aucune intervention pour le patient en cours n'a été effectuée par le chirurgien en cours, on se positionne sur la prochaine session de ce chirurgien */
     if (!currentsession() && Datas::I()->sessionsoperatoires->sessions()->size() > 0)
-        setcurrentsession(Datas::I()->sessionsoperatoires->sessions()->last());
+    {
+        SessionOperatoire *lastsession = Q_NULLPTR;
+        for (auto it = Datas::I()->sessionsoperatoires->sessions()->constBegin(); it != Datas::I()->sessionsoperatoires->sessions()->constEnd();++it)
+        {
+            SessionOperatoire *session = it.value();
+            if (session != Q_NULLPTR)
+            {
+                if (lastsession == Q_NULLPTR)
+                    lastsession = session;
+                else if (session->date() > lastsession->date())
+                    lastsession = session;
+                if (session->date() > QDate::currentDate())
+                {
+                    if (currentsession() == Q_NULLPTR)
+                        setcurrentsession(session);
+                    else if (session->date() < currentsession()->date())
+                        setcurrentsession(session);
+                }
+            }
+        }
+        if (currentsession() == Q_NULLPTR && lastsession != Q_NULLPTR)
+            setcurrentsession(lastsession);
+    }
     RemplirTreeSessions();
 }
 
@@ -344,7 +375,8 @@ void dlg_programmationinterventions::RemplirTreeSessions()
         {
             if (currentsession() == Q_NULLPTR)
                 idx = m_sessionsmodel->item(m_sessionsmodel->rowCount()-1)->index();        //! l'index de ce dernier item
-            else for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
+            else {
+            for (int i=0; i<m_sessionsmodel->rowCount(); ++i)
             {
                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
                 if (itm)
@@ -357,6 +389,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
                             break;
                         }
                 }
+            }
             }
             wdg_sessionstreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
             wdg_sessionstreeView->selectionModel()->select(idx,QItemSelectionModel::Rows | QItemSelectionModel::Select);
@@ -789,7 +822,6 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
         wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(false);
         return;
     }
-    //qDebug() << m_currentsession->date() << Datas::I()->sites->getById(m_currentsession->idlieu())->nom();
     wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(true);
     wdg_buttoninterventionframe->wdg_modifBouton->setEnabled(true);
 }
@@ -1101,6 +1133,14 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     if (pat != Q_NULLPTR)
             dlg_intervention->setWindowTitle(pat->prenom() + " " + pat->nom());
 
+    QHBoxLayout *titreLay       = new QHBoxLayout();
+    UpLabel* lbltitre           = new UpLabel;
+    lbltitre                    ->setText(m_currentchirpatient->nom().toUpper() + " " + m_currentchirpatient->prenom());
+    titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    titreLay                    ->addWidget(lbltitre);
+    titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    titreLay                    ->setContentsMargins(0,0,0,0);
+
     QHBoxLayout *choixsessionLay = new QHBoxLayout();
     UpLabel* lblsession         = new UpLabel;
     lblsession                  ->setText(tr("Session"));
@@ -1385,6 +1425,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     dlg_intervention->dlglayout()   ->insertLayout(0, choixcoteLay);
     dlg_intervention->dlglayout()   ->insertLayout(0, choixheureLay);
     dlg_intervention->dlglayout()   ->insertLayout(0, choixsessionLay);
+    dlg_intervention->dlglayout()   ->insertLayout(0, titreLay);
     dlg_intervention->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_intervention->dlglayout()   ->setSpacing(5);
 
@@ -1482,7 +1523,6 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                         Intervention *intervention = dynamic_cast<Intervention*>(itm->item());
                         if (intervention)
                         {
-                            //qDebug() << intervention->heure() << Datas::I()->patients->getById(intervention->idpatient())->nomcomplet();
                             if (intervention->heure() == heure && intervention->idpatient() == idpat)
                             {
                                 UpMessageBox::Watch(this, tr("Cette intervention existe déjà!"));
