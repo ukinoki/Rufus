@@ -850,14 +850,19 @@ void Procedures::EffaceProgrammationBackup()
 
 void Procedures::ParamAutoBackup()
 {
-    if (m_parametres->dirbkup() == "" || !QDir(m_parametres->dirbkup()).exists() || !m_parametres->heurebkup().isValid() || !m_parametres->daysbkup())
+    if (m_parametres->dirbkup() == "")
+    {
+        EffaceProgrammationBackup();
+        return;
+    }
+    if (!QDir(m_parametres->dirbkup()).exists() || !m_parametres->heurebkup().isValid() || !m_parametres->daysbkup())
     {
         EffaceProgrammationBackup();
         return;
     }
     t_timerbackup.disconnect(SIGNAL(timeout()));
     t_timerbackup.stop();
-    t_timerbackup.start(30000); /*! le timer de déclenchement de la sauvegrade est lancé plus d'une fois par mintue à cause de la grande imprécision des QTimer
+    t_timerbackup.start(30000); /*! le timer de déclenchement de la sauvegarde est lancé plus d'une fois par minute à cause de la grande imprécision des QTimer
                                   * si on le lance toutes les 60", il est possible que le timer ne soit pas lancé dans la minute définie pour la sauvegarde.
                                   * En le lançant toutes les 30", ça marche.
                                   * C'est de la bidouille, je sais */

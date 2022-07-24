@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("19-07-2022/1");
+    qApp->setApplicationVersion("24-07-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -5742,13 +5742,14 @@ void Rufus::VerifDossiersImagerie()
                 QString nomdossier = proc->pathDossierDocuments(nomappareil, db->ModeAccesDataBase());  // le dossier où sont exportés les documents d'un appareil donné
                 if (!usetimer)
                     m_filewatcher.addPath(nomdossier);
-                if (QDir(nomdossier).exists())
-                {
-                    QString titreexamen = listdocs.at(itr).at(0).toString();
-                    AppareilImagerie *appareil = new AppareilImagerie(titreexamen, nomappareil, nomdossier);
-                    listappareils << appareil;
-                    //qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
-                }
+                if (nomdossier != "")
+                    if (QDir(nomdossier).exists())
+                    {
+                        QString titreexamen = listdocs.at(itr).at(0).toString();
+                        AppareilImagerie *appareil = new AppareilImagerie(titreexamen, nomappareil, nomdossier);
+                        listappareils << appareil;
+                        //qDebug() << "l'appareil " + nomappareil + " est surveillé sur le dossier " + nomdossier;
+                    }
                 //else
                 //    qDebug() << "le dossier " + nomdossier + " n'existe pas";
             }

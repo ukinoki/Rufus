@@ -577,7 +577,13 @@ void dlg_refraction::OKPushButton_Clicked()
     {
         // On vérifie s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
         if (LectureMesure(Aujourdhui, Refraction::Fronto, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR) // il n'y en a pas - on suit la procédure normale
-            InscriptRefraction();
+        {
+            Refraction *ref = InsertRefraction();
+            if (ref == Q_NULLPTR)
+                return;
+            m_idrefraction = ref->id();
+            MajDonneesOphtaPatient();
+        }
         FermeFiche(OK);
     }
 
@@ -588,7 +594,11 @@ void dlg_refraction::OKPushButton_Clicked()
         Refraction * ref = LectureMesure(Aujourdhui, m_mode, dilat);
         if (ref != Q_NULLPTR)
             DetruireLaMesure(ref);
-        InscriptRefraction();
+        ref = InsertRefraction();
+        if (ref == Q_NULLPTR)
+            return;
+        m_idrefraction = ref->id();
+        MajDonneesOphtaPatient();
         FermeFiche(OK);
     }
     else if (m_mode == Refraction::Prescription)
@@ -1419,11 +1429,12 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         ResumePrescription();
         // on vérifie dans Refraction s'il existe un enregistrement identique pour ne pas surcharger la table avec
         disconnect (ui->OKPushButton,   &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
-        if (Imprimer_Ordonnance())
+        if (LectureMesure(Aujourdhui, Refraction::Prescription, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
         {
             ResumeObservation();
-            if (LectureMesure(Aujourdhui, Refraction::Prescription, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
-                InscriptRefraction();
+            Refraction *ref = InsertRefraction();
+            if (ref)
+                Imprimer_Ordonnance(ref);
         }
         else
         {
@@ -1446,7 +1457,7 @@ int     dlg_refraction::idrefraction() const
 /*-----------------------------------------------------------------------------------------------------------------
 -- Imprimer une ordonnance ------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool    dlg_refraction::Imprimer_Ordonnance()
+bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref)
 {
     QString Corps, Entete, Pied;
     bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
@@ -1497,6 +1508,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES] =        PRESCRIPTIONLUNETTES;
         listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
+        listbinds[CP_IDREFRACTION_DOCSEXTERNES] =     ref->id();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;
@@ -1605,27 +1617,6 @@ void dlg_refraction::InitDivers()
     ui->CylindreOG->PrefixePlus();
     ui->AddVPOD->PrefixePlus();
     ui->AddVPOG->PrefixePlus();
-}
-
-//---------------------------------------------------------------------------------
-// Creation des mesure en fonction de type de mesure ??
-//---------------------------------------------------------------------------------
-void dlg_refraction::InscriptRefraction()
-{
-    Refraction *ref = InsertRefraction();
-    if (ref == Q_NULLPTR)
-        return;
-    m_idrefraction = ref->id();
-    if (m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
-        MajDonneesOphtaPatient();
-    else if (m_mode == Refraction::Prescription)
-    {
-        if (!db->locktable(TBL_DOCSEXTERNES))
-            return;
-        int idimp = db->selectMaxFromTable(CP_ID_DOCSEXTERNES, TBL_DOCSEXTERNES, m_ok);
-        db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_IDREFRACTION_DOCSEXTERNES " = " + QString::number(m_idrefraction) + " where " CP_ID_DOCSEXTERNES " = " + QString::number(idimp));
-        db->unlocktables();
-    }
 }
 
 MesureRefraction* dlg_refraction::CalcMesureRefraction()

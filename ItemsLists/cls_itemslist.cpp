@@ -58,6 +58,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 doc->setdate(newvalue.toDateTime());
                 Utils::CalcDateTimeValueSQL(newvalue);
             }
+            else if (field == CP_IDREFRACTION_DOCSEXTERNES)
+            {
+                doc->setidrefraction(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
             else
                 ok = false;
             break;

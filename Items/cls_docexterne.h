@@ -99,6 +99,7 @@ public:
     void setAllLoaded(bool allloaded);
     void setimageblob(QByteArray blob);
     void setimageformat(QString format);
+    void setidrefraction(int id)    {m_idrefraction = id;}
 
     void setsoustype(QString soustype)  { m_soustypedoc = soustype; }
 };

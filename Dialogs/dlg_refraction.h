@@ -101,7 +101,7 @@ private:
     void                    Refraction_ValueChanged();
     void                    CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
 
-    bool                    Imprimer_Ordonnance();
+    bool                    Imprimer_Ordonnance(Refraction *ref);
 
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     void                    closeEvent(QCloseEvent *);
@@ -137,7 +137,6 @@ private:
     void                    InitDivers();
     void                    InitEventFilters();
     void                    Init_variables();
-    void                    InscriptRefraction();
     void                    InsertDonneesOphtaPatient();
     Refraction*             InsertRefraction();
     Refraction*             LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Refraction::Cycloplegie dilatation, QString FormuleOD = "", QString FormuleOG = "");

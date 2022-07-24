@@ -71,10 +71,7 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
     wdg_buttonframe->wdg_modifBouton->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
     wdg_buttonframe->searchline()->setFocus();
-    if (typ != Q_NULLPTR)
-        qDebug() << typ->typeintervention();
-
-        selectcurrenttype(typ);
+    selectcurrenttype(typ);
 }
 
 dlg_listetypesinterventions::~dlg_listetypesinterventions()
