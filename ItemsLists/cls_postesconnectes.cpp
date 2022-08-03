@@ -35,11 +35,12 @@ QMap<QString, PosteConnecte*>* PostesConnectes::postesconnectes() const
 
 PosteConnecte* PostesConnectes::getByStringId(QString stringid)
 {
-    //qDebug() << stringid;
+    // Logs::LogSktMessage("PosteConnecte* PostesConnectes::getByStringId(QString stringid) ----------------------> " + stringid);
+    // qDebug() << "PosteConnecte* PostesConnectes::getByStringId(QString stringid)" << stringid;
     PosteConnecte *post = Q_NULLPTR;
     if (stringid.split(" - ").size() < 2)
     {
-        //qDebug() << "stringid invalide";
+        // qDebug() << "stringid invalide";
         return post;
     }
     QMap<QString, PosteConnecte*>::const_iterator itcpt = map_postesconnectes->constFind(stringid) ;
@@ -49,7 +50,7 @@ PosteConnecte* PostesConnectes::getByStringId(QString stringid)
         int iduser = stringid.split(" - ").at(1).toInt();
         QString macadress = stringid.split(" - ").at(0);
         posteData = DataBase::I()->loadPosteConnecteData(iduser, macadress);
-        if (posteData.size()!= 0)
+        if (posteData.size() != 0)
         {
             post = new PosteConnecte(posteData);
             add(map_postesconnectes, post);
@@ -75,6 +76,7 @@ void PostesConnectes::SupprimeAllPostesConnectes()
 
 PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
 {
+    //!* renvoie le poste utilisé par RufusAdmin après avoir vérifié que RufusAdmin est toujours actif - renvoie qnullptr dans le cas contraire
     if (adminset && upd == Item::NoUpdate)
         return m_admin;
     initListe();
@@ -124,7 +126,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
         return Q_NULLPTR;
     QString macadressid =  Utils::MACAdress() + " - " + QString::number(usr->id());
     QString macadress = Utils::MACAdress() +  (usr->login() == NOM_ADMINISTRATEUR? " - " + usr->login() : "");
-    QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
+    QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES " (" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                                                                         CP_IDUSER_USRCONNECT ", "
                                                                         CP_IDUSERSUPERVISEUR_USRCONNECT ", "
                                                                         CP_IDUSERCOMPTABLE_USRCONNECT ", "
@@ -134,7 +136,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
                                                                         CP_IPADRESS_USRCONNECT ", "
                                                                         CP_IDLIEU_USRCONNECT ", "
                                                                         CP_DISTANT_USRCONNECT ")"
-                               " VALUES(NOW()," +
+                               " VALUES (NOW()," +
                                QString::number(usr->id()) + "," +
                                QString::number(usr->idsuperviseur()) + "," +
                                QString::number(usr->idcomptable()) + "," +
@@ -145,7 +147,9 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
                                QString::number(idsite) + ", " +
                                (DataBase::I()->ModeAccesDataBase() == Utils::Distant? "1" : "null") + ")";
     //qDebug() << MAJConnexionRequete;
+    DataBase::I()->locktable(TBL_USERSCONNECTES);
     DataBase::I()->StandardSQL(MAJConnexionRequete, "Rufus::MetAJourUserConnectes()");
+    DataBase::I()->unlocktables();
     PosteConnecte *post = new PosteConnecte();
     post->setstringid(macadressid);
     post->setid(usr->id());

@@ -40,7 +40,7 @@ class TimerController : public QObject
 public:
     QThread TimerThread;
 private:
-    QTimer *m_timer = Q_NULLPTR;
+    QTimer m_timer;
 public:
     ~TimerController() {
         TimerThread.quit();
@@ -49,17 +49,14 @@ public:
     TimerController(QObject * parent = Q_NULLPTR) : QObject(parent)
     {
         TimerThread.disconnect();
-        if (m_timer != Q_NULLPTR)
-            delete m_timer;
-        m_timer = new QTimer();
-        m_timer->moveToThread(&TimerThread);
-        m_timer->setTimerType(Qt::PreciseTimer);
-        connect(&TimerThread,   &QThread::finished,                                 m_timer, &QObject::deleteLater);
-        connect(this,           QOverload<int>::of(&TimerController::starttimer),   m_timer, QOverload<int>::of(&QTimer::start));
-        connect(this,           QOverload<>::of(&TimerController::starttimer),      m_timer, QOverload<>::of(&QTimer::start));
-        connect(this,           &TimerController::stoptimer,                        m_timer, &QTimer::stop);
-        connect(this,           &TimerController::setintervaltimer,                 m_timer, QOverload<int>::of(&QTimer::setInterval));
-        connect(m_timer,        &QTimer::timeout,                                   this,    &TimerController::setTimeOut);
+        m_timer.moveToThread(&TimerThread);
+        m_timer.setTimerType(Qt::PreciseTimer);
+        connect(&TimerThread,   &QThread::finished,                                 &m_timer,   &QObject::deleteLater);
+        connect(this,           QOverload<int>::of(&TimerController::starttimer),   &m_timer,   QOverload<int>::of(&QTimer::start));
+        connect(this,           QOverload<>::of(&TimerController::starttimer),      &m_timer,   QOverload<>::of(&QTimer::start));
+        connect(this,           &TimerController::stoptimer,                        &m_timer,   &QTimer::stop);
+        connect(this,           &TimerController::setintervaltimer,                 &m_timer,   QOverload<int>::of(&QTimer::setInterval));
+        connect(&m_timer,       &QTimer::timeout,                                   this,       &TimerController::setTimeOut);
         TimerThread.start();
     }
     void start(int interval)                { emit starttimer(interval); }

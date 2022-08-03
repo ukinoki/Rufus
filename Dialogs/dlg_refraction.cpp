@@ -1434,7 +1434,12 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
             ResumeObservation();
             Refraction *ref = InsertRefraction();
             if (ref)
-                Imprimer_Ordonnance(ref);
+                if (!Imprimer_Ordonnance(ref))
+                {
+                    Datas::I()->refractions->SupprimeRefraction(ref);
+                    m_resultPrescription = "";
+                }
+
         }
         else
         {
@@ -1465,7 +1470,13 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref)
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur());
+    User *userEntete = Q_NULLPTR;
+    User *userconnected = Datas::I()->users->userconnected();
+    if (userconnected)
+    {
+        int idsuperviseur = userconnected->idsuperviseur();
+        userEntete = Datas::I()->users->getById(idsuperviseur);
+    }
     if (userEntete == Q_NULLPTR)
         return false;
     Entete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
@@ -1515,7 +1526,6 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref)
     }
     delete Etat_textEdit;
     userEntete = Q_NULLPTR;
-    delete userEntete;
     return a;
 }
 

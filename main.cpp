@@ -15,20 +15,18 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
- * Première initialisation de la classe Icons
-*/
-#include "icons.h"
-QMap<QString,QPixmap> Icons::m_mapPixmap = QMap<QString,QPixmap>();
-QMap<QString,QIcon> Icons::m_mapIcon = QMap<QString,QIcon>();
-
 #include "rufus.h"
 #include <QApplication>
 #include <QTimer>
+#include "singleapplication.h"
+#include "icons.h"
+
+QMap<QString,QPixmap> Icons::m_mapPixmap = QMap<QString,QPixmap>();
+QMap<QString,QIcon> Icons::m_mapIcon = QMap<QString,QIcon>();
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    SingleApplication a(argc, argv);
 
     QString locale = QLocale::system().name().section('_', 0, 0);
     QString dirloc;

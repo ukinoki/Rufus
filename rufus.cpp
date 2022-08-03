@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("24-07-2022/1");
+    qApp->setApplicationVersion("03-08-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -84,19 +84,19 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     FiltreTable();                              //! InitTables()
-    PosteConnecte* post = Datas::I()->postesconnectes->admin();
-    if (post == Q_NULLPTR)
+    PosteConnecte* postadmin = Datas::I()->postesconnectes->admin();
+    if (postadmin == Q_NULLPTR)
         VerifVerrouDossier();
     MAJPosteConnecte();
 
     //! 5 - lancement du TCP
     m_utiliseTCP = false;
     QString log;
-    if (post != Q_NULLPTR)
+    if (postadmin != Q_NULLPTR)
     {
         log = tr("RufusAdmin présent");
         Logs::LogSktMessage(log);
-        if (post->ipadress() == "")
+        if (postadmin->ipadress() == "")
         {
             log = tr("Aucun serveur TCP enregistré dans la base");
             Logs::LogSktMessage(log);
@@ -106,14 +106,16 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         {
             Utils::Pause(100);
             TcPConnect = TcpSocket::I();
-            m_utiliseTCP = TcPConnect->TcpConnectToServer(post->ipadress());
+            m_utiliseTCP = TcPConnect->TcpConnectToServer(postadmin->ipadress());
             if (m_utiliseTCP)
             {
                 qintptr z = 0;
                 ShowMessage::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
                 connect(TcPConnect, &TcpSocket::receiveTCPmsg, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
-                // envoi le stringid du poste qui vient de se connecter
-                envoieTCPMessage(currentpost()->stringid() + TCPMSG_StringidPoste);
+                // envoie le stringid du poste qui vient de se connecter
+                QString msg = currentpost()->stringid() + TCPMSG_StringidPoste;
+                // qDebug() << msg;
+                envoieTCPMessage(msg);
             }
             else {
                 log = tr("RufusAdmin présent mais échec connexion");
