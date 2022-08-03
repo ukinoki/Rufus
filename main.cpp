@@ -18,7 +18,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "rufus.h"
 #include <QApplication>
 #include <QTimer>
-#include "singleapplication.h"
+#ifdef Q_OS_LINUX
+    #include "singleapplication.h"
+#endif
 #include "icons.h"
 
 QMap<QString,QPixmap> Icons::m_mapPixmap = QMap<QString,QPixmap>();
@@ -26,7 +28,11 @@ QMap<QString,QIcon> Icons::m_mapIcon = QMap<QString,QIcon>();
 
 int main(int argc, char *argv[])
 {
-    SingleApplication a(argc, argv);
+    #ifdef Q_OS_LINUX
+        SingleApplication app(argc, argv);
+    #else
+        QApplication app(argc, argv);
+    #endif
 
     QString locale = QLocale::system().name().section('_', 0, 0);
     QString dirloc;
@@ -34,7 +40,7 @@ int main(int argc, char *argv[])
     dirloc += "/rufus" + locale;
     QTranslator translator;
     translator.load(dirloc);
-    a.installTranslator(&translator);
+    app.installTranslator(&translator);
 
     QSplashScreen *splash = new QSplashScreen(Icons::pxSplash());
     splash->show();
@@ -45,5 +51,5 @@ int main(int argc, char *argv[])
     Rufus w;
     w.show();
 
-    return a.exec();
+    return app.exec();
 }

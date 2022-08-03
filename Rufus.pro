@@ -104,8 +104,11 @@ include(ItemsLists/itemslists.pri)
 include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
+
+LINUX {
 include(SingleApplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication # cette instruction doit être incluse APRES la ligne précédente
+}
 
 TRANSLATIONS    = rufus_en.ts
 
