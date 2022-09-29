@@ -17,17 +17,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "rufus.h"
 #include <QApplication>
-#include <QTimer>
 #ifdef Q_OS_LINUX
     #include "singleapplication.h"
 #endif
-#include "icons.h"
 
 QMap<QString,QPixmap> Icons::m_mapPixmap = QMap<QString,QPixmap>();
 QMap<QString,QIcon> Icons::m_mapIcon = QMap<QString,QIcon>();
 
 int main(int argc, char *argv[])
 {
+    /*! Le lancement de 2 instances du programme sur le même poste provoque un patacaisse dans la gestion des postes connectés et génère des erreurs.
+     * la classe SingleApplication permet de bloquer le lancement de plusieurs instances du programme sur le même poste
+     * Elle n'est pas utile sous MacOS qui ne le permet pas par défaut.
+     * Elle est utile sous Linux.
+     */
     #ifdef Q_OS_LINUX
         SingleApplication app(argc, argv);
     #else

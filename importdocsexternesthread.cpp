@@ -59,6 +59,12 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     QString Appareil    = appareil->nomappareil();
     QString CheminFichierImage = NomDirDoc + "/" + nomfiledoc;
     QFile   jnaltrsferfile(m_pathdirOKtransfer + "/0JournalTransferts - " + m_datetransfer + ".txt");
+    if (jnaltrsferfile.open(QIODevice::Append))
+    {
+        QTextStream out(&jnaltrsferfile);
+        out << QDate::currentDate().toString("yyyy-MM-dd") << QTime::currentTime().toString() << " - " + tr ("Rapatriement de ") << Titredoc << " - " << nomfiledoc << " - " << QHostInfo::localHostName() << "\n" ;
+        jnaltrsferfile.close();
+    }
     QString commentechec;
 
     file_origine.setFileName(CheminFichierImage);
@@ -523,7 +529,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             if (jnaltrsferfile.open(QIODevice::Append))
             {
                 QTextStream out(&jnaltrsferfile);
-                out << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
+                out << QDate::currentDate().toString("yyyy-MM-dd") << QTime::currentTime().toString() << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                 jnaltrsferfile.close();
             }
             if (file_origine.remove())
@@ -543,7 +549,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         }
         else
         {
-            commentechec = tr("impossible d'enregistrer ") + nomfiledoc;
+            commentechec = tr("impossible d'enregistrer le fichier");
             EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         }
     }
@@ -603,7 +609,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         }
         else
         {
-            commentechec = tr("impossible d'enregistrer ") + nomfiledoc;
+            commentechec = tr("impossible d'enregistrer le fichier");
             EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         }
     }
@@ -678,8 +684,9 @@ void ImportDocsExternesThread::EchecImport(QString txt)
     if (echectrsfer.open(QIODevice::Append))
     {
         QTextStream out(&echectrsfer);
-        out << txt << "\n" ;
+        out << QDate::currentDate().toString("yyyy-MM-dd") << QTime::currentTime().toString() << txt << "\n" ;
         echectrsfer.close();
     }
+    m_encours = false;
 }
 
