@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCompleter>
 #include <QFileDialog>
 #include <QFontDialog>
-#include <QDesktopWidget>
+#include <QDomDocument>
 #include <QFileSystemWatcher>
 #include <QHostInfo>
 #include <QInputDialog>
@@ -42,7 +42,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QSettings>
-#include <QSound>
+#include <QSoundEffect>
 #include <QSplashScreen>
 #include <QStandardItemModel>
 #include <QtSql>

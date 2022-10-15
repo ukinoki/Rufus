@@ -62,7 +62,7 @@ QString pyxinterf::Lecture_CV()
 //-------------------------------- On ferme avant de partir --------------------------------------------
 void pyxinterf::FermeTout()
 {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN_PYXVITAL
     FreeLibrary(hinstDLL);
 #endif
     if (g_tcpSocket != Q_NULLPTR) g_tcpSocket->close();
@@ -87,7 +87,7 @@ bool pyxinterf::InitConnexionPyxvital()
     // Recherche paramètres Pyxvital.ini.
     nomFicIni   = PATH_FILE_INI;
 
-    proc->settings()->setIniCodec("ISO 8859-1");
+    //proc->settings()->setIniCodec("ISO 8859-1");
 
     PyxvitalPath = QDir::homePath() + "/" + proc->settings()->value("PyxInterf/PyxvitalPath").toString();
     if (PyxvitalPath.length() == 0)
@@ -113,7 +113,8 @@ bool pyxinterf::InitConnexionPyxvital()
         QSettings *PyxIni = new QSettings(nomFicPyxIni, QSettings::IniFormat);
         gnomPyxvitalExe = PyxvitalPath  + "/PyxvitalOSX.app";
 
-        PyxIni->setIniCodec ("ISO 8859-1");
+
+        //PyxIni->setIniCodec ("ISO 8859-1");
 
         // Recup des paramètres pour lancer Pyxvital en mode Serveur.
         gServeurPyx = "localhost";
@@ -154,18 +155,20 @@ qDebug() << "FSE =" + gRepFSE;
 
         // Ouverture connexion avec le serveur PyxvitalX .
         g_tcpSocket = new QTcpSocket(this);
-        connect(g_tcpSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &pyxinterf::ErreurConnexionPyx);
+        //connect(g_tcpSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &pyxinterf::ErreurConnexionPyx);
+        connect(g_tcpSocket, &QAbstractSocket::errorOccurred, this, &pyxinterf::ErreurConnexionPyx);
         connexionPyx();
         // il faudrait pouvoir attendre que la connexion soit établie ou Aixvitale arrété pour erreur de connexion. ?????
     //#endif
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN_PYXVITAL
     // Chargement de la DLL Pyxinterf.dll pour Windows seulement ----------------------------------------------
     char nomDLL[100];
     char charNomDll[100];
+    uint32_t hinstDLL;
     strcpy(charNomDll, gzRepPyx.toAscii().data());
     sprintf(nomDLL,"%s/PYXINTERF.DLL",charNomDll);
-    if ((hinstDLL=LoadLibraryA((LPCSTR)nomDLL))) {
+    if ((hinstDLL=LoadLibraryA(nomDLL))) {
     //if ((hinstDLL=LoadLibrary(nomDLL)   )) {
         PSSV_Command = (SSV_Command)GetProcAddress(hinstDLL, "_SSV_Command@28");
         if (!PSSV_Command) {
@@ -276,7 +279,7 @@ QByteArray RecuPyx;
 
 #endif  //-------------------------------fin mode socket -----------------------------------------------------
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN_PYXVITAL
 //------------------------------ Mode DLL spécifique Windows -------------------------------------------------
 int iRet;
     iRet = PSSV_Command(hWndPyx, WM_USER, TRUE, visuel,(char*) modeAppel, szResult, sizeof(szResult));
@@ -374,6 +377,7 @@ char messerr[2000];
     QMessageBox::critical (Q_NULLPTR, QObject::tr(NomAppli),
                               QObject::tr(messer1) + "\n" + QObject::tr(messer2),
                               QMessageBox::Ok, Qt::NoButton, Qt::NoButton );
+
     sprintf(messerr,"Erreur : %s : %s",messer1,messer2);
     //if (MEDINTUX)
     //    majEchange(messerr);

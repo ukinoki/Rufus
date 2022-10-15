@@ -37,7 +37,7 @@ PlayerControls::PlayerControls(QWidget *parent)
     wdg_labelDuration   ->setAlignment(Qt::AlignRight);
 
     QBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(QMargins()); //Change setMargins(0)
     layout->addWidget(wdg_stopButton);
     layout->addWidget(wdg_playButton);
     layout->addWidget(wdg_slider);
@@ -78,10 +78,16 @@ void PlayerControls::startplay()
     emit ctrl(Play);
 }
 
+void PlayerControls::stateChanged(QMediaPlayer::PlaybackState state)
+{
+    m_state = state;
+}
+
 void PlayerControls::playClicked()
 {
     wdg_stopButton->setEnabled(true);
-    if (m_player->state() == QMediaPlayer::PlayingState)
+
+    if (m_state == QMediaPlayer::PlayingState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
         emit ctrl(Pause);
@@ -95,7 +101,7 @@ void PlayerControls::playClicked()
 
 void PlayerControls::stopClicked()
 {
-    if (m_player->state() != QMediaPlayer::StoppedState)
+    if (m_state != QMediaPlayer::StoppedState)
     {
         wdg_stopButton->setEnabled(false);
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));

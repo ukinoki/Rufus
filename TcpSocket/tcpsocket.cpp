@@ -53,8 +53,8 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     bool a = waitForConnected();
     if (a)
     {
-        connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
-        connect(this,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &TcpSocket::erreurSocket);
+        connect(this,                 &QTcpSocket::readyRead,         this,   &TcpSocket::TraiteDonneesRecues);
+        connect(this,                 &QAbstractSocket::errorOccurred,this,   &TcpSocket::erreurSocket);
     }
     else
     {

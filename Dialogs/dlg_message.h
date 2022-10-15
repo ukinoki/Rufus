@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include "uplabel.h"
 #include <QHBoxLayout>
-#include <QDesktopWidget>
+
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QDebug>

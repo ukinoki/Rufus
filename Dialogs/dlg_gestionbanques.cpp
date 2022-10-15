@@ -108,8 +108,8 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
     connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,    this,   &dlg_gestionbanques::AnnuleModifBanque);
     connect(ui->OKModifupSmallButton,       &QPushButton::clicked,    this,   &dlg_gestionbanques::ValideModifBanque);
 
-    ui->NomBanqueupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx));
-    ui->NomAbregeupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
+    ui->NomBanqueupLineEdit ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx));
+    ui->NomAbregeupLineEdit ->setValidator(new QRegularExpressionValidator(Utils::rgx_MajusculeSeul));
 }
 
 dlg_gestionbanques::~dlg_gestionbanques()

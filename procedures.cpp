@@ -64,7 +64,9 @@ Procedures::Procedures(QObject *parent) :
         }
     }
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-    QSet<int> ports = QSet<int>::fromList(QList<int>() << 3306 << 3307);
+
+    QList<int> lports ={ 3306 , 3307};
+    QSet<int> ports =QSet<int>(lports.constBegin(), lports.constEnd());
     bool k =    (
                   m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Active).toString() == "YES"
                   &&
@@ -110,7 +112,7 @@ Procedures::Procedures(QObject *parent) :
     int margemm         = TailleTopMarge(); // exprimé en mm
     p_printer             = new QPrinter(QPrinter::HighResolution);
     p_printer             ->setFullPage(true);
-    m_rect                = p_printer->paperRect();
+    m_rect                = p_printer->paperRect(QPrinter::Inch);
     m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                   Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
@@ -822,7 +824,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
 
 void Procedures::EffaceBDDDataBackup()
 {
-    db->setdaysbkup(nullptr);
+    db->setdaysbkup(Utils::Day::Aucun);
     db->setheurebkup();
     db->setdirbkup();
     EffaceProgrammationBackup();
@@ -989,7 +991,7 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     ba.data()[file_len]=0;
     qFile.close ();
     Corps = ba;
-    text.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
+    text.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
     Corps.replace("{{TEXTE ORDO}}",text);
     Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
     return Corps;
@@ -2018,8 +2020,8 @@ bool Procedures::eventFilter(QObject *obj, QEvent *event)
                                                            Qt::KeepAspectRatioByExpanding,
                                                            Qt::SmoothTransformation));
                     lbl->setPixmap(pix);
-                    wdg_tablewidget->setRowHeight(i,lbl->pixmap()->height());
-                    wdg_tablewidget->setColumnWidth(i,lbl->pixmap()->width());
+                    wdg_tablewidget->setRowHeight(i,lbl->pixmap().height());
+                    wdg_tablewidget->setColumnWidth(i,lbl->pixmap().width());
                 }
             }
             wdg_inflabel    ->move(10,wdg_tablewidget->height()-40);
@@ -2428,7 +2430,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString dir = PATH_DIR_RUFUS;
         QFileDialog dialog(Q_NULLPTR,tr("Restaurer à partir du dossier") , dir);
         dialog.setViewMode(QFileDialog::List);
-        dialog.setFileMode(QFileDialog::DirectoryOnly);
+        dialog.setOption(QFileDialog::ShowDirsOnly);
+        dialog.setFileMode(QFileDialog::Directory);
         bool b = (dialog.exec()>0);
         if (!b)
             return false;
@@ -2492,7 +2495,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                     tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
                 QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
                 dialogimg.setViewMode(QFileDialog::List);
-                dialogimg.setFileMode(QFileDialog::DirectoryOnly);
+                dialogimg.setOption(QFileDialog::ShowDirsOnly);
+                dialogimg.setFileMode(QFileDialog::Directory);
                 bool b = (dialogimg.exec()>0);
                 if (!b)
                     return false;
@@ -2784,12 +2788,14 @@ bool Procedures::VerifBaseEtRessources()
                 DumpFile.copy(NomDumpFile);
                 emit ConnectTimers(false);
                 DefinitScriptRestore(QStringList() << NomDumpFile);
-                QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
+                const QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
                 QProcess dumpProcess(parent());
-                dumpProcess.start(task);
+                dumpProcess.startCommand(task);
                 dumpProcess.waitForFinished();
+                qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitStatus());
+                qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ProcessError>(), dumpProcess.error());
                 if (dumpProcess.exitStatus() == QProcess::NormalExit)
-                    a = dumpProcess.exitCode();
+                     a = dumpProcess.exitCode();
                 QFile::remove(PATH_FILE_SCRIPTRESTORE);
                 QFile::remove(NomDumpFile);
                 if (a == 0)
@@ -2799,7 +2805,7 @@ bool Procedures::VerifBaseEtRessources()
                 }
                 else
                 {
-                    QSound::play(NOM_ALARME);
+                    Utils::playAlarm();
                     UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
                     erreur();
                 }
@@ -4349,10 +4355,10 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                     /*! le patacaisse qui suit est nécessaire pour contourner un bug connu de Qt. Le signal directroychanged est parfois émis 2 fois et déclenche alors un double enregistrement de la mesure. */
                     const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
                     QFile xmldoc(nomfichierxml);
-                    if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).created()))
+                    if (m_filewatcherautoreffile != listfichxml.at(0) || (m_filewatcherautoreffile == listfichxml.at(0) && m_filewatcherautorefcreated != QFileInfo(xmldoc).birthTime()))
                     {
                         m_filewatcherautoreffile = listfichxml.at(0);
-                        m_filewatcherautorefcreated = QFileInfo(xmldoc).created();
+                        m_filewatcherautorefcreated = QFileInfo(xmldoc).birthTime();
                         lecturefichier(Autoref, pathdirautoref, listfichxml);
                     }
                 }
@@ -4366,10 +4372,10 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                 {
                     const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
                     QFile xmldoc(nomfichierxml);
-                    if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).created()))
+                    if (m_filewatcherfrontofile != listfichxml.at(0) || (m_filewatcherfrontofile == listfichxml.at(0) && m_filewatcherfrontocreated != QFileInfo(xmldoc).birthTime()))
                     {
                         m_filewatcherfrontofile = listfichxml.at(0);
-                        m_filewatcherfrontocreated = QFileInfo(xmldoc).created();
+                        m_filewatcherfrontocreated = QFileInfo(xmldoc).birthTime();
                         lecturefichier(Fronto, pathdirfronto, listfichxml);
                     }
                 }
@@ -4383,10 +4389,10 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                 {
                     const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
                     QFile xmldoc(nomfichierxml);
-                    if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).created()))
+                    if (m_filewatcherrefracteurfile != listfichxml.at(0) || (m_filewatcherrefracteurfile == listfichxml.at(0) && m_filewatcherrefracteurcreated != QFileInfo(xmldoc).birthTime()))
                     {
                         m_filewatcherrefracteurfile = listfichxml.at(0);
-                        m_filewatcherrefracteurcreated = QFileInfo(xmldoc).created();
+                        m_filewatcherrefracteurcreated = QFileInfo(xmldoc).birthTime();
                         lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
                     }
                 }
@@ -4435,21 +4441,6 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             return false;
         }
     }
-    QString listeports = "";
-    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-    {
-        if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") | QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
-        {
-            if (listeports != "")
-                listeports += " - ";
-            listeports += QSerialPortInfo::availablePorts().at(i).portName();
-        }
-    }
-    if (listeports != "")
-        listeports = tr("Liste des ports disponibles") + " - " + listeports;
-    else
-        listeports = tr("Aucun port COM disponible sur le système");
-
     /*!
     for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         Logs::LogToFile("PortsSeries.txt", QSerialPortInfo::availablePorts().at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
@@ -4470,14 +4461,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+                 * nom des ports sous BigSur  = "usbserial-F*****" + no 0,1,2 ou 3
                  * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
-                if (m_portFronto == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portFronto == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portFronto == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portFronto == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
+                if (m_portFronto == "COM1")        NomPort = (lastchar.isDigit()? "0" : "A");
+                else if (m_portFronto == "COM2")   NomPort = (lastchar.isDigit()? "1" : "B");
+                else if (m_portFronto == "COM3")   NomPort = (lastchar.isDigit()? "2" : "C");
+                else if (m_portFronto == "COM4")   NomPort = (lastchar.isDigit()? "3" : "D");
                 if (NomPort != "") break;
             }
             else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
@@ -4500,20 +4490,8 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
+                    QString letter = nomduport.split("-").at(1);
+                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
                     {
                         sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
@@ -4551,13 +4529,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             else
             {
                 msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
-                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
                 delete sp_portFronto;
                 sp_portFronto = Q_NULLPTR;
             }
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
     }
 
     // PORT REFRACTEUR
@@ -4577,13 +4552,12 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
                  * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
                  * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
-                if (m_portRefracteur == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portRefracteur == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portRefracteur == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portRefracteur == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
+                if (m_portRefracteur == "COM1")         NomPort = (lastchar.isDigit()? "0" : "A");
+                else if (m_portRefracteur == "COM2")    NomPort = (lastchar.isDigit()? "1" : "B");
+                else if (m_portRefracteur == "COM3")    NomPort = (lastchar.isDigit()? "2" : "C");
+                else if (m_portRefracteur == "COM4")    NomPort = (lastchar.isDigit()? "3" : "D");
                 if (NomPort != "") break;
             }
             else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
@@ -4603,20 +4577,8 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
+                    QString letter = nomduport.split("-").at(1);
+                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
                     {
                         sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
@@ -4658,13 +4620,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (msg != "")
                     msg += "\r";
                 msg += tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
-                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
                 delete sp_portRefracteur;
                 sp_portRefracteur = Q_NULLPTR;
             }
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
     }
 
     //PORT AUTOREF
@@ -4683,13 +4642,12 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
                  * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+                 * nom des ports sous driver FTDI (Startech) = "usbserial-F******" + lettre A,B,C ou D
                 */
-                if (m_portAutoref == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portAutoref == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portAutoref == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portAutoref == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
+                if (m_portAutoref == "COM1")        NomPort = (lastchar.isDigit()? "0" : "A");
+                else if (m_portAutoref == "COM2")   NomPort = (lastchar.isDigit()? "1" : "B");
+                else if (m_portAutoref == "COM3")   NomPort = (lastchar.isDigit()? "2" : "C");
+                else if (m_portAutoref == "COM4")   NomPort = (lastchar.isDigit()? "3" : "D");
                 if (NomPort != "") break;
             }
             else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
@@ -4709,20 +4667,8 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
+                    QString letter = nomduport.split("-").at(1);
+                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
                     {
                         sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
@@ -4764,13 +4710,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (msg != "")
                     msg += "\r";
                 msg += tr("Impossible de connecter l'autoref sur ") + m_portAutoref;
-                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autoref sur ") + m_portAutoref, listeports);
                 delete sp_portAutoref;
                 sp_portAutoref = Q_NULLPTR;
             }
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autoref sur ") + m_portAutoref, listeports);
     }
     if (appareils.testFlag(Tonometre))
     {
@@ -4898,13 +4841,13 @@ void Procedures::RegleRefracteurCOM()
             SCAOG.replace("-0","- ");
             DTRbuff.append("DRM");                              //section fronto
             DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
-            DTRbuff.append("OR"+ SCAOD);                        //SD
+            DTRbuff.append("OR"+ SCAOD.toLocal8Bit());                        //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
-            DTRbuff.append("OL"+ SCAOG);                        //SD
+            DTRbuff.append("OL"+ SCAOG.toLocal8Bit());                        //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
             if (Datas::I()->mesureautoref->ecartIP() > 0)
             {
-                DTRbuff.append("PD"+ QString::number(Datas::I()->mesureautoref->ecartIP()));
+                DTRbuff.append("PD"+ QString::number(Datas::I()->mesureautoref->ecartIP()).toLocal8Bit());
                                                                 //SD
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
@@ -4933,17 +4876,17 @@ void Procedures::RegleRefracteurCOM()
             AddOG       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
             DTRbuff.append("DLM");                              //section fronto
             DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
-            DTRbuff.append(" R"+ SCAOD);                        //SD
+            DTRbuff.append(" R"+ SCAOD.toLocal8Bit());                        //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
-            DTRbuff.append(" L"+ SCAOG);                        //SD
+            DTRbuff.append(" L"+ SCAOG.toLocal8Bit());                        //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
-            DTRbuff.append("AR" + AddOD);                       //SD
+            DTRbuff.append("AR" + AddOD.toLocal8Bit());                       //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
-            DTRbuff.append("AL" + AddOG);                       //SD
+            DTRbuff.append("AL" + AddOG.toLocal8Bit());                       //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
             if (Datas::I()->mesurefronto->ecartIP() > 0)
             {
-                DTRbuff.append("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP()));
+                DTRbuff.append("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP()).toLocal8Bit());
                                                                 //SD
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
@@ -4984,7 +4927,7 @@ void Procedures::RegleRefracteurXML()
     auto EnregistreFileDatasXML = [] (QDomDocument xml, Procedures::TypeMesure typmesure)
     {
         const QByteArray codecname = "UTF16LE";
-        QTextCodec *codec = QTextCodec::codecForName(codecname);
+        //QTextCodec *codec = QTextCodec::codecForName(codecname);
         QString Adress ("");
         QString typfile("");
         if (typmesure == Procedures::MesureAutoref)
@@ -5010,7 +4953,7 @@ void Procedures::RegleRefracteurXML()
         if (file.open(QIODevice::ReadWrite))
         {
             QTextStream stream( &file );
-            stream.setCodec(codec);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
+            stream.setEncoding(QStringConverter::Utf16LE);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
             QString strxml = xml.toString();
             stream << strxml;
             file.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
@@ -6080,7 +6023,7 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     /*! la séquence SendData = "\001CRL\002SD\017\004" SendDataNIDEK() est utilisée dans le système NIDEK en réponse à une demande d'envoi de données RequestToSendNIDEK() */
     QByteArray DTRbuff;
     DTRbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
-    DTRbuff.append(mesure);                             //CRL pour le refracteur, CLM pour le fronto, CRK ou CRM pour l'autoref
+    DTRbuff.append(mesure.toLocal8Bit());               //CRL pour le refracteur, CLM pour le fronto, CRK ou CRM pour l'autoref
     DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
     DTRbuff.append("SD");                               //SD
     DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
@@ -6198,15 +6141,15 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
                 mesureOD            = SectionKerato.mid(SectionKerato.indexOf("CR")+2,13)   .replace(" ","0");
                 K1OD                = mesureOD.mid(0,5);
                 K2OD                = mesureOD.mid(5,5);
-                AxeKOD              = mesureOD.midRef(10,3).toInt();
+                AxeKOD              = mesureOD.mid(10,3).toInt();
                 Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                 Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
                 Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
                 if (SectionKerato.contains("DR"))
                 {
                     mesureOD        = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
-                    Datas::I()->mesurekerato->setdioptriesK1OD(mesureOD.midRef(0,5).toDouble());
-                    Datas::I()->mesurekerato->setdioptriesK2OD(mesureOD.midRef(5,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK1OD(mesureOD.mid(0,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OD(mesureOD.mid(5,5).toDouble());
                 }
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -6215,15 +6158,15 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
                 mesureOG            = SectionKerato.mid(SectionKerato.indexOf("CL")+2,13)   .replace(" ","0");
                 K1OG                = mesureOG.mid(0,5);
                 K2OG                = mesureOG.mid(5,5);
-                AxeKOG              = mesureOG.midRef(10,3).toInt();
+                AxeKOG              = mesureOG.mid(10,3).toInt();
                 Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
                 Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
                 Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
                 if (SectionKerato.contains("DL"))
                 {
                     mesureOG        = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
-                    Datas::I()->mesurekerato->setdioptriesK1OG(mesureOG.midRef(0,5).toDouble());
-                    Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.midRef(5,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK1OG(mesureOG.mid(0,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.mid(5,5).toDouble());
                 }
             }
             if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
@@ -7323,14 +7266,14 @@ QString Procedures::HtmlRefracteur()
     colorVLOD = "\"blue\"";
     int av = 0;
     if (mAVLOD.contains("/"))
-        av = mAVLOD.leftRef(mAVLOD.indexOf("/")).toInt();
+        av = mAVLOD.left(mAVLOD.indexOf("/")).toInt();
     if (av < 6)
         colorVLOD =  "\"red\"";
     if (av > 5 && av < 9)
         colorVLOD =  "\"orange\"";
     av = 0;
     if (mAVLOG.contains("/"))
-        av = mAVLOG.leftRef(mAVLOG.indexOf("/")).toInt();
+        av = mAVLOG.left(mAVLOG.indexOf("/")).toInt();
     if (av < 6)
         colorVLOG =  "\"red\"";
     if (av >5 && av < 9)
@@ -7513,7 +7456,7 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
             mCylOD               = mesureOD.mid(6,6);
             mAxeOD               = mesureOD.mid(12,3);
             if (Mesure.indexOf("AR")>0)
-                mAddOD           = Utils::PrefixePlus(Mesure.midRef(Mesure.indexOf("AR")+2,4).toDouble());
+                mAddOD           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AR")+2,4).toDouble());
             Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
             Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
             Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
@@ -7528,7 +7471,7 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
             mCylOG               = mesureOG.mid(6,6);
             mAxeOG               = mesureOG.mid(12,3);
             if (Mesure.indexOf("AL")>0)
-                mAddOG           = Utils::PrefixePlus(Mesure.midRef(Mesure.indexOf("AL")+2,4).toDouble());
+                mAddOG           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AL")+2,4).toDouble());
             Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
             Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
             Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
@@ -8198,13 +8141,13 @@ PL04.7N
                         KOD                 = K.mid(K.indexOf(" R")+2,13);
                         K1OD                = KOD.mid(0,5);
                         K2OD                = KOD.mid(5,5);
-                        AxeKOD              = KOD.midRef(10,3).toInt();
+                        AxeKOD              = KOD.mid(10,3).toInt();
                         Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
                         Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
                         Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
                         QString mOD         = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
-                        Datas::I()->mesurekerato->setdioptriesK1OD(mOD.midRef(0,5).toDouble());
-                        Datas::I()->mesurekerato->setdioptriesK2OD(mOD.midRef(5,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK1OD(mOD.mid(0,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK2OD(mOD.mid(5,5).toDouble());
                     }
                     // OEIL GAUCHE ---------------------------------------------------------------------------
                     a  = Ref.indexOf(" L");
@@ -8216,13 +8159,13 @@ PL04.7N
                         KOG                 = K.mid(K.indexOf(" L")+2,13);
                         K1OG                = KOG.mid(0,5);
                         K2OG                = KOG.mid(5,5);
-                        AxeKOG              = KOG.midRef(10,3).toInt();
+                        AxeKOG              = KOG.mid(10,3).toInt();
                         Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
                         Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
                         Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
                         QString mOG         = K.mid(K.indexOf("DL")+2,10).replace(" ","0");
-                        Datas::I()->mesurekerato->setdioptriesK1OG(mOG.midRef(0,5).toDouble());
-                        Datas::I()->mesurekerato->setdioptriesK2OG(mOG.midRef(5,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK1OG(mOG.mid(0,5).toDouble());
+                        Datas::I()->mesurekerato->setdioptriesK2OG(mOG.mid(5,5).toDouble());
                     }
                 }
             }

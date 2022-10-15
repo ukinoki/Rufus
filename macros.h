@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "qglobal.h"
 #ifndef MACROS_H
 #define MACROS_H
 
@@ -919,7 +920,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef Q_OS_LINUX
 #define CORRECTION_td_width     1.3
 #endif
-
+#ifdef Q_OS_WIN
+#define CORRECTION_td_width     1.3
+#endif
 #define OPHTALIBERAL            "ophlib"
 #define OPHTAREMPLACANT         "ophrmp"
 #define OPHTASALARIE            "ophsal"

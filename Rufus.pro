@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += sql core gui network printsupport xml serialport multimedia multimediawidgets
+QT       += sql core gui network printsupport xml serialport multimedia multimediawidgets pdf
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,7 +22,7 @@ OSX {
 TARGET = /Applications/Rufus
 }
 LINUX {
-TARGET = /home/serge/RufusApp
+TARGET = $(HOME)/RufusApp
 }
 
 TEMPLATE = app
@@ -105,9 +105,15 @@ include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 
-LINUX {
+LINUX|WIN64{
 include(SingleApplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication # cette instruction doit être incluse APRES la ligne précédente
+}
+
+
+WIN64 {
+#LIBS += -l"C:/Program Files (x86)/Windows Kits/10/Lib/10.0.19041.0/um/x64/user32"
+LIBS += -lUser32
 }
 
 TRANSLATIONS    = rufus_en.ts
@@ -119,15 +125,6 @@ RESOURCES += \
 
 ICON += \
     Sunglasses.icns
-
-OSX {
-INCLUDEPATH += /usr/local/include/poppler/qt5
-LIBS += -L/usr/local/lib/ -lpoppler-qt5
-}
-LINUX {
-INCLUDEPATH += /usr/include/poppler/qt5
-LIBS += -L/usr/local/lib -lpoppler-qt5
-}
 
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \

@@ -97,13 +97,13 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     connect (ui->CherchePatientupLineEdit,  &QLineEdit::textEdited,                     this,   &dlg_paiementdirect::FiltreListe);
 
     ui->TireurChequelineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-    ui->TireurChequelineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->TireurChequelineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
     ui->MontantlineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);
     ui->MontantlineEdit->setValidator(val);
     ui->CommissionlineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-    ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
+    ui->BanqueChequecomboBox->setValidator(new QRegularExpressionValidator(Utils::rgx_MajusculeSeul));
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
     ui->TierscomboBox->lineEdit()->setMaxLength(30);
 
@@ -1124,7 +1124,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
                 UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
                 if (QLocale().toDouble(Line->text()) > QLocale().toDouble(m_valeurmaxi))
                 {
-                    QSound::play(NOM_ALARME);
+                    Utils::playAlarm();
                     m_valeuravantchangement = QLocale().toString(QLocale().toDouble(m_valeurmaxi),'f',2);   // Montant payé
                 }
                 else
@@ -1179,7 +1179,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
                 {
                     if (QLocale().toDouble(Line->text()) > QLocale().toDouble(m_valeurmaxi))
                     {
-                        QSound::play(NOM_ALARME);
+                        Utils::playAlarm();
                         m_valeuravantchangement = QLocale().toString(QLocale().toDouble(m_valeurmaxi),'f',2);   // Montant payé
                     }
                     else
@@ -3488,7 +3488,7 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
             if (Check)
                 Check->setToggleable(false);
         }
-        QSound::play(NOM_ALARME);
+        Utils::playAlarm();
         connect(t_timerafficheacteverrouille,   &QTimer::timeout,   this,   &dlg_paiementdirect::AfficheActeVerrouille);
         return false;
     }

@@ -2555,7 +2555,7 @@ background-color:rgb(255, 255, 255)</string>
                  <property name="horizontalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
-                 <property name="tabStopWidth">
+                 <property name="tabStopDistance">
                   <number>40</number>
                  </property>
                 </widget>
@@ -2577,7 +2577,7 @@ background-color:rgb(255, 255, 255)</string>
                  <property name="horizontalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
-                 <property name="tabStopWidth">
+                 <property name="tabStopDistance">
                   <number>40</number>
                  </property>
                 </widget>
@@ -2613,7 +2613,7 @@ background-color:rgb(255, 255, 255)</string>
                  <property name="horizontalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
-                 <property name="tabStopWidth">
+                 <property name="tabStopDistance">
                   <number>40</number>
                  </property>
                 </widget>
@@ -2635,7 +2635,7 @@ background-color:rgb(255, 255, 255)</string>
                  <property name="horizontalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
-                 <property name="tabStopWidth">
+                 <property name="tabStopDistance">
                   <number>40</number>
                  </property>
                 </widget>
@@ -3141,7 +3141,7 @@ correspondants</string>
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
-         <property name="tabStopWidth">
+         <property name="tabStopDistance">
           <number>40</number>
          </property>
         </widget>
@@ -4498,7 +4498,7 @@ color : gray;
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
-         <property name="tabStopWidth">
+         <property name="tabStopDistance">
           <number>40</number>
          </property>
         </widget>
@@ -4551,7 +4551,7 @@ color : gray;
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
-         <property name="tabStopWidth">
+         <property name="tabStopDistance">
           <number>40</number>
          </property>
         </widget>
@@ -4617,7 +4617,7 @@ color : gray;
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
-         <property name="tabStopWidth">
+         <property name="tabStopDistance">
           <number>40</number>
          </property>
         </widget>

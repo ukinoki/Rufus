@@ -53,13 +53,13 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     if (m_mode == Creation)
         ui->idManufacturerlabel  ->setVisible(false);
 
-    ui->NomlineEdit         ->setValidator(new QRegExpValidator(rgx_nom,this));
-    ui->MaillineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
-    ui->Adresse1lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
-    ui->Adresse2lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
-    ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
-    ui->TellineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->NomlineEdit         ->setValidator(new QRegularExpressionValidator(rgx_nom,this));
+    ui->MaillineEdit        ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail,this));
+    ui->Adresse1lineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+    ui->Adresse2lineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+    ui->Adresse3lineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+    ui->TellineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
+    ui->PortablelineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
     setModal(true);
     setSizeGripEnabled(false);
@@ -249,7 +249,8 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
         {
             ui->MaillineEdit->setText(Utils::trim(ui->MaillineEdit->text()));
             if (ui->MaillineEdit->text()!="")
-                if (!Utils::rgx_mail.exactMatch(ui->MaillineEdit->text()))
+                //if (!Utils::rgx_mail.exactMatch(ui->MaillineEdit->text()))
+                if (!Utils::RegularExpressionMatches(Utils::rgx_mail, ui->MaillineEdit->text()))
                 {
                     UpMessageBox::Watch(this, tr("Adresse mail invalide"));
                     ui->MaillineEdit->setFocus();

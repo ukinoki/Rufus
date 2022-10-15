@@ -282,11 +282,11 @@ public:
     static bool CompareQIcon(const QIcon icon1, const QIcon icon2)
     {
       QByteArray a1;
-      QDataStream stream1(&a1, QIODevice::WriteOnly);
+      QDataStream stream1(&a1, QIODeviceBase::WriteOnly );
       stream1 << icon1;
 
       QByteArray a2;
-      QDataStream stream2(&a2, QIODevice::WriteOnly);
+      QDataStream stream2(&a2, QIODeviceBase::WriteOnly);
       stream2 << icon2;
 
       return a1 == a2;

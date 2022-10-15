@@ -35,8 +35,8 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
     QTimer t_timer;
     t_timer                  .start(500);
-    ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
-    ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    ui->LoginlineEdit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
+    ui->MDPlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
     connect(ui->AnnuluppushButton,      &QPushButton::clicked,          this,   &QDialog::reject);
     connect(ui->HelpupPushButton,       &QPushButton::clicked,          this,   &dlg_paramconnexion::HelpMsg);
@@ -62,11 +62,13 @@ void dlg_paramconnexion::CalcIP(QString IP)
         m_adresseserveur    = "localhost";
     else if (ui->DistantradioButton->isChecked())
     {
-        if (!Utils::rgx_IPV4.exactMatch(IP))
+        //if (!Utils::rgx_IPV4.exactMatch(IP))
+        if (!Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP))
             m_adresseserveur  = ui->IPlineEdit->text();
     }
     else if (ui->LocalradioButton->isChecked()
-         || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
+             || (ui->DistantradioButton->isChecked() && Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP)))
+//             || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
     {
         m_IPaveczero        = Utils::calcIP(IP, true);
         m_adresseserveur    = Utils::calcIP(IP);
@@ -106,7 +108,8 @@ void dlg_paramconnexion::MAJIP()
 {
     CalcIP(ui->IPlineEdit->text());
     if (ui->LocalradioButton->isChecked()
-        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(m_IPaveczero)))
+        || (ui->DistantradioButton->isChecked() && Utils::RegularExpressionMatches(Utils::rgx_IPV4, m_IPaveczero)))
+//        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(m_IPaveczero)))
         ui->IPlineEdit->setText(m_IPaveczero);
     //UpMessageBox::Watch(this, "AvecZero = " + gIPAvecZero + "\nSansZero = " + gIPSansZero + "\nClient = " + gClient);
 }

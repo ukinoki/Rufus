@@ -117,7 +117,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);
     ui->MontantlineEdit->setValidator(val);
-    ui->ObjetlineEdit->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
+    ui->ObjetlineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
 
     QList<UpPushButton *> allUpButtons = this->findChildren<UpPushButton *>();
     for (int n = 0; n <  allUpButtons.size(); n++)
@@ -181,7 +181,7 @@ dlg_depenses::~dlg_depenses()
 
 void dlg_depenses::ExportTable()
 {
-    QByteArray ExportEtat;
+    QString ExportEtat;
     QString sep = "\t";                                                                                                            // séparateur
     if (UpMessageBox::Question(this,
                                tr("Exportation de la table des dépenses"),
@@ -534,7 +534,8 @@ void dlg_depenses::EnregistreDepense()
     bool OnSauteLaQuestionSuivante = false;
     QString pb = "";
     // Vérifier l'absence de slash dans l'intitulé
-    if (!Utils::rgx_intitulecompta.exactMatch(ui->ObjetlineEdit->text()))
+    //if (!Utils::rgx_intitulecompta.exactMatch(ui->ObjetlineEdit->text()))
+    if (!Utils::RegularExpressionMatches(Utils::rgx_intitulecompta,ui->ObjetlineEdit->text()))
     {
         UpMessageBox::Watch(this,tr("l'intitulé n'est pas conforme"), tr("Il contient des caractères non admis"));
         return;
@@ -662,7 +663,7 @@ void dlg_depenses::EnregistreDepense()
 
     wdg_bigtable->insertRow(wdg_bigtable->rowCount());
     SetDepenseToRow(dep, wdg_bigtable->rowCount()-1);
-    wdg_bigtable->sortByColumn(7);
+    wdg_bigtable->sortByColumn(7,Qt::SortOrder::AscendingOrder);
 
     wdg_bigtable->setEnabled(true);
     wdg_supprimeruppushbutton->setVisible(true);
@@ -1173,7 +1174,7 @@ void dlg_depenses::ModifierDepense()
                                                               DataBase::Egal);
     if (veriflistdepenses.size() > 0){
         for (QList<Depense*>::const_iterator itDepense = veriflistdepenses.constBegin(); itDepense != veriflistdepenses.constEnd(); ++itDepense){
-            if (veriflistdepenses.last()->id() == idDep){
+            if (veriflistdepenses.last()->id() == idDep.toInt()){
                 pb = tr("Elle a déjà été saisie");
                 OnSauteLaQuestionSuivante = true;
                 break;
@@ -1369,7 +1370,7 @@ void dlg_depenses::ModifierDepense()
     wdg_bigtable->setCurrentCell(row,1);
     if (dep->date() != datedepart)
     {
-        wdg_bigtable->sortByColumn(7);
+        wdg_bigtable->sortByColumn(7, Qt::SortOrder::AscendingOrder);
         for (int i=0; i< wdg_bigtable->rowCount(); i++)
             if (getDepenseFromRow(i)->id() == dep->id()){
                 wdg_bigtable->scrollTo(wdg_bigtable->model()->index(i,1), QAbstractItemView::PositionAtCenter);

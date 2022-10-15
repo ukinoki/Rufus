@@ -337,7 +337,7 @@ bool Patients::veriftelephone(Patient *pat)
     lbltel          ->setText(tr("Telephone"));
     QLineEdit *linetel = new QLineEdit();
     linetel         ->setFixedSize(QSize(120,24));
-    linetel         ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    linetel         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone));
     telLay          ->addWidget(lbltel);
     telLay          ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     telLay          ->addWidget(linetel);
@@ -349,7 +349,7 @@ bool Patients::veriftelephone(Patient *pat)
     lblport         ->setText(tr("Portable"));
     QLineEdit *lineport = new QLineEdit();
     lineport        ->setFixedSize(QSize(120,24));
-    lineport        ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    lineport        ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone));
     portLay         ->addWidget(lblport);
     portLay         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     portLay         ->addWidget(lineport);

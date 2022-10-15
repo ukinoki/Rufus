@@ -80,7 +80,6 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
-
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
     m_db.setHostName( m_server );
     m_db.setPort( m_port );

@@ -56,6 +56,9 @@ private:
     void    positionChanged(qint64 progress);
     void    stopClicked();
     void    updateDurationInfo(qint64 progress);
+
+    void    stateChanged(QMediaPlayer::PlaybackState state);
+    QMediaPlayer::PlaybackState m_state;
 };
 
 #endif // PLAYERCONTROLS_H

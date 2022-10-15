@@ -359,7 +359,7 @@ QString dlg_impressions::DocumentToolTip(Impression *doc)
     MetAJour(doc->texte(),false);
     text->setText(m_listtexts.at(0));
     QString ab = text->toPlainText();
-    ab.replace(QRegExp("\n\n[\n]*"),"\n");
+    ab.replace(QRegularExpression("\n\n[\n]*"),"\n");
     while (ab.endsWith("\n"))
         ab = ab.left(ab.size()-1);
     if (ab.size()>300)
@@ -1187,33 +1187,62 @@ void dlg_impressions::OKpushButtonClicked()
                     if (m_currentintervention == Q_NULLPTR)
                         quest+= "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
                     quest += ")[)][)])";
-                    QRegExp reg;
+                    QRegularExpression reg;
                     reg.setPattern(quest);
                     int count = 0;
                     int pos = 0;
-                    while (reg.indexIn(text, pos) != -1)
+
+
+
+                    while (reg.match(text, pos).hasMatch())
                     {
-                        pos = reg.indexIn(text, pos);
+                        QString txt = reg.match(text, pos).captured(0);
                         ++count;
-                        pos += reg.matchedLength();
-                        int fin = reg.cap(1).indexOf("//");
+                        int fin = txt.indexOf("//");
                         int lengthquest = fin-2;
-                        int lengthtype = reg.cap(1).length() - fin;
+                        int lengthtype = txt.length() - fin;
                         bool a = true;
                         if (listQuestions.size()>0)
                             for (int j=0; j<listQuestions.size();j++)
                             {
-                                if (listQuestions.at(j) == reg.cap(1).mid(2,lengthquest))
+                                if (listQuestions.at(j) == txt.mid(2,lengthquest))
                                 {
                                     a = false;
                                     break;
                                 }
                             }
                         if (a){
-                            listQuestions << reg.cap(1).mid(2,lengthquest);
-                            listtypeQuestions << reg.cap(1).mid(fin+2,lengthtype-4);
+                            listQuestions << txt.mid(2,lengthquest);
+                            listtypeQuestions << txt.mid(fin+2,lengthtype-4);
                         }
                     }
+
+
+//                    while (reg.indexIn(text, pos) != -1)
+//                    {
+//                        pos = reg.indexIn(text, pos);
+//                        ++count;
+//                        pos += reg.matchedLength();
+//                        int fin = reg.cap(1).indexOf("//");
+//                        int lengthquest = fin-2;
+//                        int lengthtype = reg.cap(1).length() - fin;
+//                        bool a = true;
+//                        if (listQuestions.size()>0)
+//                            for (int j=0; j<listQuestions.size();j++)
+//                            {
+//                                if (listQuestions.at(j) == reg.cap(1).mid(2,lengthquest))
+//                                {
+//                                    a = false;
+//                                    break;
+//                                }
+//                            }
+//                        if (a){
+//                            listQuestions << reg.cap(1).mid(2,lengthquest);
+//                            listtypeQuestions << reg.cap(1).mid(fin+2,lengthtype-4);
+//                        }
+//                    }
+
+
                 }
             }
         }
@@ -1242,7 +1271,7 @@ void dlg_impressions::OKpushButtonClicked()
                 if (listtypeQuestions.at(m)  == "TEXTE")
                 {
                     UpLineEdit *Line = new UpLineEdit();
-                    Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+                    Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
                     Line->setMaxLength(60);
                     Line->setFixedHeight(23);
                     lay->addWidget(Line);
@@ -1622,7 +1651,7 @@ void dlg_impressions::VerifCoherencedlg_ask()
         {
             a = false;
             listUpline.at(i)->setFocus();
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
         }
     }
     if (a)
@@ -1634,7 +1663,7 @@ void dlg_impressions::VerifCoherencedlg_ask()
             {
                 a = false;
                 listCombo.at(i)->setFocus();
-                QSound::play(NOM_ALARME);
+                Utils::playAlarm();
             }
         }
     }
@@ -1779,7 +1808,7 @@ int dlg_impressions::AskDialog(QString titre)
 
     connect(dlg_askdialog->OKButton,   &QPushButton::clicked, dlg_askdialog,  [=] {dlg_askdialog->accept();});
 
-    Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
     return dlg_askdialog->exec();
 }
@@ -2788,9 +2817,9 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
         texte.replace(txt, (typ? typ->typeintervention() : "null"));
     }
     int pos = 0;
-    QRegExp reg;
+    QRegularExpression reg;
     reg.setPattern("([{][{].*CORRESPONDANT.*[}][}])");
-    if (reg.indexIn(texte, pos) != -1)
+    if (reg.match(texte, pos).hasMatch())
     {
         QList<Correspondant*> listcor;
         Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
@@ -2921,7 +2950,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     QFontMetrics fm             = QFontMetrics(qApp->font());
     int largeurcolonne          = 0;
     const QString lbltxt        = tr("À qui adresser ce courrier?");
-    int largfinal               = fm.width(lbltxt);
+    int largfinal               = fm.horizontalAdvance(lbltxt);
     int hauteurligne            = int(fm.height()*1.1);
 
     label       ->setText(lbltxt);
@@ -2940,8 +2969,8 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
         pitem       ->setEditable(false);
         pitem       ->setCheckable(true);
         pitem       ->setCheckState(Qt::Unchecked);
-        if (fm.width(pitem->text()) > largeurcolonne)
-            largeurcolonne = fm.width(pitem->text());
+        if (fm.horizontalAdvance(pitem->text()) > largeurcolonne)
+            largeurcolonne = fm.horizontalAdvance(pitem->text());
         m_modele     ->appendRow(pitem);
     }
     tblCorresp  ->setModel(m_modele);

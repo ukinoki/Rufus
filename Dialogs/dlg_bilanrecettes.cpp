@@ -535,7 +535,7 @@ void dlg_bilanrecettes::ChangeMode(enum Mode mode)
 
 void dlg_bilanrecettes::ExportTable()
 {
-    QByteArray ExportEtat;
+    QString ExportEtat;
     QString sep = "\t";                                                                                                             // séparateur
     if (UpMessageBox::Question(this,
                                tr("Exportation de la table des recettes"),

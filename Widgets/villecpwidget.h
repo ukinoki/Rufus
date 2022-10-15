@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "updelegate.h"
 #include <QCompleter>
-#include <QSound>
+#include <QSoundEffect>
 #include <QSqlDatabase>
 #include <QStandardItemModel>
 #include <QtSql>

@@ -58,14 +58,14 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     gLibActiv               = tr("Activité libérale");
     gNoLibActiv             = tr("Activité non libérale");
 
-    ui->NomuplineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->PrenomuplineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->AutreSoignantupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->AutreFonctionuplineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->MailuplineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
-    ui->PortableuplineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->RPPSupLineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->NumCOupLineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->NomuplineEdit           ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->PrenomuplineEdit        ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->AutreSoignantupLineEdit ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->AutreFonctionuplineEdit ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->MailuplineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail,this));
+    ui->PortableuplineEdit      ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
+    ui->RPPSupLineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
+    ui->NumCOupLineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
     QStringList ListTitres;
     ListTitres                      << tr("Docteur") << tr("Professeur");
@@ -283,9 +283,9 @@ void dlg_gestionusers::CreerUser()
     Line                        ->setObjectName(gLoginupLineEdit);
     Line2                       ->setObjectName(gMDPupLineEdit);
     Line3                       ->setObjectName(gConfirmMDPupLineEdit);
-    Line                        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
-    Line2                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12));
-    Line3                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12));
+    Line                        ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15));
+    Line2                       ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12));
+    Line3                       ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12));
     Line                        ->setAlignment(Qt::AlignCenter);
     Line2                       ->setAlignment(Qt::AlignCenter);
     Line3                       ->setAlignment(Qt::AlignCenter);
@@ -348,7 +348,7 @@ void dlg_gestionusers::EnregistreNouvMDP()
 
         if (anc == "")
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText(tr("Ancien mot de passe requis"));
             gAskMDP->findChild<UpLineEdit*>(gAncMDP)->setFocus();
             msgbox.exec();
@@ -356,15 +356,16 @@ void dlg_gestionusers::EnregistreNouvMDP()
         }
         if (Utils::calcSHA1(anc) != m_userencours->password())
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas bon\n"));
             gAskMDP->findChild<UpLineEdit*>(gAncMDP)->setFocus();
             msgbox.exec();
             return;
         }
-        if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(nouv) || nouv == "")
+        //if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(nouv) || nouv == "")
+        if (!Utils::RegularExpressionMatches(Utils::rgx_AlphaNumeric_5_15, nouv) || nouv == "")
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 5 caractères - chiffres ou lettres non accentuées -\n"));
             gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->setFocus();
             msgbox.exec();
@@ -372,7 +373,7 @@ void dlg_gestionusers::EnregistreNouvMDP()
         }
         if (nouv != confirm)
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText("Les mots de passe ne correspondent pas\n");
             gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->setFocus();
             msgbox.exec();
@@ -768,7 +769,8 @@ void dlg_gestionusers::EnregistreNouvUser()
             if (msg != "")
                 continue;
         }
-        if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(mdp))
+        //if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(mdp))
+        if (!Utils::RegularExpressionMatches(Utils::rgx_AlphaNumeric_5_12, mdp))
         {
             msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
                   tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 12 caractères.");
@@ -784,15 +786,15 @@ void dlg_gestionusers::EnregistreNouvUser()
     }
     if (msg != "")
     {
-        QSound::play(NOM_ALARME);
+        Utils::playAlarm();
         UpMessageBox::Watch(this,tr("Erreur"), msg);
         return;
     }
     dlg_ask->accept();
     m_mode                          = Creer;
     db->locktable(TBL_UTILISATEURS);
-    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_NOM_USR "," CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
-                  " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(Utils::capitilize(login)) + "', '" + Utils::calcSHA1(mdp) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
+    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
+                    " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::calcSHA1(mdp) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
     QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + Utils::calcSHA1(mdp) + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,m_ok).at(0).toInt();
     db->unlocktables();
@@ -933,7 +935,7 @@ void dlg_gestionusers::ModifMDP()
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(gConfirmMDP);
-    ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    ConfirmMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
     ConfirmMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,ConfirmMDP);
@@ -943,7 +945,7 @@ void dlg_gestionusers::ModifMDP()
     UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(gNouvMDP);
-    NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    NouvMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
     NouvMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,NouvMDP);
@@ -953,7 +955,7 @@ void dlg_gestionusers::ModifMDP()
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_12,this));
+    AncMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_3_12,this));
     AncMDP->setObjectName(gAncMDP);
     AncMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,AncMDP);
@@ -1576,9 +1578,9 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
         pitem3->setToolTip(data);
         if (listadress.at(i).at(8).toString() != "")
         {
-            pitem1->setTextColor(QColor("#" + listadress.at(i).at(8).toString()));
-            pitem2->setTextColor(QColor("#" + listadress.at(i).at(8).toString()));
-            pitem3->setTextColor(QColor("#" + listadress.at(i).at(8).toString()));
+            pitem1->setForeground(QColor("#" + listadress.at(i).at(8).toString()));
+            pitem2->setForeground(QColor("#" + listadress.at(i).at(8).toString()));
+            pitem3->setForeground(QColor("#" + listadress.at(i).at(8).toString()));
         }
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
     }

@@ -89,8 +89,8 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     dlglayout()             ->getContentsMargins(&r,&t,&l,&b);
     setFixedWidth(ui->MotifsupTableWidget->width() + hlay->spacing() + ui->Detailsframe->width() + r + l);
 
-    ui->MotifupLineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->RaccourciupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->MotifupLineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->RaccourciupLineEdit ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
 
     RemplirTableWidget();
     ui->MotifsupTableWidget ->selectRow(0);
