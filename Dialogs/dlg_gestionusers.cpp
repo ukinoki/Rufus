@@ -793,8 +793,8 @@ void dlg_gestionusers::EnregistreNouvUser()
     dlg_ask->accept();
     m_mode                          = Creer;
     db->locktable(TBL_UTILISATEURS);
-    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
-                    " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::calcSHA1(mdp) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
+    db->StandardSQL("insert into " TBL_UTILISATEURS " (" CP_LOGIN_USR ", " CP_NOM_USR "," CP_MDP_USR ", " CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ")"
+                  " VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(Utils::capitilize(login)) + "', '" + Utils::calcSHA1(mdp) + "', '" POLICEPARDEFAUT "', '" POLICEATTRIBUTPARDEFAUT "')");
     QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" + login + "' and " CP_MDP_USR " = '" + Utils::calcSHA1(mdp) + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,m_ok).at(0).toInt();
     db->unlocktables();

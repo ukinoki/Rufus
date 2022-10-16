@@ -4441,6 +4441,21 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             return false;
         }
     }
+    QString listeports = "";
+    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+    {
+        if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") | QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+        {
+            if (listeports != "")
+                listeports += " - ";
+            listeports += QSerialPortInfo::availablePorts().at(i).portName();
+        }
+    }
+    if (listeports != "")
+        listeports = tr("Liste des ports disponibles") + " - " + listeports;
+    else
+        listeports = tr("Aucun port COM disponible sur le système");
+
     /*!
     for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         Logs::LogToFile("PortsSeries.txt", QSerialPortInfo::availablePorts().at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
@@ -4461,13 +4476,14 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
-                 * nom des ports sous BigSur  = "usbserial-F*****" + no 0,1,2 ou 3
+                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
                  * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
-                if (m_portFronto == "COM1")        NomPort = (lastchar.isDigit()? "0" : "A");
-                else if (m_portFronto == "COM2")   NomPort = (lastchar.isDigit()? "1" : "B");
-                else if (m_portFronto == "COM3")   NomPort = (lastchar.isDigit()? "2" : "C");
-                else if (m_portFronto == "COM4")   NomPort = (lastchar.isDigit()? "3" : "D");
+                if (m_portFronto == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
+                else if (m_portFronto == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
+                else if (m_portFronto == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
+                else if (m_portFronto == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
                 if (NomPort != "") break;
             }
             else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
@@ -4490,8 +4506,20 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
-                    QString letter = nomduport.split("-").at(1);
-                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
+                    QString letterright = nomduport.split("-").at(1).right(1);
+                    QString letterleft = nomduport.split("-").at(1).left(1);
+                    if (letterright == NomPort)
+                    {
+                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
+                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
+                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
+                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
+                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
+                        NomPort = nomduport;
+                        break;
+                    }
+                    else if (letterleft == NomPort)
                     {
                         sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
@@ -4529,10 +4557,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             else
             {
                 msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
                 delete sp_portFronto;
                 sp_portFronto = Q_NULLPTR;
             }
         }
+        else
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
     }
 
     // PORT REFRACTEUR
@@ -4552,12 +4583,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
                  * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
                  * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
-                if (m_portRefracteur == "COM1")         NomPort = (lastchar.isDigit()? "0" : "A");
-                else if (m_portRefracteur == "COM2")    NomPort = (lastchar.isDigit()? "1" : "B");
-                else if (m_portRefracteur == "COM3")    NomPort = (lastchar.isDigit()? "2" : "C");
-                else if (m_portRefracteur == "COM4")    NomPort = (lastchar.isDigit()? "3" : "D");
+                if (m_portRefracteur == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
+                else if (m_portRefracteur == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
+                else if (m_portRefracteur == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
+                else if (m_portRefracteur == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
                 if (NomPort != "") break;
             }
             else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
@@ -4577,8 +4609,20 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
-                    QString letter = nomduport.split("-").at(1);
-                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
+                    QString letterright = nomduport.split("-").at(1).right(1);
+                    QString letterleft = nomduport.split("-").at(1).left(1);
+                    if (letterright == NomPort)
+                    {
+                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
+                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
+                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
+                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
+                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
+                        NomPort = nomduport;
+                        break;
+                    }
+                    else if (letterleft == NomPort)
                     {
                         sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
@@ -4620,10 +4664,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (msg != "")
                     msg += "\r";
                 msg += tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
                 delete sp_portRefracteur;
                 sp_portRefracteur = Q_NULLPTR;
             }
         }
+        else
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
     }
 
     //PORT AUTOREF
@@ -4642,12 +4689,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
                 /*!
                  * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-F******" + lettre A,B,C ou D
+                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
                 */
-                if (m_portAutoref == "COM1")        NomPort = (lastchar.isDigit()? "0" : "A");
-                else if (m_portAutoref == "COM2")   NomPort = (lastchar.isDigit()? "1" : "B");
-                else if (m_portAutoref == "COM3")   NomPort = (lastchar.isDigit()? "2" : "C");
-                else if (m_portAutoref == "COM4")   NomPort = (lastchar.isDigit()? "3" : "D");
+                if (m_portAutoref == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
+                else if (m_portAutoref == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
+                else if (m_portAutoref == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
+                else if (m_portAutoref == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
                 if (NomPort != "") break;
             }
             else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
@@ -4667,8 +4715,20 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
-                    QString letter = nomduport.split("-").at(1);
-                    if (nomduport.right(1) == NomPort || letter.at(0) == NomPort)
+                    QString letterright = nomduport.split("-").at(1).right(1);
+                    QString letterleft = nomduport.split("-").at(1).left(1);
+                    if (letterright == NomPort)
+                    {
+                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
+                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
+                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
+                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
+                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
+                        NomPort = nomduport;
+                        break;
+                    }
+                    else if (letterleft == NomPort)
                     {
                         sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
                         sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
@@ -4710,10 +4770,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 if (msg != "")
                     msg += "\r";
                 msg += tr("Impossible de connecter l'autoref sur ") + m_portAutoref;
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autoref sur ") + m_portAutoref, listeports);
                 delete sp_portAutoref;
                 sp_portAutoref = Q_NULLPTR;
             }
         }
+        else
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autoref sur ") + m_portAutoref, listeports);
     }
     if (appareils.testFlag(Tonometre))
     {

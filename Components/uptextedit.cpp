@@ -345,13 +345,13 @@ void UpTextEdit::setText(const QString &text)
         QString txt = text;
 #ifdef Q_OS_LINUX
         if (!text.contains(HTMLCOMMENT_LINUX))
-            txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
+            txt.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
 #ifdef Q_OS_MACOS
         if (text.contains(HTMLCOMMENT_LINUX))
-            txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
+            txt.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
-        txt.replace(QRegExp("font-family:'([a-zA-Z -]*)'"),"font-family:'" + qApp->font().family() + "'");
+        txt.replace(QRegularExpression("font-family:'([a-zA-Z -]*)'"),"font-family:'" + qApp->font().family() + "'");
         QTextEdit::setText(txt);
     }
     else
