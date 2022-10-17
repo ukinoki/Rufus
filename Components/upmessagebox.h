@@ -34,9 +34,10 @@ public:
     explicit        UpMessageBox(QWidget *parent = Q_NULLPTR);
     ~UpMessageBox();
     static void     Show        (QWidget*, QString Text = "", QString InfoText = "");
+    static void     Information (QWidget*, QString Text = "", QString InfoText = "");
     static int      Watch       (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK);
     static int      Question    (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList titresboutonslist = QStringList());
-    static void     Information (QWidget*, QString Text = "", QString InfoText = "");
+    static int      ExecMsgBox(UpMessageBox*msgbox);
     enum            Icon   {Quest, Info, Warning, Critical, Print}; Q_ENUM(Icon)
     void            addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton);
     void            addButton(UpPushButton *button);
@@ -48,7 +49,6 @@ public:
     void            setText(QString);
     void            setInformativeText(QString);
     void            setDefaultButton(QPushButton*);
-
 private:
     UpLabel         *wdg_iconlbl, *wdg_texteditlbl, *wdg_infolbl;
     QHBoxLayout     *wdg_infolayout;

@@ -180,7 +180,7 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
-    msgbox  ->setAttribute(Qt::WA_DeleteOnClose);
+    // msgbox  ->setAttribute(Qt::WA_DeleteOnClose);  // destroys msgbox after exec()
 //    QMovie movie("://forbidden.gif");
 //    msgbox->lblIcon->setMovie (&movie);
 //    msgbox->lblIcon     ->setFixedSize(80,80);
@@ -208,9 +208,17 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
     msgbox  ->buttonslayout()   ->setSpacing(50);
     msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
     msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
-    if (msgbox  ->exec()>0)
-        return msgbox->clickedButton()->ButtonStyle();
-    else return UpSmallButton::CANCELBUTTON;
+
+    return ExecMsgBox(msgbox);
+}
+
+int UpMessageBox::ExecMsgBox(UpMessageBox*msgbox) {
+    int a = msgbox  ->exec();
+    int repons = msgbox->clickedButton()->ButtonStyle();
+    if (a==0)
+        repons =UpSmallButton::CANCELBUTTON;
+    delete msgbox;
+    return repons;
 }
 
 
@@ -239,13 +247,17 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
     msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    int a = msgbox  ->exec();
-    int repons = msgbox->clickedButton()->ButtonStyle();
-    if (a==0)
-        repons = UpSmallButton::CANCELBUTTON;
-    //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<UpSmallButton::StyleBouton>(), repons);
-    delete msgbox;
-    return repons;
+
+
+    return ExecMsgBox(msgbox);
+
+//    int a = msgbox  ->exec();
+//    int repons = msgbox->clickedButton()->ButtonStyle();
+//    if (a==0)
+//        repons = UpSmallButton::CANCELBUTTON;
+//    //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<UpSmallButton::StyleBouton>(), repons);
+//    delete msgbox;
+//    return repons;
 }
 
 void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)

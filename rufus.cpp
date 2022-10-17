@@ -6050,14 +6050,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 {
                     Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">", HTML_RETOURLIGNE);
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-                    Corps.remove(HTMLCOMMENT_LINUX);
-                    Corps.remove(HTMLCOMMENT_MAC);
-        #ifdef Q_OS_LINUX
-                    Corps.append(HTMLCOMMENT_LINUX);
-        #endif
-        #ifdef Q_OS_MAC
-                    Corps.append(HTMLCOMMENT_MAC);
-        #endif
+                    Corps.remove(HTMLCOMMENT);
+
+                    Corps.append(HTMLCOMMENT);
+
                     if (objUpText->table() == TBL_ACTES)
                     {
                         ItemsList::update(currentacte(), objUpText->champ(), Corps);
