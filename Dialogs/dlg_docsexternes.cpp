@@ -422,7 +422,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());
+            qDebug() << docmt->lienversfichier();
+            QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGERIE + docmt->lienversfichier();
+            QList<QImage> listimg;// = Utils::calcImagefromPdf(filename);
+            listimg = Utils::calcImagefromPdf(docmt->imageblob());
             if (listimg.size())
             {
                 wdg_inflabel->setParent(wdg_scrolltablewidget);
