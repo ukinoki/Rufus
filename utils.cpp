@@ -1098,9 +1098,49 @@ QString Utils::TraduitCote(Cote cote)
     }
 }
 
+QList<QImage> Utils::calcImagefromPdf(QString filename)
+{
+    QList<QImage> listimg = QList<QImage>();
+    QPdfDocument pdf;
+    pdf.load(filename);
+    qDebug() << filename <<"-" << pdf.pageCount() << "pages";
+    for (int i=0; i<pdf.pageCount(); i++)
+    {
+        QImage image = pdf.render(i, QSize(300,300));
+        listimg << image;
+    }
+    return listimg;
+}
+
 QList<QImage> Utils::calcImagefromPdf(QByteArray ba)
 {
     QList<QImage> listimg = QList<QImage>();
+    QPdfDocument pdf;
+    QBuffer *buff = new QBuffer(&ba);
+    buff->open(QIODevice::ReadWrite);
+    pdf.load(buff);
+    qDebug() << pdf.pageCount() << "pages";
+    for (int i=0; i<pdf.pageCount(); i++)
+    {
+        QPdfDocumentRenderOptions renderpdf;
+        renderpdf.setRenderFlags(QPdfDocumentRenderOptions::RenderFlag::None);
+        QImage image = pdf.render(i, QSize(1500,1500),renderpdf);
+        listimg << image;
+    }
+    delete buff;
+    return listimg;
+}
+
+/*    QFile provfile(PATH_DIR_PROV "/prov.pdf");
+    if (provfile.exists())
+        provfile.remove();
+    provfile.open(QIODevice::WriteOnly);
+    provfile.write(ba);
+    provfile.close();
+    return calcImagefromPdf(PATH_DIR_PROV "/prov.pdf");
+    if (provfile.exists())
+        provfile.remove(); */
+
 //    std::unique_ptr<Poppler::Document> document = Poppler::Document::loadFromData(ba);
 //    if (!document || document->isLocked()) {
 //        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
@@ -1132,8 +1172,8 @@ QList<QImage> Utils::calcImagefromPdf(QByteArray ba)
 //        listimg << image;
 //    }
 //    document.release();
-    return listimg;
-}
+//    return listimg;
+
 
 QJsonValue Utils::jsonValFromImage(const QImage &img)
 {

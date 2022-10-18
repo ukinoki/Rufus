@@ -39,7 +39,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
-//#include "poppler-qt6.h"
+#include <QPdfDocument>
 
 #include <QInputDialog>
 #include <QCoreApplication>
@@ -199,6 +199,7 @@ public:
 
     //! renvoie chaque page d'un pdf comme une image
     static QList<QImage> calcImagefromPdf(QByteArray pdf);
+    static QList<QImage> calcImagefromPdf(QString filename);
 
     //! gestion des images en QJsonValue
     static QJsonValue jsonValFromImage(const QImage &p);
