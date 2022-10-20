@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QDoubleValidator>
 #include <QEvent>
-#include <QSound>
+#include <QSoundEffect>
 #include <QTimer>
 #include <QToolTip>
 

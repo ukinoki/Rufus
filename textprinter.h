@@ -40,7 +40,6 @@
 #include <QPrintDialog>
 #include <QTextDocument>
 #include <QTextFrame>
-
 #include <QPrintPreviewDialog>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,10 +64,10 @@ public:
     void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
     bool                    preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());                                       // Display the document in a preview dialog
 
-    QPrinter::PageSize      pageSize() const;                                                                   // Get page size
-    void                    setPageSize(QPrinter::PageSize size);                                               // Set page size
-    QPrinter::Orientation   orientation() const;                                                                // Get page orientation
-    void                    setOrientation(QPrinter::Orientation orientation);                                  // Set page orientation
+    QPageSize                pageSize() const;                                                                   // Get page size
+    void                     setPageSize(QPageSize size);                                                        // Set page size
+    QPageLayout::Orientation orientation() const;                                                                // Get page orientation
+    void                     setOrientation(QPageLayout::Orientation orientation);                               // Set page orientation
 
 
     double                  leftMargin() const;                                                                 // Get left margin width

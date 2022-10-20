@@ -287,13 +287,13 @@ dlg_param::dlg_param(QWidget *parent) :
 
     AfficheParamUser();
 
-    ui->LoginuplineEdit             ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric,this));
-    ui->MDPuplineEdit               ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
-    ui->NomuplineEdit               ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->PrenomuplineEdit            ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->MailuplineEdit              ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
-    ui->PortableuplineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->EmplacementLocaluplineEdit  ->setValidator(new QRegExpValidator(Utils::rgx_IPV4_mask,this));
+    ui->LoginuplineEdit             ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric,this));
+    ui->MDPuplineEdit               ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
+    ui->NomuplineEdit               ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->PrenomuplineEdit            ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->MailuplineEdit              ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail,this));
+    ui->PortableuplineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
+    ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
     ui->AssocCCAMupTableWidget          ->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -796,7 +796,7 @@ void dlg_param::EnableModif(QWidget *obj)
 {
     if (obj == ui->LockParamPosteupLabel)
     {
-        if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
+        if (ui->LockParamPosteupLabel->pixmap().toImage() == Icons::pxVerrouiller().toImage())
         {
             m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),"Saisissez le mot de passe Administrateur", m_MDPadminverifie);
             if (m_MDPadminverifie)
@@ -813,7 +813,7 @@ void dlg_param::EnableModif(QWidget *obj)
                 if (!Valide_Modifications()) return;
             ui->LockParamPosteupLabel->setPixmap(Icons::pxVerrouiller());
         }
-        bool a = (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
+        bool a = (ui->LockParamPosteupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
         EnableWidgContent(ui->Instrmtsframe,a);
         if (a && ui->FrontoupComboBox       ->currentIndex()==0)    ui->PortFrontoupComboBox->setEnabled(false);
         if (a && ui->RefracteurupComboBox   ->currentIndex()==0)    ui->PortRefracteurupComboBox->setEnabled(false);
@@ -826,7 +826,7 @@ void dlg_param::EnableModif(QWidget *obj)
     }
     else if (obj == ui->LockParamUserupLabel)
     {
-        if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
+        if (ui->LockParamUserupLabel->pixmap().toImage() == Icons::pxVerrouiller().toImage())
         {
             m_MDPuserverifie = Utils::VerifMDP(currentuser()->password(),tr("Saisissez votre mot de passe"), m_MDPuserverifie);
             if (m_MDPuserverifie)
@@ -836,7 +836,7 @@ void dlg_param::EnableModif(QWidget *obj)
         {
             ui->LockParamUserupLabel->setPixmap(Icons::pxVerrouiller());
         }
-        bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
+        bool a = (ui->LockParamUserupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
 
         ui->ChoixFontupPushButton   ->setEnabled(a);
         ui->ModifDataUserpushButton ->setEnabled(a);
@@ -856,7 +856,7 @@ void dlg_param::EnableModif(QWidget *obj)
                                      + post->nomposte());
             return;
         }
-        if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
+        if (ui->LockParamGeneralupLabel->pixmap().toImage() == Icons::pxVerrouiller().toImage())
         {
             m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), m_MDPadminverifie);
             if (m_MDPadminverifie)
@@ -867,7 +867,7 @@ void dlg_param::EnableModif(QWidget *obj)
         }
         else
             ui->LockParamGeneralupLabel->setPixmap(Icons::pxVerrouiller());
-        bool a = (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
+        bool a = (ui->LockParamGeneralupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
         if (db->ModeAccesDataBase() == Utils::Distant)
             EnableWidgContent(ui->Appareilsconnectesframe,false);
         else
@@ -947,7 +947,7 @@ void dlg_param::EnableOKModifPosteButton()
 void dlg_param::FiltreActesOphtaSeulmt(bool b)
 {
     Remplir_TableActesCCAM(b);
-    bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
+    bool a = (ui->LockParamUserupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
@@ -1056,9 +1056,9 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
         pitem3->setToolTip(sit->coordonnees());
         if (sit->couleur() != "")
         {
-            pitem1->setTextColor(QColor("#" + sit->couleur()));
-            pitem2->setTextColor(QColor("#" + sit->couleur()));
-            pitem3->setTextColor(QColor("#" + sit->couleur()));
+            pitem1->setForeground(QColor("#" + sit->couleur()));
+            pitem2->setForeground(QColor("#" + sit->couleur()));
+            pitem3->setForeground(QColor("#" + sit->couleur()));
         }
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
         ++i;
@@ -1631,7 +1631,7 @@ void dlg_param::ModifMDPAdmin()
     UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(m_confirmeMDP);
-    ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    ConfirmMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
     ConfirmMDP->setMaxLength(12);
     dlg_askMDP->dlglayout()->insertWidget(0,ConfirmMDP);
@@ -1641,7 +1641,7 @@ void dlg_param::ModifMDPAdmin()
     UpLineEdit *NouvMDP = new UpLineEdit(dlg_askMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(m_nouveauMDP);
-    NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    NouvMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
     NouvMDP->setMaxLength(12);
     dlg_askMDP->dlglayout()->insertWidget(0,NouvMDP);
@@ -1651,7 +1651,7 @@ void dlg_param::ModifMDPAdmin()
     UpLineEdit *AncMDP = new UpLineEdit(dlg_askMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_12,this));
+    AncMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_3_12,this));
     AncMDP->setObjectName(m_ancienMDP);
     AncMDP->setMaxLength(12);
     dlg_askMDP->dlglayout()->insertWidget(0,AncMDP);
@@ -2361,7 +2361,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
 
         if (anc == "")
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText(tr("Ancien mot de passe requis"));
             dlg_askMDP->findChild<UpLineEdit*>(m_ancienMDP)->setFocus();
             msgbox.exec();
@@ -2369,15 +2369,16 @@ void dlg_param::EnregistreNouvMDPAdmin()
         }
         if (Utils::calcSHA1(anc) != proc->MDPAdmin())
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas le bon\n"));
             dlg_askMDP->findChild<UpLineEdit*>(m_ancienMDP)->setFocus();
             msgbox.exec();
             return;
         }
-        if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(nouv) || nouv == "")
+        //if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(nouv) || nouv == "")
+        if (!Utils::RegularExpressionMatches(Utils::rgx_AlphaNumeric_5_12, nouv) || nouv == "")
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 5 caractères - chiffres ou lettres non accentuées -\n"));
             dlg_askMDP->findChild<UpLineEdit*>(m_nouveauMDP)->setFocus();
             msgbox.exec();
@@ -2385,7 +2386,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
         }
         if (nouv != confirm)
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             msgbox.setInformativeText("Les mots de passe ne correspondent pas\n");
             dlg_askMDP->findChild<UpLineEdit*>(m_nouveauMDP)->setFocus();
             msgbox.exec();
@@ -3064,7 +3065,8 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + Param_Active,"YES");
         else
             proc->settings()->setValue(Base + Param_Active,"NO");
-        if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
+        //if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
+        if (!Utils::RegularExpressionMatches(Utils::rgx_IPV4, ui->EmplacementDistantuplineEdit->text()))
             proc->settings()->setValue(Base + Param_Serveur, Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));
         else
             proc->settings()->setValue(Base + Param_Serveur, ui->EmplacementDistantuplineEdit->text());

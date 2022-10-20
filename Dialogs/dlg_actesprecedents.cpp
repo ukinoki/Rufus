@@ -114,7 +114,10 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
         if (ui->ScrollBar->value() >= ui->ScrollBar->maximum())
             return;
 
-        ++it_currentacte;
+        //++it_currentacte;
+        if( it_currentacte != map_actes->constEnd())
+            ++it_currentacte;
+
         ActesPrecsAfficheActe();
     }
 
@@ -123,9 +126,13 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
         if (ui->ScrollBar->value() <= ui->ScrollBar->minimum())
             return;
 
-        --it_currentacte;
-        if( it_currentacte == Q_NULLPTR)
-            it_currentacte = map_actes->constBegin();
+//        --it_currentacte;
+//        if( it_currentacte == Q_NULLPTR)
+//            it_currentacte = map_actes->constBegin();
+
+        if( it_currentacte != map_actes->constBegin())
+            --it_currentacte;
+
         ActesPrecsAfficheActe();
     }
 
@@ -409,12 +416,16 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
         ++it_currentacte;
         if( it_currentacte == map_actes->constEnd() )
             it_currentacte = map_actes->constFind(map_actes->lastKey());
+
     }
     else if (i == ItemsList::Prec)
     {
-        --it_currentacte;
-        if( it_currentacte == Q_NULLPTR )
-            it_currentacte = map_actes->constBegin();
+//        --it_currentacte;
+//        if( it_currentacte == Q_NULLPTR )
+//            it_currentacte = map_actes->constBegin();
+
+        if( it_currentacte != map_actes->constBegin() )
+            --it_currentacte;
     }
     else if (i == ItemsList::Debut)
     {

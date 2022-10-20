@@ -92,7 +92,7 @@ void UpDoubleSpinBox::CorrigeDioptrie(int UpDownNear)
             if (((singleStep() == 0.25) && ((abs(b)%10 != 2 && abs(b)%10 != 7) || b != value()*10))
                     || singleStep() == 0.50)
                 {
-                    QSound::play("://goutte.wav");
+                    Utils::playAlarm();
                     ShowMessage::I()->SplashMessage(tr("Valeur non conforme arrondie à la\nvaleur conforme la plus proche!"), 500);
                 }
             setValue(round(c/10)*singleStep());

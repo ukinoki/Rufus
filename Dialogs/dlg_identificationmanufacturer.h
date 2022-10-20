@@ -43,7 +43,7 @@ private:
     DataBase                    *db                = DataBase::I();
     Manufacturer                *m_currentmanufacturer    = Q_NULLPTR;
 
-    QRegExp                     rgx_nom             = QRegExp("[a-zA-Z0-9 .+-]*");
+    QRegularExpression          rgx_nom             = QRegularExpression("[a-zA-Z0-9 .+-]*");
     QString                     m_nommanufacturer;
     Mode                        m_mode;
     QLineEdit                   *wdg_CPlineedit, *wdg_villelineedit;

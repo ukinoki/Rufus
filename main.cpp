@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "rufus.h"
 #include <QApplication>
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     #include "singleapplication.h"
 #endif
 
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
      * Elle n'est pas utile sous MacOS qui ne le permet pas par défaut.
      * Elle est utile sous Linux.
      */
-    #ifdef Q_OS_LINUX
+    #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
         SingleApplication app(argc, argv);
     #else
         QApplication app(argc, argv);
@@ -42,8 +42,10 @@ int main(int argc, char *argv[])
     dirloc = QCoreApplication::applicationDirPath();
     dirloc += "/rufus" + locale;
     QTranslator translator;
-    translator.load(dirloc);
-    app.installTranslator(&translator);
+    if( translator.load(dirloc) )
+    {
+        app.installTranslator(&translator);
+    }
 
     QSplashScreen *splash = new QSplashScreen(Icons::pxSplash());
     splash->show();

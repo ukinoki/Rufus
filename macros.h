@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "qglobal.h"
 #ifndef MACROS_H
 #define MACROS_H
 
@@ -919,7 +920,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef Q_OS_LINUX
 #define CORRECTION_td_width     1.3
 #endif
-
+#ifdef Q_OS_WIN
+#define CORRECTION_td_width     1.3
+#endif
 #define OPHTALIBERAL            "ophlib"
 #define OPHTAREMPLACANT         "ophrmp"
 #define OPHTASALARIE            "ophsal"
@@ -971,8 +974,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CB                  "B"
 
 // ancres et comentaires html
-#define HTMLCOMMENT_LINUX           "<!LINUX>"
-#define HTMLCOMMENT_MAC             "<!MAC>"
+//#define HTMLCOMMENT_LINUX           "<!LINUX>"
+//#define HTMLCOMMENT_MAC             "<!MAC>"
+
+// avoid more #ifdef Q_OS_ ...
+#if defined(Q_OS_LINUX)
+#define HTMLCOMMENT                 "<!LINUX>"
+#elif defined(Q_OS_MACX)
+#define HTMLCOMMENT                 "<!MAC>"
+#elif defined(Q_OS_WIN)
+#define HTMLCOMMENT                 "<!WIN>"
+#else
+#define HTMLCOMMENT                 "<!COMMENT>"
+#endif
+
 #define HTMLANCHOR_BODEBUT          "<BOdebut>"
 #define HTMLANCHOR_BOFIN            "<BOfin>"
 #define HTMLANCHOR_PACHYDEBUT       "pachydebut"

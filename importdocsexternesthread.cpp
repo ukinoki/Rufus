@@ -68,13 +68,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     QString commentechec;
 
     file_origine.setFileName(CheminFichierImage);
-    QString datetimecreation = QFileInfo(file_origine).created().toString("yyyyMMdd-HHmmss");
+    QString datetimecreation = QFileInfo(file_origine).birthTime().toString("yyyyMMdd-HHmmss");
 
     // Date et type du document------------------------------------------------------------------------------------------------------------------------------------------------
     QString datestring  = "";
     if (Appareil == "TOPCON ALADDIN")
     {
-        QDateTime datefic   = QFileInfo(file_origine).created();
+        QDateTime datefic   = QFileInfo(file_origine).birthTime();
         datestring          = datefic.toString("yyyyMMdd");
         Titredoc            = "Biométrie - Aladdin";
         Typedoc             = "Biométrie";
@@ -231,7 +231,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
                      * 0     - 1              -2- 3    - 4  - 5            - 6           - 7     - 8 - 9       - 10   - 11 - 12           - 13   - 14 - 15        - 16
                     */
 
-        QRegExp re("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}Z-"); //! correspond aux sections 2,3,et 4 avant 2019 et 3,4 et 5 après
+        QRegularExpression re("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}Z-"); //! correspond aux sections 2,3,et 4 avant 2019 et 3,4 et 5 après
         if (nomfiledoc.contains(re))
         {
             int idxdate;
@@ -609,7 +609,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         }
         else
         {
-            commentechec = tr("impossible d'enregistrer le fichier");
+            commentechec = tr("impossible d'enregistrer ") + nomfiledoc;
             EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
         }
     }

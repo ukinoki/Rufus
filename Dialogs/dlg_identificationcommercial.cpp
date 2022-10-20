@@ -95,7 +95,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     lblnom                      ->setText(tr("Nom"));
     wdg_nomcommercialline       = new UpLineEdit();
     wdg_nomcommercialline       ->setFixedSize(QSize(250,28));
-    wdg_nomcommercialline       ->setValidator(new QRegExpValidator(Utils::rgx_rx));
+    wdg_nomcommercialline       ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx));
     wdg_nomcommercialline       ->setMaxLength(40);
     choixnomLay                 ->addWidget(lblnom);
     choixnomLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -109,7 +109,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     lblprenom                   ->setText(tr("Prénom"));
     wdg_prenomcommercialline    = new UpLineEdit();
     wdg_prenomcommercialline    ->setFixedSize(QSize(250,28));
-    wdg_prenomcommercialline    ->setValidator(new QRegExpValidator(Utils::rgx_rx));
+    wdg_prenomcommercialline    ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx));
     wdg_prenomcommercialline    ->setMaxLength(40);
     choixprenomLay              ->addWidget(lblprenom);
     choixprenomLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -123,7 +123,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     lblstatut                   ->setText(tr("Statut"));
     wdg_statutcommercialline    = new UpLineEdit();
     wdg_statutcommercialline    ->setFixedSize(QSize(250,28));
-    wdg_statutcommercialline    ->setValidator(new QRegExpValidator(Utils::rgx_rx));
+    wdg_statutcommercialline    ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx));
     wdg_statutcommercialline    ->setMaxLength(40);
     choixstatutLay              ->addWidget(lblstatut);
     choixstatutLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -137,7 +137,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     lbltelephone                   ->setText(tr("Téléphone"));
     wdg_telephonecommercialline    = new UpLineEdit();
     wdg_telephonecommercialline    ->setFixedSize(QSize(250,28));
-    wdg_telephonecommercialline    ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    wdg_telephonecommercialline    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone));
     wdg_telephonecommercialline    ->setMaxLength(17);
     choixtelephoneLay              ->addWidget(lbltelephone);
     choixtelephoneLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -151,7 +151,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     lblmail                   ->setText(tr("Mail"));
     wdg_mailcommercialline    = new UpLineEdit();
     wdg_mailcommercialline    ->setFixedSize(QSize(250,28));
-    wdg_mailcommercialline    ->setValidator(new QRegExpValidator(Utils::rgx_mail));
+    wdg_mailcommercialline    ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail));
     wdg_mailcommercialline    ->setMaxLength(40);
     choixmailLay              ->addWidget(lblmail);
     choixmailLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));

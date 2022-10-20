@@ -120,7 +120,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     RegleComptesComboBox(false);
 
-    setFixedWidth(wdg_bigtable->width() + ui->frame->width() + layout()->margin()*3);
+    setFixedWidth(wdg_bigtable->width() + ui->frame->width() + layout()->contentsMargins().left()*3);
     m_initok = true;
 }
 

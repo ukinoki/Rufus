@@ -52,7 +52,7 @@ void CommentLunet::resetdatas()
 QString CommentLunet::tooltip() const
 {
     QString ttip = m_text;
-    ttip.replace(QRegExp("\n\n[\n]*"),"\n");
+    ttip.replace(QRegularExpression("\n\n[\n]*"),"\n");
     if (ttip.size()>300)
     {
         ttip = ttip.left(300);

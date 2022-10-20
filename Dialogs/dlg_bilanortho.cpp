@@ -285,7 +285,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (ui->ConclusiontextEdit->toPlainText() != "")
         textHtml->setText(textHtml->toHtml() + "<p></p><p><td width=\"140\"><font color = \"" COULEUR_TITRES "\">" + tr("CONCLUSION") + "</font></td></p>"
                           +"<p><td width=\"40\"></td><td width=\"400\">" + ui->ConclusiontextEdit->toHtml() + "</td></p>");
-    textHtml->setText(textHtml->toHtml().replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
+    textHtml->setText(textHtml->toHtml().replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
 
     bool aa = proc->Imprime_Etat(textHtml, Entete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
@@ -1829,7 +1829,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         else if (Synopt1 !="" && Synopt2 !="" && Synopt3 != "")
             Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("1er degré") + "<br>" + tr("2ème degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt2 + "<br>" + Synopt3 + "</td></p>";
     }
-    QStringList listrep = Reponse.split(QRegExp("<td width=\"[0-9]{1,3}\">"));
+    QStringList listrep = Reponse.split(QRegularExpression("<td width=\"[0-9]{1,3}\">"));
     if (listrep.size()>1)
         Reponse.insert(Reponse.indexOf(listrep.at(1)),   "<a name=\"BODEBUT\"></a>");         // on met le premier caractère en ancre
     Reponse.insert(Reponse.lastIndexOf("</td>")-1,       "<a name=\"BOFIN\"></a>");           // on met le dernier caractère en ancre

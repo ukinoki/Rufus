@@ -27,8 +27,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkAccessManager>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
+#include <QPdfDocument>
 
-#include <poppler-qt5.h>
+//#include <poppler-qt6.h>
 
 #include "dlg_actesprecedents.h"
 #include "dlg_autresmesures.h"

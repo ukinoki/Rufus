@@ -55,7 +55,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
 
     wdg_typedoccombobx->insertItems(0,m_listtypesexamen);
     wdg_typedoccombobx->setEditable(false);
-    wdg_linetitre->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
+    wdg_linetitre->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
@@ -171,7 +171,7 @@ void dlg_docsvideo::AfficheVideo(QString filebut)
 
     QMediaPlayer *player = new QMediaPlayer;
     player->setVideoOutput(wdg_visuvideowdg);
-    player->setMedia(QUrl::fromLocalFile(dirpict.filePath(filebut)));
+    player->setSource(QUrl::fromLocalFile(dirpict.filePath(filebut)));
     player->play();
 
     //QMediaRecorder *rec = new QMediaRecorder(player);
@@ -243,7 +243,7 @@ void dlg_docsvideo::ValideFiche()
     QString sstypedoc = wdg_linetitre->text();
     QString NomFileVideoDoc = QString::number(m_currentpatient->id()) + "_"
                              + sstypedoc.replace("/",".") + "_"
-                             + wdg_editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
+                             + wdg_editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).birthTime().toString("HHmmss");
 
     QHash<QString, QVariant> listbinds;
     bool ok;

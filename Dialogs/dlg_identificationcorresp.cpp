@@ -63,14 +63,14 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
         ui->idDossierlabel  ->setVisible(false);
     }
 
-    ui->NomlineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->PrenomlineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->MaillineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
-    ui->Adresse1lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
-    ui->Adresse2lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
-    ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
-    ui->TellineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->NomlineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->PrenomlineEdit      ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->MaillineEdit        ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail,this));
+    ui->Adresse1lineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+    ui->Adresse2lineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+    ui->Adresse3lineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+    ui->TellineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
+    ui->PortablelineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
@@ -338,7 +338,8 @@ bool dlg_identificationcorresp::eventFilter(QObject *obj, QEvent *event)
         {
             ui->MaillineEdit->setText(Utils::trim(ui->MaillineEdit->text()));
             if (ui->MaillineEdit->text()!="")
-                if (!Utils::rgx_mail.exactMatch(ui->MaillineEdit->text()))
+                //if (!Utils::rgx_mail.exactMatch(ui->MaillineEdit->text()))
+                if (!Utils::RegularExpressionMatches(Utils::rgx_mail, ui->MaillineEdit->text()))
                 {
                     UpMessageBox::Watch(this, tr("Adresse mail invalide"));
                     ui->MaillineEdit->setFocus();

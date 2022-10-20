@@ -55,7 +55,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     UpLabel *codelabel          = new UpLabel();
     codelabel                   ->setText("Code");
     if (m_typeacte == Association)
-        wdg_codeline            ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
+        wdg_codeline            ->setValidator(new QRegularExpressionValidator(Utils::rgx_cotation,this));
     QHBoxLayout *codelay        = new QHBoxLayout;
     codelay                     ->insertWidget(0, codelabel);
     codelay                     ->insertSpacerItem(1, new QSpacerItem(10,5));

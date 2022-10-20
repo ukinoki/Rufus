@@ -562,7 +562,7 @@ void dlg_refraction::OKPushButton_Clicked()
             if (((dblSpin->singleStep() == 0.25) && ((abs(b)%10 != 2 && abs(b)%10 != 7) || b != int(dblSpin->value()*10)))
                || dblSpin->singleStep() == 0.50)
             {
-                QSound::play(NOM_ALARME);
+                Utils::playAlarm();
                 dblSpin->setFocus();
                 dblSpin->selectAll();
                 return;
@@ -1566,13 +1566,13 @@ void dlg_refraction::InitDivers()
     ui->label_POD->setStyleSheet("border-left: 1px solid #adadad; border-top: 1px solid #adadad; border-bottom: 1px solid #adadad; border-right: 0px;  background-color: #fff;");
     ui->label_POG->setStyleSheet("border-left: 1px solid #adadad; border-top: 1px solid #adadad; border-bottom: 1px solid #adadad; border-right: 0px;  background-color: #fff;");
 
-    QRegExp reg = QRegExp("(1\\.5|1,5|2|3|4|5|6|8|10|14|28|<28)");
-    wdg_AVPOD->setValidator(new QRegExpValidator(reg,this));
-    wdg_AVPOG->setValidator(new QRegExpValidator(reg,this));
+    QRegularExpression reg = QRegularExpression("(1\\.5|1,5|2|3|4|5|6|8|10|14|28|<28)");
+    wdg_AVPOD->setValidator(new QRegularExpressionValidator(reg,this));
+    wdg_AVPOG->setValidator(new QRegularExpressionValidator(reg,this));
 
-    reg = QRegExp(tr("(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\\.5/10|1/10|1,6/10|1\\.6/10|2/10|2\\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)"));
-    wdg_AVLOD->setValidator(new QRegExpValidator(reg,this));
-    wdg_AVLOG->setValidator(new QRegExpValidator(reg,this));
+    reg = QRegularExpression(tr("(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\\.5/10|1/10|1,6/10|1\\.6/10|2/10|2\\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)"));
+    wdg_AVLOD->setValidator(new QRegularExpressionValidator(reg,this));
+    wdg_AVLOG->setValidator(new QRegularExpressionValidator(reg,this));
 
     ui->AVPODupComboBox->setLineEdit(wdg_AVPOD);
     ui->AVPOGupComboBox->setLineEdit(wdg_AVPOG);
@@ -2240,7 +2240,7 @@ QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction:
     for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
     {
         Refraction* ref = const_cast<Refraction*>(it.value());
-        if (ref->typemesure() == Refraction::ConvertMesure(mesure)
+        if (ref->typemesure() == mesure
                 && ref->isdilate() == dilat)
         {
             if (typlun != Refraction::Inconnu)
@@ -2265,7 +2265,7 @@ QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction:
             for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
             {
                 Refraction* ref = const_cast<Refraction*>(it.value());
-                if (ref->typemesure() == Refraction::ConvertMesure(mesure)
+                if (ref->typemesure() == mesure
                         && ref->isdilate() == dilat
                         && ref->isOGmesure())
                          maprefOG.insert(ref->id(), ref);
@@ -2286,7 +2286,7 @@ QString dlg_refraction::RechercheResultat(Refraction::Mesure mesure, Refraction:
                 for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
                 {
                     Refraction* ref = const_cast<Refraction*>(it.value());
-                    if (ref->typemesure() == Refraction::ConvertMesure(mesure)
+                    if (ref->typemesure() == mesure
                             && ref->isdilate() == dilat
                             && ref->isODmesure())
                              maprefOD.insert(ref->id(), ref);
@@ -3887,7 +3887,7 @@ QString dlg_refraction::Valeur(QString StringValeur)
 {
     if (StringValeur == "")
         return QLocale().toString(StringValeur.toDouble());
-    if (StringValeur.toDouble() > 0 && StringValeur.at(0) != "+")
+    if (StringValeur.toDouble() > 0 && StringValeur.at(0) != QString("+"))
         return("+" + StringValeur);
     else
         return(StringValeur);

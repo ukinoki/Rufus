@@ -4,6 +4,7 @@
 #include <QProcess>
 #include <QThread>
 #include <QDebug>
+#include "utils.h"
 
 class OsTask : public QObject
 {
@@ -13,9 +14,11 @@ public slots:
     {
         //qDebug() << script;
         QProcess dumpProcess(parent());
-        dumpProcess.start(script);
+        dumpProcess.startCommand(script);
         dumpProcess.waitForFinished(1000000000);
         int a = 99;
+        qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitStatus());
+        qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ProcessError>(), dumpProcess.error());
         if (dumpProcess.exitStatus() == QProcess::NormalExit)
             a = dumpProcess.exitCode();
         emit resultReady(a);

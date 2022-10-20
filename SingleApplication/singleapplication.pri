@@ -9,5 +9,12 @@ SOURCES += $$PWD/singleapplication.cpp \
 
 INCLUDEPATH += $$PWD
 
+win32 {
+    msvc:LIBS += Advapi32.lib
+    gcc:LIBS += -ladvapi32
+}
+
 DISTFILES += \
-    $$PWD/README.md
+    $$PWD/README.md \
+    $$PWD/CHANGELOG.md \
+    $$PWD/Windows.md

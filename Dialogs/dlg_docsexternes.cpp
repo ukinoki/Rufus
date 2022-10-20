@@ -40,7 +40,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
     m_printer           = new QPrinter(QPrinter::HighResolution);
     m_printer           ->setFullPage(true);
-    m_rect              = m_printer->paperRect();
+    m_rect              = m_printer->paperRect(QPrinter::Inch);
 
     m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
                   Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
@@ -370,7 +370,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         medobj_videoitem    = new QGraphicsVideoItem;
         obj_graphicscene    ->addItem(medobj_videoitem);
         medplay_player      = new QMediaPlayer;
-        medplay_player      ->setMedia(QUrl::fromLocalFile(filename));
+        medplay_player      ->setSource( QUrl::fromLocalFile(filename));
         wdg_playctrl        ->setPlayer(medplay_player);
         medobj_videoitem    ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
         medplay_player      ->setVideoOutput(medobj_videoitem);
@@ -422,7 +422,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());
+            qDebug() << docmt->lienversfichier();
+            QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGERIE + docmt->lienversfichier();
+            QList<QImage> listimg;// = Utils::calcImagefromPdf(filename);
+            listimg = Utils::calcImagefromPdf(docmt->imageblob());
             if (listimg.size())
             {
                 wdg_inflabel->setParent(wdg_scrolltablewidget);
@@ -615,14 +618,14 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 
 void dlg_docsexternes::EnregistreVideo()
 {
-    QString filename = medplay_player->media().canonicalUrl().path();
+    QString filename = medplay_player->source().path();
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
     if (dialog.exec()>0)
     {
         QDir dockdir = dialog.directory();
-        QFile(filename).copy(dockdir.path() + "/" + medplay_player->media().canonicalUrl().fileName());
+        QFile(filename).copy(dockdir.path() + "/" + medplay_player->source().fileName());
     }
 }
 
@@ -904,13 +907,13 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     {
         if (dateedit->date().isValid())
         {
-            ItemsList::update(docmt, CP_DATE_DOCSEXTERNES, QDateTime(dateedit->date()));
+            ItemsList::update(docmt, CP_DATE_DOCSEXTERNES, QDate(dateedit->date()));
             RemplirTreeView();
             dlg->accept();
         }
         else
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             QToolTip::showText(cursor().pos(),tr("Vous devez entrer une date valide"));
         }
     });
@@ -953,13 +956,13 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
         }
         else
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             QToolTip::showText(cursor().pos(),tr("Vous devez entrer du texte"));
         }
     });
 
     label->setText(tr("Entrez le titre du document"));
-    Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
     dlg->exec();
     delete dlg;
@@ -1179,8 +1182,8 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
                 if (lbl != Q_NULLPTR)
                 {
                     lbl->setPixmap(m_listpixmp.at(i).scaled(wdg_scrolltablewidget->width(), wdg_scrolltablewidget->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-                    wdg_scrolltablewidget->setRowHeight(i,lbl->pixmap()->height());
-                    wdg_scrolltablewidget->setColumnWidth(i,lbl->pixmap()->width());
+                    wdg_scrolltablewidget->setRowHeight(i,lbl->pixmap().height());
+                    wdg_scrolltablewidget->setColumnWidth(i,lbl->pixmap().width());
                 }
             }
             wdg_inflabel    ->move(10,wdg_scrolltablewidget->viewport()->height()-40);

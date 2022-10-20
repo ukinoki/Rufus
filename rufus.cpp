@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("8-10-2022/1");
+    qApp->setApplicationVersion("08-10-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -1170,7 +1170,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             }
             if (ListidActeAPasser.size() == 0)
             {
-                QSound::play(NOM_ALARME);
+                Utils::playAlarm();
                 UpMessageBox::Watch(this,tr("Le ou les actes que vous avez sélectionnés\nsont déjà en cours d'enregistrement!"));
                 return;
             }
@@ -1300,7 +1300,7 @@ void Rufus::AppelPaiementTiers()
         for (int i=0; i<PaimtList.size();i++)
             if (PaimtList.at(i)->isVisible())
             {
-                QSound::play(NOM_ALARME);
+                Utils::playAlarm();
                 PaimtList.at(i)->raise();
                 return;
             }
@@ -2075,9 +2075,19 @@ void Rufus::ExporteDocs()
             QByteArray bapdf;
             bapdf.append(listexportpdf.at(i).at(4).toByteArray());
 
-            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-            if (!document || document->isLocked() || document == Q_NULLPTR)
+            QBuffer buf(&bapdf);
+            QPdfDocument document;
+            document.load(&buf);
+            if( document.pageCount() > 0)
             {
+                QFile file(CheminOKTransfrDoc);
+                if (file.open(QIODevice::NewOnly))
+                {
+                    QDataStream out(&file);
+                    out << bapdf;
+                }
+            } else {
+
                 UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
                 QFile   echectrsfer(echectrsfername);
@@ -2087,29 +2097,61 @@ void Rufus::ExporteDocs()
                     out << NomFileDoc << "\n" ;
                     echectrsfer.close();
                     QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
-                    if (CD.open(QIODevice::Append))
+                    if (CD.open(QIODevice::OpenModeFlag::NewOnly))
                     {
-                        QTextStream out(&CD);
-                        out << listexportpdf.at(i).at(4).toByteArray() ;
+                        QDataStream out(&CD);
+                        out << bapdf;
                     }
                 }
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
-                delete document;
                 continue;
             }
-            Poppler::PDFConverter *doctosave = document->pdfConverter();
-            doctosave->setOutputFileName(CheminOKTransfrDoc);
-            doctosave->convert();
 
+            /*
+             * Well. I think that this part reads blobs declared as PDF in DB
+             * Then, verifies (usinf Poppler) that PDF is valid
+             * if not, save the BLOB to file (Text stream???), and ... delete from DB???
+             */
+
+//            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+//            if (!document || document->isLocked() || document == Q_NULLPTR)
+//            {
+//                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
+//                QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
+//                QFile   echectrsfer(echectrsfername);
+//                if (echectrsfer.open(QIODevice::Append))
+//                {
+//                    QTextStream out(&echectrsfer);
+//                    out << NomFileDoc << "\n" ;
+//                    echectrsfer.close();
+//                    QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
+//                    if (CD.open(QIODevice::Append))
+//                    {
+//                        QTextStream out(&CD);
+//                        out << listexportpdf.at(i).at(4).toByteArray() ;
+//                    }
+//                }
+//                QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
+//                //qDebug() << delreq;
+//                db->StandardSQL(delreq);
+//                delete document;
+//                continue;
+//            }
+//            Poppler::PDFConverter *doctosave = document->pdfConverter();
+//            doctosave->setOutputFileName(CheminOKTransfrDoc);
+//            doctosave->convert();
+
+#if !defined(Q_OS_WIN)
             QFile CC(CheminOKTransfrDoc);
             CC.open(QIODevice::ReadWrite);
-            CC.setPermissions(QFileDevice::ReadOther
+            CC.setPermissions( QFileDevice::ReadOther
                               | QFileDevice::ReadGroup
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
+#endif
             db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_PDF_DOCSEXTERNES " = null, " CP_COMPRESSION_DOCSEXTERNES " = null,"
                             CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
                             " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString());
@@ -2335,9 +2377,18 @@ void Rufus::ExporteDocs()
             QByteArray bapdf;
             bapdf.append(listexportpdffact.at(i).at(6).toByteArray());
 
-            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-            if (!document || document->isLocked() || document == Q_NULLPTR)
+            QBuffer buf(&bapdf);
+            QPdfDocument document;
+            document.load(&buf);
+            if( document.pageCount() > 0)
             {
+                QFile file(CheminOKTransfrDoc);
+                if (file.open(QIODevice::NewOnly))
+                {
+                    QDataStream out(&file);
+                    out << bapdf;
+                }
+            } else {
                 QStringList listmsg;
                 listmsg << tr("Impossible de charger le document ") + NomFileDoc;
                 UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
@@ -2349,21 +2400,46 @@ void Rufus::ExporteDocs()
                     out << NomFileDoc << "\n" ;
                     echectrsfer.close();
                     QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
-                    if (CD.open(QIODevice::Append))
+                    if (CD.open(QIODevice::OpenModeFlag::NewOnly))
                     {
-                        QTextStream out(&CD);
-                        out << listexportpdffact.at(i).at(6).toByteArray() ;
+                        QDataStream out(&CD);
+                        out << bapdf;
                     }
                 }
-                QString delreq = "delete from " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
+                QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
-                delete document;
                 continue;
             }
-            Poppler::PDFConverter *doctosave = document->pdfConverter();
-            doctosave->setOutputFileName(CheminOKTransfrDoc);
-            doctosave->convert();
+//            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+//            if (!document || document->isLocked() || document == Q_NULLPTR)
+//            {
+//                QStringList listmsg;
+//                listmsg << tr("Impossible de charger le document ") + NomFileDoc;
+//                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
+//                QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
+//                QFile   echectrsfer(echectrsfername);
+//                if (echectrsfer.open(QIODevice::Append))
+//                {
+//                    QTextStream out(&echectrsfer);
+//                    out << NomFileDoc << "\n" ;
+//                    echectrsfer.close();
+//                    QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
+//                    if (CD.open(QIODevice::Append))
+//                    {
+//                        QTextStream out(&CD);
+//                        out << listexportpdffact.at(i).at(6).toByteArray() ;
+//                    }
+//                }
+//                QString delreq = "delete from " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
+//                //qDebug() << delreq;
+//                db->StandardSQL(delreq);
+//                delete document;
+//                continue;
+//            }
+//            Poppler::PDFConverter *doctosave = document->pdfConverter();
+//            doctosave->setOutputFileName(CheminOKTransfrDoc);
+//            doctosave->convert();
 
             QFile CC(CheminOKTransfrDoc);
             CC.open(QIODevice::ReadWrite);
@@ -2737,7 +2813,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            "</div></p>"
            "</body></html>";
 
-   Reponse.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(taillefont) + "pt");
+   Reponse.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(taillefont) + "pt");
    QString largeurformule = LARGEUR_FORMULE;
    Reponse.replace("<td width=\"" LARGEUR_FORMULE "\">","<td width=\"" + QString::number(largeurformule.toInt() - 40) + "\">");
    Corps.replace("{{TEXTE ORDO}}",Reponse);
@@ -3946,7 +4022,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
             pit->setText(0,"");
             pit->setText(1,listhash.at(i));
-            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, listhash.at(i));
         }
     }
@@ -3964,7 +4040,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -3982,7 +4058,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4015,7 +4091,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4043,7 +4119,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem5);
             pit->setText(0,"");
             pit->setText(1,hash);
-            if (fm.width(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, hash);
         }
     }
@@ -5436,7 +5512,7 @@ void Rufus::ReconstruitListeMessages()
         msg = tr("Vous avez 1 nouveau message");
     if (msg!="")
     {
-        QSound::play(NOM_ALARME);
+        Utils::playAlarm();
         ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
         if (dlg_msgDialog != Q_NULLPTR)
             if (dlg_msgDialog->isVisible())
@@ -5974,14 +6050,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 {
                     Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">", HTML_RETOURLIGNE);
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-                    Corps.remove(HTMLCOMMENT_LINUX);
-                    Corps.remove(HTMLCOMMENT_MAC);
-        #ifdef Q_OS_LINUX
-                    Corps.append(HTMLCOMMENT_LINUX);
-        #endif
-        #ifdef Q_OS_MAC
-                    Corps.append(HTMLCOMMENT_MAC);
-        #endif
+                    Corps.remove(HTMLCOMMENT);
+
+                    Corps.append(HTMLCOMMENT);
+
                     if (objUpText->table() == TBL_ACTES)
                     {
                         ItemsList::update(currentacte(), objUpText->champ(), Corps);
@@ -6734,7 +6806,7 @@ void Rufus::SortieAppli()
         for (int i=0; i<PaimtList.size();i++)
             if (PaimtList.at(i)->isVisible())
             {
-                QSound::play(NOM_ALARME);
+               Utils::playAlarm();
                 PaimtList.at(i)->raise();
                 return;
             }
@@ -6784,7 +6856,7 @@ void Rufus::SortieAppli()
                         || Statut == RETOURACCUEIL)
                 {
                     // il y a du monde en salle d'attente, on refuse la fermeture
-                    QSound::play(NOM_ALARME);
+                    Utils::playAlarm();
                     UpMessageBox msgbox;
                     UpSmallButton OKBouton("OK");
                     UpSmallButton NoBouton(tr("Fermer quand même"));
@@ -7126,7 +7198,7 @@ void Rufus::CreerDossier()
     // On vérifie qu'une date de naissance a été enregistrée, différente de gdateParDefaut
     if (ui->CreerDDNdateEdit->date() == m_datepardefaut)
     {
-        QSound::play(NOM_ALARME);
+        Utils::playAlarm();
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Je confirme"));
         UpSmallButton NoBouton(tr("Annuler"));
@@ -7359,7 +7431,7 @@ void Rufus::CreerMenu()
     menuBar()   ->addAction(Apropos);
     menuBar()   ->addAction(actionQuit);
 #endif
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     menuAide    = menuBar()->addMenu(tr("Aide"));
     menuAide    ->addAction(Apropos);
     menuDossier ->addAction(actionQuit);
@@ -7514,13 +7586,26 @@ void Rufus::ExporteActe(Acte *act)
                     }
                     else if (sfx == PDF)
                     {
-                        Poppler::Document* document = Poppler::Document::loadFromData(ba);
-                        Poppler::PDFConverter *pdfConv = document->pdfConverter();
-                        pdfConv->setOutputFileName(filedest);
-                        pdfConv->setPDFOptions(pdfConv->pdfOptions()|Poppler::PDFConverter::WithChanges);
-                        pdfConv->convert();
-                        delete pdfConv;
-                        delete document;
+
+                        QBuffer buf(&ba);
+                        QPdfDocument document;
+                        document.load(&buf);
+                        if( document.pageCount() > 0)
+                        {
+                            QFile file(filedest);
+                            if (file.open(QIODevice::NewOnly))
+                            {
+                                QDataStream out(&file);
+                                out << ba;
+                            }
+                        }
+//                        Poppler::Document* document = Poppler::Document::loadFromData(ba);
+//                        Poppler::PDFConverter *pdfConv = document->pdfConverter();
+//                        pdfConv->setOutputFileName(filedest);
+//                        pdfConv->setPDFOptions(pdfConv->pdfOptions()|Poppler::PDFConverter::WithChanges);
+//                        pdfConv->convert();
+//                        delete pdfConv;
+//                        delete document;
                     }
                 }
             }
@@ -7796,19 +7881,19 @@ void Rufus::InitWidgets()
     "QLineEdit {background-color:white; border-style: none;}"
     "QLineEdit:focus {border-style:none;}");
     ui->ActeCotationcomboBox->lineEdit()->setMaxLength(20);
-    ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
+    ui->ActeCotationcomboBox->lineEdit()->setValidator( new QRegularExpressionValidator(Utils::rgx_cotation,this));
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
     m_val = new upDoubleValidator(0, 10000 , 2, this);
     ui->ActeMontantlineEdit->setValidator(m_val);
     ui->PayelineEdit->setValidator(m_val);
-    ui->TabaclineEdit->setValidator(new QRegExpValidator(Utils::rgx_tabac,this));
-    wdg_MGlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    wdg_autresCorresp1LineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    wdg_autresCorresp2LineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->TabaclineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_tabac,this));
+    wdg_MGlineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    wdg_autresCorresp1LineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    wdg_autresCorresp2LineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->CreerNomlineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
+    ui->CreerPrenomlineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
     ui->tabWidget->setTabText(0,tr("Liste des patients"));
 
     ui->ActeMontantlineEdit->setAlignment(Qt::AlignRight);
@@ -9809,14 +9894,14 @@ void Rufus::AffichePachymetrie()
         QString resumetxt = ui->ResumetextEdit->toHtml();
         QString const dd    = "<a name=\"" HTMLANCHOR_PACHYDEBUT "[0-9]{0,11}\"></a>";
         QString const fd    = "<a name=\"" HTMLANCHOR_PACHYFIN "\"></a>";
-        if (resumetxt.contains(QRegExp(dd + ".*" + fd)))
+        if (resumetxt.contains(QRegularExpression(dd + ".*" + fd)))
         {
-            int n = pachy.indexOf(QRegExp(dd));
+            int n = pachy.indexOf(QRegularExpression(dd));
             pachy = pachy.mid(n);
             n = pachy.indexOf(fd) + fd.size();
             pachy = pachy.left(n);
             pachy.replace(Methode, Methode + " - " + QDate::currentDate().toString("dd.MM.yy"));
-            resumetxt.replace(QRegExp(dd + ".*" + fd), pachy);
+            resumetxt.replace(QRegularExpression(dd + ".*" + fd), pachy);
             ItemsList::update(currentpatient(), CP_RESUME_RMP, resumetxt);
             ui->ResumetextEdit->setText(resumetxt);
         }
@@ -9870,7 +9955,7 @@ bool Rufus::VerifCoherenceMontantPaiement()
     QString NouveauMontant = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
     if (ui->PayelineEdit->isVisible() && QLocale().toDouble(ui->ActeMontantlineEdit->text()) < QLocale().toDouble(ui->PayelineEdit->text()))
     {
-        QSound::play(NOM_ALARME);
+        Utils::playAlarm();
         UpMessageBox::Watch(this, tr("Saisie de montant refusée !"),
                              tr("Le montant que vous souhaitez enregistrer") + "\n\t" + NouveauMontant + " " + tr("€") +"\n"
                              + tr("est inférieur à la somme des paiements") + "\n" + tr("déjà enregistrés pour cet acte") + "\n\t" + ui->PayelineEdit->text() + tr("€"));
@@ -9904,7 +9989,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             return false;
         if (idactdata.size() > 0)
         {
-            QSound::play(NOM_ALARME);
+            Utils::playAlarm();
             UpMessageBox msgbox;
             msgbox.setText(tr("Cet acte a déjà été enregistré comme acte gratuit !"));
             msgbox.setInformativeText(tr("Annuler et considérer comme acte payant?"));
@@ -10010,7 +10095,7 @@ void Rufus::LireLaCPS()
 
     // Récup des infos du médecin dans le fichier ../Pyxvital/Interf/Praticien.par
     QSettings settingPraticienPar (nomFicPraticienPar, QSettings::IniFormat);
-    settingPraticienPar.setIniCodec ("ISO 8859-1");
+    //settingPraticienPar.setIniCodec ("ISO 8859-1");
 
     numPS    = settingPraticienPar.value("PS/Numéro").toString() ; // 8 chiffres sans la clé
     if (numPS.length() == 0)
@@ -10055,7 +10140,7 @@ void Rufus::LireLaCV()
         }
     // Récup des infos du bénéficiaire dans le fichier ../Pyxvital/Interf/Patient.par
     QSettings settingPatientPar (nomFicPatientPar, QSettings::IniFormat);
-    settingPatientPar.setIniCodec ("ISO 8859-1");
+    //settingPatientPar.setIniCodec ("ISO 8859-1");
 
     nomPat      = settingPatientPar.value("Bénéficiaire/Nom").toString();
     if (nomPat.length() == 0)
@@ -10111,7 +10196,7 @@ void Rufus::SaisieFSE()
         }
     // Récup des infos de la facture dans le fichier ../Pyxvital/Interf/Facture.par pour alimenter la comptabilité
     QSettings settingFacturePar (nomFicFacturePar, QSettings::IniFormat);
-    settingFacturePar.setIniCodec ("ISO 8859-1");
+    //settingFacturePar.setIniCodec ("ISO 8859-1");
 
     /*-------- Exemple du contenu du fichier facture.par généré par Pyxvital ------------
       [Prestation]
@@ -10193,7 +10278,7 @@ void Rufus::TraiteTCPMessage(QString msg)
                msg = tr("Vous avez 1 nouveau message");
            if (msg!="")
            {
-               QSound::play(NOM_ALARME);
+               Utils::playAlarm();
                ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
                if (dlg_msgDialog != Q_NULLPTR)
                    if (dlg_msgDialog->isVisible())

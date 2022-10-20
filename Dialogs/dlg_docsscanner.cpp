@@ -106,7 +106,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
 
     wdg_typedoccombobx->insertItems(0,m_listtypesexamen);
     wdg_typedoccombobx->setEditable(false);
-    wdg_linetitre->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
+    wdg_linetitre->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));

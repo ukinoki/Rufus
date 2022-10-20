@@ -37,11 +37,11 @@ public:
     bool                        initok() const          { return m_initok; }
 
 private:
-    QRegExp             rgx_csteA           = QRegExp("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegExp             rgx_diainjecteur    = QRegExp("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegExp             rgx_diaoptique      = QRegExp("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegExp             rgx_diaht           = QRegExp("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegExp             rgx_haigis          = QRegExp("-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
+    QRegularExpression             rgx_csteA           = QRegularExpression("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression             rgx_diainjecteur    = QRegularExpression("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression             rgx_diaoptique      = QRegularExpression("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression             rgx_diaht           = QRegularExpression("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression             rgx_haigis          = QRegularExpression("-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
     QList<int>          m_listeidIOLs;
