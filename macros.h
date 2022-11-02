@@ -973,8 +973,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CB                  "B"
 
 // ancres et comentaires html
-#define HTMLCOMMENT_LINUX           "<!LINUX>"
-#define HTMLCOMMENT_MAC             "<!MAC>"
+//#define HTMLCOMMENT_LINUX           "<!LINUX>"
+//#define HTMLCOMMENT_MAC             "<!MAC>"
+
+// avoid more #ifdef Q_OS_ ...
+#if defined(Q_OS_LINUX)
+#define HTMLCOMMENT                 "<!LINUX>"
+#elif defined(Q_OS_MACX)
+#define HTMLCOMMENT                 "<!MAC>"
+#elif defined(Q_OS_WIN)
+#define HTMLCOMMENT                 "<!WIN>"
+#else
+#define HTMLCOMMENT                 "<!COMMENT>"
+#endif
+
 #define HTMLANCHOR_BODEBUT          "<BOdebut>"
 #define HTMLANCHOR_BOFIN            "<BOfin>"
 #define HTMLANCHOR_PACHYDEBUT       "pachydebut"

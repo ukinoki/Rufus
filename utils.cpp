@@ -276,16 +276,10 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
         text.remove(reg1);
     text.replace(reg2,"<p style=\" margin-top:0px; margin-bottom:0px;\">");
     text.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-    text.remove(HTMLCOMMENT_LINUX);
-    text.remove(HTMLCOMMENT_MAC);
+    text.remove(HTMLCOMMENT);
     if (remetunelignealafin)
         text.append(HTML_FINPARAGRAPH);
-#ifdef Q_OS_LINUX
-    text.append(HTMLCOMMENT_LINUX);
-#endif
-#ifdef Q_OS_MAC
-    text.append(HTMLCOMMENT_MAC);
-#endif
+    text.append(HTMLCOMMENT);
 }
 
 /*!
