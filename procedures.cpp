@@ -698,25 +698,13 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
 }
 
 /*!
- * \brief Procedures::DefinitScriptRestore
+ * \brief Procedures::DefinitListFichiersSQLRestore
  * \param ListNomFiles
  */
-void Procedures::DefinitScriptRestore(QStringList ListNomFiles)
+QList<QStringList> Procedures::DefinitListFichiersSQLRestore(QStringList ListNomFiles)
 {
-    /*
-#!/bin/bash
-MYSQL_USER="Admin"
-MYSQL_PASSWORD="bob"
-MYSQL_PORT="3306"
-MYSQL=/usr/local/mysql/bin/mysql
-$MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File1"
-$MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File2"
-$MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
-...etc...
-    */
-    // élaboration du script de restore
-    QString scriptrestore = "#!/bin/bash";
-    scriptrestore += "\n";
+
+    QList<QStringList> args;
     QString cheminmysql;
 #ifdef Q_OS_MACX
     cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
@@ -724,9 +712,6 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
 #ifdef Q_OS_LINUX
     cheminmysql = "/usr/bin";
 #endif
-    scriptrestore += "MYSQL=" + cheminmysql;
-    scriptrestore += "/mysql";
-    scriptrestore += "\n";
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
@@ -746,21 +731,16 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
+    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
     for (int i=0; i<ListNomFiles.size(); i++)
         if (QFile(ListNomFiles.at(i)).exists())
         {
-            scriptrestore += "$MYSQL -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys + " < " + ListNomFiles.at(i);
-            scriptrestore += "\n";
+            QStringList arg;
+            QString path = ListNomFiles.at(i);
+            arg << command << path;
+            args << arg;
         }
-    if (QFile::exists(PATH_FILE_SCRIPTRESTORE))
-        QFile::remove(PATH_FILE_SCRIPTRESTORE);
-    QFile fbackup(PATH_FILE_SCRIPTRESTORE);
-    if (fbackup.open(QIODevice::ReadWrite))
-    {
-        QTextStream out(&fbackup);
-        out << scriptrestore ;
-        fbackup.close();
-    }
+    return args;
 }
 
 /*!
@@ -2377,14 +2357,23 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             int a = 99;
 
             //! Restauration à partir du dossier sélectionné
-            DefinitScriptRestore(listnomsfilestorestore);
-            QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
+            QList<QStringList> args = DefinitListFichiersSQLRestore(listnomsfilestorestore);
             QProcess dumpProcess(parent());
-            dumpProcess.start(task);
-            dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
-                                                      * et dans ce cas le processus est interrompu avant que toute la base soit créée */
-             if (dumpProcess.exitStatus() == QProcess::NormalExit)
-                a = dumpProcess.exitCode();
+            for (int i=0; i< args.size(); i++)
+            {
+                QString path = args.at(i).last();
+                QString command = args.at(i).first();
+                qDebug() << command << path;
+                dumpProcess.setStandardInputFile(path);
+                dumpProcess.start(command);
+                dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
+                                                        * et dans ce cas le processus est interrompu avant que toute la base soit créée */
+                qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitCode()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
+                if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                    a = dumpProcess.exitCode();
+                if (a != 0)
+                    i = args.size();
+            }
             if (a != 0)
             {
                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
@@ -2394,7 +2383,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
                     QFile(CheminFichierResize).remove();
                 }
-                QFile::remove(PATH_FILE_SCRIPTRESTORE);
                 return false;
             }
             else
@@ -2406,7 +2394,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
                     QFile(CheminFichierResize).remove();
                 }
-                QFile::remove(PATH_FILE_SCRIPTRESTORE);
                 emit ConnectTimers(true);
                 return true;
             }
@@ -2577,16 +2564,23 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             int a = 99;
 
                             //! Restauration à partir du dossier sélectionné
-                            DefinitScriptRestore(listnomsfilestorestore);
-                            QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
+                            QList<QStringList> args = DefinitListFichiersSQLRestore(listnomsfilestorestore);
                             QProcess dumpProcess(parent());
-                            dumpProcess.start(task);
-                            dumpProcess.waitForFinished(1000000000);
-                             if (dumpProcess.exitStatus() == QProcess::NormalExit)
-                                a = dumpProcess.exitCode();
+                            for (int i=0; i< args.size(); i++)
+                            {
+                                QString path = args.at(i).last();
+                                QString command = args.at(i).first();;
+                                dumpProcess.setStandardInputFile(path);
+                                dumpProcess.start(command);
+                                dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
+                                                                        * et dans ce cas le processus est interrompu avant que toute la base soit créée */
+                                if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                                    a = dumpProcess.exitCode();
+                                if (a != 0)
+                                    i = args.size();
+                            }
                             if (a != 0)
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
-                            QFile::remove(PATH_FILE_SCRIPTRESTORE);
                             db->setdirimagerie(NomDirStockageImagerie);
                        }
                     }
@@ -2787,17 +2781,22 @@ bool Procedures::VerifBaseEtRessources()
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 emit ConnectTimers(false);
-                DefinitScriptRestore(QStringList() << NomDumpFile);
-                const QString task = "sh " + PATH_FILE_SCRIPTRESTORE;
+                QList<QStringList> args = DefinitListFichiersSQLRestore(QStringList() << NomDumpFile);
                 QProcess dumpProcess(parent());
-                dumpProcess.startCommand(task);
-                dumpProcess.waitForFinished();
-                qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitStatus());
-                qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ProcessError>(), dumpProcess.error());
-                if (dumpProcess.exitStatus() == QProcess::NormalExit)
-                     a = dumpProcess.exitCode();
-                QFile::remove(PATH_FILE_SCRIPTRESTORE);
-                QFile::remove(NomDumpFile);
+                for (int i=0; i< args.size(); i++)
+                {
+                    QString path = args.at(i).last();
+                    QString command = args.at(i).first();;
+                    dumpProcess.setStandardInputFile(path);
+                    dumpProcess.start(command);
+                    dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
+                                                            * et dans ce cas le processus est interrompu avant que toute la base soit créée */
+                    //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitCode()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
+                    if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                        a = dumpProcess.exitCode();
+                    if (a != 0)
+                        i = args.size();
+                }
                 if (a == 0)
                 {
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));

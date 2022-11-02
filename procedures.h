@@ -399,8 +399,8 @@ signals:
                                 /*! calcule la durée approximative du backup */
         void                    DefinitScriptBackup(QString pathdirdestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
-        void                    DefinitScriptRestore(QStringList ListNomFiles);
-                                /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL */
+        QList<QStringList>      DefinitListFichiersSQLRestore(QStringList ListNomFiles);
+                                /*! crée la miste de commandes qui vont éxécuter la restauration de la base MySQL */
         void                    BackupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
 signals:
         void                    backupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);

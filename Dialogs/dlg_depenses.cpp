@@ -725,6 +725,13 @@ void dlg_depenses::MenuContextuel()
     {
         QAction *pAction_RecopieDep = menu->addAction(tr("Effectuer une copie de cette dépense à la date d'aujourd'hui"));
         connect (pAction_RecopieDep, &QAction::triggered,    this,   &dlg_depenses::CopieDepense);
+        Depense *dep = getDepenseFromRow(wdg_bigtable->currentRow());
+          if (dep)
+              if (dep->idfacture()>0)
+              {
+                  QAction *pAction_SupprFacture = menu->addAction(tr("Supprimer la facture de") + " " + dep->objet());
+                  connect (pAction_SupprFacture, &QAction::triggered,    this,   [=] {SupprimeFacture(dep);});
+              }
     }
     QAction *pAction_ChercheVal = menu->addAction(tr("Rechercher une valeur"));
     connect (pAction_ChercheVal, &QAction::triggered,    this,   &dlg_depenses::RechercheValeur);
@@ -1064,6 +1071,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     dep->setfactureformat("");
     dep->setfactureblob(QByteArray());
     SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
+    ui->VisuDocupTableWidget->setVisible(false);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

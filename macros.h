@@ -888,7 +888,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_FILE_PDF                           PATH_DIR_RESSOURCES NOM_FILE_PDF
 #define PATH_FILE_INI                           PATH_DIR_RUFUS NOM_FILE_INI
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP
-#define PATH_FILE_SCRIPTRESTORE                 PATH_DIR_RUFUS NOM_FILE_SCRIPTRESTORE
 #define PATH_FILE_SCRIPT_MACOS_PLIST            "/Library/LaunchAgents" NOM_FILE_SCRIPT_MACOS_PLIST
 #define PATH_FILE_XMLAUTOREF                    PATH_DIR_AUTOREF NOM_FILE_XMLAUTOREF
 #define PATH_FILE_XMLFRONTO                     PATH_DIR_FRONTO NOM_FILE_XMLFRONTO
