@@ -84,7 +84,6 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     {
         //1051_MIGUEL_JEAN-ROBERT_01-06-1948_Aladdin_06_06_2018_13_16.pdf
         QStringList listn   = nomfiledoc.split("_");
-        datestring          = "";
         int n               = listn.size();
         if (n>4)
         {
@@ -107,6 +106,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             datestring  = nomfiledoc.split("_").at(3);
             datestring  = datestring.left(8);
         }
+        else
+             datestring      = QDate::currentDate().toString("yyyyMMdd");
         Titredoc    = "OCT - Topcon";
         Typedoc     = "OCT";
         SousTypeDoc = "Topcon";
@@ -118,9 +119,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             datestring  = nomfiledoc.split("_").at(1);
             datestring  = datestring.left(8);
         }
+        else
+             datestring      = QDate::currentDate().toString("yyyyMMdd");
         Titredoc    = "RNM - Canon";
         Typedoc     = "RNM";
-        QString cote = ((nomfiledoc.split("_").at(2) == "R")? tr("OD") : tr("OG"));
+        QString cote = "";
+         if (nomfiledoc.split("_").size()>2)
+             cote = ((nomfiledoc.split("_").at(2) == "R")? tr("OD") : tr("OG"));
         SousTypeDoc = "Canon " + cote;
     }
     else if (Appareil == "OTI SLO") {
@@ -281,7 +286,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ZEISS CIRRUS 5000")
     {
-        if (nomfiledoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>7)
         {
             datestring = nomfiledoc.split("_").at(7);
             datestring = datestring.left(8);
@@ -293,7 +298,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     else if (Appareil == "ION Imaging")
     {
         //! 37214_0D_20200522_1848188838.01.e.jpg
-        if (nomfiledoc.split("_").size()>1)
+        if (nomfiledoc.split("_").size()>2)
             datestring = nomfiledoc.split("_").at(2);
         Titredoc    = "Photo - ION";
         Typedoc     = "Imagerie SA";

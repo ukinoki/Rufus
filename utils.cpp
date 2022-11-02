@@ -1125,50 +1125,6 @@ QList<QImage> Utils::calcImagefromPdf(QByteArray ba)
     return listimg;
 }
 
-/*    QFile provfile(PATH_DIR_PROV "/prov.pdf");
-    if (provfile.exists())
-        provfile.remove();
-    provfile.open(QIODevice::WriteOnly);
-    provfile.write(ba);
-    provfile.close();
-    return calcImagefromPdf(PATH_DIR_PROV "/prov.pdf");
-    if (provfile.exists())
-        provfile.remove(); */
-
-//    std::unique_ptr<Poppler::Document> document = Poppler::Document::loadFromData(ba);
-//    if (!document || document->isLocked()) {
-//        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-//        //delete document;
-//        document.release();
-//        return listimg;
-//    }
-//    if (document == Q_NULLPTR) {
-//        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-//        //delete document;
-//        document.release();
-//        return listimg;
-//    }
-//    document->setRenderHint(Poppler::Document::TextAntialiasing);
-//    for (int i=0; i< document->numPages(); ++i)
-//    {
-//        std::unique_ptr<Poppler::Page> pdfPage = document->page(i);
-//        if (pdfPage == Q_NULLPTR) {
-//            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-//            document.release();
-//            return listimg;
-//        }
-//        QImage image = pdfPage->renderToImage(300,300);
-//        if (image.isNull()) {
-//            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-//            document.release();
-//            return listimg;
-//        }
-//        listimg << image;
-//    }
-//    document.release();
-//    return listimg;
-
-
 QJsonValue Utils::jsonValFromImage(const QImage &img)
 {
   QBuffer buffer;

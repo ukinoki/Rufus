@@ -698,12 +698,11 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
 }
 
 /*!
- * \brief Procedures::DefinitListFichiersSQLRestore
+ * \brief Procedures::DefinitScriptRestore
  * \param ListNomFiles
  */
-QList<QStringList> Procedures::DefinitListFichiersSQLRestore(QStringList ListNomFiles)
+QList<QStringList> Procedures::DefinitListCommandesSQL(QStringList ListNomFiles)
 {
-
     QList<QStringList> args;
     QString cheminmysql;
 #ifdef Q_OS_MACX
@@ -731,11 +730,11 @@ QList<QStringList> Procedures::DefinitListFichiersSQLRestore(QStringList ListNom
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
-    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
     for (int i=0; i<ListNomFiles.size(); i++)
         if (QFile(ListNomFiles.at(i)).exists())
         {
             QStringList arg;
+            QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
             QString path = ListNomFiles.at(i);
             arg << command << path;
             args << arg;
@@ -2357,18 +2356,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             int a = 99;
 
             //! Restauration à partir du dossier sélectionné
-            QList<QStringList> args = DefinitListFichiersSQLRestore(listnomsfilestorestore);
+            QList<QStringList> args = DefinitListCommandesSQL(listnomsfilestorestore);
             QProcess dumpProcess(parent());
             for (int i=0; i< args.size(); i++)
             {
                 QString path = args.at(i).last();
-                QString command = args.at(i).first();
-                qDebug() << command << path;
+                QString command = args.at(i).first();;
                 dumpProcess.setStandardInputFile(path);
                 dumpProcess.start(command);
                 dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
-                                                        * et dans ce cas le processus est interrompu avant que toute la base soit créée */
-                qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitCode()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
+                                                       * et dans ce cas le processus est interrompu avant que toute la base soit créée */
+
+                //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitCode()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
                 if (dumpProcess.exitStatus() == QProcess::NormalExit)
                     a = dumpProcess.exitCode();
                 if (a != 0)
@@ -2564,7 +2563,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             int a = 99;
 
                             //! Restauration à partir du dossier sélectionné
-                            QList<QStringList> args = DefinitListFichiersSQLRestore(listnomsfilestorestore);
+                            QList<QStringList> args = DefinitListCommandesSQL(listnomsfilestorestore);
                             QProcess dumpProcess(parent());
                             for (int i=0; i< args.size(); i++)
                             {
@@ -2573,7 +2572,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                 dumpProcess.setStandardInputFile(path);
                                 dumpProcess.start(command);
                                 dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
-                                                                        * et dans ce cas le processus est interrompu avant que toute la base soit créée */
+                                                                       * et dans ce cas le processus est interrompu avant que toute la base soit créée */
                                 if (dumpProcess.exitStatus() == QProcess::NormalExit)
                                     a = dumpProcess.exitCode();
                                 if (a != 0)
@@ -2582,7 +2581,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             if (a != 0)
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
                             db->setdirimagerie(NomDirStockageImagerie);
-                       }
+                        }
                     }
                 }
             }
@@ -2781,7 +2780,7 @@ bool Procedures::VerifBaseEtRessources()
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 emit ConnectTimers(false);
-                QList<QStringList> args = DefinitListFichiersSQLRestore(QStringList() << NomDumpFile);
+                QList<QStringList> args = DefinitListCommandesSQL(QStringList() << NomDumpFile);
                 QProcess dumpProcess(parent());
                 for (int i=0; i< args.size(); i++)
                 {
@@ -2790,14 +2789,12 @@ bool Procedures::VerifBaseEtRessources()
                     dumpProcess.setStandardInputFile(path);
                     dumpProcess.start(command);
                     dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
-                                                            * et dans ce cas le processus est interrompu avant que toute la base soit créée */
-                    //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitCode()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
+                                                           * et dans ce cas le processus est interrompu avant que toute la base soit créée */
                     if (dumpProcess.exitStatus() == QProcess::NormalExit)
                         a = dumpProcess.exitCode();
                     if (a != 0)
                         i = args.size();
-                }
-                if (a == 0)
+                }                if (a == 0)
                 {
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
                     db->initParametresSysteme();

@@ -39,6 +39,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
+//#include "poppler-qt6.h"
 #include <QPdfDocument>
 
 #include <QInputDialog>

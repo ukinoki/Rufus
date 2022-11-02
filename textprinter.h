@@ -40,6 +40,7 @@
 #include <QPrintDialog>
 #include <QTextDocument>
 #include <QTextFrame>
+
 #include <QPrintPreviewDialog>
 
 ///////////////////////////////////////////////////////////////////////////////
