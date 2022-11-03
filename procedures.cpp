@@ -701,7 +701,7 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
  */
 int Procedures::ExecuteSQLScript(QStringList ListScripts)
 {
-    QList<QStringList> args;
+    QStringList listpaths;
     int a = 99;
     QString cheminmysql;
 #ifdef Q_OS_MACX
@@ -729,21 +729,18 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
+    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
-            QStringList arg;
-            QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
             QString path = ListScripts.at(i);
-            arg << command << path;
-            args << arg;
+            listpaths << path;
         }
 
     QProcess dumpProcess(parent());
-    for (int i=0; i< args.size(); i++)
+    for (int i=0; i< listpaths.size(); i++)
     {
-        QString path = args.at(i).last();
-        QString command = args.at(i).first();;
+        QString path = listpaths.at(i);
         dumpProcess.setStandardInputFile(path);
         dumpProcess.start(command);
         dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished()
@@ -752,7 +749,7 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
         if (dumpProcess.exitStatus() == QProcess::NormalExit)
             a = dumpProcess.exitCode();
         if (a != 0)
-            i = args.size();
+            i = listpaths.size();
     }
     return a;
 }
@@ -2760,7 +2757,8 @@ bool Procedures::VerifBaseEtRessources()
                 QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 emit ConnectTimers(false);
-                int a = ExecuteSQLScript(QStringList() << NomDumpFile);
+                a = ExecuteSQLScript(QStringList() << NomDumpFile);
+                QFile::remove(NomDumpFile);
                 if (a == 0)
                 {
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
@@ -2790,12 +2788,6 @@ bool Procedures::VerifBaseEtRessources()
                     }
                 req = "update " TBL_MANUFACTURERS " set CorNom = null, CorPrenom = null, CorStatut = null, CorMail = null, CorTelephone = null";
                 DataBase::I()->StandardSQL(req);
-//                DataBase::I()->StandardSQL("ALTER TABLE `rufus`.`Manufacturers` "
-//                "DROP COLUMN `CorTelephone`,"
-//                "DROP COLUMN `CorMail`,"
-//                "DROP COLUMN `CorStatut`,"
-//                "DROP COLUMN `CorPrenom`,"
-//                "DROP COLUMN `CorNom`;");
             }
         }
     }

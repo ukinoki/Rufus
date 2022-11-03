@@ -400,7 +400,7 @@ signals:
         void                    DefinitScriptBackup(QString pathdirdestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         int                     ExecuteSQLScript(QStringList ListScripts);
-                                /*! crée le script RufusScriptRestore.sh qui va éxécuter la restauration de la base MySQL */
+                                /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.) */
         void                    BackupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
 signals:
         void                    backupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);

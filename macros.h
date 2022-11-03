@@ -840,7 +840,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define NOM_FILE_INI                            "/Rufus.ini"
 #define NOM_FILE_SCRIPTBACKUP                   "/RufusScriptBackup.sh"
-#define NOM_FILE_SCRIPTRESTORE                  "/RufusScriptRestore.sh"
 #define NOM_FILE_SCRIPT_MACOS_PLIST             "/rufus.bup.plist"
 #define NOM_FILE_ENTETEORDO                     "/Entete_Ordonnance.txt"
 #define NOM_FILE_CORPSORDO                      "/Corps_Ordonnance.txt"
