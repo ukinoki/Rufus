@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("03-11-2022/1");
+    qApp->setApplicationVersion("05-11-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -255,9 +255,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 #endif
 
-    //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires
-    if (db->ModeAccesDataBase() == Utils::Poste)
-        proc->ProgrammeSQLVideImagesTemp(m_parametres->heurebkup());
+    //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires - abandonné parce qu'il continue à fonctionner même en cas de plantage du programme
+    //if (db->ModeAccesDataBase() == Utils::Poste)
+        //proc->ProgrammeSQLVideImagesTemp(m_parametres->heurebkup());
+    db->StandardSQL("Use " DB_IMAGES);
+    db->StandardSQL("DROP EVENT IF EXISTS VideImagesEchange");
+    db->StandardSQL("Use " DB_COMPTA);
+    db->StandardSQL("DROP EVENT IF EXISTS VideFactures");
 
     //! 15 - choix mode (création dossier ou sélection de patient)
     if (m_listepatientsmodel->rowCount() == 0)

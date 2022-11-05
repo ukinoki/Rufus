@@ -412,6 +412,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     ShowMessage::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
     emit ConnectTimers(false);
 
+    //On vide les champs blob de la table factures et la table EchangeImages
+    db->StandardSQL("UPDATE " TBL_FACTURES " SET " CP_JPG_FACTURES " = null, " CP_PDF_FACTURES " = null");
+    db->StandardSQL("DELETE FROM " TBL_ECHANGEIMAGES);
+
     if (OKBase)
     {
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
@@ -936,7 +940,7 @@ void Procedures::ParamAutoBackup()
 */
 }
 
-void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup)
+void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné parce qu'il continue à fonctionner même en cas de plantage du programme */
 {
     //programmation de l'effacement du contenu de la table ImagesEchange
     db->StandardSQL("Use " DB_IMAGES);

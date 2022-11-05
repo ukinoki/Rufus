@@ -144,7 +144,13 @@ private:
     void        EnregistreDocScanner(Patient *pat);
     void        EnregistreVideo(Patient *pat);
     void        ExporteDocs();                                  /*! exporte les documents d'imagerie inscrits dans la base par les postes distants
-                                                                pour les archiver en fichiers standards sur le HD du serveur*/
+                                                                pour les archiver en fichiers standards sur le HD du serveur
+                                                      les fichiers d'imagerie ou les factures enregistrés par des utilisateurs distants sont stockés
+                                                      dans les champs pdf ou jpg de la table Rufus.Impressions pour les imageries et ComptaMedicale.Factures pour les factures.
+                                                      Cette fonction, appelée par le timer t_timerUserConnecte ou par le bouton ui->ExportImagespushButton,
+                                                      permet de récupérer le contenu blob de ces fichiers
+                                                      et de recréer un fichier d'imagerie stocké dans le système de fichiers du serveur */
+
     void        FiltreAccueil(int idx);
     void        FiltreSalleDAttente();
     void        GestionComptes();
