@@ -414,6 +414,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     ShowMessage::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
     emit ConnectTimers(false);
 
+    //On vide les champs blob de la table factures et la table EchangeImages
+    db->StandardSQL("UPDATE " TBL_FACTURES " SET " CP_JPG_FACTURES " = null, " CP_PDF_FACTURES " = null");
+    db->StandardSQL("DELETE FROM " TBL_ECHANGEIMAGES);
+
     if (OKBase)
     {
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
@@ -745,6 +749,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
           dumpProcess.setStandardInputFile(path);
           dumpProcess.start(command);
           dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished() */
+          qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(),dumpProcess.exitStatus()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
           if (dumpProcess.exitStatus() == QProcess::NormalExit)
               a = dumpProcess.exitCode();
           if (a != 0)
@@ -935,7 +940,7 @@ void Procedures::ParamAutoBackup()
 */
 }
 
-void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup)
+void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné parce qu'il continue à fonctionner même en cas de plantage du programme */
 {
     //programmation de l'effacement du contenu de la table ImagesEchange
     db->StandardSQL("Use " DB_IMAGES);
@@ -1786,7 +1791,7 @@ bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QSt
         listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
         listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
-        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QVariant::String));
+        listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
         listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
         listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
@@ -3489,6 +3494,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                 {
                                     foreach (QGroupBox *box, dlg_askUser->findChildren<QGroupBox*>())
                                         if (box->accessibleName() == "Parent")
+                                        {
                                             foreach (QRadioButton *butt, box->findChildren<QRadioButton*>())
                                                 if (butt->isChecked())
                                                 {
@@ -3496,6 +3502,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                                     currentuser()->setidparent( butt->accessibleName().toInt() );
                                                     break;
                                                 }
+                                        }
                                     delete dlg_askUser;
                                 }
                             }
@@ -4383,7 +4390,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             //qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
-            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") | QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") || QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
             {
                 portseriedispo = true;
                 break;
@@ -4400,7 +4407,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     QString listeports = "";
     for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
     {
-        if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") | QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+        if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") || QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
         {
             if (listeports != "")
                 listeports += " - ";

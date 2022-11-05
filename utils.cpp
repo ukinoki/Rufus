@@ -1100,7 +1100,12 @@ QList<QImage> Utils::calcImagefromPdf(QString filename)
     qDebug() << filename <<"-" << pdf.pageCount() << "pages";
     for (int i=0; i<pdf.pageCount(); i++)
     {
-        QImage image = pdf.render(i, QSize(300,300));
+        QPdfDocumentRenderOptions renderpdf;
+        renderpdf.setRenderFlags(QPdfDocumentRenderOptions::RenderFlag::None);
+        QSize pageSize = pdf.pagePointSize(i).toSize();
+        pageSize.rheight() *= 5;
+        pageSize.rwidth() *= 5;
+        QImage image = pdf.render(i, pageSize,renderpdf);
         listimg << image;
     }
     return listimg;
@@ -1118,11 +1123,15 @@ QList<QImage> Utils::calcImagefromPdf(QByteArray ba)
     {
         QPdfDocumentRenderOptions renderpdf;
         renderpdf.setRenderFlags(QPdfDocumentRenderOptions::RenderFlag::None);
-        QImage image = pdf.render(i, QSize(1500,1500),renderpdf);
+        QSize pageSize = pdf.pagePointSize(i).toSize();
+        pageSize.rheight() *= 5;
+        pageSize.rwidth() *= 5;
+        QImage image = pdf.render(i, pageSize,renderpdf);
         listimg << image;
     }
     delete buff;
     return listimg;
+
 }
 
 QJsonValue Utils::jsonValFromImage(const QImage &img)
