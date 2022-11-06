@@ -29,31 +29,34 @@ Utils* Utils::I()
 /*
  * Initialisation des variables static const
 */
-QRegularExpression const Utils::rgx_rx = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
-QRegularExpression const Utils::rgx_AlphaNumeric = QRegularExpression("[A-Za-z0-9]*");
-QRegularExpression const Utils::rgx_AlphaNumeric_3_12 = QRegularExpression("[A-Za-z0-9]{3,12}$");
-QRegularExpression const Utils::rgx_AlphaNumeric_5_15 = QRegularExpression("[A-Za-z0-9]{5,15}$");
-QRegularExpression const Utils::rgx_AlphaNumeric_5_12  = QRegularExpression("[A-Za-z0-9]{5,12}$");
-QRegularExpression const Utils::rgx_MajusculeSeul = QRegularExpression("[A-Z]*");
-QRegularExpression const Utils::rgx_IPV4 = QRegularExpression("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
-QRegularExpression const Utils::rgx_IPV4_mask = QRegularExpression("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                              "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                              "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                              "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])");
+QRegularExpression const Utils::rgx_rx                  = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
+QRegularExpression const Utils::rgx_AlphaNumeric        = QRegularExpression("[A-Za-z0-9]*");
+QRegularExpression const Utils::rgx_AlphaNumeric_3_12   = QRegularExpression("[A-Za-z0-9]{3,12}$");
+QRegularExpression const Utils::rgx_AlphaNumeric_5_15   = QRegularExpression("[A-Za-z0-9]{5,15}$");
+QRegularExpression const Utils::rgx_AlphaNumeric_5_12   = QRegularExpression("[A-Za-z0-9]{5,12}$");
+QRegularExpression const Utils::rgx_MajusculeSeul       = QRegularExpression("[A-Z]*");
+QRegularExpression const Utils::rgx_IPV4                = QRegularExpression("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
+QRegularExpression const Utils::rgx_IPV4_mask           = QRegularExpression("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                                                                            "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                                                                            "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                                                                            "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])");
 
-QRegularExpression const Utils::rgx_mail           = QRegularExpression("^[A-Za-z0-9_-]+(.[A-Za-z0-9_-]+)+@[A-Za1-z0-9_-]+(.[A-Za1-z0-9_-]+).[A-Za-z0-9_-]{2,6}");
-QRegularExpression const Utils::rgx_NNI = QRegularExpression("[12][0-9]{14}");
+QRegularExpression const Utils::rgx_mail                = QRegularExpression("^[A-Za-z0-9_-]+(.[A-Za-z0-9_-]+)+@[A-Za1-z0-9_-]+(.[A-Za1-z0-9_-]+).[A-Za-z0-9_-]{2,6}");
+QRegularExpression const Utils::rgx_NNI                 = QRegularExpression("[12][0-9]{14}");
 
-QRegularExpression const Utils::rgx_adresse = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*");
-QRegularExpression const Utils::rgx_intitulecompta = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -/%]*");
-QRegularExpression const Utils::rgx_CP = QRegularExpression("[0-9]{5}");
-QRegularExpression const Utils::rgx_ville = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
-QRegularExpression const Utils::rgx_telephone = QRegularExpression("[0-9 ]*");
+QRegularExpression const Utils::rgx_adresse             = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*");
+QRegularExpression const Utils::rgx_intitulecompta      = QRegularExpression("[/%éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*");
+/*! QRegularExpression const Utils::rgx_intitulecompta  = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -/%]*");
+ *  ne marche pas sous Qt6 et laisse tout passer - il faut mettre le front slash et le % devant pour que ça marche
+ *  bug ou c'est moi qui n'ai rien compris ????? */
+QRegularExpression const Utils::rgx_CP                  = QRegularExpression("[0-9]{5}");
+QRegularExpression const Utils::rgx_ville               = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
+QRegularExpression const Utils::rgx_telephone           = QRegularExpression("[0-9 ]*");
 
-QRegularExpression const Utils::rgx_tabac = QRegularExpression("[0-9]{2}");
-QRegularExpression const Utils::rgx_cotation = QRegularExpression("[a-zA-Z0-9.+/ ]*");
+QRegularExpression const Utils::rgx_tabac               = QRegularExpression("[0-9]{2}");
+QRegularExpression const Utils::rgx_cotation            = QRegularExpression("[a-zA-Z0-9.+/ ]*");
 
-QRegularExpression const Utils::rgx_recherche = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-Z %-]*");
+QRegularExpression const Utils::rgx_recherche           = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-Z %-]*");
 
 
 /*!
@@ -210,14 +213,23 @@ QString Utils::trimcapitilize(QString text, bool end, bool maj, bool lower)
 
 QString Utils::retirecaracteresaccentues(QString nom)
 {
-    nom.replace(QRegularExpression("[éêëè]"),"e");
-    nom.replace(QRegularExpression("[ÉÈÊË]"),"E");
-    nom.replace(QRegularExpression("[àâ]"),"a");
-    nom.replace(QRegularExpression("[ÂÀ]"),"A");
-    nom.replace(QRegularExpression("[îï]"),"i");
-    nom.replace(QRegularExpression("[ÏÎ]"),"I");
-    nom.replace(QRegularExpression("[ôö]"),"o");
-    nom.replace(QRegularExpression("[ÔÖ]"),"O");
+    QRegularExpression re;
+    re.setPattern("[éêëè]");
+    nom.replace(re,"e");
+    re.setPattern("[ÉÈÊË]");
+    nom.replace(re,"E");
+    re.setPattern("[àâ]");
+    nom.replace(re,"a");
+    re.setPattern("[ÂÀ]");
+    nom.replace(re,"A");
+    re.setPattern("[îï]");
+    nom.replace(re,"i");
+    re.setPattern("[ÏÎ]");
+    nom.replace(re,"I");
+    re.setPattern("[ôö]");
+    nom.replace(re,"o");
+    re.setPattern("[ÔÖ]");
+    nom.replace(re,"O");
     nom.replace("ù","u");
     nom.replace("Ù","U");
     nom.replace("ç","c");
@@ -263,12 +275,14 @@ void Utils::convertPlainText(QString &text)
  */
 void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
 {
-    QRegularExpression reg1 = QRegularExpression("<p style=\"-qt-paragraph-type:empty; "
+    QRegularExpression reg1;
+    reg1.setPattern("<p style=\"-qt-paragraph-type:empty; "
                               "margin-top:[0-9]{1,2}px; margin-bottom:[0-9]{1,2}px; "
                               "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                               "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\"><br /></p>");
     //reg1 = QRegExp("<p style=\"-qt-paragraph-type:empty;([\\.]*)<br /></p>");
-    QRegularExpression reg2 = QRegularExpression("<p style=\" margin-top:0px; margin-bottom:0px; "
+    QRegularExpression reg2;
+    reg2.setPattern("<p style=\" margin-top:0px; margin-bottom:0px; "
                               "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                               "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
     bool remetunelignealafin = convertHTML(text);
@@ -535,8 +549,8 @@ bool Utils::RegularExpressionMatches(QRegularExpression rgx, QString s, bool exa
     if( exact )
       re = QRegularExpression(QRegularExpression::anchoredPattern(rgx.pattern()));
 
-    QRegularExpressionMatch m =rgx.match(s);
-    return rgx_IPV4.match(s).hasMatch();
+    QRegularExpressionMatch m =re.match(s);
+    return m.hasMatch();
 }
 
 QString Utils::calcIP(QString IP, bool aveczero)
@@ -590,7 +604,9 @@ QString Utils::getMacForIP(QString ipAddress)
     if(process.waitForFinished())
     {
         QString result = process.readAll();
-        QStringList list = result.split(QRegularExpression("\\s+"));
+        QRegularExpression re;
+        re.setPattern("\\s+");
+        QStringList list = result.split(re);
         if(list.contains(ipAddress))
             MAC = list.at(list.indexOf(ipAddress) + 1);
     }
@@ -754,20 +770,28 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
     }
     QString queryStr(file.readAll());
     file.close();
+    QRegularExpression re;
     // On retire tous les commentaires, les tabulations, les espaces ou les retours à la ligne multiples
     //        queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/)",   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(^;\\n)",                   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(--.*\\n)",                 QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-    queryStr = queryStr.replace(QRegularExpression("( +)",                      QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
-    queryStr = queryStr.replace(QRegularExpression("((\\t)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
-    queryStr = queryStr.replace(QRegularExpression("(^ *)",                     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("((\\n)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+    re.setPattern("(\\/\\*(.|\\n)*?\\*\\/)");
+    queryStr = queryStr.replace(re, "");
+    re.setPattern("(^;\\n)");
+    queryStr = queryStr.replace(re, "");
+    re.setPattern("(--.*\\n)");
+    queryStr = queryStr.replace(re, "\n");
+    re.setPattern("( +)");
+    queryStr = queryStr.replace(re, " ");
+    re.setPattern("((\\t)+)");
+    queryStr = queryStr.replace(re, " ");
+    re.setPattern("(^ *)");
+    queryStr = queryStr.replace(re, "");
+    re.setPattern("((\\n)+)");
+    queryStr = queryStr.replace(re, "\n");
     //Retire les espaces en début et fin de string
     queryStr = queryStr.trimmed();
 
     QString matched, delimiter, Atraiter;
-    QRegularExpression re("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
+    re.setPattern("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
 
     while (queryStr.size()>0 && queryStr.contains(";"))
     {
@@ -780,11 +804,17 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
             //Edit(Atraiter);
             delimiter   = Atraiter.data()[Atraiter.size()-1];
             //Edit(delimiter);
-            Atraiter.replace(QRegularExpression("DELIMITER\\s*"),"");
+            re.setPatternOptions(QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption);
+            re.setPattern("DELIMITER\\s*");
+            Atraiter.replace(re,"");
             Atraiter.replace(delimiter,"");
-            Atraiter = Atraiter.replace(QRegularExpression("(^ *)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-            Atraiter = Atraiter.replace(QRegularExpression("(^(\\n)+)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-            Atraiter = Atraiter.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+            re.setPattern("^ *)");
+            Atraiter.replace(re,"");
+            re.setPattern("(^(\\n)+)");
+            Atraiter.replace(re,"");
+            re.setPattern("((\\n)+)");
+            Atraiter.replace(re,"\n");
+
             //Edit(Atraiter);
             queryStr.replace(0,matched.size(),"");
         }
@@ -793,9 +823,11 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
             matched = queryStr.split(";\n", Qt::SkipEmptyParts).at(0);
             Atraiter = matched.trimmed()+ ";";
             queryStr.replace(0,matched.size()+2,"");
-            queryStr = queryStr.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+            re.setPattern("((\\n)+)");
+            queryStr = queryStr.replace(re, "\n");
         }
-        queryStr = queryStr.replace(QRegularExpression("(^(\\n)*)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+        re.setPattern("(^(\\n)*)");
+        queryStr = queryStr.replace(re, "");
         listinstruct << Atraiter;
     }
     return listinstruct;
@@ -1097,7 +1129,6 @@ QList<QImage> Utils::calcImagefromPdf(QString filename)
     QList<QImage> listimg = QList<QImage>();
     QPdfDocument pdf;
     pdf.load(filename);
-    qDebug() << filename <<"-" << pdf.pageCount() << "pages";
     for (int i=0; i<pdf.pageCount(); i++)
     {
         QPdfDocumentRenderOptions renderpdf;
@@ -1118,7 +1149,6 @@ QList<QImage> Utils::calcImagefromPdf(QByteArray ba)
     QBuffer *buff = new QBuffer(&ba);
     buff->open(QIODevice::ReadWrite);
     pdf.load(buff);
-    qDebug() << pdf.pageCount() << "pages";
     for (int i=0; i<pdf.pageCount(); i++)
     {
         QPdfDocumentRenderOptions renderpdf;

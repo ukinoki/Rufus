@@ -533,13 +533,6 @@ void dlg_depenses::EnregistreDepense()
 {
     bool OnSauteLaQuestionSuivante = false;
     QString pb = "";
-    // Vérifier l'absence de slash dans l'intitulé
-    //if (!Utils::rgx_intitulecompta.exactMatch(ui->ObjetlineEdit->text()))
-    if (!Utils::RegularExpressionMatches(Utils::rgx_intitulecompta,ui->ObjetlineEdit->text()))
-    {
-        UpMessageBox::Watch(this,tr("l'intitulé n'est pas conforme"), tr("Il contient des caractères non admis"));
-        return;
-    }
 
     //  Vérifer que la saisie est complète et cohérente
     QString Erreur = "";
