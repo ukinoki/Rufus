@@ -1936,7 +1936,7 @@ void Rufus::ExporteDocs()
                                    tr("Cette procédure devrait durer environ ") + tps + "\n" +
                                    tr("et figera l'éxécution du programme durant ce temps") + tps + "\n" +
                                    tr("Voulez vous le faire maintenant?"))
-                                   !=UpSmallButton::STARTBUTTON)
+                !=UpSmallButton::STARTBUTTON)
         {
             t_timerExportDocs->disconnect();
             m_pasDExportPourLeMoment = true;
@@ -1946,7 +1946,7 @@ void Rufus::ExporteDocs()
     if (total==0)
         return;
 
-/* LES DOCUMENTS  ============================================*/
+    /* LES DOCUMENTS  ============================================*/
     int faits = 0;
     QTime debut = QTime::currentTime();
     QStringList listmsg;
@@ -1981,11 +1981,11 @@ void Rufus::ExporteDocs()
                 }
             }
             QDate datetransfer    = listexportjpg.at(i).at(3).toDate();
-            CheminOKTransfrDir    = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+            QString CheminOKTransfrDirImg    = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
+            if (!QDir(CheminOKTransfrDirImg).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
                     ShowMessage::I()->SplashMessage(msg, 3000);
                     return;
                 }
@@ -1993,21 +1993,21 @@ void Rufus::ExporteDocs()
                     + listexportjpg.at(i).at(2).toString().replace("/",".") + "_"
                     + listexportjpg.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
                     + "-" + listexportjpg.at(i).at(0).toString()  + ".jpg";
-            QString CheminOKTransfrDoc  = CheminOKTransfrDir + "/" + NomFileDoc + "." JPG;
-            QString CheminOKTransfrProv = CheminOKTransfrDir + "/" + NomFileDoc + "prov." JPG;
+            QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc + "." JPG;
+            QString CheminOKTransfrProv = CheminOKTransfrDirImg + "/" + NomFileDoc + "prov." JPG;
             QByteArray ba = listexportjpg.at(i).at(6).toByteArray();
             QPixmap pix;
             pix.loadFromData(ba);
             /*
-             * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-             * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
-             * QFile prov (CheminOKTransfrProv);
-                if (prov.open(QIODevice::Append))
-                {
-                    QTextStream out(&prov);
-                    out << ba;
-                }
-            */
+         * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
+         * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
+         * QFile prov (CheminOKTransfrProv);
+            if (prov.open(QIODevice::Append))
+            {
+                QTextStream out(&prov);
+                out << ba;
+            }
+        */
             if (!pix.save(CheminOKTransfrProv, "jpeg"))
             {
                 //qDebug() << "erreur";
@@ -2062,11 +2062,11 @@ void Rufus::ExporteDocs()
                 }
             }
             QDate datetransfer    = listexportpdf.at(i).at(3).toDate();
-            CheminOKTransfrDir      = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+            QString CheminOKTransfrDirImg      = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
+            if (!QDir(CheminOKTransfrDirImg).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
                     ShowMessage::I()->SplashMessage(msg, 3000);
                     return;
                 }
@@ -2074,7 +2074,7 @@ void Rufus::ExporteDocs()
                     + listexportpdf.at(i).at(2).toString().replace("/",".") + "_"
                     + listexportpdf.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
                     + "-" + listexportpdf.at(i).at(0).toString()  + ".pdf";
-            QString CheminOKTransfrDoc = CheminOKTransfrDir + "/" + NomFileDoc;
+            QString CheminOKTransfrDoc = CheminOKTransfrDirImg + "/" + NomFileDoc;
 
             QByteArray bapdf;
             bapdf.append(listexportpdf.at(i).at(4).toByteArray());
@@ -2141,7 +2141,7 @@ void Rufus::ExporteDocs()
 
 
 
-/* LES FACTURES  ============================================*/
+    /* LES FACTURES  ============================================*/
 
     faits = 0;
     debut = QTime::currentTime();
@@ -2185,8 +2185,8 @@ void Rufus::ExporteDocs()
                 }
             }
             /* nommage d'un fichier facture
-         * idFacture + "_" + "ECHEANCIER ou FACTURE" + "_" + Intitule + "_" + DateFacture + ( + "_" + iddepense si facture et pas échéancier)
-         */
+     * idFacture + "_" + "ECHEANCIER ou FACTURE" + "_" + Intitule + "_" + DateFacture + ( + "_" + iddepense si facture et pas échéancier)
+     */
             QDate datetransfer  = listexportjpgfact.at(i).at(1).toDate();
             QString user;
 
@@ -2198,12 +2198,12 @@ void Rufus::ExporteDocs()
             QList<QVariantList> Listeusr;
             if (listexportjpgfact.at(i).at(4).toInt()==1)          // c'est un échéancier
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
-                                                                                                              " and " CP_IDFACTURE_DEPENSES " = " + listexportjpgfact.at(i).at(0).toString();
+                        " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                        " and " CP_IDFACTURE_DEPENSES " = " + listexportjpgfact.at(i).at(0).toString();
             else                                                // c'est une facture, l'iduser est dans la table
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
-                                                                                                              " and " CP_ID_DEPENSES " = " + listexportjpgfact.at(i).at(5).toString();
+                        " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                        " and " CP_ID_DEPENSES " = " + listexportjpgfact.at(i).at(5).toString();
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
@@ -2214,30 +2214,30 @@ void Rufus::ExporteDocs()
             if (listexportjpgfact.at(i).at(4).toInt()!=1)
                 NomFileDoc += "-"+listexportjpgfact.at(i).at(5).toString();
 
-            CheminOKTransfrDir  = CheminOKTransfrDir + "/" + user;
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+            QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user;
+            if (!QDir(CheminOKTransfrDirImg).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
                     ShowMessage::I()->SplashMessage(msg, 3000);
                     return;
                 }
 
-            QString CheminOKTransfrDoc  = CheminOKTransfrDir + "/" + NomFileDoc + "." JPG;
-            QString CheminOKTransfrProv = CheminOKTransfrDir + "/" + NomFileDoc + "prov." JPG;
+            QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc + "." JPG;
+            QString CheminOKTransfrProv = CheminOKTransfrDirImg + "/" + NomFileDoc + "prov." JPG;
             QByteArray ba = listexportjpgfact.at(i).at(6).toByteArray();
             QPixmap pix;
             pix.loadFromData(ba);
             /*
-         * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-         * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
-         * QFile prov (CheminOKTransfrProv);
-            if (prov.open(QIODevice::Append))
-            {
-                QTextStream out(&prov);
-                out << ba;
-            }
-        */
+     * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
+     * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
+     * QFile prov (CheminOKTransfrProv);
+        if (prov.open(QIODevice::Append))
+        {
+            QTextStream out(&prov);
+            out << ba;
+        }
+    */
             if (!pix.save(CheminOKTransfrProv, "jpeg"))
             {
                 //qDebug() << "erreur";
@@ -2257,7 +2257,7 @@ void Rufus::ExporteDocs()
             else
                 return;
             db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
-                            " where " CP_ID_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
+                                    " where " CP_ID_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
@@ -2310,12 +2310,12 @@ void Rufus::ExporteDocs()
             QList<QVariantList> Listeusr;
             if (listexportpdffact.at(i).at(4).toInt()==1)          // c'est un échéancier
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
-                                                                                                              " and " CP_IDFACTURE_DEPENSES " = " + listexportpdffact.at(i).at(0).toString();
+                        " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                        " and " CP_IDFACTURE_DEPENSES " = " + listexportpdffact.at(i).at(0).toString();
             else                                                // c'est une facture, l'iduser est dans la table
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
-                                                                                                              " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
-                                                                                                              " and " CP_ID_DEPENSES " = " + listexportpdffact.at(i).at(5).toString();
+                        " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
+                        " and " CP_ID_DEPENSES " = " + listexportpdffact.at(i).at(5).toString();
             Listeusr = db->StandardSelectSQL(req, m_ok);
             if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
@@ -2326,15 +2326,15 @@ void Rufus::ExporteDocs()
             if (listexportpdffact.at(i).at(4).toInt()!=1)
                 NomFileDoc += "-"+listexportpdffact.at(i).at(5).toString();
 
-            CheminOKTransfrDir  = CheminOKTransfrDir + "/" + user;
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+            QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user;
+            if (!QDir(CheminOKTransfrDirImg).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
                     ShowMessage::I()->SplashMessage(msg, 3000);
                     return;
                 }
-            QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "." PDF;
+            QString CheminOKTransfrDoc      = CheminOKTransfrDirImg + "/" + NomFileDoc + "." PDF;
 
             QByteArray bapdf;
             bapdf.append(listexportpdffact.at(i).at(6).toByteArray());
