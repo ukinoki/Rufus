@@ -832,7 +832,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
     if (m_interventionsmodel == Q_NULLPTR)
         delete m_interventionsmodel;
     m_interventionsmodel = new QStandardItemModel(this);
-    wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("Interventions") : tr("Intervention")));
+    wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("interventions") : tr("intervention")));
 
     bool incident = false;          //! va servir à indiquer si des incidents sont notés sur la session
     if (currentsession() != Q_NULLPTR)
