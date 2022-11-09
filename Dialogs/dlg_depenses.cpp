@@ -1063,8 +1063,9 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     dep->setecheancier(false);
     dep->setfactureformat("");
     dep->setfactureblob(QByteArray());
-    SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());    
-    ui->VisuDocupTableWidget->setVisible(false);
+    dep->setidfacture(0);
+    SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
+    AfficheFacture(dep);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
