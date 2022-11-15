@@ -33,7 +33,6 @@ Datas::Datas()
     commercials         = new Commercials;
     comptes             = new Comptes();
     correspondants      = new Correspondants();
-    cotations           = new Cotations();
     depenses            = new Depenses();
     docsexternes        = new DocsExternes();
     impressions         = new Impressions();
@@ -60,6 +59,7 @@ Datas::Datas()
     users               = new Users();
     postesconnectes     = new PostesConnectes();
     villes              = new Villes();
+    listecotations      = new QMap<int, Cotations*>;
     mesurefronto        = new MesureRefraction();
     mesureautoref       = new MesureRefraction();
     mesureacuite        = new MesureRefraction();

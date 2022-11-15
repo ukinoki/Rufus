@@ -478,13 +478,6 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter)
             return QWidget::focusNextChild();
-        if (keyEvent->key()==Qt::Key_Space)
-            if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
-            {
-                UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
-                if (chk)
-                    emit chk->uptoggled(!chk->isChecked());  //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
-            }
     }
     if(event->type()==QEvent::MouseButtonPress)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)

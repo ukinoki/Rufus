@@ -87,7 +87,7 @@ private:
 
     bool m_AGA = false;
     bool m_desactive = false;
-    bool m_OPTAM = false;
+    bool m_OPTAM = true;
     bool m_ccam;
 
     bool m_useCompta;
@@ -111,7 +111,7 @@ private:
     int m_idUserSuperviseur = ROLE_INDETERMINE;     //!< son id s'il est responsable de ses actes
                                                     //!< l'id du user assisté s'il est assistant
     int m_idUserParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
-                                                    //!< l'id du user remplacé s'il est remplacé
+                                                    //!< l'id du user remplacé s'il est remplaçant
     int m_idUserComptable = ROLE_INDETERMINE;       //!< si le  user est soignant
                                                         //! s'il est responsable de ses actes =>
                                                             //!< son id s'il est libéral

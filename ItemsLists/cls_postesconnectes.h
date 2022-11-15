@@ -47,6 +47,7 @@ public:
     PosteConnecte*   currentpost();                                                     //!> le poste en cours d'utilisation
 
     //!> actions sur les enregistrements
+    void             MAJlistePostesConnectes();                                         //!> MAJ de la liste des postesconnectes - utilisé quand le TCP est absent et ne peut pas signaler qu'un poste s'est déconnecté
     void             SupprimeAllPostesConnectes();
     void             SupprimePosteConnecte(PosteConnecte *post);
     PosteConnecte*   CreationPosteConnecte(User *usr, int idsite);

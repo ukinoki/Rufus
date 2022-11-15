@@ -308,6 +308,7 @@ private:
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
     bool                FermeDossier(Patient *pat);
+    Cotations*          getListeCotationdByUser(User *usr);                 //! retrouve la liste des cotations d'un utilisateur et l''ajoute à la map des listes de cotations Datas::I()->listecotations
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
     Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients
@@ -340,7 +341,7 @@ private:
     void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
-    void                ReconstruitListesCotations();
+    void                ReconstruitListesCotations(User* = Datas::I()->users->userconnected());
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                SetDatasRefractionKerato();
     void                RemiseCheques();

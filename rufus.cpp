@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("09-11-2022/1");
+    qApp->setApplicationVersion("15-11-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -224,7 +224,20 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     setTitre();
     if (currentuser()->isSoignant())
+    {
         ReconstruitListesCotations();
+        if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
+        {
+            ui->ActeCotationcomboBox->lineEdit()->completer()->disconnect();
+            delete ui->ActeCotationcomboBox->lineEdit()->completer();
+        }
+        QCompleter *comp = new QCompleter(QStringList() << tr(GRATUIT) << db->loadTypesCotations());
+        comp->setCaseSensitivity(Qt::CaseInsensitive);
+        comp->popup()->setFont(ui->ActeMontantlineEdit->font());
+        comp->setMaxVisibleItems(5);
+        ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
+        connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
+    }
 
     //! 10 - Mise à jour des salles d'attente
     Remplir_SalDat();
@@ -4271,67 +4284,93 @@ void Rufus::RecettesSpeciales()
 
 void Rufus::RetrouveMontantActe()
 {
+    auto retrouvecotation = [=] (User *usr, QString cotation, QString &Montant)
+    {
+        Cotations * cots = getListeCotationdByUser(usr);
+        if (cots)
+        {
+            User *parent = Datas::I()->users->getById(cots->iduser());
+            if (parent != Q_NULLPTR)
+            {
+                for (auto it = cots->cotations()->constBegin(); it != cots->cotations()->constEnd(); ++it)
+                {
+                    Cotation* cot = const_cast<Cotation*>(it.value());
+                    if (ui->ActeCotationcomboBox->currentText() == cot->typeacte())
+                    {
+                        if (parent->secteurconventionnel()>1)
+                        {
+                            if (!currentpatient()->iscmu())
+                                Montant = QLocale().toString(cot->montantpratique(),'f',2);
+                            else
+                                Montant = QLocale().toString(cot->montantconventionnel(),'f',2);
+                        }
+                        else
+                            Montant = QLocale().toString(cot->montantconventionnel(),'f',2);
+                        ui->ActeMontantlineEdit->setText(Montant);
+                        break;
+                    }
+                }
+            }
+            if (Montant == "0.00")
+            {
+                QString tarifconventionne = (usr->isOPTAM() ? "OPTAM" : "NonOPTAM");
+                // qDebug() << parent;
+                QString req =
+                        "SELECT " + tarifconventionne + ", montantpratique FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
+                        " where Typeacte = codeccam"
+                        " and iduser = " + QString::number(parent->id()) +
+                        " and codeccam like '" + Utils::correctquoteSQL(cotation) + "%'";
+                // qDebug() << req;
+                QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                if (m_ok && cotdata.size()>0)
+                {
+                    if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
+                        Montant = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
+                    else
+                        Montant = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
+                    ui->ActeMontantlineEdit->setText(Montant);
+                }
+                else
+                {
+                    QString req = "SELECT OPTAM, NonOPTAM FROM " TBL_CCAM " where codeccam like '" + Utils::correctquoteSQL(cotation) + "%'";
+                    QVariantList cot2data = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                    if (m_ok && cot2data.size()>0)
+                    {
+                        QString MontantActe;
+                        if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu() && !parent->isOPTAM())
+                            MontantActe = QLocale().toString(cot2data.at(1).toDouble(),'f',2);
+                        else
+                            MontantActe = QLocale().toString(cot2data.at(0).toDouble(),'f',2);
+                        ui->ActeMontantlineEdit->setText(MontantActe);
+                    }
+                }
+            }
+            if (Montant != "0.00")
+            {
+                if (parent->secteurconventionnel()>1)
+                {
+                    ui->BasculerMontantpushButton->setVisible(true);
+                    ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
+                }
+                else
+                    ui->BasculerMontantpushButton->setVisible(false);
+            }
+        }
+    };
+
     if (currentpatient() == Q_NULLPTR)
         return;
-    QString Cotation = ui->ActeCotationcomboBox->currentText();
-    ui->EnregistrePaiementpushButton->setEnabled(Cotation!="");
-    // On recherche s'il y a un montant enregistré pour cette cotation
-    int idx = ui->ActeCotationcomboBox->findText(Cotation, Qt::MatchExactly);
-    if (idx>-1)
-    {
-        QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
-        QString MontantActe;
-        if (currentuser()->secteurconventionnel()>1 && !currentpatient()->iscmu())
-            MontantActe = QLocale().toString(listMontantActe.at(1).toDouble(),'f',2);
-        else
-            MontantActe = QLocale().toString(listMontantActe.at(0).toDouble(),'f',2);
-        ui->ActeMontantlineEdit->setText(MontantActe);
-        if (listMontantActe.at(0) != listMontantActe.at(1))
-        {
-            ui->BasculerMontantpushButton->setVisible(true);
-            ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
-        }
-    }
+    QString MontantActe = "0.00";
+    QString cotation = ui->ActeCotationcomboBox->currentText();
+    ui->EnregistrePaiementpushButton->setEnabled(cotation!="");
+    User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
+    if (superviseur)
+        retrouvecotation(superviseur, cotation, MontantActe);
     else
-    {
-        QString tarifconventionne = (currentuser()->isOPTAM() ? "OPTAM" : "NonOPTAM");
-        QString req =
-                "SELECT " + tarifconventionne + ", montantpratique FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
-                " where Typeacte = codeccam"
-                " and iduser = " + QString::number(currentuser()->idparent()) +
-                " and codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
-        //qDebug() << req;
-        QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-        if (m_ok && cotdata.size()>0)
-        {
-            QString MontantActe;
-            if (currentuser()->secteurconventionnel()>1 && !currentpatient()->iscmu())
-                MontantActe = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
-            else
-                MontantActe = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
-            ui->ActeMontantlineEdit->setText(MontantActe);
-            if (cotdata.at(0) != cotdata.at(1))
-            {
-                ui->BasculerMontantpushButton->setVisible(true);
-                ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
-            }
-        }
-        else
-        {
-            QString req = "SELECT OPTAM, NonOPTAM FROM " TBL_CCAM " where codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
-            QVariantList cot2data = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-            if (m_ok && cot2data.size()>0)
-            {
-                QString MontantActe;
-                if (currentuser()->secteurconventionnel()>1 && !currentpatient()->iscmu() && !currentuser()->isOPTAM())
-                    MontantActe = QLocale().toString(cot2data.at(1).toDouble(),'f',2);
-                else
-                    MontantActe = QLocale().toString(cot2data.at(0).toDouble(),'f',2);
-                ui->ActeMontantlineEdit->setText(MontantActe);
-            }
-        }
-    }
-        /*  else
+        ui->ActeMontantlineEdit->setText(MontantActe);
+
+
+    /*  else
    {
         UpMessageBox msgbox;
         UpSmallButton *OKBouton = new UpSmallButton;
@@ -5961,6 +6000,44 @@ Patient* Rufus::getPatientFromCursorPositionInTable()
     return pat;
 }
 
+
+Cotations* Rufus::getListeCotationdByUser(User *usr)
+{
+    if (usr == Q_NULLPTR)
+        return Q_NULLPTR;
+    User *userparent = usr;
+    int id = usr->id();
+
+    /*! si le user est connecté , on sélectionne la liste de cotations de son parent
+     * il ne peut pas y avoir d'appel d'un user non soignant puisque la fonction est appelée pour un user qui est
+            * soit le currentuser() qui est forcément soignant puisqu'on recrée la liste de cotations seulement dans cette condition
+            * soit un user qui est le superviseur d'un acte donc forcément soignant aussi */
+    if (proc->isUserConnected(usr))
+        for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
+        {
+            PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
+            if (post->id() == usr->id())
+            {
+                id = post->idparent();
+                userparent = Datas::I()->users->getById(id);
+                if (userparent == Q_NULLPTR)
+                    return Q_NULLPTR;
+                break;
+            }
+        }
+    auto itcot = Datas::I()->listecotations->constFind(id);
+    if (itcot != Datas::I()->listecotations->constEnd())
+        return itcot.value();
+    else
+    {
+        Cotations *cots = new Cotations();
+        cots->initListeByUser(userparent);
+        if (cots)
+            Datas::I()->listecotations->insert(id, cots);
+        return cots;
+    }
+}
+
 Patient* Rufus::getPatientFromIndex(QModelIndex idx)
 {
     QModelIndex pprenomindx = m_listepatientsproxymodel->mapToSource(idx);                              //  -> prenomsortmodel
@@ -6274,7 +6351,24 @@ void Rufus::AfficheActe(Acte* acte)
 
     int nbActes (0);
     int noActe (0);
-    //1.  Retrouver l'acte défini par son idActe et afficher les champs
+    //1. retrouver le créateur de l'acte et le médecin superviseur de l'acte
+    QString nomsuperviseur(""), superviseurlogin ("");
+    User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
+    if (usr != Q_NULLPTR)
+    {
+        nomsuperviseur =  usr->prenom() + " " + usr->nom();
+        superviseurlogin = usr->login();
+        ReconstruitListesCotations(usr);
+    }
+    QString createurconsult ("");
+    if (Datas::I()->users->getById(acte->idCreatedBy()) != Q_NULLPTR)
+        createurconsult = tr("Créé par ")
+                + Datas::I()->users->getById(acte->idCreatedBy())->login()
+                + tr(" pour ") + superviseurlogin; //Avant idPatient
+    ui->CreeParlineEdit ->setText(createurconsult); //Avant idPatient
+    ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite()) != Q_NULLPTR? Datas::I()->sites->getById(acte->idsite())->nom() : "");
+
+    //2.  Retrouver l'acte défini par son idActe et afficher les champs
     ui->Acteframe               ->setVisible(true);
     ui->CreerActepushButton_2   ->setVisible(false);
     ui->CreerBOpushButton_2     ->setVisible(false);
@@ -6329,22 +6423,6 @@ void Rufus::AfficheActe(Acte* acte)
     QMap<QString,QVariant>  Age = Utils::CalculAge(currentpatient()->datedenaissance(), ui->ActeDatedateEdit->date());
     ui->AgelineEdit             ->setText(Age["toString"].toString());
     ui->AgelineEdit             ->setAlignment(Qt::AlignCenter);
-
-    //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
-    QString nomsuperviseur(""), superviseurlogin ("");
-    User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
-    if (usr != Q_NULLPTR)
-    {
-        nomsuperviseur =  usr->prenom() + " " + usr->nom();
-        superviseurlogin = usr->login();
-    }
-    QString createurconsult ("");
-    if (Datas::I()->users->getById(acte->idCreatedBy()) != Q_NULLPTR)
-        createurconsult = tr("Créé par ")
-                + Datas::I()->users->getById(acte->idCreatedBy())->login()
-                + tr(" pour ") + superviseurlogin; //Avant idPatient
-    ui->CreeParlineEdit ->setText(createurconsult); //Avant idPatient
-    ui->SitelineEdit->setText(Datas::I()->sites->getById(acte->idsite()) != Q_NULLPTR? Datas::I()->sites->getById(acte->idsite())->nom() : "");
 
     //3. Mettre à jour le numéro d'acte
     if (m_listeactes->actes()->size() > 0)           // Il y a des consultations
@@ -8541,65 +8619,70 @@ void Rufus::RecaleTableView(Patient* pat, QAbstractItemView::ScrollHint scrollhi
 /*-----------------------------------------------------------------------------------------------------------------
 -- Reconstruit la liste des Cotations dans le combobox ActeCotations ----------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::ReconstruitListesCotations()
+
+void    Rufus::ReconstruitListesCotations(User *usr)
 {
-    ui->ActeCotationcomboBox->disconnect();
-    if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
-        delete ui->ActeCotationcomboBox->lineEdit()->completer();
+    if (usr == Q_NULLPTR)
+        return;
+    Cotations *cots = Q_NULLPTR;
     /* reconstruit les items du combobox ui->ActeCotationComboBox
        chaque item contient
             . le texte de l'item -> la cotation de l'acte
             . en data, une QStringList contenant dans l'ordre le montant (optam ou non), le montant pratiqué, le descriptif de l'acte CCAM
     */
-    Datas::I()->cotations->initListeByUser(currentuser()->idparent());
+    User *userparent = usr;
+
+    /*! si le user est connecté , on sélectionne la liste de cotations de son parent
+     * il ne peut pas y avoir d'appel d'un user non soignant puisque la fonction est appelée pour un user qui est
+            * soit le currentuser() qui est forcément soignant puisqu'on recrée la liste de cotations seulement dans cette condition
+            * soit un user qui est le superviseur d'un acte donc forcément soignant aussi */
+    if (usr == currentuser())
+        userparent = Datas::I()->users->getById(usr->idparent());
+    else if (proc->isUserConnected(usr))
+        for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
+        {
+            PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
+            if (post->id() == usr->id())
+            {
+                userparent = Datas::I()->users->getById(post->idparent());
+                if (userparent == Q_NULLPTR)
+                    return;
+                break;
+            }
+        }
+    if (userparent != Q_NULLPTR)
+    {
+        auto itcot = Datas::I()->listecotations->constFind(userparent->id());
+        if (itcot != Datas::I()->listecotations->constEnd())
+            cots = itcot.value();
+        else
+        {
+            cots = new Cotations();
+            cots->initListeByUser(userparent);
+            if (cots)
+                Datas::I()->listecotations->insert(userparent->id(), cots);
+        }
+    }
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
 
-    QStandardItemModel *cotationmodel = new QStandardItemModel(this);
-    UpStandardItem *pitem0;
-    pitem0 = new UpStandardItem(tr(GRATUIT));
-    pitem0->setData(QStringList() << "0.00" << "0.00" << tr(GRATUIT));
-    cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
-    for (auto it = Datas::I()->cotations->cotations()->constBegin(); it != Datas::I()->cotations->cotations()->constEnd(); ++it)
-    {
-        Cotation* cot = const_cast<Cotation*>(it.value());
-        QStringList list;
-        QString champ = (currentuser()->isOPTAM()? QString::number(cot->montantoptam(),'f',2) : QString::number(cot->montantnonoptam(), 'f', 2));
-        list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
-        pitem0 = new UpStandardItem(cot->typeacte());
-        pitem0->setData(list);
-        cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
-    }
-
     ui->ActeCotationcomboBox->addItem(tr(GRATUIT),QStringList() << "0.00" << "0.00" << tr(GRATUIT));
-    for (auto it = Datas::I()->cotations->cotations()->constBegin(); it != Datas::I()->cotations->cotations()->constEnd(); ++it)
-    {
-        Cotation* cot = const_cast<Cotation*>(it.value());
-        QStringList list;
-        QString champ = (currentuser()->isOPTAM()? QString::number(cot->montantoptam(),'f',2) : QString::number(cot->montantnonoptam(), 'f', 2));
-        list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
-        ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
-    }
-
-    QCompleter *comp = new QCompleter(QStringList() << tr(GRATUIT) << db->loadTypesCotations());
-    comp->setCaseSensitivity(Qt::CaseInsensitive);
-    comp->popup()->setFont(ui->ActeMontantlineEdit->font());
-    comp->setMaxVisibleItems(5);
-    ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
-    connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
-    ConnectCotationComboBox();
+    if (cots != Q_NULLPTR)
+        for (auto it = cots->cotations()->constBegin(); it != cots->cotations()->constEnd(); ++it)
+        {
+            Cotation* cot = const_cast<Cotation*>(it.value());
+            QStringList list;
+            QString champ = QString::number(cot->montantconventionnel(), 'f', 2);
+            list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
+            ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
+        }
 }
-
 void Rufus::ConnectCotationComboBox()
 {
     connect (ui->ActeCotationcomboBox,  &QComboBox::currentTextChanged, this,
     [=] {
         RetrouveMontantActe();
         ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), m_montantActe);
-        if (currentacte()->idComptable() != currentuser()->idcomptable() && currentuser()->idcomptable() > 0)
-            ItemsList::update(currentacte(), CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
-        if (currentacte()->idParent() != currentuser()->idparent() && currentuser()->idparent() > 0)
-            ItemsList::update(currentacte(), CP_IDUSERPARENT_ACTES, currentuser()->idparent());
         ui->GratuitpushButton->setVisible(ui->ActeCotationcomboBox->currentIndex() != 0);
     });
     connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),    this,

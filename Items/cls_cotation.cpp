@@ -23,14 +23,15 @@ Cotation::Cotation(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-QString Cotation::typeacte() const          { return m_typeacte; }
-double Cotation::montantoptam() const       { return m_montantoptam; }
-double Cotation::montantnonoptam() const    { return m_montantnonoptam; }
-double Cotation::montantpratique() const    { return m_montantpratique; }
-bool Cotation::isCCAM() const               { return m_ccam; }
-int Cotation::idUser() const                { return m_iduser; }
-int Cotation::frequence() const             { return m_frequence; }
-QString Cotation::descriptif() const        { return m_descriptif; }
+QString Cotation::typeacte() const              { return m_typeacte; }
+double Cotation::montantconventionnel() const   { return m_montantoptam; }
+double Cotation::montantoptam() const           { return m_montantoptam; }
+double Cotation::montantnonoptam() const        { return m_montantnonoptam; }
+double Cotation::montantpratique() const        { return m_montantpratique; }
+bool Cotation::isCCAM() const                   { return m_ccam; }
+int Cotation::idUser() const                    { return m_iduser; }
+int Cotation::frequence() const                 { return m_frequence; }
+QString Cotation::descriptif() const            { return m_descriptif; }
 
 void Cotation::setData(QJsonObject data)
 {
@@ -39,6 +40,7 @@ void Cotation::setData(QJsonObject data)
 
     Utils::setDataInt(data, "idcotation", m_id);
     Utils::setDataString(data, "typeacte", m_typeacte);
+    Utils::setDataDouble(data, "montantconventionnel", m_montantconventionnel);
     Utils::setDataDouble(data, "montantoptam", m_montantoptam);
     Utils::setDataDouble(data, "montantnonoptam", m_montantnonoptam);
     Utils::setDataDouble(data, "montantpratique", m_montantpratique);

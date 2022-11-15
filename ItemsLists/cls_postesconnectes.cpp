@@ -97,6 +97,19 @@ PosteConnecte* PostesConnectes::currentpost()
     return getByStringId(Utils::MACAdress() + " - " + QString::number(DataBase::I()->idUserConnected()));
 }
 
+
+void PostesConnectes::MAJlistePostesConnectes()
+{
+    QList<QString> listpostes = DataBase::I()->loadStringIdPostesConnectes();
+    for (auto it = map_postesconnectes->constBegin(); it != map_postesconnectes->constEnd();)
+    {
+        if (!listpostes.contains(it.key()))
+            delete map_postesconnectes->take(it.key());
+        else
+            ++it;
+    }
+}
+
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 {
     if (post == Q_NULLPTR)

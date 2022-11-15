@@ -20,16 +20,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_cotation.h"
 #include "cls_itemslist.h"
+#include "cls_user.h"
 
 class Cotations : public ItemsList
 {
 private:
     QMap<int, Cotation*> *map_cotations;    //!< la liste des cotations pratiquées par un utilisateur
+    int m_iduser;                           //!< l'id du user concerné par la liste de cotations
 
 public:
     explicit Cotations(QObject *parent = Q_NULLPTR);
     QMap<int, Cotation *> *cotations() const;
-    void initListeByUser(int iduser);
+    void initListeByUser(User *usr);
+    int iduser() const;
+    void setiduser(int iduser);
 };
 
 #endif // COTATIONS_H

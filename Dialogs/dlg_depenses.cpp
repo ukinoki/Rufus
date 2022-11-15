@@ -1063,7 +1063,6 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     dep->setecheancier(false);
     dep->setfactureformat("");
     dep->setfactureblob(QByteArray());
-    dep->setidfacture(0);
     SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
     AfficheFacture(dep);
 }

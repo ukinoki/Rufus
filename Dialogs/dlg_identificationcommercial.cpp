@@ -170,7 +170,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     dlglayout()   ->setSpacing(5);
 
     QList <QWidget*> ListTab;
-    ListTab << wdg_manufacturercombo << wdg_nomcommercialline << wdg_prenomcommercialline << wdg_telephonecommercialline << wdg_mailcommercialline;
+    ListTab << wdg_manufacturercombo << wdg_nomcommercialline << wdg_prenomcommercialline << wdg_statutcommercialline << wdg_telephonecommercialline << wdg_mailcommercialline;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
     {
         setTabOrder(ListTab.at(i), ListTab.at(i+1));
