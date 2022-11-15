@@ -27,15 +27,16 @@ private:
     int m_iduser, m_frequence;
     QString m_typeacte, m_descriptif;
     bool m_ccam;
-    double m_montantoptam, m_montantnonoptam, m_montantpratique;
+    double m_montantoptam, m_montantnonoptam, m_montantpratique, m_montantconventionnel;
+    double montantoptam() const;
+    double montantnonoptam() const;
 
 public:
     explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     QString typeacte() const;
-    double montantoptam() const;
-    double montantnonoptam() const;
+    double montantconventionnel() const;
     double montantpratique() const;
     bool isCCAM() const;
     int idUser() const;

@@ -5935,6 +5935,19 @@ QString Procedures::currentuserstatus() const
     return str;
 }
 
+bool Procedures::isUserConnected(User *usr)
+{
+    if (Datas::I()->postesconnectes->admin(Item::NoUpdate) == Q_NULLPTR)
+        Datas::I()->postesconnectes->MAJlistePostesConnectes();
+    for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
+    {
+        PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
+        if (post->id() == usr->id())
+            return true;
+    }
+    return false;
+}
+
 void Procedures::debugMesure(QObject *mesure, QString titre)
 {
     if (titre != "")

@@ -18,6 +18,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_cotations.h"
 
 
+int Cotations::iduser() const
+{
+    return m_iduser;
+}
+
+void Cotations::setiduser(int iduser)
+{
+    m_iduser = iduser;
+}
+
 Cotations::Cotations(QObject *parent) : ItemsList(parent)
 {
     map_cotations = new QMap<int, Cotation*>();
@@ -33,10 +43,13 @@ QMap<int, Cotation *> *Cotations::cotations() const
  * Charge l'ensemble des cotations pour le user
  * et les ajoute à la classe Correspondants
  */
-void Cotations::initListeByUser(int iduser)
+void Cotations::initListeByUser(User *usr)
 {
-    QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(iduser);
+    if (usr == Q_NULLPTR)
+        return;
+    QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(usr);
     epurelist(map_cotations, &listcotations);
     addList(map_cotations, &listcotations);
+    setiduser(usr->id());
 }
 

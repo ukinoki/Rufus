@@ -203,6 +203,7 @@ public:
      * Postes connectés
     */
     QList<PosteConnecte*>   loadPostesConnectes();                                              //! charge tous les postes connectés à la base
+    QList<QString>          loadStringIdPostesConnectes();                                      //! charge tous les StringId des postes connectés à la base
     QJsonObject             loadPosteConnecteData(int idUser, QString macadress);               //! complète tous les renseignements concernant le poste défini par l'id
 
     /*
@@ -277,7 +278,7 @@ public:
      * Cotations
     */
     QStringList             loadTypesCotations();                       //! charge toutes les cotations possibles à partir des tables cotations et ccam
-    QList<Cotation*>        loadCotationsByUser(int iduser);            //! charge toutes les cotations utilisées par un user à partir des tables cotations et ccam
+    QList<Cotation*>        loadCotationsByUser(User *usr);             //! charge toutes les cotations utilisées par un user à partir des tables cotations et ccam
 
     /*
      * Motifs

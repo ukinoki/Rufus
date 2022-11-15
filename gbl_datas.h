@@ -64,7 +64,6 @@ private:
 public:
     static Datas *I();
 
-    Site *sitedetravail;
     Actes *actes;                           //!< la liste d'actes pour un patient
     Banques *banques;                       //!< toutes les banques
     Impressions *impressions;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
@@ -72,7 +71,6 @@ public:
     CommentsLunets *commentslunets;         //! tous les commentaires lunettes
     Commercials *commercials;               //!< tous les commerciaux
     Correspondants *correspondants;         //!< Les correspondants
-    Cotations *cotations;                   //!< Les cotations
     Depenses *depenses;                     //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;             //!< Les documents externes
     Interventions *interventions;           //!< les interventions d'une session
@@ -98,6 +96,7 @@ public:
     Users *users;                           //!< Les users
     PostesConnectes *postesconnectes;       //!< Les postesconnectes
     Villes *villes;                         //!< toutes les villes
+    QMap<int, Cotations*> *listecotations;  //!< la liste des cotations par iduser
     MesureRefraction*   mesurefronto;
     MesureRefraction*   mesureautoref;
     MesureRefraction*   mesureacuite;
