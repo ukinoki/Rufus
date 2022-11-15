@@ -224,7 +224,21 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     setTitre();
     if (currentuser()->isSoignant())
+    {
         ReconstruitListesCotations();
+        if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
+        {
+            ui->ActeCotationcomboBox->lineEdit()->completer()->disconnect();
+            delete ui->ActeCotationcomboBox->lineEdit()->completer();
+        }
+        QCompleter *comp = new QCompleter(QStringList() << tr(GRATUIT) << db->loadTypesCotations());
+        comp->setCaseSensitivity(Qt::CaseInsensitive);
+        comp->popup()->setFont(ui->ActeMontantlineEdit->font());
+        comp->setMaxVisibleItems(5);
+        ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
+        connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
+    }
+
 
     //! 10 - Mise à jour des salles d'attente
     Remplir_SalDat();
@@ -8527,11 +8541,6 @@ void    Rufus::ReconstruitListesCotations(User *usr)
         return;
     Cotations *cots = Q_NULLPTR;
     ui->ActeCotationcomboBox->disconnect();
-    if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
-    {
-        ui->ActeCotationcomboBox->lineEdit()->completer()->disconnect();
-        delete ui->ActeCotationcomboBox->lineEdit()->completer();
-    }
     /* reconstruit les items du combobox ui->ActeCotationComboBox
        chaque item contient
             . le texte de l'item -> la cotation de l'acte
@@ -8583,13 +8592,6 @@ void    Rufus::ReconstruitListesCotations(User *usr)
             list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
             ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
         }
-
-    QCompleter *comp = new QCompleter(QStringList() << tr(GRATUIT) << db->loadTypesCotations());
-    comp->setCaseSensitivity(Qt::CaseInsensitive);
-    comp->popup()->setFont(ui->ActeMontantlineEdit->font());
-    comp->setMaxVisibleItems(5);
-    ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
-    connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
 }
 
 void Rufus::ConnectCotationComboBox()
