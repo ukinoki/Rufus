@@ -131,7 +131,8 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     connect(wdg_tarifpratiqueline,  &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
     connect(wdg_tipline,            &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
 
-    QString req = "select distinct typeacte from " TBL_COTATIONS " where CCAM = ";
+
+    QString req = "select distinct " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS " where " CP_CODECCAM_COTATIONS " = ";
     req += (m_typeacte == Association? "2" : "3");
     if (m_mode == Creation)
     {
@@ -148,8 +149,9 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     }
     else
     {
-        req = " select montantoptam, montantnonoptam, montantpratique, tip from " TBL_COTATIONS
-              " where idUser = " + QString::number(Datas::I()->users->userconnected()->id()) + " and TypeActe = '" + m_ciodeacte + "'";
+
+        req = " select " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TIP_COTATIONS " from " TBL_COTATIONS
+              " where " CP_IDUSER_COTATIONS " = " + QString::number(Datas::I()->users->userconnected()->id()) + " and " CP_TYPEACTE_COTATIONS " = '" + m_ciodeacte + "'";
         bool ok;
         QVariantList listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && listcot.size()>0)
@@ -197,7 +199,8 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (m_mode == Creation)
         {
-            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(Datas::I()->users->userconnected()->id());
+            req = "select " CP_ID_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + wdg_codeline->text() + "' and " CP_CODECCAM_COTATIONS " = 2 and "
+                    CP_IDUSER_COTATIONS " = " + QString::number(Datas::I()->users->userconnected()->id());
             bool ok;
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && actdata.size()>0)
@@ -209,8 +212,9 @@ bool dlg_gestioncotations::VerifFiche()
         if (!a)
            break;
         if (m_mode == Creation)
-        {
-            req = "insert into " TBL_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
+        {            
+            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                   CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
                     + wdg_codeline->text() + "', "
                     + QString::number(QLocale().toDouble(wdg_tarifoptamline->text())) + ", "
                     + QString::number(QLocale().toDouble(wdg_tarifnooptamline->text())) + ", "
@@ -220,15 +224,14 @@ bool dlg_gestioncotations::VerifFiche()
         }
         else
         {
-            req = "update " TBL_COTATIONS " set "
-                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(wdg_tarifoptamline->text())) + ", " +
-                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(wdg_tarifnooptamline->text())) + ", " +
-                  " MontantPratique = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
-                  " tip = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
+            req = "update " TBL_COTATIONS " set "                    
+                    CP_MONTANTOPTAM_COTATIONS " = "       + QString::number(QLocale().toDouble(wdg_tarifoptamline->text())) + ", " +
+                    CP_MONTANTNONOPTAM_COTATIONS " = "    + QString::number(QLocale().toDouble(wdg_tarifnooptamline->text())) + ", " +
+                    CP_MONTANTPRATIQUE_COTATIONS " = "    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                    CP_TIP_COTATIONS " = '"               + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
                   " where"
-                  " idUser = "          + QString::number(Datas::I()->users->userconnected()->id()) +
-                  " and TypeActe = '"   + wdg_codeline->text() + "'";
-        }
+                    CP_IDUSER_COTATIONS " = "             + QString::number(Datas::I()->users->userconnected()->id()) +
+                    " and " CP_TYPEACTE_COTATIONS " = '"  + wdg_codeline->text() + "'";        }
         break;
     case HorsNomenclature:
         if (QLocale().toDouble(wdg_tarifpratiqueline->text())==0.0)
@@ -240,7 +243,8 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (m_mode == Creation)
         {
-            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(Datas::I()->users->userconnected()->id());
+            req = "select " CP_ID_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + wdg_codeline->text() + "' and "
+                    CP_CODECCAM_COTATIONS " = 3 and " CP_IDUSER_COTATIONS " = " + QString::number(Datas::I()->users->userconnected()->id());
             bool ok;
             QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cotdata.size()>0)
@@ -255,7 +259,8 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (m_mode == Creation)
         {
-            req = "insert into " TBL_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
+            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                  CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
                     + wdg_codeline->text() + "', "
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", "
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", "
@@ -266,13 +271,13 @@ bool dlg_gestioncotations::VerifFiche()
         else
         {
             req = "update " TBL_COTATIONS " set "
-                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
-                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
-                  " MontantPratique = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
-                  " tip = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
+                    CP_MONTANTOPTAM_COTATIONS " = "       + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                    CP_MONTANTNONOPTAM_COTATIONS " = "    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                    CP_MONTANTPRATIQUE_COTATIONS " = "    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                    CP_TIP_COTATIONS " = '"               + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
                   " where"
-                  " idUser = "          + QString::number(Datas::I()->users->userconnected()->id()) +
-                  " and TypeActe = '"   + wdg_codeline->text() + "'";
+                    CP_IDUSER_COTATIONS " = "             + QString::number(Datas::I()->users->userconnected()->id()) +
+                    " and " CP_TYPEACTE_COTATIONS " = '"  + wdg_codeline->text() + "'";
         }
         break;
     }

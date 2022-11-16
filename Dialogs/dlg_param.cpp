@@ -1138,7 +1138,7 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
         QString montantpratique="";
         if (check->checkState() == Qt::Unchecked)
         {
-            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(currentuser()->id());
+            req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
         }
         else
         {
@@ -1172,7 +1172,8 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
             else
                 montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text()));
 
-            req = "insert into " TBL_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser) values ('" +
+            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                    CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
                     codeccam + "', " +
                     QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text())) + ", " +
                     QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text())) + ", " +
@@ -1195,8 +1196,8 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
                 if (check1->isChecked())
                 {
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
-                    QString req = "update " TBL_COTATIONS " set montantpratique = " + montant +
-                                  " where typeacte = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(currentuser()->id());
+                    QString req = "update " TBL_COTATIONS " set " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
+                                  " where " CP_TYPEACTE_COTATIONS " = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     if (db->StandardSQL(req))
                         m_cotationsmodifiees = true;
                 }
@@ -1216,8 +1217,8 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
         QString montantpratique = "";
         if (check->checkState() == Qt::Unchecked)
         {
-            QList<QVariantList> calclist = db->StandardSelectSQL("select typeacte from " TBL_COTATIONS " where typeacte = '" + codeccam + "'", ok);
-            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(currentuser()->id());
+            QList<QVariantList> calclist = db->StandardSelectSQL("select " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "'", ok);
+            req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
             if (calclist.size()==1)
             {
                 if (UpMessageBox::Question(this,tr("Suppression de cotation"),
@@ -1226,7 +1227,7 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
                                             UpDialog::ButtonCancel | UpDialog::ButtonSuppr,
                                             QStringList() << tr("Annuler") << tr("Supprimer la cotation") + " " + codeccam)
                     != UpSmallButton::SUPPRBUTTON)
-                    req = "update " TBL_COTATIONS " set idUser = NULL where typeacte = '" + codeccam + "' and idUser = " + QString::number(currentuser()->id());
+                    req = "update " TBL_COTATIONS " set " CP_IDUSER_COTATIONS " = NULL where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
             }
         }
         else
@@ -1267,7 +1268,8 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
                 montantpratique = montantOPTAM;
             else
                 montantpratique = montantNonOPTAM;
-            req = "insert into " TBL_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser) values ('" +
+            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                    CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
                     codeccam + "', " +
                     montantOPTAM + ", " +
                     montantNonOPTAM + ", " +
@@ -1291,14 +1293,14 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
                     QString montant = QString::number(QLocale().toDouble(txt));
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
                     if (line->Column()==2)
-                        req = "update " TBL_COTATIONS " set montantoptam = " + montant +
-                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(currentuser()->id());
+                        req = "update " TBL_COTATIONS " set " CP_MONTANTOPTAM_COTATIONS " = " + montant +
+                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     else if (line->Column()==3)
-                       req = "update " TBL_COTATIONS " set montantnonoptam = " + montant +
-                           " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(currentuser()->id());
+                        req = "update " TBL_COTATIONS " set " CP_MONTANTNONOPTAM_COTATIONS " = " + montant +
+                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     else if (line->Column()==4)
-                       req = "update " TBL_COTATIONS " set montantpratique = " + montant +
-                           " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(currentuser()->id());
+                        req = "update " TBL_COTATIONS " set " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
+                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     if (db->StandardSQL(req))
                         m_cotationsmodifiees = true;
                 }
@@ -1316,13 +1318,14 @@ void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
         QString codeccam        = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
         QString montantpratique = "";
         if (check->checkState() == Qt::Unchecked)
-            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(currentuser()->id());
+            req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
         else
         {
             UpLineEdit *lineprat = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,2));
             if (lineprat)
                 montantpratique = QString::number(QLocale().toDouble(lineprat->text()));
-            req = "insert into " TBL_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser) values ('" +
+            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                    CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
                     codeccam + "', " +
                     montantpratique + ", " +
                     montantpratique + ", " +
@@ -1345,8 +1348,8 @@ void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
                     QString req;
                     QString montant = QString::number(QLocale().toDouble(txt));
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
-                    req = "update " TBL_COTATIONS " set montantOPTAM = " + montant + ", montantNonOPTAM = " + montant + ", montantpratique = " + montant +
-                          " where typeacte = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(currentuser()->id());
+                    req = "update " TBL_COTATIONS " set " CP_MONTANTOPTAM_COTATIONS " = " + montant + ", " CP_MONTANTNONOPTAM_COTATIONS " = " + montant + ", " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
+                          " where " CP_TYPEACTE_COTATIONS " = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     if (db->StandardSQL(req))
                         m_cotationsmodifiees = true;
                 }
@@ -1559,10 +1562,10 @@ void dlg_param::SupprAssocCCAM()
     int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
     QString CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
     bool ok;
-    QString req = "select typeacte from " TBL_COTATIONS
-                  " where typeacte = '" + CodeActe + "'"
-                  " and iduser <> NULL"
-                  " and iduser <> " + QString::number(currentuser()->id());
+    QString req = "select " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS
+                  " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'"
+                  " and " CP_IDUSER_COTATIONS " <> NULL"
+                  " and " CP_IDUSER_COTATIONS " <> " + QString::number(currentuser()->id());
     QList<QVariantList> typactlist = db->StandardSelectSQL(req,ok);
     if (!ok)
         return;
@@ -1576,7 +1579,7 @@ void dlg_param::SupprAssocCCAM()
 
     if (UpMessageBox::Question(this, tr("Suppression de cotation"), tr("Confirmez la suppression de la cotation ") + CodeActe)==UpSmallButton::STARTBUTTON)
     {
-        db->StandardSQL("delete from " TBL_COTATIONS " where typeacte = '" + CodeActe + "'");
+        db->StandardSQL("delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'");
         Remplir_TableAssocCCAM();
         EnableAssocCCAM();
         m_cotationsmodifiees = true;
@@ -1615,7 +1618,7 @@ void dlg_param::SupprHorsNomenclature()
     QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
     if (UpMessageBox::Question(this, tr("Suppression de cotation"), tr("Confirmez la suppression de la cotation ") + CodeActe)==UpSmallButton::STARTBUTTON)
     {
-        db->StandardSQL("delete from " TBL_COTATIONS " where typeacte = '" + CodeActe + "'");
+        db->StandardSQL("delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'");
         Remplir_TableHorsNomenclature();
         EnableHorsNomenclature();
         m_cotationsmodifiees = true;
@@ -2375,7 +2378,6 @@ void dlg_param::EnregistreNouvMDPAdmin()
             msgbox.exec();
             return;
         }
-        //if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(nouv) || nouv == "")
         if (!Utils::RegularExpressionMatches(Utils::rgx_AlphaNumeric_5_12, nouv) || nouv == "")
         {
             Utils::playAlarm();
@@ -2447,10 +2449,10 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     QTableWidgetItem    *pItem3;
     UpCheckBox          *check;
     ui->ActesCCAMupTableWidget->clearContents();
-    QString Remplirtablerequete = "SELECT nom, codeccam, OPTAM, NonOPTAM from "  TBL_CCAM;
+    QString Remplirtablerequete = "SELECT " CP_NOM_CCAM ", " CP_CODECCAM_CCAM ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " from "  TBL_CCAM;
     if (ophtaseul)
-        Remplirtablerequete += " where codeccam like 'B%'";
-    Remplirtablerequete +=  " order by codeccam";
+        Remplirtablerequete += " where " CP_CODECCAM_CCAM " like 'B%'";
+    Remplirtablerequete +=  " order by " CP_CODECCAM_CCAM;
     QList<QVariantList> Acteslist = db->StandardSelectSQL(Remplirtablerequete, ok);
     if (!ok)
         return;
@@ -2479,7 +2481,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         ui->ActesCCAMupTableWidget->setItem(i,4,pItem3);
         ui->ActesCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
-    QString reqactes = "select typeacte, montantpratique from " TBL_COTATIONS " where idUser = " + QString::number(currentuser()->id());
+    QString reqactes = "select " CP_TYPEACTE_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS " from " TBL_COTATIONS " where " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
     QList<QVariantList> Actesusrlist = db->StandardSelectSQL(reqactes, ok);
     if (Actesusrlist.size()>0)
     {
@@ -2555,7 +2557,8 @@ void dlg_param::Remplir_TableAssocCCAM()
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
     ui->AssocCCAMupTableWidget->clearContents();
-    QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique, tip from "  TBL_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(currentuser()->id()) + " order by typeacte";
+    QString Assocrequete = "SELECT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+            CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + " order by " CP_TYPEACTE_COTATIONS;
     //qDebug() << Assocrequete;
     QList<QVariantList> Assoclist = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
@@ -2612,8 +2615,10 @@ void dlg_param::Remplir_TableAssocCCAM()
         }
         ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
-    Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique, Tip from "  TBL_COTATIONS " WHERE CCAM = 2"
-                   " and typeacte not in (SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(currentuser()->id()) + ")";
+    Assocrequete = "SELECT DISTINCT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                    CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2"
+                   " and " CP_TYPEACTE_COTATIONS " not in "
+                   "(SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + ")";
     QList<QVariantList> Assoc2list = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
         return;
@@ -2708,7 +2713,8 @@ void dlg_param::Remplir_TableHorsNomenclature()
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
     ui->HorsNomenclatureupTableWidget->clearContents();
-    QString Horsrequete = "SELECT TYPEACTE, montantpratique, Tip from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(currentuser()->id());
+    QString Horsrequete = "SELECT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TIP_COTATIONS
+                          " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 3 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
     QList<QVariantList> Horslist = db->StandardSelectSQL(Horsrequete, ok);
     if (!ok)
         return;
@@ -2737,8 +2743,8 @@ void dlg_param::Remplir_TableHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setCellWidget(i,2,lbl1);
         ui->HorsNomenclatureupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
-    Horsrequete = "SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser <> " + QString::number(currentuser()->id())+
-            " and typeacte not in (SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(currentuser()->id()) + ")";
+    Horsrequete = "SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 3 AND " CP_IDUSER_COTATIONS " <> " + QString::number(currentuser()->id())+
+            " and " CP_TYPEACTE_COTATIONS " not in (SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 3 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + ")";
     QList<QVariantList> Hors2list = db->StandardSelectSQL(Horsrequete, ok);
     if (!ok)
         return;

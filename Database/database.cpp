@@ -2021,10 +2021,11 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
      int secteur = usr->secteurconventionnel();
      //qDebug() << optam << secteur;
 
-    QString  req = "SELECT idcotation, Typeacte, OPTAM, nonOPTAM, MontantPratique, CCAM, Frequence, nom"
-          " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot.typeacte= cc.codeccam"
-          " where idUser = " + QString::number(usr->id()) + " and typeacte in (select codeccam from " TBL_CCAM ")"
-          " order by typeacte";
+     QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                     CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
+                     " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
+                     " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
+                     " order by " CP_TYPEACTE_COTATIONS;
     //qDebug() << req;
     QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok)
@@ -2048,11 +2049,11 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         if (cotation != Q_NULLPTR)
             cotations << cotation;
     }
-    req = " SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, tip"
-          " FROM "  TBL_COTATIONS
-          " where idUser = " + QString::number(usr->id()) +
-          " and typeacte not in (select codeccam from  " TBL_CCAM ")"
-          " order by typeacte";
+    req = " SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+          CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
+          " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) +
+          " and " CP_TYPEACTE_COTATIONS " not in (select " CP_CODECCAM_CCAM " from  " TBL_CCAM ")"
+          " order by " CP_TYPEACTE_COTATIONS;
     cotlist = StandardSelectSQL(req,ok);
     if(!ok || cotlist.size()==0)
         return cotations;
@@ -2079,10 +2080,10 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
 
 QStringList DataBase::loadTypesCotations()
 {
-    QStringList listcotations;
-    QString req = "select distinct typeacte as code from " TBL_COTATIONS
+    QStringList listcotations;    
+    QString req = "select distinct " CP_TYPEACTE_COTATIONS " as code from " TBL_COTATIONS
                   " union "
-                  " select codeccam as code from " TBL_CCAM
+                  " select " CP_CODECCAM_CCAM " as code from " TBL_CCAM
                   " order by code asc";
     QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok || cotlist.size()==0)

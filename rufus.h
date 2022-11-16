@@ -189,6 +189,12 @@ private:
     void        SalleDAttente();
     void        SurbrillanceSalDat(UpLabel *lab);
 
+
+    // la liste de cotations en cours d'utilisation
+    Cotations*  m_currencotation = Q_NULLPTR;
+    Cotations*  currentlistecotations()                     { return m_currencotation; };
+    void        setcurrentlistecotations(Cotations* cot)    { m_currencotation = cot; };
+
     // gestion des patients vus dans la journée
     QTimer      *gTimerPatientsVus;
     void        AffichePatientsVusWidget();

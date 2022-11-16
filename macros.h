@@ -65,10 +65,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_ACTES                             "rufus.Actes"
 #define TBL_APPAREILSCONNECTESCENTRE          "rufus.appareilsconnectescentre"
 #define TBL_APPAREILSREFRACTION               "rufus.AppareilsRefraction"
-#define TBL_CCAM                              "rufus.ccam"                                      /*! pas fait */
+#define TBL_CCAM                              "rufus.ccam"
 #define TBL_COMMERCIALS                       "rufus.Commercials"
 #define TBL_CORRESPONDANTS                    "rufus.correspondants"
-#define TBL_COTATIONS                         "rufus.cotations"                                 /*! pas fait */
+#define TBL_COTATIONS                         "rufus.cotations"
 #define TBL_DOSSIERSIMPRESSIONS               "rufus.Metadocuments"
 #define TBL_DONNEESSOCIALESPATIENTS           "rufus.donneessocialespatients"
 #define TBL_FLAGS                             "rufus.flags"
@@ -192,6 +192,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_MAJFLAGMESSAGES_FLAGS                        "MAJflagMessages"
 #define CP_MAJFLAGUSERDISTANT_FLAGS                     "flagUserDistant"
 #define CP_MAJFLAGIMPRESSIONS_FLAGS                     "MAJflagImpressions"
+
+
+                            //! Table Rufus.ccam
+#define CP_ID_CCAM                                      "idccam"
+#define CP_CODECCAM_CCAM                                "codeccam"
+#define CP_NOM_CCAM                                     "nom"
+#define CP_MONTANTOPTAM_CCAM                            "optam"
+#define CP_MONTANTNONOPTAM_CCAM                        "nonoptam"
+
+                            //! Table Rufus.cotations
+#define CP_ID_COTATIONS                                 "idcotation"
+#define CP_TYPEACTE_COTATIONS                           "Typeacte"
+#define CP_MONTANTOPTAM_COTATIONS                       "MontantOPTAM"
+#define CP_MONTANTNONOPTAM_COTATIONS                    "MontantNonOPTAM"
+#define CP_MONTANTPRATIQUE_COTATIONS                    "MontantPratique"
+#define CP_CODECCAM_COTATIONS                           "CCAM"
+#define CP_IDUSER_COTATIONS                             "idUser"
+#define CP_FREQUENCE_COTATIONS                          "Frequence"
+#define CP_TIP_COTATIONS                                "Tip"
 
                             //! Table Rufus.LieuxExercice
 #define CP_ID_SITE                                      "idLieu"

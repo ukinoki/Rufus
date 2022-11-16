@@ -1097,7 +1097,7 @@ void dlg_gestionusers::SupprUser()
                             if (db->StandardSelectSQL("select " CP_ID_LIGNCOMPTES " from " TBL_LIGNESCOMPTES " where " CP_IDCOMPTE_LIGNCOMPTES " = " + icpt, m_ok).size()==0)
                                 Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(idcpt));
         }
-        db->SupprRecordFromTable(idUser, "idUser", TBL_COTATIONS);
+        db->SupprRecordFromTable(idUser, CP_IDUSER_COTATIONS , TBL_COTATIONS);
         db->StandardSQL("delete from " TBL_JOINTURESLIEUX " where iduser not in (select " CP_ID_USR " from " TBL_UTILISATEURS ")");
 
 //        QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";

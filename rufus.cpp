@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-11-2022/1");
+    qApp->setApplicationVersion("16-11-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -223,9 +223,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     m_closeflag = false;
 
     setTitre();
+
+
+    //!10 - reconstruction du QCompleter de la liste de cotations
     if (currentuser()->isSoignant())
     {
-        ReconstruitListesCotations();
         if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
         {
             ui->ActeCotationcomboBox->lineEdit()->completer()->disconnect();
@@ -239,20 +241,20 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
     }
 
-    //! 10 - Mise à jour des salles d'attente
+    //! 11 - Mise à jour des salles d'attente
     Remplir_SalDat();
     if(m_utiliseTCP)
         envoieTCPMessage(TCPMSG_MAJSalAttente);
 
-    //! 11 - Vérification de la messagerie
+    //! 12 - Vérification de la messagerie
     ReconstruitListeMessages();
 
-    //! 12 - Affichage des boutons bilan orthoptique et création intervention
+    //! 13 - Affichage des boutons bilan orthoptique et création intervention
     ui->CreerBOpushButton   ->setVisible(currentuser()->isOrthoptist());
     ui->CreerBOpushButton_2 ->setVisible(currentuser()->isOrthoptist());
     ui->CreerInterventionpushButton->setVisible(currentuser()->isMedecin());
 
-    //! 13 - mise à jour du programmateur de sauvegarde
+    //! 14 - mise à jour du programmateur de sauvegarde
     if (db->ModeAccesDataBase() == Utils::Poste)
         proc->ParamAutoBackup();
     /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
@@ -268,7 +270,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 #endif
 
-    //! 14 - mise à jour du programmateur de l'effacement des fichiers images provisoires - abandonné parce qu'il continue à fonctionner même en cas de plantage du programme
+    //! 15 - mise à jour du programmateur de l'effacement des fichiers images provisoires - abandonné parce qu'il continue à fonctionner même en cas de plantage du programme
      //if (db->ModeAccesDataBase() == Utils::Poste)
          //proc->ProgrammeSQLVideImagesTemp(m_parametres->heurebkup());
      db->StandardSQL("Use " DB_IMAGES);
@@ -276,7 +278,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
      db->StandardSQL("Use " DB_COMPTA);
      db->StandardSQL("DROP EVENT IF EXISTS VideFactures");
 
-    //! 15 - choix mode (création dossier ou sélection de patient)
+    //! 16 - choix mode (création dossier ou sélection de patient)
     if (m_listepatientsmodel->rowCount() == 0)
     {
         ModeCreationDossier();
@@ -286,7 +288,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
         ModeSelectDepuisListe();
 
-    //! 16 - suppression des anciens fichiers de log
+    //! 17 - suppression des anciens fichiers de log
     Logs::EpureLogs();
 }
 
@@ -4186,15 +4188,18 @@ void Rufus::OuvrirParametres()
         setWindowTitle("Rufus - " + currentuser()->login() + " - " + currentuser()->fonction());
     if (Dlg_Param->CotationsModifiees())
     {
-        QString req = "insert into " TBL_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser, tip) values \n";
+
+        QString req = "insert into " TBL_COTATIONS " ( " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") values \n";
         for (int i=0; i<Dlg_Param->ui->ActesCCAMupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,0));
             if (check != Q_NULLPTR)
                 if (check->isChecked())
                 {
-                    QString codeCCAM, montantOPTAM, montantNonOPTAM, montantprat("");
-                    codeCCAM        = Dlg_Param->ui->ActesCCAMupTableWidget->item(i,1)->text();
+
+                    QString typeacte, montantOPTAM, montantNonOPTAM, montantprat("");
+                    typeacte        = Dlg_Param->ui->ActesCCAMupTableWidget->item(i,1)->text();
                     montantOPTAM    = QString::number(QLocale().toDouble(Dlg_Param->ui->ActesCCAMupTableWidget->item(i,2)->text()));
                     montantNonOPTAM = QString::number(QLocale().toDouble(Dlg_Param->ui->ActesCCAMupTableWidget->item(i,3)->text()));
                     QString mtconv  = (currentuser()->isOPTAM() ? montantOPTAM : montantNonOPTAM);
@@ -4208,7 +4213,7 @@ void Rufus::OuvrirParametres()
                     }
                     QString mtprat = (currentuser()->secteurconventionnel() >1 ? montantprat : mtconv);
                     QString montantpratique = QString::number(QLocale().toDouble(mtprat));
-                    req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(currentuser()->id()) + ", null),\n";
+                    req += "('" + typeacte +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(currentuser()->id()) + ", null),\n";
                 }
         }
         for (int i=0; i<Dlg_Param->ui->AssocCCAMupTableWidget->rowCount(); i++)
@@ -4262,7 +4267,7 @@ void Rufus::OuvrirParametres()
         }
         req = req.left(req.lastIndexOf(")")+1);
         //proc->Edit(req);
-        QString reqDel = "delete from " TBL_COTATIONS " where idUser = " + QString::number(currentuser()->id());
+        QString reqDel = "delete from " TBL_COTATIONS " where " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
         db->StandardSQL(reqDel);
         db->StandardSQL(req);
         ReconstruitListesCotations();
@@ -4313,13 +4318,14 @@ void Rufus::RetrouveMontantActe()
             }
             if (Montant == "0.00")
             {
-                QString tarifconventionne = (usr->isOPTAM() ? "OPTAM" : "NonOPTAM");
+
+                QString tarifconventionne = (usr->isOPTAM() ? CP_MONTANTOPTAM_CCAM : CP_MONTANTNONOPTAM_CCAM );
                 // qDebug() << parent;
-                QString req =
-                        "SELECT " + tarifconventionne + ", montantpratique FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
-                        " where Typeacte = codeccam"
-                        " and iduser = " + QString::number(parent->id()) +
-                        " and codeccam like '" + Utils::correctquoteSQL(cotation) + "%'";
+                QString req =                        
+                        "SELECT " + tarifconventionne + ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
+                        " where " CP_TYPEACTE_COTATIONS " = " CP_CODECCAM_CCAM
+                        " and " CP_IDUSER_COTATIONS " = " + QString::number(parent->id()) +
+                        " and " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
                 // qDebug() << req;
                 QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                 if (m_ok && cotdata.size()>0)
@@ -4332,7 +4338,7 @@ void Rufus::RetrouveMontantActe()
                 }
                 else
                 {
-                    QString req = "SELECT OPTAM, NonOPTAM FROM " TBL_CCAM " where codeccam like '" + Utils::correctquoteSQL(cotation) + "%'";
+                    QString req = "SELECT " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " FROM " TBL_CCAM " where " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
                     QVariantList cot2data = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                     if (m_ok && cot2data.size()>0)
                     {
@@ -4342,6 +4348,22 @@ void Rufus::RetrouveMontantActe()
                         else
                             MontantActe = QLocale().toString(cot2data.at(0).toDouble(),'f',2);
                         ui->ActeMontantlineEdit->setText(MontantActe);
+                    }                    
+                    else
+                    {
+                        QString req =
+                                "SELECT " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS
+                                " where " CP_TYPEACTE_COTATIONS " like '" + Utils::correctquoteSQL(cotation) + "%'";
+                        // qDebug() << req;
+                        QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                        if (m_ok && cotdata.size()>0)
+                        {
+                            if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
+                                Montant = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
+                            else
+                                Montant = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
+                            ui->ActeMontantlineEdit->setText(Montant);
+                        }
                     }
                 }
             }
@@ -8663,6 +8685,12 @@ void    Rufus::ReconstruitListesCotations(User *usr)
                 Datas::I()->listecotations->insert(userparent->id(), cots);
         }
     }
+
+    //! le fait de ne pas réinitialiser le combobox permet de garder en item par défaut le dernier item utilisé qui est celui qu'on réutilisera la plupart du temps
+    if (cots == currentlistecotations())
+        return;
+
+    setcurrentlistecotations(cots);
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
 
