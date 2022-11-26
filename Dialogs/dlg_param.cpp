@@ -26,6 +26,7 @@ dlg_param::dlg_param(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    //setWindowModality(Qt::WindowModal);
 
     QStringList ports;
     ports << "3306" << "3307";
@@ -745,7 +746,6 @@ void dlg_param::ChoixFontpushButtonClicked()
 {
     dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, Position_Fiche "FontDialog");
     Dlg_Fonts->setFont(qApp->font());
-    Dlg_Fonts->setWindowTitle(tr("Choisissez la police d'écran"));
     if (Dlg_Fonts->exec() > 0)
     {
         QString fontrequete = "update " TBL_UTILISATEURS " set " CP_POLICEECRAN_USR " = '" + Dlg_Fonts->font().family()
@@ -798,7 +798,8 @@ void dlg_param::EnableModif(QWidget *obj)
     {
         if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),"Saisissez le mot de passe Administrateur", m_MDPadminverifie);
+            QString mdp("");
+            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),"Saisissez le mot de passe Administrateur", mdp, m_MDPadminverifie, this);
             if (m_MDPadminverifie)
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
@@ -828,7 +829,8 @@ void dlg_param::EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            m_MDPuserverifie = Utils::VerifMDP(currentuser()->password(),tr("Saisissez votre mot de passe"), m_MDPuserverifie);
+            QString mdp("");
+            m_MDPuserverifie = Utils::VerifMDP(currentuser()->password(),tr("Saisissez votre mot de passe"), mdp, m_MDPuserverifie, this);
             if (m_MDPuserverifie)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
@@ -858,7 +860,8 @@ void dlg_param::EnableModif(QWidget *obj)
         }
         if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), m_MDPadminverifie);
+            QString mdp("");
+            m_MDPadminverifie = Utils::VerifMDP(proc->MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp, m_MDPadminverifie, this);
             if (m_MDPadminverifie)
             {
                 ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
@@ -963,37 +966,41 @@ void dlg_param::FiltreActesOphtaSeulmt(bool b)
 
 void dlg_param::GestionBanques()
 {
-    dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques();
+    dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques(this);
     Dlg_Banq->exec();
 }
 
 void dlg_param::GestionDatasCurrentUser()
 {
-    dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
-    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  currentuser()->login());
-    m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
-    if(m_donneesusermodifiees)
+    dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie, this);
+    Dlg_GestUsr->setWindowModality(Qt::WindowModal);
+    if (Dlg_GestUsr->exec()>0)
     {
+        m_donneesusermodifiees = true;
         Datas::I()->users->reload(currentuser());
         proc->MAJComptesBancaires(currentuser());
         AfficheParamUser();
+        if (!m_MDPuserverifie)
+            m_MDPuserverifie = Dlg_GestUsr->isMDPverified();
     }
-    if (!m_MDPuserverifie)
-        m_MDPuserverifie = Dlg_GestUsr->isMDPverified();
+    else
+        m_donneesusermodifiees = true;
     delete Dlg_GestUsr;
 }
 
 void dlg_param::GestionUsers()
 {
-    dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
-    Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
-    m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
-    if(m_donneesusermodifiees)
+    dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::ADMIN, m_MDPadminverifie, this);
+    Dlg_GestUsr->setWindowModality(Qt::WindowModal);
+    if (Dlg_GestUsr->exec()>0)
     {
+        m_donneesusermodifiees = true;
         Datas::I()->users   ->initListe();
         proc                ->MAJComptesBancaires(currentuser());
         AfficheParamUser();
     }
+    else
+        m_donneesusermodifiees = true;
     delete Dlg_GestUsr;
     UpMessageBox::Watch(this, tr("Donnes utilisateurs modifiées?"),
                               tr("Si vous avez modifié des données d'utilisateurs actuellement connectés,\n"
@@ -1003,7 +1010,7 @@ void dlg_param::GestionUsers()
 
 void dlg_param::GestionLieux()
 {
-    dlg_listelieux *gestLieux = new dlg_listelieux();
+    dlg_listelieux *gestLieux = new dlg_listelieux(this);
     gestLieux->exec();
     ReconstruitListeLieuxExerciceAllusers();
     delete gestLieux;
@@ -1087,8 +1094,8 @@ void dlg_param::ReconstruitListeLieuxExerciceAllusers()
 
 void dlg_param::NouvAppareil()
 {
-    dlg_askappareil = new UpDialog();
-    dlg_askappareil->setModal(true);
+    dlg_askappareil = new UpDialog(this);
+    dlg_askappareil->setWindowModality(Qt::WindowModal);
     dlg_askappareil->move(QPoint(x()+width()/2,y()+height()/2));
     dlg_askappareil->setFixedWidth(400);
     dlg_askappareil->setWindowTitle(tr("Choisissez un appareil"));
@@ -1106,7 +1113,7 @@ void dlg_param::NouvAppareil()
     lay->addWidget(upCombo);
     dlg_askappareil->dlglayout()->insertLayout(0,lay);
     dlg_askappareil->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_askappareil->AjouteLayButtons(UpDialog::ButtonOK);
+    dlg_askappareil->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_askappareil->OKButton,    &QPushButton::clicked,    this,   &dlg_param::EnregistreAppareil);
     dlg_askappareil->exec();
     delete dlg_askappareil;
@@ -1530,7 +1537,7 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
 
 void dlg_param::NouvAssocCCAM()
 {
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
@@ -1547,7 +1554,7 @@ void dlg_param::ModifAssocCCAM()
         return;
     int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
     CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe, this);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
@@ -1588,7 +1595,7 @@ void dlg_param::SupprAssocCCAM()
 
 void dlg_param::NouvHorsNomenclature()
 {
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
@@ -1602,7 +1609,7 @@ void dlg_param::ModifHorsNomenclature()
 {
     int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
     QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe, this);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
@@ -1628,8 +1635,7 @@ void dlg_param::SupprHorsNomenclature()
 void dlg_param::ModifMDPAdmin()
 {
     dlg_askMDP    = new UpDialog(this);
-    dlg_askMDP    ->setModal(true);
-    dlg_askMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
+    dlg_askMDP    ->setWindowModality(Qt::WindowModal);
 
     UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
@@ -1638,9 +1644,11 @@ void dlg_param::ModifMDPAdmin()
     ConfirmMDP->setAlignment(Qt::AlignCenter);
     ConfirmMDP->setMaxLength(12);
     dlg_askMDP->dlglayout()->insertWidget(0,ConfirmMDP);
+
     UpLabel *labelConfirmMDP = new UpLabel();
     labelConfirmMDP->setText(tr("Confirmez le nouveau mot de passe"));
     dlg_askMDP->dlglayout()->insertWidget(0,labelConfirmMDP);
+
     UpLineEdit *NouvMDP = new UpLineEdit(dlg_askMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(m_nouveauMDP);
@@ -1648,9 +1656,11 @@ void dlg_param::ModifMDPAdmin()
     NouvMDP->setAlignment(Qt::AlignCenter);
     NouvMDP->setMaxLength(12);
     dlg_askMDP->dlglayout()->insertWidget(0,NouvMDP);
+
     UpLabel *labelNewMDP = new UpLabel();
     labelNewMDP->setText(tr("Entrez le nouveau mot de passe"));
     dlg_askMDP->dlglayout()->insertWidget(0,labelNewMDP);
+
     UpLineEdit *AncMDP = new UpLineEdit(dlg_askMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
@@ -1658,12 +1668,13 @@ void dlg_param::ModifMDPAdmin()
     AncMDP->setObjectName(m_ancienMDP);
     AncMDP->setMaxLength(12);
     dlg_askMDP->dlglayout()->insertWidget(0,AncMDP);
+
     UpLabel *labelOldMDP = new UpLabel();
     labelOldMDP->setText(tr("Entrez votre mot de passe"));
     dlg_askMDP->dlglayout()->insertWidget(0,labelOldMDP);
     AncMDP->setFocus();
 
-    dlg_askMDP->AjouteLayButtons(UpDialog::ButtonOK);
+    dlg_askMDP->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QList <QWidget*> ListTab;
     ListTab << AncMDP << NouvMDP << ConfirmMDP << dlg_askMDP->OKButton;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
@@ -1671,14 +1682,12 @@ void dlg_param::ModifMDPAdmin()
     dlg_askMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
     connect(dlg_askMDP->OKButton,    &QPushButton::clicked, this, &dlg_param::EnregistreNouvMDPAdmin);
     dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-
     dlg_askMDP->exec();
 }
 
 void dlg_param::ParamMotifs()
 {
-    dlg_motifs *Dlg_motifs = new dlg_motifs();
-    Dlg_motifs->setWindowTitle(tr("Motifs de consultations"));
+    dlg_motifs *Dlg_motifs = new dlg_motifs(this);
     Dlg_motifs->exec();
     delete Dlg_motifs;
 }
@@ -2024,7 +2033,7 @@ bool dlg_param::VerifDirStockageImagerie()
 
 void dlg_param::RestaureBase()
 {
-    if (proc->RestaureBase())
+    if (proc->RestaureBase(false, false, true, this))
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();

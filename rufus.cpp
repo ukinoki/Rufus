@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("16-11-2022/1");
+    qApp->setApplicationVersion("26-11-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -411,17 +411,20 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
     if (docs->patient() == currentpatient())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
     {
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+        bool founddlg = false;
         if (ListDialogDocs.size()>0)
             for (int i=0; i< ListDialogDocs.size();++i)
             {
                 if (ListDialogDocs.at(i)->currentpatient() == currentpatient())
                 {
                     ListDialogDocs.at(i)->setVisible(true);
-                    return;
+                    founddlg = true;
                 }
                 else
                     ListDialogDocs.at(i)->close();
             }
+        if (founddlg)
+            return;
     }
     if (docs->docsexternes()->size()>0)
     {
@@ -1275,6 +1278,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
     dlg_paiementdirect *Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, this);//NOTE : New Paiement
     if(Dlg_PmtDirect->initOK())
         Dlg_PmtDirect->exec();
+    delete Dlg_PmtDirect;
     if (origin == BoutonPaiement)  // on redonne le statut en cours d'examen au dossier
     {
         PatientEnCours *pat = Datas::I()->patientsencours->getById(currentpatient()->id());
@@ -1384,7 +1388,6 @@ void Rufus::BilanRecettes()
         return;
     }
     Dlg_BilanRec->exec();
-    Dlg_BilanRec->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_BilanRec;
 }
 
@@ -1847,10 +1850,14 @@ void Rufus::EnregistreDocScanner(Patient *pat)
     if (pat == Q_NULLPTR)
         return;
     dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "", this);
-    if (!Dlg_DocsScan->initOK())
-        return;
-    Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
-    Dlg_DocsScan->exec();
+    if (Dlg_DocsScan->initOK())
+    {
+        Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
+        Dlg_DocsScan->exec();
+    }
+    delete  Dlg_DocsScan;
+    Dlg_DocsScan = Q_NULLPTR;
+
     if (currentpatient() != Q_NULLPTR)
         if (pat == currentpatient())
             MAJDocsExternes();          //EnregistreDocScanner()
@@ -1862,6 +1869,7 @@ void Rufus::EnregistreVideo(Patient *pat)
         return;
     dlg_docsvideo *Dlg_DocsVideo = new dlg_docsvideo(pat, this);
     Dlg_DocsVideo->exec();
+    delete Dlg_DocsVideo;
     if (currentpatient() != Q_NULLPTR)
         if (pat == currentpatient())
             MAJDocsExternes();          //EnregistreVideo()
@@ -1914,6 +1922,7 @@ void Rufus::GestionComptes()
     dlg_comptes *Dlg_Cmpt = new dlg_comptes(this);
     if(Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
+    delete Dlg_Cmpt;
 }
 
 void Rufus::ExporteDocs()
@@ -2552,27 +2561,26 @@ void Rufus::ImprimeDossier(Patient *pat)
                                                                                                QDate::fromString(combofin->currentText(),"dd-MMM-yyyy"),
                                                                                                false);});
         int result = dlg_ask->exec();
-        if (result==0)
+        QList<Acte*> listeactesaimprimer = QList<Acte*>();
+        if (result>0)
         {
-            delete dlg_ask;
-            return;
-        }
-        QList<Acte*> listeactesaimprimer;
-        for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
-        {
-            Acte* act = const_cast<Acte*>(it.value());
-            int idacte = act->id();
-            if (idacte >= combodebut->currentData().toInt() && idacte <= combofin->currentData().toInt())
-                listeactesaimprimer << act;
+            for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
+            {
+                Acte* act = const_cast<Acte*>(it.value());
+                int idacte = act->id();
+                if (idacte >= combodebut->currentData().toInt() && idacte <= combofin->currentData().toInt())
+                    listeactesaimprimer << act;
+            }
         }
         delete dlg_ask;
+        dlg_ask = Q_NULLPTR;
         if (listeactesaimprimer.size() > 0)
         {
             bool toutledossier = (listeactes->size() == listeactesaimprimer.size());
             ImprimeListActes(listeactesaimprimer, toutledossier);
+            MAJDocsExternes();              // ImprimeDossier()
         }
     }
-    MAJDocsExternes();              // ImprimeDossier()
 }
 
 void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool queLePdf, QString nomdossier)
@@ -2881,7 +2889,7 @@ void Rufus::ListeCorrespondants()
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
-        dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+        dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
         Dlg_IdentCorresp->exec();
         delete Dlg_IdentCorresp;
         return;
@@ -2919,7 +2927,7 @@ void Rufus::ListeTiersPayants()
     if (Datas::I()->tierspayants->tierspayants()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de tiers payant enregistré") );
-        dlg_identificationtiers *Dlg_IdentManufacturer    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
+        dlg_identificationtiers *Dlg_IdentManufacturer    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
         Dlg_IdentManufacturer->exec();
         delete Dlg_IdentManufacturer;
         return;
@@ -2950,6 +2958,7 @@ void Rufus::MenuContextuelIdentPatient()
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
+    m_menuContextuel = Q_NULLPTR;
 }
 
 void Rufus::ChoixMenuContextuelIdentPatient()
@@ -2967,13 +2976,14 @@ void Rufus::MenuContextuelMotsCles()
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
+    m_menuContextuel = Q_NULLPTR;
 }
 
 void Rufus::ChoixMenuContextuelMotsCles()
 {
     if (currentpatient() == Q_NULLPTR)
         return;
-    dlg_listemotscles *ListMCDialog = new dlg_listemotscles();
+    dlg_listemotscles *ListMCDialog = new dlg_listemotscles(this);
     if (ListMCDialog->exec()==0)
     {
         QList<int> listMC = ListMCDialog->listMCDepart();
@@ -2989,7 +2999,6 @@ void Rufus::ChoixMenuContextuelMotsCles()
         }
     }
     CalcMotsCles(currentpatient());
-    ListMCDialog->close(); // nécessaire pour enregistrer la géométrie
     delete ListMCDialog;
 }
 
@@ -3021,7 +3030,7 @@ void Rufus::RechercheParMotCle()
         return;
     }
 
-    dlg_rechParMotCle                 = new UpDialog();
+    dlg_rechParMotCle                 = new UpDialog(this);
     QTableView      *tabMC            = new QTableView(dlg_rechParMotCle);
     dlg_rechParMotCle->dlglayout()    ->insertWidget(0,tabMC);
     dlg_rechParMotCle                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -3046,7 +3055,6 @@ void Rufus::RechercheParMotCle()
                                                                                                     }
                                                                                                     });
 
-    dlg_rechParMotCle ->setModal(true);
     dlg_rechParMotCle ->setWindowTitle(tr("Recherche de patients par mots clés"));
 
     tabMC                   ->verticalHeader()->setVisible(false);
@@ -3123,7 +3131,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
         UpMessageBox::Watch(this, tr("Aucun patient retrouvé pour ces critères"));
         return;
     }
-    dlg_listPatients = new UpDialog();
+    dlg_listPatients = new UpDialog(this);
     QTableView      *tabMC              = new QTableView(dlg_listPatients);
     dlg_listPatients->dlglayout()       ->insertWidget(0,tabMC);
     dlg_listPatients->AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
@@ -3131,7 +3139,6 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     connect(dlg_listPatients->OKButton,     &QPushButton::clicked,   dlg_listPatients,  &QDialog::accept);
     connect(dlg_listPatients->PrintButton,  &QPushButton::clicked,   this,              [=] {ImprimeListPatients(dlg_listPatients->PrintButton->data());});
 
-    dlg_listPatients->setModal(true);
     dlg_listPatients->setSizeGripEnabled(false);
     dlg_listPatients->setWindowTitle(tr("Recherche de patients par mots clés"));
 
@@ -3172,6 +3179,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
                         + dlg_listPatients->dlglayout()->contentsMargins().left()*2);
     dlg_listPatients->exec();
     delete dlg_listPatients;
+    dlg_listPatients = Q_NULLPTR;
 }
 
 void Rufus::AfficheCourriersAFaire()
@@ -3187,7 +3195,7 @@ void Rufus::AfficheCourriersAFaire()
         UpMessageBox::Watch(this, tr("Pas de courrier en attente"));
         return;
     }
-    dlg_listPatients = new UpDialog();
+    dlg_listPatients = new UpDialog(this);
     QTableView      *tabCourriers              = new QTableView();
     dlg_listPatients->dlglayout()       ->insertWidget(0,tabCourriers);
     dlg_listPatients->AjouteLayButtons(UpDialog::ButtonClose);
@@ -3198,7 +3206,6 @@ void Rufus::AfficheCourriersAFaire()
     lbl->setAlignment(Qt::AlignCenter);
     dlg_listPatients->AjouteWidgetLayButtons(lbl, false);
 
-    dlg_listPatients->setModal(true);
     dlg_listPatients->setSizeGripEnabled(false);
     dlg_listPatients->setWindowTitle(tr("Liste des courriers en attene"));
 
@@ -3254,6 +3261,7 @@ void Rufus::AfficheCourriersAFaire()
         });
         m_menuContextuel->exec(cursor().pos());
         delete m_menuContextuel;
+        m_menuContextuel = Q_NULLPTR;
     });
 
     connect(tabCourriers, &QAbstractItemView::doubleClicked, dlg_listPatients, [=]
@@ -3270,6 +3278,7 @@ void Rufus::AfficheCourriersAFaire()
     });
     dlg_listPatients->exec();
     delete dlg_listPatients;
+    dlg_listPatients = Q_NULLPTR;
 }
 
 void Rufus::ImprimeListPatients(QVariant var)
@@ -3377,6 +3386,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
         delete m_menuContextuel;
+        m_menuContextuel = Q_NULLPTR;
     }
     else if( currentuser()->isSecretaire() )
     {
@@ -3388,6 +3398,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
         delete m_menuContextuel;
+        m_menuContextuel = Q_NULLPTR;
     }
 }
 void Rufus::MenuContextuelListePatients()
@@ -3437,6 +3448,7 @@ void Rufus::MenuContextuelListePatients()
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
+    m_menuContextuel = Q_NULLPTR;
 }
 
 void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
@@ -3462,6 +3474,7 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
             Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + dossierpatientaouvrir()->nom() + " " + dossierpatientaouvrir()->prenom());
             Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
+            delete Dlg_ActesPrecs;
         }
         ItemsList::clearAll(acts->actes());
         delete acts;
@@ -3506,6 +3519,7 @@ void Rufus::MenuContextuelMedecin()
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
         delete m_menuContextuel;
+        m_menuContextuel = Q_NULLPTR;
     }
 }
 
@@ -3513,7 +3527,7 @@ void Rufus::ChoixMenuContextuelMedecin()
 {
     int id = ui->MGupComboBox->currentData().toInt();
     bool onlydoctors = true;
-    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails), this);
     if (Dlg_IdentCorresp->exec()>0)
         if (Dlg_IdentCorresp->identcorrespondantmodifiee())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(id));
@@ -3535,6 +3549,7 @@ void Rufus::MenuContextuelCorrespondant(UpComboBox *box)
         // ouvrir le menu
         m_menuContextuel->exec(cursor().pos());
         delete m_menuContextuel;
+        m_menuContextuel = Q_NULLPTR;
     }
 }
 
@@ -3547,7 +3562,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
         id = ui->AutresCorresp2upComboBox->currentData().toInt();
     if (id==-1) return;
     bool onlydoctors = false;
-    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails), this);
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idCor = Dlg_IdentCorresp->idcurrentcorrespondant();
@@ -3606,6 +3621,7 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
+    m_menuContextuel = Q_NULLPTR;
 }
 
 void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
@@ -3650,6 +3666,7 @@ void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
     // ouvrir le menu
     m_menuContextuel->exec(cursor().pos());
     delete m_menuContextuel;
+    m_menuContextuel = Q_NULLPTR;
 }
 
 void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
@@ -3821,7 +3838,6 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
 
     dlg_ask->setWindowTitle(tr("Enregistrer le motif de l'acte"));
 
-    dlg_ask->setModal(true);
     dlg_ask->setFixedWidth(320);
     dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     MsgText->setText(Message);
@@ -3856,6 +3872,7 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
         mapRDV[RDV_IDSUPERVISEUR]   = ComboSuperviseurs->currentData();
     }
     delete dlg_ask;
+    dlg_ask = Q_NULLPTR;
     return mapRDV;
 }
 
@@ -4092,10 +4109,9 @@ void Rufus::OuvrirActesPrecspushButtonClicked()
 
 void Rufus::OuvrirJournalDepenses()
 {
-    dlg_depenses *Dlg_Deps = new dlg_depenses();
+    dlg_depenses *Dlg_Deps = new dlg_depenses(this);
     if(Dlg_Deps->initOK())
     {
-        Dlg_Deps->setWindowTitle(tr("Journal des dépenses"));
         Dlg_Deps->ui->GestionComptesupPushButton->setVisible(actionGestionComptesBancaires->isVisible());
         Dlg_Deps->exec();
     }
@@ -4199,7 +4215,7 @@ void Rufus::OuvrirParametres()
 
 void Rufus::RecettesSpeciales()
 {
-    dlg_recettesspeciales *Dlg_RecSpec           = new dlg_recettesspeciales();
+    dlg_recettesspeciales *Dlg_RecSpec           = new dlg_recettesspeciales(this);
     if(Dlg_RecSpec->initOK())
     {
         Dlg_RecSpec->setWindowTitle(tr("Journal des recettes spéciales"));
@@ -4560,10 +4576,9 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     if (map["null"].toBool())
-    {
         dlg_ask->exec();
-        delete dlg_ask;
-    }
+    delete dlg_ask;
+    dlg_ask = Q_NULLPTR;
 }
 
 void Rufus::VerifSendMessage(int idMsg)
@@ -4906,14 +4921,13 @@ void Rufus::SupprimerDocsEtFactures()
 
 void Rufus::AfficheMessages(int idx)
 {
-    QTabWidget* Tabw = Remplir_MsgTabWidget();
-    if (Tabw->count()>idx)
-        Tabw->setCurrentIndex(idx);
-    QVBoxLayout *globallay = new QVBoxLayout();
     if (dlg_msgDialog != Q_NULLPTR)
+    {
         if (dlg_msgDialog->isVisible())
             dlg_msgDialog->close();
-    dlg_msgDialog = new QDialog();
+        delete dlg_msgDialog;
+    }
+    dlg_msgDialog = new QDialog(this);
     int x = 0;
     int y = 0;
     QList<QScreen*> listscreens = QGuiApplication::screens();
@@ -4923,6 +4937,10 @@ void Rufus::AfficheMessages(int idx)
         y = listscreens.first()->geometry().height();
     }
     dlg_msgDialog->setStyleSheet("border-image: none; background-color:#FAFAFA;");
+    QVBoxLayout *globallay = new QVBoxLayout();
+    QTabWidget* Tabw = Remplir_MsgTabWidget();
+    if (Tabw->count()>idx)
+        Tabw->setCurrentIndex(idx);
     Tabw->setParent(dlg_msgDialog);
     globallay->addWidget(Tabw);
     dlg_msgDialog->setLayout(globallay);
@@ -5270,7 +5288,7 @@ void Rufus::MsgResp(int idmsg)
         return;
     }
     QVBoxLayout *globallay = new QVBoxLayout();
-    dlg_msgRepons = new QDialog();
+    dlg_msgRepons = new QDialog(this);
     QLabel *lbl = new QLabel(dlg_msgRepons);
     lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usr->login() + "</b></font>");
     globallay->addWidget(lbl);
@@ -5352,7 +5370,7 @@ void Rufus::EnregMsgResp(int idmsg)
         envoieTCPMessageA(listidusr);
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
     }
-    dlg_msgRepons->accept();
+    dlg_msgRepons->close();
 }
 
 void Rufus::MsgModif(int idmsg)
@@ -5385,6 +5403,7 @@ void Rufus::MsgModif(int idmsg)
                 SendMessage(map, msg->idpatient(), idmsg);                           //depuis gMsgDialog
                 dlg_ask->exec();
                 delete dlg_ask;
+                dlg_ask = Q_NULLPTR;
                 i =listtxt.size();
             }
         }
@@ -5463,10 +5482,13 @@ void Rufus::ReconstruitListeMessages()
         }
         m_datederniermessageuser = QDateTime(DateMsg);
     }
-    else if (dlg_msgDialog)
+    else if (dlg_msgDialog != Q_NULLPTR)
     {
         if (dlg_msgDialog->isVisible())
+        {
             dlg_msgDialog->close();
+            delete dlg_msgDialog;
+        }
     }
 
     QString msg = "";
@@ -7534,7 +7556,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 {
     int idcor = -1;
     bool onlydoctors = (Cor == "MG");
-    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(Nom);
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     if (Cor == "MG")
@@ -7653,10 +7675,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     }
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
-    {
         ListDialogDocs.at(n)->close();
-        delete ListDialogDocs.at(n);
-    }
     if (currentpatient() != Q_NULLPTR)
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());
 }
@@ -7943,8 +7962,6 @@ void Rufus::InitWidgets()
     ict_messageIcon->setIcon(Icons::icPostit());
     connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=] {AfficheMessages();});
 
-    dlg_msgRepons = new QDialog();
-    dlg_msgDialog = new QDialog();
 
 
     ui->CCAMlinklabel->setText("<a href=\"" LIEN_CCAM "\">CCAM...</a>");
@@ -8891,7 +8908,7 @@ void Rufus::SetDatasRefractionKerato()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::RemiseCheques()
 {
-    dlg_remisecheques *Dlg_RemCheq = new dlg_remisecheques();
+    dlg_remisecheques *Dlg_RemCheq = new dlg_remisecheques(this);
     if (Dlg_RemCheq->initOK())
     {
         Dlg_RemCheq->setWindowTitle(tr("Remise de chèques"));

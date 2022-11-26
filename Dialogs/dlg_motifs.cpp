@@ -23,7 +23,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     ui(new Ui::dlg_motifs)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowModality(Qt::WindowModal);
     map_motifs = Datas::I()->motifs->motifs();
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
@@ -379,11 +379,7 @@ void dlg_motifs::ModifCouleur()
     int row = ui->MotifsupTableWidget->selectedRanges().at(0).topRow();
     QString couleurenreg = ui->MotifsupTableWidget->item(row,4)->text();
     QColor colordep = QColor("#FF" + couleurenreg);
-    QColorDialog *dlg = new QColorDialog(colordep, this);
-    dlg->exec();
-
-    QColor colorfin = dlg->selectedColor();
-    delete dlg;
+    QColor colorfin = Utils::SelectCouleur(colordep, this);
     if (!colorfin.isValid())
         return;
     QString couleur = colorfin.name();

@@ -24,6 +24,7 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowModality(Qt::WindowModal);
 
     map_date = QMap<Utils::Period, QDate>();
     ui->JourradioButton             ->setChecked(true);

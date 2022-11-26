@@ -23,8 +23,9 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui(new Ui::dlg_depenses)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
+    setWindowTitle(tr("Journal des dépenses"));
 
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire() );
 
@@ -138,7 +139,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::GestionComptes);
     connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          this,   [=] {GererDepense(ui->NouvelleDepenseupPushButton);});
     connect (wdg_modifieruppushbutton,          &QPushButton::clicked,          this,   [=] {GererDepense(wdg_modifieruppushbutton);});
-    connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
+    connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::close);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::FiltreTable);
     connect (ui->DetailsDepensesupPushButton,   &QPushButton::clicked,          this,   &dlg_depenses::AfficheDetailsDepenses);
@@ -975,9 +976,11 @@ void dlg_depenses::CalculTotalDepenses()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::GestionComptes()
 {
-    dlg_comptes *Dlg_Cmpt = new dlg_comptes();
+    dlg_comptes *Dlg_Cmpt = new dlg_comptes(this);
+    Dlg_Cmpt->setWindowModality(Qt::WindowModal);
     if (Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
+    delete Dlg_Cmpt;
 }
 
 void dlg_depenses::ZoomDoc()
@@ -1591,7 +1594,7 @@ void dlg_depenses::RechercheValeur()
     QCompleter *compMOntantDepenses = new QCompleter(listmontant);
     compMOntantDepenses->setCompletionMode(QCompleter::InlineCompletion);
     line->setCompleter(compMOntantDepenses);
-    dlg_ask     ->setModal(true);
+    dlg_ask     ->setWindowModality(Qt::WindowModal);
     label       ->setText(tr("Entrez le montant à rechercher"));
     int labelwidth = Utils::CalcSize(label->text()).width();
     label       ->setFixedWidth(labelwidth);
@@ -1861,29 +1864,28 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
     if (mode == dlg_docsscanner::Document)
         return;
     dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
-    if (!Dlg_DocsScan->initOK())
-        return;
-    if (Dlg_DocsScan->exec() > 0)
-    {
-        QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
-        int idfact = map.value("idfacture").toInt();
-        if (idfact>-1)
+    if (Dlg_DocsScan->initOK())
+        if (Dlg_DocsScan->exec() > 0)
         {
-            ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
-            m_depenseencours->setlienfacture(map["lien"].toString());
-            m_depenseencours->setecheancier(map["echeancier"].toBool());
-            m_depenseencours->setobjetecheancier(map["objetecheancier"].toString());
-            ui->FactureupPushButton     ->setVisible(false);
-            ui->EcheancierupPushButton  ->setVisible(false);
-            ui->VisuDocupTableWidget    ->setVisible(true);
-            proc->CalcImage(m_depenseencours, true, true);
-            QMap<QString,QVariant> doc;
-            doc.insert("ba", m_depenseencours->factureblob());
-            doc.insert("type", m_depenseencours->factureformat());
-            m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
-            SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
+            QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
+            int idfact = map.value("idfacture").toInt();
+            if (idfact>-1)
+            {
+                ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
+                m_depenseencours->setlienfacture(map["lien"].toString());
+                m_depenseencours->setecheancier(map["echeancier"].toBool());
+                m_depenseencours->setobjetecheancier(map["objetecheancier"].toString());
+                ui->FactureupPushButton     ->setVisible(false);
+                ui->EcheancierupPushButton  ->setVisible(false);
+                ui->VisuDocupTableWidget    ->setVisible(true);
+                proc->CalcImage(m_depenseencours, true, true);
+                QMap<QString,QVariant> doc;
+                doc.insert("ba", m_depenseencours->factureblob());
+                doc.insert("type", m_depenseencours->factureformat());
+                m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+                SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
+            }
         }
-    }
     delete  Dlg_DocsScan;
     Dlg_DocsScan = Q_NULLPTR;
 }

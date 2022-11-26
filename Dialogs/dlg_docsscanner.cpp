@@ -149,7 +149,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     buttonslayout()->insertLayout(0, dirVlay);
     wdg_uptable->resize(wdg_uptable->sizeHint());
     wdg_uptable->installEventFilter(this);
-    setModal(true);
+
     setMinimumWidth(650);
     setStageCount(2);
     int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();

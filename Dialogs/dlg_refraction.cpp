@@ -469,7 +469,7 @@ void dlg_refraction::AnnulPushButton_Clicked()
 
 void dlg_refraction::Commentaires()
 {
-    dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires(m_listcommentaires);
+    dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires(m_listcommentaires, this);
     if (Dlg_Comments->exec() > 0)
     {
         Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
@@ -2028,7 +2028,7 @@ void dlg_refraction::MasquerObjetsOeilDecoche()
 void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
 {
     int RetourListe = 0;
-    dlg_refractionlistemesures *Dlg_ListeMes    = new dlg_refractionlistemesures(mode);
+    dlg_refractionlistemesures *Dlg_ListeMes    = new dlg_refractionlistemesures(mode, this);
     Dlg_ListeMes->setWindowTitle(tr("Liste des mesures : ") + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() );
 
     RetourListe = Dlg_ListeMes->exec();

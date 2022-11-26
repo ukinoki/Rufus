@@ -26,6 +26,8 @@ ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
+    setAttribute(Qt::WA_ShowWithoutActivating);
+
     m_actes             = actes;
     m_idpatient         = m_actes->actes()->last()->idPatient();
     m_currentpatient    = Datas::I()->patients->getById(m_idpatient);

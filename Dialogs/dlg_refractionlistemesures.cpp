@@ -21,13 +21,13 @@ dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *paren
     UpDialog (PATH_FILE_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowModality(Qt::WindowModal);
     m_mode       = mode;
 
     wdg_bigtable = new QTableView(this);
 
     dlglayout()->insertWidget(0,wdg_bigtable);
 
-    setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des mesures"));
 

@@ -30,6 +30,7 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
 
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowTitle(tr("Remise de chèques"));
 
     restoreGeometry(proc->settings()->value(Position_Fiche "RemiseCheques").toByteArray());
 

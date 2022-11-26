@@ -75,6 +75,7 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->CPlineEdit              ->setValidator(new QRegExpValidator(Utils::rgx_CP,this));
     ui->VillelineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_ville,this));
     m_villes                    = villes;
+    wdg_parent                  = parent;
 
     setFocusProxy(ui->CPlineEdit);
 
@@ -231,8 +232,8 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
 
 QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName)
 {
-    UpDialog *gAsk                 = new UpDialog();
-    gAsk                           ->setModal(true);
+    UpDialog *gAsk                 = new UpDialog(wdg_parent);
+    gAsk                           ->setWindowModality(Qt::WindowModal);
     QListView *list                = new QListView(gAsk);
     VilleListModel *listModel      = new VilleListModel(listData,fieldName);
 

@@ -35,7 +35,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item *itm, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentCOMMERCIAL", parent)
 {
-    setWindowModality(Qt::WindowModal);
     m_mode = mode;
     switch (m_mode) {
     case Modification:
@@ -50,7 +49,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
         m_mode = Creation;
     if (m_currentcommercial)
         m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentcommercial->idmanufacturer());
-    setWindowTitle(m_mode == Creation? tr("Enregistrer un COMMERCIAL") : tr("Modifier un COMMERCIAL"));
+    setWindowModality(Qt::WindowModal);
 
     //! FABRICANT
     if (m_manufacturersmodel == Q_NULLPTR)

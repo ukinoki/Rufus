@@ -32,7 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \param man
  * \param parent
  */
-dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *parent) :
+dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentIOL", parent)
 {
     if (Datas::I()->manufacturers->manufacturers()->size() == 0)
@@ -42,27 +42,16 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
         return;
     }
     setWindowModality(Qt::WindowModal);
-    m_mode = mode;
+    setAttribute(Qt::WA_DeleteOnClose);
     m_currentIOL = iol;
-    if (!m_currentIOL)
-        m_mode = Creation;
-    switch (m_mode) {
-    case Creation:
-        m_currentmanufacturer = Q_NULLPTR;
-        m_currentIOL = Q_NULLPTR;
-        break;
-    case Modification:
-        int id = 0;
-        if (m_currentIOL)
-            id = m_currentIOL->id();
-        if ( m_currentIOL )
-            m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
-        if (m_currentmanufacturer)
-            reconstruitListeIOLs(m_currentmanufacturer);
-        m_currentIOL = Datas::I()->iols->getById(id);
-    }
+    m_mode = (m_currentIOL != Q_NULLPTR? Modification : Creation);
+    if (m_mode == Modification)
+        m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
+    if (m_currentmanufacturer)
+        reconstruitListeIOLs(m_currentmanufacturer);
 
-    setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
+
+    //setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
     if (m_manufacturersmodel == Q_NULLPTR)
@@ -349,7 +338,6 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
     }
 
     //! Materiau - Image - Navigation - recopie
-    QVBoxLayout *MateriauLay    = new QVBoxLayout();
     QHBoxLayout *MateriauImgLay = new QHBoxLayout();
     UpLabel* Materiaulbl        = new UpLabel;
     UpLabel* Typelbl            = new UpLabel;
@@ -361,8 +349,6 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
     setimage(m_nullimage);
     wdg_materiaubox             = new UpComboBox;
     wdg_typebox                 = new UpComboBox;
-    wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
-    wdg_toolbar                 = new UpToolBar;
     wdg_materiaubox             ->setEditable(true);
     wdg_materiaubox             ->lineEdit()->setMaxLength(45);
     wdg_materiaubox             ->setFixedWidth(180);
@@ -372,21 +358,25 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
     wdg_typebox                 ->setFixedWidth(180);
     wdg_typebox                 ->setCurrentIndex(-1);
     wdg_materiaubox             ->setCurrentIndex(-1);
-    MateriauLay                 ->insertWidget(0,wdg_materiaubox);
-    MateriauLay                 ->insertWidget(0,Materiaulbl);
-    MateriauLay                 ->insertWidget(0,wdg_typebox);
-    MateriauLay                 ->insertWidget(0,Typelbl);
-    MateriauLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    MateriauLay                 ->addWidget(wdg_recopiebutton);
-    MateriauLay                 ->addWidget(wdg_toolbar);
-    MateriauLay                 ->setContentsMargins(0,0,0,0);
-    MateriauImgLay              ->addLayout(MateriauLay);
+    lay_materiau                ->insertWidget(0,wdg_materiaubox);
+    lay_materiau                ->insertWidget(0,Materiaulbl);
+    lay_materiau                ->insertWidget(0,wdg_typebox);
+    lay_materiau                ->insertWidget(0,Typelbl);
+    lay_materiau                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    lay_materiau                ->setContentsMargins(0,0,0,0);
+    MateriauImgLay              ->addLayout(lay_materiau);
     MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     MateriauImgLay              ->addWidget(wdg_imgIOL);
     MateriauImgLay              ->setContentsMargins(0,0,0,0);
-    wdg_toolbar                 ->setVisible(m_mode == Modification);
-    wdg_recopiebutton           ->setVisible(false);
-    wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
+    if (m_mode == Modification)
+    {
+        wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
+        wdg_recopiebutton           ->setVisible(false);
+        lay_materiau                 ->addWidget(wdg_recopiebutton);
+        wdg_toolbar                 = new UpToolBar();
+        lay_materiau                 ->addWidget(wdg_toolbar);
+        wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
+    }
 
     //! Remarque
     QHBoxLayout *remarqueLay    = new QHBoxLayout();
@@ -442,9 +432,11 @@ dlg_identificationIOL::dlg_identificationIOL(enum Mode mode, IOL *iol, QWidget *
         lbl->setFont(font);
     foreach (UpLineEdit *line, findChildren<UpLineEdit*>())
         line->setAlignment(Qt::AlignCenter);
+    TuneSize();
 
     connectSignals();
-    AfficheDatasIOL(m_currentIOL);
+    if (m_mode == Modification)
+        AfficheDatasIOL(m_currentIOL);
     foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'ile coché/décoché par le programme
     {
         UpCheckBox *chk = dynamic_cast<UpCheckBox*>(wdg);
@@ -543,8 +535,10 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_cylindreminspin,   QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_imgIOL,            &QLabel::customContextMenuRequested,                    this,   &dlg_identificationIOL::menuChangeImage);
      connect (wdg_imgIOL,            &UpLabel::dblclick,                                     this,   [&] {if (wdg_imgIOL->isEnabled()) changeImage();});
-     connect (wdg_recopiebutton,     &UpPushButton::clicked,                                 this,   &dlg_identificationIOL::creeCopieIOL);
-     connect (wdg_toolbar,           &UpToolBar::TBSignal,                                   this,  [=] {NavigueVers(wdg_toolbar->choix());});
+     if (wdg_recopiebutton)
+        connect (wdg_recopiebutton,  &UpPushButton::clicked,                                 this,   &dlg_identificationIOL::creeCopieIOL);
+     if (wdg_toolbar)
+        connect (wdg_toolbar,        &UpToolBar::TBSignal,                                   this,  [=] {NavigueVers(wdg_toolbar->choix());});
 }
 
 void dlg_identificationIOL::disconnectSignals()
@@ -577,8 +571,10 @@ void dlg_identificationIOL::disconnectSignals()
      wdg_cylindremaxspin->disconnect();
      wdg_cylindreminspin->disconnect();
      wdg_imgIOL->disconnect();
-     wdg_recopiebutton->disconnect();
-     wdg_toolbar->disconnect();
+     if (wdg_recopiebutton)
+        wdg_recopiebutton->disconnect();
+     if (wdg_toolbar)
+         wdg_toolbar->disconnect();
 }
 
 
@@ -595,8 +591,10 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
     m_currentIOL = iol;
     if (m_currentmanufacturer)
         wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
-    wdg_toolbar         ->setEnabled(m_mode == Modification);
-    wdg_recopiebutton   ->setEnabled(m_mode == Modification);
+    if (wdg_toolbar)
+        wdg_toolbar         ->setEnabled(true);
+    if (wdg_recopiebutton)
+        wdg_recopiebutton   ->setEnabled(true);
 
     if (m_mode == Modification)
     {
@@ -784,8 +782,10 @@ void dlg_identificationIOL:: EnableOKpushButton()
     bool a  = wdg_nomiolline->text() != ""
            && wdg_manufacturercombo->currentData().toInt()>0;
     OKButton            ->setEnabled(a);
-    wdg_toolbar         ->setEnabled(!a);
-    wdg_recopiebutton   ->setEnabled(!a);
+    if (wdg_toolbar)
+        wdg_toolbar     ->setEnabled(!a);
+    if (wdg_recopiebutton)
+        wdg_recopiebutton   ->setEnabled(!a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
@@ -859,10 +859,16 @@ void dlg_identificationIOL::OKpushButtonClicked()
         case Creation:
             UpMessageBox::Watch(this,tr("Cet implant existe déjà!"));
             m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
+            m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
+            reconstruitListeIOLs(m_currentmanufacturer);
             OKButton->setEnabled(false);
-            wdg_toolbar         ->setEnabled(true);
-            wdg_recopiebutton   ->setEnabled(true);
             m_mode = Modification;
+            wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
+            wdg_recopiebutton           ->setVisible(false);
+            lay_materiau                ->addWidget(wdg_recopiebutton);
+            wdg_toolbar                 = new UpToolBar();
+            lay_materiau                ->addWidget(wdg_toolbar);
+            wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
             AfficheDatasIOL(m_currentIOL);
             disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
             connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);

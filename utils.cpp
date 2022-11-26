@@ -597,32 +597,88 @@ QString Utils::calcSHA1(QString mdp)
 /*---------------------------------------------------------------------------------------------------------------------
     -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Utils::VerifMDP(QString MDP, QString Msg, bool mdpverified)
+/*!
+ * \brief Utils::VerifMDP
+ * \param MDP = le mdp à vérifeir
+ * \param Msg = message de la boîte de diaolgue
+ * \param mdpval = la valeur entrée par l'utilisateur dans la boîte de dialogue
+ * \param mdpverified = le mot de passe a déjà été vérifié -> permet de shunter la fonction si le mdp a déjà été vérifié
+ * \param parent
+ * \return
+ */
+bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)
 {
     if (mdpverified)
         return true;
-    QInputDialog quest;
-    quest.setCancelButtonText("Annuler");
-    quest.setLabelText(Msg);
-    quest.setInputMode(QInputDialog::TextInput);
-    quest.setTextEchoMode(QLineEdit::Password);
-    QList<QLineEdit*> list = quest.findChildren<QLineEdit*>();
-    for (int i=0;i<list.size();i++)
-        list.at(0)->setAlignment(Qt::AlignCenter);
-    QList<QLabel*> listlab = quest.findChildren<QLabel*>();
-    for (int i=0;i<listlab.size();i++)
-        listlab.at(0)->setAlignment(Qt::AlignCenter);
-    quest.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    if (quest.exec() > 0)
+
+    if (parent != Q_NULLPTR)
     {
-        if (calcSHA1(quest.textValue()) == MDP)
-            return true;
-        else if (quest.textValue() == MDP)
-            return true;
-        else
-            UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
+        UpDialog *dlg_askMDP    = new UpDialog(parent);
+        dlg_askMDP      ->setWindowModality(Qt::WindowModal);
+        dlg_askMDP      ->setAttribute(Qt::WA_DeleteOnClose);
+
+        UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
+        ConfirmMDP      ->setEchoMode(QLineEdit::Password);
+        ConfirmMDP      ->setAlignment(Qt::AlignCenter);
+        ConfirmMDP      ->setMaxLength(25);
+        dlg_askMDP      ->dlglayout()->insertWidget(0,ConfirmMDP);
+
+        UpLabel *labelConfirmMDP = new UpLabel();
+        labelConfirmMDP ->setText(Msg);
+        labelConfirmMDP ->setAlignment(Qt::AlignCenter);
+        dlg_askMDP      ->dlglayout()->insertWidget(0,labelConfirmMDP);
+
+        dlg_askMDP      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+        connect(dlg_askMDP->OKButton,    &QPushButton::clicked, [&] {
+            if (calcSHA1(ConfirmMDP->text()) == MDP)
+                dlg_askMDP->accept();
+            else if (ConfirmMDP->text() == MDP)
+                dlg_askMDP->accept();
+            else
+                UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
+        });
+        dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+        dlg_askMDP->dlglayout()->setSpacing(8);
+        mdpval = ConfirmMDP->text();
+        int a = dlg_askMDP->exec();
+        if (a > 0)
+            mdpverified = true;
+        return mdpverified;
     }
-    return false;
+    else
+    {
+        QInputDialog *quest = new QInputDialog(parent);
+        quest->setCancelButtonText("Annuler");
+        quest->setLabelText(Msg);
+        quest->setInputMode(QInputDialog::TextInput);
+        quest->setTextEchoMode(QLineEdit::Password);
+        QList<QLineEdit*> list = quest->findChildren<QLineEdit*>();
+        for (int i=0;i<list.size();i++)
+            list.at(0)->setAlignment(Qt::AlignCenter);
+        QList<QLabel*> listlab = quest->findChildren<QLabel*>();
+        for (int i=0;i<listlab.size();i++)
+            listlab.at(0)->setAlignment(Qt::AlignCenter);
+        quest->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        int a = quest->exec();
+        mdpval = quest->textValue();
+        if (a > 0)
+        {
+            if (calcSHA1(quest->textValue()) == MDP)
+            {
+                delete quest;
+                return true;
+            }
+            else if (quest->textValue() == MDP)
+            {
+                delete quest;
+                return true;
+            }
+            else
+                UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
+        }
+        delete quest;
+        return false;
+    }
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -946,6 +1002,17 @@ void Utils::CalcFontSize(QFont &font)
             i=30;
         }
     }
+}
+
+//! renvoie une couleur
+QColor Utils::SelectCouleur(QColor colordep, QWidget *parent)
+{
+    QColorDialog *dlg = new QColorDialog(colordep, parent);
+    dlg->setWindowModality(Qt::WindowModal);
+    dlg->exec();
+    QColor colorfin = dlg->selectedColor();
+    delete dlg;
+    return  colorfin;
 }
 
 

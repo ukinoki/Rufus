@@ -110,7 +110,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     dlglayout()     ->insertLayout(0,wdg_lblbox);
     dlglayout()     ->insertWidget(0,wdg_bigtable);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
-    connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {accept();});
+    connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
@@ -128,9 +128,9 @@ bool dlg_bilanrecettes::initOK() const
     return m_initok;
 }
 
-void dlg_bilanrecettes::CalcBilan()
+void dlg_bilanrecettes::CalcBilan(QWidget *parent)
 {
-    QMap<Utils::Period, QDate> DateMap = proc->ChoixDate();
+    QMap<Utils::Period, QDate> DateMap = proc->ChoixDate(parent);
     if (!DateMap.isEmpty())
     {
         m_debut = DateMap[Utils::Debut];
@@ -139,7 +139,7 @@ void dlg_bilanrecettes::CalcBilan()
         if (Datas::I()->recettes->recettes()->size() == 0)
         {
             m_initok = false;
-            UpMessageBox::Watch(this,tr("Pas de recette enregistrée pour cette période"));
+            UpMessageBox::Watch(parent,tr("Pas de recette enregistrée pour cette période"));
             return;
         }
     }
@@ -585,7 +585,7 @@ void dlg_bilanrecettes::ExportTable()
 void dlg_bilanrecettes::NouvPeriode()
 {
     QDate debutavant, finavant;
-    CalcBilan();
+    CalcBilan(this);
     if (!m_initok)
     {
         m_debut   = debutavant;

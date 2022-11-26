@@ -21,6 +21,7 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionTypesInterventions", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    setWindowModality(Qt::WindowModal);
 
     wdg_tblview = new UpTableView();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
@@ -32,7 +33,6 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     CancelButton    ->disconnect();
 
-    setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des mots-clés"));
 

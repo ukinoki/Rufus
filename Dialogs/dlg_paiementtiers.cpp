@@ -1683,7 +1683,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
             {
-                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
+                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
                 Dlg_IdentTiers->setnomtiers(nou.toUpper());
                 if (Dlg_IdentTiers->exec()>0)
                 {

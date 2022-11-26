@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptoolbar.h"
 #include "icons.h"
 
+//explicit    UpToolBar(bool AvecFinDebut = true, bool AvecReload = false, QWidget *parent = Q_NULLPTR);
 UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToolBar(parent)
 {
     if (AvecFinDebut)

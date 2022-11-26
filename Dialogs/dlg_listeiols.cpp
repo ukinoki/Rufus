@@ -21,10 +21,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeIOLs",parent)
 {
     m_onlyactifs = onlyactifs;
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint
-                   | Qt::WindowMinMaxButtonsHint);//|Qt::X11BypassWindowManagerHint);
-
-    setWindowModality(Qt::WindowModal);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des IOLs"));
     wdg_manufacturerscombo = new UpComboBox();
 
@@ -139,6 +136,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 
     dlglayout()->insertLayout(0,globallay);
     setFixedWidth(wdg_manufacturerscombo->width() + globallay->spacing() + wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
+    TuneSize();
 
     if (!Datas::I()->iols->isfull())
         Datas::I()->iols->initListe();
@@ -360,7 +358,7 @@ bool dlg_listeiols::listeIOLsmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listeiols::EnregistreNouveauIOL()
 {
-    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(dlg_identificationIOL::Creation, Q_NULLPTR, this);
+    dlg_identificationIOL *Dlg_IdentIOL    = new dlg_identificationIOL(Q_NULLPTR, this);
     if (!Dlg_IdentIOL->initok())
     {
         delete Dlg_IdentIOL;
@@ -377,7 +375,6 @@ void dlg_listeiols::EnregistreNouveauIOL()
         if (iol)
             scrollToIOL(iol);
     }
-    delete Dlg_IdentIOL;
 }
 // ------------------------------------------------------------------------------------------
 // renvoie l'IOL correspondant à l'index
@@ -663,7 +660,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 {
     if (iol == Q_NULLPTR)
         return;
-    dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(dlg_identificationIOL::Modification, iol, this);
+    dlg_identificationIOL *Dlg_IdentIOL = new dlg_identificationIOL(iol, this);
     if (!Dlg_IdentIOL->initok())
     {
         delete Dlg_IdentIOL;
@@ -673,18 +670,14 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     {
         if (iol)
         {
-            int idiol = iol->id();
             m_listemodifiee = true;
             wdg_manufacturerscombo->disconnect();
             wdg_manufacturerscombo->setCurrentIndex(0);
             connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
-            iol = Datas::I()->iols->getById(idiol, true);
             ReconstruitTreeViewIOLs();
-            if (iol)
-                scrollToIOL(iol);
+            scrollToIOL(iol);
         }
     }
-    delete Dlg_IdentIOL;
 }
 
 void dlg_listeiols::resizeiolimage(int size)
@@ -779,6 +772,7 @@ void dlg_listeiols::scrollToIOL(IOL *iol)
                                     {
                                         wdg_itemstree->scrollTo(childitm->index(), QAbstractItemView::PositionAtCenter);
                                         wdg_itemstree->selectionModel()->select(childitm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);
+                                        Enablebuttons(childitm->index());
                                         j = itm->rowCount();
                                         i = m_IOLsmodel->rowCount();
                                     }

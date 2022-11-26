@@ -21,14 +21,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
 {
     wdg_iconlbl             = new UpLabel();
-    wdg_texteditlbl             = new UpLabel();
-    wdg_infolbl           = new UpLabel();
+    wdg_texteditlbl         = new UpLabel();
+    wdg_infolbl             = new UpLabel();
     wdg_textlayout          = new QVBoxLayout();
     wdg_infolayout          = new QHBoxLayout();
     wdg_ReponsSmallButton   = Q_NULLPTR;
     wdg_ReponsPushButton    = Q_NULLPTR;
-    wdg_texteditlbl             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
-    wdg_infolbl           ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+    wdg_texteditlbl         ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+    wdg_infolbl             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
 
     wdg_textlayout      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
     wdg_textlayout      ->addSpacerItem(new QSpacerItem(350,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -36,10 +36,10 @@ UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
     wdg_infolayout      ->setSpacing(30);
     wdg_textlayout      ->setSpacing(5);
     wdg_textlayout      ->setContentsMargins(0,0,0,0);
-    dlglayout()     ->insertLayout(0,wdg_infolayout);
-    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
-
-    setModal(true);
+    dlglayout()         ->insertLayout(0,wdg_infolayout);
+    dlglayout()         ->setSizeConstraint(QLayout::SetFixedSize);
+    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    setWindowModality(Qt::WindowModal);
 }
 
 UpMessageBox::~UpMessageBox()

@@ -65,7 +65,7 @@ private:
     UpRadioButton               *wdg_comptableradiobouton;
     UpRadioButton               *wdg_superviseurradiobouton;
 
-    void                        CalcBilan();
+    void                        CalcBilan(QWidget *parent = Q_NULLPTR);
     void                        CalcSuperviseursEtComptables(); //Etablit la liste des superviseurs et des comptables pour la période du bilan
     void                        CalculeTotal();
     void                        ChangeMode(enum Mode);

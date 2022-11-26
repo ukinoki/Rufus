@@ -26,7 +26,6 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     restoreGeometry(proc->settings()->value(Position_Fiche "Comptes").toByteArray());
-    setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
     Datas::I()->comptes->initListe(); // (si le solde a été changé sur un autre poste)
@@ -69,7 +68,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
             connect(ui->AnnulArchivepushButton,             &QPushButton::clicked,                              this,   [=] {AnnulArchive();});
             connect(ui->ArchiverpushButton,                 &QPushButton::clicked,                              this,   [=] {Archiver();});
             connect(ui->AnnulerConsolidationspushButton,    &QPushButton::clicked,                              this,   [=] {AnnulConsolidations();});
-            connect(ui->OKpushButton,                       &QPushButton::clicked,                              this,   [=] {accept();});
+            connect(ui->OKpushButton,                       &QPushButton::clicked,                              this,   [=] {close();});
             connect(ui->BanquecomboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),this,   [=](int){ChangeCompte(ui->BanquecomboBox->currentIndex());});
             connect(ui->VoirArchivespushButton,             &QPushButton::clicked,                              this,   &dlg_comptes::VoirArchives);
 
@@ -517,7 +516,7 @@ void dlg_comptes::VoirArchives()
 
     dlg_archives->AjouteLayButtons(UpDialog::ButtonOK);
     connect(dlg_archives->OKButton,     &QPushButton::clicked,              dlg_archives, [=] {dlg_archives->close();});
-    dlg_archives->setModal(true);
+    dlg_archives->setWindowModality(Qt::WindowModal);
     dlg_archives->dlglayout()->setStretch(0,1);
     dlg_archives->dlglayout()->setStretch(1,15);
 
@@ -578,8 +577,7 @@ void dlg_comptes::VoirArchives()
 void dlg_comptes::ModifMontant(LigneCompte *lign)
 {
     UpDialog *dlg_montant = new UpDialog(this);
-    dlg_montant     ->setModal(true);
-    dlg_montant     ->setWindowTitle(tr("Modification d'une écriture!"));
+    dlg_montant    ->setWindowModality(Qt::WindowModal);
     QString txtlbl = (tr("Vous avez choisi de modifier le montant de l'écriture") + "\n" +
                       lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +
                       tr("Cette modification est définitive mais ne supprimera") + "\n" +
@@ -621,7 +619,7 @@ void dlg_comptes::ModifMontant(LigneCompte *lign)
     });
     connect(dlg_montant->CancelButton,  &QPushButton::clicked, dlg_montant, &QDialog::reject);
     dlg_montant->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-
+    dlg_montant->setWindowModality(Qt::WindowModal);
     dlg_montant->exec();
 }
 

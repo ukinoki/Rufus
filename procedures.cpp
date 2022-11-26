@@ -407,8 +407,11 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     QString msgEchec = tr("Incident pendant la sauvegarde");
     qintptr handledlg = 0;
     if (verifmdp)
-        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+    {
+        QString mdp("");
+        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp))
             return false;
+    }
     ShowMessage::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
     emit ConnectTimers(false);
 
@@ -1486,11 +1489,11 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
     }
 }
 
-QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)
+QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal, QWidget *parent)
 {
     QString         rep("");
     QString         geometry(Position_Fiche "Edit");
-    UpDialog        *gAsk           = new UpDialog();
+    UpDialog        *gAsk           = new UpDialog(parent);
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     QList<QScreen*> listscreens = QGuiApplication::screens();
     int x = 0;
@@ -1501,8 +1504,9 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
         y = listscreens.first()->geometry().height();
     }
 
-    gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    if (!editable)
+        gAsk->setWindowModality(Qt::WindowModal);
 
     TxtEdit->setText(txt);
     TxtEdit->setTextInteractionFlags(editable? Qt::TextEditorInteraction : (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard));
@@ -1513,7 +1517,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
 
     gAsk->dlglayout()->insertWidget(0,TxtEdit);
 
-    gAsk->AjouteLayButtons();
+    gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(gAsk->OKButton, &QPushButton::clicked,  gAsk,       &QDialog::accept);
     if (ConnectAuSignal)
         connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
@@ -2280,7 +2284,7 @@ void Procedures::CalcTimeBupRestore()
     dlg_buprestore->OKButton->setEnabled(m_freespace>volume);
 }
 
-bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes)
+bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent)
 {
     UpMessageBox    msgbox;
     UpSmallButton   AnnulBouton;
@@ -2307,7 +2311,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (msgbox.clickedButton() != &OKBouton)
             return false;
 
-        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
+        QString mdp("");
+        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp))
             return false;
 
         QDir dirtorestore(PATH_DIR_RESSOURCES);
@@ -2404,7 +2409,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                  return false;
 
         /*! 1 - choix du dossier où se situe la sauvegarde */
-        UpMessageBox::Information(Q_NULLPTR, tr("Choix du dossier de sauvegarde"),
+        UpMessageBox::Information(parent, tr("Choix du dossier de sauvegarde"),
                                   tr("Dans la fiche suivante, choisissez le dossier "
                                   "contenant la sauvegarde de la base.\n\n"
                                   "Une fois le dossier sélectionné, "
@@ -2412,9 +2417,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                   "Ce processus est long et peut durer plusieurs minutes.\n"
                                   "(environ 1' pour 2 Go)\n"));
         QString dir = PATH_DIR_RUFUS;
-        QFileDialog dialog(Q_NULLPTR,tr("Restaurer à partir du dossier") , dir);
+        QFileDialog dialog(parent,tr("Restaurer à partir du dossier") , dir);
         dialog.setViewMode(QFileDialog::List);
         dialog.setFileMode(QFileDialog::DirectoryOnly);
+        dialog.setWindowModality(Qt::WindowModal);
         bool b = (dialog.exec()>0);
         if (!b)
             return false;
@@ -2423,10 +2429,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return false;
         if (dirtorestore.absolutePath().contains(" "))
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
+            UpMessageBox::Watch(parent, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
             return false;
         }
-        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
+        QString mdp("");
+        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
 
 
@@ -3385,7 +3392,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         else if( currentuser()->isAssistant() )
             CalcUserSuperviseur();
 
-        dlg_askUser                ->setModal(true);
         dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
         connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
 
@@ -4123,6 +4129,7 @@ bool Procedures::VerifRessources(QString Nomfile)
         QFileDialog dialog(Q_NULLPTR, tr("Choisir le dossier de ressources d'impression à restaurer"), QDir::homePath() + "/dumpsRufus","SQL files (dump*.sql)");
         dialog.setViewMode(QFileDialog::List);
         dialog.setFileMode(QFileDialog::Directory);
+        dialog.setWindowModality(Qt::WindowModal);
         if (dialog.exec()>0)
         {
             QDir dockdir = dialog.directory();

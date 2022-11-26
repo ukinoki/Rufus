@@ -20,8 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionMotsCles", parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowTitle(tr("Liste des mots-clés"));
     wdg_tblview = new UpTableView();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
@@ -32,7 +32,6 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     CancelButton    ->disconnect();
 
-    setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des mots-clés"));
 
@@ -610,7 +609,7 @@ void dlg_listemotscles::Validation()
             //qDebug() << req;
             db->StandardSQL(req);
         }
-        accept();
+        close();
     }
 }
 

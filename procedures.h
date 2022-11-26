@@ -271,7 +271,7 @@ public:
     void                    ab(int i = 1);
     void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
-    QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
+    QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
@@ -377,7 +377,7 @@ signals:
                                  * sous Mac, crée le fichier xml rufus.bup.plist
                                  * sous Linux, lance le timer t_timerbackup
                                 */
-        bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
+        bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true, QWidget *parent = Q_NULLPTR);
         bool                    ReinitBase();
         enum                    BkupRestore { BackupOp, RestoreOp}; Q_ENUM(BkupRestore)
 
