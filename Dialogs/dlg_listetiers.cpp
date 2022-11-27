@@ -21,8 +21,6 @@ dlg_listetiers::dlg_listetiers(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeTiers",parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-
-    setModal(true);
     setWindowTitle(tr("Liste des tiers payants"));
 
     wdg_itemstree = new QTreeView(this);
@@ -104,7 +102,7 @@ bool dlg_listetiers::listetiersmodifiee() const
 // ------------------------------------------------------------------------------------------
 void dlg_listetiers::EnregistreNouveauTiers()
 {
-    dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
+    dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
     if (Dlg_IdentTiers->exec()>0)
     {
         Tiers * trs = Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());

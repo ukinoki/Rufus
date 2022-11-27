@@ -231,8 +231,8 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
 
 QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName)
 {
-    UpDialog *gAsk                 = new UpDialog();
-    gAsk                           ->setModal(true);
+    UpDialog *gAsk                 = new UpDialog(wdg_parent);
+    gAsk                           ->setWindowModality(Qt::WindowModal);
     QListView *list                = new QListView(gAsk);
     VilleListModel *listModel      = new VilleListModel(listData,fieldName);
 

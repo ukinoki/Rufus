@@ -50,7 +50,6 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
         m_mode = Creation;
     if (m_currentcommercial)
         m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentcommercial->idmanufacturer());
-    setWindowTitle(m_mode == Creation? tr("Enregistrer un COMMERCIAL") : tr("Modifier un COMMERCIAL"));
 
     //! FABRICANT
     if (m_manufacturersmodel == Q_NULLPTR)

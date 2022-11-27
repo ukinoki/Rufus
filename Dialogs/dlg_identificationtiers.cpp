@@ -26,7 +26,7 @@ dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget 
     ui(new Ui::dlg_identificationtiers)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowModality(Qt::WindowModal);
     if (trs != Q_NULLPTR)
         m_currenttiers          = trs;
     m_mode                      = mode;

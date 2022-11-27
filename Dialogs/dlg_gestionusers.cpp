@@ -23,7 +23,8 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);   
+    setWindowTitle(tr("Gestion des utilisateurs"));
 
     m_MDPverified            = mdpverified;
 
@@ -266,7 +267,7 @@ void dlg_gestionusers::ChoixButtonFrame()
 
 void dlg_gestionusers::CreerUser()
 {
-    dlg_ask                        = new UpDialog(this);
+    dlg_ask                     = new UpDialog(this);
     QVBoxLayout *lay            = new QVBoxLayout();
     UpLabel *label              = new UpLabel();
     UpLabel *label2             = new UpLabel();
@@ -275,7 +276,7 @@ void dlg_gestionusers::CreerUser()
     UpLineEdit *Line2           = new UpLineEdit();
     UpLineEdit *Line3           = new UpLineEdit();
 
-    dlg_ask                        ->setModal(true);
+    dlg_ask                        ->setWindowModality(Qt::WindowModal);
     dlg_ask                        ->move(QPoint(x()+width()/2,y()+height()/2));
     dlg_ask                        ->setFixedSize(300,300);
     dlg_ask                        ->setWindowTitle("");
@@ -310,7 +311,7 @@ void dlg_gestionusers::CreerUser()
     label2                      ->setText(tr("Choisissez un mot de passe\n- mini 5 maxi 12 caractères -\n- pas de caractères spéciaux ou accentués -"));
     label3                      ->setText(tr("Confirmez le mot de passe"));
 
-    dlg_ask                     ->AjouteLayButtons(UpDialog::ButtonOK);
+    dlg_ask                     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_ask->OKButton,  &QPushButton::clicked,  this,   &dlg_gestionusers::EnregistreNouvUser);
 
     lay                         ->addWidget(label);
@@ -329,6 +330,7 @@ void dlg_gestionusers::CreerUser()
     Line                        ->setFocus();
     dlg_ask->exec();
     delete dlg_ask;
+    dlg_ask = Q_NULLPTR;
 }
 
 void dlg_gestionusers::EnregistreNouvMDP()
@@ -865,7 +867,6 @@ void dlg_gestionusers::GestionComptes()
         delete Dlg_GestComptes;
         return;
     }
-    Dlg_GestComptes ->setWindowTitle(tr("Comptes bancaires de ") + m_userencours->login());
     Dlg_GestComptes ->exec();
     if (verifempl)
         if (ui->EmployeurcomboBox->currentText() != empl)
@@ -893,7 +894,7 @@ bool dlg_gestionusers::isMDPverified() const
 void dlg_gestionusers::ModifUser()
 {
     ui->ListUserstableWidget        ->setEnabled(false);
-    wdg_buttonframe                     ->setEnabled(false);
+    wdg_buttonframe                 ->setEnabled(false);
     ui->Principalframe              ->setEnabled(true);
     ui->ModeExercicegroupBox        ->setEnabled(true);
     ui->SecteurgroupBox             ->setEnabled(true);
@@ -901,12 +902,13 @@ void dlg_gestionusers::ModifUser()
     ui->OKupSmallButton             ->setEnabled(false);
     ui->AGAupRadioButton            ->setEnabled(true);
     ui->CompteActeswidget           ->setEnabled(true);
-    m_mode                           = Modifier;
+    m_mode                          = Modifier;
 }
 
 void dlg_gestionusers::GestLieux()
 {
-    m_MDPverified = Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), m_MDPverified );
+    QString mdp("");
+    m_MDPverified = Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), mdp, m_MDPverified, this);
     if (!m_MDPverified)
             return;
     dlg_listelieux *gestLieux = new dlg_listelieux();
@@ -929,7 +931,7 @@ void dlg_gestionusers::GestLieux()
 void dlg_gestionusers::ModifMDP()
 {
     gAskMDP    = new UpDialog(this);
-    gAskMDP    ->setModal(true);
+    gAskMDP    ->setWindowModality(Qt::WindowModal);
     gAskMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
 
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
@@ -1426,7 +1428,7 @@ void dlg_gestionusers::Inactifs()
         }
     };
     UpDialog *dlg_listinactifs = new UpDialog(this);
-    dlg_listinactifs->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    dlg_listinactifs->setWindowModality(Qt::WindowModal);
     QTableView *wdg_bigtable = new QTableView(dlg_listinactifs);
 
     //! Remplissage de la table
@@ -1473,7 +1475,6 @@ void dlg_gestionusers::Inactifs()
     label->setText(tr("Cochez les utilisateurs\nque vous souhaitez réactiver"));
     dlg_listinactifs->AjouteWidgetLayButtons(label, false);
     dlg_listinactifs->setFixedWidth(wdg_bigtable->width() + dlglayout()->contentsMargins().left()*2);
-    dlg_listinactifs->setModal(true);
     dlg_listinactifs->setSizeGripEnabled(false);
     dlg_listinactifs->setWindowTitle(tr("Utilisateurs inactifs"));
 

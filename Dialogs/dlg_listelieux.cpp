@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listelieux::dlg_listelieux(QWidget *parent)
     : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionLieux", parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowModality(Qt::WindowModal);
     db              = DataBase::I();
     AjouteLayButtons(UpDialog::ButtonClose);
     connect(CloseButton, &QPushButton::clicked, this, &QDialog::reject);
@@ -165,11 +165,7 @@ void dlg_listelieux::ModifCouleur()
     int row = wdg_tblview->currentIndex().row();
     QString couleurenreg = sit->couleur();
     QColor colordep = QColor("#FF" + couleurenreg);
-    QColorDialog *dlg = new QColorDialog(colordep, this);
-    dlg->exec();
-
-    QColor colorfin = dlg->selectedColor();
-    delete dlg;
+    QColor colorfin = Utils::SelectCouleur(colordep, this);
     if (!colorfin.isValid())
         return;
     QString couleur = colorfin.name();
@@ -192,11 +188,7 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
                 return;
             QString couleurenreg = sit->couleur();
             QColor colordep = QColor("#FF" + couleurenreg);
-            QColorDialog *dlg = new QColorDialog(colordep, this);
-            dlg->exec();
-
-            QColor colorfin = dlg->selectedColor();
-            delete dlg;
+            QColor colorfin = Utils::SelectCouleur(colordep, this);
             if (!colorfin.isValid())
                 return;
             QString couleur = colorfin.name();
@@ -208,10 +200,7 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     auto nouvcouleur = [&]
         {
             QColor colordep = QColor(0xFF,0xFF,0xFF);
-            QColorDialog *dlg = new QColorDialog(colordep, this);
-            dlg->exec();
-            QColor colorfin = dlg->selectedColor();
-            delete dlg;
+            QColor colorfin = Utils::SelectCouleur(colordep, this);
             if (!colorfin.isValid())
                 return;
             QString couleur = colorfin.name();
@@ -221,7 +210,7 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
 
     dlg_lieu = new UpDialog(this);
     dlg_lieu->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    dlg_lieu->setWindowTitle(tr("Enregistrer un nouveau lieu"));
+    dlg_lieu->setWindowModality(Qt::WindowModal);
     QVBoxLayout *laylbl = new QVBoxLayout();
     QVBoxLayout *layledit = new QVBoxLayout();
     QHBoxLayout *laycom = new QHBoxLayout();

@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UTILS_H
 #define UTILS_H
 #include <QBuffer>
+#include <QColorDialog>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFileDialog>
@@ -153,7 +154,7 @@ public:
                                                                     \result monoposte = BDD_POSTE, reseau local = BDD_LOCAL, distant = BDD_DISTANT
                                                                     \param le mode d'accès */
     static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
-    static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified = false);
+    static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = Q_NULLPTR);
 
     //! Calcule âge
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
@@ -166,6 +167,9 @@ public:
 
     //! calcule la taille idéale d'une police
     static void CalcFontSize(QFont &font);
+
+    //! renvoie une couleur
+    static QColor   SelectCouleur(QColor colordep, QWidget *parent= Q_NULLPTR);
 
     //! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
     static Cote     ConvertCote(QString cote);

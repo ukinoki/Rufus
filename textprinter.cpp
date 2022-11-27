@@ -250,6 +250,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
             {
                 QPrintDialog dialog(printer_, parent_);
                 dialog.setWindowTitle(caption.isEmpty() ? tr("Impression") : caption);
+                dialog.setWindowModality(Qt::WindowModal);
                 if (dialog.exec() == QDialog::Rejected)
                     return false;
                 else printer_= dialog.printer();
@@ -314,6 +315,7 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
 
     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer_, parent_);
     dialog->setWindowTitle(caption.isEmpty() ? "Print Preview" : caption);
+    dialog->setWindowModality(Qt::WindowModal);
     connect(dialog, &QPrintPreviewDialog::paintRequested, this, &TextPrinter::launchprint);
 
     // preview it

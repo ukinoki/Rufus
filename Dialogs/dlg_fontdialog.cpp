@@ -21,7 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *parent) :
     UpDialog(nomSettings, Position, parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    //setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowModality(Qt::WindowModal);
     setFixedWidth(280);
     setMaximumSize(280,1200);
     QFontDatabase database;

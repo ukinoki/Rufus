@@ -55,6 +55,7 @@ private:
 
     QString         dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName);
     void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
+    QWidget         *wdg_parent = Q_NULLPTR;
 
 signals:
     void            villecpmodified();

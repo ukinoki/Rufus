@@ -25,6 +25,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowTitle(tr("Identification de") + " " + pat->prenom().toUpper() + " " + pat->nom().toUpper());
 
     m_currentpatient        = pat;
     m_mode                  = mode;
@@ -405,13 +406,14 @@ void dlg_identificationpatient::ModifCorrespondant()
 {
     int idcor           = ui->MGupComboBox->currentData().toInt();
     bool onlydoctors = true;
-    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails));
+    dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails), this);
     if (Datas::I()->correspondants->getById(idcor)==Q_NULLPTR)
         Dlg_IdentCorresp->ui->NomlineEdit   ->setText(ui->MGupComboBox->currentText());
     else
         Dlg_IdentCorresp->ui->NomlineEdit   ->setText(Datas::I()->correspondants->getById(idcor)->nom());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton ->setChecked(true);
+    Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentCorresp->exec()>0)
     {
         Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
@@ -583,10 +585,11 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 {
     int idcor = -1;
     bool onlydoctors = true;
-    dlg_identificationcorresp *Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+    dlg_identificationcorresp *Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(ui->MGupComboBox->currentText());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
+    Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentCorresp->exec()>0)
         idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
     delete Dlg_IdentCorresp;

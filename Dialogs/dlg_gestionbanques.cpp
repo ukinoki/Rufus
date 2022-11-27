@@ -31,6 +31,7 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
     m_fermeapresvalidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowModality(Qt::WindowModal);
 
     dlglayout()               ->insertWidget(0, ui->Banqueframe);
     if (m_fermeapresvalidation)

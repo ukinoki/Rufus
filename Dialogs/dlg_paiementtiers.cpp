@@ -168,14 +168,6 @@ void dlg_paiementtiers::AfficheActeVerrouille()
     disconnect(t_timerafficheacteverrouilleclignotant, &QTimer::timeout, this, &dlg_paiementtiers::AfficheActeVerrouilleClignotant);
     t_timerafficheacteverrouilleclignotant->stop();
     ui->VerrouilleParlabel->setVisible(false);
-//    for (int i= 0; i != ui->ListeupTableWidget->rowCount(); i++)
-//    {
-//        UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
-//        if (Check)
-//            Check->setToggleable(true);
-//    }
-
-
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1683,7 +1675,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
             {
-                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation);
+                dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
                 Dlg_IdentTiers->setnomtiers(nou.toUpper());
                 if (Dlg_IdentTiers->exec()>0)
                 {

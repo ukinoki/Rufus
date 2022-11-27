@@ -24,6 +24,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
     m_currentpatient     = pat;
     if (intervention)
         m_currentintervention = intervention;
@@ -36,7 +37,6 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
 
     restoreGeometry(proc->settings()->value(Position_Fiche "Documents").toByteArray());
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocsupTableView);
@@ -877,11 +877,11 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
             tabChamps->setColumnWidth(0,250);
         tabChamps->setFixedWidth(tabChamps->columnWidth(0)+2);
 
-        ListChamps->AjouteLayButtons(UpDialog::ButtonOK);
+        ListChamps->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         ListChamps->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
         ListChamps->dlglayout()->insertWidget(0,tabChamps);
 
-        ListChamps->setModal(true);
+        ListChamps->setWindowModality(Qt::WindowModal);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
 
         connect(ListChamps->OKButton,   &QPushButton::clicked, ListChamps,         [=] {ListChamps->accept();});
@@ -1216,33 +1216,6 @@ void dlg_impressions::OKpushButtonClicked()
                             listtypeQuestions << txt.mid(fin+2,lengthtype-4);
                         }
                     }
-
-
-//                    while (reg.indexIn(text, pos) != -1)
-//                    {
-//                        pos = reg.indexIn(text, pos);
-//                        ++count;
-//                        pos += reg.matchedLength();
-//                        int fin = reg.cap(1).indexOf("//");
-//                        int lengthquest = fin-2;
-//                        int lengthtype = reg.cap(1).length() - fin;
-//                        bool a = true;
-//                        if (listQuestions.size()>0)
-//                            for (int j=0; j<listQuestions.size();j++)
-//                            {
-//                                if (listQuestions.at(j) == reg.cap(1).mid(2,lengthquest))
-//                                {
-//                                    a = false;
-//                                    break;
-//                                }
-//                            }
-//                        if (a){
-//                            listQuestions << reg.cap(1).mid(2,lengthquest);
-//                            listtypeQuestions << reg.cap(1).mid(fin+2,lengthtype-4);
-//                        }
-//                    }
-
-
                 }
             }
         }
@@ -1250,11 +1223,9 @@ void dlg_impressions::OKpushButtonClicked()
         if (listQuestions.size()>0 || m_userentete == Q_NULLPTR)
         {
             dlg_ask = new UpDialog(this);
-            dlg_ask->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
             dlg_ask->setWindowModality(Qt::WindowModal);
             dlg_ask->setSizeGripEnabled(false);
             dlg_ask->move(QPoint(x()+width()/2,y()+height()/2));
-            dlg_ask->setWindowTitle(tr("Complétez la fiche"));
 
             QVBoxLayout *layWidg = new QVBoxLayout();
             for (int m=0; m<listQuestions.size();m++)
@@ -1457,14 +1428,15 @@ void dlg_impressions::OKpushButtonClicked()
                 Combo->setAccessibleDescription(listusers);
                 lay->addWidget(Combo);
             }
-            dlg_ask->dlglayout()   ->setContentsMargins(5,5,5,5);
-            layWidg     ->setContentsMargins(0,0,0,0);
-            layWidg     ->setSpacing(0);
-            dlg_ask->dlglayout()   ->setSpacing(5);
-            dlg_ask->dlglayout()   ->insertLayout(0,layWidg);
+            dlg_ask->dlglayout()    ->setContentsMargins(5,5,5,5);
+            layWidg                 ->setContentsMargins(0,0,0,0);
+            layWidg                 ->setSpacing(0);
+            dlg_ask->dlglayout()    ->setSpacing(5);
+            dlg_ask->dlglayout()    ->insertLayout(0,layWidg);
 
-            dlg_ask->AjouteLayButtons();
+            dlg_ask->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+            dlg_ask->setWindowModality(Qt::WindowModal);
             connect(dlg_ask->OKButton,     &QPushButton::clicked, this,  [=] {VerifCoherencedlg_ask();});
 
             if (dlg_ask->exec() == 0)
@@ -1575,6 +1547,7 @@ void dlg_impressions::OKpushButtonClicked()
                 }
             }
             delete dlg_ask;
+            dlg_ask = Q_NULLPTR;
         }
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
@@ -1613,7 +1586,7 @@ void dlg_impressions::OKpushButtonClicked()
                         datasdocaimprimer.insert(Administratif, (impr->ismedical()? "": "1"));
                         datasdocaimprimer.insert(Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
                         // on visualise le document pour correction s'il est éditable
-                        txtdoc                          = (impr->iseditable()? proc->Edit(txtdoc, titre): txtdoc);
+                        txtdoc                          = (impr->iseditable()? proc->Edit(txtdoc, titre, true, false, this): txtdoc);
                         if (txtdoc != "")               // si le texte du document est vide, on annule l'impression de cette itération
                         {
                             datasdocaimprimer.insert(Texte, txtdoc);
@@ -1785,7 +1758,7 @@ void dlg_impressions::keyPressEvent(QKeyEvent * event )
 int dlg_impressions::AskDialog(QString titre)
 {
     dlg_askdialog               = new UpDialog(this);
-    dlg_askdialog               ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    dlg_askdialog               ->setWindowModality(Qt::WindowModal);
     UpLineEdit  *Line           = new UpLineEdit(dlg_askdialog);
     UpLabel     *label          = new UpLabel(dlg_askdialog);
     QString question            = tr("Entrez la question que vous voulez poser.");
@@ -1798,7 +1771,6 @@ int dlg_impressions::AskDialog(QString titre)
     dlg_askdialog->dlglayout()->insertWidget(0,Line);
     dlg_askdialog->dlglayout()->insertWidget(0,label);
 
-    dlg_askdialog->setModal(true);
     dlg_askdialog->setSizeGripEnabled(false);
     //dlg_askdialog->setFixedSize(270,100);
     dlg_askdialog->move(QPoint(x()+width()/2,y()+height()/2));
@@ -1810,7 +1782,10 @@ int dlg_impressions::AskDialog(QString titre)
 
     Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
-    return dlg_askdialog->exec();
+    int a = dlg_askdialog->exec();
+    delete dlg_askdialog;
+    dlg_askdialog = Q_NULLPTR;
+    return a;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2940,9 +2915,9 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
 {
     m_listedestinataires.clear();
     dlg_askcorrespondant                 = new UpDialog(this);
-    dlg_askcorrespondant                 ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    dlg_askcorrespondant                 ->setWindowModality(Qt::WindowModal);
     dlg_askcorrespondant                 ->setAttribute(Qt::WA_DeleteOnClose);
-    dlg_askcorrespondant                 ->AjouteLayButtons();
+    dlg_askcorrespondant                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QTableView  *tblCorresp     = new QTableView(dlg_askcorrespondant);
     QStandardItemModel *m_modele = new QStandardItemModel;
     QStandardItem *pitem;
@@ -2986,12 +2961,13 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     dlg_askcorrespondant->dlglayout()   ->insertWidget(0,tblCorresp);
     dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
 
-    dlg_askcorrespondant ->setModal(true);
     dlg_askcorrespondant->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [=] {ListidCor();});
 
     dlg_askcorrespondant ->exec();
+    delete dlg_askcorrespondant;
+    dlg_askcorrespondant = Q_NULLPTR;
 }
 
 void dlg_impressions::ListidCor()

@@ -25,7 +25,9 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     QDialog(parent), ui(new Ui::dlg_recettesspeciales)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
+
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowTitle(tr("Liste des recettes spéciales"));
 
     ui->Userlabel->setText(tr("Recettes spéciales de ") + Datas::I()->users->userconnected()->login());
 
@@ -586,9 +588,11 @@ void dlg_recettesspeciales::CalculTotalRecettes()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::GestionComptes()
 {
-    dlg_comptes *Dlg_Cmpt          = new dlg_comptes();
+    dlg_comptes *Dlg_Cmpt          = new dlg_comptes(this);
+    Dlg_Cmpt->setWindowModality(Qt::WindowModal);
     if (Dlg_Cmpt->initOK())
         Dlg_Cmpt->exec();
+    delete Dlg_Cmpt;
     wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
 }
 

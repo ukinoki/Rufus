@@ -28,6 +28,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
                                         ui(new Ui::dlg_gestioncomptes)
 {
     ui->setupUi(this);
+    setWindowModality(Qt::WindowModal);
     m_userencours           = user;
 
     m_societe                = societe;
@@ -192,7 +193,7 @@ void dlg_gestioncomptes::AnnulModif()
 
 void dlg_gestioncomptes::Banques()
 {
-    dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques();
+    dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques(this);
     if (Dlg_Banq->exec()>0)
         ReconstruitComboBanques();
 }

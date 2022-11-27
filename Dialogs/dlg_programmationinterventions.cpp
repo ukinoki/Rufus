@@ -24,7 +24,9 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     m_currentchirpatient    = pat;
     m_currentchiracte       = act;
 
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Programmer une intervention pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
+
     wdg_listmedecinscombo           = new QComboBox();
     QHBoxLayout *choixmedecinLay    = new QHBoxLayout();
     QHBoxLayout *programmLay        = new QHBoxLayout();
@@ -118,7 +120,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
     connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::ImprimeSession);
-    setModal(true);
+
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
     setFixedWidth(1000);
@@ -413,6 +415,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
     UpDialog            *dlg_session = new UpDialog(this);
     dlg_session->setAttribute(Qt::WA_DeleteOnClose);
     dlg_session->setWindowTitle(tr("créer une session opératoire pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
+    dlg_session->setWindowModality(Qt::WindowModal);
 
     QHBoxLayout *choixdateLay    = new QHBoxLayout();
     UpLabel* lbldate = new UpLabel;
@@ -1088,6 +1091,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
 
     UpDialog            *dlg_incident = new UpDialog(this);
     dlg_incident->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_incident->setWindowModality(Qt::WindowModal);
     dlg_incident->setWindowTitle(tr("Rapport d'incident"));
 
     QLineEdit *incidenttxtedit  = new QLineEdit();
@@ -1129,6 +1133,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 {
     bool verifencours = false;
     UpDialog *dlg_intervention = new UpDialog(this);
+    dlg_intervention->setWindowModality(Qt::WindowModal);
     Patient *pat = (interv == Q_NULLPTR? m_currentchirpatient : Datas::I()->patients->getById(interv->idpatient()));
     if (pat != Q_NULLPTR)
             dlg_intervention->setWindowTitle(pat->prenom() + " " + pat->nom());
@@ -1297,6 +1302,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [&]{
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
+                Dlg_ListIOLs->setWindowModality(Qt::WindowModal);
                 if (Dlg_ListIOLs->exec() > 0)
                 {
                     idiol = Dlg_ListIOLs->idcurrentIOL();
@@ -1465,7 +1471,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         if (pat != Q_NULLPTR)
             if (pat->telephone() == "" && pat->portable() == "")
             {
-                if (!Patients::veriftelephone(pat))
+                if (!Patients::veriftelephone(pat, dlg_intervention))
                     return;
                 else
                     emit updateHtml(pat);
@@ -1594,8 +1600,8 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                                                                                                         dlg_intervention->reject();
                                                                                                     });
     timeedit->setFocus();
-    dlg_intervention->setWindowModality(Qt::WindowModal);
     dlg_intervention->exec();
+    delete dlg_intervention;
 }
 
 void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention *interv)
@@ -1784,6 +1790,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
     UpDialog            *dlg_typintervention = new UpDialog(this);
     dlg_typintervention->setAttribute(Qt::WA_DeleteOnClose);
     dlg_typintervention->setWindowTitle(tr("créer un type d'intervention"));
+    dlg_typintervention->setWindowModality(Qt::WindowModal);
 
     QHBoxLayout *nomLay    = new QHBoxLayout();
     UpLabel* lblnom = new UpLabel;
@@ -1901,6 +1908,7 @@ void dlg_programmationinterventions::FicheListeIOLs()
 {
     bool quelesactifs = false;
     dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(quelesactifs, this);
+    Dlg_ListIOLs->setWindowModality(Qt::WindowModal);
     Dlg_ListIOLs->exec();
     if (Dlg_ListIOLs->listeIOLsmodifiee())
         RemplirTreeInterventions();
@@ -2110,6 +2118,7 @@ void dlg_programmationinterventions::FicheListeManufacturers()
     {
         UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
         dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
+        Dlg_IdentManufacturer->setWindowModality(Qt::WindowModal);
         Dlg_IdentManufacturer->exec();
         delete Dlg_IdentManufacturer;
         return;

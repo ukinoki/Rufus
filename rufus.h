@@ -275,7 +275,7 @@ private:
 
     UpDialog                *dlg_rechParMotCle,*dlg_rechParId, *dlg_listPatients;
 
-    QDialog                 *dlg_msgRepons, *dlg_msgDialog;
+    QDialog                 *dlg_msgRepons = Q_NULLPTR, *dlg_msgDialog = Q_NULLPTR;
     QSystemTrayIcon         *ict_messageIcon;
 
     ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;

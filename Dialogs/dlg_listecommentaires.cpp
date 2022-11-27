@@ -23,6 +23,7 @@ dlg_listecommentaires::dlg_listecommentaires(QList<CommentLunet*> listecommentai
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionCommentaires", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowModality(Qt::WindowModal);
     wdg_tblview         = new UpTableView();
     wdg_comtxt          = new UpTextEdit();
     wdg_publicchkbox    = new UpCheckBox();

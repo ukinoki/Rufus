@@ -23,8 +23,6 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeCorrespondants",parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-
-    setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
 
     wdg_itemstree = new QTreeView(this);
@@ -104,7 +102,8 @@ bool dlg_listecorrespondants::listecorrespondantsmodifiee() const
 void dlg_listecorrespondants::EnregistreNouveauCorresp()
 {
     bool onlydoctors    = false;
-    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
+    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
+    Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
@@ -140,7 +139,8 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
     if (cor == Q_NULLPTR)
         return;
     bool onlydoctors    = false;
-    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor);
+    dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor, this);
+    Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idcor = cor->id();

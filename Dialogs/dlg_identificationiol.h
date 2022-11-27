@@ -30,7 +30,7 @@ class dlg_identificationIOL : public UpDialog
 {
 public:
     enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
-    explicit                    dlg_identificationIOL(enum Mode mode, IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_identificationIOL(IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     dlg_identificationIOL();
     void                        setNomIOL(QString nom)  {wdg_nomiolline->setText(nom);}
     int                         idcurrentIOL() const    { return (m_currentIOL? m_currentIOL->id() : 0); }
@@ -44,8 +44,8 @@ private:
     QRegularExpression             rgx_haigis          = QRegularExpression("-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
-    QList<int>          m_listeidIOLs;
-    Mode                m_mode;
+    QList<int>          m_listeidIOLs           = QList<int>();
+    Mode                m_mode = Creation;
     Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
     IOL                 *m_currentIOL           = Q_NULLPTR;
     QHash<QString, QVariant>
@@ -73,8 +73,8 @@ private:
     UpComboBox          *wdg_materiaubox;
     UpComboBox          *wdg_typebox;
     UpTextEdit          *wdg_remarquetxt;
-    UpToolBar           *wdg_toolbar;
-    UpPushButton        *wdg_recopiebutton;
+    UpToolBar           *wdg_toolbar = Q_NULLPTR;
+    UpPushButton        *wdg_recopiebutton = Q_NULLPTR;
     UpCheckBox          *wdg_prechargechk;
     UpCheckBox          *wdg_jaunechk;
     UpCheckBox          *wdg_inactifchk;
@@ -82,6 +82,7 @@ private:
     UpCheckBox          *wdg_edofchk;
     UpCheckBox          *wdg_toricchk;
     QWidget             *wdg_cylindres;
+    QVBoxLayout         *lay_materiau    = new QVBoxLayout();
 
     bool                eventFilter(QObject *obj, QEvent *event);
     void                AfficheDatasIOL(IOL *iol);

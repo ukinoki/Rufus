@@ -22,7 +22,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_docsexternes  = Docs;
 
     setAttribute(Qt::WA_ShowWithoutActivating);
-    // setAttribute(Qt::WA_DeleteOnClose);                      ne marche pas
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     installEventFilter(this);
     QList<QScreen*> listscreens = QGuiApplication::screens();
@@ -895,7 +895,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     dlg->dlglayout()->insertWidget(0,label);
     dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
 
-    dlg->setModal(true);
+    dlg->setWindowModality(Qt::WindowModal);
     dlg->setSizeGripEnabled(false);
     dlg->setFixedSize(200,100);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
@@ -934,11 +934,10 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     dlg->dlglayout()->insertWidget(0,label);
     dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
 
-    dlg->setModal(true);
+    dlg->setWindowModality(Qt::WindowModal);
     dlg->setSizeGripEnabled(false);
     dlg->setFixedSize(270,100);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
-    dlg->setWindowTitle(tr("Modifier le titre"));
     Line->setText(docmt->soustypedoc());
     Line->selectAll();
 
@@ -964,6 +963,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     label->setText(tr("Entrez le titre du document"));
     Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
+    dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     delete dlg;
 }

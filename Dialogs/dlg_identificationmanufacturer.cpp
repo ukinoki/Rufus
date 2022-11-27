@@ -25,7 +25,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowModality(Qt::WindowModal);
+    setWindowTitle(tr("Gestion des abricants"));
     if (man != Q_NULLPTR)
         m_currentmanufacturer   = man;
     m_mode                      = mode;
@@ -61,7 +61,6 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->TellineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
     ui->PortablelineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
-    setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des fabricants"));
 

@@ -321,11 +321,12 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     return pat;
 }
 
-bool Patients::veriftelephone(Patient *pat)
+bool Patients::veriftelephone(Patient *pat, QWidget *parent)
 {
     bool retour = false;
-    UpDialog            *dlg_telephone = new UpDialog();
+    UpDialog            *dlg_telephone = new UpDialog(parent);
     dlg_telephone->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_telephone->setWindowModality(Qt::WindowModal);
     dlg_telephone->setWindowTitle(tr("No de téléphone"));
 
     UpLabel* lbl    = new UpLabel;

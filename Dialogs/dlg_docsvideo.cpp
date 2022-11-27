@@ -27,14 +27,14 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
-    wdg_visuvideowdg          = new QVideoWidget(this);
+    wdg_visuvideowdg    = new QVideoWidget(this);
     wdg_inflabel        = new UpLabel(this);
     wdg_linetitre       = new UpLineEdit(this);
     wdg_editdate        = new QDateEdit(this);
-    wdg_typedoccombobx    = new UpComboBox(this);
+    wdg_typedoccombobx  = new UpComboBox(this);
     m_listtypesexamen   << tr("Video Chirurgie")
-                    << tr("Video LAF")
-                    << tr("Video Autre");
+                        << tr("Video LAF")
+                        << tr("Video Autre");
     wdg_toolbar         = new UpToolBar();
     wdg_dirsearchbutton = new UpPushButton();
 
@@ -102,7 +102,6 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
 
     buttonslayout()->insertLayout(0, dirVlay);
     wdg_visuvideowdg->resize(wdg_visuvideowdg->sizeHint());
-    setModal(true);
     setMinimumWidth(650);
     setStageCount(2);
     int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
@@ -278,7 +277,7 @@ void dlg_docsvideo::ValideFiche()
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
             qFile.remove();
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Video ") + sstypedoc +  tr(" enregistrée"), Icons::icSunglasses(), 1000);
-        accept();
+        close();
     }
 }
 

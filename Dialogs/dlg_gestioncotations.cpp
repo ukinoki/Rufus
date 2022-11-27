@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString CodeActe, QWidget *parent) :
     UpDialog(parent)
 {
+    setWindowModality(Qt::WindowModal);
     m_typeacte   = type;
     m_mode       = mode;
     m_ciodeacte   = CodeActe;
