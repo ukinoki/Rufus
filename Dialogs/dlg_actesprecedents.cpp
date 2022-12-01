@@ -26,7 +26,6 @@ ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    setAttribute(Qt::WA_ShowWithoutActivating);
 
     m_actes             = actes;
     m_idpatient         = m_actes->actes()->last()->idPatient();
@@ -34,8 +33,7 @@ ui(new Ui::dlg_actesprecedents)
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
     m_avantdernieracte  = AvantDernier;
-    setAttribute(Qt::WA_DeleteOnClose);
-    setAttribute(Qt::WA_ShowWithoutActivating);
+
     QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
                     " border: 1px solid rgb(150,150,150); border-radius: 10px;";
     ui->EnteteupLabel           ->setStyleSheet(style);

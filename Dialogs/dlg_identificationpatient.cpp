@@ -235,7 +235,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
         // A - On vérifie qu'une date de naissance a été enregistrée, différente de la date par défaut
         if (ui->DDNdateEdit->date() == QDate(2000,1,1))
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             UpSmallButton OKBouton(tr("Je confirme"));
             UpSmallButton NoBouton(tr("Annuler"));
             msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login());
@@ -414,7 +414,7 @@ void dlg_identificationpatient::ModifCorrespondant()
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton ->setChecked(true);
     Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
     {
         Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
@@ -426,16 +426,16 @@ void dlg_identificationpatient::AnnulpushButtonClicked()
 {
     if (m_mode == Creation)
     {
-        UpMessageBox *msgbox = new UpMessageBox(this);
+        UpMessageBox msgbox(this);
         UpSmallButton OKBouton(tr("Annuler la création"));
         UpSmallButton NoBouton(tr("Revenir à la fiche"));
-        msgbox->setText("Euuhh... " + Datas::I()->users->userconnected()->login());
-        msgbox->setInformativeText(tr("Annuler la création de ce dossier ?"));
-        msgbox->setIcon(UpMessageBox::Warning);
-        msgbox->addButton(&NoBouton, UpSmallButton::OUPSBUTTON);
-        msgbox->addButton(&OKBouton, UpSmallButton::CLOSEBUTTON);
-        msgbox->exec();
-        if (msgbox->clickedButton() == &OKBouton)
+        msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login());
+        msgbox.setInformativeText(tr("Annuler la création de ce dossier ?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        msgbox.addButton(&NoBouton, UpSmallButton::OUPSBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::CLOSEBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() == &OKBouton)
             reject();
     }
     else
@@ -589,7 +589,7 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
         idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
     delete Dlg_IdentCorresp;
     return idcor;
@@ -612,7 +612,7 @@ void dlg_identificationpatient::MAJMG()
     {
         if (nou != "")
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             UpSmallButton OKBouton(tr("Enregistrer le correspondant"));
             UpSmallButton NoBouton(tr("Annuler"));
             msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login());

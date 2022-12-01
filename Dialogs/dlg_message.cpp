@@ -68,11 +68,8 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     int xx              = qApp->desktop()->availableGeometry().width();
     dlg                 ->move(xx - w - 45 - (marge*2) - lay->spacing()-15, yy - (int(hauteurligne)*nlignes) - marge*2);
     dlg                 ->show();
-    //        qDebug() << " desktop xx = " + QString::number(xx) << "widh() = " +
-    //                    QString::number(w - 45 - (marge*2) - 10) << "desktop yy = " +
-    //                    QString::number(yy)  << "heigth() = " +
-    //                    QString::number((hauteurligne*nlignes) - marge*2);
-    QTimer::singleShot(duree, dlg, &QDialog::reject);
+
+    QTimer::singleShot(duree, dlg, &QDialog::close);
 }
 
 void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidget *parent)
@@ -122,10 +119,10 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     connect(this,   &ShowMessage::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
             if (prioritydlg->parent() != Q_NULLPTR)
                 static_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
-            prioritydlg->reject();
+            prioritydlg->close();
         }
         });
     if (duree > 0)
-        QTimer::singleShot(duree, prioritydlg, &QDialog::reject);
+        QTimer::singleShot(duree, prioritydlg, &QDialog::close);
 
 }

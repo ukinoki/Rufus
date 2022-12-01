@@ -61,7 +61,6 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 
 dlg_listecorrespondants::~dlg_listecorrespondants()
 {
-    EnregistrePosition();
 }
 
 void dlg_listecorrespondants::Enablebuttons(QModelIndex idx)
@@ -104,7 +103,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
     bool onlydoctors    = false;
     dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
     Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
     {
         int idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
          m_listemodifiee = true;
@@ -141,7 +140,7 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
     bool onlydoctors    = false;
     dlg_identificationcorresp *Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor, this);
     Dlg_IdentCorresp->setWindowModality(Qt::WindowModal);
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
     {
         int idcor = cor->id();
         m_listemodifiee = true;
@@ -199,7 +198,7 @@ void dlg_listecorrespondants::SupprCorresp(Correspondant *cor)
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
            cor->nomprenom() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);

@@ -51,6 +51,7 @@ dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
 
 dlg_refraction::~dlg_refraction()
 {
+    delete ui;
 }
 
 void dlg_refraction::closeEvent(QCloseEvent *)
@@ -470,9 +471,8 @@ void dlg_refraction::AnnulPushButton_Clicked()
 void dlg_refraction::Commentaires()
 {
     dlg_listecommentaires *Dlg_Comments    = new dlg_listecommentaires(m_listcommentaires, this);
-    if (Dlg_Comments->exec() > 0)
+    if (Dlg_Comments->exec() == QDialog::Accepted)
     {
-        Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
         m_commentaire = "";
         m_commentaireresume = "";
         m_listcommentaires = Dlg_Comments->ListeCommentaires();
@@ -1429,7 +1429,8 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         ResumePrescription();
         // on vérifie dans Refraction s'il existe un enregistrement identique pour ne pas surcharger la table avec
         disconnect (ui->OKPushButton,   &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
-        if (LectureMesure(Aujourdhui, Refraction::Prescription, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG()) == Q_NULLPTR)
+        Refraction *ref = LectureMesure(Aujourdhui, Refraction::Prescription, Refraction::NoDilatation, CalculFormule_OD(), CalculFormule_OG());
+        if (ref== Q_NULLPTR)
         {
             ResumeObservation();
             Refraction *ref = InsertRefraction();
@@ -1443,15 +1444,29 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         }
         else
         {
+            if (UpMessageBox::Question(this,tr("Ordonnance déjà imprimée"), tr("Cette ordonnance a déjà été éditée") + "\n" + tr("Souhaitez vous la réimprimer?")) == UpSmallButton::STARTBUTTON)
+            {
+                Imprimer_Ordonnance(ref, false);
+                QList<QDialog *> ListDialog = this->findChildren<QDialog *>();
+                for (int n = 0; n <  ListDialog.size(); n++)
+                {
+                    ListDialog.at(n)->close();
+                    delete ListDialog.at(n);
+                }
+                reject();
+            }
             connect (ui->OKPushButton,  &QPushButton::clicked,  this,     &dlg_refraction::OKPushButton_Clicked);
             return;
         }
     }
     QList<QDialog *> ListDialog = this->findChildren<QDialog *>();
     for (int n = 0; n <  ListDialog.size(); n++)
+    {
         ListDialog.at(n)->close();
+        delete ListDialog.at(n);
+    }
     m_fermecommentaire = (mode!=Annul);
-    close();
+    accept();
 }
 
 int     dlg_refraction::idrefraction() const
@@ -1462,7 +1477,7 @@ int     dlg_refraction::idrefraction() const
 /*-----------------------------------------------------------------------------------------------------------------
 -- Imprimer une ordonnance ------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref)
+bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 {
     QString Corps, Entete, Pied;
     bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
@@ -1501,7 +1516,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref)
                        proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     // stockage de l'ordonnance dans la base de donnees - table impressions
-    if (a)
+    if (a && enregtable)
     {
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES] =           Datas::I()->users->userconnected()->id();
@@ -2049,7 +2064,6 @@ void dlg_refraction::OuvrirListeMesures(dlg_refractionlistemesures::Mode mode)
     }
     if (RetourListe > 0 && mode == dlg_refractionlistemesures::Supprimer)
         RechercheMesureEnCours();
-    Dlg_ListeMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_ListeMes;
     RegleAffichageFiche();
 }

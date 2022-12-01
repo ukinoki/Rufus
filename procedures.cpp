@@ -800,7 +800,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     else
     {
         AskBupRestore(BackupOp, m_parametres->dirimagerieserveur(), dirdestination );
-        if (dlg_buprestore->exec()==0)
+        if (dlg_buprestore->exec() != QDialog::Accepted)
             return false;
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
         for (int i= 0; i<listchk.size(); i++)
@@ -1523,7 +1523,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
         connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
     gAsk->restoreGeometry(m_settings->value(geometry).toByteArray());
 
-    if (gAsk->exec()>0)
+    if (gAsk->exec() == QDialog::Accepted)
         rep = TxtEdit->toHtml();
     m_settings->setValue(geometry,gAsk->saveGeometry());
     delete gAsk;
@@ -1684,7 +1684,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
                     {
                         QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
                         connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
-                        if (dialog->exec() != QDialog::Rejected)
+                        if (dialog->exec() == QDialog::Accepted)
                             delete dialog;
                         else {
                             delete dialog;
@@ -1694,7 +1694,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
                     else
                     {
                         QPrintDialog *dialog = new QPrintDialog(p_printer);
-                        if (dialog->exec() != QDialog::Rejected)
+                        if (dialog->exec() == QDialog::Accepted)
                         {
                             p_printer = dialog->printer();
                             Print(p_printer, image);
@@ -1726,7 +1726,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
         else
         {
             QPrintDialog *dialog = new QPrintDialog(p_printer);
-            if (dialog->exec() != QDialog::Rejected)
+            if (dialog->exec() == QDialog::Accepted)
                 Print(p_printer, image);
             delete dialog;
         }
@@ -2286,7 +2286,7 @@ void Procedures::CalcTimeBupRestore()
 
 bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent)
 {
-    UpMessageBox    msgbox;
+    UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
     UpSmallButton   OKBouton;
     msgbox.setIcon(UpMessageBox::Warning);
@@ -2353,7 +2353,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
         if (msg != "")
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'éxécuter la restauration!"), msg);
+            UpMessageBox::Watch(parent, tr("Impossible d'éxécuter la restauration!"), msg);
             for (int t=0; t<listfichiers.size(); t++)
             {
                 QString nomdocrz  = listfichiers.at(t);
@@ -2389,7 +2389,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             }
             else
             {
-                UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
+                UpMessageBox::Information(parent, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 for (int t=0; t<listfichiers.size(); t++)
                 {
                     QString nomdocrz  = listfichiers.at(t);
@@ -2417,21 +2417,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                   "Ce processus est long et peut durer plusieurs minutes.\n"
                                   "(environ 1' pour 2 Go)\n"));
         QString dir = PATH_DIR_RUFUS;
-        QFileDialog dialog(parent,tr("Restaurer à partir du dossier") , dir);
-        dialog.setViewMode(QFileDialog::List);
-        dialog.setFileMode(QFileDialog::DirectoryOnly);
-        dialog.setWindowModality(Qt::WindowModal);
-        bool b = (dialog.exec()>0);
-        if (!b)
+        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir));
+        if (url == QUrl())
             return false;
-        QDir dirtorestore = dialog.directory();
+        QDir dirtorestore = QDir(url.path());
         if (dirtorestore.dirName()=="")
             return false;
-        if (dirtorestore.absolutePath().contains(" "))
-        {
-            UpMessageBox::Watch(parent, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
-            return false;
-        }
         QString mdp("");
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
@@ -2480,14 +2471,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         {
             if (!QDir(PATH_DIR_IMAGERIE).exists())
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage d'imagerie"),
+                UpMessageBox::Watch(parent,tr("Pas de dossier de stockage d'imagerie"),
                                     tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
                                     tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
                 QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
                 dialogimg.setViewMode(QFileDialog::List);
                 dialogimg.setFileMode(QFileDialog::DirectoryOnly);
-                bool b = (dialogimg.exec()>0);
-                if (!b)
+                if (dialogimg.exec() != QDialog::Accepted)
                     return false;
                 QDir dirstock = dialogimg.directory();
                 NomDirStockageImagerie = dirstock.dirName();
@@ -2496,7 +2486,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 NomDirStockageImagerie = dirstock.absolutePath();
                 if (NomDirStockageImagerie.contains(" "))
                 {
-                    UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
+                    UpMessageBox::Watch(parent, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
                     return false;
                 }
                 db->setdirimagerie(NomDirStockageImagerie);
@@ -2516,7 +2506,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        UpMessageBox msgbox;
+                        UpMessageBox msgbox(parent);
                         QStringList listnomsfilestorestore;
                         UpSmallButton AnnulBouton(tr("Annuler"));
                         UpSmallButton OKBouton(tr("J'ai compris\nJe confirme"));
@@ -2698,7 +2688,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
         delete dlg_buprestore;
         //qDebug() << msg;
-        UpMessageBox::Watch(Q_NULLPTR,tr("restauration terminée"),msg);
+        UpMessageBox::Watch(parent,tr("restauration terminée"),msg);
         emit ConnectTimers(true);
         return (result > 0);
     }
@@ -2864,7 +2854,7 @@ bool Procedures::FicheChoixConnexion()
         wdg_postebouton.setIcon(Icons::icComputer());
     }
     initok = false;
-    if (msgbox.exec()>0)
+    if (msgbox.exec() == QDialog::Accepted)
     {
         initok = (msgbox.clickedpushbutton() != &wdg_annulbouton);
         if (initok)
@@ -3029,7 +3019,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         int gidLieuExercice = -1;
         dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(gidLieuExercice, dlg_gestionusers::PREMIERUSER , true);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
-        if (Dlg_GestUsr->exec() > 0)
+        if (Dlg_GestUsr->exec() == QDialog::Accepted)
         {
             m_parametres = db->parametres();
             Datas::I()->comptes         ->initListe();
@@ -3156,8 +3146,7 @@ bool Procedures::IdentificationUser()
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
     connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
-    int result = dlg_IdentUser->exec();
-    if( result > 0 )
+    if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
         m_parametres = db->parametres();
         Datas::I()->villes          ->initListe();
@@ -3214,7 +3203,7 @@ bool Procedures::IdentificationUser()
             m_idcentre = m_parametres->numcentre();
         }
     }
-    else if ( result < 0 ) // anomalie sur la base - table utilisateurs manquante ou corrompue
+    else // anomalie sur la base - table utilisateurs manquante ou corrompue
     {
         dlg_identificationuser::LoginResult loginresult = dlg_IdentUser->loginresult();
         QString m_loginSQL      = dlg_IdentUser->ui->LoginlineEdit->text();
@@ -3397,7 +3386,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
         if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE || currentuser()->idparent() == User::ROLE_INDETERMINE )
         {
-            if( dlg_askUser->exec() == 0 )
+            if( dlg_askUser->exec() != QDialog::Accepted )
             {
                 delete dlg_askUser;
                 return false;
@@ -3489,7 +3478,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                 dlg_askUser                ->setModal(true);
                                 dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
                                 connect(dlg_askUser->OKButton,   SIGNAL(clicked(bool)),  dlg_askUser, SLOT(accept()));
-                                if (dlg_askUser->exec()==0)
+                                if (dlg_askUser->exec() != QDialog::Accepted)
                                 {
                                     delete dlg_askUser;
                                     return false;
@@ -4025,8 +4014,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
         dialog.setViewMode(QFileDialog::List);
         dialog.setFileMode(QFileDialog::ExistingFile);
-        int a = dialog.exec();
-        if (a>0)
+        if (dialog.exec() == QDialog::Accepted)
         {
             QFile FichierIni(PATH_FILE_INI);
             if (FichierIni.exists())
@@ -4069,7 +4057,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     Dlg_ParamConnex ->setFont(m_applicationfont);
     connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
 
-    if (Dlg_ParamConnex->exec()>0)
+    if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
         QString Base;
         if (Dlg_ParamConnex->ui->PosteradioButton->isChecked())
@@ -4129,8 +4117,7 @@ bool Procedures::VerifRessources(QString Nomfile)
         QFileDialog dialog(Q_NULLPTR, tr("Choisir le dossier de ressources d'impression à restaurer"), QDir::homePath() + "/dumpsRufus","SQL files (dump*.sql)");
         dialog.setViewMode(QFileDialog::List);
         dialog.setFileMode(QFileDialog::Directory);
-        dialog.setWindowModality(Qt::WindowModal);
-        if (dialog.exec()>0)
+        if (dialog.exec() == QDialog::Accepted)
         {
             QDir dockdir = dialog.directory();
             QDir DirRssces;

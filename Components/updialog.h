@@ -59,7 +59,6 @@ private:
     QHBoxLayout     *wdg_buttonslayout;
     QWidget         *wdg_buttonswidget;
     void            AjouteLay();
-    void            closeEvent(QCloseEvent *);
     void            UpdateTabOrder();
     double          m_stageheight = 35;
     QObject*        obj_data;
@@ -72,7 +71,6 @@ public:
     void            addSearchLine();
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
-    void            EnregistrePosition();
     void            setMode(Mode mode);
     void            TuneSize(bool fix = true);
     Mode            mode() const;

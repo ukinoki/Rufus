@@ -411,7 +411,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
 void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
 {
     UpDialog            *dlg_session = new UpDialog(this);
-    dlg_session->setAttribute(Qt::WA_DeleteOnClose);
+
     dlg_session->setWindowTitle(tr("créer une session opératoire pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
     dlg_session->setWindowModality(Qt::WindowModal);
 
@@ -496,9 +496,10 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
             ItemsList::update(session, CP_INCIDENT_SESSIONOPERATOIRE, incidenttxtedit->toPlainText());
         }
         RemplirTreeSessions();
-        dlg_session->close();
+        dlg_session->accept();
     });
     dlg_session->exec();
+    delete dlg_session;
 }
 
 void dlg_programmationinterventions::ModifSession()
@@ -1088,7 +1089,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     }
 
     UpDialog            *dlg_incident = new UpDialog(this);
-    dlg_incident->setAttribute(Qt::WA_DeleteOnClose);
+
     dlg_incident->setWindowModality(Qt::WindowModal);
     dlg_incident->setWindowTitle(tr("Rapport d'incident"));
 
@@ -1112,9 +1113,10 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
             ItemsList::update(currentsession(), CP_INCIDENT_SESSIONOPERATOIRE, incident);
             RemplirTreeSessions();
         }
-        dlg_incident->close();
+        dlg_incident->accept();
     });
     dlg_incident->exec();
+    delete dlg_incident;
 }
 
 void dlg_programmationinterventions::ModifStatutActeCorrespondant(int idacte)
@@ -1211,7 +1213,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             if (itmitv->item())
                 typ = dynamic_cast<TypeIntervention*>(itmitv->item());
         dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, this);
-        if (dlgtyp->exec()>0)
+        if (dlgtyp->exec() == QDialog::Accepted)
         {
             m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
             interventioncombo       ->setModel(m_typeinterventionsmodel);
@@ -1301,7 +1303,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
                 Dlg_ListIOLs->setWindowModality(Qt::WindowModal);
-                if (Dlg_ListIOLs->exec() > 0)
+                if (Dlg_ListIOLs->exec() == QDialog::Accepted)
                 {
                     idiol = Dlg_ListIOLs->idcurrentIOL();
                     if (Dlg_ListIOLs->listeIOLsmodifiee())
@@ -1469,7 +1471,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         if (pat != Q_NULLPTR)
             if (pat->telephone() == "" && pat->portable() == "")
             {
-                if (!Patients::veriftelephone(pat, this))
+                if (!Patients::veriftelephone(pat, dlg_intervention))
                     return;
                 else
                     emit updateHtml(pat);
@@ -1589,7 +1591,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                 RemplirTreeInterventions(interv);
         }
         ModifStatutActeCorrespondant(idact);
-        dlg_intervention->close();
+        dlg_intervention->accept();
     });
     connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(verifencours, interventioncombo); });
     connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
@@ -1599,6 +1601,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                                                                                                     });
     timeedit->setFocus();
     dlg_intervention->exec();
+    delete dlg_intervention;
 }
 
 void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention *interv)
@@ -1607,7 +1610,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
         return;
     dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv, this);
     m_docimprime = false;
-    if (Dlg_Imprs->exec() > 0)
+    if (Dlg_Imprs->exec() == QDialog::Accepted)
     {
         User *userEntete = Dlg_Imprs->userentete();
         if (userEntete == Q_NULLPTR)
@@ -1785,7 +1788,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
 void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
 {
     UpDialog            *dlg_typintervention = new UpDialog(this);
-    dlg_typintervention->setAttribute(Qt::WA_DeleteOnClose);
+
     dlg_typintervention->setWindowTitle(tr("créer un type d'intervention"));
     dlg_typintervention->setWindowModality(Qt::WindowModal);
 
@@ -1837,9 +1840,10 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
             delete m_currenttypeintervention;
         m_currenttypeintervention = Datas::I()->typesinterventions->CreationTypeIntervention(listbinds);
         m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
-        dlg_typintervention->close();
+        dlg_typintervention->accept();
     });
     dlg_typintervention->exec();
+    delete dlg_typintervention;
 }
 
 

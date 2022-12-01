@@ -28,6 +28,8 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
     AjouteLay();
     setStageCount(0);
     m_mode           = NullMode;
+    connect(this, &QDialog::finished, Q_NULLPTR, [=]{if (m_enregistreposition)
+                                                          m_settings->setValue(m_position, saveGeometry());});
 }
 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
@@ -196,18 +198,6 @@ void UpDialog::setMode(Mode mode)
 UpDialog::Mode UpDialog::mode() const
 {
     return m_mode;
-}
-
-void UpDialog::EnregistrePosition()
-{
-    if (m_enregistreposition)
-        m_settings->setValue(m_position, saveGeometry());
-}
-
-void UpDialog::closeEvent(QCloseEvent *event)
-{
-    EnregistrePosition();
-    event->accept();
 }
 
 void UpDialog::setEnregPosition(bool a)

@@ -34,7 +34,6 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
     CancelButton    ->disconnect();
 
     setSizeGripEnabled(false);
-    setWindowTitle(tr("Liste des mots-clés"));
 
     // Mise en forme de la table
     wdg_tblview->setPalette(QPalette(Qt::white));
@@ -76,7 +75,6 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
 
 dlg_listetypesinterventions::~dlg_listetypesinterventions()
 {
-    EnregistrePosition();
 }
 
 void dlg_listetypesinterventions::keyPressEvent(QKeyEvent * event )
@@ -542,7 +540,7 @@ void dlg_listetypesinterventions::settypeToRow(TypeIntervention *typ, int row, b
 
 void dlg_listetypesinterventions::Supprimetype(TypeIntervention *typ)
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Suppression de type d'intervention!"));
     msgbox.setInformativeText(tr("Voulez vous vraiment supprimer le type d'intervention\n") + typ->typeintervention());
     msgbox.setIcon(UpMessageBox::Warning);

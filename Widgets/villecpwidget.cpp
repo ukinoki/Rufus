@@ -184,7 +184,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     if( villes.isEmpty() )
     {
         QSound::play(NOM_ALARME);
-        UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
+        UpMessageBox::Watch(this,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
         return;
@@ -215,7 +215,7 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
     if( villes.isEmpty() )
     {
         QSound::play(NOM_ALARME);
-        UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
+        UpMessageBox::Watch(this,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
         return QString();

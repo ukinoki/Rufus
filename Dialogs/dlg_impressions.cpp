@@ -888,7 +888,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         connect(tabChamps,              &QTableWidget::doubleClicked, ListChamps,  [=] {ListChamps->accept();});
         ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-        if (ListChamps->exec()>0)   {
+        if (ListChamps->exec() == QDialog::Accepted)   {
             if (tabChamps->selectedItems().size()>0)
             {
                 QString champ = tabChamps->selectedItems().at(1)->text();
@@ -1436,7 +1436,7 @@ void dlg_impressions::OKpushButtonClicked()
             dlg_ask->setWindowModality(Qt::WindowModal);
             connect(dlg_ask->OKButton,     &QPushButton::clicked, this,  [=] {VerifCoherencedlg_ask();});
 
-            if (dlg_ask->exec() == 0)
+            if (dlg_ask->exec() != QDialog::Accepted)
             {
                 delete dlg_ask;
                 return;
@@ -1544,6 +1544,7 @@ void dlg_impressions::OKpushButtonClicked()
                 }
             }
             delete dlg_ask;
+            dlg_ask = Q_NULLPTR;
         }
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
@@ -1778,7 +1779,10 @@ int dlg_impressions::AskDialog(QString titre)
 
     Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
-    return dlg_askdialog->exec();
+    int a = dlg_askdialog->exec();
+    delete dlg_askdialog;
+    dlg_askdialog = Q_NULLPTR;
+    return a;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2386,19 +2390,19 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     QString titre = tr(m_mode == CreationDOC? "Creation de document" : "Modification de document");
     if (resume.length() < 1)
     {
-        UpMessageBox::Watch(Q_NULLPTR, titre, tr("Veuillez renseigner le champ Résumé, SVP !"));
+        UpMessageBox::Watch(this, titre, tr("Veuillez renseigner le champ Résumé, SVP !"));
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
         return false;
     }
     if (resume == tr("Nouveau document"))
     {
-        UpMessageBox::Watch(Q_NULLPTR, titre, tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
+        UpMessageBox::Watch(this, titre, tr("Votre document ne peut pas s'appeler \"Nouveau document\""));
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
         return false;
     }
     if (ui->upTextEdit->document()->toPlainText().length() < 1)
     {
-        UpMessageBox::Watch(Q_NULLPTR, titre, tr("Veuillez renseigner le champ Document, SVP !"));
+        UpMessageBox::Watch(this, titre, tr("Veuillez renseigner le champ Document, SVP !"));
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));        return false;
     }
     // Creation du Document dans la table
@@ -2488,7 +2492,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     QString resume = Utils::trimcapitilize(m_textdossierdelegate).left(100);
     if (resume == tr("Nouveau dossier"))
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Votre dossier ne peut pas s'appeler \"Nouveau dossier\""));
+        UpMessageBox::Watch(this,tr("Creation de dossier"), tr("Votre dossier ne peut pas s'appeler \"Nouveau dossier\""));
         ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
         return false;
     }
@@ -2509,7 +2513,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
                 {
                     if (publicdossier && !doc->ispublic())
                     {
-                        UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Vous ne pouvez pas enregistre le document") + " " + doc->resume()
+                        UpMessageBox::Watch(this,tr("Creation de dossier"), tr("Vous ne pouvez pas enregistre le document") + " " + doc->resume()
                                             + " " + tr("dans ce dossier car ce dossier est public et pas le document"));
                         ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
                         return false;
@@ -2520,7 +2524,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     }
     if (listid.size() == 0)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Enregistrement de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
+        UpMessageBox::Watch(this,tr("Enregistrement de Dossier"), tr("Veuillez cocher au moins un document, SVP !"));
         ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
         return false;
     }
@@ -2909,7 +2913,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     m_listedestinataires.clear();
     dlg_askcorrespondant                 = new UpDialog(this);
     dlg_askcorrespondant                 ->setWindowModality(Qt::WindowModal);
-    dlg_askcorrespondant                 ->setAttribute(Qt::WA_DeleteOnClose);
+
     dlg_askcorrespondant                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QTableView  *tblCorresp     = new QTableView(dlg_askcorrespondant);
     QStandardItemModel *m_modele = new QStandardItemModel;
@@ -2959,6 +2963,8 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [=] {ListidCor();});
 
     dlg_askcorrespondant ->exec();
+    delete dlg_askcorrespondant;
+    dlg_askcorrespondant = Q_NULLPTR;
 }
 
 void dlg_impressions::ListidCor()
@@ -3349,7 +3355,7 @@ void dlg_impressions::SupprimmeDocument(Impression *doc)
         return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  document\n") + doc->resume() + "?";
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
@@ -3394,7 +3400,7 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
         return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + dossier->resume() + "?";
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);

@@ -619,8 +619,8 @@ void dlg_comptes::ModifMontant(LigneCompte *lign)
     });
     connect(dlg_montant->CancelButton,  &QPushButton::clicked, dlg_montant, &QDialog::reject);
     dlg_montant->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_montant->setWindowModality(Qt::WindowModal);
     dlg_montant->exec();
+    delete dlg_montant;
 }
 
 int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
@@ -642,7 +642,7 @@ int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
 
 void dlg_comptes::SupprimerEcriture(LigneCompte *lign)
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Suppression d'une écriture!"));
     msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
                               + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +

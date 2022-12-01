@@ -602,7 +602,7 @@ void dlg_depenses::EnregistreDepense()
 
     if (pb != "")
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Il y a un problème avec cette dépense!" ));
         msgbox.setInformativeText(pb + "\n" + tr("Confirmer la saisie?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -794,7 +794,7 @@ void dlg_depenses::SupprimerDepense()
         UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
         return;
     }
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Supprimer une dépense!"));
     msgbox.setInformativeText(tr("Confirmer la suppression de\n") + dep->date().toString("dd MMM yyyy") + "\n" + dep->objet() + "\n" + QLocale().toString(dep->montant(),'f',2) + "?");
     msgbox.setIcon(UpMessageBox::Warning);
@@ -1213,7 +1213,7 @@ void dlg_depenses::ModifierDepense()
 
     if (pb != "")
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Il y a un problème avec cette dépense!"));
         msgbox.setInformativeText(pb + "\n" + tr("Confirmer la saisie?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -1623,7 +1623,7 @@ void dlg_depenses::RechercheValeur()
 
     dlg_ask     ->setFixedWidth(labelwidth + 10);
     dlg_ask     ->setMaximumHeight(150);
-    if (dlg_ask->exec() >0)
+    if (dlg_ask->exec() == QDialog::Accepted)
     {
         if (box->count() == 0)
             return;
@@ -1661,6 +1661,7 @@ void dlg_depenses::RechercheValeur()
             }
         }
     }
+    delete dlg_ask;
 }
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Reconstruit la liste des Annees dans le combobox Annees --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1762,7 +1763,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         QList<QVariantList> ListeEch = db->StandardSelectSQL(req, ok);
         if (ListeEch.size()>0)
         {
-            dlg_ask                         = new UpDialog(this);
+            UpDialog *dlg_ask                         = new UpDialog(this);
             QListView   *listview           = new QListView(dlg_ask);
             listview->setMinimumWidth(200);
             listview->setMinimumHeight(150);
@@ -1830,7 +1831,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             connect(dlg_ask->CancelButton,   &QPushButton::clicked,  dlg_ask,   &UpDialog::reject);
             connect(dlg_ask->EditButton,     &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) listview->edit(listview->selectionModel()->selectedIndexes().at(0)); });
 
-            if (dlg_ask->exec() > 0)
+            if (dlg_ask->exec()  == QDialog::Accepted)
             {
                 int row             = listview->selectionModel()->selectedIndexes().at(0).row();
                 int idfact          = static_cast<QStandardItemModel*>(listview->model())->item(row,0)->text().toInt();
@@ -1852,6 +1853,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
             }
             delete model;
+            delete dlg_ask;
             return;
         }
         else
@@ -1865,7 +1867,8 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
         return;
     dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
     if (Dlg_DocsScan->initOK())
-        if (Dlg_DocsScan->exec() > 0)
+    {
+        if (Dlg_DocsScan->exec() == QDialog::Accepted)
         {
             QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
             int idfact = map.value("idfacture").toInt();
@@ -1886,8 +1889,8 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
                 SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
             }
         }
+    }
     delete  Dlg_DocsScan;
-    Dlg_DocsScan = Q_NULLPTR;
 }
 
 void dlg_depenses::SetDepenseToRow(Depense *dep, int row)

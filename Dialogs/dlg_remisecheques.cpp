@@ -168,7 +168,7 @@ void dlg_remisecheques::ImprimepushButton()
     bool ok;
     if (ui->ListeChequesupTableWidget->rowCount() == 0)
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Il n'y a rien à imprimer!"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKBouton(tr("OK je corrige"));
@@ -740,7 +740,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
                                                                           " where " CP_IDCOMPTE_REMCHEQ " in (" + idlist + ") order by " CP_ID_REMCHEQ " desc",ok);
     if (listremisesprecedentes.size() == 0)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Pas de remises précédentes"));
+        UpMessageBox::Watch(this,tr("Pas de remises précédentes"));
         AnnulupPushButton();
         return false;
     }
@@ -1183,7 +1183,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
 
     if (map_comptablesavecchequesenattente->count()<1)
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));
+        UpMessageBox::Watch(this, tr("Pas de remise de chèque en attente"));
         m_initok = false;
         return;
     }

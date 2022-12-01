@@ -194,7 +194,7 @@ void dlg_docsvideo::ValideFiche()
     if (wdg_editdate->date() == QDate::currentDate())
     {
         wdg_editdate->setFocus();
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour cette video"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
@@ -215,7 +215,7 @@ void dlg_docsvideo::ValideFiche()
     QFile   qFile(filename);
     if (!qFile.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie

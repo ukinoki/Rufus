@@ -58,7 +58,6 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
 
 dlg_listemanufacturers::~dlg_listemanufacturers()
 {
-    EnregistrePosition();
 }
 
 void dlg_listemanufacturers::Enablebuttons(QModelIndex idx)
@@ -114,7 +113,7 @@ void dlg_listemanufacturers::EnregistreNouveauManufacturer()
 {
     dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
     Dlg_IdentManufacturer->setWindowModality(Qt::WindowModal);
-    if (Dlg_IdentManufacturer->exec()>0)
+    if (Dlg_IdentManufacturer->exec() == QDialog::Accepted)
     {
         Manufacturer * man = Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer(), true);
         m_listemodifiee = true;
@@ -146,7 +145,7 @@ void dlg_listemanufacturers::ModifManufacturer(Manufacturer *man)
         return;
     dlg_identificationmanufacturer *Dlg_IdentManufacturer = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Modification, man, this);
     Dlg_IdentManufacturer->setWindowModality(Qt::WindowModal);
-    if (Dlg_IdentManufacturer->exec()>0)
+    if (Dlg_IdentManufacturer->exec() == QDialog::Accepted)
     {
         man =  Datas::I()->manufacturers->getById(Dlg_IdentManufacturer->idcurrentmanufacturer());
         if (man != Q_NULLPTR)
@@ -195,7 +194,7 @@ void dlg_listemanufacturers::SupprManufacturer(Manufacturer *man)
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
             man->nom() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
