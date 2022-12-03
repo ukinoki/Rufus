@@ -189,7 +189,6 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 
 dlg_listeiols::~dlg_listeiols()
 {
-    EnregistrePosition();
 }
 
 int dlg_listeiols::idcurrentIOL() const
@@ -365,7 +364,7 @@ void dlg_listeiols::EnregistreNouveauIOL()
         delete Dlg_IdentIOL;
         return;
     }
-    if (Dlg_IdentIOL->exec()>0)
+    if (Dlg_IdentIOL->exec() == QDialog::Accepted)
     {
         IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL());
         m_listemodifiee = true;
@@ -668,7 +667,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
         delete Dlg_IdentIOL;
         return;
     }
-    if (Dlg_IdentIOL->exec()>0)
+    if (Dlg_IdentIOL->exec() == QDialog::Accepted)
     {
         if (iol)
         {
@@ -798,7 +797,7 @@ void dlg_listeiols::SupprIOL(IOL *iol)
     Msg = tr("Etes vous sûr de vouloir supprimer l'implant") + "\n " +
             iol->modele() + "?" +
             "\n" + tr("La suppression est IRRÉVERSIBLE.");
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);

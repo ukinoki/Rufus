@@ -697,7 +697,7 @@ void dlg_listecommentaires::SupprimmCommentaire(CommentLunet* com)
 
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + com->resume() + "?";
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + currentuser()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);

@@ -192,7 +192,7 @@ void dlg_docsscanner::NavigueVers(QString but)
         QFile       qFile(m_docpath + "/" + m_nomfichierimageencours);
         if (!qFile.open( QIODevice::ReadOnly ))
         {
-            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier"), qFile.fileName());
+            UpMessageBox::Watch(this,  tr("Erreur d'accès au fichier"), qFile.fileName());
             return;
         }
         QByteArray bapdf = qFile.readAll();
@@ -229,7 +229,7 @@ void dlg_docsscanner::ChangeFile()
         QFile       qFile(m_docpath + "/" + m_nomfichierimageencours);
         if (!qFile.open( QIODevice::ReadOnly ))
         {
-            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier"), qFile.fileName());
+            UpMessageBox::Watch(this,  tr("Erreur d'accès au fichier"), qFile.fileName());
             return;
         }
         QByteArray bapdf = qFile.readAll();
@@ -274,7 +274,7 @@ void dlg_docsscanner::ValideFiche()
     if (wdg_editdate->date() == QDate::currentDate())
     {
         wdg_editdate->setFocus();
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour ce document"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
@@ -293,7 +293,7 @@ void dlg_docsscanner::ValideFiche()
     QFile   qFileOrigin(filename);
     if (!qFileOrigin.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
     QByteArray ba = qFileOrigin.readAll();
@@ -330,7 +330,7 @@ void dlg_docsscanner::ValideFiche()
             return;
         if (!qFileOrigin.open( QIODevice::ReadOnly ))
         {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
+            UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
             return;
         }
         ba = qFileOrigin.readAll();

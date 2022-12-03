@@ -37,7 +37,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
 {
     if (Datas::I()->manufacturers->manufacturers()->size() == 0)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Aucun fabricant enregistré"), tr("Vous devez avoir des fabricants enregistrés dans la base pour pouvoir gérer les implants"));
+        UpMessageBox::Watch(parent,tr("Aucun fabricant enregistré"), tr("Vous devez avoir des fabricants enregistrés dans la base pour pouvoir gérer les implants"));
         m_initok = false;
         return;
     }

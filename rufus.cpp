@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-11-2022/1");
+    qApp->setApplicationVersion("30-11-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -421,7 +421,10 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                     founddlg = true;
                 }
                 else
+                {
                     ListDialogDocs.at(i)->close();
+                    delete ListDialogDocs.at(i);
+                }
             }
         if (founddlg)
             return;
@@ -1227,7 +1230,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         // il s'agit d'un acte gratuit - on propose de le classer
         if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             UpSmallButton OKBouton(tr("Consultation gratuite"));
             msgbox.setText(tr("Vous avez entré un montant nul !"));
             msgbox.setInformativeText(tr("Enregistrer cette consultation comme gratuite?"));
@@ -1536,7 +1539,7 @@ void Rufus::CreerBilanOrtho()
             DateBl = currentacte()->date();
             if (DateBl != QDate::currentDate())
             {
-                UpMessageBox msgbox;
+                UpMessageBox msgbox(this);
                 UpSmallButton ReprendreBOBouton(tr("Reprendre"));
                 UpSmallButton NouveauBOBouton(tr("Créer un nouveau\nbilan orthoptique"));
                 UpSmallButton AnnulBouton(tr("Annuler"));
@@ -1609,7 +1612,7 @@ void Rufus::CreerBilanOrtho()
         Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(currentpatient()->datedenaissance().daysTo(QDate::currentDate()) < 730);
         Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(currentpatient()->datedenaissance().daysTo(QDate::currentDate()) < 730);
     }
-    if (Dlg_BlOrtho->exec()> 0)
+    if (Dlg_BlOrtho->exec() == QDialog::Accepted)
     {
         QString const debutdelimiter    = "<a name=\"BODEBUT\"></a>";
         QString const findelimiter      = "<a name=\"BOFIN\"></a>";
@@ -2634,9 +2637,8 @@ void Rufus::ImprimeDossier(Patient *pat)
                                                                                                listeactes,
                                                                                                QDate::fromString(combofin->currentText(),"dd-MMM-yyyy"),
                                                                                                false);});
-        int result = dlg_ask->exec();
         QList<Acte*> listeactesaimprimer = QList<Acte*>();
-        if (result>0)
+        if (dlg_ask->exec() == QDialog::Accepted)
             for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
             {
                 Acte* act = const_cast<Acte*>(it.value());
@@ -3056,7 +3058,7 @@ void Rufus::ChoixMenuContextuelMotsCles()
     if (currentpatient() == Q_NULLPTR)
         return;
     dlg_listemotscles *ListMCDialog = new dlg_listemotscles(this);
-    if (ListMCDialog->exec()==0)
+    if (ListMCDialog->exec() == QDialog::Accepted)
     {
         QList<int> listMC = ListMCDialog->listMCDepart();
         if (listMC.size()>0)
@@ -3078,8 +3080,7 @@ void Rufus::RechercheParID()
 {
     if (!Datas::I()->patients->isfull())
         FiltreTable();
-    dlg_rechParId                 = new UpDialog();
-    dlg_rechParId                 ->setAttribute(Qt::WA_DeleteOnClose);
+    UpDialog *dlg_rechParId       = new UpDialog();
     UpLabel         *idlabel      = new UpLabel(dlg_rechParId, tr("id du patient"));
     UpLineEdit      *idLine       = new UpLineEdit(dlg_rechParId);
     wdg_nomlbl                    = new UpLabel(dlg_rechParId);
@@ -3088,10 +3089,11 @@ void Rufus::RechercheParID()
     dlg_rechParId->dlglayout()    ->insertWidget(0,idlabel);
     dlg_rechParId->dlglayout()    ->insertWidget(1,idLine);
     dlg_rechParId->dlglayout()    ->insertWidget(2,wdg_nomlbl);
-    dlg_rechParId                 ->AjouteLayButtons();
+    dlg_rechParId                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(idLine,                   &QLineEdit::textEdited,   this,           [=] {CherchePatientParID(idLine->text().toInt());});
-    connect(dlg_rechParId->OKButton,  &QPushButton::clicked,    dlg_rechParId,  [=] {ui->CreerPrenomlineEdit->clear(); dlg_rechParId->close();});
+    connect(dlg_rechParId->OKButton,  &QPushButton::clicked,    dlg_rechParId,  [=] {ui->CreerPrenomlineEdit->clear(); dlg_rechParId->accept();});
     dlg_rechParId->exec();
+    delete dlg_rechParId;
 }
 
 void Rufus::RechercheParMotCle()
@@ -3600,7 +3602,7 @@ void Rufus::ChoixMenuContextuelMedecin()
     int id = ui->MGupComboBox->currentData().toInt();
     bool onlydoctors = true;
     dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails), this);
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
         if (Dlg_IdentCorresp->identcorrespondantmodifiee())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(id));
     delete Dlg_IdentCorresp;
@@ -3634,7 +3636,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     if (id==-1) return;
     bool onlydoctors = false;
     dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, Item::LoadDetails));
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
     {
         int idCor = Dlg_IdentCorresp->idcurrentcorrespondant();
         if (choix == "Modifier1")
@@ -3913,7 +3915,7 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
     dlg_ask->setFixedWidth(320);
     dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     MsgText->setText(Message);
-    if (dlg_ask->exec()>0)
+    if (dlg_ask->exec() == QDialog::Accepted)
     {
         Message = MsgText->toPlainText();
         for (int m=0; m<grpBox->findChildren<QRadioButton*>().size(); m++)
@@ -4405,7 +4407,7 @@ void Rufus::RetrouveMontantActe()
 
     /*  else
    {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         UpSmallButton *OKBouton = new UpSmallButton;
         UpSmallButton *AnnulBouton = new UpSmallButton;
         msgbox.setText("Acte non répertorié.");
@@ -4424,7 +4426,7 @@ void Rufus::RetrouveMontantActe()
             if (quer.size() == 0)
             {
                 proc->EnChantier();
-                UpMessageBox msgbox;
+                UpMessageBox msgbox(this);
                 UpSmallButton *OKBouton = new UpSmallButton;
                 UpSmallButton *AnnulBouton = new UpSmallButton;
                 msgbox.setText("Acte hors convention?");
@@ -4478,39 +4480,100 @@ void Rufus::SalleDAttente()
     }
 }
 
-void Rufus::AllusrChkBoxSendMsg(bool a)
-{
-    for (int i=0; i< dlg_ask->findChildren<UpCheckBox*>().size(); i++)
-        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
-            dlg_ask->findChildren<UpCheckBox*>().at(i)->setChecked(a);
-}
 
-void Rufus::OneusrChkBoxSendMsg(bool a)
-{
-    if (a)
+/*!
+ * \brief Rufus::SendMessage - Affiche la fiche de rédaction des messages
+ * \param map -> la map QMap<QString, QVariant> des caractéristiques du message à envoyer
+ * \param id -> l'id du patient concerné
+ * \param idMsg -> l'id du message - utilisé quand il s'agit de modifier un message
+ */
+void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
+    auto VerifMessage = [=] (UpDialog *dlg_sendMessage,int idMsg) /*! Vérifie la cohérence des messages avant de les envoyer */
     {
-        bool allchk = true;
-        for (int i=0; i< dlg_ask->findChildren<UpCheckBox*>().size(); i++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
+        if (dlg_sendMessage->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
+        {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"), Icons::icSunglasses(), 2000);
+            return;
+        }
+        bool checkusr = false;
+        for (int j=0; j< dlg_sendMessage->findChildren<UpCheckBox*>().size(); j++)
+            if (dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)
             {
-                allchk = dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked();
-                if (!allchk)
+                checkusr = dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->isChecked();
+                if (checkusr)
                     break;
+            }        
+        if (!checkusr)
+        {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de choisir un destinataire!"),Icons::icSunglasses(), 2000);
+            return;
+        }
+        QHash<QString, QVariant> m_listbinds;
+        m_listbinds[CP_IDEMETTEUR_MSG]  = currentuser()->id();
+        m_listbinds[CP_TEXT_MSG]        = dlg_sendMessage->findChildren<UpTextEdit*>().at(0)->toHtml();
+        int idpat = 0;
+        int ncheck = dlg_sendMessage->findChildren<UpCheckBox*>().size();
+        for (int i=0; i<ncheck; i++)
+            if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->objectName()=="AboutPatupCheckBox")
+            {
+                if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->isChecked())
+                {
+                    idpat = dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->iD();
+                    break;
+                }
             }
-        for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 2)
-                dlg_ask->findChildren<UpCheckBox*>().at(j)->setChecked(allchk);
-    }
-    else
-        for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
-            if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 2)
-                dlg_ask->findChildren<UpCheckBox*>().at(j)->setChecked(false);
-}
-
-void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
-{
+        m_listbinds[CP_IDPATIENT_MSG]       = (idpat > 0? idpat : QVariant());
+        bool task = false;
+        QDate datelimite = QDate();
+        for (int i=0; i<ncheck; i++)
+            if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->objectName()=="TaskupCheckBox")
+            {
+                if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->isChecked())
+                {
+                    task = true;
+                    datelimite = dlg_sendMessage->findChildren<QDateTimeEdit*>().at(0)->date();
+                    break;
+                }
+            }
+        bool urge = false;
+        for (int i=0; i<ncheck; i++)
+            if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->objectName()=="UrgeupCheckBox")
+            {
+                if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->isChecked())
+                {
+                    urge = true;
+                    break;
+                }
+            }
+        m_listbinds[CP_TACHE_MSG]           = (task? 1 : QVariant());
+        m_listbinds[CP_DATELIMITE_MSG]      = (datelimite.isValid()? datelimite.toString("yyyy-MM-dd") : QVariant());
+        m_listbinds[CP_URGENT_MSG]          = (urge? 1 : QVariant());
+        m_listbinds[CP_DATECREATION_MSG]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        QList<int> listidusr;
+        for (int j=0; j< dlg_sendMessage->findChildren<UpCheckBox*>().size(); j++)
+            if (dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
+                if (dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->isChecked())
+                    listidusr << dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->iD();
+        if (listidusr.size() == 0)
+            return;
+        bool result = false;
+        if (idMsg<0)  // Enregistrement d'un nouveau message
+        {
+            if (Datas::I()->messages->CreationMessage(m_listbinds, listidusr))
+            {
+                envoieTCPMessageA(listidusr);
+                result = true;
+            }
+        }
+        else  //    modification d'un message existant
+            if (Datas::I()->messages->UpdateMessage(idMsg, m_listbinds, listidusr))
+                result = true;
+        if (result)
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
+        dlg_sendMessage->accept();
+    };
     //TODO : SQL
-    dlg_ask         = new UpDialog(this);
+    UpDialog *dlg_sendMessage       = new UpDialog(this);
     QHBoxLayout     *tasklayout;
     QHBoxLayout     *totallayout    = new QHBoxLayout();
     QVBoxLayout     *destlayout     = new QVBoxLayout();
@@ -4522,7 +4585,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     UpTextEdit      *MsgText;
     QDateEdit       *limitdate;
 
-    dlg_ask->AjouteLayButtons(UpDialog::ButtonOK);
+    dlg_sendMessage->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
     /*! on prépare 2 layout verticaux et une ligne
      *  detslayout qui va comporter un groupbox où on choisit le destinataire
@@ -4541,7 +4604,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
         Patient *pat = Datas::I()->patients->getById(id);
         if (pat)
         {
-            checkpat       = new UpCheckBox(dlg_ask);
+            checkpat       = new UpCheckBox(dlg_sendMessage);
             checkpat        ->setObjectName("AboutPatupCheckBox");
             checkpat        ->setText(tr("A propos de ") + pat->nom().toUpper() + " " + pat->prenom());
             checkpat        ->setChecked(true);
@@ -4561,15 +4624,19 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     }
     if (m_ok && listactifs.size()>0)
     {
-        UsrGroupBox = new QGroupBox(dlg_ask);
+        UsrGroupBox = new QGroupBox(dlg_sendMessage);
         UsrGroupBox->setTitle(tr("Destinataire"));
         UpCheckBox *Allusrchk = new UpCheckBox();
         Allusrchk->setText(tr("Tout le monde"));
         Allusrchk->setAutoExclusive(false);
-        Allusrchk->setRowTable(2);
-        connect(Allusrchk,  &QCheckBox::clicked,  this, [=] {AllusrChkBoxSendMsg(Allusrchk->isChecked());});
+        Allusrchk->setRowTable(2);        
+        connect(Allusrchk,  &QCheckBox::clicked,  this, [=] {   /*! tous les utilistauers sont cochés quand on coche la case tr("Tout le monde") */
+                                                                for (int i=0; i< dlg_sendMessage->findChildren<UpCheckBox*>().size(); i++)
+                                                                    if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
+                                                                        dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->setChecked(Allusrchk->isChecked());
+                                                            });
         vbox->addWidget(Allusrchk);
-        QLabel *line = new QLabel(dlg_ask);
+        QLabel *line = new QLabel(dlg_sendMessage);
         line->setFrameShape(QFrame::HLine);
         line->setFixedHeight(1);
         vbox->addWidget(line);
@@ -4581,8 +4648,27 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
             chk0->setiD(usr->id());
             if (idMsg>-1)
                 chk0->setChecked(map["listdestinataires"].toStringList().contains(QString::number(usr->id())));
-            chk0->setRowTable(1);
-            connect(chk0,  &QCheckBox::clicked,  this,  [=] {OneusrChkBoxSendMsg(chk0->isChecked());});
+            chk0->setRowTable(1);            
+            connect(chk0,  &QCheckBox::clicked,  this,  [=]{ /*! coche la case tr("Tout le monde") si tous les utilisateurs sont cochés, la décoche dans le cas inverse */
+                                                                if (chk0->isChecked())
+                                                                {
+                                                                    bool allchk = true;
+                                                                    for (int i=0; i< dlg_sendMessage->findChildren<UpCheckBox*>().size(); i++)
+                                                                        if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
+                                                                        {
+                                                                            allchk = dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->isChecked();
+                                                                            if (!allchk)
+                                                                                break;
+                                                                        }
+                                                                    for (int j=0; j< dlg_sendMessage->findChildren<UpCheckBox*>().size(); j++)
+                                                                        if (dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->rowTable() == 2)
+                                                                            dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->setChecked(allchk);
+                                                                }
+                                                                else
+                                                                    for (int j=0; j< dlg_sendMessage->findChildren<UpCheckBox*>().size(); j++)
+                                                                        if (dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->rowTable() == 2)
+                                                                            dlg_sendMessage->findChildren<UpCheckBox*>().at(j)->setChecked(false);
+                                                            });
             vbox->addWidget(chk0);
             chk0->setAutoExclusive(false);
         }
@@ -4592,20 +4678,20 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     }
     else
     {
-        delete dlg_ask;
+        delete dlg_sendMessage;
         return;
     }
 
-    MsgText        = new UpTextEdit(dlg_ask);
+    MsgText        = new UpTextEdit(dlg_sendMessage);
     MsgText         ->setFixedHeight(140);
     if (idMsg>-1)
         MsgText->setText(map[CP_TEXT_MSG].toString());
     msglayout       ->setContentsMargins(5,0,5,0);
 
     tasklayout     = new QHBoxLayout();
-    limitdate      = new QDateEdit(dlg_ask);
-    checktask      = new UpCheckBox(dlg_ask);
-    checkurg       = new UpCheckBox(dlg_ask);
+    limitdate      = new QDateEdit(dlg_sendMessage);
+    checktask      = new UpCheckBox(dlg_sendMessage);
+    checkurg       = new UpCheckBox(dlg_sendMessage);
     checktask       ->setObjectName("TaskupCheckBox");
     checkurg        ->setObjectName("UrgeupCheckBox");
     limitdate       ->setFixedHeight(26);
@@ -4622,8 +4708,8 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
         checkurg->setChecked(map[CP_URGENT_MSG].toInt()==1);
     }
     checktask       ->setText(tr("Tâche à accomplir avant le "));
-    checkurg        ->setText(tr("Urgent"));
-    connect(checktask,  &QCheckBox::clicked,  this, [=] {AfficheMessageLimitDate(checktask->isChecked());});
+    checkurg        ->setText(tr("Urgent"));    
+    connect(checktask,  &QCheckBox::clicked,  this, [=] {dlg_sendMessage->findChildren<QDateEdit*>().at(0)->setEnabled(checktask->isChecked());});
     tasklayout      ->addWidget(checktask);
     tasklayout      ->addWidget(limitdate);
     tasklayout      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -4633,120 +4719,27 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     msglayout       ->addWidget(MsgText);
     msglayout       ->addLayout(tasklayout);
 
-    dlg_ask->OKButton   ->setiD(idMsg);
-    connect(dlg_ask->OKButton,   QOverload<int>::of(&UpSmallButton::clicked),  this,    [=] {VerifSendMessage(idMsg);});
+    dlg_sendMessage->OKButton   ->setiD(idMsg);
+    connect(dlg_sendMessage->OKButton,   QOverload<int>::of(&UpSmallButton::clicked),  this,    [=] {VerifMessage(dlg_sendMessage, idMsg);});
 
     totallayout->addLayout(destlayout);
-    QLabel *Vline = new QLabel(dlg_ask);
+    QLabel *Vline = new QLabel(dlg_sendMessage);
     Vline->setFrameShape(QFrame::VLine);
     Vline->setFixedWidth(1);
     totallayout->addWidget(Vline);
     totallayout->addLayout(msglayout);
-    dlg_ask->dlglayout()->insertLayout(0,totallayout);
+    dlg_sendMessage->dlglayout()->insertLayout(0,totallayout);
 
-    dlg_ask            ->setWindowTitle(tr("Envoyer un message"));
-    dlg_ask            ->setFixedWidth(510);
-    dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-
-    if (map["null"].toBool())
-        dlg_ask->exec();
-    delete dlg_ask;
-    dlg_ask = Q_NULLPTR;
-}
-
-void Rufus::VerifSendMessage(int idMsg)
-{
-    if (dlg_ask->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
-    {
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"), Icons::icSunglasses(), 2000);
-        return;
-    }
-    bool checkusr = false;
-    for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
-        if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)
-        {
-            checkusr = dlg_ask->findChildren<UpCheckBox*>().at(j)->isChecked();
-            if (checkusr)
-                break;
-        }
-    if (!checkusr)
-    {
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de choisir un destinataire!"),Icons::icSunglasses(), 2000);
-        return;
-    }
-    QHash<QString, QVariant> m_listbinds;
-    m_listbinds[CP_IDEMETTEUR_MSG]  = currentuser()->id();
-    m_listbinds[CP_TEXT_MSG]        = dlg_ask->findChildren<UpTextEdit*>().at(0)->toHtml();
-    int idpat = 0;
-    int ncheck = dlg_ask->findChildren<UpCheckBox*>().size();
-    for (int i=0; i<ncheck; i++)
-        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="AboutPatupCheckBox")
-        {
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-            {
-                idpat = dlg_ask->findChildren<UpCheckBox*>().at(i)->iD();
-                break;
-            }
-        }
-    m_listbinds[CP_IDPATIENT_MSG]       = (idpat > 0? idpat : QVariant());
-    bool task = false;
-    QDate datelimite = QDate();
-    for (int i=0; i<ncheck; i++)
-        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="TaskupCheckBox")
-        {
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-            {
-                task = true;
-                datelimite = dlg_ask->findChildren<QDateTimeEdit*>().at(0)->date();
-                break;
-            }
-        }
-    bool urge = false;
-    for (int i=0; i<ncheck; i++)
-        if (dlg_ask->findChildren<UpCheckBox*>().at(i)->objectName()=="UrgeupCheckBox")
-        {
-            if (dlg_ask->findChildren<UpCheckBox*>().at(i)->isChecked())
-            {
-                urge = true;
-                break;
-            }
-        }
-    m_listbinds[CP_TACHE_MSG]           = (task? 1 : QVariant());
-    m_listbinds[CP_DATELIMITE_MSG]      = (datelimite.isValid()? datelimite.toString("yyyy-MM-dd") : QVariant());
-    m_listbinds[CP_URGENT_MSG]          = (urge? 1 : QVariant());
-    m_listbinds[CP_DATECREATION_MSG]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-    QList<int> listidusr;
-    for (int j=0; j< dlg_ask->findChildren<UpCheckBox*>().size(); j++)
-        if (dlg_ask->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
-            if (dlg_ask->findChildren<UpCheckBox*>().at(j)->isChecked())
-                listidusr << dlg_ask->findChildren<UpCheckBox*>().at(j)->iD();
-    if (listidusr.size() == 0)
-        return;
-    bool result = false;
-    if (idMsg<0)  // Enregistrement d'un nouveau message
-    {
-        if (Datas::I()->messages->CreationMessage(m_listbinds, listidusr))
-        {
-            envoieTCPMessageA(listidusr);
-            result = true;
-        }
-    }
-    else  //    modification d'un message existant
-        if (Datas::I()->messages->UpdateMessage(idMsg, m_listbinds, listidusr))
-            result = true;
-    if (result)
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
-    dlg_ask->accept();
+    dlg_sendMessage            ->setWindowTitle(tr("Envoyer un message"));
+    dlg_sendMessage            ->setFixedWidth(510);
+    dlg_sendMessage->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_sendMessage->exec();
+    delete dlg_sendMessage;
 }
 
 void Rufus::AfficheMessageImport(QStringList listmsg, int pause)
 {
     ShowMessage::I()->SplashMessage(listmsg, pause);
-}
-
-void Rufus::AfficheMessageLimitDate(bool a)
-{
-    dlg_ask->findChildren<QDateEdit*>().at(0)->setEnabled(a);
 }
 
 void Rufus::setTitre()
@@ -4992,15 +4985,15 @@ void Rufus::SupprimerDocsEtFactures()
     }
 }
 
-void Rufus::AfficheMessages(int idx)
+void Rufus::AfficheBAL(int idx)
 {
-    if (dlg_msgDialog != Q_NULLPTR)
+    if (dlg_msgBAL != Q_NULLPTR)
     {
-        if (dlg_msgDialog->isVisible())
-            dlg_msgDialog->close();
-        delete dlg_msgDialog;
+        if (dlg_msgBAL->isVisible())
+            dlg_msgBAL->close();
+        delete dlg_msgBAL;
     }
-    dlg_msgDialog = new QDialog(this);
+    dlg_msgBAL = new QDialog(this);
     int x = 0;
     int y = 0;
     QList<QScreen*> listscreens = QGuiApplication::screens();
@@ -5009,22 +5002,22 @@ void Rufus::AfficheMessages(int idx)
         x = listscreens.first()->geometry().width();
         y = listscreens.first()->geometry().height();
     }
-    dlg_msgDialog->setStyleSheet("border-image: none; background-color:#FAFAFA;");;
+    dlg_msgBAL->setStyleSheet("border-image: none; background-color:#FAFAFA;");;
     QVBoxLayout *globallay = new QVBoxLayout();
     QTabWidget* Tabw = Remplir_MsgTabWidget();
     if (Tabw->count()>idx)
         Tabw->setCurrentIndex(idx);
-    Tabw->setParent(dlg_msgDialog);
+    Tabw->setParent(dlg_msgBAL);
     globallay->addWidget(Tabw);
-    dlg_msgDialog->setLayout(globallay);
-    dlg_msgDialog->setSizeGripEnabled(false);
-    dlg_msgDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
-    dlg_msgDialog->setWindowTitle(tr("Messagerie"));
-    dlg_msgDialog->setMaximumHeight(y-30);
-    dlg_msgDialog->setWindowIcon(Icons::icSunglasses());
-    dlg_msgDialog->move(x-470,30);
-    dlg_msgDialog->setFixedWidth(500);
-    dlg_msgDialog->show();
+    dlg_msgBAL->setLayout(globallay);
+    dlg_msgBAL->setSizeGripEnabled(false);
+    dlg_msgBAL->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
+    dlg_msgBAL->setWindowTitle(tr("Messagerie"));
+    dlg_msgBAL->setMaximumHeight(y-30);
+    dlg_msgBAL->setWindowIcon(Icons::icSunglasses());
+    dlg_msgBAL->move(x-470,30);
+    dlg_msgBAL->setFixedWidth(500);
+    dlg_msgBAL->show();
 }
 
 QTabWidget* Rufus::Remplir_MsgTabWidget()
@@ -5085,8 +5078,12 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Rdchk->setChecked(msg->islu());
             Rdchk->setiD(msg->idjointure());
             Rdchk->setText(tr("lu"));
-            Rdchk->setFixedWidth(45);
-            connect(Rdchk,  &QCheckBox::clicked,    this,   [=] {MsgRead(Rdchk);});
+            Rdchk->setFixedWidth(45);            
+            connect(Rdchk,  &QCheckBox::clicked,    this,   [=] {   /*! le message a été lu */
+                                                                    int idjoin = Rdchk->iD();
+                                                                    QString res = (Rdchk->isChecked()? "1" : "NULL");
+                                                                    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set " CP_LU_JOINTURESMSG " = " + res + " where " CP_ID_JOINTURESMSG " = " + QString::number(idjoin));
+                                                                });
             titrelay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             titrelay->addWidget(Rdchk);
             reclay->addLayout(titrelay);
@@ -5141,8 +5138,12 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Dnchk->setChecked(msg->isfait());
                 Dnchk->setiD(msg->idjointure());
                 Dnchk->setText(tr("fait"));
-                Dnchk->setFixedWidth(45);
-                connect(Dnchk,  &QCheckBox::clicked,    this,    [=] {MsgDone(Dnchk);});
+                Dnchk->setFixedWidth(45);                
+                connect(Dnchk,  &QCheckBox::clicked,    this,    [=] {  /*! la tache a été effectuée */
+                                                                        int idjoin = Dnchk->iD();
+                                                                        QString res = (Dnchk->isChecked()? "1" : "NULL");
+                                                                        db->StandardSQL("update " TBL_MESSAGESJOINTURES " set " CP_FAIT_JOINTURESMSG " = " + res + " where " CP_ID_JOINTURESMSG " = " + QString::number(idjoin));
+                                                                     });
                 Tasklay->addWidget(Dnchk);
                 SMlay->addLayout(Tasklay);
             }
@@ -5351,6 +5352,37 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
 void Rufus::MsgResp(int idmsg)
 {
+    auto EnregResp = [=] (UpDialog *dlg_msgRepons)
+    {
+        if (dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
+       {
+           UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"),Icons::icSunglasses(), 2000);
+           return;
+       }
+        Message *msg = Datas::I()->messages->getById(idmsg);
+        if (!msg)
+            return;
+       QHash<QString, QVariant> m_listbinds;
+       m_listbinds[CP_IDEMETTEUR_MSG]  = currentuser()->id();
+       QString Reponse = "<font color = " COULEUR_TITRES ">" + dlg_msgRepons->findChildren<UpLabel*>().at(0)->text() + "</font>"
+               + "------<br><b>" + currentuser()->login() + ":</b> " + dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
+       UpTextEdit txt;
+       txt.setText(Reponse);
+       m_listbinds[CP_TEXT_MSG]            = txt.toHtml();
+       m_listbinds[CP_DATECREATION_MSG]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+       m_listbinds[CP_ENREPONSEA_MSG]      = idmsg;
+       m_listbinds[CP_TACHE_MSG]           = (msg->istache()? 1 : QVariant());
+       m_listbinds[CP_DATELIMITE_MSG]      = (msg->datelimite().isValid()? msg->datelimite().toString("yyyy-MM-dd") : QVariant());
+       m_listbinds[CP_URGENT_MSG]          = (msg->isurgent()? 1 : QVariant());
+       QList<int> listidusr = QList<int>() << msg->idemetteur();
+       if (Datas::I()->messages->CreationMessage(m_listbinds, listidusr))
+       {
+           envoieTCPMessageA(listidusr);
+           UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
+       }
+       dlg_msgRepons->close();
+    };
+
     Message *msg = Datas::I()->messages->getById(idmsg);
     if (!msg)
         return;
@@ -5360,11 +5392,13 @@ void Rufus::MsgResp(int idmsg)
         UpMessageBox::Watch(this,tr("Impossible de retrouver l'expéditeur du message"));
         return;
     }
-    QVBoxLayout *globallay = new QVBoxLayout();
-    dlg_msgRepons = new QDialog(this);
-    QLabel *lbl = new QLabel(dlg_msgRepons);
-    lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usr->login() + "</b></font>");
-    globallay->addWidget(lbl);
+
+    UpDialog *dlg_msgRepons = new UpDialog(this);
+
+    UpTextEdit* rponstxt = new UpTextEdit();
+    rponstxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
+    dlg_msgRepons->dlglayout()->insertWidget(0,rponstxt);
+
     QHBoxLayout *lbllayout  = new QHBoxLayout();
     UpLabel     *msglbl     = new UpLabel(dlg_msgRepons);
     QString nomprenom = "";
@@ -5379,26 +5413,17 @@ void Rufus::MsgResp(int idmsg)
     msglbl      ->setText(msglbl->text() + msg->texte());
     lbllayout   ->addSpacerItem(new QSpacerItem(30,1));
     lbllayout   ->addWidget(msglbl);
-    globallay   ->addLayout(lbllayout);
 
-    UpTextEdit* rponstxt = new UpTextEdit(dlg_msgRepons);
-    rponstxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
-    rponstxt->setParent(dlg_msgRepons);
+    dlg_msgRepons->dlglayout()   ->insertLayout(0,lbllayout);
 
-    QHBoxLayout     *buttonlayout;
-    buttonlayout   = new QHBoxLayout();
-    UpSmallButton *OKbutton       = new UpSmallButton("", dlg_msgRepons);
-    OKbutton        ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-    OKbutton        ->setiD(idmsg);
-    connect(OKbutton, &QPushButton::clicked, this, [=] {EnregMsgResp(idmsg);});
-    buttonlayout    ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
-    buttonlayout    ->addWidget(OKbutton);
-    buttonlayout    ->setContentsMargins(0,0,5,5);
+    QLabel *lbl = new QLabel();
+    lbl->setText(tr("Réponse au message de ") + "<font color=\"green\"><b>" + usr->login() + "</b></font>");
+    dlg_msgRepons->dlglayout()->insertWidget(0,lbl);
 
-    globallay->addWidget(rponstxt);
-    globallay->addLayout(buttonlayout);
+    dlg_msgRepons->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_msgRepons->OKButton        ->setiD(idmsg);
+    connect(dlg_msgRepons->OKButton, &QPushButton::clicked, this, [=] {EnregResp(dlg_msgRepons);});
 
-    dlg_msgRepons->setLayout(globallay);
     dlg_msgRepons->setSizeGripEnabled(false);
     dlg_msgRepons->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
     dlg_msgRepons->setWindowTitle(tr("Messagerie"));
@@ -5412,43 +5437,11 @@ void Rufus::MsgResp(int idmsg)
 
     dlg_msgRepons->exec();
     delete dlg_msgRepons;
-    dlg_msgRepons = Q_NULLPTR;
-}
-
-void Rufus::EnregMsgResp(int idmsg)
-{
-     if (dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
-    {
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Vous avez oublié de rédiger le texte de votre message!"),Icons::icSunglasses(), 2000);
-        return;
-    }
-     Message *msg = Datas::I()->messages->getById(idmsg);
-     if (!msg)
-         return;
-    QHash<QString, QVariant> m_listbinds;
-    m_listbinds[CP_IDEMETTEUR_MSG]  = currentuser()->id();
-    QString Reponse = "<font color = " COULEUR_TITRES ">" + dlg_msgRepons->findChildren<UpLabel*>().at(0)->text() + "</font>"
-            + "------<br><b>" + currentuser()->login() + ":</b> " + dlg_msgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
-    UpTextEdit txt;
-    txt.setText(Reponse);
-    m_listbinds[CP_TEXT_MSG]            = txt.toHtml();
-    m_listbinds[CP_DATECREATION_MSG]    = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-    m_listbinds[CP_ENREPONSEA_MSG]      = idmsg;
-    m_listbinds[CP_TACHE_MSG]           = (msg->istache()? 1 : QVariant());
-    m_listbinds[CP_DATELIMITE_MSG]      = (msg->datelimite().isValid()? msg->datelimite().toString("yyyy-MM-dd") : QVariant());
-    m_listbinds[CP_URGENT_MSG]          = (msg->isurgent()? 1 : QVariant());
-    QList<int> listidusr = QList<int>() << msg->idemetteur();
-    if (Datas::I()->messages->CreationMessage(m_listbinds, listidusr))
-    {
-        envoieTCPMessageA(listidusr);
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Message enregistré"),Icons::icSunglasses(), 1000);
-    }
-    dlg_msgRepons->close();
 }
 
 void Rufus::MsgModif(int idmsg)
 {
-    QList<UpTextEdit*> listtxt = dlg_msgDialog->findChildren<UpTextEdit*>();
+    QList<UpTextEdit*> listtxt = dlg_msgBAL->findChildren<UpTextEdit*>();
     if (listtxt.size()>0)
         for (int i=0; i<listtxt.size();i++)
         {
@@ -5473,28 +5466,11 @@ void Rufus::MsgModif(int idmsg)
                     listdestinataires << destlist.at(i).at(0).toString();
                 map["listdestinataires"] = listdestinataires;
 
-                SendMessage(map, msg->idpatient(), idmsg);                           //depuis gMsgDialog
-                dlg_ask->exec();
-                delete dlg_ask;
-                dlg_ask = Q_NULLPTR;
-                //todo//??
+                SendMessage(map, msg->idpatient(), idmsg);                           //depuis MsgModif
                 i =listtxt.size();
+                AfficheBAL(1);
             }
         }
-}
-
-void Rufus::MsgDone(UpCheckBox *chk)
-{
-    int idjoin = chk->iD();
-    QString res = (chk->isChecked()? "1" : "NULL");
-    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set " CP_FAIT_JOINTURESMSG " = " + res + " where " CP_ID_JOINTURESMSG " = " + QString::number(idjoin));
-}
-
-void Rufus::MsgRead(UpCheckBox *chk)
-{
-    int idjoin = chk->iD();
-    QString res = (chk->isChecked()? "1" : "NULL");
-    db->StandardSQL("update " TBL_MESSAGESJOINTURES " set " CP_LU_JOINTURESMSG " = " + res + " where " CP_ID_JOINTURESMSG " = " + QString::number(idjoin));
 }
 
 void Rufus::SupprimerMessageEmis(int idMsg)
@@ -5505,8 +5481,8 @@ void Rufus::SupprimerMessageEmis(int idMsg)
           CP_IDMSG_JOINTURESMSG " = " + QString::number(idMsg) +
           " and " CP_IDDESTINATAIRE_JOINTURESMSG " = " + QString::number(currentuser()->id());
     db->StandardSQL(req);
-    if (dlg_msgDialog->findChildren<QScrollArea*>().size()>0)
-        AfficheMessages(1);
+    if (dlg_msgBAL->findChildren<QScrollArea*>().size()>0)
+        AfficheBAL(1);
 }
 
 void Rufus::SupprimerMessageRecu(int idJoint)
@@ -5534,8 +5510,8 @@ void Rufus::SupprimerMessageRecu(int idJoint)
             Datas::I()->messages->SupprimeMessage(msg);
         }
     }
-    if (dlg_msgDialog->findChildren<QScrollArea*>().size()>0)
-        AfficheMessages();
+    if (dlg_msgBAL->findChildren<QScrollArea*>().size()>0)
+        AfficheBAL();
 }
 
 void Rufus::ReconstruitListeMessages()
@@ -5556,12 +5532,12 @@ void Rufus::ReconstruitListeMessages()
         }
         m_datederniermessageuser = QDateTime(DateMsg);
     }
-    else if (dlg_msgDialog != Q_NULLPTR)
+    else if (dlg_msgBAL != Q_NULLPTR)
     {
-        if (dlg_msgDialog->isVisible())
-            dlg_msgDialog->close();
-        delete dlg_msgDialog;
-        dlg_msgDialog = Q_NULLPTR;
+        if (dlg_msgBAL->isVisible())
+            dlg_msgBAL->close();
+        delete dlg_msgBAL;
+        dlg_msgBAL = Q_NULLPTR;
     }
 
     QString msg = "";
@@ -5596,9 +5572,9 @@ void Rufus::ReconstruitListeMessages()
     {
         Utils::playAlarm();
         ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
-        if (dlg_msgDialog != Q_NULLPTR)
-            if (dlg_msgDialog->isVisible())
-                AfficheMessages();
+        if (dlg_msgBAL != Q_NULLPTR)
+            if (dlg_msgBAL->isVisible())
+                AfficheBAL();
     }
     m_isTotalMessagesAffiche = false;
 }
@@ -6778,7 +6754,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     {
         if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + prenom + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Convertir ") + QString::number(patlist.size()) + " " + prenom + "...");
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton MBouton;
@@ -6978,7 +6954,7 @@ void Rufus::SortieAppli()
                 {
                     // il y a du monde en salle d'attente, on refuse la fermeture
                     Utils::playAlarm();
-                    UpMessageBox msgbox;
+                    UpMessageBox msgbox(this);
                     UpSmallButton OKBouton("OK");
                     UpSmallButton NoBouton(tr("Fermer quand même"));
                     msgbox.setText("Euuhh... " + currentuser()->login() + ", " + tr("vous ne pouvez pas fermer l'application."));
@@ -7249,7 +7225,10 @@ void Rufus::CreerActe(Patient *pat)
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
         for (int i = 0; i<listactesprecs.size();i++)
             if (listactesprecs.at(i)->idcurrentpatient() != pat->id())
+            {
                 listactesprecs.at(i)->close();
+                delete listactesprecs.at(i);
+            }
         if (findChildren<dlg_actesprecedents *>().size() == 0)
             OuvrirActesPrecedents();            //! depuis CreerActe()
         else
@@ -7320,7 +7299,7 @@ void Rufus::CreerDossier()
     if (ui->CreerDDNdateEdit->date() == m_datepardefaut)
     {
         Utils::playAlarm();
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         UpSmallButton OKBouton(tr("Je confirme"));
         UpSmallButton NoBouton(tr("Annuler"));
         msgbox.setText("Euuhh... " + currentuser()->login());
@@ -7344,7 +7323,7 @@ void Rufus::CreerDossier()
             AfficheDossier(Datas::I()->patients->getById(idPat));
         else
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Ouverture du dossier de ")  + PatNom + " " + PatPrenom);
             msgbox.setInformativeText(tr("Inscrire le dossier en salle d'attente?"));
             msgbox.setIcon(UpMessageBox::Warning);
@@ -7366,7 +7345,7 @@ void Rufus::CreerDossier()
     // 2. On recherche ensuite un dossier similaire Nom + Prenom
     if (ui->PatientsListeTableView->isVisible()  && m_listepatientsmodel->rowCount()>0)
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Un ou plusieurs dossiers similaires!"));
         msgbox.setInformativeText(tr("Il existe des dossiers similaires\nà celui que vous essayez d'enregistrer!\nLe créer quand meme?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -7403,7 +7382,7 @@ void Rufus::CreerDossier()
         // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
         if( currentuser()->isSoignant() )
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Dossier ") + pat->prenom() + " " + pat->nom() + tr(" créé"));
             msgbox.setInformativeText(tr("Ouvrir le dossier ou inscrire le dossier en salle d'attente?"));
             msgbox.setIcon(UpMessageBox::Quest);
@@ -7631,7 +7610,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     if (Cor == "MG")
         Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
-    if (Dlg_IdentCorresp->exec()>0)
+    if (Dlg_IdentCorresp->exec() == QDialog::Accepted)
         idcor = Dlg_IdentCorresp->idcurrentcorrespondant();
     delete Dlg_IdentCorresp;
     return idcor;
@@ -7772,7 +7751,7 @@ bool Rufus::FermeDossier(Patient *patient)
         return false;
     //qDebug() << "FermeDossier() " << patient << patient->nom()  << patient->prenom() << patient->id();
     bool a = true;
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setInformativeText(tr("Garder le dossier en salle d'attente?"));
     msgbox.setText(tr("Fermeture du dossier de ") + patient->nom() + " " + patient->prenom());
     msgbox.setIcon(UpMessageBox::Quest);
@@ -7835,7 +7814,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
     bool unpatientaetecreeoumodifie = false;
     dlg_identificationpatient *Dlg_IdentPatient = new dlg_identificationpatient(mode, pat, this);
 
-    if (Dlg_IdentPatient->exec() > 0)
+    if (Dlg_IdentPatient->exec() == QDialog::Accepted)
     {
         if (mode == dlg_identificationpatient::Modification)
         {
@@ -7889,7 +7868,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
             // Si le User est un soignant, on propose d'afficher le dossier et si oui, n crée une consutation d'emblée
             if( currentuser()->isSoignant() )
             {
-                UpMessageBox msgbox;
+                UpMessageBox msgbox(this);
                 msgbox.setText(tr("Dossier ") + pat->nom() + " " + pat->prenom() + " créé");
                 msgbox.setInformativeText(tr("Ouvrir le dossier ou inscrire le dossier en salle d'attente?"));
                 msgbox.setIcon(UpMessageBox::Quest);
@@ -8038,15 +8017,15 @@ void Rufus::InitWidgets()
     trayIconMenu = new QMenu();
 
     QAction *pAction_VoirMessages = trayIconMenu->addAction(tr("Voir les messages"));
-    connect (pAction_VoirMessages, &QAction::triggered, this,    &Rufus::AfficheMessages);
+    connect (pAction_VoirMessages, &QAction::triggered, this,    &Rufus::AfficheBAL);
 
     ict_messageIcon = new QSystemTrayIcon(this);
     ict_messageIcon->setContextMenu(trayIconMenu);
     ict_messageIcon->setIcon(Icons::icPostit());
-    connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=] {AfficheMessages();});
+    connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=] {AfficheBAL();});
 
     dlg_msgRepons = new QDialog();
-    dlg_msgDialog = new QDialog();
+    dlg_msgBAL = new QDialog();
 
 
     ui->CCAMlinklabel->setText("<a href=\"" LIEN_CCAM "\">CCAM...</a>");
@@ -8321,7 +8300,7 @@ void Rufus::MAJCorrespondant(QObject *obj)
     {
         if (nou != anc)
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText("Euuhh... " + currentuser()->login());
             msgbox.setInformativeText(tr("Correspondant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
@@ -8462,7 +8441,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
                 interv = Datas::I()->interventions->getById(currentacte()->idIntervention());
     dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv, this);
     bool aa = true;
-    if (Dlg_Imprs->exec() > 0)
+    if (Dlg_Imprs->exec() == QDialog::Accepted)
     {
         User *userEntete = Dlg_Imprs->userentete();
         if (userEntete == Q_NULLPTR)
@@ -9704,9 +9683,8 @@ bool Rufus::RetourSalleDattente(QString Titre)
     if (Titre.contains(tr("il manque les informations de paiement")))
         Dlg_SalDat->ui->RetourAccueilradioButton->setEnabled(true);
 
-    if (Dlg_SalDat->exec() > 0)
+    if (Dlg_SalDat->exec() == QDialog::Accepted)
         retour = true;
-    Dlg_SalDat->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_SalDat;
     return retour;
 }
@@ -9859,7 +9837,10 @@ void Rufus::SupprimerActe(Acte *act)
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
     for (int i = 0; i<listactesprecs.size();i++)
         if (listactesprecs.at(i)->idcurrentpatient() != currentpatient()->id())
+        {
             listactesprecs.at(i)->close();
+            delete listactesprecs.at(i);
+        }
     if (findChildren<dlg_actesprecedents *>().size()>0)
     {
         if (m_listeactes->actes()->size() < 2)
@@ -10000,13 +9981,12 @@ void Rufus::Pachymetrie()
     dlg_autresmesures *Dlg_AutresMes= new dlg_autresmesures(dlg_autresmesures::PACHY);
     Dlg_AutresMes->setWindowTitle(tr("Pachymétrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
-    if (Dlg_AutresMes->exec()> 0)
+    if (Dlg_AutresMes->exec() == QDialog::Accepted)
     {
         proc->InsertMesure(Procedures::MesurePachy);
         AffichePachymetrie();
     }
-    Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
-    delete Dlg_AutresMes;
+     delete Dlg_AutresMes;
 }
 
 void Rufus::AffichePachymetrie()
@@ -10048,7 +10028,7 @@ void Rufus::Tonometrie()
     dlg_autresmesures *Dlg_AutresMes = new dlg_autresmesures(dlg_autresmesures::TONO);
     Dlg_AutresMes->setWindowTitle(tr("Tonométrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
-    if (Dlg_AutresMes->exec()> 0)
+    if (Dlg_AutresMes->exec() == QDialog::Accepted)
     {
         proc->InsertMesure(Procedures::MesureTono);
         QString tono = proc->HtmlTono();
@@ -10060,7 +10040,6 @@ void Rufus::Tonometrie()
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
-    Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_AutresMes;
 }
 
@@ -10116,7 +10095,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
         if (idactdata.size() > 0)
         {
             Utils::playAlarm();
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Cet acte a déjà été enregistré comme acte gratuit !"));
             msgbox.setInformativeText(tr("Annuler et considérer comme acte payant?"));
             msgbox.setIcon(UpMessageBox::Warning);
@@ -10406,9 +10385,9 @@ void Rufus::TraiteTCPMessage(QString msg)
            {
                Utils::playAlarm();
                ict_messageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
-               if (dlg_msgDialog != Q_NULLPTR)
-                   if (dlg_msgDialog->isVisible())
-                       AfficheMessages();
+               if (dlg_msgBAL != Q_NULLPTR)
+                   if (dlg_msgBAL->isVisible())
+                       AfficheBAL();
            }
     }
     else if (msg.contains(TCPMSG_MAJDocsExternes))

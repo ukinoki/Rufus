@@ -77,7 +77,6 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
 
 dlg_listemotscles::~dlg_listemotscles()
 {
-    EnregistrePosition();
 }
 
 void dlg_listemotscles::keyPressEvent(QKeyEvent * event )
@@ -549,7 +548,7 @@ void dlg_listemotscles::setMotCleToRow(MotCle *mc, int row, bool resizecolumn)
 
 void dlg_listemotscles::SupprimeMotCle(MotCle *mc)
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Suppression de mot clé!"));
     msgbox.setInformativeText(tr("Voulez vous vraiment supprimer le mot-clé\n") + mc->motcle());
     msgbox.setIcon(UpMessageBox::Warning);
@@ -612,7 +611,7 @@ void dlg_listemotscles::Validation()
             //qDebug() << req;
             db->StandardSQL(req);
         }
-        close();
+        accept();
     }
 }
 

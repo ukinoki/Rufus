@@ -101,7 +101,7 @@ private:
     void                    Refraction_ValueChanged();
     void                    CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
 
-    bool                    Imprimer_Ordonnance(Refraction *ref);
+    bool                    Imprimer_Ordonnance(Refraction *ref, bool enregtable = true);
 
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     void                    closeEvent(QCloseEvent *);

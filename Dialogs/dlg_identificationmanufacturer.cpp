@@ -306,7 +306,7 @@ void dlg_identificationmanufacturer::EnregistreNouveauCommercial()
     if (!m_currentmanufacturer)
         return;
     dlg_identificationcommercial *Dlg_Identcommercial    = new dlg_identificationcommercial(dlg_identificationcommercial::Creation, m_currentmanufacturer, this);
-    if (Dlg_Identcommercial->exec()>0)
+    if (Dlg_Identcommercial->exec() == QDialog::Accepted)
     {
         int id = Dlg_Identcommercial->idcurrentcommercial();
         reconstruitCommercialsModel();
@@ -369,7 +369,6 @@ void dlg_identificationmanufacturer::ModifieCommercial(Commercial *com)
         }
     }
     delete Dlg_Identcommercial;
-
 }
 
 void dlg_identificationmanufacturer::SupprimeCommercial(Commercial *com)
@@ -379,7 +378,7 @@ void dlg_identificationmanufacturer::SupprimeCommercial(Commercial *com)
     Msg = tr("Etes vous sûr de vouloir supprimer") + "\n " +
             com->nom().toUpper() + " " + com->prenom() + "?" +
             "\n" + tr("La suppression est IRRÉVERSIBLE.");
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);

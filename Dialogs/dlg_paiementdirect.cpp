@@ -293,7 +293,7 @@ void dlg_paiementdirect::Annuler()
         reject();
     else if (m_modifpaiementencours)
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Voulez vous vraiment annuler la modification de cette écriture?"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKBouton(tr("Annuler la modification"));
@@ -388,7 +388,7 @@ void dlg_paiementdirect::Annuler()
     {
         if (m_mode == EnregistrePaiement && (QLocale().toDouble(ui->MontantlineEdit->text()) > 0 || ui->DetailupTableWidget->rowCount() > 0))
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Voulez vous vraiment annuler cette écriture?"));
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton OKBouton(tr("Annuler l'écriture"));
@@ -1008,7 +1008,7 @@ void dlg_paiementdirect::RenvoieRangee(bool Coche)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::SupprimerPaiement()
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Voulez vous vraiment supprimer les informations de cette écriture?"));
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton;
@@ -3037,7 +3037,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                                    + ui->DetailupTableWidget->item(i,5)->text() + " " + tr("euros") + "\n"
                                    + tr("Forcer cet enregistrement annulera le montant de l'acte!")
                                    + "\n" + tr("Confirmez vous la saisie?");
-                    UpMessageBox msgbox;
+                    UpMessageBox msgbox(this);
                     msgbox.setText(tr("Forcer un acte gratuit?"));
                     msgbox.setInformativeText(Msg);
                     msgbox.setIcon(UpMessageBox::Warning);
@@ -3334,7 +3334,7 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
             else if (ui->DetailupTableWidget->rowCount() == 0)
                 Msg = tr("Il n'y a aucun acte enregistré!\nEnregistrer quand même?");
             else break;
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Montants différents!"));
             msgbox.setInformativeText(Msg);
             msgbox.setIcon(UpMessageBox::Warning);
@@ -3377,7 +3377,7 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
             AfficheMsg = false;
             QString Banq = ui->BanqueChequecomboBox->currentText();
             QString Msg2 = Banq + "\n" + tr("Cette banque est inconnue!\nVoulez vous l'enregistrer?");
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox                      .setText(tr("Banque inconnue!"));
             msgbox                      .setInformativeText(Msg2);
             msgbox                      .setIcon(UpMessageBox::Warning);
@@ -3391,7 +3391,7 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
             if (msgbox.clickedButton() == &OKBouton)
             {
                 dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques(this, Banq.toUpper());
-                if (Dlg_Banq->exec()>0)
+                if (Dlg_Banq->exec() == QDialog::Accepted)
                 {
                     ReconstruitListeBanques();
                     ui->BanqueChequecomboBox->setCurrentText(Banq);
@@ -3400,6 +3400,7 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
                 else if (UpMessageBox::Question(this, tr("Continuer sans enregistrer la banque"), ui->BanqueChequecomboBox->currentText() + " ?")
                          == UpSmallButton::STARTBUTTON)
                     A = true;
+                delete Dlg_Banq;
             }
             else if (msgbox.clickedButton() == &NoBouton)
                 A = true;
@@ -3428,7 +3429,7 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
         if (ui->DetailupTableWidget->rowCount() == 0)
         {
             Msg = tr("Vous n'avez enregistré aucun acte\npour cette recette!\nConfirmez vous la saisie?");
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox      .setText(tr("Aucun acte enregistré!"));
             msgbox      .setInformativeText(Msg);
             msgbox      .setIcon(UpMessageBox::Warning);

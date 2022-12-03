@@ -56,7 +56,6 @@ dlg_listetiers::dlg_listetiers(QWidget *parent) :
 
 dlg_listetiers::~dlg_listetiers()
 {
-    EnregistrePosition();
 }
 
 void dlg_listetiers::Enablebuttons(QModelIndex idx)
@@ -103,7 +102,7 @@ bool dlg_listetiers::listetiersmodifiee() const
 void dlg_listetiers::EnregistreNouveauTiers()
 {
     dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
-    if (Dlg_IdentTiers->exec()>0)
+    if (Dlg_IdentTiers->exec() == QDialog::Accepted)
     {
         Tiers * trs = Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
         m_listemodifiee = true;
@@ -134,7 +133,7 @@ void dlg_listetiers::ModifTiers(Tiers *trs)
     if (trs == Q_NULLPTR)
         return;
     dlg_identificationtiers *Dlg_IdentTiers = new dlg_identificationtiers(dlg_identificationtiers::Modification, trs);
-    if (Dlg_IdentTiers->exec()>0)
+    if (Dlg_IdentTiers->exec() == QDialog::Accepted)
     {
         trs =  Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
         if (trs != Q_NULLPTR)
@@ -183,7 +182,7 @@ void dlg_listetiers::SupprTiers(Tiers *trs)
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
             trs->nom() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);

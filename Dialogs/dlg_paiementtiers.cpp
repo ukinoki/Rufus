@@ -228,7 +228,7 @@ void dlg_paiementtiers::Annuler()
     }
     else if (m_modifpaiementencours)
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Voulez vous vraiment annuler la modification de cette écriture?"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKBouton(tr("Annuler la modification"));
@@ -339,7 +339,7 @@ void dlg_paiementtiers::Annuler()
             }
         if (m_mode == EnregistrePaiementTiers && (QLocale().toDouble(ui->MontantlineEdit->text()) > 0 || radioButtonClicked || ui->DetailupTableWidget->rowCount() > 0))
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Voulez vous vraiment annuler cette écriture?"));
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton OKBouton(tr("Annuler l'écriture"));
@@ -733,7 +733,7 @@ void dlg_paiementtiers::RenvoieRangee(bool Coche)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::SupprimerPaiement()
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Voulez vous vraiment supprimer les informations de cette écriture?"));
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *OKBouton = new UpSmallButton();
@@ -1664,7 +1664,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
     {
         if (nou.toUpper() != anc.toUpper())             //! le tiers n'est pas recensé, on propose de l'enregistrer
         {
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText("Euuhh... " + currentuser()->login());
             msgbox.setInformativeText(tr("Tiers payant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
@@ -1677,7 +1677,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
             {
                 dlg_identificationtiers *Dlg_IdentTiers    = new dlg_identificationtiers(dlg_identificationtiers::Creation, Q_NULLPTR, this);
                 Dlg_IdentTiers->setnomtiers(nou.toUpper());
-                if (Dlg_IdentTiers->exec()>0)
+                if (Dlg_IdentTiers->exec() == QDialog::Accepted)
                 {
                     Tiers * trs = Datas::I()->tierspayants->getById(Dlg_IdentTiers->idcurrentTiers());
                     if (trs)
@@ -2861,7 +2861,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
                 Msg = tr("Le montant enregistré est supérieur au montant total calculé!\nEnregistrer quand même?");
             else
                 Msg = tr("Il n'y a aucun acte enregistré!\nEnregistrer quand même?");
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox.setText(tr("Montants différents!"));
             msgbox.setInformativeText(Msg);
             msgbox.setIcon(UpMessageBox::Warning);
@@ -2904,7 +2904,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
             AfficheMsg = false;
             QString Banq = ui->BanqueChequecomboBox->currentText();
             QString Msg2 = Banq + "\n" + tr("Cette banque est inconnue!\nVoulez vous l'enregistrer?");
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox                      .setText(tr("Banque inconnue!"));
             msgbox                      .setInformativeText(Msg2);
             msgbox                      .setIcon(UpMessageBox::Warning);
@@ -2918,7 +2918,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
             if (msgbox.clickedButton() == &OKBouton)
             {
                 dlg_gestionbanques *Dlg_Banq = new dlg_gestionbanques(this, Banq.toUpper());
-                if (Dlg_Banq->exec()>0)
+                if (Dlg_Banq->exec() == QDialog::Accepted)
                 {
                     ReconstruitListeBanques();
                     ui->BanqueChequecomboBox->setCurrentText(Banq);
@@ -2927,6 +2927,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
                 else if (UpMessageBox::Question(this, tr("Continuer sans enregistrer la banque"), ui->BanqueChequecomboBox->currentText() + " ?")
                          == UpSmallButton::STARTBUTTON)
                     A = true;
+                delete Dlg_Banq;
             }
             else if (msgbox.clickedButton() == &NoBouton)
                 A = true;
@@ -2982,7 +2983,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
         if (ui->DetailupTableWidget->rowCount() == 0)
         {
             Msg = tr("Vous n'avez enregistré aucun acte\npour cette recette!\nConfirmez vous la saisie?");
-            UpMessageBox msgbox;
+            UpMessageBox msgbox(this);
             msgbox      .setText(tr("Aucun acte enregistré!"));
             msgbox      .setInformativeText(Msg);
             msgbox      .setIcon(UpMessageBox::Warning);

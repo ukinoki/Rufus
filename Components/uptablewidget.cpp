@@ -94,7 +94,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
     {
         QImage image;
         if (!image.loadFromData(ba))
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
+            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
         pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
         listimage << image;
         UpLabel* lab     = new UpLabel(this);

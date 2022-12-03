@@ -30,7 +30,6 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
 
     m_fermeapresvalidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
-    setAttribute(Qt::WA_DeleteOnClose);
     setWindowModality(Qt::WindowModal);
 
     dlglayout()               ->insertWidget(0, ui->Banqueframe);
@@ -196,7 +195,7 @@ void dlg_gestionbanques::SupprBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
     int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     UpSmallButton OKBouton(tr("Supprimer"));
     UpSmallButton NoBouton(tr("Annuler"));
     msgbox.setText(tr("Supprimer la banque ") + lbl->text() + "?");

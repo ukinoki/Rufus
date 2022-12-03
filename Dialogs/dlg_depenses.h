@@ -53,8 +53,6 @@ private:
     QStringList                 m_listemoyensdepaiement;
     Mode                        m_mode;
 
-    UpDialog                    *dlg_ask;
-
     UpTableWidget               *wdg_bigtable;
     UpPushButton                *wdg_annuluppushbutton;
     UpPushButton                *wdg_enreguppushbutton;

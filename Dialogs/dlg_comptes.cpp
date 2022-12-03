@@ -643,7 +643,7 @@ int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
 
 void dlg_comptes::SupprimerEcriture(LigneCompte *lign)
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Suppression d'une écriture!"));
     msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
                               + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +

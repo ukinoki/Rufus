@@ -202,20 +202,16 @@ private:
     void        MasquePatientsVusWidget();
 
     // la messagerie
-    void        AfficheMessageLimitDate(bool a);
-    void        AfficheMessages(int idx = -1);
-    void        AllusrChkBoxSendMsg(bool a);
-    void        EnregMsgResp(int);
-    void        MsgDone(UpCheckBox *chk);
-    void        MsgModif(int);
-    void        MsgRead(UpCheckBox *chk);
-    void        MsgResp(int);
-    void        OneusrChkBoxSendMsg(bool a);
-    void        ReconstruitListeMessages();
+
+    void        AfficheBAL(int idx = -1);                                                   /*! Affiche la BAL des messages reçus et envoyés sous la barre des menus - dlg_msgDialog */
+    void        MsgModif(int);                                                              /*! Gère la modification d'un message émis */
+    void        MsgResp(int);                                                               /*! Affiche la fiche de rédaction des réponses - dlg_msgRepons */
+    void        ReconstruitListeMessages();                                                 /*! initialise la liste des messages reçus et émis de l'utilisteur */
+    void        SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);          /*! Affiche la fiche de rédaction des messages - dlg_sendMessage */
     void        SupprimerMessageEmis(int idMsg);
     void        SupprimerMessageRecu(int idJoint);
-    void        VerifSendMessage(int idMsg = -1);
 
+    QDialog     *dlg_msgBAL = Q_NULLPTR;                                                    /*! la BAL des messages, affichée sous la barre de menus - appelée par AfficheMessages() */
     void        ChoixMenuContextuelIdentPatient();
     void        ChoixMenuContextuelMotsCles();
     void        MenuContextuelBureaux(UpTextEdit *UpText);
@@ -273,9 +269,9 @@ private:
     Actes                   *m_listeactes                   = Q_NULLPTR;
     LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
 
-    UpDialog                *dlg_rechParMotCle,*dlg_rechParId, *dlg_listPatients;
+    UpDialog                *dlg_rechParMotCle, *dlg_listPatients;
 
-    QDialog                 *dlg_msgRepons = Q_NULLPTR, *dlg_msgDialog = Q_NULLPTR;
+    QDialog                 *dlg_msgRepons = Q_NULLPTR;
     QSystemTrayIcon         *ict_messageIcon;
 
     ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;
@@ -355,7 +351,6 @@ private:
     QTabWidget*         Remplir_MsgTabWidget();
     void                Remplir_SalDat();
     bool                RetourSalleDattente(QString Titre);
-    void                SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);
     void                setTitre();
     void                SortieAppli();
     void                SupprimerActe(Acte *act);

@@ -22,8 +22,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_docsexternes  = Docs;
 
     setAttribute(Qt::WA_ShowWithoutActivating);
-    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+
     installEventFilter(this);
     QList<QScreen*> listscreens = QGuiApplication::screens();
     if (listscreens.size()>0)
@@ -609,7 +609,7 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
+    if (dialog.exec() == QDialog::Accepted)
     {
         QDir dockdir = dialog.directory();
         img.copy(dockdir.path() + "/" + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
@@ -622,7 +622,7 @@ void dlg_docsexternes::EnregistreVideo()
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec()>0)
+    if (dialog.exec() == QDialog::Accepted)
     {
         QDir dockdir = dialog.directory();
         QFile(filename).copy(dockdir.path() + "/" + medplay_player->source().fileName());
@@ -682,7 +682,7 @@ void dlg_docsexternes::ImprimeDoc()
     {
         bool detruirealafin = false;
 
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         UpSmallButton ReimprBouton          (tr("Réimprimer\nle document"));
         UpSmallButton ModifEtReimprBouton   (tr("Modifier\net imprimer"));
         UpSmallButton ImpAujourdhuiBouton   (tr("Réimprimer à\nla date d'aujourd'hui"));
@@ -851,7 +851,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
                     else
                     {
                         QPrintDialog *dialog = new QPrintDialog(m_printer, this);
-                        if (dialog->exec() != QDialog::Rejected)
+                        if (dialog->exec() == QDialog::Accepted)
                             Print(m_printer);
                         delete dialog;
                     }
@@ -876,7 +876,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         else
         {
             QPrintDialog *dialog = new QPrintDialog(m_printer, this);
-            if (dialog->exec() != QDialog::Rejected)
+            if (dialog->exec() == QDialog::Accepted)
                 Print(m_printer);
             delete dialog;
         }
@@ -994,7 +994,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
     }
     if (docmt->id() > 0)
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         UpSmallButton OKBouton(tr("Supprimer"));
         UpSmallButton NoBouton(tr("Annuler"));
         msgbox.setText("Euuhh... " + currentuser()->login());

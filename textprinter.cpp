@@ -250,7 +250,6 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
             {
                 QPrintDialog dialog(printer_, parent_);
                 dialog.setWindowTitle(caption.isEmpty() ? tr("Impression") : caption);
-                dialog.setWindowModality(Qt::WindowModal);
                 if (dialog.exec() == QDialog::Rejected)
                     return false;
                 else printer_= dialog.printer();

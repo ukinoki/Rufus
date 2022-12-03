@@ -279,7 +279,7 @@ void dlg_recettesspeciales::EnregistreRecette()
 
     if (pb != "")
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Il y a un problème avec cette recette!" ));
         msgbox.setInformativeText(pb + "\n" + tr("Confirmer la saisie?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -518,7 +518,7 @@ void dlg_recettesspeciales::SupprimerRecette()
             return;
         }
         QString daterec = Dateop.toString("dd MMM yyyy");
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Supprimer une recette!"));
         msgbox.setInformativeText(tr("Confirmer la suppression de\n") + daterec + "\n" + Libelle + "\n" + QLocale().toString(montant,'f',2) + "?");
         msgbox.setIcon(UpMessageBox::Warning);

@@ -561,7 +561,7 @@ void dlg_param::FermepushButtonClicked()
 {
     if (m_modifposte)
     {
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Modifications non enregistrées!"));
         msgbox.setInformativeText(tr("Vous avez modifié certains éléments. Voulez vous enregistrer ces modifications?"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -745,7 +745,7 @@ void dlg_param::ChoixFontpushButtonClicked()
 {
     dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, Position_Fiche "FontDialog");
     Dlg_Fonts->setFont(qApp->font());
-    if (Dlg_Fonts->exec() > 0)
+    if (Dlg_Fonts->exec() == QDialog::Accepted)
     {
         QString fontrequete = "update " TBL_UTILISATEURS " set " CP_POLICEECRAN_USR " = '" + Dlg_Fonts->font().family()
                                 + "', " CP_POLICEATTRIBUT_USR " = '" + Dlg_Fonts->fontAttribut()
@@ -974,7 +974,7 @@ void dlg_param::GestionDatasCurrentUser()
 
     dlg_gestionusers *Dlg_GestUsr = new dlg_gestionusers(Datas::I()->sites->idcurrentsite(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie, this);
     Dlg_GestUsr->setWindowModality(Qt::WindowModal);
-    if (Dlg_GestUsr->exec()>0)
+    if (Dlg_GestUsr->exec() == QDialog::Accepted)
     {
         m_donneesusermodifiees = true;
         Datas::I()->users->reload(currentuser());
@@ -1375,7 +1375,7 @@ void dlg_param::SupprAppareil()
     QVariantList appdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || appdata.size()==0)
         return;
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Suppression d'un appareil!"));
     msgbox.setInformativeText(tr("Voulez vous vraiment supprimer l'appareil") + "\n"
                               + appdata.at(1).toString() + " ?");
@@ -1494,7 +1494,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
 
 void dlg_param::ResetImprimante()
 {
-    UpMessageBox msgbox;
+    UpMessageBox msgbox(this);
     msgbox.setText(tr("Reset des paramètres imprimante!"));
     msgbox.setInformativeText(tr("Restaurer les valeurs par défaut?"));
     msgbox.setIcon(UpMessageBox::Warning);
@@ -1538,7 +1538,7 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
 void dlg_param::NouvAssocCCAM()
 {
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation, "", this);
-    if (Dlg_CrrCot->exec()>0)
+    if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
         Remplir_TableAssocCCAM();
         EnableAssocCCAM();
@@ -1596,7 +1596,7 @@ void dlg_param::SupprAssocCCAM()
 void dlg_param::NouvHorsNomenclature()
 {
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation, "", this);
-    if (Dlg_CrrCot->exec()>0)
+    if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
         Remplir_TableHorsNomenclature();
         EnableHorsNomenclature();
@@ -1610,7 +1610,7 @@ void dlg_param::ModifHorsNomenclature()
     int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
     QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe);
-    if (Dlg_CrrCot->exec()>0)
+    if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
         Remplir_TableHorsNomenclature();
         EnableHorsNomenclature();
@@ -2363,7 +2363,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
     {
         // Vérifier la cohérence
         QString anc, nouv, confirm;
-        UpMessageBox msgbox;
+        UpMessageBox msgbox(this);
         msgbox.setText(tr("Erreur"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKBouton("OK");
