@@ -205,6 +205,7 @@ public:
     //! renvoie chaque page d'un pdf comme une image
     static QList<QImage> calcImagefromPdf(QByteArray pdf);
     static QList<QImage> calcImagefromPdf(QString filename);
+    static void AfficheImage(QImage img);
 
     //! gestion des images en QJsonValue
     static QJsonValue jsonValFromImage(const QImage &p);

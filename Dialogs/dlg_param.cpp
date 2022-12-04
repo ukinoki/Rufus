@@ -743,8 +743,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 
 void dlg_param::ChoixFontpushButtonClicked()
 {
-    dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, Position_Fiche "FontDialog");
-    Dlg_Fonts->setFont(qApp->font());
+    dlg_fontdialog *Dlg_Fonts = new dlg_fontdialog(PATH_FILE_INI, Position_Fiche "FontDialog", this);
     if (Dlg_Fonts->exec() == QDialog::Accepted)
     {
         QString fontrequete = "update " TBL_UTILISATEURS " set " CP_POLICEECRAN_USR " = '" + Dlg_Fonts->font().family()

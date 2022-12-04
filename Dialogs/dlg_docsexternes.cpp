@@ -40,7 +40,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
     m_printer           = new QPrinter(QPrinter::HighResolution);
     m_printer           ->setFullPage(true);
-    m_rect              = m_printer->paperRect(QPrinter::Inch);
+    m_rect              = m_printer->paperRect(QPrinter::Inch);//QRect(30,30,6000,9000);
 
     m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
                   Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
@@ -107,7 +107,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_wdelta            = 0;
     m_hdeltaframe       = 0;
     m_wdeltaframe       = 0;
-    m_avecprevisu = proc  ->ApercuAvantImpression();
+    m_avecprevisu = true;//proc  ->ApercuAvantImpression();
 
     connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch());});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
@@ -422,7 +422,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            qDebug() << docmt->lienversfichier();
             QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGERIE + docmt->lienversfichier();
             QList<QImage> listimg;// = Utils::calcImagefromPdf(filename);
             listimg = Utils::calcImagefromPdf(docmt->imageblob());
@@ -437,6 +436,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 for (int i=0; i<listimg.size();++i)
                 {
                     QImage image = listimg.at(i);
+                    //qDebug() << image.size();
                     pix = QPixmap();
                     QList<QScreen*> listscreens = QGuiApplication::screens();
                     if (listscreens.size()>0)
@@ -839,12 +839,13 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
             for (int i=0; i<listimg.size();++i)
             {
                 img_image = listimg.at(i);
+
                 if (i == 0)
                 {
                     if (m_avecprevisu)
                     {
                         QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-                        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(m_printer);});
+                        connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
                         dialog->exec();
                         delete dialog;
                     }
@@ -852,12 +853,12 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
                     {
                         QPrintDialog *dialog = new QPrintDialog(m_printer, this);
                         if (dialog->exec() == QDialog::Accepted)
-                            Print(m_printer);
+                            Print();
                         delete dialog;
                     }
                 }
                 else
-                    Print(m_printer);
+                    Print();
             }
         }
     }
@@ -869,7 +870,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         if (m_avecprevisu)
         {
             QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(m_printer);});
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
             dialog->exec();
             delete dialog;
         }
@@ -877,7 +878,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         {
             QPrintDialog *dialog = new QPrintDialog(m_printer, this);
             if (dialog->exec() == QDialog::Accepted)
-                Print(m_printer);
+                Print();
             delete dialog;
         }
     }
@@ -970,8 +971,11 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 
 void dlg_docsexternes::Print(QPrinter *Imprimante)
 {
+    if (Imprimante == Q_NULLPTR)
+        Imprimante = m_printer;
     QPainter PrintingPreView(Imprimante);
     QPixmap pix         = QPixmap::fromImage(img_image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
+    //qDebug() << img_image.size() << m_rect.width() << int(m_rect.width()) << pix.size();
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
 

@@ -21,7 +21,6 @@ TextPrinter::TextPrinter(QObject *parent)
         parent_ = qobject_cast<QWidget*>(parent);
 
     printer_->setFullPage(true);
-//    printer_->setOrientation(QPrinter::Portrait);
     printer_->setPageOrientation(QPageLayout::Portrait);
 
     // for convenience, default to US_Letter for C/US/Canada
@@ -60,7 +59,8 @@ QPageLayout::Orientation TextPrinter::orientation() const
 void TextPrinter::setOrientation(QPageLayout::Orientation orientation)
 {
     // Valeur par defaut = QPrinter::Portrait
-    printer_->pageLayout().setOrientation(orientation);
+    QPageLayout lay = printer_->pageLayout();
+    lay.setOrientation(orientation);
 }
 
 double TextPrinter::leftMargin() const
@@ -366,9 +366,9 @@ QRectF TextPrinter::paperRect(QPaintDevice *device)
     // adjust for DPI
     rect.setWidth(rect.width() *
                   device->logicalDpiX() / printer_->logicalDpiX());
+
     rect.setHeight(rect.height() *
                   device->logicalDpiY() / printer_->logicalDpiY());
-
     return rect;
 }
 
