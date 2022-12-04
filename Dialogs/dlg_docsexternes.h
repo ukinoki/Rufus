@@ -95,7 +95,7 @@ private:
     bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
-    void                    Print(QPrinter*);
+    void                    Print(QPrinter* = Q_NULLPTR);
 
     bool                    ReImprimeDoc(DocExterne *docmt);
     void                    RemplirTreeView();

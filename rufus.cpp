@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("30-11-2022/1");
+    qApp->setApplicationVersion("04-12-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -4663,7 +4663,6 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 
     dlg_sendMessage->exec();
     delete dlg_sendMessage;
-    dlg_sendMessage = Q_NULLPTR;
 }
 
 void Rufus::AfficheMessageImport(QStringList listmsg, int pause)
@@ -8730,8 +8729,9 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
         return;
     dlg_refraction *Dlg_Refraction     = new dlg_refraction(mode, this);
     proc->setFicheRefractionOuverte(true);
+    int a = Dlg_Refraction->exec();
     proc->setFicheRefractionOuverte(false);
-    if (Dlg_Refraction->exec() == QDialog::Accepted)
+    if (a == QDialog::Accepted)
     {
         if (Dlg_Refraction->ResultatObservation() != "")  // Ce n'est pas une prescription de verres correcteurs
         {

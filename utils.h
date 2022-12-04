@@ -201,6 +201,7 @@ public:
     //! gestion des images en QJsonValue
     static QJsonValue jsonValFromImage(const QImage &p);
     static QImage imagemapFrom(const QJsonValue &val);
+    static void AfficheImage(QImage img);
 
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);

@@ -161,21 +161,20 @@ public:
     QString fonction() const;
 
     QFont police() const {
-                    QString attribut = m_policeAttribut;
                     QFont policeEcran = QFont(m_policeEcran);
-                    if (!attribut.contains("Regular",Qt::CaseInsensitive))
+                    if (!m_policeAttribut.contains("Regular",Qt::CaseInsensitive))
                     {
-                        if (attribut.contains("Italic",Qt::CaseInsensitive))
+                        if (m_policeAttribut.contains("Italic",Qt::CaseInsensitive))
                             policeEcran.setStyle(QFont::StyleItalic);
-                        if (attribut.contains("Light",Qt::CaseInsensitive))
+                        if (m_policeAttribut.contains("Light",Qt::CaseInsensitive))
                             policeEcran.setWeight(QFont::Light);
-                        if (attribut.contains("Normal",Qt::CaseInsensitive))
+                        if (m_policeAttribut.contains("Normal",Qt::CaseInsensitive))
                             policeEcran.setWeight(QFont::Normal);
-                        if (attribut.contains("SemiBold",Qt::CaseInsensitive))
+                        if (m_policeAttribut.contains("SemiBold",Qt::CaseInsensitive))
                             policeEcran.setWeight(QFont::DemiBold);
-                        if (attribut.contains("Bold",Qt::CaseInsensitive))
+                        if (m_policeAttribut.contains("Bold",Qt::CaseInsensitive))
                             policeEcran.setWeight(QFont::Bold);
-                        if (attribut.contains("Black",Qt::CaseInsensitive))
+                        if (m_policeAttribut.contains("Black",Qt::CaseInsensitive))
                             policeEcran.setWeight(QFont::Black);
                     }
                     Utils::CalcFontSize(policeEcran);

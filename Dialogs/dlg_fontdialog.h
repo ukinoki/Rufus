@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFontDatabase>
 #include "upmessagebox.h"
+#include "gbl_datas.h"
 #include <QTreeWidget>
 
 class dlg_fontdialog : public UpDialog
@@ -28,9 +29,7 @@ class dlg_fontdialog : public UpDialog
 public:
     explicit            dlg_fontdialog(QString nomSettings, QString m_position, QWidget *parent = Q_NULLPTR);
                         ~dlg_fontdialog();
-    void                setFont(QFont);
     QFont               font();
-    void                setFontAttribut(QString);
     QString             fontAttribut() const;
 
 private:

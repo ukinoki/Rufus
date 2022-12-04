@@ -1147,9 +1147,26 @@ QList<QImage> Utils::calcImagefromPdf(QByteArray ba)
             return listimg;
         }
         listimg << image;
+
+        /*! pour vérifier que ça marche */
+        //AfficheImage(image);
     }
     delete document;
     return listimg;
+}
+
+void Utils::AfficheImage(QImage img)
+{
+    UpDialog *dlg   = new UpDialog();
+    QPixmap pix     = QPixmap();
+    pix             = QPixmap::fromImage(img.scaled(QSize(1050-2, 1485-2), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+    UpLabel *lab    = new UpLabel();
+    lab             ->resize(pix.width(), pix.height());
+    lab             ->setPixmap(pix);
+    dlg->dlglayout()->insertWidget(0,lab);
+    dlg             ->AjouteLayButtons();
+    dlg             ->exec();
+    delete dlg;
 }
 
 QJsonValue Utils::jsonValFromImage(const QImage &img)

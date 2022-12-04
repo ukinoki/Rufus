@@ -2421,8 +2421,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (url == QUrl())
             return false;
         QDir dirtorestore = QDir(url.path());
-        if (dirtorestore.dirName()=="")
+        QString NomDirtorestore = dirtorestore.absolutePath();
+        if (NomDirtorestore.contains(" "))
+        {
+            UpMessageBox::Watch(parent, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirtorestore + tr(" contient des espaces!"));
             return false;
+        }
         QString mdp("");
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
@@ -2474,15 +2478,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 UpMessageBox::Watch(parent,tr("Pas de dossier de stockage d'imagerie"),
                                     tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
                                     tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
-                QFileDialog dialogimg(Q_NULLPTR,tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
-                dialogimg.setViewMode(QFileDialog::List);
-                dialogimg.setFileMode(QFileDialog::DirectoryOnly);
-                if (dialogimg.exec() != QDialog::Accepted)
+                QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
+                if (url == QUrl())
                     return false;
-                QDir dirstock = dialogimg.directory();
-                NomDirStockageImagerie = dirstock.dirName();
-                if (NomDirStockageImagerie=="")
-                    return false;
+                QDir dirstock = QDir(url.path());
                 NomDirStockageImagerie = dirstock.absolutePath();
                 if (NomDirStockageImagerie.contains(" "))
                 {

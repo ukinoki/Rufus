@@ -841,7 +841,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
                     if (m_avecprevisu)
                     {
                         QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-                        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(m_printer);});
+                        connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
                         dialog->exec();
                         delete dialog;
                     }
@@ -849,12 +849,12 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
                     {
                         QPrintDialog *dialog = new QPrintDialog(m_printer, this);
                         if (dialog->exec() == QDialog::Accepted)
-                            Print(m_printer);
+                            Print();
                         delete dialog;
                     }
                 }
                 else
-                    Print(m_printer);
+                    Print();
             }
         }
     }
@@ -866,7 +866,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         if (m_avecprevisu)
         {
             QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(m_printer);});
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
             dialog->exec();
             delete dialog;
         }
@@ -874,7 +874,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         {
             QPrintDialog *dialog = new QPrintDialog(m_printer, this);
             if (dialog->exec() == QDialog::Accepted)
-                Print(m_printer);
+                Print();
             delete dialog;
         }
     }
@@ -967,6 +967,8 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 
 void dlg_docsexternes::Print(QPrinter *Imprimante)
 {
+    if (Imprimante == Q_NULLPTR)
+        Imprimante = m_printer;
     QPainter PrintingPreView(Imprimante);
     QPixmap pix         = QPixmap::fromImage(img_image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
