@@ -121,6 +121,10 @@ RESOURCES += \
 
 ICON += \
     Sunglasses.icns
+win32 {
+RC_ICONS = assets/Images/icon.ico
+RC_FILE = assets/Images/icon.rc
+}
 
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \

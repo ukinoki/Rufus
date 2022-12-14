@@ -1,0 +1,6 @@
+# User files
+Rufus.pro.user
+.vscode/
+
+# build files
+build/
