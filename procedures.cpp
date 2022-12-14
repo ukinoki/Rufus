@@ -622,18 +622,16 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     QDir Dir(QCoreApplication::applicationDirPath());
     Dir.cdUp();
     scriptbackup += "\n";
-    QString cheminmysql;
-#ifdef Q_OS_MACX
-    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
-#endif
-#ifdef Q_OS_LINUX
-    cheminmysql = "/usr/bin";
-#endif
-    scriptbackup += "MYSQL=" + cheminmysql;
-    scriptbackup += "/mysql";
+    QString sqlCommand = db->SQLExecutable();
+	QString cheminmysql = sqlCommand.left(sqlCommand.lastIndexOf("/"));
+    scriptbackup += "MYSQL=" + sqlCommand;
     scriptbackup += "\n";
     scriptbackup += "MYSQLDUMP=" + cheminmysql;
+#ifdef Q_OS_WIN
+    scriptbackup += "/mysqldump.exe";
+#else
     scriptbackup += "/mysqldump";
+#endif
     scriptbackup += "\n";
 
     //# Bases de données MySQL à ignorer
@@ -712,13 +710,13 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 {
     QStringList listpaths;
     int a = 99;
-    QString cheminmysql;
-#ifdef Q_OS_MACX
-    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
-#endif
-#ifdef Q_OS_LINUX
-    cheminmysql = "/usr/bin";
-#endif
+    QString sqlCommand = db->SQLExecutable();
+    if (sqlCommand == "" || !QFile(sqlCommand).exists())
+    {
+        Logs::ERROR(tr("Le fichier de MySQL \"%1\" est invalide").arg(sqlCommand));
+        return a;
+    }
+
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
@@ -738,7 +736,13 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
-    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
+    
+    QStringList args = QStringList()
+        << "-u" << login
+        << "-p" MDP_SQL
+        << "-h" << host
+        << "-P" << QString::number(db->port())
+        << keys;
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
@@ -746,19 +750,30 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             listpaths << path;
         }
     QProcess dumpProcess(parent());
-      for (int i=0; i< listpaths.size(); i++)
-      {
-          QString path = listpaths.at(i);
-          dumpProcess.setStandardInputFile(path);
-          dumpProcess.start(command);
-          dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished() */
-          qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(),dumpProcess.exitStatus()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
-          if (dumpProcess.exitStatus() == QProcess::NormalExit)
-              a = dumpProcess.exitCode();
-          if (a != 0)
-              i = listpaths.size();
-      }
-      return a;
+    for (int i=0; i< listpaths.size(); i++)
+    {
+        QString path = listpaths.at(i);
+        dumpProcess.setStandardInputFile(path);
+        dumpProcess.start(sqlCommand, args);
+        dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished() */
+        qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(),dumpProcess.exitStatus()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
+        if (dumpProcess.error() == QProcess::FailedToStart)
+        {
+            Logs::ERROR(tr("Impossible de lancer le processus de chargement de la base de données à partir du fichier \"%1\"").arg(path));
+            a = 99;
+            break;
+        }
+        if (dumpProcess.exitStatus() == QProcess::NormalExit)
+            a = dumpProcess.exitCode();
+        else
+        {
+            Logs::ERROR(tr("Le processus de chargement de la base de données à partir du fichier \"%1\" a échoué").arg(path));
+            break;
+        }
+	    if (a != 0)
+            break;
+    }
+    return a;
 }
 
 /*!
@@ -2875,7 +2890,20 @@ bool Procedures::Connexion_A_La_Base()
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
+    QString SQLExecutable = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_SQLExecutable).toString();
+    if (SQLExecutable == "")
+    {
+        SQLExecutable = Utils::getOrPromptSQLExecutable();
+        if(SQLExecutable == "")
+        {
+            Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
+            UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme va s'arrêter"));
+            return false;
+        }
+        m_settings->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_SQLExecutable, SQLExecutable);
+    }
 
+    db->setSQLExecutable(SQLExecutable);
     db->initParametresConnexionSQL(server, port);
     if (!IdentificationUser())
         return false;
@@ -2988,10 +3016,16 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setidUserConnected(idusr);
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
-    MAJComptesBancaires(currentuser());
-    currentuser()->setidsuperviseur(idusr);
-    currentuser()->setidcomptable(idusr);
-    currentuser()->setidparent(idusr);
+    User *user = currentuser();
+    if (user == Q_NULLPTR)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de créer l'utilisateur"),tr("Erreur de création de l'utilisateur"));
+        return false;
+    }
+    MAJComptesBancaires(user);
+    user->setidsuperviseur(idusr);
+    user->setidcomptable(idusr);
+    user->setidparent(idusr);
     // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
     req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = 1";
     db->StandardSQL (req);
@@ -3056,7 +3090,15 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
         }
     }
     if (idbanq == 0)
-        idbanq = Datas::I()->banques->CreationBanque("PaPRS", "Panama Papers")->id();
+    {
+        Banque *bq = Datas::I()->banques->CreationBanque("PaPRS", "Panama Papers");
+        if(bq == nullptr)
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de créer la banque fictive"));
+            return;
+        }
+        idbanq = bq->id();
+    }
 
     int al = 0;
     QString iban = "FR";
@@ -4078,6 +4120,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         }
         m_settings->setValue(Base + Param_Active,    "YES");
         m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
+        m_settings->setValue(Base + Param_SQLExecutable, Dlg_ParamConnex->ui->PathSQLlineEdit->text());
 
         m_connexionbaseOK = true;
         MDP = Dlg_ParamConnex->ui->MDPlineEdit->text();

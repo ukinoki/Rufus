@@ -33,6 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 //#include <QTextCodec>
 #include <QUrl>
 #include <cmath>
+#include <QStandardPaths>
 
 #include "uplineedit.h"
 #include "uplabel.h"
@@ -40,7 +41,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
-//#include "poppler-qt6.h"
+// #include "poppler-qt6.h"
 #include <QPdfDocument>
 
 #include <QInputDialog>
@@ -216,6 +217,12 @@ public:
 
     //Sound Alarme
     static void playAlarm(QString sound = NOM_ALARME);
+    
+    //! renvoie le chemin de l'exécutable MySQL
+    static QString getSQLExecutable();
+    
+    //! renvoie le chemin de l'exécutable MySQL en demandant à l'utilisateur si besoin
+    static QString getOrPromptSQLExecutable(QString message = "");
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

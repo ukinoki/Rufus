@@ -1269,4 +1269,47 @@ void Utils::playAlarm(QString sound)
     se.play();
 }
 
+QString Utils::getSQLExecutable()
+{
+    QString cheminmysql = "";
+#ifdef Q_OS_MACX
+    cheminmysql = "/usr/local/mysql/bin/mysql";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
+#elif defined(Q_OS_LINUX)
+    cheminmysql = "/usr/bin/mysql";
+#endif
+    if (QFile::exists(cheminmysql))
+        return cheminmysql;
+
+    // Trouver mysql, mysql.exe ou mysql.bat dans le PATH
+    return QStandardPaths::findExecutable("mysql");
+}
+
+QString Utils::getOrPromptSQLExecutable(QString message)
+{
+    QString cheminmysql = Utils::getSQLExecutable();
+    if(cheminmysql != "")
+        return cheminmysql;
+    
+    // Demander à l'utilisateur de choisir l'exécutable MySQL
+    UpMessageBox msgbox;
+    msgbox.setText(message != "" ? message : tr("Impossible de trouver l'exécutable MySQL"));
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpPushButton wdg_annulbouton(tr("Annuler"));
+    UpPushButton wdg_choixbouton(tr("Choisir l'exécutable"));
+    msgbox.addButton(&wdg_annulbouton);
+    msgbox.addButton(&wdg_choixbouton);
+    if (msgbox.exec() == QDialog::Accepted)
+    {
+        if (msgbox.clickedpushbutton() == &wdg_choixbouton)
+        {
+#ifdef Q_OS_WIN
+            QString filtre = tr("Exécutable MySQL (mysql.exe)");
+#else
+            QString filtre = tr("Exécutable MySQL (mysql)");
+#endif
+            return QFileDialog::getOpenFileName(qApp->activeWindow(), tr("Choisir l'exécutable MySQL"), "", filtre);
+        }
+    }
+    return "";
+}
 
