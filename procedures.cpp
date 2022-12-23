@@ -131,7 +131,7 @@ void Procedures::ab(int i)
 --------------------------------------------------------------------------------------------------------------*/
 QMap<Utils::Period, QDate> Procedures::ChoixDate(QWidget *parent)
 {
-    dlg_choixdate *Dlg_ChxDate = new dlg_choixdate(parent);
+    dlg_choixdate *Dlg_ChxDate = new dlg_choixdate(db->ServerDate(), parent);
     Dlg_ChxDate ->setWindowTitle(tr("Choisir une période"));
     Dlg_ChxDate ->exec();
     QMap<Utils::Period, QDate> DateMap = Dlg_ChxDate->mapdate();

@@ -129,7 +129,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     ReconstruitListeRubriques();
     ReconstruitListeAnnees();
-    QString year = QDate::currentDate().toString("yyyy");
+    QString year = m_currentdate.toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
@@ -262,7 +262,7 @@ void dlg_depenses::PrintTable()
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
     if (Entete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
@@ -446,7 +446,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
     }
     case Enregistrer: {
         wdg_bigtable->disconnect();
-        ui->DateDepdateEdit     ->setDate(QDate::currentDate());
+        ui->DateDepdateEdit     ->setDate(m_currentdate);
         ui->ObjetlineEdit       ->setText("");
         ui->MontantlineEdit     ->setText("0,00");
         ui->ComptesupComboBox   ->setVisible(!(ui->PaiementcomboBox->currentText() == tr(ESPECES) || ui->PaiementcomboBox->currentText() == ""));
@@ -505,7 +505,7 @@ void dlg_depenses::ChangeUser(int)
     RegleComptesComboBox(false);
     ReconstruitListeAnnees();
     ReconstruitListeRubriques();
-    QString year = QDate::currentDate().toString("yyyy");
+    QString year = m_currentdate.toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->setCurrentIndex(idx>-1? 0 : idx);
 }
@@ -586,7 +586,7 @@ void dlg_depenses::EnregistreDepense()
 
     if (!OnSauteLaQuestionSuivante)
     {
-        if (QDate::currentDate() > ui->DateDepdateEdit->date().addDays(90))
+        if (m_currentdate > ui->DateDepdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
         veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date().addDays(-180),
                                                   ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), m_userencours->id(),
@@ -768,7 +768,7 @@ void dlg_depenses::CopieDepense()
     ui->ExportupPushButton          ->setEnabled(false);
     ui->PrintupSmallButton          ->setEnabled(false);
     wdg_bigtable                    ->disconnect();
-    ui->DateDepdateEdit             ->setDate(QDate::currentDate());
+    ui->DateDepdateEdit             ->setDate(m_currentdate);
     wdg_enreguppushbutton           ->setText("Enregistrer");
     ui->OKupPushButton              ->setShortcut(QKeySequence());
     wdg_modifieruppushbutton        ->setShortcut(QKeySequence());
@@ -817,7 +817,7 @@ void dlg_depenses::SupprimerDepense()
     if (wdg_bigtable->rowCount() == 1)
     {
         ReconstruitListeAnnees();
-        QString year = QDate::currentDate().toString("yyyy");
+        QString year = m_currentdate.toString("yyyy");
         int idx = ui->AnneecomboBox->findText(year);
         ui->AnneecomboBox->disconnect();
         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
@@ -1192,7 +1192,7 @@ void dlg_depenses::ModifierDepense()
 
     if (!OnSauteLaQuestionSuivante)
     {
-        if (QDate::currentDate() > ui->DateDepdateEdit->date().addDays(90))
+        if (m_currentdate > ui->DateDepdateEdit->date().addDays(90))
         {
             pb = tr("Elle date de plus de 3 mois");
             OnSauteLaQuestionSuivante = true;
@@ -1680,7 +1680,7 @@ void dlg_depenses::ReconstruitListeAnnees()
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->clear();
     if (ListeAnnees.size()==0)
-        ListeAnnees << QDate::currentDate().toString("yyyy");
+        ListeAnnees << m_currentdate.toString("yyyy");
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
     connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
 }

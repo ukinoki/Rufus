@@ -112,7 +112,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     lbltitre    ->setText(tr("Titre du document"));
     lbldate     ->setText(tr("Date du document"));
     wdg_linetitre   ->setText(titre);
-    wdg_editdate    ->setDate(QDate::currentDate());
+    wdg_editdate    ->setDate(m_currentdate);
 
     typeLay     ->addWidget(lbltype);
     typeLay     ->addWidget(wdg_typedoccombobx);
@@ -272,7 +272,7 @@ void dlg_docsscanner::ValideFiche()
         wdg_linetitre->setFocus();
         return;
     }
-    if (wdg_editdate->date() == QDate::currentDate())
+    if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
         UpMessageBox msgbox(this);
@@ -302,7 +302,7 @@ void dlg_docsscanner::ValideFiche()
     if (suffixe == "jpeg")
         suffixe= "jpg";
 
-    QString datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
+    QString datetransfer = m_currentdate.toString("yyyy-MM-dd");
     QString user("");
     if ( m_mode != Document )                   //! il s'agit d'une facture ou d'un échéancier
     {

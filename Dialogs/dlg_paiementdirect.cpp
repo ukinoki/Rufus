@@ -620,8 +620,6 @@ void dlg_paiementdirect::ModifGratuit(QPoint pos)
             menuContextuel->exec(QCursor::pos());
             delete menuContextuel;
         }
-        titem = Q_NULLPTR;
-        delete titem;
     }
 }
 

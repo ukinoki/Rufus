@@ -99,8 +99,8 @@ public:
 private:
     bool                            UtiliserTcpSocket = false;
 
-    Procedures                      *proc;
-    DataBase                        *db;
+    Procedures                      *proc = Procedures::I();
+    DataBase                        *db = DataBase::I();
     ParametresSysteme               *m_parametres;
     UpLabel                         *wdg_nomlbl;
     UpLineEdit                      *wdg_MGlineEdit;
@@ -110,6 +110,13 @@ private:
     QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
     QAction         *actionIOLs                     = Q_NULLPTR;
     QAction         *actionTiers                    = Q_NULLPTR;
+    QDate m_currentdate;
+    QTime m_currenttime;
+
+    void RecalcCurrentDateTime() {
+        QDateTime dt = db->ServerDateTime();
+        m_currentdate = dt.date();
+        m_currenttime = dt.time();}
 
     /*! IMPORT DES FICIERS D'IMAGERIE */
     QTimer                          t_timerfilewatcher;             /*! utilisé à la place du QfileSystemWatcher dont le signal directorychanged bugue trop */

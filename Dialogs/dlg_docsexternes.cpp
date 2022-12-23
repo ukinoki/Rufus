@@ -193,7 +193,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         if (currentuser()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
-            if (QDate::currentDate() == docmt->datetimeimpression().date())
+            if (m_currentdate == docmt->datetimeimpression().date())
                 menuImprime->addAction(paction_ModifierReimprimer);
             else
             {   // si on a un texte d'origine, on peut modifier le document - (pour les anciennes versions de Rufus, il n'y avait pas de texte d'origine)
@@ -691,7 +691,7 @@ void dlg_docsexternes::ImprimeDoc()
         if (currentuser()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         {
-            if (QDate::currentDate() == docmt->datetimeimpression().date())           // si le document a été émis aujourd'hui, on propose de le modifier
+            if (m_currentdate == docmt->datetimeimpression().date())           // si le document a été émis aujourd'hui, on propose de le modifier
                                                                         // dans ce cas, on va créer une copie qu'on va modifier
                                                                         // et on détruira le document d'origine à la fin
             {
@@ -743,7 +743,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     }
 
     //création de l'entête
-    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(QDate::currentDate(), currentuser());
+    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(m_currentdate, currentuser());
     Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
     if (Entete == "")
     {

@@ -259,7 +259,7 @@ void dlg_bilanrecettes::ImprimeEtat()
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    Entete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value("Norm");
     if (Entete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???

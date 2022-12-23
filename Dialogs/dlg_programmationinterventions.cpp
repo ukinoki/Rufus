@@ -116,7 +116,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
 
     wdg_IOLbutt->setEnabled(Datas::I()->users->userconnected()->isMedecin());
 
-    AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
+    AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
     connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::ImprimeSession);
     dlglayout()->setStretch(0,1);
@@ -673,7 +673,7 @@ void dlg_programmationinterventions::ImprimeSession()
                             lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = " + color + "><span style=\"font-size:8pt;\">" + typinterv + "</span></font></td>" ;                        }
                         if (pat != Q_NULLPTR)
                         {
-                            QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
+                            QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), db->ServerDate());
                             QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
                                     + " " + pat->datedenaissance().toString("dd-MM-yyyy")
                                     + " - " + mapage["toString"].toString();
@@ -917,7 +917,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                     itemtyp ->setEditable(false);
                     listitemsheure.at(0)->appendRow(QList<QStandardItem*>() << itemtyp << new QStandardItem(QString::number(a) + "b"));
                 }
-                QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
+                QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), db->ServerDate());
                 QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
                         + " " + pat->datedenaissance().toString("dd-MM-yyyy")
                         + " - " + mapage["toString"].toString();
@@ -1302,7 +1302,6 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [&]{
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
-                Dlg_ListIOLs->setWindowModality(Qt::WindowModal);
                 if (Dlg_ListIOLs->exec() == QDialog::Accepted)
                 {
                     idiol = Dlg_ListIOLs->idcurrentIOL();
@@ -1909,7 +1908,6 @@ void dlg_programmationinterventions::FicheListeIOLs()
 {
     bool quelesactifs = false;
     dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(quelesactifs, this);
-    Dlg_ListIOLs->setWindowModality(Qt::WindowModal);
     Dlg_ListIOLs->exec();
     if (Dlg_ListIOLs->listeIOLsmodifiee())
         RemplirTreeInterventions();

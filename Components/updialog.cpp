@@ -28,7 +28,7 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
     AjouteLay();
     setStageCount(0);
     m_mode           = NullMode;
-    connect(this, &QDialog::finished, Q_NULLPTR, [=]{if (m_enregistreposition)
+    connect(this, &QDialog::finished, this, [=]{if (m_enregistreposition)
                                                           m_settings->setValue(m_position, saveGeometry());});
 }
 

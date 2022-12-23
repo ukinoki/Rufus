@@ -39,6 +39,7 @@ private:
     QList<QPixmap>      m_listpixmaps;
     QStringList         m_listtypesexamen;
     QString             m_docpath;
+    QDate               m_currentdate = db->ServerDate();
 
     UpLabel             *wdg_inflabel;
     UpLineEdit          *wdg_linetitre;

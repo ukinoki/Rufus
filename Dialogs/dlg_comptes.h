@@ -39,7 +39,7 @@ private:
     Procedures      *proc = Procedures::I();
     DataBase        *db = DataBase::I();
     int             m_intervalledate = 180;
-    QDate           m_dateencours = QDate::currentDate();
+    QDate           m_dateencours = db->ServerDate();
 
     double          m_soldesurreleve;
     int             m_idcompte;

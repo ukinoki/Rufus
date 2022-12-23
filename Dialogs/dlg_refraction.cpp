@@ -2149,7 +2149,7 @@ void dlg_refraction::RechercheMesureEnCours()
         ui->ReprendrePushButton->setEnabled(false);
         ui->OupsPushButton->setEnabled(false);
         ui->ResumePushButton->setEnabled(false);
-        QMap<QString,QVariant>  Age = Utils::CalculAge(Datas::I()->patients->currentpatient()->datedenaissance());
+        QMap<QString,QVariant>  Age = Utils::CalculAge(Datas::I()->patients->currentpatient()->datedenaissance(), db->ServerDate());
         if (Age["annee"].toInt() < 45)
             ui->VLRadioButton->setChecked(true);
         else

@@ -60,7 +60,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
     lbldate     ->setText(tr("Date du document"));
-    wdg_editdate    ->setDate(QDate::currentDate());
+    wdg_editdate    ->setDate(m_currentdate);
 
     typeLay     ->addWidget(lbltype);
     typeLay     ->addWidget(wdg_typedoccombobx);
@@ -191,7 +191,7 @@ void dlg_docsvideo::ValideFiche()
         wdg_linetitre->setFocus();
         return;
     }
-    if (wdg_editdate->date() == QDate::currentDate())
+    if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
         UpMessageBox msgbox(this);

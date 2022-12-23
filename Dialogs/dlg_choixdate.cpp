@@ -18,20 +18,21 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_choixdate.h"
 #include "ui_dlg_choixdate.h"
 
-dlg_choixdate::dlg_choixdate(QWidget *parent) :
+dlg_choixdate::dlg_choixdate(QDate date, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_choixdate)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     setWindowModality(Qt::WindowModal);
+    m_currentdate = date;
 
     map_date = QMap<Utils::Period, QDate>();
     ui->JourradioButton             ->setChecked(true);
-    ui->DepuisdateEdit              ->setDate(QDate::currentDate());
+    ui->DepuisdateEdit              ->setDate(m_currentdate);
     ui->Depuislabel                 ->setVisible(false);
     ui->JusquAulabel                ->setVisible(false);
-    ui->JusquAdateEdit              ->setDate(QDate::currentDate());
+    ui->JusquAdateEdit              ->setDate(m_currentdate);
     ui->JusquAdateEdit              ->setVisible(false);
     ui->PlusDateFinpushButton       ->setVisible(false);
     ui->MoinsDateFinpushButton      ->setVisible(false);
@@ -74,36 +75,36 @@ void    dlg_choixdate::AfficheDates(QWidget *widg)
 
     if (widg == ui->JourradioButton)
     {
-        ui->DepuisdateEdit->setDate(QDate::currentDate());
-        ui->JusquAdateEdit->setDate(QDate::currentDate());
+        ui->DepuisdateEdit->setDate(m_currentdate);
+        ui->JusquAdateEdit->setDate(m_currentdate);
     }
 
     else if (widg == ui->SemaineradioButton)
     {
-        ui->DepuisdateEdit->setDate(QDate::currentDate().addDays(1-QDate::currentDate().dayOfWeek()));
-        ui->JusquAdateEdit->setDate(QDate::currentDate());
+        ui->DepuisdateEdit->setDate(m_currentdate.addDays(1-m_currentdate.dayOfWeek()));
+        ui->JusquAdateEdit->setDate(m_currentdate);
     }
 
     else if (widg == ui->MoisradioButton)
     {
-        ui->DepuisdateEdit->setDate(QDate(QDate::currentDate().year(), QDate::currentDate().month(),1));
-        ui->JusquAdateEdit->setDate(QDate::currentDate());
+        ui->DepuisdateEdit->setDate(QDate(m_currentdate.year(), m_currentdate.month(),1));
+        ui->JusquAdateEdit->setDate(m_currentdate);
     }
 
     else if (widg == ui->AnneeradioButton)
     {
-        ui->DepuisdateEdit->setDate(QDate(QDate::currentDate().year(),1,1));
-        ui->JusquAdateEdit->setDate(QDate::currentDate());
+        ui->DepuisdateEdit->setDate(QDate(m_currentdate.year(),1,1));
+        ui->JusquAdateEdit->setDate(m_currentdate);
     }
 
 }
 void dlg_choixdate::ModifDate(QWidget *widg)
 {
-    if (widg == ui->PlusDateDebutpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date() && ui->DepuisdateEdit->date() < QDate::currentDate())
+    if (widg == ui->PlusDateDebutpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date() && ui->DepuisdateEdit->date() < m_currentdate)
         ui->DepuisdateEdit->setDate(ui->DepuisdateEdit->date().addDays(1));
     if (widg == ui->MoinsDateDebutpushButton)
         ui->DepuisdateEdit->setDate(ui->DepuisdateEdit->date().addDays(-1));
-    if (widg == ui->PlusDateFinpushButton && ui->JusquAdateEdit->date() < QDate::currentDate())
+    if (widg == ui->PlusDateFinpushButton && ui->JusquAdateEdit->date() < m_currentdate)
         ui->JusquAdateEdit->setDate(ui->JusquAdateEdit->date().addDays(1));
     if (widg == ui->MoinsDateFinpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date())
         ui->JusquAdateEdit->setDate(ui->JusquAdateEdit->date().addDays(-1));
@@ -114,9 +115,9 @@ void dlg_choixdate::ModifDate(QWidget *widg)
             int JourDeLaSemaine= ui->DepuisdateEdit->date().dayOfWeek();
             QDate DateDebut;
             DateDebut = ui->DepuisdateEdit->date().addDays(8 - JourDeLaSemaine);
-            if (DateDebut > QDate::currentDate()) return;
+            if (DateDebut > m_currentdate) return;
             ui->DepuisdateEdit->setDate(DateDebut);
-            ui->JusquAdateEdit->setDate(QDate::currentDate());
+            ui->JusquAdateEdit->setDate(m_currentdate);
         }
         if (ui->MoisradioButton->isChecked())
         {
@@ -128,7 +129,7 @@ void dlg_choixdate::ModifDate(QWidget *widg)
                 Mois  = 1;
             }
             else Mois += 1;
-            if (QDate(Annee,Mois,1) > QDate::currentDate()) return;
+            if (QDate(Annee,Mois,1) > m_currentdate) return;
             int Jour = QDate(Annee,Mois,1).daysInMonth();
             ui->DepuisdateEdit->setDate(QDate(Annee,Mois,1));
             ui->JusquAdateEdit->setDate(QDate(Annee,Mois,Jour));
@@ -136,7 +137,7 @@ void dlg_choixdate::ModifDate(QWidget *widg)
         if (ui->AnneeradioButton->isChecked())
         {
             int Annee = ui->DepuisdateEdit->date().year() + 1;
-            if (QDate(Annee,1,1) > QDate::currentDate()) return;
+            if (QDate(Annee,1,1) > m_currentdate) return;
             ui->DepuisdateEdit->setDate(QDate(Annee,1,1));
             ui->JusquAdateEdit->setDate(QDate(Annee,12,31));
         }

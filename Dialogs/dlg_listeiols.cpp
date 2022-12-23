@@ -23,6 +23,8 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     m_onlyactifs = onlyactifs;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des IOLs"));
+    setWindowModality(Qt::WindowModal);
+
     wdg_manufacturerscombo = new UpComboBox();
 
     wdg_itemstree = new QTreeView(this);

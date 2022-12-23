@@ -22,15 +22,14 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-12-2022/1");
+    qApp->setApplicationVersion("23-12-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
     qApp->setStyleSheet(Styles::StyleAppli());
-    proc = Procedures::I();
-    db = DataBase::I();
+    RecalcCurrentDateTime();
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
@@ -942,7 +941,7 @@ void Rufus::ActeMontantModifie()
 void Rufus::AfficheMotif(UpLabel *lbl)
 {
     QMap<QString, QVariant> rsgnmt = lbl->datas();
-    QMap<QString,QVariant> mapage = Utils::CalculAge(rsgnmt["ddnpat"].toDate());
+    QMap<QString,QVariant> mapage = Utils::CalculAge(rsgnmt["ddnpat"].toDate(), QDate::currentDate());
     QString Msg("");
     Msg += mapage["toString"].toString();
     if (rsgnmt["urgence"].toBool())
@@ -1080,7 +1079,7 @@ void Rufus::AfficheToolTip(Patient *pat)
     QString Msg = "";
     if (pat->datedenaissance().isValid())
     {
-        QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance());
+        QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), QDate::currentDate());
         Msg += mapage["toString"].toString();
     }
     if (pat->ville() != "")
@@ -1385,12 +1384,8 @@ void Rufus::BasculerMontantActe()
 void Rufus::BilanRecettes()
 {   
     dlg_bilanrecettes *Dlg_BilanRec            = new dlg_bilanrecettes();
-    if (!Dlg_BilanRec->initOK())
-    {
-        delete Dlg_BilanRec;
-        return;
-    }
-    Dlg_BilanRec->exec();
+    if (Dlg_BilanRec->initOK())
+        Dlg_BilanRec->exec();
     delete Dlg_BilanRec;
 }
 
@@ -1525,6 +1520,7 @@ void Rufus::CreerBilanOrtho()
     bool    nouveauBO       = true;
     bool    creeracte       = true;
     QDate DateBl;
+    RecalcCurrentDateTime();
     if (ui->Acteframe->isVisible() && currentacte() != Q_NULLPTR)
     {
         QString requete = "select idbilanortho from " TBL_BILANORTHO
@@ -1537,7 +1533,7 @@ void Rufus::CreerBilanOrtho()
         if (!nouveauBO)
         {
             DateBl = currentacte()->date();
-            if (DateBl != QDate::currentDate())
+            if (DateBl != m_currentdate)
             {
                 UpMessageBox msgbox(this);
                 UpSmallButton ReprendreBOBouton(tr("Reprendre"));
@@ -1590,7 +1586,7 @@ void Rufus::CreerBilanOrtho()
         }
         QString RefractionOD    = "";
         QString RefractionOG    = "";
-        Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
+        Dlg_BlOrtho             ->setDateBO(m_currentdate);
 
         QMapIterator<int, Refraction*> itref (*Datas::I()->refractions->refractions());
         itref.toBack();
@@ -1609,8 +1605,8 @@ void Rufus::CreerBilanOrtho()
         }
         if (RefractionOD != "")     Dlg_BlOrtho->ui->AVODlineEdit->setText(RefractionOD);
         if (RefractionOG != "")     Dlg_BlOrtho->ui->AVOGlineEdit->setText(RefractionOG);
-        Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(currentpatient()->datedenaissance().daysTo(QDate::currentDate()) < 730);
-        Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(currentpatient()->datedenaissance().daysTo(QDate::currentDate()) < 730);
+        Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(currentpatient()->datedenaissance().daysTo(m_currentdate) < 730);
+        Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(currentpatient()->datedenaissance().daysTo(m_currentdate) < 730);
     }
     if (Dlg_BlOrtho->exec() == QDialog::Accepted)
     {
@@ -1933,6 +1929,7 @@ void Rufus::ExporteDocs()
     if (m_pasDExportPourLeMoment)
         return;
     QString pathDirImagerie = proc->AbsolutePathDirImagerie();
+    RecalcCurrentDateTime();
 
     if (!QDir(pathDirImagerie).exists() || pathDirImagerie == "")
     {
@@ -2537,7 +2534,7 @@ void Rufus::ImprimeDossier(Patient *pat)
         dlg_ask->dlglayout()->insertLayout(1,finlayout);
         dlg_ask->dlglayout()->insertWidget(2,Dossierbutton);
         dlg_ask->dlglayout()->insertWidget(3,Actebutton);
-        dlg_ask->AjouteLayButtons(UpDialog::ButtonOK);
+        dlg_ask->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         //gAsk->setStageCount(0.7);
 
         dlg_ask->setWindowTitle(tr("Impression dossier"));
@@ -2588,6 +2585,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
     Patient *pat = Datas::I()->patients->getById(listeactes.at(0)->idPatient());
     if (pat == Q_NULLPTR)
         return;
+    RecalcCurrentDateTime();
     if (focusWidget() != Q_NULLPTR)
         focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
     int taillefont  = 8;
@@ -2600,7 +2598,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
     UpTextEdit textprov;
 
     QString Age;
-    QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), pat->sexe());
+    QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
     Age = AgeTotal["toString"].toString();
     Reponse += "<p><font color = \"" COULEUR_TITRES "\"><b>" + pat->nom() + " " + pat->prenom() + "</font> - " + Age + "</b> (" + pat->datedenaissance().toString(tr("d MMM yyyy")) + ")</p>";                   //DDN
     if (pat->adresse1() != "")
@@ -2734,7 +2732,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        return;
    }
 
-   Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+   Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
    if (Entete == "") return;
    Entete.replace("{{TITRE1}}"             , "");
    QString comment;
@@ -2786,6 +2784,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                               AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
    {
+       RecalcCurrentDateTime();
        QHash<QString, QVariant> listbinds;
        listbinds[CP_IDUSER_DOCSEXTERNES]        = currentuser()->id();
        listbinds[CP_IDPAT_DOCSEXTERNES]         = pat->id();
@@ -2795,7 +2794,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
-       listbinds[CP_DATE_DOCSEXTERNES]          = QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+       listbinds[CP_DATE_DOCSEXTERNES]          = m_currentdate.toString("yyyy-MM-dd") + " " + m_currenttime.toString("HH:mm:ss");
        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
        listbinds[CP_FORMATDOC_DOCSEXTERNES]     = COURRIER;
@@ -3827,7 +3826,7 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
     HeureRDV->setCurrentSection(QDateTimeEdit::MinuteSection);
     dlg_ask->AjouteWidgetLayButtons(HeureRDV, false);
     dlg_ask->AjouteWidgetLayButtons(HeureTitre, false);
-    dlg_ask->AjouteLayButtons(UpDialog::ButtonOK);
+    dlg_ask->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg_ask->setStageCount(1);
 
     motiflayout->addLayout(soignantlayout);
@@ -4952,6 +4951,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 {
     QTabWidget* tabw = new QTabWidget();
     tabw->setIconSize(QSize(25,25));
+    RecalcCurrentDateTime();
 
     //! I - Les messages reçus ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -5055,9 +5055,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Todolbl->setText(tr("A effectuer avant le ") + msg->datelimite().toString(tr("d-MMM-yy")));
                 if (!msg->isfait())
                 {
-                    if (QDate::currentDate() >= msg->datelimite())
+                    if (m_currentdate >= msg->datelimite())
                         Todolbl->setStyleSheet("color: red");
-                    else if (QDate::currentDate().addDays(3) > msg->datelimite())
+                    else if (m_currentdate.addDays(3) > msg->datelimite())
                         Todolbl->setStyleSheet("color: orange");
                 }
                 Tasklay->addWidget(Todolbl);
@@ -5197,9 +5197,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Todolbl->setText(tr("A effectuer avant le ") + msg->datelimite().toString(tr("d-MMM-yy")));
                 if (!msg->isfait())
                 {
-                    if (QDate::currentDate() >= msg->datelimite())
+                    if (m_currentdate >= msg->datelimite())
                         Todolbl->setStyleSheet("color: red");
-                    else if (QDate::currentDate().addDays(3) > msg->datelimite())
+                    else if (m_currentdate.addDays(3) > msg->datelimite())
                         Todolbl->setStyleSheet("color: orange");
                 }
                 Tasklay->addWidget(Todolbl);
@@ -6528,7 +6528,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     Datas::I()->patients->setcurrentpatient(pat);
     if (pat == Q_NULLPTR)
         return;
-
+    RecalcCurrentDateTime();
     ui->DateCreationDossierlineEdit->setText(currentpatient()->datecreationdossier().toString(tr("d-M-yyyy")));
     ui->idPatientlineEdit->setText(QString::number(currentpatient()->id()));
     if (!ui->tabDossier->isVisible())
@@ -6956,7 +6956,7 @@ QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
         return QString();
     QString html, img, Age;
     QMap<QString,QVariant>  AgeTotal;
-    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), pat->sexe());
+    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
     img             = AgeTotal["icone"].toString(); //TODO : User icone
     Age             = AgeTotal["toString"].toString();
 
@@ -7021,7 +7021,7 @@ QIcon Rufus::CalcIconPatient(Patient *pat)
         return QIcon();
     QString img;
     QMap<QString,QVariant>  AgeTotal;
-    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), pat->sexe());
+    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
     img             = AgeTotal["icone"].toString(); //TODO : User icone
     return Icons::getIconAge(img);
 }
@@ -7141,9 +7141,10 @@ void Rufus::CreerActe(Patient *pat)
         return;
     if (ui->Acteframe->isVisible())
         if(!AutorDepartConsult(false)) return;
+    RecalcCurrentDateTime();
     Acte * acte = m_listeactes->CreationActe(pat, currentuser(), proc->idCentre(), Datas::I()->sites->idcurrentsite());
     //! on recherche si cet acte pourrait correspondre à une intervention programmée
-    Intervention* interv = Datas::I()->interventions->getInterventionByDateIdPatient(QDate::currentDate(), pat->id());
+    Intervention* interv = Datas::I()->interventions->getInterventionByDateIdPatient(m_currentdate, pat->id());
     if (interv != Q_NULLPTR)
     {
         ItemsList::update(interv, CP_IDACTE_LIGNPRGOPERATOIRE, acte->id());
@@ -7162,7 +7163,7 @@ void Rufus::CreerActe(Patient *pat)
         if (findChildren<dlg_actesprecedents *>().size() == 0)
             OuvrirActesPrecedents();            //! depuis CreerActe()
         else
-            findChildren<dlg_actesprecedents *>().at(0)->Actualise(Datas::I()->actes->actes());
+            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
     }
     else
     {
@@ -7344,8 +7345,6 @@ void Rufus::CreerDossier()
         else
             if (!InscritEnSalDat(pat))
                 RecaleTableView(pat);
-        pat = Q_NULLPTR;
-        delete pat;
     }
 }
 
@@ -7916,7 +7915,7 @@ void Rufus::InitWidgets()
     ui->ActeMontantlineEdit->setAlignment(Qt::AlignRight);
     ui->PayelineEdit->setAlignment(Qt::AlignRight);
     ui->CreerDDNdateEdit->setDate(m_datepardefaut);
-    ui->ActeDatedateEdit->setMaximumDate(QDate::currentDate());
+    ui->ActeDatedateEdit->setMaximumDate(m_currentdate);
     ui->CreerDossierframe->setGeometry(10,170,356,170);
     ui->tabWidget->setIconSize(QSize(25,25));
     for (int abc = 1; abc < ui->tabWidget->count(); abc++)
@@ -7931,7 +7930,7 @@ void Rufus::InitWidgets()
     ui->PatientsVusupLabel->setPixmap(Icons::pxListe().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxListe 60,60
     ui->PatientsVusFlecheupLabel ->setPixmap(Icons::pxDown().scaled(QSize(30,30), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
-    ui->CreerDDNdateEdit->setDateRange(QDate::currentDate().addYears(-105),QDate::currentDate());
+    ui->CreerDDNdateEdit->setDateRange(m_currentdate.addYears(-105),m_currentdate);
 
     QMenu *trayIconMenu;
     trayIconMenu = new QMenu();
@@ -8753,9 +8752,9 @@ void    Rufus::RefractionMesure(dlg_refraction::ModeOuverture mode)
             for (int i= 0; i<Dlg_Refraction->ResultatPrescription().size();i++)
                 if (Dlg_Refraction->ResultatPrescription().at(i).unicode() == 10) Dlg_Refraction->ResultatPrescription().replace(Dlg_Refraction->ResultatPrescription().at(i),"<br>");
             QString larg = "550";
-            if (ui->ActeDatedateEdit->date() != QDate::currentDate())
+            if (ui->ActeDatedateEdit->date() != m_currentdate)
             {
-                Date = "<td width=\"80\">le " + QDate::currentDate().toString("d.M.yyyy") + "</td>";
+                Date = "<td width=\"80\">le " + m_currentdate.toString("d.M.yyyy") + "</td>";
                 larg = "470";
             }
             QString ARajouterEnConcl =  HTML_RETOURLIGNE + Date + Dlg_Refraction->ResultatPrescription()  + "</p>" + HTML_FINPARAGRAPH;
@@ -9765,7 +9764,7 @@ void Rufus::SupprimerActe(Acte *act)
         if (m_listeactes->actes()->size() < 2)
             findChildren<dlg_actesprecedents *>().at(0)->close();
         else
-            findChildren<dlg_actesprecedents *>().at(0)->Actualise(Datas::I()->actes->actes());
+            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
     }
 }
 

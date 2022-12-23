@@ -965,7 +965,7 @@ void dlg_gestionusers::ModifMDP()
     gAskMDP->dlglayout()->insertWidget(0,labelOldMDP);
     AncMDP->setFocus();
 
-    gAskMDP->AjouteLayButtons(UpDialog::ButtonOK);
+    gAskMDP->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QList <QWidget*> ListTab;
     ListTab << AncMDP << NouvMDP << ConfirmMDP << gAskMDP->OKButton;
     for (int i = 0; i<ListTab.size()-1 ; i++ )

@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_PROGRAMMATIONINTERVENTIONS_H
 
 #include <updialog.h>
+#include "database.h"
 #include <procedures.h>
 #include "updoublespinbox.h"
 #include <uptableview.h>
@@ -43,6 +44,7 @@ public:
 
 private:
     Procedures                      *proc = Procedures::I();
+    DataBase                        *db = DataBase::I();
     QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);

@@ -37,7 +37,7 @@ private:
     Procedures              *proc = Procedures::I();
     bool                    m_accesdistant;
     QString                 m_pathdirstockageimagerie;
-
+    QDate                   m_currentdate = db->ServerDate();
     int                     m_iditem;
     bool                    m_initok;
     QStringList             m_listtypesexamen;

@@ -256,16 +256,17 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString prenom = Datas::I()->patients->currentpatient()->prenom().toUpper();
 
     QString Entete, Pied;
+    QDate l_currentdate = db->ServerDate();
 
     //création de l'entête
-    Entete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    Entete = proc->CalcEnteteImpression(l_currentdate, userEntete).value("Norm");
     if (Entete == "") return;
     Entete.replace("{{TITRE1}}"            , "");
     Entete.replace("{{TITRE}}"             , "<font color = \"" COULEUR_TITRES "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
     Entete.replace("{{PRENOM PATIENT}}"    , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
-    Entete.replace("{{DATE}}"              , Datas::I()->sites->currentsite()->ville() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
+    Entete.replace("{{DATE}}"              , Datas::I()->sites->currentsite()->ville() + ", le " + l_currentdate.toString(tr("d MMM yyyy")));
 
     // création du pied
     Pied = proc->CalcPiedImpression(userEntete);

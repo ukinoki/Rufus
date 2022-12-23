@@ -238,7 +238,7 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::Field
     VilleListModel *listModel      = new VilleListModel(listData,fieldName);
 
     UpLabelDelegate  *deleglabl    = new UpLabelDelegate;
-    gAsk->AjouteLayButtons(UpDialog::ButtonOK);
+    gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
     //list->setFixedWidth(100);
     list->setPalette(QPalette(Qt::white));
