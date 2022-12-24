@@ -44,6 +44,7 @@ public:
 private:
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
+    QDate                   m_currentdate = db->ServerDate();
 
     Mode                    m_mode;
     OrdreTri                m_ordretri;

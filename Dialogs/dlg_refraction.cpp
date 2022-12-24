@@ -940,7 +940,7 @@ void dlg_refraction::Init_variables()
     m_mode                   = Refraction::Fronto;
     m_affichedetail          = false;
 
-    ui->DateDateEdit        ->setDate(QDate::currentDate());
+    ui->DateDateEdit        ->setDate(m_currentdate);
     m_commentaireresume     = "";
     m_escapeflag              = true;
 }
@@ -1613,7 +1613,7 @@ void dlg_refraction::InitDivers()
     ui->AVLOGupComboBox->setCurrentIndex(ui->AVLOGupComboBox->IndexParDefaut());
 
     ui->PorteRadioButton->setChecked(true);
-    ui->DateDateEdit->setDate(QDate::currentDate());
+    ui->DateDateEdit->setDate(m_currentdate);
 
     m_val = new upDoubleValidator(MinK, MaxK , 2, this);
     ui->K1OD->setValidator(m_val);
@@ -1915,7 +1915,7 @@ Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure M
     for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
     {
         Refraction* ref = const_cast<Refraction*>(it.value());
-        if (((ref->daterefraction() == QDate::currentDate()) == cejour)
+        if (((ref->daterefraction() == m_currentdate) == cejour)
                 && ref->typemesure() == Mesure
                 && ref->isdilate() == dilat)
         {
@@ -2160,21 +2160,21 @@ void dlg_refraction::RechercheMesureEnCours()
 
     // recherche d'une mesure du jour
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-        if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Prescription)
+        if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Prescription)
         {
             Reponse = ref->typemesure();
             break;
         }
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Acuite)
+            if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Acuite)
             {
                 Reponse = ref->typemesure();
                 break;
             }
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Autoref)
+            if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Autoref)
             {
                 Reponse = ref->typemesure();
                 break;
@@ -2182,7 +2182,7 @@ void dlg_refraction::RechercheMesureEnCours()
     if (Reponse == Refraction::NoMesure)
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
         {
-            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Fronto)
+            if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Fronto)
             {
                 Reponse = ref->typemesure();
                 break;

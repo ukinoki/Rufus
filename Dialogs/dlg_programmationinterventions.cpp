@@ -264,7 +264,7 @@ void dlg_programmationinterventions::ChoixMedecin(int idx)
                     lastsession = session;
                 else if (session->date() > lastsession->date())
                     lastsession = session;
-                if (session->date() > QDate::currentDate())
+                if (session->date() > m_currentdate)
                 {
                     if (currentsession() == Q_NULLPTR)
                         setcurrentsession(session);
@@ -418,7 +418,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
     QHBoxLayout *choixdateLay    = new QHBoxLayout();
     UpLabel* lbldate = new UpLabel;
     lbldate         ->setText(tr("Date"));
-    QDateEdit *dateedit = new QDateEdit(QDate::currentDate());
+    QDateEdit *dateedit = new QDateEdit(m_currentdate);
     dateedit        ->setFixedSize(QSize(120,24));
     dateedit        ->setCalendarPopup(true);
     choixdateLay    ->addWidget(lbldate);
@@ -526,7 +526,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return;
-    EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    EnTete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
     if (EnTete == "") return;
     Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
@@ -604,7 +604,7 @@ void dlg_programmationinterventions::ImprimeSession()
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return;
-    EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+    EnTete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
     if (EnTete == "") return;
     Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
@@ -1968,7 +1968,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         User *userEntete = Datas::I()->users->getById(iduser);
         if(userEntete == Q_NULLPTR)
             return;
-        EnTete = proc->CalcEnteteImpression(QDate::currentDate(), userEntete).value("Norm");
+        EnTete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
         if (EnTete == "") return;
 
         EnTete.replace("{{TITRE1}}"            , "");

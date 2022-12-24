@@ -880,7 +880,7 @@ void dlg_paiementdirect::ModifiePaiement()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::RegleAffichageFiche()
 {
-    ui->dateEdit                    ->setDate(QDate::currentDate());
+    ui->dateEdit                    ->setDate(m_currentdate);
     ui->Detailsframe                ->setVisible(m_mode!=Accueil);
     ui->line_2                      ->setVisible(m_mode!=Accueil);
     ui->line_4                      ->setVisible(m_mode!=Accueil);
@@ -1497,7 +1497,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 ui->EnAttentecheckBox->setCheckState(Qt::Unchecked);
                 ui->ComptesupComboBox->clearEditText();
                 ui->CommissionlineEdit->clear();
-                ui->dateEdit->setDate(QDate::currentDate());
+                ui->dateEdit->setDate(m_currentdate);
                 ui->TotallineEdit->setText("0,00");
 
                 if (reclist.size() != 1)
@@ -2134,7 +2134,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->EnAttentecheckBox->setCheckState(Qt::Unchecked);
             ui->ComptesupComboBox->clearEditText();
             ui->CommissionlineEdit->clear();
-            ui->dateEdit->setDate(QDate::currentDate());
+            ui->dateEdit->setDate(m_currentdate);
             ui->TotallineEdit->setText("0,00");
         }
         else

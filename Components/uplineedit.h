@@ -65,6 +65,7 @@ signals:
     void        mouseDoubleClick(int row);
 
 protected:
+    using       QWidget::enterEvent;
     void        enterEvent(QEvent *e);
     void        mouseReleaseEvent(QMouseEvent *e);
     void        mouseDoubleClickEvent(QMouseEvent *e);

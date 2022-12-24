@@ -49,6 +49,7 @@ private:
 
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
+    QDate                   m_currentdate = db->ServerDate();
     User*                   currentuser() { return Datas::I()->users->userconnected(); }
     int                     m_idrefraction;
     QStringList             m_stringliste1, m_stringliste2;

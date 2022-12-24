@@ -45,6 +45,8 @@ public:
 private:
     Procedures                      *proc = Procedures::I();
     DataBase                        *db = DataBase::I();
+    QDate                           m_currentdate = db->ServerDate();
+
     QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);

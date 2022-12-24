@@ -608,7 +608,7 @@ void dlg_paiementtiers::RegleAffichageFiche()
     ui->AnnulupPushButton->setText("Annuler");
 
     bool g = false;
-    ui->dateEdit->setDate(QDate::currentDate());
+    ui->dateEdit->setDate(m_currentdate);
     ui->CherchePatientupLineEdit    ->clear();
 
     if (m_mode == Accueil)
@@ -2183,7 +2183,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
             ui->TireurChequelineEdit->clear();
             ui->ComptesupComboBox->clearEditText();
             ui->CommissionlineEdit->clear();
-            ui->dateEdit->setDate(QDate::currentDate());
+            ui->dateEdit->setDate(m_currentdate);
             ui->TotallineEdit->setText("0,00");
         }
         else

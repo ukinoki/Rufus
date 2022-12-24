@@ -94,7 +94,8 @@ public:
 * opérations sur la base de données, le système et les datas
 * -------------------------------------------------------------------------------------------------------- */
 private:
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
+
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;

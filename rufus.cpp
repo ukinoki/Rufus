@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("23-12-2022/1");
+    qApp->setApplicationVersion("24-12-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2784,7 +2784,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                               AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
    {
-       RecalcCurrentDateTime();
        QHash<QString, QVariant> listbinds;
        listbinds[CP_IDUSER_DOCSEXTERNES]        = currentuser()->id();
        listbinds[CP_IDPAT_DOCSEXTERNES]         = pat->id();
@@ -7205,13 +7204,14 @@ void Rufus::CreerDossier()
     if (ui->tabWidget->indexOf(ui->tabDossier) > 0)
         if (!AutorDepartConsult(true))
             return;
+    RecalcCurrentDateTime();
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
     int idPat; // on n'utilise pas currentpatient()->id() qui ne sera initialisé qu'après que le dossier ait été réellement affiché.
 
     PatNom      = Utils::trimcapitilize(ui->CreerNomlineEdit->text(),true);
     PatPrenom   = Utils::trimcapitilize(ui->CreerPrenomlineEdit->text(),true);
     PatDDN      = ui->CreerDDNdateEdit->date().toString("yyyy-MM-dd");
-    PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
+    PatCreeLe   = m_currentdate.toString("yyyy-MM-dd");
     PatCreePar  = QString::number(currentuser()->id());
     if (PatNom == "")
     {
