@@ -156,14 +156,14 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
     wdg_uptable->resize(w, y);
     m_initok = true;
-    NavigueVers("Fin");
+    NavigueVers(UpToolBar::_last);
 }
 
 dlg_docsscanner::~dlg_docsscanner()
 {
 }
 
-void dlg_docsscanner::NavigueVers(QString but)
+void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
 {
     QStringList filters;
     filters << "*.pdf" << "*.jpg" << "*.jpeg";
@@ -174,13 +174,13 @@ void dlg_docsscanner::NavigueVers(QString but)
         return;
     }
     int idx = listfich.indexOf(m_nomfichierimageencours);
-    if (but == "Fin")
+    if (choix == UpToolBar::_last)
         idx = listfich.size()-1;
-    else if (but == "Début")
+    else if (choix == UpToolBar::_first)
         idx = 0;
-    else if (but == "Suivant")
+    else if (choix == UpToolBar::_next)
         idx += 1;
-    else if (but == "Précédent")
+    else if (choix == UpToolBar::_prec)
         idx -= 1;
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);

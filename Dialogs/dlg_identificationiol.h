@@ -93,7 +93,7 @@ private:
     void                menuChangeImage();
     void                EnableOKpushButton();
     void                EnableWidget(bool a);
-    void                NavigueVers(QString but);
+    void                NavigueVers(UpToolBar::Choix choix);
     void                OKpushButtonClicked();
     void                reconstruitListeIOLs(Manufacturer *man);
     void                setimage(QImage img);

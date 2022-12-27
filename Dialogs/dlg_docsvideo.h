@@ -30,7 +30,7 @@ class dlg_docsvideo : public UpDialog
     Q_OBJECT
 public:
     dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
-    void                NavigueVers(QString);
+    void                NavigueVers(UpToolBar::Choix choix);
 
 private:
     DataBase            *db = DataBase::I();

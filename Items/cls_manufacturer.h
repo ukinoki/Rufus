@@ -48,6 +48,7 @@ public:
     QString tooltip() const;
     int iddistributeur() const;
     int idrufus() const;
+    bool buildIOls() const;
 
     QString coordonnees() const;
 
@@ -66,6 +67,7 @@ public:
     void setiddistributeur(int id);
     void setidrufus(int idrufus);
     void resetdatas();
+    void setbuildIOLS(bool build);
 
     bool isnull() const                     { return m_id == 0; }
 
@@ -83,6 +85,7 @@ private:
     QString m_website       = "";
     QString m_mail          = "";
     bool m_inactif          = false;
+    bool m_buildIOLS        = false;
     int m_distributeur      = 0;
     int m_idrufus           = 0;
 };

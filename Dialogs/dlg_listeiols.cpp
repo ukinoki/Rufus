@@ -843,6 +843,7 @@ void dlg_listeiols::ReconstruitListeManufacturers()
                 manufactureritem  ->setEditable(false);
                 manufactureritem  ->setEnabled(false);
                 m_manufacturersmodel->appendRow(manufactureritem);
+                man->setbuildIOLS(true);
             }
         }
     }

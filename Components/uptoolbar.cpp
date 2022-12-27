@@ -25,14 +25,14 @@ UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToo
     {
         debut   = new QAction(Icons::icPageAvant(),tr("Début"),this);
         fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
-        connect(debut,  &QAction::triggered,  this, [=] {TBChoix(debut);});
-        connect(fin,    &QAction::triggered,  this, [=] {TBChoix(fin);});
+        connect(debut,  &QAction::triggered,  this, [=] {TBChoix(_first);});
+        connect(fin,    &QAction::triggered,  this, [=] {TBChoix(_last);});
     }
     prec    = new QAction(Icons::icAvant(),tr("Précédent"),this);
     suiv    = new QAction(Icons::icApres(),tr("Suivant"),this);
 
-    connect(prec,   &QAction::triggered,  this, [=] {TBChoix(prec);});
-    connect(suiv,   &QAction::triggered,  this, [=] {TBChoix(suiv);});
+    connect(prec,   &QAction::triggered,  this, [=] {TBChoix(_prec);});
+    connect(suiv,   &QAction::triggered,  this, [=] {TBChoix(_next);});
 
     if (AvecFinDebut)
         addAction(debut);
@@ -44,7 +44,7 @@ UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToo
     if (AvecReload)
     {
         reload  = new QAction(Icons::icPageRefresh(),tr("Recharger"),this);
-        connect(reload, &QAction::triggered, this, [=] {TBChoix(reload);});
+        connect(reload, &QAction::triggered, this, [=] {TBChoix(_reload);});
         addSeparator();
         addAction(reload);
     }
@@ -56,13 +56,13 @@ UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToo
 UpToolBar::~UpToolBar()
 {
 }
-QString UpToolBar::choix() const
+UpToolBar::Choix UpToolBar::choix() const
 {
-    return m_action;
+    return m_choix;
 }
-void UpToolBar::TBChoix(QAction *choix)
+void UpToolBar::TBChoix(UpToolBar::Choix choix)
 {
-    m_action = choix->text();
+    m_choix = choix;
     emit TBSignal();
 }
 

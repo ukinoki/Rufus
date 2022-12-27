@@ -29,7 +29,7 @@ public:
     explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
     bool                    initOK() const;
-    void                    NavigueVers(QString);
+    void                    NavigueVers(UpToolBar::Choix choix);
     QMap<QString, QVariant> getdataFacture();
 
 private:
