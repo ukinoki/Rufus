@@ -18,11 +18,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef dlg_paiementtiers_H
 #define dlg_paiementtiers_H
 
-#include "procedures.h"
-#include "dlg_gestionbanques.h"
-#include "ui_dlg_gestionbanques.h"
-#include "dlg_identificationtiers.h"
-#include "flags.h"
+#include <procedures.h>
+#include <dlg_gestionbanques.h>
+#include <ui_dlg_gestionbanques.h>
+#include <dlg_identificationtiers.h>
+#include <flags.h>
 
 namespace Ui {
 class dlg_paiementtiers;
@@ -44,6 +44,7 @@ public:
 private:
     Procedures              *proc   = Procedures::I();
     DataBase                *db     = DataBase::I();
+    QDate                   m_currentdate = db->ServerDate();
 
     Mode                    m_mode;
     OrdreTri                m_ordretri;

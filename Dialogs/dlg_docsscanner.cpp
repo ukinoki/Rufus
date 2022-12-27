@@ -112,7 +112,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     lbltitre    ->setText(tr("Titre du document"));
     lbldate     ->setText(tr("Date du document"));
     wdg_linetitre   ->setText(titre);
-    wdg_editdate    ->setDate(QDate::currentDate());
+    wdg_editdate    ->setDate(m_currentdate);
 
     typeLay     ->addWidget(lbltype);
     typeLay     ->addWidget(wdg_typedoccombobx);
@@ -155,14 +155,14 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
     wdg_uptable->resize(w, y);
     m_initok = true;
-    NavigueVers("Fin");
+    NavigueVers(UpToolBar::_last);
 }
 
 dlg_docsscanner::~dlg_docsscanner()
 {
 }
 
-void dlg_docsscanner::NavigueVers(QString but)
+void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
 {
     QStringList filters;
     filters << "*.pdf" << "*.jpg" << "*.jpeg";
@@ -173,13 +173,13 @@ void dlg_docsscanner::NavigueVers(QString but)
         return;
     }
     int idx = listfich.indexOf(m_nomfichierimageencours);
-    if (but == "Fin")
+    if (choix == UpToolBar::_last)
         idx = listfich.size()-1;
-    else if (but == "Début")
+    else if (choix == UpToolBar::_first)
         idx = 0;
-    else if (but == "Suivant")
+    else if (choix == UpToolBar::_next)
         idx += 1;
-    else if (but == "Précédent")
+    else if (choix == UpToolBar::_prec)
         idx -= 1;
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);
@@ -271,7 +271,7 @@ void dlg_docsscanner::ValideFiche()
         wdg_linetitre->setFocus();
         return;
     }
-    if (wdg_editdate->date() == QDate::currentDate())
+    if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
         UpMessageBox msgbox(this);
@@ -301,7 +301,7 @@ void dlg_docsscanner::ValideFiche()
     if (suffixe == "jpeg")
         suffixe= "jpg";
 
-    QString datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
+    QString datetransfer = m_currentdate.toString("yyyy-MM-dd");
     QString user("");
     if ( m_mode != Document )                   //! il s'agit d'une facture ou d'un échéancier
     {
@@ -409,8 +409,8 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_DATEFACTURE_FACTURES] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds[CP_INTITULE_FACTURES] =         sstypedoc;
             listbinds[CP_LIENFICHIER_FACTURES] =      lien;
-            listbinds[CP_ECHEANCIER_FACTURES] =       ( m_mode== Echeancier? "1" : QVariant(QVariant::String));
-            listbinds[CP_IDDEPENSE_FACTURES] =        ( m_mode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
+            listbinds[CP_ECHEANCIER_FACTURES] =       ( m_mode== Echeancier? "1" : QVariant(QMetaType::fromType<QString>()));
+            listbinds[CP_IDDEPENSE_FACTURES] =        ( m_mode== Echeancier? QVariant(QMetaType::fromType<QString>()) : QString::number(m_iditem));
             map_datafacture["lien"] =                 lien;
         }
         else
@@ -418,8 +418,8 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_ID_FACTURES] =        idimpr;
             listbinds[CP_DATEFACTURE_FACTURES] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds[CP_INTITULE_FACTURES] =         sstypedoc;
-            listbinds[CP_ECHEANCIER_FACTURES] =       ( m_mode== Echeancier? "1" : QVariant(QVariant::String));
-            listbinds[CP_IDDEPENSE_FACTURES] =        ( m_mode== Echeancier? QVariant(QVariant::String) : QString::number(m_iditem));
+            listbinds[CP_ECHEANCIER_FACTURES] =       ( m_mode== Echeancier? "1" : QVariant(QMetaType::fromType<QString>()));
+            listbinds[CP_IDDEPENSE_FACTURES] =        ( m_mode== Echeancier? QVariant(QMetaType::fromType<QString>()) : QString::number(m_iditem));
             listbinds[suffixe] =            ba;
             map_datafacture["lien"] =           "";
         }

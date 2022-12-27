@@ -136,6 +136,16 @@ QDateTime DataBase::ServerDateTime()
         return now.at(0).toDateTime();
 }
 
+QDate DataBase::ServerDate()
+{
+    return ServerDateTime().date();
+}
+
+QTime DataBase::ServerTime()
+{
+    return ServerDateTime().time();
+}
+
 bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
 {
     bool a = true;

@@ -46,7 +46,7 @@ private:
     User                        *m_userencours  = Q_NULLPTR;
     QMap<int, User*>            *map_usersliberaux = Datas::I()->users->liberaux();
     bool                        m_initok         = true;
-
+    QDate                       m_currentdate = db->ServerDate();
     Depense                     *m_depenseencours;
 
     QList<QImage>               m_listeimages;

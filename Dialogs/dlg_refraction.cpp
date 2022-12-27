@@ -941,7 +941,7 @@ void dlg_refraction::Init_variables()
     m_mode                   = Refraction::Fronto;
     m_affichedetail          = false;
 
-    ui->DateDateEdit        ->setDate(QDate::currentDate());
+    ui->DateDateEdit        ->setDate(m_currentdate);
     m_commentaireresume     = "";
     m_escapeflag              = true;
 }
@@ -1532,7 +1532,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied;
         listbinds[CP_DATE_DOCSEXTERNES] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
-        listbinds[CP_ALD_DOCSEXTERNES] =              QVariant(QVariant::String);
+        listbinds[CP_ALD_DOCSEXTERNES] =              QVariant(QMetaType::fromType<QString>());
         listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES] =        PRESCRIPTIONLUNETTES;
         listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
@@ -1615,7 +1615,7 @@ void dlg_refraction::InitDivers()
     ui->AVLOGupComboBox->setCurrentIndex(ui->AVLOGupComboBox->IndexParDefaut());
 
     ui->PorteRadioButton->setChecked(true);
-    ui->DateDateEdit->setDate(QDate::currentDate());
+    ui->DateDateEdit->setDate(m_currentdate);
 
     m_val = new upDoubleValidator(MinK, MaxK , 2, this);
     ui->K1OD->setValidator(m_val);
@@ -1917,7 +1917,7 @@ Refraction* dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure M
     for (auto it = Datas::I()->refractions->refractions()->constBegin(); it != Datas::I()->refractions->refractions()->constEnd(); ++it)
     {
         Refraction* ref = const_cast<Refraction*>(it.value());
-        if (((ref->daterefraction() == QDate::currentDate()) == cejour)
+        if (((ref->daterefraction() == m_currentdate) == cejour)
                 && ref->typemesure() == Mesure
                 && ref->isdilate() == dilat)
         {
@@ -2151,7 +2151,7 @@ void dlg_refraction::RechercheMesureEnCours()
         ui->ReprendrePushButton->setEnabled(false);
         ui->OupsPushButton->setEnabled(false);
         ui->ResumePushButton->setEnabled(false);
-        QMap<QString,QVariant>  Age = Utils::CalculAge(Datas::I()->patients->currentpatient()->datedenaissance());
+        QMap<QString,QVariant>  Age = Utils::CalculAge(Datas::I()->patients->currentpatient()->datedenaissance(), m_currentdate);
         if (Age["annee"].toInt() < 45)
             ui->VLRadioButton->setChecked(true);
         else
@@ -2162,34 +2162,40 @@ void dlg_refraction::RechercheMesureEnCours()
 
     // recherche d'une mesure du jour
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-        if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Prescription)
+        if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Prescription)
         {
             Reponse = ref->typemesure();
             break;
         }
     if (Reponse == Refraction::NoMesure)
+    {
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Acuite)
+            if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Acuite)
             {
                 Reponse = ref->typemesure();
                 break;
             }
+    }
     if (Reponse == Refraction::NoMesure)
+    {
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
-            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Autoref)
+            if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Autoref)
             {
                 Reponse = ref->typemesure();
                 break;
             }
+    }
     if (Reponse == Refraction::NoMesure)
+    {
         foreach (Refraction *ref, *Datas::I()->refractions->refractions())
         {
-            if (ref->daterefraction() == QDate::currentDate() && ref->typemesure() == Refraction::Fronto)
+            if (ref->daterefraction() == m_currentdate && ref->typemesure() == Refraction::Fronto)
             {
                 Reponse = ref->typemesure();
                 break;
             }
         }
+    }
 
     if (Reponse != Refraction::NoMesure)
     {

@@ -60,7 +60,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
     lbldate     ->setText(tr("Date du document"));
-    wdg_editdate    ->setDate(QDate::currentDate());
+    wdg_editdate    ->setDate(m_currentdate);
 
     typeLay     ->addWidget(lbltype);
     typeLay     ->addWidget(wdg_typedoccombobx);
@@ -107,10 +107,10 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
     int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
     wdg_visuvideowdg->resize(w, y);
-    NavigueVers("Fin");
+    NavigueVers(UpToolBar::_last);
 }
 
-void dlg_docsvideo::NavigueVers(QString but)
+void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
 {
     QString fichencours = wdg_visuvideowdg->accessibleDescription();
     QStringList filters;
@@ -121,13 +121,13 @@ void dlg_docsvideo::NavigueVers(QString but)
         return;
     }
     int idx = listfich.indexOf(fichencours);
-    if (but == "Fin")
+    if (choix == UpToolBar::_last)
         idx = listfich.size()-1;
-    else if (but == "Début")
+    else if (choix == UpToolBar::_first)
         idx = 0;
-    else if (but == "Suivant")
+    else if (choix == UpToolBar::_next)
         idx += 1;
-    else if (but == "Précédent")
+    else if (choix == UpToolBar::_prec)
         idx -= 1;
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);
@@ -190,7 +190,7 @@ void dlg_docsvideo::ValideFiche()
         wdg_linetitre->setFocus();
         return;
     }
-    if (wdg_editdate->date() == QDate::currentDate())
+    if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
         UpMessageBox msgbox(this);

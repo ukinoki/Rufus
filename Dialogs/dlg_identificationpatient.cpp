@@ -48,8 +48,8 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     setStageCount(2);
     buttonslayout()         ->insertLayout(0, vlay);
     dlglayout()             ->setSizeConstraint(QLayout::SetFixedSize);
-
-    ui->DDNdateEdit     ->setDateRange(QDate::currentDate().addYears(-105),QDate::currentDate());
+    QDate                   m_currentdate = db->ServerDate();
+    ui->DDNdateEdit         ->setDateRange(m_currentdate.addYears(-105),m_currentdate);
     QFont font = qApp->font();
     font.setBold(true);
     ui->PrenomlineEdit->setFont(font);

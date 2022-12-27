@@ -1085,7 +1085,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     }
     else if (m_mode == NouvelleRemise) {
         iduser      = m_userencours->id();
-        date        = QDate::currentDate();
+        date        = db->ServerDate();
     }
 
     //création de l'entête

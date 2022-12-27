@@ -133,7 +133,7 @@ void Procedures::ab(int i)
 --------------------------------------------------------------------------------------------------------------*/
 QMap<Utils::Period, QDate> Procedures::ChoixDate(QWidget *parent)
 {
-    dlg_choixdate *Dlg_ChxDate = new dlg_choixdate(parent);
+    dlg_choixdate *Dlg_ChxDate = new dlg_choixdate(db->ServerDate(), parent);
     Dlg_ChxDate ->setWindowTitle(tr("Choisir une période"));
     Dlg_ChxDate ->exec();
     QMap<Utils::Period, QDate> DateMap = Dlg_ChxDate->mapdate();
@@ -4203,7 +4203,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
 
         if (Datas::I()->actes->currentacte() != Q_NULLPTR)
         {
-            if (Datas::I()->actes->currentacte()->date() == QDate::currentDate()
+            if (Datas::I()->actes->currentacte()->date() == DataBase::I()->ServerDate()
               || UpMessageBox::Question(Q_NULLPTR,
                                           tr("Une mesure vient d'être émise par ") + app + tr(" mais la date de l'acte actuellement affiché n'est pas celle d'aujour'hui."),
                                           "\n" +

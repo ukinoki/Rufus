@@ -38,6 +38,7 @@ private:
     Procedures              *proc           = Procedures::I();
     QFont                   m_font          = QApplication::font();
     User*                   currentuser() { return Datas::I()->users->userconnected(); }
+    QDate                   m_currentdate = db->ServerDate();
 
     DocsExternes            *m_docsexternes;
 

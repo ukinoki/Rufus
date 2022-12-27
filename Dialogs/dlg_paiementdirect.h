@@ -52,6 +52,7 @@ private:
     Procedures                  *proc   = Procedures::I();
     DataBase                    *db     = DataBase::I();
     OrdreTri                    m_ordretri = Chronologique;
+    QDate                       m_currentdate = db->ServerDate();
 
     Mode                        m_mode;
     TypeTable                   m_typetable;

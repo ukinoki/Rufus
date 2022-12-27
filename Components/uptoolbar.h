@@ -27,16 +27,17 @@ class UpToolBar : public QToolBar
 public:
     explicit    UpToolBar(bool AvecFinDebut = true, bool AvecReload = false, QWidget *parent = Q_NULLPTR);
     ~UpToolBar();
+    enum                Choix {_first, _prec, _next, _last, _reload};    Q_ENUM(Choix)
     QAction*            First() const;
     QAction*            Last() const;
     QAction*            Next() const;
     QAction*            Prec() const;
     QAction*            Reload() const;
-    QString             choix() const;
+    Choix               choix() const;
 private:
-    QString             m_action;
+    Choix               m_choix;
     QAction             *debut, *prec, *suiv, *fin, *reload;
-    void                TBChoix(QAction *choix);
+    void                TBChoix(UpToolBar::Choix choix);
 signals:
     void                TBSignal();
 };

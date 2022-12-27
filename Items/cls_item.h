@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVariant>
 #include <QDate>
 #include "macros.h"
-#include "utils.h"
+#include <utils.h>
 #include "QDebug"
 
 class Item : public QObject

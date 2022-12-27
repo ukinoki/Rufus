@@ -19,19 +19,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_PROGRAMMATIONINTERVENTIONS_H
 
 #include <updialog.h>
+#include <database.h>
 #include <procedures.h>
-#include "updoublespinbox.h"
+#include <updoublespinbox.h>
 #include <uptableview.h>
-#include "widgetbuttonframe.h"
-#include "dlg_impressions.h"
-#include "ui_dlg_impressions.h"
-#include "dlg_identificationmanufacturer.h"
-#include "ui_dlg_identificationmanufacturer.h"
-#include "dlg_identificationiol.h"
-#include "dlg_listeiols.h"
-#include "dlg_listemanufacturers.h"
-#include "dlg_listetypesinterventions.h"
-#include "updoublevalidator.h"
+#include <widgetbuttonframe.h>
+#include <dlg_impressions.h>
+#include <ui_dlg_impressions.h>
+#include <dlg_identificationmanufacturer.h>
+#include <ui_dlg_identificationmanufacturer.h>
+#include <dlg_identificationiol.h>
+#include <dlg_listeiols.h>
+#include <dlg_listemanufacturers.h>
+#include <dlg_listetypesinterventions.h>
+#include <updoublevalidator.h>
 
 class dlg_programmationinterventions : public UpDialog
 {
@@ -43,6 +44,8 @@ public:
 
 private:
     Procedures                      *proc = Procedures::I();
+    DataBase                        *db =DataBase::I();
+    QDate                           m_currentdate = db->ServerDate();
     QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);

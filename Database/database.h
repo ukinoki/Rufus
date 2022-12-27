@@ -114,7 +114,17 @@ public:
 
 
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
+
+    /*! les fonctions qui suivent permettent d'éciter les erreurs de date/heure liées au poste utilisé
+     * 1. au cas où le poste utilise une heure incorrecte
+     * 2. pour corriger une bug de Qt. la fonction QDate::currentDate() ne change pas de valeur si le programme reste allumé quand la date change */
     QDateTime               ServerDateTime();                   /*! renvoie le QDateTime du serveur
+                                                                 * - utilisé pour le remplissage de certains champs pour éviter une erreur de date
+                                                                 * au cas où le poste client ne serait pas correctement mis à l'heure */
+    QDate                   ServerDate();                       /*! renvoie le QDate du serveur
+                                                                 * - utilisé pour le remplissage de certains champs pour éviter une erreur de date
+                                                                 * au cas où le poste client ne serait pas correctement mis à l'heure */
+    QTime                   ServerTime();                       /*! renvoie le QTime du serveur
                                                                  * - utilisé pour le remplissage de certains champs pour éviter une erreur de date
                                                                  * au cas où le poste client ne serait pas correctement mis à l'heure */
 

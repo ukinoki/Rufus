@@ -23,6 +23,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     m_onlyactifs = onlyactifs;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des IOLS"));
+    setWindowModality(Qt::WindowModal);
 
     wdg_manufacturerscombo = new UpComboBox();
 
@@ -842,6 +843,7 @@ void dlg_listeiols::ReconstruitListeManufacturers()
                 manufactureritem  ->setEditable(false);
                 manufactureritem  ->setEnabled(false);
                 m_manufacturersmodel->appendRow(manufactureritem);
+                man->setbuildIOLS(false);
             }
         }
     }
@@ -948,8 +950,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             pitem   ->setEditable(false);
             QImage image= iol->image();
             QPixmap pix;
-            QImage img2 = image;
-            img2.scaledToWidth(dim);
+            QImage img2 = image.scaledToWidth(dim);
             if (img2.height()>dim)
                 pix = QPixmap::fromImage(image.scaledToHeight(50));
             else

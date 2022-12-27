@@ -37,6 +37,7 @@ public:
 private:
     Procedures                  *proc   = Procedures::I();
     DataBase                    *db     = DataBase::I();
+    QDate                       m_currentdate = db->ServerDate();
 
     int                         m_idrecetteencours;
     QStringList                 m_listemoyensdepaiement;

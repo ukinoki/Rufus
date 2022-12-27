@@ -27,9 +27,22 @@ ui(new Ui::dlg_actesprecedents)
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
     setAttribute(Qt::WA_ShowWithoutActivating);
-    m_actes             = actes;
-    m_idpatient         = m_actes->actes()->last()->idPatient();
-    m_currentpatient    = Datas::I()->patients->getById(m_idpatient);
+    m_actes                 = actes;
+    m_idpatient             = m_actes->actes()->last()->idPatient();
+    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
+        if (m_idpatient == Datas::I()->patients->currentpatient()->id())
+        {
+            m_currentpatient        = Datas::I()->patients->currentpatient();
+            m_iscurrentpatient      = true;
+        }
+    if (m_iscurrentpatient)
+        m_listepaiements    = Datas::I()->lignespaiements;
+    else
+    {
+        m_currentpatient = Datas::I()->patients->getById(m_idpatient);
+        m_listepaiements    = new LignesPaiements();
+        m_listepaiements    ->initListeByPatient(m_currentpatient);
+    }
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
     m_avantdernieracte  = AvantDernier;
@@ -54,14 +67,18 @@ ui(new Ui::dlg_actesprecedents)
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
-
-    Actualise(m_actes->actes());
+    map_actes = actes->actes();
+    Actualise();
 }
 
 dlg_actesprecedents::~dlg_actesprecedents()
 {
-    if (map_actes != Q_NULLPTR)
-        delete map_actes;
+    if (!m_iscurrentpatient)
+    {
+        delete m_currentpatient;
+        ItemsList::clearAll(m_listepaiements->lignespaiements());
+        delete m_listepaiements;
+    }
     delete ui;
 }
 
@@ -70,27 +87,22 @@ dlg_actesprecedents::~dlg_actesprecedents()
  * Cette fonction est appelée par Rufus.cpp
  * quand un acte est créé ou supprimé
  */
-void dlg_actesprecedents::Actualise(QMap<int, Acte *> *map)
+void dlg_actesprecedents::Actualise()
 {
-    if( map->size() == 0 )
-        return;
-    if (map_actes != Q_NULLPTR)
-        delete map_actes;
-    map_actes = new QMap<int, Acte*>;
-    foreach (Acte* act,  *map)
-        map_actes->insert(act->id(), act);
-    mapsize = map_actes->size();
-    if (m_avantdernieracte)
-        map_actes->remove(map_actes->lastKey());
-    if( map_actes->size() == 0 )
-        close();
+    int n = (m_iscurrentpatient? 1 : 0);
+    if( map_actes->size() == n )
+         close();
     int initScrollValue;
     it_currentacte = map_actes->constFind(map_actes->lastKey());
+    if (m_iscurrentpatient)
+        it_currentacte --;
     initScrollValue = map_actes->size();
 
     ui->ScrollBar->disconnect();
     ui->ScrollBar->setMinimum(0);
-    ui->ScrollBar->setMaximum(map_actes->size()-1);
+    n = (m_iscurrentpatient? 2 : 1);
+    initScrollValue = map_actes->size()-n+1;
+    ui->ScrollBar->setMaximum(map_actes->size()-n);
     ui->ScrollBar->setSingleStep(1);
     ui->ScrollBar->setValue(initScrollValue);
     ui->ScrollBar->setVisible(map_actes->size()>1);
@@ -291,25 +303,27 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
     //3. Mettre à jour le numéro d'acte
     QList<int> listid = map_actes->keys();
+    if (m_iscurrentpatient)
+        listid.removeLast();
     if( map_actes->size() > 1 )
     {
         int scrolPos = listid.indexOf(acte->id());
         ui->ScrollBar->setValue(scrolPos);
     }
-
+    int n = (m_iscurrentpatient? 2 : 1);
     bool canprec = (map_actes->size() > 1 && listid.indexOf(acte->id()) > 0);
     ui->ActePrecedentpushButton->setEnabled(canprec);
 
-    bool cansui = (map_actes->size() > 1 && listid.indexOf(acte->id()) < map_actes->size() - 1);
+    bool cansui = (map_actes->size() > 1 && listid.indexOf(acte->id()) < map_actes->size() - n);
     ui->ActeSuivantpushButton->setEnabled(cansui);
 
     bool canfirst = (map_actes->size() > 1 && listid.indexOf(acte->id()) > 0);
     ui->PremierActepushButton->setEnabled(canfirst);
 
-    bool canlast = (map_actes->size() > 1 && listid.indexOf(acte->id()) < map_actes->size() - 1);
+    bool canlast = (map_actes->size() > 1 && listid.indexOf(acte->id()) < map_actes->size() - n);
     ui->DernierActepushButton->setEnabled(canlast);
 
-    ui->NoActelabel->setText(QString::number(listid.indexOf(acte->id()) + 1) + " / " + QString::number(mapsize));
+    ui->NoActelabel->setText(QString::number(listid.indexOf(acte->id()) + 1) + " / " + QString::number(map_actes->size()));
 
     //4. Afficher les renseignements comptables
     ui->ActeCotationlineEdit->setText(acte->cotation());
@@ -420,10 +434,6 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     }
     else if (i == ItemsList::Prec)
     {
-//        --it_currentacte;
-//        if( it_currentacte == Q_NULLPTR )
-//            it_currentacte = map_actes->constBegin();
-
         if( it_currentacte != map_actes->constBegin() )
             --it_currentacte;
     }
@@ -434,6 +444,8 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     else if (i == ItemsList::Fin)
     {
         it_currentacte = map_actes->constFind(map_actes->lastKey());
+        if (m_iscurrentpatient)
+            it_currentacte--;
     }
 
     idActe = it_currentacte.value()->id();

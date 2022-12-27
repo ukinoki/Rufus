@@ -298,7 +298,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
     QJsonObject  data = QJsonObject{};
     data[CP_IDPAT_PATIENTS] = id;
     data[CP_IDCREATEUR_PATIENTS] = DataBase::I()->idUserConnected();
-    data[CP_DATECREATION_PATIENTS] = QDate::currentDate().toString("yyyy-MM-dd");
+    data[CP_DATECREATION_PATIENTS] = DataBase::I()->ServerDate().toString("yyyy-MM-dd");
     QString champ;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {

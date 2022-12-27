@@ -112,7 +112,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     connect (wdg_enreguppushbutton,             &QPushButton::clicked, this,          [=] {m_mode == Enregistrer? EnregistreRecette() : ModifierRecette();});
     connect (wdg_annuluppushbutton,             &QPushButton::clicked, this,          [=] {AnnulEnreg();});
 
-    QString year = QDate::currentDate().toString("yyyy");
+    QString year = m_currentdate.toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
     connect (ui->AnneecomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged), this,    [=](int) {RedessineBigTable();});
@@ -259,7 +259,7 @@ void dlg_recettesspeciales::EnregistreRecette()
 
     if (!OnSauteLaQuestionSuivante)
     {
-        if (QDate::currentDate() > ui->DateRecdateEdit->date().addDays(90))
+        if (m_currentdate > ui->DateRecdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
         bool OK = true;
         listrec = db->StandardSelectSQL(
@@ -450,7 +450,7 @@ void dlg_recettesspeciales::ChoixMenu(int id)
         wdg_annuluppushbutton           ->setVisible(true);
         wdg_bigtable                    ->setEnabled(false);
         wdg_bigtable                    ->disconnect();
-        ui->DateRecdateEdit             ->setDate(QDate::currentDate());
+        ui->DateRecdateEdit             ->setDate(m_currentdate);
         wdg_enreguppushbutton           ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
         ui->ModifierupPushButton        ->setShortcut(QKeySequence());
@@ -538,7 +538,7 @@ void dlg_recettesspeciales::SupprimerRecette()
             ui->AnneecomboBox->disconnect();
             RedessineBigTable();
             ReconstruitListeAnnees();
-            QString year = QDate::currentDate().toString("yyyy");
+            QString year = m_currentdate.toString("yyyy");
             int idx = ui->AnneecomboBox->findText(year);
             ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
             connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged), this,   [=](int) {RedessineBigTable();});
@@ -603,8 +603,8 @@ void dlg_recettesspeciales::MetAJourFiche()
 {
     if (m_mode == Lire)
     {
-        ui->ModifierupPushButton        ->setEnabled(QDate::currentDate() < ui->DateRecdateEdit->date().addDays(365));
-        ui->SupprimerupPushButton       ->setEnabled(QDate::currentDate() < ui->DateRecdateEdit->date().addDays(365));
+        ui->ModifierupPushButton        ->setEnabled(m_currentdate < ui->DateRecdateEdit->date().addDays(365));
+        ui->SupprimerupPushButton       ->setEnabled(m_currentdate < ui->DateRecdateEdit->date().addDays(365));
     }
     if (wdg_bigtable->rowCount() > 0)
     {
@@ -693,7 +693,7 @@ void dlg_recettesspeciales::MetAJourFiche()
         case Enregistrer:
             ui->ObjetlineEdit->clear();
             ui->MontantlineEdit->setText(QLocale().toString(0.00,'f',2));
-            ui->DateRecdateEdit->setDate(QDate::currentDate());
+            ui->DateRecdateEdit->setDate(m_currentdate);
             ui->CompteWidget        ->setVisible(true);
             ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findData(currentuser()->idcomptepardefaut()));
             ui->PaiementcomboBox    ->setCurrentText(VIREMENT);
@@ -975,7 +975,7 @@ void dlg_recettesspeciales::ReconstruitListeAnnees()
         ListeAnnees << listannees.at(i).at(0).toString();
     }
     if (listannees.size()==0)
-        ListeAnnees << QDate::currentDate().toString("yyyy");
+        ListeAnnees << m_currentdate.toString("yyyy");
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->clear();
     ui->AnneecomboBox->insertItems(0,ListeAnnees);

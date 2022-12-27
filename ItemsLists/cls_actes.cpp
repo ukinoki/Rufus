@@ -194,8 +194,9 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
     act->setid(idacte);
     act->setidpatient(pat->id());
     act->setidsuperviseur(usr->idsuperviseur());
-    act->setdate(QDate::currentDate());
-    act->setheure(QTime::currentTime());
+    QDateTime dt = DataBase::I()->ServerDateTime();
+    act->setdate(dt.date());
+    act->setheure(dt.time());
     act->setidcreateur(usr->id());
     act->setidcomptable(usr->idcomptable());
     act->setidparent(usr->idparent());

@@ -31,56 +31,56 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //#include <poppler-qt6.h>
 
-#include "dlg_actesprecedents.h"
-#include "dlg_autresmesures.h"
-#include "dlg_bilanortho.h"
-#include "dlg_bilanrecettes.h"
-#include "ui_dlg_bilanortho.h"
-#include "dlg_comptes.h"
-#include "dlg_depenses.h"
-#include "ui_dlg_depenses.h"
-#include "dlg_docsexternes.h"
-#include "dlg_docsscanner.h"
-#include "dlg_docsvideo.h"
-#include "dlg_impressions.h"
-#include "ui_dlg_impressions.h"
-#include "dlg_listelieux.h"
-#include "dlg_identificationcorresp.h"
-#include "ui_dlg_identificationcorresp.h"
-#include "ui_dlg_identificationmanufacturer.h"
-#include "dlg_identificationpatient.h"
-#include "ui_dlg_identificationpatient.h"
-#include "dlg_listecorrespondants.h"
-#include "dlg_listeiols.h"
-#include "dlg_listemanufacturers.h"
-#include "dlg_listetiers.h"
-#include "dlg_listemotscles.h"
-#include "dlg_paiementdirect.h"
-#include "dlg_paiementtiers.h"
-#include "dlg_param.h"
-#include "ui_dlg_param.h"
-#include "dlg_programmationinterventions.h"
-#include "dlg_refraction.h"
-#include "dlg_recettesspeciales.h"
-#include "ui_dlg_recettesspeciales.h"
-#include "dlg_remisecheques.h"
-#include "dlg_salledattente.h"
-#include "ui_dlg_salledattente.h"
+#include <dlg_actesprecedents.h>
+#include <dlg_autresmesures.h>
+#include <dlg_bilanortho.h>
+#include <dlg_bilanrecettes.h>
+#include <ui_dlg_bilanortho.h>
+#include <dlg_comptes.h>
+#include <dlg_depenses.h>
+#include <ui_dlg_depenses.h>
+#include <dlg_docsexternes.h>
+#include <dlg_docsscanner.h>
+#include <dlg_docsvideo.h>
+#include <dlg_impressions.h>
+#include <ui_dlg_impressions.h>
+#include <dlg_listelieux.h>
+#include <dlg_identificationcorresp.h>
+#include <ui_dlg_identificationcorresp.h>
+#include <ui_dlg_identificationmanufacturer.h>
+#include <dlg_identificationpatient.h>
+#include <ui_dlg_identificationpatient.h>
+#include <dlg_listecorrespondants.h>
+#include <dlg_listeiols.h>
+#include <dlg_listemanufacturers.h>
+#include <dlg_listetiers.h>
+#include <dlg_listemotscles.h>
+#include <dlg_paiementdirect.h>
+#include <dlg_paiementtiers.h>
+#include <dlg_param.h>
+#include <ui_dlg_param.h>
+#include <dlg_programmationinterventions.h>
+#include <dlg_refraction.h>
+#include <dlg_recettesspeciales.h>
+#include <ui_dlg_recettesspeciales.h>
+#include <dlg_remisecheques.h>
+#include <dlg_salledattente.h>
+#include <ui_dlg_salledattente.h>
 
-#include "updoublevalidator.h"
-#include "upstandarditem.h"
-#include "conversionbase.h"
-#include "database.h"
-#include "flags.h"
-#include "gbl_datas.h"
-#include "icons.h"
-#include "importdocsexternesthread.h"
-#include "log.h"
-#include "pyxinterf.h"
-#include "styles.h"
-#include "tcpsocket.h"
-#include "upsystemtrayicon.h"
-#include "cls_rendezvous.h"
+#include <updoublevalidator.h>
+#include <upstandarditem.h>
+#include <conversionbase.h>
+#include <database.h>
+#include <flags.h>
+#include <gbl_datas.h>
+#include <icons.h>
+#include <importdocsexternesthread.h>
+#include <log.h>
+#include <pyxinterf.h>
+#include <styles.h>
+#include <tcpsocket.h>
+#include <upsystemtrayicon.h>
+#include <cls_rendezvous.h>
 
 
 namespace Ui {
@@ -100,8 +100,8 @@ public:
 private:
     bool                            UtiliserTcpSocket = false;
 
-    Procedures                      *proc;
-    DataBase                        *db;
+    Procedures                      *proc = Procedures::I();
+    DataBase                        *db = DataBase::I();
     ParametresSysteme               *m_parametres;
     UpLabel                         *wdg_nomlbl;
     UpLineEdit                      *wdg_MGlineEdit;
@@ -111,6 +111,13 @@ private:
     QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
     QAction         *actionIOLs                     = Q_NULLPTR;
     QAction         *actionTiers                    = Q_NULLPTR;
+    QDate m_currentdate;
+    QTime m_currenttime;
+
+    void RecalcCurrentDateTime() {
+        QDateTime dt = db->ServerDateTime();
+        m_currentdate = dt.date();
+        m_currenttime = dt.time();}
 
     /*! IMPORT DES FICIERS D'IMAGERIE */
     QTimer                          t_timerfilewatcher;             /*! utilisé à la place du QfileSystemWatcher dont le signal directorychanged bugue trop */

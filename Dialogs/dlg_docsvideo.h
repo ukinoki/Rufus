@@ -30,7 +30,7 @@ class dlg_docsvideo : public UpDialog
     Q_OBJECT
 public:
     dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
-    void                NavigueVers(QString);
+    void                NavigueVers(UpToolBar::Choix choix);
 
 private:
     DataBase            *db = DataBase::I();
@@ -39,6 +39,7 @@ private:
     QList<QPixmap>      m_listpixmaps;
     QStringList         m_listtypesexamen;
     QString             m_docpath;
+    QDate               m_currentdate = db->ServerDate();
 
     UpLabel             *wdg_inflabel;
     UpLineEdit          *wdg_linetitre;

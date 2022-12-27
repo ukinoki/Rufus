@@ -23,9 +23,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
         * Mode Creation totale depuis dlg_listeiols
             * la fiche est lancée en mode Creation, tous les champs sont vierges et les paramètres IOL et Manufacturer sont nullptr
         * Mode Modification
-            * la fiche est lancée depuis dlg_listeiols pour modifier les paramètres dun IOL existant
+            * la fiche est lancée depuis dlg_listeiols pour modifier les paramètres d'un IOL existant
             * le paramètre IOL est donc celui de l'implant à modifier
-            * la paramètre Manufacturer peut-être laissé à Q_NULLPTR
+            * la paramètre Manufacturer peut-être laissé à Q_NULLPTR, il sera automatiquement rempli
             * toutes les zones de saisie sont renseignées avec las paramètres déjà connus de l'implant
  * \param mode
  * \param iol
@@ -45,6 +45,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     m_currentIOL = iol;
 
     m_mode = (m_currentIOL != Q_NULLPTR? Modification : Creation);
+    qDebug() << Utils::EnumDescription(QMetaEnum::fromType<dlg_identificationIOL::Mode>(), m_mode);
     if (m_mode == Modification)
         m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
     if (m_currentmanufacturer)
@@ -57,7 +58,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
-        if (man->isactif()) {
+        if (man->isactif()  && man->buildIOLs()) {
             QList<QStandardItem *> items;
             //qDebug() << man->nom() << man->id();
             UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
@@ -71,7 +72,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UpLabel* lblManufacturerIOL = new UpLabel;
     lblManufacturerIOL          ->setText(tr("Fabricant"));
     wdg_manufacturercombo       = new QComboBox();
-    wdg_manufacturercombo       ->setEditable(true);
+    wdg_manufacturercombo       ->setEditable(true); /*! on met cette propriété à true sinon on ne peut pas agir sur la lineEdit du combo, ça plante...*/
     wdg_manufacturercombo       ->lineEdit()->setAlignment(Qt::AlignCenter);
     wdg_manufacturercombo       ->lineEdit()->setFocusPolicy(Qt::NoFocus);
     for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
@@ -362,16 +363,11 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     lay_materiau                ->insertWidget(0,wdg_typebox);
     lay_materiau                ->insertWidget(0,Typelbl);
     lay_materiau                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    lay_materiau                ->addWidget(wdg_recopiebutton);
-    lay_materiau                ->addWidget(wdg_toolbar);
     lay_materiau                ->setContentsMargins(0,0,0,0);
     MateriauImgLay              ->addLayout(lay_materiau);
     MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     MateriauImgLay              ->addWidget(wdg_imgIOL);
     MateriauImgLay              ->setContentsMargins(0,0,0,0);
-    wdg_toolbar                 ->setVisible(m_mode == Modification);
-    wdg_recopiebutton           ->setVisible(false);
-    wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
     if (m_mode == Modification)
     {
         wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
@@ -380,7 +376,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         wdg_toolbar                 = new UpToolBar();
         lay_materiau                ->addWidget(wdg_toolbar);
         wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
-    }
+   }
 
     //! Remarque
     QHBoxLayout *remarqueLay    = new QHBoxLayout();
@@ -441,7 +437,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     connectSignals();
     if (m_mode == Modification)
         AfficheDatasIOL(m_currentIOL);
-    foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'ile coché/décoché par le programme
+    foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'il est coché/décoché par le programme
     {
         UpCheckBox *chk = dynamic_cast<UpCheckBox*>(wdg);
         if (chk)
@@ -492,9 +488,16 @@ void dlg_identificationIOL::connectSignals()
                                                                                                                      int idman = wdg_manufacturercombo->itemData(id).toInt();
                                                                                                                      m_currentmanufacturer = Datas::I()->manufacturers->getById(idman);
                                                                                                                      if (m_currentmanufacturer)
+                                                                                                                     {
                                                                                                                          reconstruitListeIOLs(m_currentmanufacturer);
-                                                                                                                     wdg_toolbar->setEnabled(m_listeidIOLs.size()>1);
-                                                                                                                     EnableOKpushButton();
+                                                                                                                         if (m_listeidIOLs.size() >0)
+                                                                                                                         {
+                                                                                                                             m_currentIOL = Datas::I()->iols->getById(m_listeidIOLs.first());
+                                                                                                                             wdg_toolbar->setEnabled(m_listeidIOLs.size()>1);
+                                                                                                                             NavigueVers(UpToolBar::_first);
+                                                                                                                             EnableOKpushButton();
+                                                                                                                         }
+                                                                                                                     }
                                                                                                                  });
      connect (wdg_nomiolline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_Aoptline,          &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
@@ -595,8 +598,10 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
     m_currentIOL = iol;
     if (m_currentmanufacturer)
         wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
-    wdg_toolbar         ->setEnabled(m_mode == Modification);
-    wdg_recopiebutton   ->setEnabled(m_mode == Modification);
+    if (wdg_toolbar)
+        wdg_toolbar         ->setEnabled(true);
+    if (wdg_recopiebutton)
+        wdg_recopiebutton   ->setEnabled(false);
 
     if (m_mode == Modification)
     {
@@ -664,7 +669,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_toolbar->Next()     ->setEnabled(idx < m_listeidIOLs.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
     }
-     connectSignals();
+    connectSignals();
 }
 
 void dlg_identificationIOL::menuChangeImage()
@@ -787,7 +792,7 @@ void dlg_identificationIOL:: EnableOKpushButton()
     if (wdg_toolbar)
         wdg_toolbar         ->setEnabled(!a);
     if(wdg_recopiebutton)
-        wdg_recopiebutton   ->setEnabled(!a);
+        wdg_recopiebutton   ->setEnabled(false);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
@@ -799,16 +804,16 @@ void dlg_identificationIOL::EnableWidget(bool a)
                 wdg->setEnabled(a);
 }
 
-void dlg_identificationIOL::NavigueVers(QString but)
+void dlg_identificationIOL::NavigueVers(UpToolBar::Choix choix)
 {
     int idx = m_listeidIOLs.indexOf(m_currentIOL->id());
-    if (but == "Fin")
+    if (choix == UpToolBar::_last)
         idx = m_listeidIOLs.size()-1;
-    else if (but == "Début")
+    else if (choix == UpToolBar::_first)
         idx = 0;
-    else if (but == "Suivant")
+    else if (choix == UpToolBar::_next)
         idx += 1;
-    else if (but == "Précédent")
+    else if (choix == UpToolBar::_prec)
         idx -= 1;
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);

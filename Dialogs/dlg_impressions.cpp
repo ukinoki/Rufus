@@ -112,8 +112,8 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->OKupPushButton->setIcon(Icons::icImprimer());
     ui->OKupPushButton->setIconSize(QSize(30,30));
 
-    ui->dateImpressiondateEdit->setDate(QDate::currentDate());
-    ui->dateImpressiondateEdit->setMaximumDate(QDate::currentDate());
+    ui->dateImpressiondateEdit->setDate(m_currentdate);
+    ui->dateImpressiondateEdit->setMaximumDate(m_currentdate);
 
     ui->DupliOrdocheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     ui->DocsPublicscheckBox->setChecked(currentuser()->affichedocspublics());
@@ -359,7 +359,7 @@ QString dlg_impressions::DocumentToolTip(Impression *doc)
     MetAJour(doc->texte(),false);
     text->setText(m_listtexts.at(0));
     QString ab = text->toPlainText();
-    ab.replace(QRegularExpression("\n\n[\n]*"),"\n");
+    ab.replace(QRegularExpression::wildcardToRegularExpression("\n\n[\n]*"),"\n");
     while (ab.endsWith("\n"))
         ab = ab.left(ab.size()-1);
     if (ab.size()>300)
@@ -1277,7 +1277,7 @@ void dlg_impressions::OKpushButtonClicked()
                                                    //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(110,30);
-                    Date->setDate(QDate::currentDate());
+                    Date->setDate(m_currentdate);
                     lay->addWidget(Date);
                 }
                 else if (listtypeQuestions.at(m)  == "HEURE")
@@ -1353,7 +1353,7 @@ void dlg_impressions::OKpushButtonClicked()
                                                    //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(110,30);
-                    Date->setDate(QDate::currentDate());
+                    Date->setDate(m_currentdate);
                     Date->setAccessibleDescription(DATEINTERVENTION);
                     lay->addWidget(Date);
                 }
@@ -2594,7 +2594,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     QString age                         = AgeTotal["toString"].toString();
     QString formule                     = AgeTotal["formule"].toString();
 
-    texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
+    texte.replace("{{" + DATEDOC + "}}"         , m_currentdate.toString(tr("d MMMM yyyy")));
     texte.replace("{{" + NOMPAT + "}},"         , m_currentpatient->nom() + ",");
     texte.replace("{{" + NOMPAT + "}} "         , m_currentpatient->nom() + " ");
     texte.replace("{{" + NOMPAT + "}}"          , m_currentpatient->nom());

@@ -153,7 +153,7 @@ void conversionbase::conversionbaseophtalogic()
             listbinds["textPied"] = Pied;
             listbinds["dateimpression"] = DateCreation.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
             listbinds["useremetteur"] = idUser;
-            QVariant ALD100 = QVariant(QVariant::String);
+            QVariant ALD100 = QVariant(QMetaType::fromType<QString>());
             if (ALDQ) ALD100 = "1";
             listbinds["ald"] = ALD100;
 

@@ -227,7 +227,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked(bool acceptalafin)
     m_listbinds[CP_PORTABLE_MANUFACTURER]     = ui->PortablelineEdit->text();
     m_listbinds[CP_WEBSITE_MANUFACTURER]      = ui->WebsiteineEdit->text();
     m_listbinds[CP_MAIL_MANUFACTURER]         = ui->MaillineEdit->text();
-    m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QVariant::String) : "1");
+    m_listbinds[CP_INACTIF_MANUFACTURER]      = (ui->ActifcheckBox->isChecked()? QVariant(QMetaType::fromType<QString>()) : "1");
     m_listbinds[CP_DISTRIBUEPAR_MANUFACTURER] = (ui->DistributeurupComboBox->currentData().toInt()>0? ui->DistributeurupComboBox->currentData().toInt() : QVariant());
     if (m_mode == Creation)
          m_currentmanufacturer = Datas::I()->manufacturers->CreationManufacturer(m_listbinds);

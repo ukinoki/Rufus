@@ -344,9 +344,9 @@ void UpTextEdit::setText(const QString &text)
     {
         QString txt = text;
         if (!text.contains(HTMLCOMMENT))
-            txt.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
+            txt.replace(QRegularExpression::wildcardToRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 
-        txt.replace(QRegularExpression("font-family:'([a-zA-Z -]*)'"),"font-family:'" + qApp->font().family() + "'");
+        txt.replace(QRegularExpression::wildcardToRegularExpression("font-family:'([a-zA-Z -]*)'"),"font-family:'" + qApp->font().family() + "'");
         QTextEdit::setText(txt);
     }
     else

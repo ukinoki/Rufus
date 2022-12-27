@@ -515,7 +515,7 @@ void dlg_comptes::VoirArchives()
     dlg_archives->dlglayout()   ->insertLayout(0, titreLay);
 
     dlg_archives->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(dlg_archives->OKButton,     &QPushButton::clicked,              dlg_archives, [=] {dlg_archives->close();});
+    connect(dlg_archives->OKButton, &QPushButton::clicked, dlg_archives, &UpDialog::accept);
     dlg_archives->setWindowModality(Qt::WindowModal);
     dlg_archives->dlglayout()->setStretch(0,1);
     dlg_archives->dlglayout()->setStretch(1,15);
@@ -566,8 +566,9 @@ void dlg_comptes::VoirArchives()
     if (wdg_listarchivescombo->count() == 1)
         RemplirTableArchives();
     dlg_archives->exec();
-    m_dateencours = QDate::currentDate();
+    m_dateencours = db->ServerDate();
     delete dlg_archives;
+    dlg_archives = Q_NULLPTR;
 
     m_archivescptencours->clearAll();
     delete m_archivescptencours;

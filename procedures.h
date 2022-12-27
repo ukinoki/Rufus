@@ -50,28 +50,28 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-#include "uppushbutton.h"
-#include "upcheckbox.h"
-#include "textprinter.h"
-#include "serialthread.h"
-#include "ostask.h"
-#include "dlg_paramconnexion.h"
-#include "ui_dlg_paramconnexion.h"
-#include "dlg_choixdate.h"
-#include "ui_dlg_choixdate.h"
-#include "dlg_gestionusers.h"
-#include "ui_dlg_gestionusers.h"
-#include "dlg_identificationuser.h"
-#include "ui_dlg_identificationuser.h"
-#include "dlg_message.h"
-#include "uptextedit.h"
-#include "uptoolbar.h"
-#include "upmessagebox.h"
-#include "cls_appareilimagerie.h"
+#include <uppushbutton.h>
+#include <upcheckbox.h>
+#include <textprinter.h>
+#include <serialthread.h>
+#include <ostask.h>
+#include <dlg_paramconnexion.h>
+#include <ui_dlg_paramconnexion.h>
+#include <dlg_choixdate.h>
+#include <ui_dlg_choixdate.h>
+#include <dlg_gestionusers.h>
+#include <ui_dlg_gestionusers.h>
+#include <dlg_identificationuser.h>
+#include <ui_dlg_identificationuser.h>
+#include <dlg_message.h>
+#include <uptextedit.h>
+#include <uptoolbar.h>
+#include <upmessagebox.h>
+#include <cls_appareilimagerie.h>
 
-#include "database.h"
-#include "gbl_datas.h"
-#include "timerthread.h"
+#include <database.h>
+#include <gbl_datas.h>
+#include <timerthread.h>
 
 class Procedures : public QObject
 {
@@ -94,7 +94,7 @@ public:
 * opérations sur la base de données, le système et les datas
 * -------------------------------------------------------------------------------------------------------- */
 private:
-    DataBase                *db;
+    DataBase                *db = DataBase::I();
     bool                    m_connexionbaseOK;
     bool                    m_ok;
     qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;

@@ -372,15 +372,8 @@ void pyxinterf::LancerLeServeur()
 // Traite les erreurs : affiche un message écran et alimente le fichier d'échange du message d'erreur.
 void pyxinterf::traiteErreur(const char *messer1, const char *messer2)
 {
-char messerr[2000];
-
-    QMessageBox::critical (Q_NULLPTR, QObject::tr(NomAppli),
-                              QObject::tr(messer1) + "\n" + QObject::tr(messer2),
-                              QMessageBox::Ok, Qt::NoButton, Qt::NoButton );
-
-    sprintf(messerr,"Erreur : %s : %s",messer1,messer2);
-    //if (MEDINTUX)
-    //    majEchange(messerr);
+    QMessageBox::warning (Q_NULLPTR, QObject::tr(NomAppli),
+                              QObject::tr(messer1) + "\n" + QObject::tr(messer2));
 }
 
 // ------------------------------- modeSecurise-----------------------------------------------------------------------

@@ -60,7 +60,7 @@ private:
     User                                        *m_userentete;
     QList<Correspondant*>                       m_listedestinataires;
     QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
-
+    QDate                                       m_currentdate = db->ServerDate();
     Mode                        m_mode;
     double                      m_opacity;
     QMap<QString,QString>       map_champs;

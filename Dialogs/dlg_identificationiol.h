@@ -18,13 +18,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_IDENTIFICATIONIOL_H
 #define DLG_IDENTIFICATIONIOL_H
 
-#include "procedures.h"
-#include "updialog.h"
-#include "cls_iols.h"
-#include "updoublevalidator.h"
-#include "updoublespinbox.h"
-#include "uptoolbar.h"
-#include "uppushbutton.h"
+#include <procedures.h>
+#include <updialog.h>
+#include <cls_iols.h>
+#include <updoublevalidator.h>
+#include <updoublespinbox.h>
+#include <uptoolbar.h>
+#include <uppushbutton.h>
 
 class dlg_identificationIOL : public UpDialog
 {
@@ -93,7 +93,7 @@ private:
     void                menuChangeImage();
     void                EnableOKpushButton();
     void                EnableWidget(bool a);
-    void                NavigueVers(QString but);
+    void                NavigueVers(UpToolBar::Choix choix);
     void                OKpushButtonClicked();
     void                reconstruitListeIOLs(Manufacturer *man);
     void                setimage(QImage img);

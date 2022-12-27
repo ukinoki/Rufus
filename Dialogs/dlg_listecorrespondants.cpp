@@ -31,7 +31,6 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     wdg_itemstree ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     wdg_itemstree ->setFocusPolicy(Qt::StrongFocus);
     wdg_itemstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    wdg_itemstree ->setAnimated(true);
     wdg_itemstree ->setIndentation(10);
     wdg_itemstree ->setMouseTracking(true);
     wdg_itemstree ->header()->setVisible(false);
@@ -42,7 +41,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     wdg_buttonframe         ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
 
     wdg_buttonframe->addSearchLine();
-    AjouteLayButtons(UpDialog::ButtonOK);
+    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
 
     dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
@@ -271,6 +270,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         }
     wdg_itemstree     ->setModel(m_correspondantsmodel);
     wdg_itemstree     ->expandAll();
+    wdg_itemstree     ->setItemsExpandable(false);
     if (m_correspondantsmodel->rowCount()>0)
     {
         m_correspondantsmodel->sort(0);
