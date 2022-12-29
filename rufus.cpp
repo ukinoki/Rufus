@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-12-2022/1");
+    qApp->setApplicationVersion("29-12-2022/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2917,7 +2917,7 @@ void Rufus::DropPatient(QByteArray data)
     QDataStream         datastream(&data, QIODevice::ReadOnly);
     int                 row, col;
     QMap<int,QVariant>  dataMap;
-    datastream >> row >> col >> dataMap;
+    datastream >> col >> row >> dataMap;
     int idpat = dataMap.value(0).toInt();
     InscritEnSalDat(Datas::I()->patients->getById(idpat));
 }

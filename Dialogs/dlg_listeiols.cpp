@@ -826,26 +826,31 @@ void dlg_listeiols::ReconstruitListeManufacturers()
 
     QStringList list;
     UpStandardItem *manufactureritem;
+    QMap<int, Manufacturer*> mapman = QMap<int, Manufacturer*>();
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
         IOL *iol = const_cast<IOL*>(it.value());
         Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
         if (man != Q_NULLPTR)
         {
-            QString fabricant  = man->nom();
-            if (m_onlyactifs && !iol->isactif())
-                continue;
-            if (!list.contains(fabricant))
+            if (mapman.constFind(iol->idmanufacturer()) == mapman.constEnd())
             {
-                list << fabricant;
-                manufactureritem  = new UpStandardItem(fabricant, man);
-                manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
-                manufactureritem  ->setEditable(false);
-                manufactureritem  ->setEnabled(false);
-                m_manufacturersmodel->appendRow(manufactureritem);
-                man->setbuildIOLS(false);
+                if (m_onlyactifs && !iol->isactif())
+                    continue;
+                mapman.insert(iol->idmanufacturer(),man);
+                man->setbuildIOLS(true);
             }
         }
+    }
+    for (auto it = mapman.constBegin(); it != mapman.constEnd(); ++it)
+    {
+        Manufacturer *man = const_cast<Manufacturer*>(it.value());
+        list << man->nom();
+        manufactureritem  = new UpStandardItem(man->nom(), man);
+        manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
+        manufactureritem  ->setEditable(false);
+        manufactureritem  ->setEnabled(false);
+        m_manufacturersmodel->appendRow(manufactureritem);
     }
     m_manufacturersmodel->sort(0);
 }
