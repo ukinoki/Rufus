@@ -26,7 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
             * la fiche est lancée depuis dlg_listeiols pour modifier les paramètres d'un IOL existant
             * le paramètre IOL est donc celui de l'implant à modifier
             * la paramètre Manufacturer peut-être laissé à Q_NULLPTR, il sera automatiquement rempli
-            * toutes les zones de saisie sont renseignées avec las paramètres déjà connus de l'implant
+            * toutes les zones de saisie sont renseignées avec les paramètres déjà connus de l'implant
  * \param mode
  * \param iol
  * \param man
@@ -49,7 +49,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     if (m_currentmanufacturer)
         reconstruitListeIOLs(m_currentmanufacturer);
 
-
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
@@ -59,7 +58,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
         if (man->isactif() && man->buildIOls()) {
             QList<QStandardItem *> items;
-            //qDebug() << man->nom() << man->id();
             UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
             UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
             items << itemman << itemid;
@@ -486,11 +484,16 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_manufacturercombo, QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [&](int id) {
                                                                                                                      int idman = wdg_manufacturercombo->itemData(id).toInt();
                                                                                                                      m_currentmanufacturer = Datas::I()->manufacturers->getById(idman);
-                                                                                                                     if (m_currentmanufacturer)
+                                                                                                                     if (m_currentmanufacturer && m_mode == Modification)
+                                                                                                                     {
                                                                                                                          reconstruitListeIOLs(m_currentmanufacturer);
-                                                                                                                     m_currentIOL = Datas::I()->iols->getById(m_listeidIOLs.first());
-                                                                                                                     wdg_toolbar->setEnabled(m_listeidIOLs.size()>1);
-                                                                                                                     NavigueVers(UpToolBar::_first);
+                                                                                                                         if (m_listeidIOLs.size() >0)
+                                                                                                                         {
+                                                                                                                             m_currentIOL = Datas::I()->iols->getById(m_listeidIOLs.first());
+                                                                                                                             wdg_toolbar->setEnabled(m_listeidIOLs.size()>1);
+                                                                                                                             NavigueVers(UpToolBar::_first);
+                                                                                                                         }
+                                                                                                                     }
                                                                                                                      OKButton            ->setEnabled(false);
                                                                                                                  });
      connect (wdg_nomiolline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);

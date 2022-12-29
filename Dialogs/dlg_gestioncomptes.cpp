@@ -21,25 +21,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_gestioncomptes::dlg_gestioncomptes(User *user,
-                                       bool societe, bool &ok,
-                                       bool AfficheLeSolde,
+                                       bool societe,
                                        QWidget *parent)
                                        : UpDialog(parent),
                                         ui(new Ui::dlg_gestioncomptes)
 {
     ui->setupUi(this);
     setWindowModality(Qt::WindowModal);
-    m_userencours           = user;
+    m_userencours            = user;
 
     m_societe                = societe;
-    m_affichelesolde         = AfficheLeSolde;
+    m_affichelesolde         = (m_userencours == Datas::I()->users->userconnected());
 
     m_comptencours           = Datas::I()->comptes->getById(m_userencours->idcomptepardefaut());
-    if (!m_comptencours)
-    {
-        ok = false;
-        return;
-    }
 
     t_timer                  = new QTimer(this);
     t_timer                  ->start(500);
@@ -98,7 +92,13 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     dlglayout() ->insertLayout(0,hlay);
     dlglayout() ->setSizeConstraint(QLayout::SetFixedSize);
 
-    m_mode = Norm;
+    if (!m_comptencours)
+    {
+        m_mode = Nouv;
+        NouvCompte();
+    }
+    else
+        m_mode = Norm;
     ui->DesactiveComptecheckBox->setVisible(true);
 }
 

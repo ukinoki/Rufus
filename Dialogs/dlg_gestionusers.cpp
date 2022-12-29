@@ -857,14 +857,7 @@ void dlg_gestionusers::GestionComptes()
     QString cptcpta = ui->CompteComptacomboBox->currentText();
 
     bool comptedesociete    = ui->SocieteComptableupRadioButton->isChecked();
-    bool affichelesolde     = (m_userencours == Datas::I()->users->userconnected());
-    bool ok = true;
-    dlg_gestioncomptes *Dlg_GestComptes = new dlg_gestioncomptes(m_userencours, comptedesociete, ok, affichelesolde, this);
-    if (!ok)
-    {
-        delete Dlg_GestComptes;
-        return;
-    }
+    dlg_gestioncomptes *Dlg_GestComptes = new dlg_gestioncomptes(m_userencours, comptedesociete, this);
     Dlg_GestComptes ->exec();
     delete Dlg_GestComptes;
     if (verifempl)
