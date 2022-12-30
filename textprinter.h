@@ -116,6 +116,9 @@ private:
 
     void                    launchprint(QPrinter *printer);                                                     // common print routine
     void                    paintPage(QPainter *painter, QTextDocument *document, int pagenum, int nbpages);    // paint specific page
+    void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                   // adjusts rect to device resolution ???
+    qreal                   x2device(qreal x, QPaintDevice *device);
+    qreal                   y2device(qreal y, QPaintDevice *device);
 
     QWidget                 *parent_;
     QPrinter                *printer_;
@@ -137,6 +140,7 @@ private:
 
     QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
+
 };
 
 #endif // TEXTPRINTER_H
