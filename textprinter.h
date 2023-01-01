@@ -34,14 +34,16 @@
 
 #include <QPrinter>
 #include <QPrinterInfo>
-#include <procedures.h>
+//#include <procedures.h>
 #include <QAbstractTextDocumentLayout>
 #include <QPainter>
 #include <QPrintDialog>
 #include <QTextDocument>
 #include <QTextFrame>
-
 #include <QPrintPreviewDialog>
+
+#include <utils.h>
+#include <QStandardPaths>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \class TextPrinter

@@ -37,7 +37,7 @@ public:
     /*!
      * \brief dlg_impressions
      * \param pat = le patient concerné
-     * \param intervention si ce paramètre n'est pas null, la fiche est appelée depuis la rpogrammation des interventions et les champs
+     * \param intervention si ce paramètre n'est pas null, la fiche est appelée depuis la programmation des interventions et les champs
         DATEINTERVENTION, HEUREINTERVENTION, COTEINTERVENTION, SITEINTERVENTION et TYPEINTERVENTION seront complétés automatiquement
      * \param parent
      */

@@ -1180,24 +1180,21 @@ void dlg_impressions::OKpushButtonClicked()
             {
                 if (itm->checkState() == Qt::Checked)
                 {
-                    Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
-                    QString text =  doc->texte();
-                    QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
-                    quest+= "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
+                    Impression *doc         = getDocumentFromIndex(m_docsmodel->index(i,0));
+                    QString text            =  doc->texte();
+                    QString questpattern    = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
+                    questpattern            += "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
-                        quest+= "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
-                    quest += ")[)][)])";
+                        questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
+                    questpattern            += ")[)][)])";
                     QRegularExpression reg;
-                    reg.setPattern(quest);
-                    int count = 0;
-                    int pos = 0;
+                    reg.setPattern(questpattern);
 
-
-
-                    while (reg.match(text, pos).hasMatch())
+                    QRegularExpressionMatchIterator i = reg.globalMatch(text);
+                    while (i.hasNext())
                     {
-                        QString txt = reg.match(text, pos).captured(0);
-                        ++count;
+                        QRegularExpressionMatch match = i.next();
+                        QString txt = match.captured(0);
                         int fin = txt.indexOf("//");
                         int lengthquest = fin-2;
                         int lengthtype = txt.length() - fin;
@@ -1439,9 +1436,10 @@ void dlg_impressions::OKpushButtonClicked()
             dlg_ask->setWindowModality(Qt::WindowModal);
             connect(dlg_ask->OKButton,     &QPushButton::clicked, this,  [=] {VerifCoherencedlg_ask();});
 
-            if (dlg_ask->exec() == QDialog::Accepted)
+            if (dlg_ask->exec() != QDialog::Accepted)
             {
                 delete dlg_ask;
+                dlg_ask = Q_NULLPTR;
                 return;
             }
             else
