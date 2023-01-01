@@ -1194,7 +1194,7 @@ void dlg_impressions::OKpushButtonClicked()
                     while (i.hasNext())
                     {
                         QRegularExpressionMatch match = i.next();
-                        QString txt = match.captured(0);
+                        QString txt = match.captured();
                         int fin = txt.indexOf("//");
                         int lengthquest = fin-2;
                         int lengthtype = txt.length() - fin;
@@ -2789,10 +2789,9 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
         txt = "((" + TITRETYPEINTERVENTION + "//" + TYPEINTERVENTION + "))";
         texte.replace(txt, (typ? typ->typeintervention() : "null"));
     }
-    int pos = 0;
     QRegularExpression reg;
     reg.setPattern("([{][{].*CORRESPONDANT.*[}][}])");
-    if (reg.match(texte, pos).hasMatch())
+    if (reg.match(texte).hasMatch())
     {
         QList<Correspondant*> listcor;
         Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
