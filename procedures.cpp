@@ -1476,14 +1476,27 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
         TexteAImprimer->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(TailleTopMarge());
-        QString ficpdf = PATH_FILE_PDF;
-        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
-        QFile filepdf(ficpdf);
-        if (!filepdf.open( QIODevice::ReadOnly ))
-            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
-        ba = filepdf.readAll();
-        filepdf.close ();
+
+        // C'est fini écrire le pdf por l'afficher
+//        QString ficpdf = PATH_FILE_PDF;
+//        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
+//        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
+//        QFile filepdf(ficpdf);
+//        if (!filepdf.open( QIODevice::ReadOnly ))
+//            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
+//        ba = filepdf.readAll();
+//        filepdf.close ();
+
+        ba=TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+
+//        ficpdf+="2.pdf";
+//        QFile file(ficpdf);
+//        if (file.open(QFile::WriteOnly)) {
+//            QByteArray data(ba);
+//            file.write(data);
+//            file.close();
+//        }
+
         docmt->setimageformat(PDF);
         docmt->setimageblob(ba);
     }

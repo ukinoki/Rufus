@@ -63,6 +63,9 @@ public:
     explicit                TextPrinter(QObject *parent = Q_NULLPTR);
     ~TextPrinter();
 
+
+    QByteArray              getPDFByteArray(const QTextDocument *document);
+    void                    printToDevice(QPagedPaintDevice *device,int doccopies,int pagecopies,int firstpage,int lastpage,QPrinter::PageOrder pageorder);
     bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false);   // Print the document
     void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
     bool                    preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());                                       // Display the document in a preview dialog
@@ -106,6 +109,9 @@ public:
     void                    setPrinterName(QString printerName);
     QString                 getPrinterName();
 
+    QPrinter::Unit          units() const;
+    void                    setUnits(QPrinter::Unit);
+
 private:
     TextPrinter(const TextPrinter&);
     TextPrinter             &operator=(const TextPrinter&);                                                     // not copyable
@@ -121,6 +127,7 @@ private:
     void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                   // adjusts rect to device resolution ???
     qreal                   x2device(qreal x, QPaintDevice *device);
     qreal                   y2device(qreal y, QPaintDevice *device);
+
 
     QWidget                 *parent_;
     QPrinter                *printer_;
@@ -143,6 +150,8 @@ private:
     QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
 
+    QPrinter::Unit          units_;
+    double                  toinchfactor_;
 };
 
 #endif // TEXTPRINTER_H
