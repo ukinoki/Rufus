@@ -1527,7 +1527,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        Corps;
         listbinds[CP_TEXTORIGINE_DOCSEXTERNES] =      ui->ResumePrescriptionTextEdit->toPlainText();
-        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_ALD_DOCSEXTERNES] =              QVariant(QVariant::String);

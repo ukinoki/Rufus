@@ -34,8 +34,7 @@
 
 #include <QPrinter>
 #include <QPrinterInfo>
-#include <utils.h>
-#include <QStandardPaths>
+#include <procedures.h>
 #include <QAbstractTextDocumentLayout>
 #include <QPainter>
 #include <QPrintDialog>
@@ -66,10 +65,10 @@ public:
     void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
     bool                    preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());                                       // Display the document in a preview dialog
 
-    QPageSize                pageSize() const;                                                                  // Get page size
-    void                     setPageSize(QPageSize size);                                                       // Set page size
-    QPageLayout::Orientation orientation() const;                                                               // Get page orientation
-    void                     setOrientation(QPageLayout::Orientation orientation = QPageLayout::Portrait);      // Set page orientation
+    QPrinter::PageSize      pageSize() const;                                                                   // Get page size
+    void                    setPageSize(QPrinter::PageSize size);                                               // Set page size
+    QPrinter::Orientation   orientation() const;                                                                // Get page orientation
+    void                    setOrientation(QPrinter::Orientation orientation);                                  // Set page orientation
 
 
     double                  leftMargin() const;                                                                 // Get left margin width
@@ -117,9 +116,6 @@ private:
 
     void                    launchprint(QPrinter *printer);                                                     // common print routine
     void                    paintPage(QPainter *painter, QTextDocument *document, int pagenum, int nbpages);    // paint specific page
-    void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                  // adjusts rect to device resolution ???
-    qreal                   x2device(qreal x, QPaintDevice *device);
-    qreal                   y2device(qreal y, QPaintDevice *device);
 
     QWidget                 *parent_;
     QPrinter                *printer_;
@@ -141,7 +137,6 @@ private:
 
     QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
-
 };
 
 #endif // TEXTPRINTER_H

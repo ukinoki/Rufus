@@ -303,7 +303,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_TITRE_DOCSEXTERNES] =            "Bilan orthoptique";
         listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textHtml->toHtml();
-        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES] =             m_currentact->date().toString("yyyy-MM-dd");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";

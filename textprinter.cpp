@@ -21,7 +21,7 @@ TextPrinter::TextPrinter(QObject *parent)
         parent_ = qobject_cast<QWidget*>(parent);
 
     printer_->setFullPage(true);
-    printer_->setPageOrientation(QPageLayout::Portrait);
+    printer_->setOrientation(QPrinter::Portrait);
 
     // for convenience, default to US_Letter for C/US/Canada
     // NOTE: bug in Qt, this value is not loaded by QPrintDialog
@@ -41,26 +41,25 @@ TextPrinter::~TextPrinter()
     delete printer_;
 }
 
-QPageSize TextPrinter::pageSize() const
+QPrinter::PageSize TextPrinter::pageSize() const
 {
-    return printer_->pageLayout().pageSize();
+    return printer_->pageSize();
 }
 
-void TextPrinter::setPageSize(QPageSize size)
+void TextPrinter::setPageSize(QPrinter::PageSize size)
 {
     printer_->setPageSize(size);
 }
 
-QPageLayout::Orientation TextPrinter::orientation() const
+QPrinter::Orientation TextPrinter::orientation() const
 {
-    return printer_->pageLayout().orientation();
+    return printer_->orientation();
 }
 
-void TextPrinter::setOrientation(QPageLayout::Orientation orientation)
+void TextPrinter::setOrientation(QPrinter::Orientation orientation)
 {
     // Valeur par defaut = QPrinter::Portrait
-    QPageLayout lay = printer_->pageLayout();
-    lay.setOrientation(orientation);
+    printer_->setOrientation(orientation);
 }
 
 double TextPrinter::leftMargin() const
@@ -71,7 +70,7 @@ double TextPrinter::leftMargin() const
 void TextPrinter::setLeftMargin(double margin)
 {
     // Valeur par defaut = 15mm
-    if ((margin > 0) && (margin < printer_->paperRect(QPrinter::Millimeter).width() / 2))
+    if ((margin > 0) && (margin < printer_->paperRect().width() / 2))
         leftmargin_ = margin;
     else
         leftmargin_ = 0;
@@ -86,7 +85,7 @@ double TextPrinter::rightMargin() const
 void TextPrinter::setRightMargin(double margin)
 {
     // Valeur par defaut = 10mm
-    if ((margin > 0) && (margin < printer_->paperRect(QPrinter::Millimeter).width() / 2))
+    if ((margin > 0) && (margin < printer_->paperRect().width() / 2))
         rightmargin_ = margin;
     else
         rightmargin_ = 0;
@@ -100,7 +99,7 @@ double TextPrinter::topMargin() const
 void TextPrinter::setTopMargin(double margin)
 {
     // Valeur par defaut = 15mm
-    if ((margin > 0) && (margin < printer_->paperRect(QPrinter::Millimeter).height() / 4))
+    if ((margin > 0) && (margin < printer_->paperRect().height() / 4))
         topmargin_ = margin;
     else
         topmargin_ = 0;
@@ -114,7 +113,7 @@ double TextPrinter::bottomMargin() const
 void TextPrinter::setBottomMargin(double margin)
 {
     // Valeur par defaut = 15mm
-    if ((margin > 0) && (margin < printer_->paperRect(QPrinter::Millimeter).height() / 4))
+    if ((margin > 0) && (margin < printer_->paperRect().height() / 4))
         bottommargin_ = margin;
     else
         bottommargin_ = 0;
@@ -123,9 +122,9 @@ void TextPrinter::setBottomMargin(double margin)
 void TextPrinter::setMargins(double margin)
 {
     // Valeur par defaut = 15mm
-    if ((margin > 0) 
-            && (margin < printer_->paperRect(QPrinter::Millimeter).height() / 2)
-            && (margin < printer_->paperRect(QPrinter::Millimeter).width() / 2))
+    if ((margin > 0)
+            && (margin < printer_->paperRect().height() / 2)
+            && (margin < printer_->paperRect().width() / 2))
         leftmargin_ = rightmargin_ = topmargin_ = bottommargin_ = margin;
     else
         leftmargin_ = rightmargin_ = topmargin_ = bottommargin_ = 0;
@@ -140,7 +139,7 @@ void TextPrinter::setSpacing(double spacing)
 {
     // Espace entre le contenu de la page et les blocs d'en-tête et de pied
     // Valeur par defaut = 5mm
-    if ((spacing > 0) && (spacing <= printer_->paperRect(QPrinter::Millimeter).height() / 4))
+    if ((spacing > 0) && (spacing <= printer_->paperRect().height() / 8))
         spacing_ = spacing;
     else
         spacing_ = 0;
@@ -154,7 +153,7 @@ double TextPrinter::headerSize() const
 void TextPrinter::setHeaderSize(double size)
 {
     // Valeur par defaut = 0mm (pas d'en-tête
-    if ((size > 0) && (size <= printer_->paperRect(QPrinter::Millimeter).height() / 4))
+    if ((size > 0) && (size <= printer_->paperRect().height() / 8))
         headersize_ = size;
     else
         headersize_ = 0;
@@ -189,7 +188,7 @@ double TextPrinter::footerSize() const
 void TextPrinter::setFooterSize(double size)
 {
     // Valeur par defaut = 0 mm (pas de pied de page)
-    if ((size > 0) && (size <= printer_->paperRect(QPrinter::Millimeter).height() / 8))
+    if ((size > 0) && (size <= printer_->paperRect().height() / 8))
         footersize_ = size;
     else
         footersize_ = 0;
@@ -345,7 +344,6 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
 ///////////////////////////////////////////////////////////////////////////////
 // private methods
 ///////////////////////////////////////////////////////////////////////////////
-
 void TextPrinter::setPrinterName(QString printerName)
 {
     if (printerName != "") printer_->setPrinterName(printerName);
@@ -357,49 +355,21 @@ QString TextPrinter::getPrinterName()
 }
 
 
-void TextPrinter::QRectF2device(QRectF *rect, QPaintDevice *device)
-{
-    int dpix = device->logicalDpiX();
-    int dpiy = device->logicalDpiY();
-
-    rect->setRect(Utils::mmToInches(rect->x()) * dpix,
-                  Utils::mmToInches(rect->y()) * dpiy,
-                  Utils::mmToInches(rect->width()) * dpix,
-                  Utils::mmToInches(rect->height()) * dpiy );
-}
-
-qreal TextPrinter::x2device(qreal x, QPaintDevice *device)
-{
-    int dpix = device->logicalDpiX();
-    return Utils::mmToInches(x) * dpix;
-}
-
-qreal TextPrinter::y2device(qreal y, QPaintDevice *device)
-{
-    int dpiy = device->logicalDpiY();
-    return Utils::mmToInches(y) * dpiy;
-}
-
-
 // paperRect() ////////////////////////////////////////////////////////////////
 // Return the size of the paper, adjusted for DPI
 
 QRectF TextPrinter::paperRect(QPaintDevice *device)
 {
     // calculate size of paper
-    QRectF rect = printer_->paperRect(QPrinter::Millimeter);
+    QRectF rect = printer_->paperRect();
     // adjust for DPI
-    int devX =device->logicalDpiX();
-    int devY =device->logicalDpiY();
-    int prnX =printer_->logicalDpiX();
-    int prnY =printer_->logicalDpiY();
-    rect.setWidth(rect.width() * devX / prnX);
-
-    rect.setHeight(rect.height() * devY / prnY);
+    rect.setWidth(rect.width() *
+                  device->logicalDpiX() / printer_->logicalDpiX());
+    rect.setHeight(rect.height() *
+                  device->logicalDpiY() / printer_->logicalDpiY());
 
     return rect;
 }
-
 
 // contentRect() //////////////////////////////////////////////////////////////
 // calculate the rect for the content block
@@ -409,31 +379,24 @@ QRectF TextPrinter::contentRect(QPaintDevice *device)
     // calculate size of content (paper - margins)
     QRectF rect = paperRect(device);
 
-    rect.adjust(leftmargin_,
-                topmargin_,
-                -rightmargin_,
-                -bottommargin_);
+    rect.adjust(Utils::mmToInches(leftmargin_) * device->logicalDpiX(),
+                Utils::mmToInches(topmargin_) * device->logicalDpiY(),
+                -Utils::mmToInches(rightmargin_) * device->logicalDpiX(),
+                -Utils::mmToInches(bottommargin_) * device->logicalDpiY());
 
     // header
     if (headersize_ > 0) {
-        rect.adjust(0, headersize_, 0, 0);
-        rect.adjust(0, spacing_, 0, 0);
+        rect.adjust(0, Utils::mmToInches(headersize_) * device->logicalDpiY(), 0, 0);
+        rect.adjust(0, Utils::mmToInches(spacing_) * device->logicalDpiY(), 0, 0);
     }
     // footer
     if (footersize_ > 0) {
-        rect.adjust(0, 0, 0, -footersize_);
-        rect.adjust(0, 0, 0, -spacing_);
+        rect.adjust(0, 0, 0, -Utils::mmToInches(footersize_) * device->logicalDpiY());
+        rect.adjust(0, 0, 0, -Utils::mmToInches(spacing_) * device->logicalDpiY());
     }
-
-//    double headerSize = y2device(headersize_, device);
-//    double footerSize = y2device(footersize_, device);
-//    double spacing = y2device(spacing_, device);
-
-    QRectF2device(&rect, device);
 
     return rect;
 }
-
 
 // headerRect() //////////////////////////////////////////////////////////////
 // calculate the rect for the header block
@@ -441,15 +404,14 @@ QRectF TextPrinter::contentRect(QPaintDevice *device)
 QRectF TextPrinter::headerRect(QPaintDevice *device)
 {
     QRectF rect = paperRect(device);
-    rect.adjust(leftmargin_,
-                topmargin_,
-                -rightmargin_, 0);
+    rect.adjust(Utils::mmToInches(leftmargin_) * device->logicalDpiX(),
+                Utils::mmToInches(topmargin_) * device->logicalDpiY(),
+                -Utils::mmToInches(rightmargin_) * device->logicalDpiX(), 0);
 
     headerrule_ = (headerrule_ / 144.0);
 
-    rect.setBottom(rect.top() + 
-                   headersize_);
-    QRectF2device(&rect, device);
+    rect.setBottom(rect.top() +
+                   Utils::mmToInches(headersize_) * device->logicalDpiY());
 
     return rect;
 }
@@ -460,11 +422,12 @@ QRectF TextPrinter::headerRect(QPaintDevice *device)
 QRectF TextPrinter::footerRect(QPaintDevice *device)
 {
     QRectF rect = paperRect(device);
-    rect.adjust(leftmargin_, 0,-rightmargin_,-bottommargin_);
+    rect.adjust(Utils::mmToInches(leftmargin_) * device->logicalDpiX(), 0,
+                -Utils::mmToInches(rightmargin_) * device->logicalDpiX(),
+                -Utils::mmToInches(bottommargin_) * device->logicalDpiY());
 
-    rect.setTop(rect.bottom() -footersize_);
-
-    QRectF2device(&rect, device);
+    rect.setTop(rect.bottom() -
+                Utils::mmToInches(footersize_) * device->logicalDpiY());
 
     return rect;
 }
@@ -480,8 +443,7 @@ void TextPrinter::launchprint(QPrinter *printer)
 
     tempdoc_->setUseDesignMetrics(true);
     tempdoc_->documentLayout()->setPaintDevice(printer);
-    QSizeF sizeCr=contentRect(printer).size();
-    tempdoc_->setPageSize(sizeCr);
+    tempdoc_->setPageSize(contentRect(printer).size());
     // dump existing margin (if any)
     QTextFrameFormat fmt = tempdoc_->rootFrame()->frameFormat();
     fmt.setMargin(0);
@@ -495,9 +457,9 @@ void TextPrinter::launchprint(QPrinter *printer)
     int pagecopies;
     if (printer->collateCopies()) {
         doccopies = 1;
-        pagecopies = printer->copyCount();
+        pagecopies = printer->numCopies();
     } else {
-        doccopies = printer->copyCount();
+        doccopies = printer->numCopies();
         pagecopies = 1;
     }
 
@@ -510,14 +472,12 @@ void TextPrinter::launchprint(QPrinter *printer)
     }
 
     // print order
-    // bool ascending = true;
-    int delta = 1;
+    bool ascending = true;
     if (printer->pageOrder() == QPrinter::LastPageFirst) {
         int tmp = firstpage;
         firstpage = lastpage;
         lastpage = tmp;
-        //ascending = false;
-        delta=-1;
+        ascending = false;
     }
 
     // loop through and print pages
@@ -527,7 +487,7 @@ void TextPrinter::launchprint(QPrinter *printer)
                            QPainter::SmoothPixmapTransform, true);
     for (int dc=0; dc<doccopies; dc++) {
         int pagenum = firstpage;
-        while(true)
+        while (true)
         {
             for (int pc=0; pc<pagecopies; pc++)
             {
@@ -538,11 +498,10 @@ void TextPrinter::launchprint(QPrinter *printer)
                 if (pc < pagecopies-1) printer->newPage();
             }
             if (pagenum == lastpage) break;
-            pagenum+=delta;
-//            if (ascending)
-//                pagenum++;
-//            else
-//                pagenum--;
+            if (ascending)
+                pagenum++;
+            else
+                pagenum--;
             printer->newPage();
         }
         if (dc < doccopies-1) printer->newPage();
@@ -560,10 +519,6 @@ void TextPrinter::paintPage(QPainter *Imprimante, QTextDocument *document, int p
     // header
     if (headersize_ > 0) {
         rect = headerRect(Imprimante->device());
-//        qreal w = rect.width();
-//        qreal h = rect.height();
-//        rect.setWidth(Utils::mmToInches(w) * Imprimante->device()->logicalDpiX());
-//        rect.setHeight(Utils::mmToInches(h)* Imprimante->device()->logicalDpiY());
         if (headerrule_ > 0.0) {
             Imprimante->save();
             // allow space between rule and header
@@ -619,8 +574,9 @@ void TextPrinter::paintPage(QPainter *Imprimante, QTextDocument *document, int p
             footer.replace("&date;", QDate::currentDate().toString(dateformat_));
 
         Imprimante->save();
-        Imprimante->translate(rect.left(), rect.top());
-        QRectF clip(0, 0, rect.width(), rect.height());
+        qreal spaceheight(35);
+        Imprimante->translate(rect.left(), rect.top()+spaceheight);
+        QRectF clip(0, 0, rect.width(), rect.height()-spaceheight);
         QTextDocument doc;
         doc.setUseDesignMetrics(true);
         doc.setHtml(footer);

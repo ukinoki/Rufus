@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-12-2022/1");
+    qApp->setApplicationVersion("08-01-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2791,7 +2791,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds[CP_TITRE_DOCSEXTERNES]         = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
-       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied.replace("{{DUPLI}}","");
        listbinds[CP_DATE_DOCSEXTERNES]          = m_currentdate.toString("yyyy-MM-dd") + " " + m_currenttime.toString("HH:mm:ss");
        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";

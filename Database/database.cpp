@@ -89,11 +89,11 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     if (useSSL)
     {
         QString dirkey = "/etc/mysql";
-        QSettings *m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString() != "")
-            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+        QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
+        if (m_settings.value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString() != "")
+            dirkey = m_settings.value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         else
-            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
+            m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         QDir dirtorestore(dirkey);
         //qDebug() << dirtorestore.absolutePath();
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
