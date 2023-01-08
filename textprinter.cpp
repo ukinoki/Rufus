@@ -191,7 +191,7 @@ double TextPrinter::footerSize() const
 void TextPrinter::setFooterSize(double size)
 {
     // Valeur par defaut = 0 mm (pas de pied de page)
-    if ((size > 0) && (size <= printer_->paperRect(units()).height() / 8))
+    if ((size > 0) && (size <= printer_->paperRect(units()).height() / 4))
         footersize_ = size;
     else
         footersize_ = 0;
