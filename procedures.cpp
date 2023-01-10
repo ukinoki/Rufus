@@ -1327,12 +1327,12 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
             QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename));
             ba=getFileFromServer(fullFilename,docmt->compression(), fileformat);
         }
-        QList<QVariantList> listimpr;
         if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
         {
-            listimpr = db->StandardSelectSQL("select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem
-                                                                  , m_ok
-                                                                  , tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
+            QString sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem;
+            // PDF=0, JPG=1, COMPRESSION=2
+            ba=getFileFromSQL(sQuery, 0, 1, 2, fileformat, tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
+
         }
     }
     else                                                    //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
@@ -1410,11 +1410,11 @@ void Procedures::CalcImage(Depense *dep, bool imagerie, bool afficher)
             QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename));
             ba=getFileFromServer(fullFilename,1, fileformat);
         }
-        QList<QVariantList> listimpr;
         if (ba.size()==0)  // le document n'est pas dans echangeimages, on va le chercher dans factures
         {
             QString sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem;
-            ba=getFileFromSQL(sQuery, 0,1,-1,fileformat,tr("Impossible d'accéder à la table ") + TBL_FACTURES);
+            // PDF=0, JPG=1, COMPRESSION=NO
+            ba=getFileFromSQL(sQuery, 0, 1, -1, fileformat, tr("Impossible d'accéder à la table ") + TBL_FACTURES);
         }
         dep->setfactureformat(fileformat);
         dep->setfactureblob(ba);
@@ -1448,7 +1448,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
 }
 
 // Get file content from SQL table
-QByteArray Procedures::getFileFromSQL(QString sQuery, int fieldJPG, int fieldPDF, int fieldCompression, QString &imageformat, QString errMsg)
+QByteArray Procedures::getFileFromSQL(QString sQuery, int fieldPDF, int fieldJPG, int fieldCompression, QString &imageformat, QString errMsg)
 {
     QByteArray ba;
     QList<QVariantList> listimpr;
