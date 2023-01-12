@@ -668,9 +668,6 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
 /*! 1 - header ----------------------------------------------------------------------------------------------------------------------------------- */
     if (headersize_ > 0) {
         rect = headerRect(painter->device());
-        qDebug() << "rect.top()" << rect.top();
-        qDebug() << "rect.heigth()" << rect.height();
-        qDebug() << "rect.bottom()" << rect.bottom();
         if (headerrule_ > 0.0) {
             painter->save();
             // allow space between rule and header

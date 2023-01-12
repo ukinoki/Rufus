@@ -1323,7 +1323,7 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
         }
         if (filename != "")
         {
-            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename));
+            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
             ba=getFileFromServer(fullFilename,docmt->compression(), fileformat);
         }
          if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
@@ -1405,8 +1405,8 @@ void Procedures::CalcImage(Depense *dep, bool imagerie, bool afficher)
         QString fileformat="";
         if (filename != "")
         {
-            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename));
-            ba=getFileFromServer(fullFilename,1, fileformat);
+            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
+            ba=getFileFromServer(fullFilename, 0, fileformat);
         }
         if (ba.size()==0)  // le document n'est pas dans echangeimages, on va le chercher dans factures
         {
@@ -1506,7 +1506,7 @@ QByteArray Procedures::getFileFromServer(QString filename, int compression, QStr
 
     QList<QVariantList> listimpr;
     bool ok;
-    listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + filename + "') AS content",ok,"Impossible d'accéder à "+filename);
+    listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + filename + "') AS content",ok, tr("Impossible d'accéder à ") + filename);
     if(ok) {
         if (compression == 1)
             ba.append(qUncompress(listimpr.at(0).at(0).toByteArray()));
