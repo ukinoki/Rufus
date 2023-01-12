@@ -273,7 +273,7 @@ void dlg_recettesspeciales::EnregistreRecette()
         {
             if (pb != "")
                 pb += "\n";
-            pb += tr("Une recette semblable a été saisie le ") + listrec.last().at(0).toDate().toString("dd MMM yyyy");
+            pb += tr("Une recette semblable a été saisie le ") + QLocale::system().toString(listrec.last().at(0).toDate(),"dd MMM yyyy");
         }
     }
 
@@ -517,7 +517,7 @@ void dlg_recettesspeciales::SupprimerRecette()
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
             return;
         }
-        QString daterec = Dateop.toString("dd MMM yyyy");
+        QString daterec = QLocale::system().toString(Dateop,"dd MMM yyyy");
         UpMessageBox msgbox(this);
         msgbox.setText(tr("Supprimer une recette!"));
         msgbox.setInformativeText(tr("Confirmer la suppression de\n") + daterec + "\n" + Libelle + "\n" + QLocale().toString(montant,'f',2) + "?");
@@ -1053,7 +1053,7 @@ void dlg_recettesspeciales::RemplitBigTable()
             wdg_bigtable->setCellWidget(i,col,label0);
             col++;
 
-            A = recette.at(3).toDate().toString(tr("d MMM yyyy"));                                         // DateRecette col = 1
+            A = QLocale::system().toString(recette.at(3).toDate(),tr("d MMM yyyy"));                       // DateRecette col = 1
             label1->setText(A + " ");
             label1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
             wdg_bigtable->setCellWidget(i,col,label1);

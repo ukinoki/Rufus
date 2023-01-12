@@ -293,7 +293,7 @@ void dlg_depenses::PrintTable()
             if (dep->rubriquefiscale() != "Amortissements")
             {
                 test4 += "<tr>"
-                         "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + dep->date().toString(tr("d MMM yy")) + "</div></span></font></td>"   //! date
+                         "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale::system().toString(dep->date(),tr("d MMM yy")) + "</div></span></font></td>"   //! date
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
                          "<td width=\"" + QString::number(int(c*35))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale().toString(dep->montant(),'f',2) + "</div></span></td>"      //! montant
@@ -310,7 +310,7 @@ void dlg_depenses::PrintTable()
             if (dep->rubriquefiscale() == "Amortissements")
             {
                 test4 += "<tr>"
-                         "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + dep->date().toString(tr("d MMM yy")) + "</div></span></font></td>"   //! date
+                         "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale::system().toString(dep->date(),tr("d MMM yy")) + "</div></span></font></td>"   //! date
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
                          "<td width=\"" + QString::number(int(c*35))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale().toString(dep->montant(),'f',2) + "</div></span></td>"      //! montant
@@ -590,7 +590,7 @@ void dlg_depenses::EnregistreDepense()
             Depense *dep = veriflistdepenses.last();
             if (pb != "")
                 pb += "\n";
-            pb += tr("Une dépense semblable a été saisie le ") + dep->date().toString("dd MMM yyyy");
+            pb += tr("Une dépense semblable a été saisie le ") + QLocale::system().toString(dep->date(),"dd MMM yyyy");
         }
     }
 
@@ -790,7 +790,7 @@ void dlg_depenses::SupprimerDepense()
     }
     UpMessageBox msgbox(this);
     msgbox.setText(tr("Supprimer une dépense!"));
-    msgbox.setInformativeText(tr("Confirmer la suppression de\n") + dep->date().toString("dd MMM yyyy") + "\n" + dep->objet() + "\n" + QLocale().toString(dep->montant(),'f',2) + "?");
+    msgbox.setInformativeText(tr("Confirmer la suppression de\n") + QLocale::system().toString(dep->date(),"dd MMM yyyy") + "\n" + dep->objet() + "\n" + QLocale().toString(dep->montant(),'f',2) + "?");
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton(tr("Supprimer"));
     UpSmallButton NoBouton(tr("Annuler"));
@@ -1201,7 +1201,7 @@ void dlg_depenses::ModifierDepense()
         {
             if (pb != "")
                 pb += "\n";
-            pb += tr("Une dépense semblable a été saisie\nle ") + veriflistdepenses.last()->date().toString("dd MMM yyyy");
+            pb += tr("Une dépense semblable a été saisie\nle ") + QLocale::system().toString(veriflistdepenses.last()->date(),"dd MMM yyyy");
         }
     }
 
@@ -1333,7 +1333,7 @@ void dlg_depenses::ModifierDepense()
                 break;
             }
         QString A;
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,1))->setText(dep->date().toString(tr("d MMM yyyy") + " "));             // Date - col = 1
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,1))->setText(QLocale::system().toString(dep->date(),tr("d MMM yyyy") + " "));             // Date - col = 1
         static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
 
         if (dep->monnaie() == "F")
@@ -1554,7 +1554,7 @@ void dlg_depenses::RechercheValeur()
         {
             if (dep->montant() == montant)
             {
-                UpStandardItem *item = new UpStandardItem(dep->date().toString("d-MMM-yy") + " - " + dep->objet(), dep);
+                UpStandardItem *item = new UpStandardItem(QLocale::system().toString(dep->date(),"d-MMM-yy") + " - " + dep->objet(), dep);
                 listdep->insertRow(0,item);
             }
         }
@@ -1933,7 +1933,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     wdg_bigtable->setItem(row,col,pitem0);
     col++;
 
-    A = dep->date().toString(tr("d MMM yyyy"));                                                 // Date - col = 1
+    A = QLocale::system().toString(dep->date(),tr("d MMM yyyy"));                               // Date - col = 1
     label1->setText(A + " ");
     label1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     wdg_bigtable->setCellWidget(row,col,label1);

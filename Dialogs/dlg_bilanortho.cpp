@@ -251,7 +251,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
     }
-    QString date = m_currentact->date().toString(tr("d MMM yyyy"));
+    QString date = QLocale::system().toString(m_currentact->date(),tr("d MMMM yyyy"));
     QString nom = Datas::I()->patients->currentpatient()->nom().toUpper();
     QString prenom = Datas::I()->patients->currentpatient()->prenom().toUpper();
 
@@ -266,7 +266,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     Entete.replace("{{PRENOM PATIENT}}"    , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
-    Entete.replace("{{DATE}}"              , Datas::I()->sites->currentsite()->ville() + ", le " + l_currentdate.toString(tr("d MMM yyyy")));
+    Entete.replace("{{DATE}}"              , Datas::I()->sites->currentsite()->ville() + ", le " + QLocale::system().toString(l_currentdate,tr("d MMMM yyyy")));
 
     // création du pied
     Pied = proc->CalcPiedImpression(userEntete);
@@ -303,7 +303,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_TITRE_DOCSEXTERNES] =            "Bilan orthoptique";
         listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textHtml->toHtml();
-        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES] =             m_currentact->date().toString("yyyy-MM-dd");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";

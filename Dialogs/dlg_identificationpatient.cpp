@@ -239,7 +239,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
             UpSmallButton OKBouton(tr("Je confirme"));
             UpSmallButton NoBouton(tr("Annuler"));
             msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login());
-            msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + ui->DDNdateEdit->date().toString(tr("d-MMM-yyyy")));
+            msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + QLocale::system().toString(ui->DDNdateEdit->date(),tr("d-MMM-yyyy")));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
             msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);

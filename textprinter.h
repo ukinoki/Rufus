@@ -64,7 +64,9 @@ public:
     ~TextPrinter();
 
 
+    //added by Javier
     QByteArray              getPDFByteArray(const QTextDocument *document);
+    //added by Javier
     void                    printToDevice(QPagedPaintDevice *device,int doccopies,int pagecopies,int firstpage,int lastpage,QPrinter::PageOrder pageorder);
     bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false);   // Print the document
     void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
@@ -109,23 +111,28 @@ public:
     void                    setPrinterName(QString printerName);
     QString                 getPrinterName();
 
+    //added by Javier
     QPrinter::Unit          units() const;
+    //added by Javier
     void                    setUnits(QPrinter::Unit);
 
 private:
     TextPrinter(const TextPrinter&);
     TextPrinter             &operator=(const TextPrinter&);                                                     // not copyable
 
-    QRectF                  paperRect(QPaintDevice *device);                                                    // return paper rect
+    QRectF                  paperRect();                                                    // return paper rect
 
     QRectF                  contentRect(QPaintDevice *device);                                                  // return printable rects
     QRectF                  headerRect(QPaintDevice *device);
     QRectF                  footerRect(QPaintDevice *device);
 
-    void                    launchprint(QPrinter *printer);                                                     // common print routine
-    void                    paintPage(QPainter *painter, QTextDocument *document, int pagenum, int nbpages);    // paint specific page
+    void                    launchprint();                                                                      // common print routine
+    void                    paintPage(QPainter *painter, int pagenum, int nbpages);                             // paint specific page
+    //added by Javier
     void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                   // adjusts rect to device resolution ???
+    //added by Javier
     qreal                   x2device(qreal x, QPaintDevice *device);
+    //added by Javier
     qreal                   y2device(qreal y, QPaintDevice *device);
 
 
@@ -150,7 +157,9 @@ private:
     QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
 
+    //added by Javier
     QPrinter::Unit          units_;
+    //added by Javier
     double                  toinchfactor_;
 };
 

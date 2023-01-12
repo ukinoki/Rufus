@@ -777,11 +777,10 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
     bool AvecDupli          = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
-    bool AvecChoixImprimante = true;
 
     aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
                             proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
-                            AvecDupli, m_avecprevisu, AvecNumPage, AvecChoixImprimante);
+                            AvecDupli, m_avecprevisu, AvecNumPage);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -797,7 +796,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
         listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = txt;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = docmt->format();
         listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();

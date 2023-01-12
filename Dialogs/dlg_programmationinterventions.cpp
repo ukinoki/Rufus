@@ -344,7 +344,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
         foreach (SessionOperatoire* session, *Datas::I()->sessionsoperatoires->sessions())
         {
             QList<QStandardItem *> items;
-            QString nomsession = session->date().toString("dd-MMM-yy");
+            QString nomsession = QLocale::system().toString(session->date(),"dd-MMM-yy");
             Site* site = Datas::I()->sites->getById(session->idlieu());
             if (site != Q_NULLPTR)
                 nomsession += " - " + site->nom();
@@ -548,7 +548,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     QString cor = sit->nom() + "<br>" + sit->coordonnees().replace("\n", "<br>");
     lign =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
     lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
-    lign += "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("RAPPORTS D'INCIDENTS SUR LA SESSION CHIRURGICALE DU") + " " + currentsession()->date().toString("dddd dd MMMM yyyy") + "</b></span></font>" ;
+    lign += "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("RAPPORTS D'INCIDENTS SUR LA SESSION CHIRURGICALE DU") + " " + QLocale::system().toString(currentsession()->date(),"dddd dd MMMM yyyy") + "</b></span></font>" ;
     lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
     if (currentsession()->incident() != "")
     {
@@ -613,7 +613,7 @@ void dlg_programmationinterventions::ImprimeSession()
     EnTete.replace("{{PRENOM PATIENT}}"    , (sit? sit->nom() + " - " + sit->ville() : ""));
     EnTete.replace("{{NOM PATIENT}}"       , "");
     EnTete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
-    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + currentsession()->date().toString("dddd dd MMMM yyyy") + "</font>");
+    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + QLocale::system().toString(currentsession()->date(),"dddd dd MMMM yyyy") + "</font>");
 
     // création du pied
     QString Pied = proc->CalcPiedImpression(userEntete);
@@ -743,7 +743,7 @@ void dlg_programmationinterventions::SupprimeSession()
 {
     if (currentsession() == Q_NULLPTR)
         return;
-    QString nomsession = currentsession()->date().toString("dd-MMM-yy");
+    QString nomsession = QLocale::system().toString(currentsession()->date(),"dd-MMM-yy");
     Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
     if (site != Q_NULLPTR)
         nomsession += " - " + site->nom();
@@ -1673,7 +1673,7 @@ void dlg_programmationinterventions::SupprimeIntervention()
     Patient * pat = Datas::I()->patients->getById(currentintervention()->idpatient());
     if (pat)
         nomintervention += " - " + pat->nom() + " " + pat->prenom();
-    QString nomsession = currentsession()->date().toString("dd-MMM-yy");
+    QString nomsession = QLocale::system().toString(currentsession()->date(),"dd-MMM-yy");
     Site* site = Datas::I()->sites->getById(currentsession()->idlieu());
     if (site != Q_NULLPTR)
         nomsession += " - " + site->nom();
@@ -1987,7 +1987,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         if (site)
             sitadresse = site->nom() + " - " + site->coordonnees();
 
-        QString date = tr("Programme opératoire du") + " " + currentsession()->date().toString("dddd dd MMMM yyyy");
+        QString date = tr("Programme opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dddd dd MMMM yyyy");
         QString cor = man->coordonnees().replace("\n", "<br>");
         lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
         lign += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";

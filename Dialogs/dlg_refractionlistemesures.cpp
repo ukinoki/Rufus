@@ -220,7 +220,7 @@ void dlg_refractionlistemesures::RemplirTableView()
     pitem3  ->setEditable(false);
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
     {
-        pitem0  = new UpStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")), ref);
+        pitem0  = new UpStandardItem(QLocale::system().toString(ref->daterefraction(),tr("dd-MMM-yyyy")), ref);
         if (m_mode == Recuperer)
             pitem0  ->setCheckable(true);
         QString Mesure = "";

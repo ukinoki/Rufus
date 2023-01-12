@@ -55,10 +55,10 @@ public:
     bool        acceptimagemimedatas() const;
     void        setAcceptImageMimeDatas(bool acceptimagemimedatas);
 
-    int column() const;
-    void setColumn(int column);
-    int row() const;
-    void setRow(int row);
+    int         column() const;
+    void        setColumn(int column);
+    int         row() const;
+    void        setRow(int row);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;

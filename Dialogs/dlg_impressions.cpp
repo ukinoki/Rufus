@@ -1494,7 +1494,7 @@ void dlg_impressions::OKpushButtonClicked()
                                 else if (listwidg.at(p)->inherits("QDateEdit"))
                                 {
                                     QDateEdit *linedate = static_cast<QDateEdit*>(listwidg.at(p));
-                                    Rempla          << linedate->date().toString(tr("d MMMM yyyy"));
+                                    Rempla          << QLocale::system().toString(linedate->date(),tr("d MMMM yyyy"));
                                     if (linedate->accessibleDescription() == DATEINTERVENTION)
                                         ExpARemplacer   << minidou + "//" + DATEINTERVENTION + "))";
                                     else
@@ -2592,7 +2592,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     QString age                         = AgeTotal["toString"].toString();
     QString formule                     = AgeTotal["formule"].toString();
 
-    texte.replace("{{" + DATEDOC + "}}"         , m_currentdate.toString(tr("d MMMM yyyy")));
+    texte.replace("{{" + DATEDOC + "}}"         , QLocale::system().toString(m_currentdate,tr("d MMMM yyyy")));
     texte.replace("{{" + NOMPAT + "}},"         , m_currentpatient->nom() + ",");
     texte.replace("{{" + NOMPAT + "}} "         , m_currentpatient->nom() + " ");
     texte.replace("{{" + NOMPAT + "}}"          , m_currentpatient->nom());
@@ -2603,7 +2603,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->titre() + " " + userEntete->prenom() + " " + userEntete->nom());
     else
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->prenom() + " " + userEntete->nom());
-    texte.replace("{{" + DDNPAT + "}}"          , m_currentpatient->datedenaissance().toString((tr("d MMMM yyyy"))));
+    texte.replace("{{" + DDNPAT + "}}"          , QLocale::system().toString(m_currentpatient->datedenaissance(),(tr("d MMMM yyyy"))));
     texte.replace("{{" + TITREPAT + "}} "       , formule + " ");
     texte.replace("{{" + TITREPAT + "}}"        , formule);
     texte.replace("{{" + AGEPAT + "}}"          , age);
@@ -2754,7 +2754,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
 
         txt = "((" + TITREDATEINTERVENTION + "//" + DATEINTERVENTION + "))";
-        texte.replace(txt,  (session != Q_NULLPTR? session->date().toString(tr("d MMMM yyyy")) : "null"));
+        texte.replace(txt,  (session != Q_NULLPTR? QLocale::system().toString(session->date(),tr("d MMMM yyyy")) : "null"));
 
         txt = "((" + TITREHEUREINTERVENTION + "//" + HEUREINTERVENTION + "))";
         texte.replace(txt, m_currentintervention->heure().toString(tr("HH:mm")));

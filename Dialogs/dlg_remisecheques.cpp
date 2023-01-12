@@ -752,7 +752,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
         MapRemise["idRemise"] = remise.at(0);
         MapRemise["idCompte"] = remise.at(3);
         MapRemise["DateRemise"] = remise.at(1).toDate();
-        ui->RemisePrecsupComboBox->addItem("Remise n° " + remise.at(0).toString() + " du " + remise.at(1).toDate().toString(tr("d MMMM yyyy")) + "\t" + QLocale().toString(remise.at(2).toDouble(),'f',2)
+        ui->RemisePrecsupComboBox->addItem("Remise n° " + remise.at(0).toString() + " du " + QLocale::system().toString(remise.at(1).toDate(),tr("d MMMM yyyy")) + "\t" + QLocale().toString(remise.at(2).toDouble(),'f',2)
                                            ,MapRemise);
     }
 

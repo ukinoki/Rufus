@@ -285,10 +285,10 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
     if  (lign != Q_NULLPTR)
     {
         QMenu *menuContextuel       = new QMenu(this);
-        QString msg = tr("Supprimer l'écriture") + " - " + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "?";
+        QString msg = tr("Supprimer l'écriture") + " - " + lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "?";
         QAction *pAction_SupprEcriture = menuContextuel->addAction(msg) ;
         connect (pAction_SupprEcriture, &QAction::triggered, this,    [=] { SupprimerEcriture(lign); });
-        msg = tr("Modifer le montant de l'écriture") + " - " + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "?";
+        msg = tr("Modifer le montant de l'écriture") + " - " + lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "?";
         QAction *pAction_ModifEcriture = menuContextuel->addAction(msg) ;
         connect (pAction_ModifEcriture, &QAction::triggered, this,    [=] { ModifMontant(lign); });
 
@@ -412,7 +412,7 @@ void dlg_comptes::RemplirTableArchives()
         wdg_tablearchives->setCellWidget(row,col,lbl0);
         col++;
 
-        A = archive->lignedate().toString(tr("d MMM yyyy"));                                            // Date - col = 1
+        A = QLocale::system().toString(archive->lignedate(),tr("d MMM yyyy"));                                            // Date - col = 1
         lbl1->setText(A + " ");
         lbl1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
         lbl1->setFocusPolicy(Qt::NoFocus);
@@ -459,7 +459,7 @@ void dlg_comptes::RemplirTableArchives()
             col++;
             UpLabel *  lbl6 = new UpLabel();
             lbl6->setContextMenuPolicy(Qt::NoContextMenu);
-            lbl6->setText(" " + archive->lignedateconsolidation().toString("d MMM yyyy"));                   // Date consolidation col = 6;
+            lbl6->setText(" " + QLocale::system().toString(archive->lignedateconsolidation(),"d MMM yyyy"));                   // Date consolidation col = 6;
             lbl6->setFocusPolicy(Qt::NoFocus);
             wdg_tablearchives->setCellWidget(row,col,lbl6);
         }
@@ -532,7 +532,7 @@ void dlg_comptes::VoirArchives()
     {
         QList<QStandardItem *> items;
         QString titre = tr("Consolidation") + " " + QString::number(arc->idarchive()) + " "
-                + tr("du") + " " + arc->lignedateconsolidation().toString("d MMM yyyy");
+                + tr("du") + " " + QLocale::system().toString(arc->lignedateconsolidation(),"d MMM yyyy");
         items << new QStandardItem(titre)
               << new QStandardItem(QString::number(arc->idarchive()));
         if (model->findItems(titre).size()==0)
@@ -580,7 +580,7 @@ void dlg_comptes::ModifMontant(LigneCompte *lign)
     UpDialog *dlg_montant = new UpDialog(this);
     dlg_montant     ->setWindowModality(Qt::WindowModal);
     QString txtlbl = (tr("Vous avez choisi de modifier le montant de l'écriture") + "\n" +
-                      lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +
+                      lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "\n\n" +
                       tr("Cette modification est définitive mais ne supprimera") + "\n" +
                       tr("pas l'opération de recette/dépense correspondante.") + "\n" +
                       tr("Modifier le montant d'une ligne du compte bancaire") + "\n" +
@@ -647,7 +647,7 @@ void dlg_comptes::SupprimerEcriture(LigneCompte *lign)
     UpMessageBox msgbox(this);
     msgbox.setText(tr("Suppression d'une écriture!"));
     msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
-                              + lign->libelle() + " du " + lign->date().toString("d MMM yyyy") + "\n\n" +
+                              + lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "\n\n" +
                               tr("Cette suppression est définitive mais ne supprimera pas l'opération de recette/dépense correspondante.") + "\n" +
                               tr("Supprimer une écriture du compte bancaire sert en général à équilibrer le compte pour le rendre conforme au relevé") + ".\n" +
                               tr("Confirmez vous la suppression?") + "\n\n");
@@ -824,7 +824,7 @@ void dlg_comptes::RemplitLaTable(int idcompte)
     for (auto it = Datas::I()->lignescomptes->lignescomptes()->constBegin(); it != Datas::I()->lignescomptes->lignescomptes()->constEnd(); ++it)
     {
         LigneCompte *lign = const_cast<LigneCompte*>(it.value());
-        UpStandardItem *item = new UpStandardItem(lign->date().toString("yyyyMMdd"), lign);
+        UpStandardItem *item = new UpStandardItem(QLocale::system().toString(lign->date(),"yyyyMMdd"), lign);
         listlign->appendRow(item);
     }
     listlign->sort(0);
@@ -923,7 +923,7 @@ void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
     wdg_bigtable->setCellWidget(row,col,lbl0);
     col++;
 
-    A = lign->date().toString(tr("d MMM yyyy"));                                        // Date - col = 1
+    A = QLocale::system().toString(lign->date(),tr("d MMM yyyy"));                              // Date - col = 1
     lbl1->setText(A + " ");
     lbl1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     lbl1->setFocusPolicy(Qt::NoFocus);

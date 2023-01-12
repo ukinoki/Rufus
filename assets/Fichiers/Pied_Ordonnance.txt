@@ -1,16 +1,4 @@
 <html>
-<div align="center" >
-<table  border="0" cellspacing="0" cellpadding="0">
-{{DUPLI}}
-<tr><td >
-    <p align = "center"><span style="font-size:6pt">
-        <br />
-        {{AGA}}
-    </span></p>
-</td></tr>
-</table>
-    <p align = "right"><span style="font-size:9pt">
-        &page;
-    </span></p>
-</div>
+    	{{DUPLI}}
+      	<p align="center"; style = "margin-top:0px; margin-bottom:0px;"><span style="font-size:6pt">{{AGA}}</span></p>
 </html>

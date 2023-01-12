@@ -1170,7 +1170,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
         Entete.replace("{{NUMSS}}", NumSS);
-        Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
+        Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
@@ -1184,8 +1184,11 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 {
     QString Pied;
     if (ALD)
-        Pied = "<html><div align =\"center\"><table>{{DUPLI}}</table></div></html>";
-    else
+        Pied =  "<html>"
+                 "{{DUPLI}}"
+                 "<p align = \"center\"; style = \"margin-top:0px; margin-bottom:0px;\"><span style=\"font-size:6pt\">{{AGA}}</span></p>"
+                 "</html>";
+      else
     {
         QString nomModelePied = PATH_FILE_PIEDPAGE;
         if (lunettes)
@@ -1199,23 +1202,23 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         baPied.resize(filePied_len + 1);
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
-        bool isaga = false;
-        if (user)
-        {
-            User *parent = Datas::I()->users->getById(user->idparent());
-            if (parent)
-                isaga = parent->isAGA();
-        }
-        baPied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
         Pied = baPied;
     }
+    bool isaga = false;
+    if (user)
+    {
+        User *parent = Datas::I()->users->getById(user->idparent());
+        if (parent)
+            isaga = parent->isAGA();
+    }
+    Pied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
     return Pied;
 }
 
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
-    //AvecPrevisu = true;
+    AvecPrevisu = true;
     TextPrinter *TexteAImprimer = new TextPrinter();
     QString PiedDepart = Pied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
@@ -1244,11 +1247,7 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
     if (a)
         if (AvecDupli)
         {
-            QString dupli = "<tr><td >"
-                            "<p align=\"center\" ><span style=\"font-family:Arial Black;font-size:30pt;font-style:normal;font-weight:bold;color:#cccccc;\">"
-                            "DUPLICATA"
-                            "</span></p>"
-                            "</td></tr>";
+            QString dupli = "<p align=\"center\"><span style=\"font-family:Arial Black;font-size:24pt;font-style:normal;font-weight:bold;color:#cccccc;\">DUPLICATA</span></p>";
             Pied = PiedDepart.replace("{{DUPLI}}",dupli);
             if (!AvecNumPage)
                 Pied.replace("&page;","");
@@ -1327,13 +1326,12 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
             QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename));
             ba=getFileFromServer(fullFilename,docmt->compression(), fileformat);
         }
-        if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
+         if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
         {
-            QString sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem;
-            // PDF=0, JPG=1, COMPRESSION=2
-            ba=getFileFromSQL(sQuery, 0, 1, 2, fileformat, tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
-
-        }
+             QString sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem;
+             // PDF=0, JPG=1, COMPRESSION=2
+             ba=getFileFromSQL(sQuery, 0, 1, 2, fileformat, tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
+         }
     }
     else                                                    //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
     {
@@ -1821,7 +1819,7 @@ bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QSt
         listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
         listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = text;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
         listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
@@ -2824,7 +2822,7 @@ bool Procedures::VerifBaseEtRessources()
         PremierParametrageRessources();
         m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
         m_settings->setValue(Poste_VersionRessources, VERSION_RESSOURCES);
-        ShowMessage::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000);
+        ShowMessage::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 5000);
     }
     return true;
 }
@@ -3856,6 +3854,9 @@ bool Procedures::PremierDemarrage()
     Utils::mkpath(PATH_DIR_AUTOREF);
     Utils::mkpath(PATH_DIR_FRONTO);
 
+
+    if (m_settings != Q_NULLPTR)
+        delete m_settings;
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QString login (""), MDP("");
     if (protoc == BaseExistante)
@@ -3943,8 +3944,8 @@ void Procedures::PremierParametrageRessources()
     Utils::mkpath(PATH_DIR_RUFUS);
     QDir DirRessrces(PATH_DIR_RESSOURCES);
     if (DirRessrces.exists())
-        DirRessrces.rmdir(PATH_DIR_RESSOURCES);
-    DirRessrces.mkpath(PATH_DIR_RESSOURCES);
+        DirRessrces.removeRecursively();
+    Utils::mkpath(PATH_DIR_RESSOURCES);
     QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
     COACopier.copy(PATH_FILE_CORPSORDO);
     QFile CO(PATH_FILE_CORPSORDO);
@@ -4050,6 +4051,8 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             QString fileini = dialog.selectedFiles().at(0);
             QFile rufusini(fileini);
             rufusini.copy(PATH_FILE_INI);
+            if (m_settings != Q_NULLPTR)
+                delete m_settings;
             m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
             if (QMessageBox::question(Q_NULLPTR,"", tr("Restaurer aussi les fichiers modèles d'impression?")) == QMessageBox::Yes)
                 PremierParametrageRessources();
@@ -4060,7 +4063,9 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     {
         //reconstruire le fichier rufus.ini
         //1. on demande les paramètres de connexion au serveur - mode d'accès / user / mdp / port / SSL
-        QFile(PATH_FILE_INI).remove();
+        QFile(PATH_FILE_INI).remove();       
+        if (m_settings != Q_NULLPTR)
+            delete m_settings;
         m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
         QString login(""), MDP ("");
         if (VerifParamConnexion(login, MDP, true))

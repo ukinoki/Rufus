@@ -252,7 +252,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     QMap<QString,QVariant> mapage = Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date());
     QString age = mapage["toString"].toString();
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
-                      "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
+                      "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + QLocale::system().toString(acte->date(),tr("d MMMM yyyy")) + "</b></u></font></td>"
                       "<td width=\"60\">" + age + "</td>"
                       "<td width=\"300\">" + nomcomplet + " - <font color = \"" COULEUR_TITRES "\" ><b>" + (sit? sit->nom() : "") + "</b></font></td></p>";
     ui->EnteteupLabel->setText(textHTML);

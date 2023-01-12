@@ -81,7 +81,7 @@ private:
     explicit                Procedures(QObject *parent = Q_NULLPTR);
     static Procedures*      instance;
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    QSettings               *m_settings;
+    QSettings               *m_settings = Q_NULLPTR;
     ParametresSysteme       *m_parametres;
     Controller              m_controller;
 

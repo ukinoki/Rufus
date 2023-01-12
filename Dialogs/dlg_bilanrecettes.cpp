@@ -96,9 +96,9 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
 
     QString Titre;
     if (m_debut == m_fin)
-        Titre = tr("Bilan des recettes pour la journée du ") + m_debut.toString(tr("d MMMM yyyy"));
+        Titre = tr("Bilan des recettes pour la journée du ") + QLocale::system().toString(m_debut,tr("d MMMM yyyy"));
     else
-        Titre = tr("Bilan des recettes pour la période du ") + m_debut.toString(tr("d MMMM yyyy")) + tr(" au ") + m_fin.toString(tr("d MMMM yyyy"));
+        Titre = tr("Bilan des recettes pour la période du ") + QLocale::system().toString(m_debut,tr("d MMMM yyyy")) + tr(" au ") + QLocale::system().toString(m_fin,tr("d MMMM yyyy"));
     setWindowTitle(Titre);
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
     m_mode          = SUPERVISEUR;
@@ -299,7 +299,7 @@ void dlg_bilanrecettes::ImprimeEtat()
                     {
                         test4 += "<tr>"
                                  "<td width=\"" + QString::number(int(c*30))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></td>"                      //! no ligne
-                                "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">" + rec->date().toString(tr("d MMM yyyy")) + "</span></font></td>"                         //! date
+                                "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">" + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></font></td>"                         //! date
                                  "<td width=\"" + QString::number(int(c*160)) + "\"><span style=\"font-size:8pt\">" + rec->payeur() + "</span></td>"                                                        //! nom prenom
                                  "<td width=\"" + QString::number(int(c*140)) + "\"><span style=\"font-size:8pt\">" + rec->cotationacte() + "</span></td>"                                                  //! cotation
                                  "<td width=\"" + QString::number(int(c*95))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QLocale().toString(rec->montant(),'f',2) + "</div></span></td>"  //! montant
@@ -318,7 +318,7 @@ void dlg_bilanrecettes::ImprimeEtat()
                         test4 +=    "<td width=\"" + QString::number(int(c*25))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QString::number(row) + "</div></span></font></td>"                                                     //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\">" + couleur + "<span style=\"font-size:8pt\">"
-                                + rec->date().toString(tr("d MMM yyyy")) + "</span></font></td>"                                         //! date
+                                + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></font></td>"                                         //! date
                                 "<td width=\"" + QString::number(int(c*180)) + "\">" + couleur + "<span style=\"font-size:8pt\">"
                                 + rec->payeur() + "</span></font></td>"                                                                  //! libelle apport praticien
                                 "<td width=\"" + QString::number(int(c*115)) + "\">" + couleur + "<span style=\"font-size:8pt\">"
@@ -333,7 +333,7 @@ void dlg_bilanrecettes::ImprimeEtat()
                         test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QString::number(row) + "</span></td>"                                                                 //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">"
-                                + rec->date().toString(tr("d MMM yyyy")) + "</span></td>"                                               //! date
+                                + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></td>"                                               //! date
                                 "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">"
                                 + rec->payeur() + "</span></td>"                                                                        //! nom prenom ou libelle si recette speciale
                                 "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">-</span></td>";                       //! vide (on est obligé de mettre un "-" parce que sinon la hauteur de ligne est fausse)
@@ -348,7 +348,7 @@ void dlg_bilanrecettes::ImprimeEtat()
                         test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QString::number(row) + "</span></td>"                                                                 //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">"
-                                + rec->date().toString(tr("d MMM yyyy")) + "</span></td>"                                               //! date
+                                + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></td>"                                               //! date
                                 "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">"
                                 + rec->payeur() + "</span></td>";                                                                       //! nom prenom ou libelle si recette speciale
                         if (rec->isautrerecette())
@@ -565,7 +565,7 @@ void dlg_bilanrecettes::ExportTable()
     }
     QString ExportFileName = PATH_DIR_RUFUS + "/"
                             + (m_mode == COMPTABLE? tr("Recettes") + " " + Datas::I()->users->userconnected()->login() : tr("Actes") + " " + wdg_supervcombobox->currentText())
-                            + " " + tr("du") + " " + m_debut.toString("d MMM yyyy") + " " + tr("au") + " " + m_fin.toString(tr("d MMM yyyy"))
+                            + " " + tr("du") + " " + QLocale::system().toString(m_debut,"d MMM yyyy") + " " + tr("au") + " " + QLocale::system().toString(m_fin,"d MMM yyyy")
                             + ".csv";
     QFile   ExportFile(ExportFileName);
     bool exportOK = true;
@@ -596,9 +596,9 @@ void dlg_bilanrecettes::NouvPeriode()
 
     QString Titre;
     if (m_debut == m_fin)
-        Titre = tr("Bilan des recettes pour la journée du ") + m_debut.toString(tr("d MMMM yyyy"));
+        Titre = tr("Bilan des recettes pour la journée du ") + QLocale::system().toString(m_debut,tr("d MMMM yyyy"));
     else
-        Titre = tr("Bilan des recettes pour la période du ") + m_debut.toString(tr("d MMMM yyyy")) + tr(" au ") + m_fin.toString(tr("d MMMM yyyy"));
+        Titre = tr("Bilan des recettes pour la période du ") + QLocale::system().toString(m_debut,tr("d MMMM yyyy")) + tr(" au ") + QLocale::system().toString(m_fin,tr("d MMMM yyyy"));
     setWindowTitle(Titre);
 
     RemplitLaTable();
@@ -614,7 +614,7 @@ void dlg_bilanrecettes::RemplitLaTable()
     m_recettesmodel = new QStandardItemModel(this);
     foreach (Recette *rec, *Datas::I()->recettes->recettes())
     {
-        pitem0 = new UpStandardItem(rec->date().toString(tr("d MMM yyyy")), rec);                   // Date - col = 0
+        pitem0 = new UpStandardItem(QLocale::system().toString(rec->date(),tr("d MMM yyyy")), rec);                   // Date - col = 0
         pitem0->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
 
         pitem1 = new UpStandardItem(rec->payeur(), rec);                                            // NomPrenom - col = 1

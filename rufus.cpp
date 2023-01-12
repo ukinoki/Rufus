@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-12-2022/1");
+    qApp->setApplicationVersion("12-01-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -2545,7 +2545,7 @@ void Rufus::ImprimeDossier(Patient *pat)
             for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
             {
                 Acte* act = const_cast<Acte*>(it.value());
-                QString dateacte = act->date().toString("dd-MMM-yyyy");
+                QString dateacte = QLocale::system().toString(act->date(),"dd-MMM-yyyy");
                 if (verslehaut)
                 {
                     if (act->date() >= date)
@@ -2559,15 +2559,15 @@ void Rufus::ImprimeDossier(Patient *pat)
             }
             if (verslehaut)
             {
-                if (dateencours >= date && box->findText(dateencours.toString("dd-MMM-yyyy"))>-1)
-                    box->setCurrentIndex(box->findText(dateencours.toString("dd-MMM-yyyy")));
+                if (dateencours >= date && box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy"))>-1)
+                    box->setCurrentIndex(box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy")));
                 else
                     box->setCurrentIndex(box->count()-1);
             }
             else
             {
-                if (dateencours <= date && box->findText(dateencours.toString("dd-MMM-yyyy"))>-1)
-                    box->setCurrentIndex(box->findText(dateencours.toString("dd-MMM-yyyy")));
+                if (dateencours <= date && box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy"))>-1)
+                    box->setCurrentIndex(box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy")));
                 else
                     box->setCurrentIndex(0);
             }
@@ -2578,7 +2578,7 @@ void Rufus::ImprimeDossier(Patient *pat)
             for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
             {
                 Acte* act = const_cast<Acte*>(it.value());
-                QString dateacte = act->date().toString("dd-MMM-yyyy");
+                QString dateacte = QLocale::system().toString(act->date(),"dd-MMM-yyyy");
                 debutbox    ->addItem(dateacte, act->id());
                 finbox      ->addItem(dateacte, act->id());
             }
@@ -2674,7 +2674,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
     QString Age;
     QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
     Age = AgeTotal["toString"].toString();
-    Reponse += "<p><font color = \"" COULEUR_TITRES "\"><b>" + pat->nom() + " " + pat->prenom() + "</font> - " + Age + "</b> (" + pat->datedenaissance().toString(tr("d MMM yyyy")) + ")</p>";                   //DDN
+    Reponse += "<p><font color = \"" COULEUR_TITRES "\"><b>" + pat->nom() + " " + pat->prenom() + "</font> - " + Age + "</b> (" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")</p>";                   //DDN
     if (pat->adresse1() != "")
         Reponse += "<p>" + pat->adresse1() + "</p>";                                              //Adresse1
     if (pat->adresse2() != "")
@@ -2750,9 +2750,9 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
         if (act == Q_NULLPTR)
                 continue;
         if (act == listeactes.first())
-            datedebut = act->date().toString(tr("d MMM yyyy"));
+            datedebut = QLocale::system().toString(act->date(),tr("d MMM yyyy"));
         if (act == listeactes.last())
-            datefin = act->date().toString(tr("d MMM yyyy"));
+            datefin = QLocale::system().toString(act->date(),tr("d MMM yyyy"));
         if (act->motif() != ""
             || act->texte() != ""
             || act->conclusion() != "")
@@ -2760,7 +2760,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
             User *usr = Datas::I()->users->getById(act->idUserSuperviseur());
             QString titre (usr? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null");
             reponsevide = false;
-            Reponse += "<p><td width=\"140\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
+            Reponse += "<p><td width=\"140\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + QLocale::system().toString(act->date(),tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
                     + titre + "</td></p>";
             if (act->motif() != "")
@@ -2819,7 +2819,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    Entete.replace("{{TITRE}}"              , "<font color = \"" COULEUR_TITRES "\">" + comment + "</font>");
    Entete.replace("{{PRENOM PATIENT}}"     , pat->prenom());
    Entete.replace("{{NOM PATIENT}}"        , pat->nom().toUpper());
-   Entete.replace("{{DDN}}"                , "(" + pat->datedenaissance().toString(tr("d MMM yyyy")) + ")");
+   Entete.replace("{{DDN}}"                , "(" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")");
 
 
    // création du pied
@@ -2849,7 +2849,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        aa = proc->Cree_pdf(Etat_textEdit, Entete, Pied,
                              (listeactes.size() > 1?
                                   tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
-                                  tr("Acte")  + " - " + pat->nom() + " " + pat->prenom() + " - " + listeactes.at(0)->date().toString("d MMM yyyy")) + ".pdf",
+                                  tr("Acte")  + " - " + pat->nom() + " " + pat->prenom() + " - " + QLocale::system().toString(listeactes.at(0)->date(),"d MMM yyyy")) + ".pdf",
                              nomdossier);
    }
    else
@@ -3233,7 +3233,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     for (int i=0; i<listpats.size(); i++)
     {
         pitem   = new QStandardItem(listpats.at(i).at(1).toString() + " " + listpats.at(i).at(2).toString());
-        pitem1  = new QStandardItem(listpats.at(i).at(3).toDate().toString(tr("dd-MMM-yyyy")));
+        pitem1  = new QStandardItem(QLocale::system().toString(listpats.at(i).at(3).toDate(),tr("dd-MMM-yyyy")));
         pitem2  = new QStandardItem(listpats.at(i).at(4).toString());
         pitem   ->setAccessibleDescription(listpats.at(i).at(0).toString());
         pitem1  ->setAccessibleDescription(listpats.at(i).at(0).toString());
@@ -3302,7 +3302,7 @@ void Rufus::AfficheCourriersAFaire()
     for (int i=0; i<listcourriers.size(); i++)
     {
         pitem   = new QStandardItem(listcourriers.at(i).at(2).toString().toUpper() + " " + listcourriers.at(i).at(3).toString());       // Nom Prenom
-        pitem1  = new QStandardItem(listcourriers.at(i).at(4).toDate().toString(tr("dd-MMM-yyyy")));                        // Date de l'acte
+        pitem1  = new QStandardItem(QLocale::system().toString(listcourriers.at(i).at(4).toDate(),tr("dd-MMM-yyyy")));                  // Date de l'acte
         pitem2  = new QStandardItem(listcourriers.at(i).at(1).toString());                                                  // idPat
         pitem   ->setAccessibleDescription(listcourriers.at(i).at(0).toString());                                           // idActe
         pitem1  ->setAccessibleDescription(listcourriers.at(i).at(0).toString());                                           // idActe
@@ -3424,7 +3424,7 @@ void Rufus::ImprimeListPatients(QVariant var)
         // Remplacement des variables par les valeurs lues.
         lignepat = ligne;
         lignepat.replace("{{NOM PATIENT}}", patlist.at(k).at(1).toString() + " " + patlist.at(k).at(2).toString());
-        lignepat.replace("{{DDN}}", patlist.at(k).at(3).toDate().toString(tr("dd-MMM-yyyy")));
+        lignepat.replace("{{DDN}}", QLocale::system().toString(patlist.at(k).at(3).toDate(),tr("dd-MMM-yyyy")));
         lignepat.replace("{{MOTIF}}", patlist.at(k).at(4).toString());
         texte += lignepat;
      }
@@ -5124,7 +5124,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             {
                 QHBoxLayout *Tasklay = new QHBoxLayout();
                 UpLabel *Todolbl = new UpLabel();
-                Todolbl->setText(tr("A effectuer avant le ") + msg->datelimite().toString(tr("d-MMM-yy")));
+                Todolbl->setText(tr("A effectuer avant le ") + QLocale::system().toString(msg->datelimite(),tr("d-MMM-yy")));
                 if (!msg->isfait())
                 {
                     if (m_currentdate >= msg->datelimite())
@@ -5266,7 +5266,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 QHBoxLayout *Tasklay = new QHBoxLayout();
                 UpLabel *Todolbl = new UpLabel();
                 Tasklay->setSpacing(0);
-                Todolbl->setText(tr("A effectuer avant le ") + msg->datelimite().toString(tr("d-MMM-yy")));
+                Todolbl->setText(tr("A effectuer avant le ") + QLocale::system().toString(msg->datelimite(),tr("d-MMM-yy")));
                 if (!msg->isfait())
                 {
                     if (m_currentdate >= msg->datelimite())
@@ -7047,7 +7047,7 @@ QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
     if (img != "")
         html += "<img class=\"image\" src=\"://" + img + ".png\" WIDTH=\"100\" HEIGHT=\"100\" BORDER=\"10\" />";            //Icone
     html += "<p class=\"p10\"><b>" + pat->nom() + " " + pat->prenom() + "</b></p>";                                       //Nom Prenom
-    html += "<p class=\"p1\"><b>" + Age + "</b> (" + pat->datedenaissance().toString(tr("d MMM yyyy")) + ")</p>";                      //DDN
+    html += "<p class=\"p1\"><b>" + Age + "</b> (" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")</p>";                      //DDN
     if (pat->adresse1() != "")
         html += "<p class=\"p2\">" + pat->adresse1() + "</p>";                                                  //Adresse1
     if (pat->adresse2() != "")
@@ -7306,7 +7306,7 @@ void Rufus::CreerDossier()
         UpSmallButton OKBouton(tr("Je confirme"));
         UpSmallButton NoBouton(tr("Annuler"));
         msgbox.setText("Euuhh... " + currentuser()->login());
-        msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + ui->CreerDDNdateEdit->date().toString(tr("d-MMM-yyyy")));
+        msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + QLocale::system().toString(ui->CreerDDNdateEdit->date(),tr("d-MMM-yyyy")));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
@@ -7629,7 +7629,7 @@ void Rufus::ExporteActe(Acte *act)
     Patient *pat = Datas::I()->patients->getById(act->idPatient());
     if (pat == Q_NULLPTR)
         return;
-    QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + pat->nom() + " " + pat->prenom() + " - " + act->date().toString("d MMM yyyy");
+    QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + pat->nom() + " " + pat->prenom() + " - " + QLocale::system().toString(act->date(),"d MMM yyyy");
     ImprimeListActes(QList<Acte*>() << act, false, true, nomdossier);
     QString req = "select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES
                   " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id()) +
@@ -7721,7 +7721,7 @@ void Rufus::ExporteActe(Acte *act)
             msg = "\n" + tr("Ce dossier contient le contenu de l'acte en cours et ") + QString::number(nb) + tr(" documents d'imagerie");
         UpMessageBox::Watch(this,
                         tr("Export d'acte effectué"),
-                        tr("Le dossier ") + pat->nom() + " " + pat->prenom() + " - " + act->date().toString("d MMM yyyy") +
+                        tr("Le dossier ") + pat->nom() + " " + pat->prenom() + " - " + QLocale::system().toString(act->date(),"d MMM yyyy") +
                         tr(" a été créé sur le bureau") + msg );
     }
     MAJDocsExternes();              //ExporteActe()
