@@ -1218,7 +1218,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
-    AvecPrevisu = true;
+    //AvecPrevisu = true;
     TextPrinter *TexteAImprimer = new TextPrinter();
     QString PiedDepart = Pied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
@@ -1353,14 +1353,16 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
         TexteAImprimer->setTopMargin(TailleTopMarge());
 
         // C'est fini écrire le pdf por l'afficher
-//        QString ficpdf = PATH_FILE_PDF;
-//        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
-//        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
-//        QFile filepdf(ficpdf);
-//        if (!filepdf.open( QIODevice::ReadOnly ))
-//            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
-//        ba = filepdf.readAll();
-//        filepdf.close ();
+        /*
+        QString ficpdf = PATH_FILE_PDF;
+        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
+        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
+        QFile filepdf(ficpdf);
+        if (!filepdf.open( QIODevice::ReadOnly ))
+            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
+        ba = filepdf.readAll();
+        filepdf.close ();`
+        */
 
         ba=TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
 

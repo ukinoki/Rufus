@@ -16,8 +16,8 @@ TextPrinter::TextPrinter(QObject *parent)
                         printer_(new QPrinter(QPrinter::HighResolution)),
                         tempdoc_(Q_NULLPTR),
                         leftmargin_(10), rightmargin_(10), topmargin_(10), bottommargin_(10), spacing_(5),
-                        headersize_(0.0), headerrule_(1), headertext_(QString()), footersize_(0.0), footerrule_(1), footertext_(QString()),
-                        dateformat_(), duplex_(QPrinter::DuplexAuto), units_(QPrinter::Millimeter)
+                        headersize_(0.0), headerlinepenwidth_(0.5), headertext_(QString()), footersize_(0.0), footerlinepenwidth_(0.5), footertext_(QString()),
+                        duplex_(QPrinter::DuplexAuto), units_(QPrinter::Millimeter)
 {
     if (parent)
         parent_ = qobject_cast<QWidget*>(parent);
@@ -25,10 +25,7 @@ TextPrinter::TextPrinter(QObject *parent)
     printer_->setFullPage(true);
     printer_->setPageOrientation(QPageLayout::Portrait);
 
-    // for convenience, default to US_Letter for C/US/Canada
-    // NOTE: bug in Qt, this value is not loaded by QPrintDialog
     switch (QLocale::system().country()) {
-      //case QLocale::AnyCountry:
       case QLocale::Canada:
       case QLocale::UnitedStates:
       case QLocale::UnitedStatesMinorOutlyingIslands:
@@ -157,15 +154,15 @@ void TextPrinter::setHeaderSize(double size)
         headersize_ = 0;
 }
 
-double TextPrinter::headerRule() const
+double TextPrinter::headerLinePenWidth() const
 {
-    return headerrule_;
+    return headerlinepenwidth_;
 }
 
-void TextPrinter::setHeaderRule(double pointsize)
+void TextPrinter::setHeaderLinePenWidth(double pointsize)
 {
     // Valeur par defaut = 0.5 pt (1/144 inch)
-    headerrule_ = qMax(0.0, pointsize);
+    headerlinepenwidth_ = qMax(0.0, pointsize);
 }
 
 const QString &TextPrinter::headerText() const
@@ -192,15 +189,15 @@ void TextPrinter::setFooterSize(double size)
         footersize_ = 0;
 }
 
-double TextPrinter::footerRule() const
+double TextPrinter::footerLinePenWidth() const
 {
-    return footerrule_;
+    return footerlinepenwidth_;
 }
 
-void TextPrinter::setFooterRule(double pointsize)
+void TextPrinter::setFooterLinePenWidth(double pointsize)
 {
     // Valeur par defaut = 0.5 pt (1/144 inch)
-    footerrule_ = qMax(0.0, pointsize);
+    footerlinepenwidth_ = qMax(0.0, pointsize);
 }
 
 const QString &TextPrinter::footerText() const
@@ -211,16 +208,6 @@ const QString &TextPrinter::footerText() const
 void TextPrinter::setFooterText(const QString &text)
 {
     footertext_ = text;
-}
-
-const QString &TextPrinter::dateFormat() const
-{
-    return dateformat_;
-}
-
-void TextPrinter::setDateFormat(const QString &format)
-{
-    dateformat_ = format;
 }
 
 void TextPrinter::setDuplex(const QPrinter::DuplexMode duplex)
@@ -382,26 +369,54 @@ void TextPrinter::QRectF2device(QRectF *rect, QPaintDevice *device)
 {
     int factorX = device->logicalDpiX() * toinchfactor_;
     int factorY = device->logicalDpiY() * toinchfactor_;
-
-    rect->setRect(rect->x() * factorX,
-                  rect->y() * factorY,
-                  rect->width() * factorX,
-                  rect->height() * factorY );
+    qreal x = rect->x();
+    qreal y = rect->y();
+    qreal w = rect->width();
+    qreal h = rect->height();
+    x *= factorX;
+    y *= factorY;
+    w *= factorX;
+    h *= factorY;
+    rect->setRect(x, y, w, h);
 }
 
-qreal TextPrinter::x2device(qreal x, QPaintDevice *device)
+qreal TextPrinter::x2device(qreal x, QPaintDevice *device, QPrinter::Unit unit)
 {
-    /*! device horizontal resolution by units_ */
-    int factorX = device->logicalDpiX() * toinchfactor_;
-    /*! number of dots in device resolution of x */
+    qreal correctX;
+    switch (unit) {
+    case QPrinter::Inch:
+        correctX = 1;
+        break;
+    case QPrinter::Point:
+        correctX = 1/72;
+        break;
+     default:
+        correctX = 0.039370147;
+        break;
+    }
+    /*! device horizontal resolution by unit */
+    int factorX = device->logicalDpiX() * correctX;
+    /*! number of dots in device resolution for x */
     return x * factorX;
 }
 
-qreal TextPrinter::y2device(qreal y, QPaintDevice *device)
+qreal TextPrinter::y2device(qreal y, QPaintDevice *device, QPrinter::Unit unit)
 {
-    /*! device vertical resolution by units_ */
-    int factorY = device->logicalDpiY() * toinchfactor_;
-    /*! number of dots in device resolution of y */
+    qreal correctY;
+    switch (unit) {
+    case QPrinter::Inch:
+        correctY = 1;
+        break;
+    case QPrinter::Point:
+        correctY = 1/72;
+        break;
+     default:
+        correctY = 0.039370147;
+        break;
+    }
+    /*! device vertical resolution by unit */
+    int factorY = device->logicalDpiY() * correctY;
+    /*! number of dots in device resolution for y */
     return y * factorY;
 }
 
@@ -426,7 +441,7 @@ QRectF TextPrinter::contentRect(QPaintDevice *device)
     /*!  calculate size of content (paper - margins - header - footer) */
     QRectF rect = paperRect();
 
-    /*! camculate size in units_ (default = mm) */
+    /*! calculate size in units_ (default = mm) */
 
     /*! adjust without margins */
     rect.adjust(leftmargin_,
@@ -460,15 +475,10 @@ QRectF TextPrinter::headerRect(QPaintDevice *device)
 {
     /*!  calculate size of header (paper - margins) */
     QRectF rect = paperRect();
-    rect.adjust(leftmargin_,
-                topmargin_,
-                -rightmargin_, 0);
-
+    rect.adjust(leftmargin_, topmargin_, -rightmargin_, 0);
     rect.setBottom(rect.top() + headersize_);
-
     /*! convert to printer resolution */
     QRectF2device(&rect, device);
-
     return rect;
 }
 
@@ -480,12 +490,9 @@ QRectF TextPrinter::footerRect(QPaintDevice *device)
     /*!  calculate size of footer (paper - margins) */
     QRectF rect = paperRect();
     rect.adjust(leftmargin_, 0,-rightmargin_,-bottommargin_);
-
     rect.setTop(rect.bottom() -footersize_);
-
     /*! convert to printer resolution */
     QRectF2device(&rect, device);
-
     return rect;
 }
 
@@ -495,23 +502,23 @@ QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 {
     QByteArray bapdf;
 
+
     if (document)
     {
         QBuffer buf;
-        //QPdfWriter writer(&buf);
         buf.open(QIODeviceBase::WriteOnly);
         QPdfWriter writer(&buf);
+
         tempdoc_ = document->clone();
 
-        QMarginsF pgMargins = printer_->pageLayout().margins();
-        QPageSize pgSize = printer_->pageLayout().pageSize();
-
+        QMarginsF pgMargins = writer.pageLayout().margins();
+        QPageSize pgSize = writer.pageLayout().pageSize();
         writer.setPageSize(pgSize);
         writer.setPageMargins(pgMargins);
+
         printToDevice(&writer,1,1,0,0,QPrinter::FirstPageFirst);
 
         bapdf=buf.data();
-
     }
     return bapdf;
 }
@@ -659,7 +666,8 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
 {
     /*!
      *  Note the difference between Point and DevicePixel.
-     *  The Point unit is defined to be 1/72th of an inch, while the DevicePixel unit is resolution dependent and is based on the actual pixels, or dots, on the printer.
+     *  The Point unit is defined to be 1/72th of an inch,
+     *  while the DevicePixel unit is resolution dependent and is based on the actual pixels, or dots, on the printer.
      */
 
     QRectF rect;
@@ -668,25 +676,22 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
 /*! 1 - header ----------------------------------------------------------------------------------------------------------------------------------- */
     if (headersize_ > 0) {
         rect = headerRect(painter->device());
-        if (headerrule_ > 0.0) {
+        if (headerlinepenwidth_ > 0.0) {
+            /*! draw line between header and content */
             painter->save();
-            // allow space between rule and header
-            qreal hr = y2device(headerrule_/72, painter->device());
-            painter->setPen(QPen(Qt::black, hr * onepoint));                // choisit le format du pinceau
-            painter->drawLine(rect.bottomLeft(), rect.bottomRight());       // trace une ligne depuis le bas à gauche au bas à droite de l'en-tête
+            painter->translate(0, onepoint + (headerlinepenwidth_ * onepoint / 2.0));        // déplace le pinceau en bas à gauche de l'en-tête
+            painter->setPen(QPen(Qt::black, headerlinepenwidth_ * onepoint));               // choisit le format du pinceau
+            painter->drawLine(rect.bottomLeft(),rect.bottomRight());                       // trace une ligne depuis le bas à gauche au bas à droite de l'en-tête
             painter->restore();
         }
 
         // replace page variables
         QString header = headertext_;
         header.replace("&page;", QString::number(pagenum) + "/" + QString::number(nbpages));
-        if (dateformat_.isEmpty())
-            header.replace("&date;", QDate::currentDate().toString());
-        else
-            header.replace("&date;", QDate::currentDate().toString(dateformat_));
 
         painter->save();
         painter->translate(rect.left(), rect.top());
+
         QTextDocument doc;
         doc.setUseDesignMetrics(true);
         doc.setHtml(header);
@@ -694,7 +699,6 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         doc.setPageSize(rect.size());
 
         QRectF clip(0, 0, rect.width(), rect.height());
-        clip.setHeight(doc.size().height());
         doc.drawContents(painter, clip);
         painter->restore();
     }
@@ -702,12 +706,11 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
 /*! 2 - footer ----------------------------------------------------------------------------------------------------------------------------------- */
     if (footersize_ > 0) {
         rect = footerRect(painter->device());
-        if (footerrule_ > 0.0) {
+        if (footerlinepenwidth_ > 0.0) {
+            /*! draw line between content and footer */
             painter->save();
-            // allow space between rule and footer
-            qreal fr = x2device( footerrule_/72, painter->device());
-            //painter->translate(0, -onepoint + (-fr * onepoint / 2.0));
-            painter->setPen(QPen(Qt::black, fr * onepoint));
+            painter->translate(0, onepoint + (footerlinepenwidth_ * onepoint / 2.0));        // déplace le pinceau en bas à gauche de l'en-tête
+            painter->setPen(QPen(Qt::black, footerlinepenwidth_ * onepoint));
             painter->drawLine(rect.topLeft(), rect.topRight());
             painter->restore();
         }
@@ -715,20 +718,18 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         // replace page variables
         QString footer = footertext_;
         footer.replace("&page;", QString::number(pagenum) + "/" + QString::number(nbpages));
-        if (dateformat_.isEmpty())
-            footer.replace("&date;", QDate::currentDate().toString());
-        else
-            footer.replace("&date;", QDate::currentDate().toString(dateformat_));
 
         painter->save();
-        qreal spaceheight(35);
+        qreal spaceheight(30);
         painter->translate(rect.left(), rect.top()+spaceheight);
-        QRectF clip(0, 0, rect.width(), rect.height()-spaceheight);
+
         QTextDocument doc;
         doc.setUseDesignMetrics(true);
         doc.setHtml(footer);
         doc.documentLayout()->setPaintDevice(painter->device());
         doc.setPageSize(rect.size());
+
+        QRectF clip(0, spaceheight, rect.width(), rect.height()-spaceheight);
         doc.drawContents(painter, clip);
         painter->restore();
     }

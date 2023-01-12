@@ -36,11 +36,11 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 #ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
     d=2;
 #endif
-    m_font      .setPointSize(m_font.pointSize()-d);
-    int margemm         = proc->TailleTopMarge(); // exprimé en mm
+    m_font              .setPointSize(m_font.pointSize()-d);
+    int margemm         = proc->TailleTopMarge();                                       // exprimé en mm
     m_printer           = new QPrinter(QPrinter::HighResolution);
     m_printer           ->setFullPage(true);
-    m_rect              = m_printer->paperRect(QPrinter::Inch);//QRect(30,30,6000,9000);
+    m_rect              = m_printer->paperRect(QPrinter::Inch);
 
     m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
                   Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
@@ -52,21 +52,20 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_inflabel            = new QLabel();
     wdg_inflabel            ->setFont(font);
 
-
-    wdg_scrolltablewidget   = new UpTableWidget(this);                      // utilisé pour afficher les pdf qui ont parfois plusieurs pages
+    wdg_scrolltablewidget   = new UpTableWidget(this);                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
     wdg_scrolltablewidget->horizontalHeader() ->setVisible(false);
     wdg_scrolltablewidget->verticalHeader()   ->setVisible(false);
     wdg_scrolltablewidget   ->installEventFilter(this);
     wdg_scrolltablewidget   ->setFocusPolicy(Qt::NoFocus);
     wdg_scrolltablewidget   ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     wdg_scrolltablewidget   ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    wdg_scrolltablewidget   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    wdg_scrolltablewidget   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
 
-    graphview_view          = new QGraphicsView(obj_graphicscene, this);               // utilisé pour afficher les jpg et les video
+    graphview_view          = new QGraphicsView(obj_graphicscene, this);                // utilisé pour afficher les jpg et les video
     graphview_view          ->installEventFilter(this);
     graphview_view          ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphview_view          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    graphview_view          ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    graphview_view          ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
 
     wdg_listdocstreewiew    ->setFixedWidth(185);
     wdg_listdocstreewiew    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -973,8 +972,7 @@ void dlg_docsexternes::Print(QPrinter *Imprimante)
     if (Imprimante == Q_NULLPTR)
         Imprimante = m_printer;
     QPainter PrintingPreView(Imprimante);
-    QPixmap pix         = QPixmap::fromImage(img_image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
-    //qDebug() << img_image.size() << m_rect.width() << int(m_rect.width()) << pix.size();
+    QPixmap pix = QPixmap::fromImage(img_image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
 

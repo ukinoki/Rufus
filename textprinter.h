@@ -93,19 +93,17 @@ public:
 
     double                  headerSize() const;                                                                 // Get header size
     void                    setHeaderSize(double size);                                                         // Set header size
-    double                  headerRule() const;                                                                 // Set header rule size
-    void                    setHeaderRule(double pointsize);                                                    // Get header rule size
+    double                  headerLinePenWidth() const;                                                         // Set header line pen width
+    void                    setHeaderLinePenWidth(double pointsize);                                            // Get header line pen width
     const QString           &headerText() const;                                                                // Get header text
     void                    setHeaderText(const QString &text);                                                 // Set header text
 
     double                  footerSize() const;                                                                 // Get footer size
     void                    setFooterSize(double size);                                                         // Set footer size
-    double                  footerRule() const;                                                                 // Get footer rule size
-    void                    setFooterRule(double pointsize);                                                    // Set footer rule size
+    double                  footerLinePenWidth() const;                                                         // Get footer line pen width
+    void                    setFooterLinePenWidth(double pointsize);                                            // Set footer line pen width
     const QString           &footerText() const;                                                                // Get footer text
     void                    setFooterText(const QString &text);                                                 // Set footer text
-    const QString           &dateFormat() const;                                                                // Get date format
-    void                    setDateFormat(const QString &format);                                               // Set date format
 
     void                    setDuplex(const QPrinter::DuplexMode duplex);                                       // rectoverso
     void                    setPrinterName(QString printerName);
@@ -120,7 +118,7 @@ private:
     TextPrinter(const TextPrinter&);
     TextPrinter             &operator=(const TextPrinter&);                                                     // not copyable
 
-    QRectF                  paperRect();                                                    // return paper rect
+    QRectF                  paperRect();                                                                        // return paper rect
 
     QRectF                  contentRect(QPaintDevice *device);                                                  // return printable rects
     QRectF                  headerRect(QPaintDevice *device);
@@ -129,11 +127,11 @@ private:
     void                    launchprint();                                                                      // common print routine
     void                    paintPage(QPainter *painter, int pagenum, int nbpages);                             // paint specific page
     //added by Javier
-    void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                   // adjusts rect to device resolution ???
+    void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                  // adjusts rect to device resolution ???
     //added by Javier
-    qreal                   x2device(qreal x, QPaintDevice *device);
+    qreal                   x2device(qreal x, QPaintDevice *device, QPrinter::Unit unit = QPrinter::Millimeter);// returns number of dots of device for dimension x given in unit
     //added by Javier
-    qreal                   y2device(qreal y, QPaintDevice *device);
+    qreal                   y2device(qreal y, QPaintDevice *device, QPrinter::Unit unit = QPrinter::Millimeter);// returns number of dots of device for dimension y given in unit
 
 
     QWidget                 *parent_;
@@ -148,13 +146,12 @@ private:
     double                  spacing_;
 
     double                  headersize_;
-    double                  headerrule_;
+    double                  headerlinepenwidth_;                                                                // pen width in points of the line separating header from content
     QString                 headertext_;
     double                  footersize_;
-    double                  footerrule_;
+    double                  footerlinepenwidth_;                                                                // pen width in points of the line separating footer from content
     QString                 footertext_;
 
-    QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
 
     //added by Javier
