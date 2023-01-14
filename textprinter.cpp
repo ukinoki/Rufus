@@ -497,7 +497,8 @@ QRectF TextPrinter::footerRect(QPaintDevice *device)
 }
 
 
-
+// Prints a document to a PDF
+//
 QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 {
     QByteArray bapdf;
@@ -511,8 +512,8 @@ QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 
         tempdoc_ = document->clone();
 
-        QMarginsF pgMargins = writer.pageLayout().margins();
-        QPageSize pgSize = writer.pageLayout().pageSize();
+        QMarginsF pgMargins(0,0,0,0);
+        QPageSize pgSize = printer_->pageLayout().pageSize();
         writer.setPageSize(pgSize);
         writer.setPageMargins(pgMargins);
 
