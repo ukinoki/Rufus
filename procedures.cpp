@@ -1377,7 +1377,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                         QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (" CP_ID_ECHGIMAGES ", " + sfx + ", " CP_COMPRESSION_ECHGIMAGES ")"
                                                                                                   " VALUES (" +
                                 iditem + ", " +
-                                " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
+                                " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename) + "'), " +
                                 QString::number(docmt->compression()) + ")";
                         db->StandardSQL(req);
                         //qDebug() << req;
@@ -1390,7 +1390,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                         QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (" CP_ID_ECHGIMAGES ", " + sfx + ", " CP_FACTURE_ECHGIMAGES ") "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename) + "'), " +
                                       "1)";
                         db->StandardSQL(req);
                     }

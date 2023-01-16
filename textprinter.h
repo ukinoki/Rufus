@@ -86,19 +86,17 @@ public:
 
     double                  headerSize() const;                                                                 // Get header size
     void                    setHeaderSize(double size);                                                         // Set header size
-    double                  headerRule() const;                                                                 // Set header rule size
-    void                    setHeaderRule(double pointsize);                                                    // Get header rule size
+    double                  headerLinePenWidth() const;                                                         // Set header line pen width
+    void                    setHeaderLinePenWidth(double pointsize);                                            // Get header line pen width
     const QString           &headerText() const;                                                                // Get header text
     void                    setHeaderText(const QString &text);                                                 // Set header text
 
     double                  footerSize() const;                                                                 // Get footer size
     void                    setFooterSize(double size);                                                         // Set footer size
-    double                  footerRule() const;                                                                 // Get footer rule size
-    void                    setFooterRule(double pointsize);                                                    // Set footer rule size
+    double                  footerLinePenWidth() const;                                                         // Get footer line pen with
+    void                    setFooterLinePenWidth(double pointsize);                                            // Set footer line pen width
     const QString           &footerText() const;                                                                // Get footer text
     void                    setFooterText(const QString &text);                                                 // Set footer text
-    const QString           &dateFormat() const;                                                                // Get date format
-    void                    setDateFormat(const QString &format);                                               // Set date format
 
     void                    setDuplex(const QPrinter::DuplexMode duplex);                                       // rectoverso
     void                    setPrinterName(QString printerName);
@@ -108,13 +106,18 @@ private:
     TextPrinter(const TextPrinter&);
     TextPrinter             &operator=(const TextPrinter&);                                                     // not copyable
 
-    QRectF                  paperRect(QPaintDevice *device);                                                    // return paper rect
+    QRectF                  paperRectDPI(QPaintDevice *device);                                                 // return paper rect
 
     QRectF                  contentRect(QPaintDevice *device);                                                  // return printable rects
     QRectF                  headerRect(QPaintDevice *device);
     QRectF                  footerRect(QPaintDevice *device);
 
-    void                    launchprint(QPrinter *printer);                                                     // common print routine
+    qreal                   adjustedheaderheight_ = 0.0;                                                        // calculated header height, depending on headertext_
+    qreal                   adjustedheaderheight(QPainter *painter);
+    QRectF                  adjustedHeaderRect(QPainter *painter);
+    QRectF                  adjustedContentRect(QPainter *painter);
+
+    void                    launchprint(QPrinter *printer = Q_NULLPTR);                                                                      // common print routine
     void                    paintPage(QPainter *painter, QTextDocument *document, int pagenum, int nbpages);    // paint specific page
 
     QWidget                 *parent_;
@@ -129,13 +132,12 @@ private:
     double                  spacing_;
 
     double                  headersize_;
-    double                  headerrule_;
+    double                  headerlinepenwidth_;
     QString                 headertext_;
     double                  footersize_;
-    double                  footerrule_;
+    double                  footerlinepenwidth_;
     QString                 footertext_;
 
-    QString                 dateformat_;
     QPrinter::DuplexMode    duplex_;
 };
 
