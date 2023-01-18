@@ -1352,26 +1352,7 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(TailleTopMarge());
 
-        // C'est fini écrire le pdf por l'afficher
-        /*
-        QString ficpdf = PATH_FILE_PDF;
-        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
-        QFile filepdf(ficpdf);
-        if (!filepdf.open( QIODevice::ReadOnly ))
-            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
-        ba = filepdf.readAll();
-        filepdf.close ();`
-        */
-
         ba=TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
-
-//        QFile file("Qt6"+ficpdf);
-//        if (file.open(QFile::WriteOnly)) {
-//            QByteArray data(ba);
-//            file.write(data);
-//            file.close();
-//        }
     }
     docmt->setimageformat(fileformat);
     docmt->setimageblob(ba);
@@ -2121,6 +2102,8 @@ int Procedures::TaillePieddePageOrdoLunettes()
 
 int Procedures::TailleTopMarge()
 {
+    if (m_settings->value(Imprimante_TailleTopMarge).toInt() < 10)
+        m_settings->setValue(Imprimante_TailleTopMarge, 5);
     return m_settings->value(Imprimante_TailleTopMarge).toInt();
 }
 
