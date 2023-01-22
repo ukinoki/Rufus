@@ -634,7 +634,7 @@ bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified
             else if (ConfirmMDP->text() == MDP)
                 dlg_askMDP->accept();
             else
-                UpMessageBox::Watch(parent, QObject::tr("Mot de passe invalide!"));
+                UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
         });
         dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
         dlg_askMDP->dlglayout()->setSpacing(8);
