@@ -5027,6 +5027,7 @@ void Procedures::RegleRefracteurCOM()
   *TIME|2012/10/06 04:06:58
   SOH*PC_SND_EEOT
   */
+        int idpat = 0;
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
