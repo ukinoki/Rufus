@@ -4755,7 +4755,7 @@ bool Procedures::ReglePortRefracteur()
         s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
     {
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
@@ -4808,11 +4808,36 @@ void Procedures::RegleRefracteurCOM()
      * Datas::I()->mesureacuité     qui met en subjectif la dernière mesure d'acuité du patient
      */
     /*! +++ sur les NIDEK, on ne peut que régler l'autoref et le fronto depuis le PC - les refractions subjectives et finales ne peuvent pas être préréglées */
+    int idpat = 0;
     auto convertaxe = [&] (QString &finalvalue, int originvalue)
     {
         if (originvalue < 10)       finalvalue = "  " + QString::number(originvalue);
         else if (originvalue < 100) finalvalue = " "  + QString::number(originvalue);
         else                        finalvalue = QString::number(originvalue);
+    };
+    QString AxeOD, AxeOG;
+    QString AddOD, AddOG;
+    QString SphereOD, SphereOG;
+    QString CylindreOD, CylindreOG;
+    QString SCAOD, SCAOG;
+    QString DataAEnvoyer;
+    auto convertdioptries = [&] (QString &finalvalue, double originvalue)
+    {
+        if (originvalue > 0)
+            finalvalue = (originvalue < 10? "+0" : "+") + QString::number(originvalue,'f',2);
+        else if (originvalue < 0)
+            finalvalue = (originvalue > -10? QString::number(originvalue,'f',2).replace("-", "-0") : QString::number(originvalue,'f',2));
+    };
+    auto initvariables = [&] ()
+    {
+        AxeOD  = "180";
+        AxeOG  = "180";
+        AddOD  = "+00.00";
+        AddOG  = "+00.00";
+        SphereOD  = "+00.00";
+        SphereOG  = "+00.00";
+        CylindreOD  = "+00.00";
+        CylindreOG  = "+00.00";
     };
 
     // ----------------- CONNECTION SERIE
@@ -4820,33 +4845,6 @@ void Procedures::RegleRefracteurCOM()
     if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
      || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
-
-        QString AxeOD, AxeOG;
-        QString AddOD, AddOG;
-        QString SphereOD, SphereOG;
-        QString CylindreOD, CylindreOG;
-        QString SCAOD, SCAOG;
-        QString DataAEnvoyer;
-        int idpat = 0;
-
-        auto convertdioptries = [&] (QString &finalvalue, double originvalue)
-        {
-            if (originvalue > 0)
-                finalvalue = (originvalue < 10? "+0" : "+") + QString::number(originvalue,'f',2);
-            else if (originvalue < 0)
-                finalvalue = (originvalue > -10? QString::number(originvalue,'f',2).replace("-", "-0") : QString::number(originvalue,'f',2));
-        };
-        auto initvariables = [&] ()
-        {
-            AxeOD  = "180";
-            AxeOG  = "180";
-            AddOD  = "+00.00";
-            AddOG  = "+00.00";
-            SphereOD  = "+00.00";
-            SphereOG  = "+00.00";
-            CylindreOD  = "+00.00";
-            CylindreOG  = "+00.00";
-        };
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
@@ -4944,10 +4942,10 @@ void Procedures::RegleRefracteurCOM()
     }
     // FIN NIDEK RT-5100 - RT-2100 =======================================================================================================================================
     // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000"
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000"
      || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
     {
-        /* SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
+        /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
          * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
          * STX =    QByteArray::fromHex("2")            //STX -> start of texT
          * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
@@ -5013,32 +5011,6 @@ WD|40|
 SOH*PC_SND_EEOT
 */
 
-        QString AxeOD, AxeOG;
-        QString AddOD, AddOG;
-        QString SphereOD, SphereOG;
-        QString CylindreOD, CylindreOG;
-        QString SCAOD, SCAOG;
-        QString DataAEnvoyer;
-        int idpat = 0;
-
-        auto convertdioptries = [&] (QString &finalvalue, double originvalue)
-        {
-            if (originvalue > 0)
-                finalvalue = (originvalue < 10? "+0" : "+") + QString::number(originvalue,'f',2);
-            else if (originvalue < 0)
-                finalvalue = (originvalue > -10? QString::number(originvalue,'f',2).replace("-", "-0") : QString::number(originvalue,'f',2));
-        };
-        auto initvariables = [&] ()
-        {
-            AxeOD  = "180";
-            AxeOG  = "180";
-            AddOD  = "+00.00";
-            AddOG  = "+00.00";
-            SphereOD  = "+00.00";
-            SphereOG  = "+00.00";
-            CylindreOD  = "+00.00";
-            CylindreOG  = "+00.00";
-        };
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
@@ -6290,10 +6262,10 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="Rodenstock Phoromap 2000")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
+     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
-        /*
+        /*!
 NIDEK RT-5100 ID             DA2016/12/30
 @LM
  R+ 1.50- 1.25 15
@@ -6578,10 +6550,10 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
     // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
      || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
-        /* SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
+        /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
          * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
          * STX =    QByteArray::fromHex("2")            //STX -> start of texT
          * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
