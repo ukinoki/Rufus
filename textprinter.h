@@ -67,6 +67,7 @@ public:
 
     //added by Javier
     QByteArray              getPDFByteArray(const QTextDocument *document);
+
     //added by Javier
     void                    printToDevice(QPagedPaintDevice *device);
     bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false);   // Print the document
@@ -142,23 +143,29 @@ private:
 
     QTextDocument           *tempdoc_;
 
+    // all margins in units_ (default = millimeter)
     double                  leftmargin_;
     double                  rightmargin_;
     double                  topmargin_;
     double                  bottommargin_;
     double                  spacing_;
 
+    // footer and header size in units_ (default = millimeter)
     double                  headersize_;
-    double                  headerlinepenwidth_;                                                                // pen width in points of the line separating header from content
-    QString                 headertext_;
     double                  footersize_;
+
+    // header and footer line width in points (= 1/72 inch)
+    double                  headerlinepenwidth_;                                                                // pen width in points of the line separating header from content
     double                  footerlinepenwidth_;                                                                // pen width in points of the line separating footer from content
+
+    QString                 headertext_;
     QString                 footertext_;
 
     QPrinter::DuplexMode    duplex_;
 
-    //added by Javier
+     // enum unit allows to limit printing units to millimeter, inch or points
     enum Unit               textprinterunits_;
+    //added by Javier
     QPrinter::Unit          units_;
     //added by Javier
     double                  toinchfactor_;

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("18-01-2023/1");
+    qApp->setApplicationVersion("24-01-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -927,7 +927,8 @@ void Rufus::ActeGratuit()
 {
     ui->ActeCotationcomboBox->setCurrentIndex(0);
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
-        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());}
+        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
+}
 
 void Rufus::ActeMontantModifie()
 {
@@ -935,7 +936,8 @@ void Rufus::ActeMontantModifie()
     if (b != m_montantActe)
         ValideActeMontantLineEdit(b, m_montantActe);  // ActeMontantModifie()
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
-        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());}
+        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
+}
 
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher le motif de l'acte ----------------------------------------------------------------

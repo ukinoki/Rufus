@@ -4771,6 +4771,14 @@ bool Procedures::ReglePortRefracteur()
         s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    {
+        s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
+        s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
+        s_paramPortSerieRefracteur.parity         = QSerialPort::EvenParity;
+        s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
+        s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
+    }
     else a = false;
     return a;
 }
@@ -4816,44 +4824,44 @@ void Procedures::RegleRefracteurCOM()
      * Datas::I()->mesureacuité     qui met en subjectif la dernière mesure d'acuité du patient
      */
     /*! +++ sur les NIDEK, on ne peut que régler l'autoref et le fronto depuis le PC - les refractions subjectives et finales ne peuvent pas être préréglées */
+    QString AxeOD, AxeOG;
+    QString AddOD, AddOG;
+    QString SphereOD, SphereOG;
+    QString CylindreOD, CylindreOG;
+    QString SCAOD, SCAOG;
+    QString DataAEnvoyer;
     auto convertaxe = [&] (QString &finalvalue, int originvalue)
     {
         if (originvalue < 10)       finalvalue = "  " + QString::number(originvalue);
         else if (originvalue < 100) finalvalue = " "  + QString::number(originvalue);
         else                        finalvalue = QString::number(originvalue);
     };
+    auto convertdioptries = [&] (QString &finalvalue, double originvalue)
+    {
+        if (originvalue > 0)
+            finalvalue = (originvalue < 10? "+0" : "+") + QString::number(originvalue,'f',2);
+        else if (originvalue < 0)
+            finalvalue = (originvalue > -10? QString::number(originvalue,'f',2).replace("-", "-0") : QString::number(originvalue,'f',2));
+    };
+    auto initvariables = [&] ()
+    {
+        AxeOD  = "180";
+        AxeOG  = "180";
+        AddOD  = "+00.00";
+        AddOG  = "+00.00";
+        SphereOD  = "+00.00";
+        SphereOG  = "+00.00";
+        CylindreOD  = "+00.00";
+        CylindreOG  = "+00.00";
+    };
 
     // ----------------- CONNECTION SERIE
+    // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
     if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
      || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
-
-        QString AxeOD, AxeOG;
-        QString AddOD, AddOG;
-        QString SphereOD, SphereOG;
-        QString CylindreOD, CylindreOG;
-        QString SCAOD, SCAOG;
-        QString DataAEnvoyer;
         int idpat = 0;
 
-        auto convertdioptries = [&] (QString &finalvalue, double originvalue)
-        {
-            if (originvalue > 0)
-                finalvalue = (originvalue < 10? "+0" : "+") + QString::number(originvalue,'f',2);
-            else if (originvalue < 0)
-                finalvalue = (originvalue > -10? QString::number(originvalue,'f',2).replace("-", "-0") : QString::number(originvalue,'f',2));
-        };
-        auto initvariables = [&] ()
-        {
-            AxeOD  = "180";
-            AxeOG  = "180";
-            AddOD  = "+00.00";
-            AddOG  = "+00.00";
-            SphereOD  = "+00.00";
-            SphereOG  = "+00.00";
-            CylindreOD  = "+00.00";
-            CylindreOG  = "+00.00";
-        };
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
@@ -4949,6 +4957,172 @@ void Procedures::RegleRefracteurCOM()
 //        PortRefracteur()->waitForBytesWritten(1000);
         Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
     }
+    // FIN NIDEK RT-5100 - RT-2100 =======================================================================================================================================
+    // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000"
+            || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    {
+        /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
+           * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
+           * STX =    QByteArray::fromHex("2")            //STX -> start of texT
+           * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
+           * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
+           * La 1ere et la dernière lignes commence par SOH et se termine par EOT - représentés ici
+           * Les autres lignes commencent par STX et se terminent par ETP
+
+
+  SOH*PC_SND_SEOT
+  *Phoromat 2000|000000001|0
+  PD|32.0|32.0|
+  WD|40|
+  *UN
+  *VA|0.2|0.4|0.5|
+  *LM
+  *SP| -0.25| -0.25|
+  *CY| -0.25| -0.25|
+  *AX|135|135|
+  *AD| 1.50| 1.50|
+  *VA|0.2|0.4|0.5|
+  *PH|O| 0.50|O| 0.50|
+  *PV|U| 0.50|D| 0.50|
+  *ARETB
+  *SP| 0.25| 0.25|
+  *CY| -4.25| -4.25|
+  *AX| 45| 45|
+  *AD| 1.60| 1.70|
+  *VA|0.2|0.4|0.5|
+  *PH|O| 1.00|O| 1.00|
+  *PV|U| 1.50|D| 1.50|
+  *SJ
+  *SP| 0.50| 0.50|
+  *CY| -0.25| -0.25|
+  *AX|135|135|
+  *AD| 1.50| 1.40|
+  *VA|0.2|0.4|0.5|
+  *PH|O| 0.50|O| 0.50|
+  *PV|U| 0.50|D| 0.50|
+  *FNETB
+  *SP| -0.50| -0.50|
+  *CY| -5.00| -5.00|
+  *AX| 30| 30|
+  *AD| 1.70| 1.50|
+  *VA|0.2|0.4|0.5|
+  *PH|O| 0.50|O| 0.50|
+  *PV|D| 1.00|U| 1.00|
+  *KM|R1|L| 8.04| 42.00| 85|
+  *KM|R2|L| 7.74| 43.50|175|
+  *KM|R1|R| 8.04| 42.00| 85|
+  *KM|R2|R| 7.74| 43.50|175|
+  *AV
+  *NPC|-8| 9.5| 64.8|
+  *NPA|B|33| 3.03|
+  *NPA|L|33| 3.03|
+  *NPA|R|33| 3.03|
+  *NRA|B| 2.00| 1.75|
+  *PRA|B| 3.50| 2.50|
+  *DIV|f| 9.00|16.00|10.00|
+  *DIV|n| 3.00| 5.25| 8.00|
+  *CON|f| 7.00|20.00|15.00|
+  *CON|n| 2.00| 4.10| 6.00|
+  *TIME|2012/10/06 04:06:58
+  SOH*PC_SND_EEOT
+  */
+        QByteArray DTRbuff;
+        DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
+
+        /*! réglage de l'autoref */
+        if (m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+        {
+            initvariables();
+            convertaxe(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
+            convertaxe(AxeOG, Datas::I()->mesureautoref->axecylindreOG());
+            convertdioptries(SphereOD, Datas::I()->mesureautoref->sphereOD());
+            convertdioptries(SphereOG, Datas::I()->mesureautoref->sphereOG());
+            convertdioptries(CylindreOD, Datas::I()->mesureautoref->cylindreOD());
+            convertdioptries(CylindreOG, Datas::I()->mesureautoref->cylindreOG());
+
+            SCAOD       = SphereOD + CylindreOD + AxeOD;
+            SCAOG       = SphereOG + CylindreOG + AxeOG;
+            SCAOD.replace("+0","+ ");
+            SCAOD.replace("-0","- ");
+            SCAOG.replace("+0","+ ");
+            SCAOG.replace("-0","- ");
+            DTRbuff.append("DRM");                              //section fronto
+            DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+            DTRbuff.append("OR"+ SCAOD.toLocal8Bit());                        //SD
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append("OL"+ SCAOG.toLocal8Bit());                        //SD
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            if (Datas::I()->mesureautoref->ecartIP() > 0)
+            {
+                DTRbuff.append("PD"+ QString::number(Datas::I()->mesureautoref->ecartIP()).toLocal8Bit());
+                                                                //SD
+                DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
+            }
+            idpat = Datas::I()->mesureautoref->idpatient();
+       }
+
+        /*! réglage du fronto */
+        if (m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        {
+            initvariables();
+
+            convertaxe(AxeOD, Utils::roundToNearestFive(Datas::I()->mesurefronto->axecylindreOD()));
+            convertaxe(AxeOG, Utils::roundToNearestFive(Datas::I()->mesurefronto->axecylindreOG()));
+            convertdioptries(SphereOD, Datas::I()->mesurefronto->sphereOD());
+            convertdioptries(SphereOG, Datas::I()->mesurefronto->sphereOG());
+            convertdioptries(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
+            convertdioptries(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
+
+            SCAOD       = SphereOD + CylindreOD + AxeOD;
+            SCAOG       = SphereOG + CylindreOG + AxeOG;
+            SCAOD.replace("+0","+ ");
+            SCAOD.replace("-0","- ");
+            SCAOG.replace("+0","+ ");
+            SCAOG.replace("-0","- ");
+            AddOD       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
+            AddOG       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
+            DTRbuff.append("DLM");                              //section fronto
+            DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+            DTRbuff.append(" R"+ SCAOD.toLocal8Bit());                        //SD
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(" L"+ SCAOG.toLocal8Bit());                        //SD
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append("AR" + AddOD.toLocal8Bit());                       //SD
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append("AL" + AddOG.toLocal8Bit());                       //SD
+            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            if (Datas::I()->mesurefronto->ecartIP() > 0)
+            {
+                DTRbuff.append("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP()).toLocal8Bit());
+                                                                //SD
+                DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
+            }
+            if (idpat == 0)
+                idpat = Datas::I()->mesurefronto->idpatient();
+        }
+        DTRbuff.append(QByteArray::fromHex("4"));               //EOT -> end of transmission
+
+        /*!
+        qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
+        QString nompat = "";
+        Patient *pat = Datas::I()->patients->getById(idpat);
+        if (pat)
+            nompat = pat->prenom() + " " + pat->nom().toUpper();
+        Logs::LogToFile("PortSerieRefracteur.txt", "Datas = " + QString(DTRbuff).toLocal8Bit() + " - "
+                        + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
+                        + (nompat != ""? " - " : "") + nompat);
+        */
+//        qint32 baud = port->baudRate();
+//        int timetowaitms= int (datas.size()*8*1000 / baud);
+//        timetowaitms += 10;
+//        qDebug() << " DTRbuff - Refracteur = " << QString(DTRbuff).toLocal8Bit();
+//        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
+//        PortRefracteur()->flush();
+//        PortRefracteur()->waitForBytesWritten(1000);
+        Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
+    }
+    // FIN TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
 }
 
 void Procedures::RegleRefracteurXML()
@@ -6108,7 +6282,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
      || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
-        /*
+        /*!
 NIDEK RT-5100 ID             DA2016/12/30
 @LM
  R+ 1.50- 1.25 15
@@ -6392,6 +6566,338 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
         //debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
+
+    // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
+     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+    {
+        /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
+         * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
+         * STX =    QByteArray::fromHex("2")            //STX -> start of texT
+         * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
+         * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
+         * La 1ere et la dernière lignes commence par SOH et se termine par EOT - représentés ici
+         * Les autres lignes commencent par STX et se terminent par ETP
+
+
+SOH*PC_RCV_SEOT
+*Phoromat 2000|000000001|0
+PD|32.0|32.0|
+WD|40|
+*UN
+*VA|0.2|0.4|0.5|
+*LM
+*SP| -0.25| -0.25|
+*CY| -0.25| -0.25|
+*AX|135|135|
+*AD| 1.50| 1.50|
+*VA|0.2|0.4|0.5|
+*PH|O| 0.50|O| 0.50|
+*PV|U| 0.50|D| 0.50|
+*ARETB
+*SP| 0.25| 0.25|
+*CY| -4.25| -4.25|
+*AX| 45| 45|
+*AD| 1.60| 1.70|
+*VA|0.2|0.4|0.5|
+*PH|O| 1.00|O| 1.00|
+*PV|U| 1.50|D| 1.50|
+*SJ
+*SP| 0.50| 0.50|
+*CY| -0.25| -0.25|
+*AX|135|135|
+*AD| 1.50| 1.40|
+*VA|0.2|0.4|0.5|
+*PH|O| 0.50|O| 0.50|
+*PV|U| 0.50|D| 0.50|
+*FNETB
+*SP| -0.50| -0.50|
+*CY| -5.00| -5.00|
+*AX| 30| 30|
+*AD| 1.70| 1.50|
+*VA|0.2|0.4|0.5|
+*PH|O| 0.50|O| 0.50|
+*PV|D| 1.00|U| 1.00|
+*KM|R1|L| 8.04| 42.00| 85|
+*KM|R2|L| 7.74| 43.50|175|
+*KM|R1|R| 8.04| 42.00| 85|
+*KM|R2|R| 7.74| 43.50|175|
+*AV
+*NPC|-8| 9.5| 64.8|
+*NPA|B|33| 3.03|
+*NPA|L|33| 3.03|
+*NPA|R|33| 3.03|
+*NRA|B| 2.00| 1.75|
+*PRA|B| 3.50| 2.50|
+*DIV|f| 9.00|16.00|10.00|
+*DIV|n| 3.00| 5.25| 8.00|
+*CON|f| 7.00|20.00|15.00|
+*CON|n| 2.00| 4.10| 6.00|
+*TIME|2012/10/06 04:06:58
+SOH*PC_RCV_EEOT
+*/
+
+        //! Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
+        if (Mesure.contains("@LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+        {
+            MesureRefraction        *oldMesureFronto = new MesureRefraction();
+            oldMesureFronto         ->setdatas(Datas::I()->mesurefronto);
+            Datas::I()->mesurefronto->cleandatas();
+            idx                     = Mesure.indexOf("@LM");
+            QString SectionFronto   = Mesure.right(Mesure.length()-idx);
+            //Edit(SectionFronto + "\nOK");
+            // OEIL DROIT -----------------------------------------------------------------------------
+            if (SectionFronto.contains(" R"))
+            {
+                mesureOD     = SectionFronto.mid(SectionFronto.indexOf(" R")+2,15)   .replace(" ","0");
+                mSphereOD    = mesureOD.mid(0,6);
+                mCylOD       = mesureOD.mid(6,6);
+                mAxeOD       = mesureOD.mid(12,3);
+                mAddOD       = SectionFronto.mid(SectionFronto.indexOf("AR")+2,6)    .replace(" ","0");
+                Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
+                Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
+                Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
+                Datas::I()->mesurefronto->setaddVPOD(mAddOD.toDouble());
+            }
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            if (SectionFronto.contains(" L"))
+            {
+                mesureOG     = SectionFronto.mid(SectionFronto.indexOf(" L")+2,15)   .replace(" ","0");
+                mSphereOG    = mesureOG.mid(0,6);
+                mCylOG       = mesureOG.mid(6,6);
+                mAxeOG       = mesureOG.mid(12,3);
+                mAddOG       = SectionFronto.mid(SectionFronto.indexOf("AL")+2,6)    .replace(" ","0");
+                Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
+                Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
+                Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
+                Datas::I()->mesurefronto->setaddVPOG(mAddOG.toDouble());
+            }
+            //debugMesureRefraction(Datas::I()->mesurefronto);
+            if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+            {
+                InsertMesure(MesureFronto);
+                emit NouvMesure(MesureFronto);
+            }
+            delete oldMesureFronto;
+        }
+
+        //! Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
+        if (Mesure.contains("@KM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)                 //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+        {
+            Keratometrie  *oldMesureKerato = new Keratometrie();
+            oldMesureKerato->setdatas(Datas::I()->mesurekerato);
+            Datas::I()->mesurekerato->cleandatas();
+            idx                     = Mesure.indexOf("@KM");
+            QString SectionKerato   = Mesure.right(Mesure.length()-idx);
+            //Edit(SectionKerato + "\nOK");
+            // OEIL DROIT -----------------------------------------------------------------------------
+            if (SectionKerato.contains("CR"))
+            {
+                mesureOD            = SectionKerato.mid(SectionKerato.indexOf("CR")+2,13)   .replace(" ","0");
+                K1OD                = mesureOD.mid(0,5);
+                K2OD                = mesureOD.mid(5,5);
+                AxeKOD              = mesureOD.mid(10,3).toInt();
+                Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
+                Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
+                Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
+                if (SectionKerato.contains("DR"))
+                {
+                    mesureOD        = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
+                    Datas::I()->mesurekerato->setdioptriesK1OD(mesureOD.mid(0,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OD(mesureOD.mid(5,5).toDouble());
+                }
+            }
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            if (SectionKerato.contains("CL"))
+            {
+                mesureOG            = SectionKerato.mid(SectionKerato.indexOf("CL")+2,13)   .replace(" ","0");
+                K1OG                = mesureOG.mid(0,5);
+                K2OG                = mesureOG.mid(5,5);
+                AxeKOG              = mesureOG.mid(10,3).toInt();
+                Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
+                Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
+                Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
+                if (SectionKerato.contains("DL"))
+                {
+                    mesureOG        = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
+                    Datas::I()->mesurekerato->setdioptriesK1OG(mesureOG.mid(0,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OG(mesureOG.mid(5,5).toDouble());
+                }
+            }
+            if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
+            {
+                InsertMesure(MesureKerato);
+                emit NouvMesure(MesureKerato);
+            }
+            delete oldMesureKerato;
+        }
+        if (Mesure.contains("@RM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)                 //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+        {
+            MesureRefraction        *oldMesureAutoref = new MesureRefraction();
+            oldMesureAutoref        ->setdatas(Datas::I()->mesureautoref);
+            Datas::I()->mesureautoref->cleandatas();
+            idx                     = Mesure.indexOf("@RM");
+            QString SectionAutoref  = Mesure.right(Mesure.length()-idx);
+            //Edit(SectionAutoref);
+            // OEIL DROIT -----------------------------------------------------------------------------
+            if (SectionAutoref.contains("OR"))
+            {
+                mesureOD     = SectionAutoref.mid(SectionAutoref.indexOf("OR")+2,15)   .replace(" ","0");
+                mSphereOD    = mesureOD.mid(0,6);
+                mCylOD       = mesureOD.mid(6,6);
+                mAxeOD       = mesureOD.mid(12,3);
+                Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
+                Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
+                Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
+            }
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            if (SectionAutoref.contains("OL"))
+            {
+                mesureOG     = SectionAutoref.mid(SectionAutoref.indexOf("OL")+2,15)   .replace(" ","0");
+                mSphereOG    = mesureOG.mid(0,6);
+                mCylOG       = mesureOG.mid(6,6);
+                mAxeOG       = mesureOG.mid(12,3);
+                Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
+                Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
+                Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
+            }
+            //debugMesureRefraction(Datas::I()->mesureautoref);
+            if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+            {
+                InsertMesure(MesureAutoref);
+                emit NouvMesure(MesureAutoref);
+            }
+            delete oldMesureAutoref;
+        }
+
+        //! Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
+        if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
+        {
+            idx                         = Mesure.indexOf("@RT");
+            QString SectionRefracteur   = Mesure.right(Mesure.length()-idx);
+            //qDebug() << "Procedures::LectureDonneesRefracteur(QString Mesure) - SectionRefracteur = " << SectionRefracteur;
+
+            // les données subjectives --------------------------------------------------------------------------------------------------------------
+            if (SectionRefracteur.contains("fR") || SectionRefracteur.contains("fL"))
+            {
+                PD               = SectionRefracteur.mid(SectionRefracteur.indexOf("pD")+2,2);
+                Datas::I()->mesureacuite->setecartIP(PD.toInt());
+                // OEIL DROIT -----------------------------------------------------------------------------
+                if (SectionRefracteur.contains("fR"))
+                {
+                    mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("fR")+2,15)   .replace(" ","0");
+                    mSphereOD    = mesureOD.mid(0,6);
+                    mCylOD       = mesureOD.mid(6,6);
+                    mAxeOD       = mesureOD.mid(12,3);
+                    if (SectionRefracteur.indexOf("aR")>-1)
+                        mAddOD   = SectionRefracteur.mid(SectionRefracteur.indexOf("aR")+2,6)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("vR")>-1)
+                        AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("vR")+2,5)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("yR")>-1)
+                        AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("yR")+2,5)    .replace(" ","0");
+                    Datas::I()->mesureacuite->setsphereOD(mSphereOD.toDouble());
+                    Datas::I()->mesureacuite->setcylindreOD(mCylOD.toDouble());
+                    Datas::I()->mesureacuite->setaxecylindreOD(mAxeOD.toInt());
+                    Datas::I()->mesureacuite->setaddVPOD(mAddOD.toDouble());
+                    Datas::I()->mesureacuite->setavlOD(AVLOD);
+                    Datas::I()->mesureacuite->setavpOD(AVPOD);
+                }
+                // OEIL GAUCHE ---------------------------------------------------------------------------
+                if (SectionRefracteur.contains("fL"))
+                {
+                    mesureOG     = SectionRefracteur.mid(SectionRefracteur.indexOf("fL")+2,15)   .replace(" ","0");
+                    mSphereOG    = mesureOG.mid(0,6);
+                    mCylOG       = mesureOG.mid(6,6);
+                    mAxeOG       = mesureOG.mid(12,3);
+                    if (SectionRefracteur.indexOf("aL")>-1)
+                        mAddOG   = SectionRefracteur.mid(SectionRefracteur.indexOf("aL")+2,6)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("vL")>-1)
+                        AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("vL")+2,5)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("yL")>-1)
+                        AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("yL")+2,5)    .replace(" ","0");
+                    Datas::I()->mesureacuite->setsphereOG(mSphereOG.toDouble());
+                    Datas::I()->mesureacuite->setcylindreOG(mCylOG.toDouble());
+                    Datas::I()->mesureacuite->setaxecylindreOG(mAxeOG.toInt());
+                    Datas::I()->mesureacuite->setaddVPOG(mAddOG.toDouble());
+                    Datas::I()->mesureacuite->setavlOG(AVLOG);
+                    Datas::I()->mesureacuite->setavpOG(AVPOG);
+                }
+            }
+
+            // les données finales --------------------------------------------------------------------------------------------------------------
+            if (SectionRefracteur.contains("FR") || SectionRefracteur.contains("FL"))
+            {
+                PD               = SectionRefracteur.mid(SectionRefracteur.indexOf("PD")+2,2);
+                Datas::I()->mesurefinal->setecartIP(PD.toInt());
+                // OEIL DROIT -----------------------------------------------------------------------------
+                if (SectionRefracteur.contains("FR"))
+                {
+                    mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("FR")+2,15)   .replace(" ","0");
+                    mSphereOD    = mesureOD.mid(0,6);
+                    mCylOD       = mesureOD.mid(6,6);
+                    mAxeOD       = mesureOD.mid(12,3);
+                    if (SectionRefracteur.indexOf("AR")>-1)
+                        mAddOD   = SectionRefracteur.mid(SectionRefracteur.indexOf("AR")+2,6)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("VR")>-1)
+                        AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("VR")+2,5)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("YR")>-1)
+                        AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("YR")+2,5)    .replace(" ","0");
+
+                    Datas::I()->mesurefinal->setsphereOD(mSphereOD.toDouble());
+                    Datas::I()->mesurefinal->setcylindreOD(mCylOD.toDouble());
+                    Datas::I()->mesurefinal->setaxecylindreOD(mAxeOD.toInt());
+                    Datas::I()->mesurefinal->setaddVPOD(mAddOD.toDouble());
+                    Datas::I()->mesurefinal->setavlOD(AVLOD);
+                    Datas::I()->mesurefinal->setavpOD(AVPOD);
+                }
+                // OEIL GAUCHE ---------------------------------------------------------------------------
+                if (SectionRefracteur.contains("FL"))
+                {
+                    mesureOG     = SectionRefracteur.mid(SectionRefracteur.indexOf("FL")+2,15)   .replace(" ","0");
+                    mSphereOG    = mesureOG.mid(0,6);
+                    mCylOG       = mesureOG.mid(6,6);
+                    mAxeOG       = mesureOG.mid(12,3);
+                    if (SectionRefracteur.indexOf("AL")>-1)
+                        mAddOG   = SectionRefracteur.mid(SectionRefracteur.indexOf("AL")+2,6)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("VL")>-1)
+                        AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("VL")+2,5)    .replace(" ","0");
+                    if (SectionRefracteur.indexOf("YL")>-1)
+                        AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("YL")+2,5)    .replace(" ","0");
+
+                    Datas::I()->mesurefinal->setsphereOG(mSphereOG.toDouble());
+                    Datas::I()->mesurefinal->setcylindreOG(mCylOG.toDouble());
+                    Datas::I()->mesurefinal->setaxecylindreOG(mAxeOG.toInt());
+                    Datas::I()->mesurefinal->setaddVPOG(mAddOG.toDouble());
+                    Datas::I()->mesurefinal->setavlOG(AVLOG);
+                    Datas::I()->mesurefinal->setavpOG(AVPOG);
+                }
+            }
+        }
+
+        //! Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
+        if (Mesure.contains("@NT") && PortAutoref() == Q_NULLPTR &&  !m_LANAutoref )                 //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
+        {
+            Datas::I()->mesuretono->cleandatas();
+            idx                     = Mesure.indexOf("@NT");
+            QString SectionTono     = Mesure.right(Mesure.length()-idx-5);
+            SectionTono             = SectionTono.left(SectionTono.indexOf("@"));
+            logmesure("LectureDonneesRefracteur() - " + SectionTono);
+            //Edit(SectionTono+ "\nOK");
+            // OEIL DROIT -----------------------------------------------------------------------------
+            mTOOD                   = SectionTono.mid(SectionTono.indexOf("TR")+2,4)   .replace(" ","0");
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            mTOOG                   = SectionTono.mid(SectionTono.indexOf("TL")+2,4)   .replace(" ","0");
+            logmesure("LectureDonneesRefracteur() - Section Tono - mTOOD = " + mTOOD + " - mTOOG = " + mTOOG);
+            Datas::I()->mesuretono->setTOD(int(mTOOD.toDouble()));
+            Datas::I()->mesuretono->setTOG(int(mTOOG.toDouble()));
+            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+            logmesure("LectureDonneesRefracteur() - nouvelle mesure tono -> TOD = " + QString::number(Datas::I()->mesuretono->TOD()) + " - TOG = " + QString::number(Datas::I()->mesuretono->TOG()));
+            InsertMesure(MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
+            emit NouvMesure(MesureTono);
+        }
+        //debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
+    }
+    // FIN TOMEY TAP-2000 et Rodenstock Phoromap 2000 ==========================================================================================================================}
 }
 
 void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)

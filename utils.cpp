@@ -674,13 +674,13 @@ QString Utils::calcSHA1(QString mdp)
          dlg_askMDP      ->dlglayout()->insertWidget(0,labelConfirmMDP);
 
          dlg_askMDP      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-         connect(dlg_askMDP->OKButton,    &QPushButton::clicked, [&] {
+         connect(dlg_askMDP->OKButton,    &QPushButton::clicked, dlg_askMDP, [=] {
              if (calcSHA1(ConfirmMDP->text()) == MDP)
                  dlg_askMDP->accept();
              else if (ConfirmMDP->text() == MDP)
                  dlg_askMDP->accept();
              else
-                 UpMessageBox::Watch(parent, QObject::tr("Mot de passe invalide!"));
+                 UpMessageBox::Watch(dlg_askMDP, QObject::tr("Mot de passe invalide!"));
          });
          dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
          dlg_askMDP->dlglayout()->setSpacing(8);
