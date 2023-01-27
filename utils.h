@@ -126,6 +126,7 @@ public:
     static QString                  calcIP(QString IP, bool aveczero = false);
     static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
+    static QByteArray               StringToArray(QString source);
 
     //! Fichiers
     static bool                     CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfert = QDate::currentDate());

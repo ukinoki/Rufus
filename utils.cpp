@@ -497,6 +497,14 @@ qint32 Utils::ArrayToInt(QByteArray source)
     return number;
 }
 
+QByteArray Utils::StringToArray(QString source)
+{
+    QByteArray ba;
+    QDataStream in(&ba, QIODevice::WriteOnly);
+    in << QString(source);
+    return ba;
+}
+
 QByteArray Utils::IntToArray(int source)
 {
     //permet d'éviter le cast
