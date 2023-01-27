@@ -9425,8 +9425,9 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 void Procedures::LectureDonneesXMLFronto(QDomDocument docxml)
 {
     /*! exemple de fichier xml pour un ARK-1s
-     *
-     *
+    *‌ il est conforme au standard de la Japan Ophthalmic Instrument Association (https://www.joia.or.jp/)
+    * donc le code pour parser le xml est le même pour tous les appareils qui suivent ce standard p.e. Tomey Tl-6000 et TL-7000, Rodenstock AL 6600
+
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="NIDEK_LM_Stylesheet.xsl" ?
 <Ophthalmology>
@@ -9558,7 +9559,7 @@ void Procedures::LectureDonneesXMLFronto(QDomDocument docxml)
 */
     Logs::LogToFile("MesuresFronto.txt", docxml.toByteArray());
     QString fronto =m_settings->value(Param_Poste_Fronto).toString();
-    if (fronto=="NIDEK LM-1800" || fronto=="NIDEK LM-500" || fronto=="NIDEK LM-7")
+    if (fronto=="NIDEK LM-1800" || fronto=="NIDEK LM-500" || fronto=="NIDEK LM-7" || fronto=="TOMEY TL-6000" || fronto=="TOMEY TL-7000" || fronto=="RODENSTOCK AL 6600")
     {
         QDomElement xml = docxml.documentElement();
         for (int h=0; h<xml.childNodes().size(); h++)
