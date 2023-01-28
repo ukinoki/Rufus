@@ -2703,11 +2703,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     }
 }
 
-bool Procedures::VerifBaseEtRessources()
+bool Procedures::VerifBaseEtRessources(QWidget* parent)
 {
-    auto erreur = []
+    auto erreur = [] (QWidget *parent)
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
+        UpMessageBox::Watch(parent, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
         exit(0);
     };
 
@@ -2726,7 +2726,7 @@ bool Procedures::VerifBaseEtRessources()
             Version = Versionencours + i;
             if (!BupDone)
             {
-                UpMessageBox msgbox;
+                UpMessageBox msgbox(parent);
                 msgbox.setText(tr("Mise à jour de la base nécessaire"));
                 msgbox.setInformativeText(tr("Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version") +
                                           " <b>" + QString::number(Version) + "</b><br />" +
@@ -2745,15 +2745,15 @@ bool Procedures::VerifBaseEtRessources()
                 if (msgbox.clickedButton() == BackupBouton)
                 {
                     if (!ImmediateBackup())
-                        erreur();
+                        erreur(parent);
                 }
                 else if (msgbox.clickedButton() == ExitBouton)
-                    erreur();
+                    erreur(parent);
                 BupDone = true;
                 Datas::I()->postesconnectes->initListe();
                 PosteConnecte* post = Datas::I()->postesconnectes->admin();
                 if (post != Q_NULLPTR)
-                    UpMessageBox::Watch(Q_NULLPTR,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
+                    UpMessageBox::Watch(parent,tr("RufusAdmin présent"), tr("Après la mise à jour de la base") + "\n" +
                                                                             tr("Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base") + "\n" +
                                                                             tr("Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin"));
             }
@@ -2771,14 +2771,14 @@ bool Procedures::VerifBaseEtRessources()
                 QFile::remove(NomDumpFile);
                 if (a == 0)
                 {
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
+                    UpMessageBox::Watch(parent,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
                     db->initParametresSysteme();
                 }
                 else
                 {
                     Utils::playAlarm();
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
-                    erreur();
+                    UpMessageBox::Watch(parent,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
+                    erreur(parent);
                 }
             }
             if (Version == 66 && a == 0)
@@ -3154,7 +3154,7 @@ bool Procedures::IdentificationUser()
 {
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
-    connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
+    connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, [&]{VerifBaseEtRessources(dlg_IdentUser);});
     if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
         m_parametres = db->parametres();
@@ -3256,7 +3256,7 @@ bool Procedures::IdentificationUser()
             break;
         }
     }
-    disconnect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
+    dlg_IdentUser->disconnect();
     delete dlg_IdentUser;
     return (currentuser() != Q_NULLPTR);
 }
@@ -4073,7 +4073,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
-    connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
+    connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, [&]{VerifBaseEtRessources(Dlg_ParamConnex);});
 
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
@@ -4104,7 +4104,7 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         delete Dlg_ParamConnex;
         return true;
     }
-    disconnect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
+    Dlg_ParamConnex->disconnect();
     delete Dlg_ParamConnex;
     return false;
 }
@@ -4186,7 +4186,7 @@ void Procedures::Ouverture_Appareils_Refraction()
     }
     if (m_isTonoParametre)
     {
-        bool m_isReseauTono         = (m_settings->value("Param_Poste/PortTono").toString() == RESEAU);
+        bool m_isReseauTono         = (m_settings->value(Param_Poste_PortTono).toString() == RESEAU);
         m_isReseauTono?             appareilsreseau.setFlag(Tonometre)        : appareilscom.setFlag(Tonometre);
     }
     if (appareilscom > 0)
@@ -4201,7 +4201,7 @@ GESTION DES FICHIERS ECHANGE XML DES APPAREILS DE REFRACTION -------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
 {
-    auto lecturefichier = [] (TypeAppareil appareil, QString pathdirappareil, QStringList listfichxml)
+    auto lecturefichier = [] (TypeAppareil appareil, QString pathdirappareil, QStringList listfich)
     {
         QString app = "";
         switch (appareil)
@@ -4209,43 +4209,48 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         case Fronto:        app = tr("le frontofocomètre");     break;
         case Autoref:       app = tr("l'autorefractomètre");    break;
         case Refracteur:    app = tr("le refracteur");          break;
+        case Tonometre:     app = tr("le tonomètre");           break;
         default: break;
         }
-        const QString nomfichierxml      = pathdirappareil + "/" + listfichxml.at(0);
-        QFile xmldoc(nomfichierxml);
+        const QString nomfichier      = pathdirappareil + "/" + listfich.at(0);
+        QFile datafile(nomfichier);
         QDomDocument docxml;
-        if (xmldoc.open(QIODevice::ReadOnly))
+        if (datafile.open(QIODevice::ReadOnly))
         {
-            docxml.setContent(&xmldoc);
-            xmldoc.remove();
+            docxml.setContent(&datafile);
+            datafile.remove();
         }
 
         if (Datas::I()->actes->currentacte() != Q_NULLPTR)
         {
             if (Datas::I()->actes->currentacte()->date() == DataBase::I()->ServerDate()
-              || UpMessageBox::Question(Q_NULLPTR,
-                                          tr("Une mesure vient d'être émise par ") + app + tr(" mais la date de l'acte actuellement affiché n'est pas celle d'aujour'hui."),
-                                          "\n" +
-                                          tr("Voulez-vous quand même enregistrer cette mesure?"),
-                                          UpDialog::ButtonOK | UpDialog::ButtonCancel, QStringList() << tr("Annuler") << tr("Enregistrer la mesure"))
+            || (app != tr("le tonomètre")  // on peut faire plusieurs mesures de tonometrie sur la même consultation donc n ne vérifie pas dans ce cas si une mesure a déjà été faite pour cet acte
+                &&
+                UpMessageBox::Question(Q_NULLPTR,
+                                       tr("Une mesure vient d'être émise par ") + app + tr(" mais la date de l'acte actuellement affiché n'est pas celle d'aujour'hui."),
+                                       "\n" +
+                                       tr("Voulez-vous quand même enregistrer cette mesure?"),
+                                       UpDialog::ButtonOK | UpDialog::ButtonCancel, QStringList() << tr("Annuler") << tr("Enregistrer la mesure"))
                 == UpSmallButton::STARTBUTTON)
+               )
             {
                 switch (appareil)
                 {
                 case Fronto:        Procedures::I()->ReponseXML_Fronto(docxml);     break;
                 case Autoref:       Procedures::I()->ReponseXML_Autoref(docxml);    break;
                 case Refracteur:    Procedures::I()->ReponseXML_Refracteur(docxml); break;
+                case Tonometre:     Procedures::I()->ReponseXML_Tono(docxml);       break;
                 default: break;
                 }
             }
         }
-        QStringList listfich = QDir(pathdirappareil).entryList(QDir::Files | QDir::NoDotAndDotDot);
+        listfich = QDir(pathdirappareil).entryList(QDir::Files | QDir::NoDotAndDotDot);
             for(int i = 0; i < listfich.size(); ++i)
                 QFile(pathdirappareil + "/" + listfich.at(i)).remove();
     };
     bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
                              * au démarrage du système le signal directorychanged ne marche pas bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
-                             * il faut redémarrer une Rufus pour que ça se décide à marcher
+                             * il faut redémarrer une session Rufus pour que ça se décide à marcher
                              * On peut utiliser un timer à la place. C'est nettement moins élégant mais ça marche très bien.
                              * Il suffit de mettre ce bool à true pour utiliser le timer
                              * Le code pour le QFileSystemWatcher a été conservé au cas où le problème serait résolu */
@@ -4253,6 +4258,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
     QString pathdirfronto ("");
     QString pathdirautoref ("");
     QString pathdirrefracteur ("");
+    QString pathdirtono ("");
     if (appareils.testFlag(Autoref))
     {
         m_LANAutoref = true;
@@ -4278,41 +4284,43 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         if (!usetimer)
             m_filewatcherrefracteur.addPath(pathdirrefracteur);
     }
+    if (appareils.testFlag(Tonometre))
+    {
+        m_LANTono = true;
+        pathdirtono = settings()->value(Param_Poste_PortTono_Reseau).toString();
+        if (!usetimer)
+            m_filewatcherrefracteur.addPath(pathdirtono);
+    }
+
     if (usetimer)
     {
-        t_xmlwatchtimer.start(1000);
-        connect(&t_xmlwatchtimer,  &QTimer::timeout,     this,
+        t_filewatchtimer.start(1000);
+        connect(&t_filewatchtimer,  &QTimer::timeout,     this,
                 [=]
         {
             if (appareils.testFlag(Autoref) && pathdirautoref != "")
             {
                 QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
-                {
-                    const QString nomfichierxml      = pathdirautoref + "/" + listfichxml.at(0);
-                    QFile xmldoc(nomfichierxml);
                     lecturefichier(Autoref, pathdirautoref, listfichxml);
-                }
             }
             if (appareils.testFlag(Fronto) && pathdirfronto != "")
             {
                 QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
-                {
-                    const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
-                    QFile xmldoc(nomfichierxml);
                     lecturefichier(Fronto, pathdirfronto, listfichxml);
-                }
             }
             if (appareils.testFlag(Refracteur) && pathdirrefracteur != "")
             {
                 QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
-                {
-                    const QString nomfichierxml      = pathdirrefracteur + "/" + listfichxml.at(0);
-                    QFile xmldoc(nomfichierxml);
                     lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
-                }
+            }
+            if (appareils.testFlag(Tonometre) && pathdirtono != "")
+            {
+                QStringList listfich = QDir(pathdirtono).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfich.size())
+                    lecturefichier(Tonometre, pathdirtono, listfich);
             }
         });
     }
@@ -4366,6 +4374,23 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
                         m_filewatcherrefracteurfile = listfichxml.at(0);
                         m_filewatcherrefracteurcreated = QFileInfo(xmldoc).birthTime();
                         lecturefichier(Refracteur, pathdirrefracteur, listfichxml);
+                    }
+                }
+            });
+
+        if (appareils.testFlag(Tonometre) && pathdirtono != "")
+            connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
+            {
+                QStringList listfichxml = QDir(pathdirtono).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                if (listfichxml.size())
+                {
+                    const QString nomfichierxml      = pathdirtono + "/" + listfichxml.at(0);
+                    QFile xmldoc(nomfichierxml);
+                    if (m_filewatchertonofile != listfichxml.at(0) || (m_filewatchertonofile == listfichxml.at(0) && m_filewatchertonocreated != QFileInfo(xmldoc).birthTime()))
+                    {
+                        m_filewatchertonofile = listfichxml.at(0);
+                        m_filewatchertonocreated = QFileInfo(xmldoc).birthTime();
+                        lecturefichier(Tonometre, pathdirfronto, listfichxml);
                     }
                 }
             });
@@ -4801,21 +4826,54 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
         {
             //Logs::LogToFile("PortSerieRefracteur", "SDN = " + m_mesureSerie + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
             //PortRefracteur()->waitForReadyRead(100);
-            RegleRefracteurCOM();
+            RegleRefracteurCOM(m_flagreglagerefracteurNidek);
             return;
         }
     }
     Datas::I()->mesureacuite->cleandatas();
     Datas::I()->mesurefinal->cleandatas();
     LectureDonneesCOMRefracteur(m_mesureSerie);
+
     if ( Datas::I()->mesureacuite->isdataclean() && Datas::I()->mesurefinal->isdataclean() )
         return;
-    if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
-        InsertMesure(MesureRefracteur);
+
+    //! Enregistre les mesures dans la base
+    InsertMesure(MesureRefracteur);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     emit NouvMesure(MesureRefracteur);
 }
 
-void Procedures::RegleRefracteurCOM()
+void Procedures::RegleRefracteur(TypesMesures flag)
+{
+    if (t_threadRefracteur!=Q_NULLPTR) /*! par le port COM */
+    {
+        QString nompat = "";
+        Patient *pat = Datas::I()->patients->currentpatient();
+        if (pat)
+            nompat = pat->prenom() + " " + pat->nom().toUpper();
+        //! NIDEK RT-5100 - NIDEK RT-2100
+        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+        {
+            /*!
+            Logs::LogToFile("PortSerieRefracteur.txt", "RTS = " + RequestToSendNIDEK() + " - "
+                            + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
+                            + (nompat != ""? " - " : "") + nompat);
+            qDebug() << "RTS = " + RequestToSendNIDEK();
+            */
+            m_flagreglagerefracteurNidek = flag;
+            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
+        }
+        //! TOMEY TAP-2000 et Rodenstock Phoromap 2000
+        else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+            RegleRefracteurCOM(flag);
+    }
+    //! NIDEK RT-6100 - NIDEK Glasspop
+    else if (m_LANRefracteur) /*! par le réseau */
+        RegleRefracteurXML(flag);
+}
+
+void Procedures::RegleRefracteurCOM(TypesMesures flag)
 {
     /*! Si on lance cette fonction à l'ouverture d'un dossier, on a créé 3 mesures
      * Chacune de ces 3 mesures est envoyée au réfracteur pour le régler
@@ -4846,8 +4904,7 @@ void Procedures::RegleRefracteurCOM()
 
     // ----------------- CONNECTION SERIE
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
         auto convertdioptriesNIDEK = [&] (QString &finalvalue, double originvalue)
         {
@@ -4865,7 +4922,7 @@ void Procedures::RegleRefracteurCOM()
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
         /*! réglage de l'autoref */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+        if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
         {
             initvariables();
             convertaxeNIDEK(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
@@ -4890,14 +4947,14 @@ void Procedures::RegleRefracteurCOM()
             if (Datas::I()->mesureautoref->ecartIP() > 0)
             {
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesureautoref->ecartIP())));
-                                                                //SD
+                //SD
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
             idpat = Datas::I()->mesureautoref->idpatient();
-       }
+        }
 
         /*! réglage du fronto */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -4929,7 +4986,7 @@ void Procedures::RegleRefracteurCOM()
             if (Datas::I()->mesurefronto->ecartIP() > 0)
             {
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP())));
-                                                                //SD
+                //SD
                 DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
             }
             if (idpat == 0)
@@ -4947,26 +5004,25 @@ void Procedures::RegleRefracteurCOM()
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
         */
-//        qint32 baud = port->baudRate();
-//        int timetowaitms= int (datas.size()*8*1000 / baud);
-//        timetowaitms += 10;
-//        qDebug() << " DTRbuff - Refracteur = " << QString(DTRbuff).toLocal8Bit();
-//        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
-//        PortRefracteur()->flush();
-//        PortRefracteur()->waitForBytesWritten(1000);
+        //        qint32 baud = port->baudRate();
+        //        int timetowaitms= int (datas.size()*8*1000 / baud);
+        //        timetowaitms += 10;
+        //        qDebug() << " DTRbuff - Refracteur = " << QString(DTRbuff).toLocal8Bit();
+        //        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
+        //        PortRefracteur()->flush();
+        //        PortRefracteur()->waitForBytesWritten(1000);
         Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
     }
     // FIN NIDEK RT-5100 - RT-2100 =======================================================================================================================================
     // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
-    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
     {
         /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
          * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
          * STX =    QByteArray::fromHex("2")            //STX -> start of text
          * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
          * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
-         * La 1ere et la dernière lignes commence par SOH et se termine par EOT - représentés ici
+         * La 1ere et la dernière lignes commencent par SOH et se terminent par EOT - représentés ici
          * Les autres lignes commencent par STX et se terminent par ETP
 SOH*PC_SND_SEOT                 -> start block
 *Phoromat 2000|000000001|0      -> id material
@@ -5065,7 +5121,7 @@ SOH*PC_SND_EEOT                 -> end block
             *CY| -0.25| -0.25|              -> Cylindre | left result | right result|
             *AX|135|135|                    -> Axe | left result | right result|
             *AD| 1.50| 1.50|                -> Addition | left result | right result|        */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -5104,7 +5160,7 @@ SOH*PC_SND_EEOT                 -> end block
             *VA|0.2|0.4|0.5|
             *PH|O| 1.00|O| 1.00|
             *PV|U| 1.50|D| 1.50|                */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+        if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
         {
             initvariables();
             convertaxeTOMEY(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
@@ -5142,7 +5198,7 @@ SOH*PC_SND_EEOT                 -> end block
             *VA|0.2|0.4|0.5|
             *PH|O| 0.50|O| 0.50|
             *PV|U| 0.50|D| 0.50|    */
-        if (m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(Procedures::MesureRefracteur) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -5200,7 +5256,7 @@ SOH*PC_SND_EEOT                 -> end block
     // FIN TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
 }
 
-void Procedures::RegleRefracteurXML()
+void Procedures::RegleRefracteurXML(TypesMesures flag)
 {
     /*! Si on lance cette fonction à l'ouverture d'un dossier, on a créé 3 mesures
      * Chacune de ces 3 mesures est envoyée au réfracteur pour le régler
@@ -5249,15 +5305,14 @@ void Procedures::RegleRefracteurXML()
     };
 
 
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-6100"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK Glasspop")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-6100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK Glasspop")
     {
         /*! Il faut régler le réfracteur en créant un fichier xml pour l'autoref et un pour le fronto à partir des données du dossier du patient en cours
          * Il faut déposer ces fichiers dans le dossier réseau correspondant surveillé par le refracteur
         */
 
 /*! LE FRONTO */
-        bool ExistMesureFronto = m_flagreglagerefracteur.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean();
+        bool ExistMesureFronto = flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean();
         if (ExistMesureFronto)
         {
             QDomDocument LMxml("");
@@ -5537,7 +5592,7 @@ void Procedures::RegleRefracteurXML()
         }
 
 /*! L'AUTOREF */
-        bool ExistMesureAutoref = m_flagreglagerefracteur.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean();
+        bool ExistMesureAutoref = flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean();
         if (ExistMesureAutoref)
         {
             QDomDocument ARxml("");
@@ -6274,29 +6329,10 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
     }
 }
 
-void Procedures::EnvoiDataPatientAuRefracteur(int idpat)
+void Procedures::EnvoiDataPatientAuRefracteur()
 {
-    //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (t_threadRefracteur!=Q_NULLPTR) /*! par le port COM */
-    {
-        QString nompat = "";
-        Patient *pat = Datas::I()->patients->getById(idpat);
-        if (pat)
-            nompat = pat->prenom() + " " + pat->nom().toUpper();
-        // NIDEK RT-5100
-        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
-        {
-            /*!
-            Logs::LogToFile("PortSerieRefracteur.txt", "RTS = " + RequestToSendNIDEK() + " - "
-                            + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
-                            + (nompat != ""? " - " : "") + nompat);
-            qDebug() << "RTS = " + RequestToSendNIDEK();
-            */
-            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
-        }
-    }
-    else if (m_LANRefracteur) /*! par le réseau */
-        RegleRefracteurXML();
+    TypesMesures flag = MesureAutoref | MesureFronto | MesureRefracteur;
+    RegleRefracteur(flag);
 }
 
 QByteArray Procedures::RequestToSendNIDEK()
@@ -6540,7 +6576,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
                         AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("yR")+2,5)    .replace(" ","0");
                     Datas::I()->mesureacuite->setsphereOD(mSphereOD.toDouble());
                     Datas::I()->mesureacuite->setcylindreOD(mCylOD.toDouble());
-                    Datas::I()->mesureacuite->setaxecylindreOD(mAxeOD.toInt());
+                    Datas::I()->mesureacuite->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                     Datas::I()->mesureacuite->setaddVPOD(mAddOD.toDouble());
                     Datas::I()->mesureacuite->setavlOD(AVLOD);
                     Datas::I()->mesureacuite->setavpOD(AVPOD);
@@ -6560,7 +6596,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
                         AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("yL")+2,5)    .replace(" ","0");
                     Datas::I()->mesureacuite->setsphereOG(mSphereOG.toDouble());
                     Datas::I()->mesureacuite->setcylindreOG(mCylOG.toDouble());
-                    Datas::I()->mesureacuite->setaxecylindreOG(mAxeOG.toInt());
+                    Datas::I()->mesureacuite->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                     Datas::I()->mesureacuite->setaddVPOG(mAddOG.toDouble());
                     Datas::I()->mesureacuite->setavlOG(AVLOG);
                     Datas::I()->mesureacuite->setavpOG(AVPOG);
@@ -6588,7 +6624,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
 
                     Datas::I()->mesurefinal->setsphereOD(mSphereOD.toDouble());
                     Datas::I()->mesurefinal->setcylindreOD(mCylOD.toDouble());
-                    Datas::I()->mesurefinal->setaxecylindreOD(mAxeOD.toInt());
+                    Datas::I()->mesurefinal->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                     Datas::I()->mesurefinal->setaddVPOD(mAddOD.toDouble());
                     Datas::I()->mesurefinal->setavlOD(AVLOD);
                     Datas::I()->mesurefinal->setavpOD(AVPOD);
@@ -6609,7 +6645,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
 
                     Datas::I()->mesurefinal->setsphereOG(mSphereOG.toDouble());
                     Datas::I()->mesurefinal->setcylindreOG(mCylOG.toDouble());
-                    Datas::I()->mesurefinal->setaxecylindreOG(mAxeOG.toInt());
+                    Datas::I()->mesurefinal->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                     Datas::I()->mesurefinal->setaddVPOG(mAddOG.toDouble());
                     Datas::I()->mesurefinal->setavlOG(AVLOG);
                     Datas::I()->mesurefinal->setavpOG(AVPOG);
@@ -6651,7 +6687,7 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
          * STX =    QByteArray::fromHex("2")            //STX -> start of text
          * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
          * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
-         * La 1ere et la dernière lignes commence par SOH et se termine par EOT - représentés ici
+         * La 1ere et la dernière lignes commencent par SOH et se terminent par EOT - représentés ici
          * Les autres lignes commencent par STX et se terminent par ETB
          * Distinguish the FAR mode as a capital letter(UN, LM, S, C, A..) and NEAR mode as a small letter(un, lm, s, c, a..).
 SOH*PC_RCV_SEOT                 -> start block
@@ -7548,12 +7584,12 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                                     //qDebug() << PDG << PDD;
                                     Datas::I()->mesureacuite->setsphereOD(mSphereOD.toDouble());
                                     Datas::I()->mesureacuite->setcylindreOD(mCylOD.toDouble());
-                                    Datas::I()->mesureacuite->setaxecylindreOD(mAxeOD.toInt());
+                                    Datas::I()->mesureacuite->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                                     Datas::I()->mesureacuite->setaddVPOD(mAddOD.toDouble());
                                     Datas::I()->mesureacuite->setavlOD(AVLOD);
                                     Datas::I()->mesureacuite->setsphereOG(mSphereOG.toDouble());
                                     Datas::I()->mesureacuite->setcylindreOG(mCylOG.toDouble());
-                                    Datas::I()->mesureacuite->setaxecylindreOG(mAxeOG.toInt());
+                                    Datas::I()->mesureacuite->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                                     Datas::I()->mesureacuite->setaddVPOG(mAddOG.toDouble());
                                     Datas::I()->mesureacuite->setavlOG(AVLOG);
                                     Datas::I()->mesureacuite->setecartIP(static_cast<int>(std::round(PDD.toDouble() + PDG.toDouble())));
@@ -7614,12 +7650,12 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                                     }
                                     Datas::I()->mesurefinal->setsphereOD(mSphereOD.toDouble());
                                     Datas::I()->mesurefinal->setcylindreOD(mCylOD.toDouble());
-                                    Datas::I()->mesurefinal->setaxecylindreOD(mAxeOD.toInt());
+                                    Datas::I()->mesurefinal->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                                     Datas::I()->mesurefinal->setaddVPOD(mAddOD.toDouble());
                                     Datas::I()->mesurefinal->setavlOD(AVLOD);
                                     Datas::I()->mesurefinal->setsphereOG(mSphereOG.toDouble());
                                     Datas::I()->mesurefinal->setcylindreOG(mCylOG.toDouble());
-                                    Datas::I()->mesurefinal->setaxecylindreOG(mAxeOG.toInt());
+                                    Datas::I()->mesurefinal->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                                     Datas::I()->mesurefinal->setaddVPOG(mAddOG.toDouble());
                                     Datas::I()->mesurefinal->setavlOG(AVLOG);
                                     Datas::I()->mesurefinal->setecartIP(static_cast<int>(std::round(PDD.toDouble() + PDG.toDouble())));
@@ -7838,6 +7874,119 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     debugMesure(Datas::I()->mesurefinal);
 }
 
+void Procedures::LectureDonneesXMLTono(QDomDocument docxml)
+{
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    {
+        /*! exemple de fichier xml pour un RODENSTOCK TOPASCOPE / TOMEY TOP-1000
+      *
+
+ <Measurement iop_unit="mmHg" cct_unit="um">
+     <Company>Rodenstock</Company>
+     <Model>TopaScope</Model>
+     <PatientID>00000033</PatientID>
+     <DateTime>2020-12-04_17-24-30</DateTime>
+     <Eye type="OD">
+         <IOP quality="Normal">16</IOP>
+         <IOP quality="Low">24</IOP>
+         <IOP quality="Normal">15</IOP>
+         <IOPAvg>15.6</IOPAvg>
+         <CCT>--.-</CCT>
+         <CIOP>--.-</CIOP>
+     </Eye>
+     <Eye type="OS">
+         <IOP quality="Normal">18</IOP>
+         <IOP quality="Normal">19</IOP>
+         <IOP quality="Normal">18</IOP>
+         <IOPAvg>18.3</IOPAvg>
+         <CCT>--.-</CCT>
+         <CIOP>--.-</CIOP>
+     </Eye>
+     <Message>
+     </Message>
+ </Measurement>
+ */
+        Logs::LogToFile("MesuresPachy.txt", docxml.toByteArray());
+
+        QString tono = m_settings->value(Param_Poste_Tono).toString();
+        if (tono=="TOMEY TOP-1000" || tono == "TODENSTOCK Topascope" )
+        {
+            QString avgOD = "";
+            QString avgOG = "";
+            QString cctOD = "";
+            QString cctOG = "";
+            QString ciopOD = "";
+            QString ciopOG = "";
+            QDomElement xml = docxml.documentElement();
+            for (int h=0; h<xml.childNodes().size(); h++)
+            {
+                QDomElement level1 = xml.childNodes().at(h).toElement();
+                if (level1.tagName() == "Measurement")
+                {
+                    for (int g=0; g<level1.childNodes().size(); g++)
+                    {
+                        QDomElement level2 = level1.childNodes().at(g).toElement();
+                        if (level2.tagName() == "Eye")
+                        {
+                            QString oeil = level2.attribute("type","");        /*!  Lire Eye type (OD / OS)  --------------------------------------------------*/
+                            for (int i=0; i<level2.childNodes().size(); i++)
+                            {
+                                QDomElement measure = level2.childNodes().at(i).toElement();
+                                QString value = measure.text();
+                                if( value == "--.-") value = "";
+                                if (measure.tagName() == "IOPAvg")
+                                {
+                                    if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
+                                        avgOD = value;
+                                    else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                                        avgOG = value;
+                                }
+                                if (measure.tagName() == "CCT")
+                                {
+                                    if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
+                                        cctOD = value;
+                                    else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                                        cctOG = value;
+                                }
+                                if (measure.tagName() == "CIOP")
+                                {
+                                    if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
+                                        ciopOD = value;
+                                    else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                                        ciopOG = value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+            if (cctOD.toDouble()>0 && cctOG.toDouble()>0)
+            {
+                Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+                if (cctOD.toDouble()>0)
+                    Datas::I()->mesurepachy->setpachyOD(int(cctOD.toDouble()));
+                if (cctOG.toDouble()>0)
+                    Datas::I()->mesurepachy->setpachyOG(int(cctOG.toDouble()));
+            }
+            if (avgOD.toDouble()>0 && avgOG.toDouble()>0)
+            {
+                Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+                if (avgOD.toDouble()>0)
+                    Datas::I()->mesuretono->setTOD(int(avgOD.toDouble()));
+                if (avgOG.toDouble()>0)
+                    Datas::I()->mesuretono->setTOG(int(avgOG.toDouble()));
+                if (ciopOD.toDouble()>0)
+                    Datas::I()->mesuretono->setTODcorrigee(int(ciopOD.toDouble()));
+                if (ciopOG.toDouble()>0)
+                    Datas::I()->mesuretono->setTOGcorrigee(int(ciopOG.toDouble()));
+            }
+        }
+        debugMesure(Datas::I()->mesuretono);
+        debugMesure(Datas::I()->mesurepachy);
+    }
+}
+
 // -------------------------------------------------------------------------------------
 // Generation du resumé Html des données de réfraction sublective issues du refracteur
 //--------------------------------------------------------------------------------------
@@ -8049,15 +8198,15 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     LectureDonneesCOMFronto(m_mesureSerie);
     if (Datas::I()->mesurefronto->isdataclean())
         return;
-    //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
-    {
-        m_flagreglagerefracteur = MesureFronto;
-        // NIDEK RT-5100
-        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
-            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
-        InsertMesure(MesureFronto);
-    }
+
+    //! Enregistre la mesures dans la base
+    InsertMesure(MesureFronto);
+
+    //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
+    TypesMesures flag = MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
+    RegleRefracteur(flag);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
     emit NouvMesure(MesureFronto);
 }
 
@@ -8283,6 +8432,15 @@ bool Procedures::ReglePortAutoref()
         s_paramPortSerieAutoref.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
     }
+    else if (m_settings->value(Param_Poste_Autoref).toString()=="TOMEY RC-5000"
+          || m_settings->value(Param_Poste_Autoref).toString()=="RODENSTOCK CX 2000")
+    {
+        s_paramPortSerieAutoref.baudRate       = QSerialPort::Baud38400;
+        s_paramPortSerieAutoref.dataBits       = QSerialPort::Data8;
+        s_paramPortSerieAutoref.parity         = QSerialPort::NoParity;
+        s_paramPortSerieAutoref.stopBits       = QSerialPort::OneStop;
+        s_paramPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
+    }
     else a = false;
     return a;
 }
@@ -8318,30 +8476,25 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
     }
 
     LectureDonneesXMLAutoref(xmldoc);
-    if ( !autorefhaskerato && !autorefhastonopachy && Datas::I()->mesureautoref->isdataclean())
-        return;
-    else if (autorefhaskerato && Datas::I()->mesureautoref->isdataclean() && Datas::I()->mesurekerato->isdataclean())
-        return;
-    else if (autorefhastonopachy && Datas::I()->mesureautoref->isdataclean()
-        &&  Datas::I()->mesurekerato   ->isdataclean()
-        &&  Datas::I()->mesuretono      ->isdataclean()
-        &&  Datas::I()->mesurepachy     ->isdataclean())
-        return;
-    //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
+
+    //! Enregistre les mesures dans la base
+    if (!Datas::I()->mesurekerato->isdataclean())
+        InsertMesure(MesureKerato);
+    if (!Datas::I()->mesureautoref->isdataclean())
+        InsertMesure(MesureAutoref);
+    if (autorefhastonopachy)
     {
-        m_flagreglagerefracteur = MesureAutoref;
-        // NIDEK RT-5100 - NIDEK RT-2100
-        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
-        {
-            if (!Datas::I()->mesurekerato->isdataclean())
-                InsertMesure(MesureKerato);
-            if (!Datas::I()->mesureautoref->isdataclean())
-                InsertMesure(MesureAutoref);
-            //Dans un premier temps, le PC envoie la requête d'envoi de données
-            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
-        }
+        if (!Datas::I()->mesuretono->isdataclean())
+            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
+        if (!Datas::I()->mesurepachy->isdataclean())
+            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
     }
+
+    //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
+    TypesMesures flag = MesureAutoref;                        /*! règle le flag de reglage du refracteur sur Autoref seulement */
+    RegleRefracteur(flag);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
         emit NouvMesure(MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
@@ -8349,17 +8502,10 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
-        {
-            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
             emit NouvMesure(MesureTono);
-        }
         if (!Datas::I()->mesurepachy->isdataclean())
-        {
-            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
             emit NouvMesure(MesurePachy);
-        }
     }
-
 }
 
 //! lire les fichiers xml des appareils de refraction
@@ -8372,15 +8518,15 @@ void Procedures::ReponseXML_Fronto(const QDomDocument &xmldoc)
     LectureDonneesXMLFronto(xmldoc);
     if (Datas::I()->mesurefronto->isdataclean())
         return;
-    //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
-    {
-        m_flagreglagerefracteur = MesureFronto;
-        // NIDEK RT-5100
-        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
-            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
-        InsertMesure(MesureFronto);
-    }
+
+    //! Enregistre la mesures dans la base
+    InsertMesure(MesureFronto);
+
+    //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
+    TypesMesures flag = MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
+    RegleRefracteur(flag);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
     emit NouvMesure(MesureFronto);
 }
 
@@ -8396,9 +8542,37 @@ void Procedures::ReponseXML_Refracteur(const QDomDocument &xmldoc)
     LectureDonneesXMLRefracteur(xmldoc);
     if ( Datas::I()->mesureacuite->isdataclean() && Datas::I()->mesurefinal->isdataclean() )
         return;
-    if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
-        InsertMesure(MesureRefracteur);
+
+    //! Enregistre les mesures dans la base
+    InsertMesure(MesureRefracteur);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     emit NouvMesure(MesureRefracteur);
+}
+
+
+//! lire les fichiers xml des appareils de refraction
+//! -----------------------------------------------------------------------------------------
+//! Lecture du fichier xml du tonometre
+//! -----------------------------------------------------------------------------------------
+void Procedures::ReponseXML_Tono(const QDomDocument &xmldoc)
+{
+    Datas::I()->mesuretono   ->cleandatas();
+    Datas::I()->mesurepachy  ->cleandatas();
+
+    LectureDonneesXMLTono(xmldoc);
+
+    //! Enregistre les mesures dans la base
+    if (!Datas::I()->mesuretono->isdataclean())
+        InsertMesure(MesureTono);
+    if (!Datas::I()->mesurepachy->isdataclean())
+        InsertMesure(MesurePachy);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
+    if (!Datas::I()->mesuretono->isdataclean())
+        emit NouvMesure(MesureTono);
+    if (!Datas::I()->mesurepachy->isdataclean())
+        emit NouvMesure(MesurePachy);
 }
 
 //! lire les ports séries
@@ -8462,21 +8636,25 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
         &&  Datas::I()->mesuretono      ->isdataclean()
         &&  Datas::I()->mesurepachy     ->isdataclean())
         return;
-    //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (t_threadRefracteur != Q_NULLPTR && !FicheRefractionOuverte())
+
+    //! Enregistre les mesures dans la base
+    if (!Datas::I()->mesurekerato->isdataclean())
+        InsertMesure(MesureKerato);
+    if (!Datas::I()->mesureautoref->isdataclean())
+        InsertMesure(MesureAutoref);
+    if (autorefhastonopachy)
     {
-        m_flagreglagerefracteur = MesureAutoref;
-        // NIDEK RT-5100 - NIDEK RT-2100
-        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
-        {
-            if (!Datas::I()->mesurekerato->isdataclean())
-                InsertMesure(MesureKerato);
-            if (!Datas::I()->mesureautoref->isdataclean())
-                InsertMesure(MesureAutoref);
-            //Dans un premier temps, le PC envoie la requête d'envoi de données
-            Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
-        }
+        if (!Datas::I()->mesuretono->isdataclean())
+            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
+        if (!Datas::I()->mesurepachy->isdataclean())
+            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
     }
+
+    //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
+    TypesMesures flag = MesureAutoref;                        /*! règle le flag de reglage du refracteur sur Autoref seulement */
+    RegleRefracteur(flag);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
         emit NouvMesure(MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
@@ -8484,15 +8662,9 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
-        {
-            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
             emit NouvMesure(MesureTono);
-        }
         if (!Datas::I()->mesurepachy->isdataclean())
-        {
-            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
             emit NouvMesure(MesurePachy);
-        }
     }
 }
 
@@ -8857,6 +9029,128 @@ PL04.7N
                 Datas::I()->mesurepachy->setpachyOD(PachyOD.toInt());
                 Datas::I()->mesurepachy->setpachyOG(PachyOG.toInt());
                 Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+            }
+        }
+    }
+
+    else if (m_settings->value(Param_Poste_Autoref).toString()=="TOMEY RC-5000"
+     || m_settings->value(Param_Poste_Autoref).toString()=="RODENSTOCK CX 2000")
+    {
+        /*! SORTIE EXEMPLE POUR UN TOMEY RC-5000
+         * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
+         * STX =    QByteArray::fromHex("2")            //STX -> start of text
+         * CR =     QByteArray::fromHex("13")           //CR -> carriage return
+         * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
+         * La 1ere ligne commence par SOH, la dernière par EOT- représentés ici
+         * Les autres lignes commencent par STX
+         * Toutes les lignes se terminent par CR
+
+
+SOH*1234                                    -> id (4 octets)
+RK
+0R+ 5.25- 0.25179                           -> AR Côté (R/L) Sphere (6o) Cylindre (6o) Axe (3o)
+0L+ 3.00- 0.75 89
+DB60.5                                      -> EIP (4o)
+CR 5.0045.00 89 4.0040.00 75 4.50- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o)
+CL 5.0045.00 89 4.0040.00 75 4.50- 0.25
+*/
+        a               = Mesure.indexOf("RK");
+        a               = Mesure.length() - a -1;
+        QString Ref("");
+        Ref             = Mesure.right(a);
+        if (Ref != "")
+        {
+            a  = Ref.indexOf("OR");
+            // OEIL DROIT -----------------------------------------------------------------------------
+            if (a>=0)
+            {
+                QString mesureOD("");
+                QString mSphereOD   = "+00.00";
+                QString mCylOD      = "+00.00";
+                QString mAxeOD      = "000";
+                mesureOD            = Ref.mid(Ref.indexOf("OR")+2,15)   .replace(" ","0");
+                mSphereOD           = mesureOD.mid(0,6);
+                mCylOD              = mesureOD.mid(6,6);
+                mAxeOD              = mesureOD.mid(12,3);
+                Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
+                Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
+                Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
+            }
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            a  = Ref.indexOf("OL");
+            if (a>=0)
+            {
+                QString mesureOG("");
+                QString mSphereOG   = "+00.00";
+                QString mCylOG      = "+00.00";
+                QString mAxeOG      = "000";
+                mesureOG            = Ref.mid(Ref.indexOf("OL")+2,15)   .replace(" ","0");
+                mSphereOG           = mesureOG.mid(0,6);
+                mCylOG              = mesureOG.mid(6,6);
+                mAxeOG              = mesureOG.mid(12,3);
+                Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
+                Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
+                Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
+            }
+            a  = Ref.indexOf("DB");
+            if (a >= 0) {
+                QString PD      = Ref.mid(Ref.indexOf("DB")+2,2);
+                Datas::I()->mesureautoref->setecartIP(PD.toInt());
+            }
+            // Données de KERATOMETRIE -------------------------------------------------------------------------------------------------------
+            // OEIL DROIT -----------------------------------------------------------------------------
+            a  = Ref.indexOf("CR");
+            if (a>=0)
+            {
+                /*!->CR 5.0045.00 89 4.0040.00 75 4.50- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
+                QString KOD("");
+                QString K1OD("null"), K2OD("null");
+                int     AxeKOD(0);
+                KOD                 = Ref.mid(Ref.indexOf("CR")+2,37);
+                /*!              1           2           3
+                 *!->01234|56789|012|34567|89012|345|67890|123456 */
+                /*   mK1OD|dK1OD|Axe|mK2OD|dK2OD|Axe|mAvgK|Cylndr
+                 *!-> 5.00|45.00| 89| 4.00|40.00| 75| 4.50|- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
+                KOD.replace(" ", "0");
+                /*!->05.00|45.00|089|04.00|40.00|075|04.50|-00.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
+                K1OD                = KOD.mid(0,5);
+                K2OD                = KOD.mid(13,5);
+                AxeKOD              = KOD.mid(10,3).toInt();
+                if (K1OD.toDouble() != 0 && K2OD.toDouble() != 0)
+                {
+                    Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
+                    Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
+                    Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
+                    Datas::I()->mesurekerato->setdioptriesK1OD(KOD.mid(5,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OD(KOD.mid(18,5).toDouble());
+                }
+            }
+            // OEIL GAUCHE ---------------------------------------------------------------------------
+            a  = Ref.indexOf("CL");
+            if (a>=0)
+            {
+                /*!->CL 5.0045.00 89 4.0040.00 75 4.50- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
+                QString KOG("");
+                QString K1OG("null"), K2OG("null");
+                int     AxeKOG(0);
+                KOG                 = Ref.mid(Ref.indexOf("CR")+2,37);
+                /*!              1           2           3
+                 *!->01234|56789|012|34567|89012|345|67890|123456 */
+                /*   mK1OG|dK1OG|Axe|mK2OG|dK2OG|Axe|mAvgK|Cylndr
+                 *!-> 5.00|45.00| 89| 4.00|40.00| 75| 4.50|- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
+                KOG.replace(" ", "0");
+                /*!->05.00|45.00|089|04.00|40.00|075|04.50|-00.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
+                K1OG                = KOG.mid(0,5);
+                K2OG                = KOG.mid(13,5);
+                AxeKOG              = KOG.mid(10,3).toInt();
+                if (K1OG.toDouble() != 0 && K2OG.toDouble() != 0)
+                {
+                    Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
+                    Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
+                    Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
+                    Datas::I()->mesurekerato->setdioptriesK1OG(KOG.mid(5,5).toDouble());
+                    Datas::I()->mesurekerato->setdioptriesK2OG(KOG.mid(18,5).toDouble());
+                }
             }
         }
     }

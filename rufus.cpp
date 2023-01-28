@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-01-2023/2");
+    qApp->setApplicationVersion("28-01-2023/2");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -6712,10 +6712,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
      * et la mesure acuité créée en refraction subjective
      */
     if (proc->PortRefracteur()!=Q_NULLPTR || proc->LANRefracteur())
-    {
-        proc->setFlagReglageRefracteur(Procedures::MesureAutoref | Procedures::MesureFronto);
-        proc->EnvoiDataPatientAuRefracteur(currentpatient()->id());
-    }
+        proc->EnvoiDataPatientAuRefracteur();
 
     //5 - mise à jour du dossier en salle d'attente
     PatientEnCours *patcours = Q_NULLPTR;

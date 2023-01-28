@@ -102,7 +102,7 @@ private:
     UpDialog                *dlg_buprestore;
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
     void                    ReconstruitListeModesAcces();
-    bool                    VerifBaseEtRessources();
+    bool                    VerifBaseEtRessources(QWidget *widg = Q_NULLPTR);
     bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
@@ -488,17 +488,15 @@ public:
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
     void                    InsertMesure(TypeMesure typemesure = MesureAll);              //! enregistre la mesure de réfraction
-    void                    EnvoiDataPatientAuRefracteur(int idpat);
+    void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
-    void                    setFlagReglageRefracteur(TypesMesures mesures)  { m_flagreglagerefracteur = mesures; }
-    TypesMesures            FlagReglageRefracteur()                         { return m_flagreglagerefracteur; }
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
 
 private:
     QString                 m_mesureSerie;
 
     /*! Tout ce qui est en rapport avec la récupération des données de refraction par le réseau */
-    QTimer                  t_xmlwatchtimer;                                        /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop */
+    QTimer                  t_filewatchtimer;                                       /*! utilisé à la place du QFileSystemWatcher dont le signal directorychanged bugue trop */
     QTimer                  t_xmlfiletimer;                                         /*! permet d'introduire un décalage entre l'enregistrement des données AR ET LM pour le Glasspop pour contourner un bug du Glasspop */
     QFileSystemWatcher      m_filewatcherfronto;                                    /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml fronto */
     QDateTime               m_filewatcherfrontocreated = QDateTime();               /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
@@ -509,10 +507,13 @@ private:
     QFileSystemWatcher      m_filewatcherrefracteur;                                /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml refracteur */
     QDateTime               m_filewatcherrefracteurcreated = QDateTime();           /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
     QString                 m_filewatcherrefracteurfile = "";                       /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
+    QFileSystemWatcher      m_filewatchertono;                                      /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les resultats xml tono */
+    QDateTime               m_filewatchertonocreated = QDateTime();                 /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QDateTimeg sert à bloquer la deuxième émission */
+    QString                 m_filewatchertonofile = "";                             /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     /*! fin récupération des données de refraction par le réseau */
 
     TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
-    TypesMesures            m_flagreglagerefracteur = MesureNone;
+    TypesMesures            m_flagreglagerefracteurNidek = MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    Ouverture_Appareils_Refraction();
     bool                    Ouverture_Ports_Series(TypesAppareils appareils);       //! ouvre les ports séries des appareils connectés en  port COM
@@ -531,9 +532,13 @@ private:
     void                    LectureDonneesCOMRefracteur(QString Mesure);            //! lit les données envoyées sur le port série du refracteur
     void                    LectureDonneesXMLRefracteur(QDomDocument docxml);       //! lit les données envoyées sur le fichier échange XML du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
-    void                    RegleRefracteurCOM();                                   //! règle le refracteur par le port Com
-    void                    RegleRefracteurXML();                                   //! règle le refracteur par le réseau
+    void                    RegleRefracteur(TypesMesures flag);                     //! Règle le refracteur pour les types de mesure précisées
+    void                    RegleRefracteurCOM(TypesMesures flag);                  //! règle le refracteur par le port Com
+    void                    RegleRefracteurXML(TypesMesures flag);                  //! règle le refracteur par le réseau
     void                    ReponseXML_Refracteur(const QDomDocument &docxml);
+    //LE TONO ----------------------------------------------------
+    void                    LectureDonneesXMLTono(QDomDocument docxml);             //! lit les données envoyées sur le fichier échange XML du fronto
+    void                    ReponseXML_Tono(const QDomDocument &docxml);
 
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);

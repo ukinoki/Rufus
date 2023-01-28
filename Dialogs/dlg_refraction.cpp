@@ -1672,7 +1672,7 @@ MesureRefraction* dlg_refraction::CalcMesureRefraction()
             ref->cleandatas(Utils::Gauche);
             ref->setsphereOG(ui->SphereOG->value());
             ref->setcylindreOG(ui->CylindreOG->value());
-            ref->setaxecylindreOG(ui->AxeCylindreOG->value());
+            ref->setaxecylindreOG(Utils::roundToNearestFive(ui->AxeCylindreOG->value()));
             if (!ui->V2RadioButton->isChecked())
                 ref->setaddVPOD(ui->AddVPOD->value());
             if (m_affichedetail)
@@ -1686,7 +1686,7 @@ MesureRefraction* dlg_refraction::CalcMesureRefraction()
             ref->cleandatas(Utils::Droit);
             ref->setsphereOD(ui->SphereOD->value());
             ref->setcylindreOD(ui->CylindreOD->value());
-            ref->setaxecylindreOD(ui->AxeCylindreOD->value());
+            ref->setaxecylindreOD(Utils::roundToNearestFive(ui->AxeCylindreOD->value()));
             if (!ui->V2RadioButton->isChecked())
                 ref->setaddVPOD(ui->AddVPOD->value());
             if (m_affichedetail)
