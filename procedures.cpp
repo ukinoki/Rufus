@@ -4821,8 +4821,7 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
         return;
 
     //! Enregistre les mesures dans la base
-    if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
-        InsertMesure(MesureRefracteur);
+    InsertMesure(MesureRefracteur);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     emit NouvMesure(MesureRefracteur);
@@ -8538,8 +8537,7 @@ void Procedures::ReponseXML_Refracteur(const QDomDocument &xmldoc)
         return;
 
     //! Enregistre les mesures dans la base
-    if ( !Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean() )
-        InsertMesure(MesureRefracteur);
+    InsertMesure(MesureRefracteur);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     emit NouvMesure(MesureRefracteur);
