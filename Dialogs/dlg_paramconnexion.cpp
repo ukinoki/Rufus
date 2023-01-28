@@ -27,6 +27,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     m_connectavecloginSQL = connectavecLoginSQL;
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");
+    ui->PathSQLlineEdit     ->setText(Utils::getSQLExecutable());
     ui->IPlabel             ->setVisible(false);
     ui->IPlineEdit          ->setVisible(false);
     ui->DistantradioButton  ->setEnabled(OKAccesDistant);
@@ -193,6 +194,19 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
     DataBase::I()->setModeacces(mode);
+    QString SQLExecutable = ui->PathSQLlineEdit->text();
+    if (SQLExecutable.isEmpty() || !QFile::exists(SQLExecutable))
+    {
+        SQLExecutable = Utils::getOrPromptSQLExecutable(tr("Le chemin d'accès au serveur MySQL n'est pas correct!"));
+        ui->PathSQLlineEdit->setText(SQLExecutable);
+        if (SQLExecutable.isEmpty() || !QFile::exists(SQLExecutable))
+        {
+            Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
+            ui->PathSQLlineEdit->setFocus();
+            return false;
+        }
+    }
+    DataBase::I()->setSQLExecutable(SQLExecutable);
     DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
 
     QString Login = ui->LoginlineEdit->text();

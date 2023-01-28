@@ -406,7 +406,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         ui->FactureupPushButton     ->setVisible(false);
         ui->EcheancierupPushButton  ->setVisible(false);
         ui->VisuDocupTableWidget    ->setVisible(false);
-        [[clang::fallthrough]];// => pas de break, on continue avec le code de Lire
+        //[[clang::fallthrough]];// => pas de break, on continue avec le code de Lire
     case Lire: {
         wdg_enreguppushbutton       ->setText(tr("Modifier"));
         RegleComptesComboBox(false);

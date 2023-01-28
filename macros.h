@@ -859,7 +859,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_DIR_ECHECSTRANSFERTS                "/EchecsTransferts"
 
 #define NOM_FILE_INI                            "/Rufus.ini"
-#define NOM_FILE_SCRIPTBACKUP                   "/RufusScriptBackup.sh"
+
+#ifdef Q_OS_WIN
+    #define NOM_FILE_SCRIPTBACKUP                   "/RufusScriptBackup.bat"
+#else
+    #define NOM_FILE_SCRIPTBACKUP                   "/RufusScriptBackup.sh"
+#endif
+
 #define NOM_FILE_SCRIPT_MACOS_PLIST             "/rufus.bup.plist"
 #define NOM_FILE_ENTETEORDO                     "/Entete_Ordonnance.txt"
 #define NOM_FILE_CORPSORDO                      "/Corps_Ordonnance.txt"
@@ -1110,7 +1116,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_SSL                                       "/SSL"
 #define Param_Serveur                                   "/Serveur"
 #define Param_Port                                      "/Port"
-#define Param_Active                                     "/Active"
+#define Param_SQLExecutable                             "/SQLExecutable"
+#define Param_Active                                    "/Active"
 
 #define Imprimante_TailleEnTete                         "Param_Imprimante/TailleEnTete"
 #define Imprimante_TailleEnTeteALD                      "Param_Imprimante/TailleEnTeteALD"
