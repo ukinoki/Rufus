@@ -20,6 +20,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "database.h"
 #include "gbl_datas.h"
 
+// https://fr.wikipedia.org/wiki/Caract%C3%A8re_de_contr%C3%B4le
+unsigned char SOH = 1;  //0x01
+unsigned char STX = 2;  //0x02
+unsigned char EOT = 4;  //0x04
+unsigned char ETB = 23; //0x17
+unsigned char LF  = 10; //0x0A
+unsigned char CR  = 13; //0x0D
+
 
 Procedures* Procedures::instance =  Q_NULLPTR;
 Procedures* Procedures::I()
@@ -575,6 +583,135 @@ void Procedures::BackupWakeUp()
     }
 }
 
+#ifdef Q_OS_WIN
+void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
+{
+    if (!Utils::mkpath(pathdirdestination))
+        return;
+    if (!QDir(pathdirdestination).exists())
+        return;
+    QString CRLF="\r\n";
+    // élaboration du script de backup
+    QString scriptbackup = "FOR /F \"TOKENS=1,2,3 DELIMS=/ \" %%B IN ('DATE/T') DO SET day=%%D%%C%%B";
+    scriptbackup += CRLF;
+    scriptbackup += "FOR /F \"TOKENS=1,2 DELIMS=: \" %%B IN ('TIME/T') DO SET minute=%%B%%C";
+    //# Configuration de base: datestamp e.g. YYYYMMDD
+    scriptbackup += CRLF;
+    scriptbackup += "set DATE=%day%-%minute%";
+    //# Dossier où sauvegarder les backups (créez le d'abord!)
+    scriptbackup += CRLF;
+    scriptbackup += "set BACKUP_DIR=\"" + pathdirdestination + "\"";
+    //# Dossier de  ressources
+    scriptbackup += CRLF;
+    scriptbackup += "set DIR_RESSOURCES=\"" + PATH_DIR_RESSOURCES + "\"";
+    scriptbackup += CRLF;
+    if (QDir(m_parametres->dirimagerieserveur()).exists())
+    {
+        if (AvecImages)
+        {
+            scriptbackup += "set DIR_IMAGES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + "\"";
+            scriptbackup += CRLF;
+        }
+        if (AvecFactures)
+        {
+            scriptbackup += "set DIR_FACTURES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + "\"";
+            scriptbackup += CRLF;
+        }
+        if (AvecVideos)
+        {
+            scriptbackup += "set DIR_VIDEOS=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + "\"";
+            scriptbackup += CRLF;
+        }
+    }
+    //# Rufus.ini
+    scriptbackup += "set RUFUSINI=\"" + PATH_FILE_INI "\"";
+    //# Identifiants MySQL
+    scriptbackup += CRLF;
+    scriptbackup += "set MYSQL_USER=\"" LOGIN_SQL "\"";
+    scriptbackup += CRLF;
+    scriptbackup += "set MYSQL_PASSWORD=\"" MDP_SQL "\"";
+    //# Commandes MySQL
+    QDir Dir(QCoreApplication::applicationDirPath());
+    Dir.cdUp();
+    scriptbackup += CRLF;
+    QString sqlCommand = db->SQLExecutable();
+    QString cheminmysql = sqlCommand.left(sqlCommand.lastIndexOf("/"));
+    scriptbackup += "set MYSQL=" + sqlCommand;
+    scriptbackup += CRLF;
+    scriptbackup += "set MYSQLDUMP=" + cheminmysql +"/mysqldump.exe";
+    scriptbackup += CRLF;
+
+    //# Bases de données MySQL à ignorer
+    scriptbackup += "set SKIPDATABASES=\"Database|information_schema|performance_schema|mysql|sys\"";
+    //# Nombre de jours à garder les dossiers (seront effacés après X jours)
+    scriptbackup += CRLF;
+    scriptbackup += "set RETENTION=14";
+    //# Create a new directory into backup directory location for this date
+    scriptbackup += CRLF;
+    scriptbackup += "mkdir %BACKUP_DIR%/%DATE%";
+    //# Retrieve a list of all databases
+    scriptbackup += CRLF;
+    scriptbackup += "rem set databases=`$MYSQL -u$MYSQL_USER -p$MYSQL_PASSWORD -e \"SHOW DATABASES;\" | grep -Ev \"($SKIPDATABASES)\"`";
+    scriptbackup += CRLF;
+    scriptbackup += "for /f \"tokens=*\" %%g in ('%MYSQL% -u%MYSQL_USER% -p%MYSQL_PASSWORD% -e \"SHOW DATABASES\" --skip-column-names -B') do (";
+    scriptbackup += CRLF;
+    scriptbackup += "echo %%g";
+    scriptbackup += CRLF;
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases %%g > \"%BACKUP_DIR%/%DATE%/%%g.sql\"";
+    scriptbackup += CRLF;
+    scriptbackup += ":next";
+    scriptbackup += CRLF;
+    scriptbackup += ")";
+    scriptbackup += CRLF;
+    // Sauvegarde la table des utilisateurs
+    scriptbackup += CRLF;
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% mysql user > \"%BACKUP_DIR%/%DATE%/user.sql\"";
+    // Detruit les anciens fichiers
+    scriptbackup += CRLF;
+    scriptbackup += "rem find $BACKUP_DIR/* -mtime +$RETENTION -delete";
+    // copie les fichiers ressources
+    scriptbackup += CRLF;
+    scriptbackup += "xcopy %DIR_RESSOURCES% %BACKUP_DIR%/%DATE%/Ressources /S";
+    scriptbackup += CRLF;
+    if (QDir(m_parametres->dirimagerieserveur()).exists())
+    {
+        //! copie les fichiers image
+        if (AvecImages)
+        {
+            scriptbackup += "mkdir %BACKUP_DIR%" NOM_DIR_IMAGES;
+            scriptbackup += CRLF;
+            scriptbackup += "xcopy %DIR_IMAGES% %BACKUP_DIR% /S";
+            scriptbackup += CRLF;
+        }
+        if (AvecFactures)
+        {
+            scriptbackup += "mkdir %BACKUP_DIR%" NOM_DIR_FACTURES;
+            scriptbackup += CRLF;
+            scriptbackup += "xcopy %DIR_FACTURES% %BACKUP_DIR% /S";
+            scriptbackup += CRLF;
+        }
+        //! copie les fichiers video
+        if (AvecVideos)
+        {
+            scriptbackup += "mkdir %BACKUP_DIR%" NOM_DIR_VIDEOS;
+            scriptbackup += CRLF;
+            scriptbackup += "xcopy %DIR_VIDEOS% %BACKUP_DIR% /S";
+            scriptbackup += CRLF;
+        }
+    }
+    // copie Rufus.ini
+    scriptbackup +=  "copy %RUFUSINI% %BACKUP_DIR%/%DATE%" NOM_FILE_INI;
+    if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
+    QFile fbackup(PATH_FILE_SCRIPTBACKUP);
+    if (fbackup.open(QIODevice::ReadWrite))
+    {
+        QTextStream out(&fbackup);
+        out << scriptbackup ;
+        fbackup.close();
+    }
+}
+#else
 void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
 {
     if (!Utils::mkpath(pathdirdestination))
@@ -622,15 +759,12 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     QDir Dir(QCoreApplication::applicationDirPath());
     Dir.cdUp();
     scriptbackup += "\n";
-    QString cheminmysql;
-#ifdef Q_OS_MACX
-    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
-#endif
-#ifdef Q_OS_LINUX
-    cheminmysql = "/usr/bin";
-#endif
-    scriptbackup += "MYSQL=" + cheminmysql;
-    scriptbackup += "/mysql";
+    QString sqlCommand = db->SQLExecutable();
+    QString cheminmysql = sqlCommand.left(sqlCommand.lastIndexOf("/"));
+    scriptbackup += "MYSQL=" + sqlCommand;
+    scriptbackup += "\n";
+    scriptbackup += "MYSQLDUMP=" + cheminmysql;
+    scriptbackup += "/mysqldump";
     scriptbackup += "\n";
     scriptbackup += "MYSQLDUMP=" + cheminmysql;
     scriptbackup += "/mysqldump";
@@ -704,6 +838,8 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     }
 }
 
+#endif
+
 /*!
  * \brief Procedures::DefinitScriptRestore
  * \param ListNomFiles
@@ -712,13 +848,13 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 {
     QStringList listpaths;
     int a = 99;
-    QString cheminmysql;
-#ifdef Q_OS_MACX
-    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
-#endif
-#ifdef Q_OS_LINUX
-    cheminmysql = "/usr/bin";
-#endif
+    QString sqlCommand = db->SQLExecutable();
+    if (sqlCommand == "" || !QFile(sqlCommand).exists())
+    {
+        Logs::ERROR(tr("Le fichier de MySQL \"%1\" est invalide").arg(sqlCommand));
+        return a;
+    }
+
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
@@ -738,7 +874,13 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
-    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
+
+    QStringList args = QStringList()
+        << "-u" << login
+        << "-p" MDP_SQL
+        << "-h" << host
+        << "-P" << QString::number(db->port())
+        << keys;
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
@@ -746,19 +888,30 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             listpaths << path;
         }
     QProcess dumpProcess(parent());
-      for (int i=0; i< listpaths.size(); i++)
-      {
-          QString path = listpaths.at(i);
-          dumpProcess.setStandardInputFile(path);
-          dumpProcess.start(command);
-          dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished() */
-          qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(),dumpProcess.exitStatus()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
-          if (dumpProcess.exitStatus() == QProcess::NormalExit)
-              a = dumpProcess.exitCode();
-          if (a != 0)
-              i = listpaths.size();
-      }
-      return a;
+    for (int i=0; i< listpaths.size(); i++)
+    {
+        QString path = listpaths.at(i);
+        dumpProcess.setStandardInputFile(path);
+        dumpProcess.start(sqlCommand, args);
+        dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished() */
+        qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(),dumpProcess.exitStatus()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
+        if (dumpProcess.error() == QProcess::FailedToStart)
+        {
+            Logs::ERROR(tr("Impossible de lancer le processus de chargement de la base de données à partir du fichier \"%1\"").arg(path));
+            a = 99;
+            break;
+        }
+        if (dumpProcess.exitStatus() == QProcess::NormalExit)
+            a = dumpProcess.exitCode();
+        else
+        {
+            Logs::ERROR(tr("Le processus de chargement de la base de données à partir du fichier \"%1\" a échoué").arg(path));
+            break;
+        }
+        if (a != 0)
+            break;
+    }
+    return a;
 }
 
 /*!
@@ -2887,7 +3040,20 @@ bool Procedures::Connexion_A_La_Base()
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
+    QString SQLExecutable = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_SQLExecutable).toString();
+    if (SQLExecutable == "")
+    {
+        SQLExecutable = Utils::getOrPromptSQLExecutable();
+        if(SQLExecutable == "")
+        {
+            Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
+            UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme va s'arrêter"));
+            return false;
+        }
+        m_settings->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_SQLExecutable, SQLExecutable);
+    }
 
+    db->setSQLExecutable(SQLExecutable);
     db->initParametresConnexionSQL(server, port);
     if (!IdentificationUser())
         return false;
@@ -2914,6 +3080,7 @@ bool Procedures::Connexion_A_La_Base()
 
     return m_connexionbaseOK;
 }
+
 
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
@@ -3000,10 +3167,16 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setidUserConnected(idusr);
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
-    MAJComptesBancaires(currentuser());
-    currentuser()->setidsuperviseur(idusr);
-    currentuser()->setidcomptable(idusr);
-    currentuser()->setidparent(idusr);
+    User *user = currentuser();
+    if (user == Q_NULLPTR)
+    {
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de créer l'utilisateur"),tr("Erreur de création de l'utilisateur"));
+        return false;
+    }
+    MAJComptesBancaires(user);
+    user->setidsuperviseur(idusr);
+    user->setidcomptable(idusr);
+    user->setidparent(idusr);
     // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
     req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = 1";
     db->StandardSQL (req);
@@ -4418,13 +4591,16 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
     Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
 
+    // We read only once in this function the available ports List
+    QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
+
     if (appareils == 0)
     {
         bool portseriedispo = false;
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        for (int i=0; i<availablePorts.size(); i++)
         {
-            //qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
-            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") || QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            //qDebug() << availablePorts.at(i).portName();
+            if (Utils::isSerialPort(availablePorts.at(i).portName()))
             {
                 portseriedispo = true;
                 break;
@@ -4438,14 +4614,15 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             return false;
         }
     }
+
     QString listeports = "";
-    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+    for (int i=0; i< availablePorts.size(); i++)
     {
-        if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") || QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+        if (Utils::isSerialPort(availablePorts.at(i).portName()))
         {
             if (listeports != "")
                 listeports += " - ";
-            listeports += QSerialPortInfo::availablePorts().at(i).portName();
+            listeports += availablePorts.at(i).portName();
         }
     }
     if (listeports != "")
@@ -4454,9 +4631,9 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         listeports = tr("Aucun port COM disponible sur le système");
 
     /*!
-    for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-        Logs::LogToFile("PortsSeries.txt", QSerialPortInfo::availablePorts().at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
-    qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
+    for (int i=0; i<availablePorts.size(); i++)
+        Logs::LogToFile("PortsSeries.txt", availablePorts.at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
+    qDebug() << availablePorts.at(i).portName();
     */
     // PORT FRONTO
     if (appareils.testFlag(Fronto))
@@ -4466,9 +4643,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portFronto != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion frontofocomètre"));
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+
+        // Pour reviser !!!!
+        for (int i=0; i<availablePorts.size(); i++)
         {
-            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
+            QString nomgeneriqueduport = availablePorts.at(i).portName();
             if (nomgeneriqueduport.contains("usbserial"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
@@ -4491,23 +4670,28 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (m_portFronto == "COM4")    NomPort = "ttyUSB3";
                 if (NomPort != "") break;
             }
+            else
+            {
+                NomPort = m_portFronto;
+                break;
+            }
         }
 
         if (NomPort != "")
         {
             sp_portFronto     = new QSerialPort();
-            for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+            for(int i=0; i<availablePorts.size(); i++)
             {
-                //Debug() << QSerialPortInfo::availablePorts().at(i).portName();
-                //UpMessageBox::Watch(this,QSerialPortInfo::availablePorts().at(i).portName());
-                QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
+                //Debug() << availablePorts.at(i).portName();
+                //UpMessageBox::Watch(this,availablePorts.at(i).portName());
+                QString nomduport = availablePorts.at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
                     QString letterright = nomduport.split("-").at(1).right(1);
                     QString letterleft = nomduport.split("-").at(1).left(1);
                     if (letterright == NomPort)
                     {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portFronto->setPort(availablePorts.at(i));
                         sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
                         sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
                         sp_portFronto->setParity(s_paramPortSerieFronto.parity);
@@ -4518,7 +4702,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     }
                     else if (letterleft == NomPort)
                     {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portFronto->setPort(availablePorts.at(i));
                         sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
                         sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
                         sp_portFronto->setParity(s_paramPortSerieFronto.parity);
@@ -4532,7 +4716,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 {
                     if (nomduport == NomPort)
                     {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portFronto->setPort(availablePorts.at(i));
                         sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
                         sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
                         sp_portFronto->setParity(s_paramPortSerieFronto.parity);
@@ -4541,6 +4725,17 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         NomPort = nomduport;
                         break;
                     }
+                }
+                else if (nomduport == NomPort)
+                {
+                    sp_portFronto->setPort(availablePorts.at(i));
+                    sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
+                    sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
+                    sp_portFronto->setParity(s_paramPortSerieFronto.parity);
+                    sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
+                    sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
+                    NomPort = nomduport;
+                    break;
                 }
             }
             if (sp_portFronto->open(QIODevice::ReadWrite))
@@ -4572,9 +4767,9 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portRefracteur != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion refracteur"));
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        for (int i=0; i<availablePorts.size(); i++)
         {
-            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
+            QString nomgeneriqueduport = availablePorts.at(i).portName();
             if (nomgeneriqueduport.contains("usbserial"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
@@ -4597,20 +4792,25 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (m_portRefracteur == "COM4")    NomPort = "ttyUSB3";
                 if (NomPort != "") break;
             }
+            else
+            {
+                NomPort = m_portRefracteur;
+                break;
+            }
         }
         if (NomPort != "")
         {
             sp_portRefracteur     = new QSerialPort();
-            for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+            for(int i=0; i<availablePorts.size(); i++)
             {
-                QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
+                QString nomduport = availablePorts.at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
                     QString letterright = nomduport.split("-").at(1).right(1);
                     QString letterleft = nomduport.split("-").at(1).left(1);
                     if (letterright == NomPort)
                     {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portRefracteur->setPort(availablePorts.at(i));
                         sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
                         sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
                         sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
@@ -4621,7 +4821,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     }
                     else if (letterleft == NomPort)
                     {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portRefracteur->setPort(availablePorts.at(i));
                         sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
                         sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
                         sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
@@ -4635,7 +4835,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 {
                     if (nomduport == NomPort)
                     {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portRefracteur->setPort(availablePorts.at(i));
                         sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
                         sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
                         sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
@@ -4644,6 +4844,17 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         NomPort = nomduport;
                         break;
                     }
+                }
+                else if (nomduport == NomPort)
+                {
+                    sp_portRefracteur->setPort(availablePorts.at(i));
+                    sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
+                    sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
+                    sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
+                    sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
+                    sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
+                    NomPort = nomduport;
+                    break;
                 }
             }
             if (sp_portRefracteur->open(QIODevice::ReadWrite))
@@ -4678,9 +4889,9 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portAutoref != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion autorefractomètre"));
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        for (int i=0; i<availablePorts.size(); i++)
         {
-            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
+            QString nomgeneriqueduport = availablePorts.at(i).portName();
             if (nomgeneriqueduport.contains("usbserial"))
             {
                 QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
@@ -4703,20 +4914,25 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (m_portAutoref == "COM4")   NomPort = "ttyUSB3";
                 if (NomPort != "") break;
             }
+            else
+            {
+                NomPort = m_portAutoref;
+                break;
+            }
         }
         if (NomPort != "")
         {
             sp_portAutoref     = new QSerialPort();
-            for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+            for(int i=0; i<availablePorts.size(); i++)
             {
-                QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
+                QString nomduport = availablePorts.at(i).portName();
                 if (nomduport.contains("usbserial"))
                 {
                     QString letterright = nomduport.split("-").at(1).right(1);
                     QString letterleft = nomduport.split("-").at(1).left(1);
                     if (letterright == NomPort)
                     {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portAutoref->setPort(availablePorts.at(i));
                         sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
                         sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
                         sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
@@ -4727,7 +4943,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     }
                     else if (letterleft == NomPort)
                     {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portAutoref->setPort(availablePorts.at(i));
                         sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
                         sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
                         sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
@@ -4741,7 +4957,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 {
                     if (nomduport == NomPort)
                     {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portAutoref->setPort(availablePorts.at(i));
                         sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
                         sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
                         sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
@@ -4750,6 +4966,17 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                         NomPort = nomduport;
                         break;
                     }
+                }
+                else if(nomduport == NomPort)
+                {
+                    sp_portAutoref->setPort(availablePorts.at(i));
+                    sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
+                    sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
+                    sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
+                    sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
+                    sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
+                    NomPort = nomduport;
+                    break;
                 }
             }
             if (sp_portAutoref->open(QIODevice::ReadWrite))
@@ -4788,7 +5015,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
 bool Procedures::ReglePortRefracteur()
 {
     bool a = true;
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+
+    QString name = m_settings->value(Param_Poste_Refracteur).toString();
+
+    if (name=="NIDEK RT-5100" || name=="NIDEK RT-2100")
     {
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
@@ -4796,12 +5026,12 @@ bool Procedures::ReglePortRefracteur()
         s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    else if (name=="TOMEY TAP-2000" || name=="RODENSTOCK Phoromat 2000")
     {
-        s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
-        s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
-        s_paramPortSerieRefracteur.parity         = QSerialPort::EvenParity;
-        s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
+        s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud9600;
+        s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data8;
+        s_paramPortSerieRefracteur.parity         = QSerialPort::NoParity;
+        s_paramPortSerieRefracteur.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
@@ -4864,8 +5094,8 @@ void Procedures::RegleRefracteur(TypesMesures flag)
             m_flagreglagerefracteurNidek = flag;
             Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         }
-        //! TOMEY TAP-2000 et Rodenstock Phoromap 2000
-        else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+        //! TOMEY TAP-2000 et Rodenstock Phoromat 2000
+        else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromat 2000")
             RegleRefracteurCOM(flag);
     }
     //! NIDEK RT-6100 - NIDEK Glasspop
@@ -4919,7 +5149,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             else if (originvalue < 100) finalvalue = " "  + QString::number(originvalue);
             else                        finalvalue = QString::number(originvalue);
         };
-        DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
+        DTRbuff.append(SOH);          //SOH -> start of header
 
         /*! réglage de l'autoref */
         if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
@@ -4939,16 +5169,16 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             SCAOG.replace("+0","+ ");
             SCAOG.replace("-0","- ");
             DTRbuff.append("DRM");                              //section fronto
-            DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+            DTRbuff.append(STX);           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("OR"+ SCAOD));  //SD
-            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(ETB);          //ETB -> end of text block
             DTRbuff.append(Utils::StringToArray("OL"+ SCAOG));  //SD
-            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(ETB);          //ETB -> end of text block
             if (Datas::I()->mesureautoref->ecartIP() > 0)
             {
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesureautoref->ecartIP())));
                 //SD
-                DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
+                DTRbuff.append(ETB);      //ETB -> end of text block
             }
             idpat = Datas::I()->mesureautoref->idpatient();
         }
@@ -4974,25 +5204,25 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             AddOD       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
             AddOG       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
             DTRbuff.append("DLM");                              //section fronto
-            DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+            DTRbuff.append(STX);           //STX -> start of text
             DTRbuff.append(Utils::StringToArray(" R"+ SCAOD));  //SD
-            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(ETB);          //ETB -> end of text block
             DTRbuff.append(Utils::StringToArray(" L"+ SCAOG));  //SD
-            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(ETB);          //ETB -> end of text block
             DTRbuff.append(Utils::StringToArray("AR" + AddOD)); //SD
-            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(ETB);          //ETB -> end of text block
             DTRbuff.append(Utils::StringToArray("AL" + AddOG)); //SD
-            DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
+            DTRbuff.append(ETB);          //ETB -> end of text block
             if (Datas::I()->mesurefronto->ecartIP() > 0)
             {
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP())));
                 //SD
-                DTRbuff.append(QByteArray::fromHex("17"));      //ETB -> end of text block
+                DTRbuff.append(ETB);      //ETB -> end of text block
             }
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
-        DTRbuff.append(QByteArray::fromHex("4"));               //EOT -> end of transmission
+        DTRbuff.append(EOT);               //EOT -> end of transmission
 
         /*!
         qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
@@ -5011,17 +5241,17 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
         //        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
         //        PortRefracteur()->flush();
         //        PortRefracteur()->waitForBytesWritten(1000);
-        Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
+        Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);
     }
     // FIN NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
-    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    // TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromat 2000")
     {
         /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
-         * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
-         * STX =    QByteArray::fromHex("2")            //STX -> start of text
-         * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
-         * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
+         * SOH =    SOH            //SOH -> start of header
+         * STX =    STX            //STX -> start of text
+         * ETB =    ETB           //ETB -> end of text block
+         * EOT =    EOT            //EOT -> end of transmission
          * La 1ere et la dernière lignes commencent par SOH et se terminent par EOT - représentés ici
          * Les autres lignes commencent par STX et se terminent par ETP
 SOH*PC_SND_SEOT                 -> start block
@@ -5100,20 +5330,20 @@ SOH*PC_SND_EEOT                 -> end block
             SOH*PC_SND_SEOT
             *Phoromat 2000|000000001|0
         */
-        DTRbuff.append(QByteArray::fromHex("1"));                               //SOH -> start of header
+        DTRbuff.append(SOH);                               //SOH -> start of header
         DTRbuff.append(Utils::StringToArray("*PC_SND_S"));
-        DTRbuff.append(QByteArray::fromHex("4"));                               //EOT -> end of transmission
-        DTRbuff.append(QByteArray::fromHex("2"));                               //STX -> start of text
+        DTRbuff.append(EOT);                               //EOT -> end of transmission
+        DTRbuff.append(STX);                               //STX -> start of text
         DTRbuff.append(Utils::StringToArray("*Phoromat 2000|000000001|0"));
-        DTRbuff.append(QByteArray::fromHex("17"));                              //ETB -> end of text block
+        DTRbuff.append(ETB);                              //ETB -> end of text block
 
         /*! écart interpupillaire
             *PD|32.0|32.0|                  ->PD | left PD result | right PD result |        */
-        DTRbuff.append(QByteArray::fromHex("2"));                               //STX -> start of text
+        DTRbuff.append(STX);                               //STX -> start of text
         double eip = static_cast<double>(Datas::I()->mesureautoref->ecartIP());
         QString halfeip = QString::number(eip/2,'f',1);                         // quel bricolage nul....
         DTRbuff.append(Utils::StringToArray("*PD|" + halfeip + "|" + halfeip + "|"));
-        DTRbuff.append(QByteArray::fromHex("17"));                              //ETB -> end of text block
+        DTRbuff.append(ETB);                              //ETB -> end of text block
 
         /*! réglage du fronto`
             *LM                             -> Fronto
@@ -5132,21 +5362,21 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
 
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*LM"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOD + "|" + SphereOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
@@ -5170,21 +5400,21 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesureautoref->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesureautoref->cylindreOG());
 
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AR"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOD + "|" + SphereOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
@@ -5209,30 +5439,32 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
 
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+
+
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SJ"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOD + "|" + SphereOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                               //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
-            DTRbuff.append(QByteArray::fromHex("2"));                                           //STX -> start of text
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
+            DTRbuff.append(STX);                                               //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
-            DTRbuff.append(QByteArray::fromHex("17"));                                          //ETB -> end of text block
+            DTRbuff.append(ETB);                                          //ETB -> end of text block
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
         /*! séquence de fin
             SOH*PC_SND_EEOT
         */
-        DTRbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
+        DTRbuff.append(SOH);          //SOH -> start of header
         DTRbuff.append(Utils::StringToArray("*PC_SND_E"));
-        DTRbuff.append(QByteArray::fromHex("4"));          //EOT -> end of transmission
+        DTRbuff.append(EOT);          //EOT -> end of transmission
 
         /*!
         qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
@@ -5251,9 +5483,13 @@ SOH*PC_SND_EEOT                 -> end block
 //        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
 //        PortRefracteur()->flush();
 //        PortRefracteur()->waitForBytesWritten(1000);
-        Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
+
+        // No escribimos nada ... TEST
+        //Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
+        //Utils::writeDataToFileDateTime(DTRbuff, "Send.bin","c:/outils/log/Phoromat/");
+        Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);
     }
-    // FIN TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
+    // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
 }
 
 void Procedures::RegleRefracteurXML(TypesMesures flag)
@@ -6342,30 +6578,31 @@ QByteArray Procedures::RequestToSendNIDEK()
      * pour signifier qu'il est prêt à recevoir les données
      * Dans Rufus, cette demande d'envoi est créée à l'ouverture d'un dossier patient et permet de régler le refracteur sur les données de ce patient */
     QByteArray DTSbuff;
-    DTSbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
+    DTSbuff.append(SOH);           //SOH -> start of header
     DTSbuff.append("C**");                              //C**
-    DTSbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+    DTSbuff.append(STX);           //STX -> start of text
     DTSbuff.append("RS");                               //RS
-    DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-    DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
+    DTSbuff.append(ETB);          //ETB -> end of text block  -> fin RTS
+    DTSbuff.append(EOT);           //EOT -> end of transmission
     //qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
-    return  QString(DTSbuff).toLocal8Bit();
+    return  DTSbuff;
 }
 
 QByteArray Procedures::SendDataNIDEK(QString mesure)
 {
     /*! la séquence SendData = "\001CRL\002SD\017\004" SendDataNIDEK() est utilisée dans le système NIDEK en réponse à une demande d'envoi de données RequestToSendNIDEK() */
     QByteArray DTRbuff;
-    DTRbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
+    DTRbuff.append(SOH);           //SOH -> start of header
     DTRbuff.append(mesure.toLocal8Bit());               //CRL pour le refracteur, CLM pour le fronto, CRK ou CRM pour l'autoref
-    DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+    DTRbuff.append(STX);           //STX -> start of text
     DTRbuff.append("SD");                               //SD
-    DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
-    DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-    QByteArray reponse = QString(DTRbuff).toLocal8Bit();
-    reponse += "\r";                                    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
+    DTRbuff.append(ETB);          //ETB -> end of text block  -> fin RTS
+    DTRbuff.append(EOT);           //EOT -> end of transmission
+    //QByteArray reponse = QString(DTRbuff).toLocal8Bit();
+    //reponse += "\r";                                    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
+    DTRbuff.append(CR); // \r = CR
     //qDebug() << "SendDataNidek = " << reponse;
-    return reponse;
+    return DTRbuff;
 }
 
 void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
@@ -6678,15 +6915,15 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
 
-    // TOMEY TAP-2000 et Rodenstock Phoromap 2000 =======================================================================================================================================
+    // TOMEY TAP-2000 et RODENSTOCK Phoromat 2000 =======================================================================================================================================
     else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+     || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromat 2000")
     {
         /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
-         * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
-         * STX =    QByteArray::fromHex("2")            //STX -> start of text
-         * ETB =    QByteArray::fromHex("17")           //ETB -> end of text block
-         * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
+         * SOH =    SOH            //SOH -> start of header
+         * STX =    STX            //STX -> start of text
+         * ETB =    ETB           //ETB -> end of text block
+         * EOT =    EOT            //EOT -> end of transmission
          * La 1ere et la dernière lignes commencent par SOH et se terminent par EOT - représentés ici
          * Les autres lignes commencent par STX et se terminent par ETB
          * Distinguish the FAR mode as a capital letter(UN, LM, S, C, A..) and NEAR mode as a small letter(un, lm, s, c, a..).
@@ -7021,7 +7258,7 @@ SOH*PC_RCV_EEOT                 -> end block
             }
         }
     }
-    // FIN TOMEY TAP-2000 et Rodenstock Phoromap 2000 ==========================================================================================================================}
+    // FIN TOMEY TAP-2000 et RODENSTOCK Phoromat 2000 ==========================================================================================================================}
 }
 
 void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
@@ -7876,7 +8113,7 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
 
 void Procedures::LectureDonneesXMLTono(QDomDocument docxml)
 {
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromap 2000")
+    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TOP-1000"  || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Topascope")
     {
         /*! exemple de fichier xml pour un RODENSTOCK TOPASCOPE / TOMEY TOP-1000
       *
@@ -9037,10 +9274,10 @@ PL04.7N
      || m_settings->value(Param_Poste_Autoref).toString()=="RODENSTOCK CX 2000")
     {
         /*! SORTIE EXEMPLE POUR UN TOMEY RC-5000
-         * SOH =    QByteArray::fromHex("1")            //SOH -> start of header
-         * STX =    QByteArray::fromHex("2")            //STX -> start of text
-         * CR =     QByteArray::fromHex("13")           //CR -> carriage return
-         * EOT =    QByteArray::fromHex("4")            //EOT -> end of transmission
+         * SOH =    SOH            //SOH -> start of header
+         * STX =    STX            //STX -> start of text
+         * CR =     CR             //CR -> carriage return
+         * EOT =    EOT            //EOT -> end of transmission
          * La 1ere ligne commence par SOH, la dernière par EOT- représentés ici
          * Les autres lignes commencent par STX
          * Toutes les lignes se terminent par CR

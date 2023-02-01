@@ -21,6 +21,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 OSX     { TARGET = /Applications/Rufus }
 LINUX   { TARGET = $(HOME)/RufusApp }
 
+win32 {
+RC_ICONS = assets/Images/icon.ico
+RC_FILE = assets/Images/icon.rc
+}
 
 TEMPLATE = app
 

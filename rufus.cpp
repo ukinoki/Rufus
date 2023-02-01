@@ -69,7 +69,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         UpMessageBox::Watch(this, tr("Pas d'utilisateur identifié!\nSortie du programme"));
         exit(0);
     }
-    qApp->setStyleSheet(Styles::StyleAppli());
+    //qApp->setStyleSheet(Styles::StyleAppli());
     ShowMessage::I()->SplashMessage(proc->currentuserstatus() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
 
     //! 3 Initialisation de tout

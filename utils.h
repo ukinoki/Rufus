@@ -112,6 +112,7 @@ public:
 
     //! QString
     static QSize                    CalcSize(QString txt, QFont fm = qApp->font());
+
     static QString                  retirecaracteresaccentues(QString nom);
     static bool                     IsCharSpecial( QChar c);
     static bool                     IsCharNL( QChar c);
@@ -215,6 +216,10 @@ public:
 
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
+    static void writeDataToFileDateTime (QByteArray datas, QString file, QString path);
+
+    //! Savoir si un port es serial
+    static bool isSerialPort( QString name );
 
     //Sound Alarme
     static void playAlarm(QString sound = NOM_ALARME);

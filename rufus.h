@@ -66,6 +66,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlg_remisecheques.h>
 #include <dlg_salledattente.h>
 #include <ui_dlg_salledattente.h>
+#include <upcombobox.h>
 
 #include <updoublevalidator.h>
 #include <upstandarditem.h>

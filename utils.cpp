@@ -500,8 +500,7 @@ qint32 Utils::ArrayToInt(QByteArray source)
 QByteArray Utils::StringToArray(QString source)
 {
     QByteArray ba;
-    QDataStream in(&ba, QIODevice::WriteOnly);
-    in << QString(source);
+    ba = source.toLocal8Bit();
     return ba;
 }
 
@@ -768,6 +767,12 @@ QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirde
     url = QFileDialog::getExistingDirectoryUrl(parent, title, url, QFileDialog::ShowDirsOnly);
     if (url.path() == "")
         return QUrl();
+#ifdef Q_OS_WIN
+    if( url.path().startsWith("/") )
+    {
+        url.setPath(url.path().last(url.path().length()-1));
+    }
+#endif
     if (ExclureNomAvecEspace)
             if (url.path().contains(" "))
             {
@@ -1255,6 +1260,20 @@ QImage Utils::imagemapFrom(const QJsonValue &val)
     QByteArray const encoded = val.toString().toLatin1();
     return QImage::fromData(QByteArray::fromBase64(encoded), "JPG");
 }
+void Utils::writeDataToFileDateTime (QByteArray data, QString name, QString path)
+{
+    if( !QDir(path).exists())
+    {
+        QDir().mkdir(path);
+    }
+
+    QDateTime now = QDateTime::currentDateTime();
+    QFile file(path+"/"+now.toString("yyyyMMdd_HHmmss")+name);
+    if (file.open(QFile::WriteOnly)) {
+        file.write(data);
+        file.close();
+    }
+}
 
 void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms)
 {
@@ -1268,6 +1287,23 @@ void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString m
     port->write(datas);
     port->flush();
     port->waitForBytesWritten(timetowaitms);
+}
+
+bool Utils::isSerialPort( QString name )
+{
+  if (name.contains("usbserial"))
+  {
+      return true;
+  }
+  if (name.contains("ttyUSB"))
+  {
+      return true;
+  }
+  if (name.contains("COM"))
+  {
+      return true;
+  }
+  return false;
 }
 
 void Utils::playAlarm(QString sound)
