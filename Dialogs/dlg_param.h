@@ -115,7 +115,7 @@ private:
     void                DossierClesSSL();
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);
-    void                EnableNetworkAppareilRefraction(UpComboBox *combo, int idx);
+    void                EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, int idx);
     void                EnableOKModifPosteButton();
     void                EnregistreAppareil();
     void                EnregDossierStockageApp(UpLineEdit *line, QString dir);
@@ -133,6 +133,7 @@ private:
     void                ModifPathDirEchangeMesure(enum Mesure mesure);                      /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
     void                ParamMotifs();
+    void                ReglePortCOM(Mesure Appareil);                    //! règle les aparamètres du port COM auquel est connecté l'appareil
     void                RegleAssocBoutons(QWidget *widg);
     void                ResetImprimante();
 

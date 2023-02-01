@@ -1197,3 +1197,13 @@ void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString m
     port->flush();
     port->waitForBytesWritten(timetowaitms);
 }
+
+//! récupérer l'index d'une valeur dans un QMetaEnum
+int Utils::getindexFromValue(const QMetaEnum & e, int value)
+{
+    for(int i=0; i< e.keyCount(); i++){
+        if(e.key(i) == e.valueToKey(value))
+            return i;
+    }
+    return -1;
+};

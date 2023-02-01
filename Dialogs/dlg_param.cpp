@@ -224,7 +224,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortFrontoupComboBox            ->setCurrentText(proc->settings()->value(Param_Poste_PortFronto).toString());
     if (ui->PortFrontoupComboBox->currentText() == RESEAU)
         ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortFronto_Reseau).toString());
-    EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox,       ui->PortFrontoupComboBox->currentIndex());
+    EnableComOrNetworkWidgetsAppareilRefraction(ui->PortFrontoupComboBox,       ui->PortFrontoupComboBox->currentIndex());
     ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
     ui->NetworkPathFrontoupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le frontofocomètre"));
 
@@ -232,7 +232,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortAutorefupComboBox           ->setCurrentText(proc->settings()->value(Param_Poste_PortAutoref).toString());
     if (ui->PortAutorefupComboBox->currentText() == RESEAU)
         ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString());
-    EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox,      ui->PortAutorefupComboBox->currentIndex());
+    EnableComOrNetworkWidgetsAppareilRefraction(ui->PortAutorefupComboBox,      ui->PortAutorefupComboBox->currentIndex());
     ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
     ui->NetworkPathAutorefupPushButton  ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par l'autorefractomètre"));
 
@@ -244,7 +244,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->NetworkPathEchangeFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString());
         ui->NetworkPathEchangeAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString());
     }
-    EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox,   ui->PortRefracteurupComboBox->currentIndex());
+    EnableComOrNetworkWidgetsAppareilRefraction(ui->PortRefracteurupComboBox,   ui->PortRefracteurupComboBox->currentIndex());
     ui->NetworkPathRefracteurupPushButton       ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le refracteur"));
     ui->NetworkPathRefracteurupLineEdit         ->setImmediateToolTip(ui->NetworkPathRefracteurupLineEdit->text());
     ui->NetworkPathEchangeFrontoupPushButton    ->setImmediateToolTip(tr("Emplacement du fichier de mesures de frontofocomètre élaborées par Rufus à envoyer au réfracteur"));
@@ -256,7 +256,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortTonometreupComboBox         ->setCurrentText(proc->settings()->value(Param_Poste_PortTono).toString());
     if (ui->PortTonometreupComboBox->currentText() == RESEAU)
         ui->NetworkPathTonoupLineEdit   ->setText(proc->settings()->value(Param_Poste_PortTono_Reseau).toString());
-    EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox,    ui->PortTonometreupComboBox->currentIndex());
+    EnableComOrNetworkWidgetsAppareilRefraction(ui->PortTonometreupComboBox,    ui->PortTonometreupComboBox->currentIndex());
     ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
     ui->NetworkPathTonoupPushButton     ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le tonomètre"));
 
@@ -768,7 +768,7 @@ void dlg_param::ClearCom(UpComboBox* box, int a)
             ui->PortTonometreupComboBox ->setCurrentIndex(0);
         if (box==ui->RefracteurupComboBox)
             ui->PortRefracteurupComboBox->setCurrentIndex(0);
-        EnableNetworkAppareilRefraction(box,0);
+        EnableComOrNetworkWidgetsAppareilRefraction(box,0);
     }
     ui->PortAutorefupComboBox   ->setEnabled(ui->AutorefupComboBox->currentIndex()>0);
     ui->PortFrontoupComboBox    ->setEnabled(ui->FrontoupComboBox->currentIndex()>0);
@@ -1727,9 +1727,10 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
         if (pathappareil == "")
+        {
+            Utils::mkpath(PATH_DIR_FRONTO);
             pathappareil = PATH_DIR_FRONTO;
-        else if (!QDir(pathappareil).exists())
-            pathappareil = PATH_DIR_FRONTO;
+        }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
@@ -1742,9 +1743,10 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
         if (pathappareil == "")
+        {
+            Utils::mkpath(PATH_DIR_AUTOREF);
             pathappareil = PATH_DIR_AUTOREF;
-        else if (!QDir(pathappareil).exists())
-            pathappareil = PATH_DIR_AUTOREF;
+        }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
@@ -1757,9 +1759,10 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Refracteur:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
         if (pathappareil == "")
+        {
+            Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
             pathappareil = PATH_DIR_REFRACTEUR_OUT;
-        else if (!QDir(pathappareil).exists())
-            pathappareil = PATH_DIR_REFRACTEUR_OUT;
+        }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
@@ -1772,9 +1775,10 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     case Tono:
         pathappareil = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
         if (pathappareil == "")
+        {
+            Utils::mkpath(PATH_DIR_TONO);
             pathappareil = PATH_DIR_TONO;
-        else if (!QDir(pathappareil).exists())
-            pathappareil = PATH_DIR_TONO;
+        }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
@@ -1800,9 +1804,10 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
     case Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
         if (pathappareil == "")
+        {
+            Utils::mkpath(PATH_DIR_REFRACTEUR_FRONTOIN);
             pathappareil = PATH_DIR_REFRACTEUR_FRONTOIN;
-        else if (!QDir(pathappareil).exists())
-            pathappareil = PATH_DIR_REFRACTEUR_FRONTOIN;
+        }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
@@ -1815,9 +1820,10 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
     case Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
         if (pathappareil == "")
+        {
+            Utils::mkpath(PATH_DIR_REFRACTEUR_AUTOREFIN);
             pathappareil = PATH_DIR_REFRACTEUR_AUTOREFIN;
-        else if (!QDir(pathappareil).exists())
-            pathappareil = PATH_DIR_REFRACTEUR_AUTOREFIN;
+        }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
@@ -2217,10 +2223,10 @@ void dlg_param::ConnectSignals()
     connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,              proc,   &Procedures::ReinitBase);
     connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,              this,   &dlg_param::EffaceProgrammationDataBackup);
 
-    connect(ui->PortFrontoupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortFrontoupComboBox, a);});
-    connect(ui->PortAutorefupComboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortAutorefupComboBox, a);});
-    connect(ui->PortRefracteurupComboBox,           QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortRefracteurupComboBox, a);});
-    connect(ui->PortTonometreupComboBox,            QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableNetworkAppareilRefraction(ui->PortTonometreupComboBox, a);});
+    connect(ui->PortFrontoupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableComOrNetworkWidgetsAppareilRefraction(ui->PortFrontoupComboBox, a);});
+    connect(ui->PortAutorefupComboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableComOrNetworkWidgetsAppareilRefraction(ui->PortAutorefupComboBox, a);});
+    connect(ui->PortRefracteurupComboBox,           QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableComOrNetworkWidgetsAppareilRefraction(ui->PortRefracteurupComboBox, a);});
+    connect(ui->PortTonometreupComboBox,            QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableComOrNetworkWidgetsAppareilRefraction(ui->PortTonometreupComboBox, a);});
 
     connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Fronto);});
     connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Autoref);});
@@ -2229,6 +2235,11 @@ void dlg_param::ConnectSignals()
 
     connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Fronto);});
     connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Autoref);});
+
+    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,              this,   [=] {ReglePortCOM(Fronto);});
+    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,              this,   [=] {ReglePortCOM(Autoref);});
+    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,              this,   [=] {ReglePortCOM(Refracteur);});
+    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,              this,   [=] {ReglePortCOM(Tono);});
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -2304,35 +2315,122 @@ void dlg_param::EnableHorsNomenclature(bool enable)
     wdg_HNcotationswdgbuttonframe->wdg_moinsBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
 }
 
-void dlg_param::EnableNetworkAppareilRefraction(UpComboBox *combo, int idx)
+void dlg_param::EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, int idx)
 {
     if (combo == Q_NULLPTR)
         return;
     QString currtext = combo->itemText(idx);
     bool a = (currtext == RESEAU);
+    bool b = (currtext.left(3) == "COM" );
+    if(!b)
+        combo->setImmediateToolTip("");
     if (combo == ui->PortFrontoupComboBox)
     {
-        ui->NetworkPathFrontoupLineEdit->setVisible(a);
-        ui->NetworkPathFrontoupPushButton->setVisible(a);
+        ui->NetworkPathFrontoupLineEdit     ->setVisible(a);
+        ui->NetworkPathFrontoupPushButton   ->setVisible(a);
+        ui->ParamCOMFrontoupPushButton      ->setVisible(b);
+        if (a)
+        {
+            QString path = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
+            if (path == "")
+            {
+                Utils::mkpath(PATH_DIR_FRONTO);
+                path = PATH_DIR_FRONTO;
+            }
+            ui->NetworkPathFrontoupLineEdit ->setText(path);
+            ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(path);
+        }
+        else if (b)
+        {
+            QString reglageportcom = ("...");
+            combo->setImmediateToolTip(reglageportcom);
+        }
     }
     else if (combo == ui->PortAutorefupComboBox)
     {
-        ui->NetworkPathAutorefupLineEdit->setVisible(a);
-        ui->NetworkPathAutorefupPushButton->setVisible(a);
+        ui->NetworkPathAutorefupLineEdit    ->setVisible(a);
+        ui->NetworkPathAutorefupPushButton  ->setVisible(a);
+        ui->ParamCOMAutorefupPushButton     ->setVisible(b);
+        if (a)
+        {
+            QString path = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
+            if (path == "")
+            {
+                Utils::mkpath(PATH_DIR_AUTOREF);
+                path = PATH_DIR_AUTOREF;
+            }
+            ui->NetworkPathAutorefupLineEdit->setText(path);
+            ui->NetworkPathAutorefupLineEdit->setImmediateToolTip(path);
+        }
+        else if (b)
+        {
+            QString reglageportcom = ("...");
+            combo->setImmediateToolTip(reglageportcom);
+        }
     }
     else if (combo == ui->PortRefracteurupComboBox)
     {
-        ui->NetworkPathRefracteurupLineEdit->setVisible(a);
-        ui->NetworkPathRefracteurupPushButton->setVisible(a);
-        ui->NetworkPathEchangeAutorefupLineEdit->setVisible(a);
-        ui->NetworkPathEchangeAutorefupPushButton->setVisible(a);
-        ui->NetworkPathEchangeFrontoupLineEdit->setVisible(a);
-        ui->NetworkPathEchangeFrontoupPushButton->setVisible(a);
+        ui->NetworkPathRefracteurupLineEdit         ->setVisible(a);
+        ui->NetworkPathRefracteurupPushButton       ->setVisible(a);
+        ui->NetworkPathEchangeAutorefupLineEdit     ->setVisible(a);
+        ui->NetworkPathEchangeAutorefupPushButton   ->setVisible(a);
+        ui->NetworkPathEchangeFrontoupLineEdit      ->setVisible(a);
+        ui->NetworkPathEchangeFrontoupPushButton    ->setVisible(a);
+        ui->ParamCOMRefracteurupPushButton          ->setVisible(b);
+        if (a)
+        {
+        QString path = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
+        if (path == "")
+        {
+            Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
+            path = PATH_DIR_REFRACTEUR_IN;
+        }
+        ui->NetworkPathRefracteurupLineEdit     ->setText(path);
+        ui->NetworkPathRefracteurupLineEdit     ->setImmediateToolTip(path);
+        path = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
+        if (path == "")
+        {
+            Utils::mkpath(PATH_DIR_REFRACTEUR_AUTOREFIN);
+            path = PATH_DIR_REFRACTEUR_AUTOREFIN;
+        }
+        ui->NetworkPathEchangeAutorefupLineEdit ->setText(path);
+        ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(path);
+        path = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
+        if (path == "")
+        {
+            Utils::mkpath(PATH_DIR_REFRACTEUR_FRONTOIN);
+            path = PATH_DIR_REFRACTEUR_FRONTOIN;
+        }
+        ui->NetworkPathEchangeFrontoupLineEdit  ->setText(path);
+        ui->NetworkPathEchangeFrontoupLineEdit  ->setImmediateToolTip(path);
+        }
+        else if (b)
+        {
+            QString reglageportcom = ("...");
+            combo->setImmediateToolTip(reglageportcom);
+        }
     }
     else if (combo == ui->PortTonometreupComboBox)
     {
-        ui->NetworkPathTonoupLineEdit->setVisible(a);
-        ui->NetworkPathTonoupPushButton->setVisible(a);
+        ui->NetworkPathTonoupLineEdit   ->setVisible(a);
+        ui->NetworkPathTonoupPushButton ->setVisible(a);
+        ui->ParamCOMTonoupPushButton    ->setVisible(b);
+        if(a)
+        {
+            QString path = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
+            if (path == "")
+            {
+                Utils::mkpath(PATH_DIR_TONO);
+                path = PATH_DIR_TONO;
+            }
+            ui->NetworkPathTonoupLineEdit->setText(path);
+            ui->NetworkPathTonoupLineEdit->setImmediateToolTip(path);
+        }
+        else if (b)
+        {
+            QString reglageportcom = ("...");
+            combo->setImmediateToolTip(reglageportcom);
+        }
     }
 }
 
@@ -2409,6 +2507,177 @@ void dlg_param::EnregistreNouvMDPAdmin()
         msgbox.exec();
     }
 }
+
+void dlg_param::ReglePortCOM(Mesure appareil)
+{
+    UpDialog *Com_dlg = new UpDialog(this);
+    Com_dlg->setWindowModality(Qt::WindowModal);
+    QString title(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
+    switch (appareil) {
+    case Fronto :
+        title = ui->FrontoupComboBox    ->currentText() + " - " + ui->PortFrontoupComboBox->currentText();
+        baudrate    = Param_Poste_PortFronto_COM_baudrate;
+        databits    = Param_Poste_PortFronto_COM_databits;
+        parity      = Param_Poste_PortFronto_COM_parity;
+        stopbits    = Param_Poste_PortFronto_COM_stopBits;
+        flowcontrol = Param_Poste_PortFronto_COM_flowControl;
+        break;
+    case Autoref :
+        title = ui->AutorefupComboBox   ->currentText() + " - " + ui->PortAutorefupComboBox->currentText();
+        baudrate    = Param_Poste_PortAutoref_COM_baudrate;
+        databits    = Param_Poste_PortAutoref_COM_databits;
+        parity      = Param_Poste_PortAutoref_COM_parity;
+        stopbits    = Param_Poste_PortAutoref_COM_stopBits;
+        flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
+        break;
+    case Refracteur :
+        title = ui->RefracteurupComboBox->currentText() + " - " + ui->PortRefracteurupComboBox->currentText();
+        baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
+        databits    = Param_Poste_PortRefracteur_COM_databits;
+        parity      = Param_Poste_PortRefracteur_COM_parity;
+        stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
+        flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
+        break;
+    case Tono :
+        title = ui->TonometreupComboBox ->currentText() + " - " + ui->PortTonometreupComboBox->currentText();
+        baudrate    = Param_Poste_PortTono_COM_baudrate;
+        databits    = Param_Poste_PortTono_COM_databits;
+        parity      = Param_Poste_PortTono_COM_parity;
+        stopbits    = Param_Poste_PortTono_COM_stopBits;
+        flowcontrol = Param_Poste_PortTono_COM_flowControl;
+        break;
+    default: break;
+    }
+    QVBoxLayout     *gbllayout          = new QVBoxLayout();
+    UpLabel         *lbltitle           = new UpLabel(Com_dlg, title);
+    UpLabel         *lblbaud            = new UpLabel(Com_dlg, tr("Débit"));
+    UpLabel         *lbldatabits        = new UpLabel(Com_dlg, tr("Bits de donnés"));
+    UpLabel         *lblparity          = new UpLabel(Com_dlg, tr("Parité"));
+    UpLabel         *lblstopbits        = new UpLabel(Com_dlg, tr("Bits d'arrêt"));
+    UpLabel         *lblflowcontrol     = new UpLabel(Com_dlg, tr("Contrôle de flux"));
+    UpComboBox      *combobaud          = new UpComboBox(Com_dlg);
+    UpComboBox      *combodatabits      = new UpComboBox(Com_dlg);
+    UpComboBox      *comboparity        = new UpComboBox(Com_dlg);
+    UpComboBox      *combostopbits      = new UpComboBox(Com_dlg);
+    UpComboBox      *comboflowcontrol   = new UpComboBox(Com_dlg);
+    QHBoxLayout     *baudlay            = new QHBoxLayout();
+    QHBoxLayout     *databitslay        = new QHBoxLayout();
+    QHBoxLayout     *paritylay          = new QHBoxLayout();
+    QHBoxLayout     *stopbitslay        = new QHBoxLayout();
+    QHBoxLayout     *flowcontrollay     = new QHBoxLayout();
+
+    int width = 170;
+    combobaud->setFixedWidth(width);
+    combodatabits->setFixedWidth(width);
+    comboparity->setFixedWidth(width);
+    combostopbits->setFixedWidth(width);
+    comboflowcontrol->setFixedWidth(width);
+    lbltitle->setAlignment(Qt::AlignCenter);
+
+    baudlay->addWidget(lblbaud);
+    baudlay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
+    baudlay->addWidget(combobaud);
+    databitslay->addWidget(lbldatabits);
+    databitslay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
+    databitslay->addWidget(combodatabits);
+    paritylay->addWidget(lblparity);
+    paritylay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
+    paritylay->addWidget(comboparity);
+    stopbitslay->addWidget(lblstopbits);
+    stopbitslay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
+    stopbitslay->addWidget(combostopbits);
+    flowcontrollay->addWidget(lblflowcontrol);
+    flowcontrollay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
+    flowcontrollay->addWidget(comboflowcontrol);
+
+    gbllayout->addWidget(lbltitle);
+    gbllayout->addSpacerItem(new QSpacerItem(0,30,QSizePolicy::Expanding));
+    gbllayout->addLayout(baudlay);
+    gbllayout->addLayout(databitslay);
+    gbllayout->addLayout(paritylay);
+    gbllayout->addLayout(stopbitslay);
+    gbllayout->addLayout(flowcontrollay);
+
+    Com_dlg->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    Com_dlg->setStageCount(1);
+
+    Com_dlg->dlglayout()->insertLayout(0,gbllayout);
+    Com_dlg->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    int index;
+    QMetaEnum metaEnum;
+    QStringList items;
+
+    //! BAUD
+    index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+    metaEnum = QSerialPort().metaObject()->enumerator(index);
+    for(int i=0; i< metaEnum.keyCount(); i++){
+        items << metaEnum.key(i);
+    }
+    combobaud->addItems(items);
+    //! DATABITS
+    index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+    metaEnum = QSerialPort().metaObject()->enumerator(index);
+    items.clear();
+    for(int i=0; i< metaEnum.keyCount(); i++){
+        items << metaEnum.key(i);
+    }
+    combodatabits->addItems(items);
+    //! PARITY
+    index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+    metaEnum = QSerialPort().metaObject()->enumerator(index);
+    items.clear();
+    for(int i=0; i< metaEnum.keyCount(); i++){
+        items << metaEnum.key(i);
+    }
+    comboparity->addItems(items);
+    //! STOPBITS
+    index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+    metaEnum = QSerialPort().metaObject()->enumerator(index);
+    items.clear();
+    for(int i=0; i< metaEnum.keyCount(); i++){
+        items << metaEnum.key(i);
+    }
+    combostopbits->addItems(items);
+    //! FLOWCONTROL
+    index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+    metaEnum = QSerialPort().metaObject()->enumerator(index);
+    items.clear();
+    for(int i=0; i< metaEnum.keyCount(); i++){
+        items << metaEnum.key(i);
+    }
+    comboflowcontrol->addItems(items);
+
+    //!REGLAGE DES VALEURS
+    QVariant val;
+    //! BAUD
+    val = proc->settings()->value(baudrate);
+    if (val != QVariant())
+        combobaud->setCurrentIndex(val.toInt());
+    //! DATABITS
+    val = proc->settings()->value(databits);
+    if (val != QVariant())
+        combodatabits->setCurrentIndex(val.toInt());
+    //! PARITY
+    val = proc->settings()->value(parity);
+    if (val != QVariant())
+        comboparity->setCurrentIndex(val.toInt());
+    //! STOPBITS
+    val = proc->settings()->value(stopbits);
+    if (val != QVariant())
+        combostopbits->setCurrentIndex(val.toInt());
+    //! FLOWCONTROL
+    val = proc->settings()->value(flowcontrol);
+    if (val != QVariant())
+        comboflowcontrol->setCurrentIndex(val.toInt());
+
+
+    connect(Com_dlg->OKButton,   &QPushButton::clicked,  Com_dlg,   &QDialog::accept);
+
+    Com_dlg->exec();
+    delete Com_dlg;
+}
+
 
 // ----------------------------------------------------------------------------------
 // Remplissage de la table des actes en CCAM.

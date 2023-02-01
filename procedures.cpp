@@ -4402,6 +4402,105 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
     Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
 
+    /*!
+      calcule le nom physique du port concerné à partir de la liste des ports disponibles et du nom du port déclaré dans rufus.ini (COM1,COM2,COM3 ou COM4)
+    */
+    auto calcNomPort = [] (QString portsetting)
+    {
+        QString portappareil ("");
+        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        {
+            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
+            if (nomgeneriqueduport.contains("usbserial"))
+            {
+                QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+                QString firstchar = nomgeneriqueduport.split("-").at(1).right(1);
+                /*!
+             * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+             * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+             * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+            */
+                if (portsetting == "COM1")
+                {
+                    if (lastchar == "0" ||  lastchar == "A")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "A")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+                else if (portsetting == "COM2")
+                {
+                    if (lastchar == "1" ||  lastchar == "B")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "B")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+                if (portsetting == "COM3")
+                {
+                    if (lastchar == "2" ||  lastchar == "C")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "C")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+                if (portsetting == "COM4")
+                {
+                    if (lastchar == "3" ||  lastchar == "4")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "D")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+            }
+            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan ou Ubuntu */
+            {
+                if (portsetting == "COM1")         portappareil = "ttyUSB0";
+                else if (portsetting == "COM2")    portappareil = "ttyUSB1";
+                else if (portsetting == "COM3")    portappareil = "ttyUSB2";
+                else if (portsetting == "COM4")    portappareil = "ttyUSB3";
+                if (portappareil != "") break;
+            }
+        }
+        return portappareil;
+    };
+
+    /*!
+        Ouvre le port dont le portName() est NomPort en rapport avec l'appareil passé en paramètre
+    */
+    auto openserialport = [&] (TypeAppareil appareil, QString NomPort)
+    {
+        QSerialPort *serialport;
+        SerialSettings sparamportserie;
+        switch (appareil) {
+        case Fronto:        sparamportserie = s_paramPortSerieFronto;       break;
+        case Autoref:       sparamportserie = s_paramPortSerieAutoref;      break;
+        case Refracteur:    sparamportserie = s_paramPortSerieRefracteur;   break;
+        case Tonometre:     sparamportserie = s_paramPortSerieTono;         break;
+        default: break;
+        }
+        for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        {
+            //qDebug() << QSerialPortInfo::availablePorts().at(i).portName() << NomPort;
+            if (QSerialPortInfo::availablePorts().at(i).portName()== NomPort)
+            {
+                serialport= new QSerialPort(QSerialPortInfo::availablePorts().at(i));
+                serialport->setBaudRate(sparamportserie.baudRate);
+                serialport->setFlowControl(sparamportserie.flowControl);
+                serialport->setParity(sparamportserie.parity);
+                serialport->setDataBits(sparamportserie.dataBits);
+                serialport->setStopBits(sparamportserie.stopBits);
+                break;
+            }
+        }
+        switch (appareil) {
+        case Fronto:        sp_portFronto = serialport;     break;
+        case Autoref:       sp_portAutoref = serialport;    break;
+        case Refracteur:    sp_portRefracteur = serialport; break;
+        case Tonometre:     sp_portTono = serialport;       break;
+        default: break;
+        }
+    };
     if (appareils == 0)
     {
         bool portseriedispo = false;
@@ -4439,8 +4538,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
 
     /*!
     for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+    }
         Logs::LogToFile("PortsSeries.txt", QSerialPortInfo::availablePorts().at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
-    qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
+        qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
+    }
     */
     // PORT FRONTO
     if (appareils.testFlag(Fronto))
@@ -4450,83 +4551,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portFronto != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion frontofocomètre"));
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-        {
-            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial"))
-            {
-                QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-                /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-                */
-                if (m_portFronto == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portFronto == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portFronto == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portFronto == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
-                if (NomPort != "") break;
-            }
-            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
-            {
-                if (m_portFronto == "COM1")         NomPort = "ttyUSB0";
-                else if (m_portFronto == "COM2")    NomPort = "ttyUSB1";
-                else if (m_portFronto == "COM3")    NomPort = "ttyUSB2";
-                else if (m_portFronto == "COM4")    NomPort = "ttyUSB3";
-                if (NomPort != "") break;
-            }
-        }
+        NomPort = calcNomPort(m_portFronto);
 
         if (NomPort != "")
         {
-            sp_portFronto     = new QSerialPort();
-            for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-            {
-                //Debug() << QSerialPortInfo::availablePorts().at(i).portName();
-                //UpMessageBox::Watch(this,QSerialPortInfo::availablePorts().at(i).portName());
-                QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
-                if (nomduport.contains("usbserial"))
-                {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
-                    {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport.contains("ttyUSB"))
-                {
-                    if (nomduport == NomPort)
-                    {
-                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-            }
+            openserialport(Fronto, NomPort);
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
                 //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
@@ -4556,80 +4585,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portRefracteur != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion refracteur"));
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-        {
-            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial"))
-            {
-                QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-                /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-                */
-                if (m_portRefracteur == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portRefracteur == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portRefracteur == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portRefracteur == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
-                if (NomPort != "") break;
-            }
-            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
-            {
-                if (m_portRefracteur == "COM1")         NomPort = "ttyUSB0";
-                else if (m_portRefracteur == "COM2")    NomPort = "ttyUSB1";
-                else if (m_portRefracteur == "COM3")    NomPort = "ttyUSB2";
-                else if (m_portRefracteur == "COM4")    NomPort = "ttyUSB3";
-                if (NomPort != "") break;
-            }
-        }
+        NomPort = calcNomPort(m_portRefracteur);
         if (NomPort != "")
         {
-            sp_portRefracteur     = new QSerialPort();
-            for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-            {
-                QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
-                if (nomduport.contains("usbserial"))
-                {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
-                    {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport.contains("ttyUSB"))
-                {
-                    if (nomduport == NomPort)
-                    {
-                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-            }
+            openserialport(Refracteur, NomPort);
             if (sp_portRefracteur->open(QIODevice::ReadWrite))
             {
                 //qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
@@ -4662,80 +4621,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portAutoref != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion autorefractomètre"));
-        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-        {
-            QString nomgeneriqueduport = QSerialPortInfo::availablePorts().at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial"))
-            {
-                QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-                /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-                */
-                if (m_portAutoref == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portAutoref == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portAutoref == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portAutoref == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
-                if (NomPort != "") break;
-            }
-            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
-            {
-                if (m_portAutoref == "COM1")        NomPort = "ttyUSB0";
-                else if (m_portAutoref == "COM2")   NomPort = "ttyUSB1";
-                else if (m_portAutoref == "COM3")   NomPort = "ttyUSB2";
-                else if (m_portAutoref == "COM4")   NomPort = "ttyUSB3";
-                if (NomPort != "") break;
-            }
-        }
+        NomPort = calcNomPort(m_portAutoref);
         if (NomPort != "")
         {
+            openserialport(Autoref,NomPort);
             sp_portAutoref     = new QSerialPort();
-            for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
-            {
-                QString nomduport = QSerialPortInfo::availablePorts().at(i).portName();
-                if (nomduport.contains("usbserial"))
-                {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
-                    {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport.contains("ttyUSB"))
-                {
-                    if (nomduport == NomPort)
-                    {
-                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-            }
             if (sp_portAutoref->open(QIODevice::ReadWrite))
             {
                 //qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
@@ -4759,10 +4649,44 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         else
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autoref sur ") + m_portAutoref, listeports);
     }
+
+    //PORT TONOMETRE
     if (appareils.testFlag(Tonometre))
     {
-        m_portTono       = m_settings->value(Param_Poste_PortTono).toString();
+    m_portTono = m_settings->value(Param_Poste_PortRefracteur).toString();
+    //UpMessageBox::Watch(Q_NULLPTR, m_portRefracteur);
+    ReglePortTonometre();
+    bool a           = (m_portTono != "");
+    if (!a)
+        UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion tonomètre"));
+    NomPort = calcNomPort(m_portTono);
+    if (NomPort != "")
+    {
+        openserialport(Tonometre, NomPort);
+        if (sp_portTono->open(QIODevice::ReadWrite))
+        {
+            //qDebug() << "TONOMETRE -> " + m_portTono + " - " + NomPort;
+            t_threadTono     = new SerialThread(sp_portTono);
+            t_threadTono    ->transaction();
+            connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
+            if (msg != "")
+                msg += "\r";
+            msg += tr("Connexion tonmètre OK sur ") + m_portTono;
+        }
+        else
+        {
+            if (msg != "")
+                msg += "\r";
+            msg += tr("Impossible de connecter le tonomètre sur ") + m_portTono;
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
+            delete sp_portTono;
+            sp_portTono = Q_NULLPTR;
+        }
     }
+    else
+        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
+    }
+
     if (msg != "")
         ShowMessage::I()->SplashMessage(msg, 3000);
 
@@ -4772,6 +4696,47 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
 bool Procedures::ReglePortRefracteur()
 {
     bool a = true;
+    s_paramPortSerieRefracteur.baudRate     = QSerialPort::UnknownBaud;
+    s_paramPortSerieRefracteur.dataBits     = QSerialPort::UnknownDataBits;
+    s_paramPortSerieRefracteur.parity       = QSerialPort::UnknownParity;
+    s_paramPortSerieRefracteur.stopBits     = QSerialPort::UnknownStopBits;
+    s_paramPortSerieRefracteur.flowControl  = QSerialPort::NoFlowControl;
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_baudrate) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortRefracteur_COM_baudrate).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_databits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortRefracteur_COM_databits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_parity) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortRefracteur_COM_parity).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_stopBits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortRefracteur_COM_stopBits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_flowControl) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortRefracteur_COM_flowControl).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
+
     if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
@@ -4789,6 +4754,41 @@ bool Procedures::ReglePortRefracteur()
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
+    if (a)
+    {
+        int index;
+        QMetaEnum metaEnum;
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.baudRate));
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.dataBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.parity));
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.stopBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_flowControl, QVariant());
+    }
+    if ( s_paramPortSerieRefracteur.baudRate     == QSerialPort::UnknownBaud
+      || s_paramPortSerieRefracteur.dataBits     == QSerialPort::UnknownDataBits
+      || s_paramPortSerieRefracteur.parity       == QSerialPort::UnknownParity
+      || s_paramPortSerieRefracteur.stopBits     == QSerialPort::UnknownStopBits
+      || s_paramPortSerieRefracteur.flowControl  == QSerialPort::UnknownFlowControl
+       )
+        a = false;
     return a;
 }
 
@@ -5229,6 +5229,7 @@ SOH*PC_SND_EEOT                 -> end block
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
         */
+        //Edit(QString(DTRbuff).toLocal8Bit());
         //        qint32 baud = port->baudRate();
 //        int timetowaitms= int (datas.size()*8*1000 / baud);
 //        timetowaitms += 10;
@@ -6164,6 +6165,87 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
                 EnregistreFileDatasXML(ARxml, Procedures::MesureAutoref);
         }
     }
+}
+
+bool Procedures::ReglePortTonometre()
+{
+    bool a = true;
+    s_paramPortSerieTono.baudRate     = QSerialPort::UnknownBaud;
+    s_paramPortSerieTono.dataBits     = QSerialPort::UnknownDataBits;
+    s_paramPortSerieTono.parity       = QSerialPort::UnknownParity;
+    s_paramPortSerieTono.stopBits     = QSerialPort::UnknownStopBits;
+    s_paramPortSerieTono.flowControl  = QSerialPort::NoFlowControl;
+    if (m_settings->value(Param_Poste_PortTono_COM_baudrate) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortTono_COM_baudrate).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_databits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortTono_COM_databits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_parity) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortTono_COM_parity).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_stopBits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortTono_COM_stopBits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_flowControl) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortTono_COM_flowControl).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
+    if (a)
+    {
+        int index;
+        QMetaEnum metaEnum;
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortTono_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.baudRate));
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortTono_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.dataBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortTono_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.parity));
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortTono_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.stopBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortTono_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortTono_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_flowControl, QVariant());
+    }
+    if ( s_paramPortSerieTono.baudRate     == QSerialPort::UnknownBaud
+      || s_paramPortSerieTono.dataBits     == QSerialPort::UnknownDataBits
+      || s_paramPortSerieTono.parity       == QSerialPort::UnknownParity
+      || s_paramPortSerieTono.stopBits     == QSerialPort::UnknownStopBits
+      || s_paramPortSerieTono.flowControl  == QSerialPort::UnknownFlowControl
+       )
+        a = false;
+    return a;
 }
 
 /*!
@@ -8123,6 +8205,46 @@ QString Procedures::HtmlRefracteur()
 bool Procedures::ReglePortFronto()
 {
     bool a = true;
+    s_paramPortSerieFronto.baudRate     = QSerialPort::UnknownBaud;
+    s_paramPortSerieFronto.dataBits     = QSerialPort::UnknownDataBits;
+    s_paramPortSerieFronto.parity       = QSerialPort::UnknownParity;
+    s_paramPortSerieFronto.stopBits     = QSerialPort::UnknownStopBits;
+    s_paramPortSerieFronto.flowControl  = QSerialPort::NoFlowControl;
+    if (m_settings->value(Param_Poste_PortFronto_COM_baudrate) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortFronto_COM_baudrate).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_databits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortFronto_COM_databits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_parity) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortFronto_COM_parity).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_stopBits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortFronto_COM_stopBits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_flowControl) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortFronto_COM_flowControl).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
     if (m_settings->value(Param_Poste_Fronto).toString()=="TOMEY TL-3000C")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud2400;
@@ -8151,6 +8273,41 @@ bool Procedures::ReglePortFronto()
         s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
+    if (a)
+    {
+        int index;
+        QMetaEnum metaEnum;
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortFronto_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.baudRate));
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortFronto_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.dataBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortFronto_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.parity));
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortFronto_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.stopBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortFronto_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortFronto_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_flowControl, QVariant());
+    }
+    if ( s_paramPortSerieFronto.baudRate     == QSerialPort::UnknownBaud
+      || s_paramPortSerieFronto.dataBits     == QSerialPort::UnknownDataBits
+      || s_paramPortSerieFronto.parity       == QSerialPort::UnknownParity
+      || s_paramPortSerieFronto.stopBits     == QSerialPort::UnknownStopBits
+      || s_paramPortSerieFronto.flowControl  == QSerialPort::UnknownFlowControl
+       )
+        a = false;
     return a;
 }
 
@@ -8330,6 +8487,14 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
     }
 }
 
+//-----------------------------------------------------------------------------------------
+// Lecture du flux de données sur le port série du tonometre
+//-----------------------------------------------------------------------------------------
+void Procedures::ReponsePortSerie_Tono(const QString &s)
+{
+    Utils::EnChantier();
+}
+
 // -------------------------------------------------------------------------------------
 // Generation du resumé des données issues du frontocomètre
 //--------------------------------------------------------------------------------------
@@ -8396,7 +8561,48 @@ QString Procedures::HtmlFronto()
 
 bool Procedures::ReglePortAutoref()
 {
+
     bool a = true;
+    s_paramPortSerieAutoref.baudRate     = QSerialPort::UnknownBaud;
+    s_paramPortSerieAutoref.dataBits     = QSerialPort::UnknownDataBits;
+    s_paramPortSerieAutoref.parity       = QSerialPort::UnknownParity;
+    s_paramPortSerieAutoref.stopBits     = QSerialPort::UnknownStopBits;
+    s_paramPortSerieAutoref.flowControl  = QSerialPort::NoFlowControl;
+    if (m_settings->value(Param_Poste_PortAutoref_COM_baudrate) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortAutoref_COM_baudrate).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_databits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortAutoref_COM_databits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_parity) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortAutoref_COM_parity).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_stopBits) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortAutoref_COM_stopBits).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_flowControl) != QVariant())
+    {
+        int val = m_settings->value(Param_Poste_PortAutoref_COM_flowControl).toInt();
+        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
     if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
@@ -8426,6 +8632,41 @@ bool Procedures::ReglePortAutoref()
         s_paramPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
+    if (a)
+    {
+        int index;
+        QMetaEnum metaEnum;
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortAutoref_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.baudRate));
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortAutoref_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.dataBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortAutoref_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.parity));
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortAutoref_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.stopBits));
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(Param_Poste_PortAutoref_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortAutoref_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_flowControl, QVariant());
+    }
+    if ( s_paramPortSerieAutoref.baudRate     == QSerialPort::UnknownBaud
+      || s_paramPortSerieAutoref.dataBits     == QSerialPort::UnknownDataBits
+      || s_paramPortSerieAutoref.parity       == QSerialPort::UnknownParity
+      || s_paramPortSerieAutoref.stopBits     == QSerialPort::UnknownStopBits
+      || s_paramPortSerieAutoref.flowControl  == QSerialPort::UnknownFlowControl
+       )
+        a = false;
     return a;
 }
 

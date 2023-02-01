@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -2151,6 +2151,70 @@ un serveur hébergé sur le réseau local</string>
            </property>
            <property name="readOnly">
             <bool>false</bool>
+           </property>
+          </widget>
+          <widget class="UpPushButton" name="ParamCOMFrontoupPushButton">
+           <property name="geometry">
+            <rect>
+             <x>25</x>
+             <y>136</y>
+             <width>80</width>
+             <height>32</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Param</string>
+           </property>
+          </widget>
+          <widget class="UpPushButton" name="ParamCOMAutorefupPushButton">
+           <property name="geometry">
+            <rect>
+             <x>260</x>
+             <y>136</y>
+             <width>80</width>
+             <height>32</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Param</string>
+           </property>
+          </widget>
+          <widget class="UpPushButton" name="ParamCOMRefracteurupPushButton">
+           <property name="geometry">
+            <rect>
+             <x>505</x>
+             <y>136</y>
+             <width>80</width>
+             <height>32</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Param</string>
+           </property>
+          </widget>
+          <widget class="UpPushButton" name="ParamCOMTonoupPushButton">
+           <property name="geometry">
+            <rect>
+             <x>745</x>
+             <y>136</y>
+             <width>80</width>
+             <height>32</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Param</string>
            </property>
           </widget>
          </widget>

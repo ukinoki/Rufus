@@ -423,23 +423,26 @@ private:
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
     QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
-    struct Settings {
+    struct SerialSettings {
         qint32 baudRate;
         QSerialPort::DataBits dataBits;
         QSerialPort::Parity parity;
         QSerialPort::StopBits stopBits;
         QSerialPort::FlowControl flowControl;
     };
-    Settings                s_paramPortSerieAutoref;
-    Settings                s_paramPortSerieFronto;
-    Settings                s_paramPortSerieRefracteur;
+    SerialSettings          s_paramPortSerieAutoref;
+    SerialSettings          s_paramPortSerieFronto;
+    SerialSettings          s_paramPortSerieRefracteur;
+    SerialSettings          s_paramPortSerieTono;
     SerialThread            *t_threadFronto = Q_NULLPTR;
+    SerialThread            *t_threadTono = Q_NULLPTR;
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
+    bool                    ReglePortTonometre();
 
 public:
     enum TypeMesure {
@@ -535,10 +538,12 @@ private:
     void                    ReponseXML_Refracteur(const QDomDocument &docxml);
     //LE TONO ----------------------------------------------------
     void                    LectureDonneesXMLTono(QDomDocument docxml);             //! lit les données envoyées sur le fichier échange XML du fronto
+    void                    ReponsePortSerie_Tono(const QString &s);
     void                    ReponseXML_Tono(const QDomDocument &docxml);
 
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);
+
 
     void                    logmesure(QString mesure)                       { Logs::LogToFile("refraction.txt", mesure); }
 };

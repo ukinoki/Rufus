@@ -206,6 +206,9 @@ public:
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
 
+    //! récupérer l'index d'une valeur dans un QMetaEnum
+    static int getindexFromValue(const QMetaEnum & e, int value);
+
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 
