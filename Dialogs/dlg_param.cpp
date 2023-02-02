@@ -1714,7 +1714,7 @@ void dlg_param::ModifDirBackup()
                                            && m_parametres->heurebkup() != QTime());
 }
 
-void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
+void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
 {
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
@@ -1723,8 +1723,8 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
     QUrl url;
     QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil\n"
                                 "Le nom de dossier ne doit pas contenir d'espace");
-    switch (mesure) {
-    case Fronto:
+    switch (appareil) {
+    case Procedures::Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
         if (pathappareil == "")
         {
@@ -1740,7 +1740,7 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(url.path());
         proc->settings()->setValue(Param_Poste_PortFronto_Reseau, url.path());
         break;
-    case Autoref:
+    case Procedures::Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
         if (pathappareil == "")
         {
@@ -1756,7 +1756,7 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         ui->NetworkPathAutorefupLineEdit ->setImmediateToolTip(url.path());
         proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, url.path());
         break;
-    case Refracteur:
+    case Procedures::Refracteur:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
         if (pathappareil == "")
         {
@@ -1772,7 +1772,7 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(url.path());
         proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, url.path());
         break;
-    case Tono:
+    case Procedures::Tonometre:
         pathappareil = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
         if (pathappareil == "")
         {
@@ -1788,10 +1788,12 @@ void dlg_param::ModifPathDirEchangeMesure(Mesure mesure)
         ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(url.path());
         proc->settings()->setValue(Param_Poste_PortTono_Reseau, url.path());
         break;
+    default:
+        break;
     }
 }
 
-void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
+void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil)
 {
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
@@ -1800,8 +1802,8 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
     QString pathappareil;
     QString title = tr("Choisissez le dossier d'enregistrement provisoire des mesures de l'appareil\n"
                                 "Le nom de dossier ne doit pas contenir d'espace");
-    switch (mesure) {
-    case Fronto:
+    switch (appareil) {
+    case Procedures::Fronto:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
         if (pathappareil == "")
         {
@@ -1817,7 +1819,7 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
         ui->NetworkPathEchangeFrontoupLineEdit ->setText(url.path());
         ui->NetworkPathEchangeFrontoupLineEdit ->setImmediateToolTip(url.path());
         break;
-    case Autoref:
+    case Procedures::Autoref:
         pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
         if (pathappareil == "")
         {
@@ -1833,9 +1835,10 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Mesure mesure)
         ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(url.path());
         proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, url.path());
         break;
-    case Refracteur:
-    case Tono:
+    case Procedures::Refracteur:
+    case Procedures::Tonometre:
         break;
+    default: break;
     }
 }
 
@@ -2228,18 +2231,18 @@ void dlg_param::ConnectSignals()
     connect(ui->PortRefracteurupComboBox,           QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableComOrNetworkWidgetsAppareilRefraction(ui->PortRefracteurupComboBox, a);});
     connect(ui->PortTonometreupComboBox,            QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {EnableComOrNetworkWidgetsAppareilRefraction(ui->PortTonometreupComboBox, a);});
 
-    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Fronto);});
-    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Autoref);});
-    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Refracteur);});
-    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Tono);});
+    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Fronto);});
+    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Autoref);});
+    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Refracteur);});
+    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Tonometre);});
 
-    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Fronto);});
-    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Autoref);});
+    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Fronto);});
+    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Autoref);});
 
-    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,              this,   [=] {ReglePortCOM(Fronto);});
-    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,              this,   [=] {ReglePortCOM(Autoref);});
-    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,              this,   [=] {ReglePortCOM(Refracteur);});
-    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,              this,   [=] {ReglePortCOM(Tono);});
+    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,              this,   [=] {ReglePortCOM(Procedures::Fronto);});
+    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,              this,   [=] {ReglePortCOM(Procedures::Autoref);});
+    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,              this,   [=] {ReglePortCOM(Procedures::Refracteur);});
+    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,              this,   [=] {ReglePortCOM(Procedures::Tonometre);});
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -2508,13 +2511,13 @@ void dlg_param::EnregistreNouvMDPAdmin()
     }
 }
 
-void dlg_param::ReglePortCOM(Mesure appareil)
+void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
 {
     UpDialog *Com_dlg = new UpDialog(this);
     Com_dlg->setWindowModality(Qt::WindowModal);
     QString title(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
     switch (appareil) {
-    case Fronto :
+    case Procedures::Fronto :
         title = ui->FrontoupComboBox    ->currentText() + " - " + ui->PortFrontoupComboBox->currentText();
         baudrate    = Param_Poste_PortFronto_COM_baudrate;
         databits    = Param_Poste_PortFronto_COM_databits;
@@ -2522,7 +2525,7 @@ void dlg_param::ReglePortCOM(Mesure appareil)
         stopbits    = Param_Poste_PortFronto_COM_stopBits;
         flowcontrol = Param_Poste_PortFronto_COM_flowControl;
         break;
-    case Autoref :
+    case Procedures::Autoref :
         title = ui->AutorefupComboBox   ->currentText() + " - " + ui->PortAutorefupComboBox->currentText();
         baudrate    = Param_Poste_PortAutoref_COM_baudrate;
         databits    = Param_Poste_PortAutoref_COM_databits;
@@ -2530,7 +2533,7 @@ void dlg_param::ReglePortCOM(Mesure appareil)
         stopbits    = Param_Poste_PortAutoref_COM_stopBits;
         flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
         break;
-    case Refracteur :
+    case Procedures::Refracteur :
         title = ui->RefracteurupComboBox->currentText() + " - " + ui->PortRefracteurupComboBox->currentText();
         baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
         databits    = Param_Poste_PortRefracteur_COM_databits;
@@ -2538,7 +2541,7 @@ void dlg_param::ReglePortCOM(Mesure appareil)
         stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
         flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
         break;
-    case Tono :
+    case Procedures::Tonometre :
         title = ui->TonometreupComboBox ->currentText() + " - " + ui->PortTonometreupComboBox->currentText();
         baudrate    = Param_Poste_PortTono_COM_baudrate;
         databits    = Param_Poste_PortTono_COM_databits;
@@ -2609,14 +2612,14 @@ void dlg_param::ReglePortCOM(Mesure appareil)
     QStringList items;
 
     //! BAUD
-    index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+    index = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
     metaEnum = QSerialPort().metaObject()->enumerator(index);
     for(int i=0; i< metaEnum.keyCount(); i++){
         items << metaEnum.key(i);
     }
     combobaud->addItems(items);
     //! DATABITS
-    index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+    index = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
     metaEnum = QSerialPort().metaObject()->enumerator(index);
     items.clear();
     for(int i=0; i< metaEnum.keyCount(); i++){
@@ -2624,7 +2627,7 @@ void dlg_param::ReglePortCOM(Mesure appareil)
     }
     combodatabits->addItems(items);
     //! PARITY
-    index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+    index = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
     metaEnum = QSerialPort().metaObject()->enumerator(index);
     items.clear();
     for(int i=0; i< metaEnum.keyCount(); i++){
@@ -2632,7 +2635,7 @@ void dlg_param::ReglePortCOM(Mesure appareil)
     }
     comboparity->addItems(items);
     //! STOPBITS
-    index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+    index = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
     metaEnum = QSerialPort().metaObject()->enumerator(index);
     items.clear();
     for(int i=0; i< metaEnum.keyCount(); i++){
@@ -2640,7 +2643,7 @@ void dlg_param::ReglePortCOM(Mesure appareil)
     }
     combostopbits->addItems(items);
     //! FLOWCONTROL
-    index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+    index = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
     metaEnum = QSerialPort().metaObject()->enumerator(index);
     items.clear();
     for(int i=0; i< metaEnum.keyCount(); i++){
@@ -2671,9 +2674,17 @@ void dlg_param::ReglePortCOM(Mesure appareil)
     if (val != QVariant())
         comboflowcontrol->setCurrentIndex(val.toInt());
 
-
-    connect(Com_dlg->OKButton,   &QPushButton::clicked,  Com_dlg,   &QDialog::accept);
-
+    connect(Com_dlg->OKButton,   &QPushButton::clicked,  Com_dlg, [=]
+    {
+        QMap<QString, int> map;
+        map[BAUDRATE]   = combobaud         ->currentIndex();
+        map[DATABITS]   = combodatabits     ->currentIndex();
+        map[PARITY]     = comboparity       ->currentIndex();
+        map[STOPBITS]   = combostopbits     ->currentIndex();
+        map[FLOWCONTROL]= comboflowcontrol  ->currentIndex();
+        proc->RegleSerialSettings(appareil, map);
+        Com_dlg->accept();
+    });
     Com_dlg->exec();
     delete Com_dlg;
 }

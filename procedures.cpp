@@ -4693,51 +4693,153 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     return false;
 }
 
+/*!
+ * \brief Procedures::RegleSerialSettings
+ * \param appareil
+ * \param map les datas à régler char * = le name() du QMetaEnum de data à régler, int = l'index de la valeur ddans le QMetaEnum
+ */
+void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map)
+{
+    QString baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
+    SerialSettings serialset;
+    QSerialPort *serialport;
+    switch (appareil) {
+    case Fronto :
+        baudrate    = Param_Poste_PortFronto_COM_baudrate;
+        databits    = Param_Poste_PortFronto_COM_databits;
+        parity      = Param_Poste_PortFronto_COM_parity;
+        stopbits    = Param_Poste_PortFronto_COM_stopBits;
+        flowcontrol = Param_Poste_PortFronto_COM_flowControl;
+        serialset   = s_paramPortSerieFronto;
+        serialport  = sp_portFronto;
+        break;
+    case Autoref :
+        baudrate    = Param_Poste_PortAutoref_COM_baudrate;
+        databits    = Param_Poste_PortAutoref_COM_databits;
+        parity      = Param_Poste_PortAutoref_COM_parity;
+        stopbits    = Param_Poste_PortAutoref_COM_stopBits;
+        flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
+        serialset   = s_paramPortSerieAutoref;
+        serialport  = sp_portAutoref;
+        break;
+    case Refracteur :
+        baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
+        databits    = Param_Poste_PortRefracteur_COM_databits;
+        parity      = Param_Poste_PortRefracteur_COM_parity;
+        stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
+        flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
+        serialset   = s_paramPortSerieRefracteur;
+        serialport  = sp_portRefracteur;
+        break;
+    case Tonometre :
+        baudrate    = Param_Poste_PortTono_COM_baudrate;
+        databits    = Param_Poste_PortTono_COM_databits;
+        parity      = Param_Poste_PortTono_COM_parity;
+        stopbits    = Param_Poste_PortTono_COM_stopBits;
+        flowcontrol = Param_Poste_PortTono_COM_flowControl;
+        serialset   = s_paramPortSerieTono;
+        serialport  = sp_portTono;
+        break;
+    default: return;
+    }
+    int index;
+    QMetaEnum metaEnum;
+    QString name ("");
+    name = BAUDRATE;
+    auto it = map.constFind(name);
+    if (it != map.constEnd())
+    {
+        index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(baudrate,  it.value());
+        serialset.baudRate = (QSerialPort::BaudRate)metaEnum.value(it.value());
+        if (serialport != Q_NULLPTR)
+            serialport->setBaudRate(serialset.baudRate);
+    }
+    name = DATABITS;
+    it = map.constFind(name);
+    if (it != map.constEnd())
+    {
+        index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(databits,  it.value());
+        serialset.dataBits = (QSerialPort::DataBits)metaEnum.value(it.value());
+        if (serialport != Q_NULLPTR)
+            serialport->setDataBits(serialset.dataBits);
+    }
+    name = PARITY;
+    it = map.constFind(name);
+    if (it != map.constEnd())
+    {
+        index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(parity,  it.value());
+        serialset.parity = (QSerialPort::Parity)metaEnum.value(it.value());
+        if (serialport != Q_NULLPTR)
+            serialport->setParity(serialset.parity);
+    }
+    name = STOPBITS;
+    it = map.constFind(name);
+    if (it != map.constEnd())
+    {
+        index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(stopbits,  it.value());
+        serialset.stopBits = (QSerialPort::StopBits)metaEnum.value(it.value());
+        if (serialport != Q_NULLPTR)
+            serialport->setStopBits(serialset.stopBits);
+    }
+    name = FLOWCONTROL;
+    it = map.constFind(name);
+    if (it != map.constEnd())
+    {
+        index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+        metaEnum = QSerialPort().metaObject()->enumerator(index);
+        m_settings->setValue(flowcontrol,  it.value());
+        serialset.flowControl = (QSerialPort::FlowControl)metaEnum.value(it.value());
+        if (serialport != Q_NULLPTR)
+            serialport->setFlowControl(serialset.flowControl);
+    }
+}
+
 bool Procedures::ReglePortRefracteur()
 {
     bool a = true;
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
     s_paramPortSerieRefracteur.baudRate     = QSerialPort::UnknownBaud;
     s_paramPortSerieRefracteur.dataBits     = QSerialPort::UnknownDataBits;
     s_paramPortSerieRefracteur.parity       = QSerialPort::UnknownParity;
     s_paramPortSerieRefracteur.stopBits     = QSerialPort::UnknownStopBits;
     s_paramPortSerieRefracteur.flowControl  = QSerialPort::NoFlowControl;
-    if (m_settings->value(Param_Poste_PortRefracteur_COM_baudrate) != QVariant())
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_baudrate)      != QVariant()
+     && m_settings->value(Param_Poste_PortRefracteur_COM_databits)      != QVariant()
+     && m_settings->value(Param_Poste_PortRefracteur_COM_parity)        != QVariant()
+     && m_settings->value(Param_Poste_PortRefracteur_COM_stopBits)      != QVariant()
+     && m_settings->value(Param_Poste_PortRefracteur_COM_flowControl)   != QVariant())
     {
-        int val = m_settings->value(Param_Poste_PortRefracteur_COM_baudrate).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortRefracteur_COM_baudrate).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieRefracteur.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortRefracteur_COM_databits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortRefracteur_COM_databits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortRefracteur_COM_databits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieRefracteur.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortRefracteur_COM_parity) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortRefracteur_COM_parity).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortRefracteur_COM_parity).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieRefracteur.parity = (QSerialPort::Parity)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortRefracteur_COM_stopBits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortRefracteur_COM_stopBits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortRefracteur_COM_stopBits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieRefracteur.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortRefracteur_COM_flowControl) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortRefracteur_COM_flowControl).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortRefracteur_COM_flowControl).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieRefracteur.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
     }
-
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+    else if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
     {
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
@@ -4756,23 +4858,21 @@ bool Procedures::ReglePortRefracteur()
     else a = false;
     if (a)
     {
-        int index;
-        QMetaEnum metaEnum;
-        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortRefracteur_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.baudRate));
-        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortRefracteur_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.dataBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortRefracteur_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.parity));
-        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortRefracteur_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.stopBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortRefracteur_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.flowControl));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.flowControl));
     }
     else
     {
@@ -6170,65 +6270,57 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
 bool Procedures::ReglePortTonometre()
 {
     bool a = true;
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
     s_paramPortSerieTono.baudRate     = QSerialPort::UnknownBaud;
     s_paramPortSerieTono.dataBits     = QSerialPort::UnknownDataBits;
     s_paramPortSerieTono.parity       = QSerialPort::UnknownParity;
     s_paramPortSerieTono.stopBits     = QSerialPort::UnknownStopBits;
     s_paramPortSerieTono.flowControl  = QSerialPort::NoFlowControl;
-    if (m_settings->value(Param_Poste_PortTono_COM_baudrate) != QVariant())
+    if (m_settings->value(Param_Poste_PortTono_COM_baudrate)      != QVariant()
+     && m_settings->value(Param_Poste_PortTono_COM_databits)      != QVariant()
+     && m_settings->value(Param_Poste_PortTono_COM_parity)        != QVariant()
+     && m_settings->value(Param_Poste_PortTono_COM_stopBits)      != QVariant()
+     && m_settings->value(Param_Poste_PortTono_COM_flowControl)   != QVariant())
     {
-        int val = m_settings->value(Param_Poste_PortTono_COM_baudrate).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortTono_COM_baudrate).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieTono.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortTono_COM_databits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortTono_COM_databits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortTono_COM_databits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieTono.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortTono_COM_parity) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortTono_COM_parity).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortTono_COM_parity).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieTono.parity = (QSerialPort::Parity)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortTono_COM_stopBits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortTono_COM_stopBits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortTono_COM_stopBits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieTono.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortTono_COM_flowControl) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortTono_COM_flowControl).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortTono_COM_flowControl).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieTono.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
     }
     if (a)
     {
-        int index;
-        QMetaEnum metaEnum;
-        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortTono_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.baudRate));
-        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortTono_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.dataBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortTono_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.parity));
-        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortTono_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.stopBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortTono_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.flowControl));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.flowControl));
     }
     else
     {
@@ -8205,47 +8297,41 @@ QString Procedures::HtmlRefracteur()
 bool Procedures::ReglePortFronto()
 {
     bool a = true;
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
     s_paramPortSerieFronto.baudRate     = QSerialPort::UnknownBaud;
     s_paramPortSerieFronto.dataBits     = QSerialPort::UnknownDataBits;
     s_paramPortSerieFronto.parity       = QSerialPort::UnknownParity;
     s_paramPortSerieFronto.stopBits     = QSerialPort::UnknownStopBits;
     s_paramPortSerieFronto.flowControl  = QSerialPort::NoFlowControl;
-    if (m_settings->value(Param_Poste_PortFronto_COM_baudrate) != QVariant())
+    if (m_settings->value(Param_Poste_PortFronto_COM_baudrate)      != QVariant()
+     && m_settings->value(Param_Poste_PortFronto_COM_databits)      != QVariant()
+     && m_settings->value(Param_Poste_PortFronto_COM_parity)        != QVariant()
+     && m_settings->value(Param_Poste_PortFronto_COM_stopBits)      != QVariant()
+     && m_settings->value(Param_Poste_PortFronto_COM_flowControl)   != QVariant())
     {
-        int val = m_settings->value(Param_Poste_PortFronto_COM_baudrate).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortFronto_COM_baudrate).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieFronto.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortFronto_COM_databits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortFronto_COM_databits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortFronto_COM_databits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieFronto.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortFronto_COM_parity) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortFronto_COM_parity).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortFronto_COM_parity).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieFronto.parity = (QSerialPort::Parity)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortFronto_COM_stopBits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortFronto_COM_stopBits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortFronto_COM_stopBits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieFronto.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortFronto_COM_flowControl) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortFronto_COM_flowControl).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortFronto_COM_flowControl).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieFronto.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
     }
-    if (m_settings->value(Param_Poste_Fronto).toString()=="TOMEY TL-3000C")
+    else if (m_settings->value(Param_Poste_Fronto).toString()=="TOMEY TL-3000C")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
@@ -8275,23 +8361,21 @@ bool Procedures::ReglePortFronto()
     else a = false;
     if (a)
     {
-        int index;
-        QMetaEnum metaEnum;
-        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortFronto_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.baudRate));
-        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortFronto_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.dataBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortFronto_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.parity));
-        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortFronto_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.stopBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortFronto_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.flowControl));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.flowControl));
     }
     else
     {
@@ -8563,47 +8647,41 @@ bool Procedures::ReglePortAutoref()
 {
 
     bool a = true;
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
     s_paramPortSerieAutoref.baudRate     = QSerialPort::UnknownBaud;
     s_paramPortSerieAutoref.dataBits     = QSerialPort::UnknownDataBits;
     s_paramPortSerieAutoref.parity       = QSerialPort::UnknownParity;
     s_paramPortSerieAutoref.stopBits     = QSerialPort::UnknownStopBits;
     s_paramPortSerieAutoref.flowControl  = QSerialPort::NoFlowControl;
-    if (m_settings->value(Param_Poste_PortAutoref_COM_baudrate) != QVariant())
+    if (m_settings->value(Param_Poste_PortAutoref_COM_baudrate)      != QVariant()
+     && m_settings->value(Param_Poste_PortAutoref_COM_databits)      != QVariant()
+     && m_settings->value(Param_Poste_PortAutoref_COM_parity)        != QVariant()
+     && m_settings->value(Param_Poste_PortAutoref_COM_stopBits)      != QVariant()
+     && m_settings->value(Param_Poste_PortAutoref_COM_flowControl)   != QVariant())
     {
-        int val = m_settings->value(Param_Poste_PortAutoref_COM_baudrate).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortAutoref_COM_baudrate).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieAutoref.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortAutoref_COM_databits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortAutoref_COM_databits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortAutoref_COM_databits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieAutoref.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortAutoref_COM_parity) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortAutoref_COM_parity).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortAutoref_COM_parity).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieAutoref.parity = (QSerialPort::Parity)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortAutoref_COM_stopBits) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortAutoref_COM_stopBits).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortAutoref_COM_stopBits).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieAutoref.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
-    }
-    if (m_settings->value(Param_Poste_PortAutoref_COM_flowControl) != QVariant())
-    {
-        int val = m_settings->value(Param_Poste_PortAutoref_COM_flowControl).toInt();
-        int index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        val         = m_settings->value(Param_Poste_PortAutoref_COM_flowControl).toInt();
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
         s_paramPortSerieAutoref.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
     }
-    if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
+    else if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
      || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1A"
@@ -8634,23 +8712,21 @@ bool Procedures::ReglePortAutoref()
     else a = false;
     if (a)
     {
-        int index;
-        QMetaEnum metaEnum;
-        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortAutoref_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.baudRate));
-        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortAutoref_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.dataBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortAutoref_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.parity));
-        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortAutoref_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.stopBits));
-        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
-        metaEnum = QSerialPort().metaObject()->enumerator(index);
-        m_settings->setValue(Param_Poste_PortAutoref_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.flowControl));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(PARITY);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.flowControl));
     }
     else
     {

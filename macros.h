@@ -1026,6 +1026,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define BOX                         "Box"
 #define RESEAU                      "Network"
 
+//datas des ports séries
+#define BAUDRATE                    "BaudRate"
+#define DATABITS                    "DataBits"
+#define PARITY                      "Parity"
+#define STOPBITS                    "StopBits"
+#define FLOWCONTROL                 "FlowControl"
+
 //mots utilisés en macros dans les documents à imprimer
 #define STR_TITRUSER            "TITREUSER"
 #define STR_NOMPAT              "NOM PATIENT"

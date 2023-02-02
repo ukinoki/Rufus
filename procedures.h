@@ -487,10 +487,13 @@ public:
     QString                 HtmlPachy();
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure typemesure = MesureAll);              //! enregistre la mesure de réfraction
+    void                    InsertMesure(TypeMesure typemesure = MesureAll);        //! enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
+
+    // LES PORTS COM ------------------------------------------------
+    void RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map);                       /*! règle les datas du port série pour l'appareil passé en paramètre */
 
 private:
     QString                 m_mesureSerie;
