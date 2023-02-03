@@ -21,13 +21,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 
 // https://fr.wikipedia.org/wiki/Caract%C3%A8re_de_contr%C3%B4le
-unsigned char SOH = 1;  //0x01
-unsigned char STX = 2;  //0x02
-unsigned char EOT = 4;  //0x04
-unsigned char ETB = 23; //0x17
-unsigned char LF  = 10; //0x0A
-unsigned char CR  = 13; //0x0D
-
+ unsigned char SOH = 1;  //0x01
+ unsigned char STX = 2;  //0x02
+ unsigned char EOT = 4;  //0x04
+ unsigned char ETB = 23; //0x17
+ unsigned char LF  = 10; //0x0A
+ unsigned char CR  = 13; //0x0D
 
 Procedures* Procedures::instance =  Q_NULLPTR;
 Procedures* Procedures::I()
@@ -583,6 +582,7 @@ void Procedures::BackupWakeUp()
     }
 }
 
+
 #ifdef Q_OS_WIN
 void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
 {
@@ -712,6 +712,7 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     }
 }
 #else
+
 void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
 {
     if (!Utils::mkpath(pathdirdestination))
@@ -848,13 +849,13 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 {
     QStringList listpaths;
     int a = 99;
+
     QString sqlCommand = db->SQLExecutable();
     if (sqlCommand == "" || !QFile(sqlCommand).exists())
     {
         Logs::ERROR(tr("Le fichier de MySQL \"%1\" est invalide").arg(sqlCommand));
         return a;
     }
-
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
@@ -873,21 +874,21 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
         else
             m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
-    }
-
+    }   
     QStringList args = QStringList()
         << "-u" << login
         << "-p" MDP_SQL
         << "-h" << host
         << "-P" << QString::number(db->port())
         << keys;
-    for (int i=0; i<ListScripts.size(); i++)
+     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
             QString path = ListScripts.at(i);
             listpaths << path;
         }
     QProcess dumpProcess(parent());
+
     for (int i=0; i< listpaths.size(); i++)
     {
         QString path = listpaths.at(i);
@@ -3040,6 +3041,7 @@ bool Procedures::Connexion_A_La_Base()
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
+
     QString SQLExecutable = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_SQLExecutable).toString();
     if (SQLExecutable == "")
     {
@@ -3054,6 +3056,7 @@ bool Procedures::Connexion_A_La_Base()
     }
 
     db->setSQLExecutable(SQLExecutable);
+
     db->initParametresConnexionSQL(server, port);
     if (!IdentificationUser())
         return false;
@@ -3080,7 +3083,6 @@ bool Procedures::Connexion_A_La_Base()
 
     return m_connexionbaseOK;
 }
-
 
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
@@ -4590,14 +4592,119 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     Datas::I()->mesurefronto    ->settypemesure(Refraction::Fronto);
     Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
     Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
-
     // We read only once in this function the available ports List
     QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
+    /*!
+        calcule le nom physique du port concerné à partir de la liste des ports disponibles et du nom du port déclaré dans rufus.ini (COM1,COM2,COM3 ou COM4)
+    */
+    auto calcNomPort = [&] (QString portsetting)
+    {
+        QString portappareil ("");
+        for (int i=0; i< availablePorts.size(); i++)
+        {
+            QString nomgeneriqueduport = availablePorts.at(i).portName();
+            if (nomgeneriqueduport.contains("usbserial"))
+            {
+                QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+                QString firstchar = nomgeneriqueduport.split("-").at(1).right(1);
+                /*!
+                * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+                * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+                * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+               */
+                if (portsetting == "COM1")
+                {
+                    if (lastchar == "0" ||  lastchar == "A")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "A")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+                else if (portsetting == "COM2")
+                {
+                    if (lastchar == "1" ||  lastchar == "B")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "B")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+                if (portsetting == "COM3")
+                {
+                    if (lastchar == "2" ||  lastchar == "C")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "C")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+                if (portsetting == "COM4")
+                {
+                    if (lastchar == "3" ||  lastchar == "4")
+                        portappareil = nomgeneriqueduport;
+                    else if (firstchar == "D")
+                        portappareil = nomgeneriqueduport;
+                    if (portappareil != "") break;
+                }
+            }
+            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan ou Ubuntu */
+            {
+                if (portsetting == "COM1")         portappareil = "ttyUSB0";
+                else if (portsetting == "COM2")    portappareil = "ttyUSB1";
+                else if (portsetting == "COM3")    portappareil = "ttyUSB2";
+                else if (portsetting == "COM4")    portappareil = "ttyUSB3";
+                if (portappareil != "") break;
+            }
+            //????????
+            else
+            {
+                portappareil = portsetting;
+                break;
+            }
+
+        }
+        return portappareil;
+    };
+
+    /*!
+        Ouvre le port dont le portName() est NomPort en rapport avec l'appareil passé en paramètre
+    */
+    auto openserialport = [&] (TypeAppareil appareil, QString NomPort)
+    {
+        QSerialPort *serialport;
+        SerialSettings sparamportserie;
+        switch (appareil) {
+        case Fronto:        sparamportserie = s_paramPortSerieFronto;       break;
+        case Autoref:       sparamportserie = s_paramPortSerieAutoref;      break;
+        case Refracteur:    sparamportserie = s_paramPortSerieRefracteur;   break;
+        case Tonometre:     sparamportserie = s_paramPortSerieTono;         break;
+        default: break;
+        }
+        for(int i=0; i<availablePorts.size(); i++)
+        {
+            //qDebug() << availablePorts.at(i).portName() << NomPort;
+            if (availablePorts.at(i).portName()== NomPort)
+            {
+                serialport= new QSerialPort(availablePorts.at(i));
+                serialport->setBaudRate(sparamportserie.baudRate);
+                serialport->setFlowControl(sparamportserie.flowControl);
+                serialport->setParity(sparamportserie.parity);
+                serialport->setDataBits(sparamportserie.dataBits);
+                serialport->setStopBits(sparamportserie.stopBits);
+                break;
+            }
+        }
+        switch (appareil) {
+        case Fronto:        sp_portFronto = serialport;     break;
+        case Autoref:       sp_portAutoref = serialport;    break;
+        case Refracteur:    sp_portRefracteur = serialport; break;
+        case Tonometre:     sp_portTono = serialport;       break;
+        default: break;
+        }
+    };
 
     if (appareils == 0)
     {
         bool portseriedispo = false;
-        for (int i=0; i<availablePorts.size(); i++)
+        for (int i=0; i< availablePorts.size(); i++)
         {
             //qDebug() << availablePorts.at(i).portName();
             if (Utils::isSerialPort(availablePorts.at(i).portName()))
@@ -4614,7 +4721,6 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             return false;
         }
     }
-
     QString listeports = "";
     for (int i=0; i< availablePorts.size(); i++)
     {
@@ -4631,9 +4737,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         listeports = tr("Aucun port COM disponible sur le système");
 
     /*!
-    for (int i=0; i<availablePorts.size(); i++)
+    for (int i=0; i< availablePorts.size(); i++)
+    {
         Logs::LogToFile("PortsSeries.txt", availablePorts.at(i).portName() + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
-    qDebug() << availablePorts.at(i).portName();
+        qDebug() << availablePorts.at(i).portName();
+    }
     */
     // PORT FRONTO
     if (appareils.testFlag(Fronto))
@@ -4643,101 +4751,10 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portFronto != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion frontofocomètre"));
-
-        // Pour reviser !!!!
-        for (int i=0; i<availablePorts.size(); i++)
-        {
-            QString nomgeneriqueduport = availablePorts.at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial"))
-            {
-                QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-                /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-                */
-                if (m_portFronto == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portFronto == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portFronto == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portFronto == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
-                if (NomPort != "") break;
-            }
-            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
-            {
-                if (m_portFronto == "COM1")         NomPort = "ttyUSB0";
-                else if (m_portFronto == "COM2")    NomPort = "ttyUSB1";
-                else if (m_portFronto == "COM3")    NomPort = "ttyUSB2";
-                else if (m_portFronto == "COM4")    NomPort = "ttyUSB3";
-                if (NomPort != "") break;
-            }
-            else
-            {
-                NomPort = m_portFronto;
-                break;
-            }
-        }
-
+        NomPort = calcNomPort(m_portFronto);
         if (NomPort != "")
-        {
-            sp_portFronto     = new QSerialPort();
-            for(int i=0; i<availablePorts.size(); i++)
-            {
-                //Debug() << availablePorts.at(i).portName();
-                //UpMessageBox::Watch(this,availablePorts.at(i).portName());
-                QString nomduport = availablePorts.at(i).portName();
-                if (nomduport.contains("usbserial"))
-                {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portFronto->setPort(availablePorts.at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
-                    {
-                        sp_portFronto->setPort(availablePorts.at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport.contains("ttyUSB"))
-                {
-                    if (nomduport == NomPort)
-                    {
-                        sp_portFronto->setPort(availablePorts.at(i));
-                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport == NomPort)
-                {
-                    sp_portFronto->setPort(availablePorts.at(i));
-                    sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
-                    sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
-                    sp_portFronto->setParity(s_paramPortSerieFronto.parity);
-                    sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
-                    sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
-                    NomPort = nomduport;
-                    break;
-                }
-            }
+        {            
+            openserialport(Fronto, NomPort);
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
                 //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
@@ -4767,97 +4784,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portRefracteur != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion refracteur"));
-        for (int i=0; i<availablePorts.size(); i++)
-        {
-            QString nomgeneriqueduport = availablePorts.at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial"))
-            {
-                QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-                /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-                */
-                if (m_portRefracteur == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portRefracteur == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portRefracteur == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portRefracteur == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
-                if (NomPort != "") break;
-            }
-            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
-            {
-                if (m_portRefracteur == "COM1")         NomPort = "ttyUSB0";
-                else if (m_portRefracteur == "COM2")    NomPort = "ttyUSB1";
-                else if (m_portRefracteur == "COM3")    NomPort = "ttyUSB2";
-                else if (m_portRefracteur == "COM4")    NomPort = "ttyUSB3";
-                if (NomPort != "") break;
-            }
-            else
-            {
-                NomPort = m_portRefracteur;
-                break;
-            }
-        }
+        NomPort = calcNomPort(m_portRefracteur);
         if (NomPort != "")
         {
-            sp_portRefracteur     = new QSerialPort();
-            for(int i=0; i<availablePorts.size(); i++)
-            {
-                QString nomduport = availablePorts.at(i).portName();
-                if (nomduport.contains("usbserial"))
-                {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portRefracteur->setPort(availablePorts.at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
-                    {
-                        sp_portRefracteur->setPort(availablePorts.at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport.contains("ttyUSB"))
-                {
-                    if (nomduport == NomPort)
-                    {
-                        sp_portRefracteur->setPort(availablePorts.at(i));
-                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport == NomPort)
-                {
-                    sp_portRefracteur->setPort(availablePorts.at(i));
-                    sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
-                    sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
-                    sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
-                    sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
-                    sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
-                    NomPort = nomduport;
-                    break;
-                }
-            }
-            if (sp_portRefracteur->open(QIODevice::ReadWrite))
+            openserialport(Refracteur, NomPort);
+             if (sp_portRefracteur->open(QIODevice::ReadWrite))
             {
                 //qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
@@ -4889,97 +4820,11 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         bool a           = (m_portAutoref != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion autorefractomètre"));
-        for (int i=0; i<availablePorts.size(); i++)
-        {
-            QString nomgeneriqueduport = availablePorts.at(i).portName();
-            if (nomgeneriqueduport.contains("usbserial"))
-            {
-                QChar lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-                /*!
-                 * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-                 * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-                 * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-                */
-                if (m_portAutoref == "COM1")         NomPort = (lastchar.digitValue()==0? "0" : "A");
-                else if (m_portAutoref == "COM2")    NomPort = (lastchar.digitValue()==1? "1" : "B");
-                else if (m_portAutoref == "COM3")    NomPort = (lastchar.digitValue()==2? "2" : "C");
-                else if (m_portAutoref == "COM4")    NomPort = (lastchar.digitValue()==3? "3" : "D");
-                if (NomPort != "") break;
-            }
-            else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan */
-            {
-                if (m_portAutoref == "COM1")        NomPort = "ttyUSB0";
-                else if (m_portAutoref == "COM2")   NomPort = "ttyUSB1";
-                else if (m_portAutoref == "COM3")   NomPort = "ttyUSB2";
-                else if (m_portAutoref == "COM4")   NomPort = "ttyUSB3";
-                if (NomPort != "") break;
-            }
-            else
-            {
-                NomPort = m_portAutoref;
-                break;
-            }
-        }
+        NomPort = calcNomPort(m_portAutoref);
         if (NomPort != "")
         {
-            sp_portAutoref     = new QSerialPort();
-            for(int i=0; i<availablePorts.size(); i++)
-            {
-                QString nomduport = availablePorts.at(i).portName();
-                if (nomduport.contains("usbserial"))
-                {
-                    QString letterright = nomduport.split("-").at(1).right(1);
-                    QString letterleft = nomduport.split("-").at(1).left(1);
-                    if (letterright == NomPort)
-                    {
-                        sp_portAutoref->setPort(availablePorts.at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                    else if (letterleft == NomPort)
-                    {
-                        sp_portAutoref->setPort(availablePorts.at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if (nomduport.contains("ttyUSB"))
-                {
-                    if (nomduport == NomPort)
-                    {
-                        sp_portAutoref->setPort(availablePorts.at(i));
-                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                        NomPort = nomduport;
-                        break;
-                    }
-                }
-                else if(nomduport == NomPort)
-                {
-                    sp_portAutoref->setPort(availablePorts.at(i));
-                    sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
-                    sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
-                    sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
-                    sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
-                    sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
-                    NomPort = nomduport;
-                    break;
-                }
-            }
-            if (sp_portAutoref->open(QIODevice::ReadWrite))
+            openserialport(Autoref, NomPort);
+             if (sp_portAutoref->open(QIODevice::ReadWrite))
             {
                 //qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
@@ -5003,31 +4848,208 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autoref sur ") + m_portAutoref, listeports);
     }
     if (appareils.testFlag(Tonometre))
-    {
-        m_portTono       = m_settings->value(Param_Poste_PortTono).toString();
-    }
+    {        
+        m_portTono = m_settings->value(Param_Poste_PortRefracteur).toString();
+        //UpMessageBox::Watch(Q_NULLPTR, m_portRefracteur);
+        ReglePortTonometre();
+        bool a           = (m_portTono != "");
+        if (!a)
+            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion tonomètre"));
+        NomPort = calcNomPort(m_portTono);
+        if (NomPort != "")
+        {
+            openserialport(Tonometre, NomPort);
+            if (sp_portTono->open(QIODevice::ReadWrite))
+            {
+                //qDebug() << "TONOMETRE -> " + m_portTono + " - " + NomPort;
+                t_threadTono     = new SerialThread(sp_portTono);
+                t_threadTono    ->transaction();
+                connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
+                if (msg != "")
+                    msg += "\r";
+                msg += tr("Connexion tonmètre OK sur ") + m_portTono;
+            }
+            else
+            {
+                if (msg != "")
+                    msg += "\r";
+                msg += tr("Impossible de connecter le tonomètre sur ") + m_portTono;
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
+                delete sp_portTono;
+                sp_portTono = Q_NULLPTR;
+            }
+        }
+        else
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
+        }
     if (msg != "")
         ShowMessage::I()->SplashMessage(msg, 3000);
-
     return false;
 }
 
+/*!
+  * \brief Procedures::RegleSerialSettings
+  * \param appareil
+  * \param map les datas à régler char * = le name() du QMetaEnum de data à régler, int = l'index de la valeur ddans le QMetaEnum
+  */
+ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map)
+ {
+     QString baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
+     SerialSettings serialset;
+     QSerialPort *serialport;
+     switch (appareil) {
+     case Fronto :
+         baudrate    = Param_Poste_PortFronto_COM_baudrate;
+         databits    = Param_Poste_PortFronto_COM_databits;
+         parity      = Param_Poste_PortFronto_COM_parity;
+         stopbits    = Param_Poste_PortFronto_COM_stopBits;
+         flowcontrol = Param_Poste_PortFronto_COM_flowControl;
+         serialset   = s_paramPortSerieFronto;
+         serialport  = sp_portFronto;
+         break;
+     case Autoref :
+         baudrate    = Param_Poste_PortAutoref_COM_baudrate;
+         databits    = Param_Poste_PortAutoref_COM_databits;
+         parity      = Param_Poste_PortAutoref_COM_parity;
+         stopbits    = Param_Poste_PortAutoref_COM_stopBits;
+         flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
+         serialset   = s_paramPortSerieAutoref;
+         serialport  = sp_portAutoref;
+         break;
+     case Refracteur :
+         baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
+         databits    = Param_Poste_PortRefracteur_COM_databits;
+         parity      = Param_Poste_PortRefracteur_COM_parity;
+         stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
+         flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
+         serialset   = s_paramPortSerieRefracteur;
+         serialport  = sp_portRefracteur;
+         break;
+     case Tonometre :
+         baudrate    = Param_Poste_PortTono_COM_baudrate;
+         databits    = Param_Poste_PortTono_COM_databits;
+         parity      = Param_Poste_PortTono_COM_parity;
+         stopbits    = Param_Poste_PortTono_COM_stopBits;
+         flowcontrol = Param_Poste_PortTono_COM_flowControl;
+         serialset   = s_paramPortSerieTono;
+         serialport  = sp_portTono;
+         break;
+     default: return;
+     }
+     int index;
+     QMetaEnum metaEnum;
+     QString name ("");
+     name = BAUDRATE;
+     auto it = map.constFind(name);
+     if (it != map.constEnd())
+     {
+         index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+         metaEnum = QSerialPort().metaObject()->enumerator(index);
+         m_settings->setValue(baudrate,  it.value());
+         serialset.baudRate = (QSerialPort::BaudRate)metaEnum.value(it.value());
+         if (serialport != Q_NULLPTR)
+             serialport->setBaudRate(serialset.baudRate);
+     }
+     name = DATABITS;
+     it = map.constFind(name);
+     if (it != map.constEnd())
+     {
+         index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+         metaEnum = QSerialPort().metaObject()->enumerator(index);
+         m_settings->setValue(databits,  it.value());
+         serialset.dataBits = (QSerialPort::DataBits)metaEnum.value(it.value());
+         if (serialport != Q_NULLPTR)
+             serialport->setDataBits(serialset.dataBits);
+     }
+     name = PARITY;
+     it = map.constFind(name);
+     if (it != map.constEnd())
+     {
+         index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+         metaEnum = QSerialPort().metaObject()->enumerator(index);
+         m_settings->setValue(parity,  it.value());
+         serialset.parity = (QSerialPort::Parity)metaEnum.value(it.value());
+         if (serialport != Q_NULLPTR)
+             serialport->setParity(serialset.parity);
+     }
+     name = STOPBITS;
+     it = map.constFind(name);
+     if (it != map.constEnd())
+     {
+         index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+         metaEnum = QSerialPort().metaObject()->enumerator(index);
+         m_settings->setValue(stopbits,  it.value());
+         serialset.stopBits = (QSerialPort::StopBits)metaEnum.value(it.value());
+         if (serialport != Q_NULLPTR)
+             serialport->setStopBits(serialset.stopBits);
+     }
+     name = FLOWCONTROL;
+     it = map.constFind(name);
+     if (it != map.constEnd())
+     {
+         index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
+         metaEnum = QSerialPort().metaObject()->enumerator(index);
+         m_settings->setValue(flowcontrol,  it.value());
+         serialset.flowControl = (QSerialPort::FlowControl)metaEnum.value(it.value());
+         if (serialport != Q_NULLPTR)
+             serialport->setFlowControl(serialset.flowControl);
+     }
+ }
+
 bool Procedures::ReglePortRefracteur()
 {
-    bool a = true;
+    bool a = true;      
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
 
     QString name = m_settings->value(Param_Poste_Refracteur).toString();
-
-    if (name=="NIDEK RT-5100" || name=="NIDEK RT-2100")
+    InitSerialSettings(s_paramPortSerieRefracteur);
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_baudrate) != QVariant())
     {
+        val = m_settings->value(Param_Poste_PortRefracteur_COM_baudrate).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_databits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortRefracteur_COM_databits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_parity) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortRefracteur_COM_parity).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_stopBits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortRefracteur_COM_stopBits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortRefracteur_COM_flowControl) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortRefracteur_COM_flowControl).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieRefracteur.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
+
+    if (name =="NIDEK RT-5100" || name =="NIDEK RT-2100")
+     {
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
         s_paramPortSerieRefracteur.parity         = QSerialPort::EvenParity;
         s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (name=="TOMEY TAP-2000" || name=="RODENSTOCK Phoromat 2000")
-    {
+    else if (name =="TOMEY TAP-2000" || name =="RODENSTOCK Phoromat 2000")
+    {        
         s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud9600;
         s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data8;
         s_paramPortSerieRefracteur.parity         = QSerialPort::NoParity;
@@ -5035,6 +5057,33 @@ bool Procedures::ReglePortRefracteur()
         s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
+
+    if (a)
+    {
+        index       = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortRefracteur_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieRefracteur.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortRefracteur_COM_flowControl, QVariant());
+    }
     return a;
 }
 
@@ -5050,7 +5099,8 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 {
     //qDebug() << s;
     m_mesureSerie        = s;
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+    QString name = m_settings->value(Param_Poste_Refracteur).toString();
+    if (name =="NIDEK RT-5100" || name =="NIDEK RT-2100")
     {
         if (m_mesureSerie == SendDataNIDEK("CRL"))
         {
@@ -5083,7 +5133,8 @@ void Procedures::RegleRefracteur(TypesMesures flag)
         if (pat)
             nompat = pat->prenom() + " " + pat->nom().toUpper();
         //! NIDEK RT-5100 - NIDEK RT-2100
-        if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+        QString name = m_settings->value(Param_Poste_Refracteur).toString();
+        if (name =="NIDEK RT-5100" || name =="NIDEK RT-2100")
         {
             /*!
             Logs::LogToFile("PortSerieRefracteur.txt", "RTS = " + RequestToSendNIDEK() + " - "
@@ -5095,7 +5146,7 @@ void Procedures::RegleRefracteur(TypesMesures flag)
             Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         }
         //! TOMEY TAP-2000 et Rodenstock Phoromat 2000
-        else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromat 2000")
+        else if (name =="TOMEY TAP-6000" || name =="RODENSTOCK Phoromat 2000")
             RegleRefracteurCOM(flag);
     }
     //! NIDEK RT-6100 - NIDEK Glasspop
@@ -5120,6 +5171,8 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
     QString SCAOD, SCAOG;
     QString DataAEnvoyer;
     QByteArray DTRbuff;
+    QString name = m_settings->value(Param_Poste_Refracteur).toString();
+
     auto initvariables = [&] ()
     {
         AxeOD  = "180";
@@ -5134,7 +5187,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
 
     // ----------------- CONNECTION SERIE
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100" || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+    if (name =="NIDEK RT-5100" || name =="NIDEK RT-2100")
     {
         auto convertdioptriesNIDEK = [&] (QString &finalvalue, double originvalue)
         {
@@ -5149,7 +5202,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             else if (originvalue < 100) finalvalue = " "  + QString::number(originvalue);
             else                        finalvalue = QString::number(originvalue);
         };
-        DTRbuff.append(SOH);          //SOH -> start of header
+        DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
 
         /*! réglage de l'autoref */
         if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
@@ -5241,11 +5294,13 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
         //        PortRefracteur()->write(QString(DTRbuff).toLocal8Bit());
         //        PortRefracteur()->flush();
         //        PortRefracteur()->waitForBytesWritten(1000);
+        //Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
         Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);
     }
     // FIN NIDEK RT-5100 - RT-2100 =======================================================================================================================================
+
     // TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
-    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-6000" || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromat 2000")
+    else if (name =="TOMEY TAP-6000" || name =="RODENSTOCK Phoromat 2000")
     {
         /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
          * SOH =    SOH            //SOH -> start of header
@@ -5439,8 +5494,6 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
 
-
-
             DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SJ"));
             DTRbuff.append(ETB);                                          //ETB -> end of text block
@@ -5450,10 +5503,10 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
             DTRbuff.append(ETB);                                          //ETB -> end of text block
-            DTRbuff.append(STX);                                               //STX -> start of text
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
             DTRbuff.append(ETB);                                          //ETB -> end of text block
-            DTRbuff.append(STX);                                               //STX -> start of text
+            DTRbuff.append(STX);                                           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
             DTRbuff.append(ETB);                                          //ETB -> end of text block
             if (idpat == 0)
@@ -5487,8 +5540,7 @@ SOH*PC_SND_EEOT                 -> end block
         // No escribimos nada ... TEST
         //Utils::writeDatasSerialPort(PortRefracteur(), QString(DTRbuff).toLocal8Bit(), " DTRbuff - Refracteur = ", 1000);
         //Utils::writeDataToFileDateTime(DTRbuff, "Send.bin","c:/outils/log/Phoromat/");
-        Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);
-    }
+        Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);    }
     // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
 }
 
@@ -6585,7 +6637,8 @@ QByteArray Procedures::RequestToSendNIDEK()
     DTSbuff.append(ETB);          //ETB -> end of text block  -> fin RTS
     DTSbuff.append(EOT);           //EOT -> end of transmission
     //qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
-    return  DTSbuff;
+    //return  QString(DTSbuff).toLocal8Bit();
+    return DTSbuff;
 }
 
 QByteArray Procedures::SendDataNIDEK(QString mesure)
@@ -6602,6 +6655,7 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     //reponse += "\r";                                    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
     DTRbuff.append(CR); // \r = CR
     //qDebug() << "SendDataNidek = " << reponse;
+    //return reponse;
     return DTRbuff;
 }
 
@@ -6624,11 +6678,11 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     QString K1OD("null"), K2OD("null"), K1OG("null"), K2OG("null");
     int     AxeKOD(0), AxeKOG(0);
     QString mTOOD(""), mTOOG("");
+    QString name = m_settings->value(Param_Poste_Refracteur).toString();
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-5100"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="NIDEK RT-2100")
+    if (name =="NIDEK RT-5100" || name =="NIDEK RT-2100")
     {
         /*!
 NIDEK RT-5100 ID             DA2016/12/30
@@ -6915,9 +6969,8 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
 
-    // TOMEY TAP-2000 et RODENSTOCK Phoromat 2000 =======================================================================================================================================
-    else if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TAP-2000"
-     || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Phoromat 2000")
+    // TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
+    else if (name =="TOMEY TAP-2000" || name =="RODENSTOCK Phoromat 2000")
     {
         /*! SORTIE EXEMPLE POUR UN PHOROMAT RODENSTOCK
          * SOH =    SOH            //SOH -> start of header
@@ -7258,7 +7311,7 @@ SOH*PC_RCV_EEOT                 -> end block
             }
         }
     }
-    // FIN TOMEY TAP-2000 et RODENSTOCK Phoromat 2000 ==========================================================================================================================}
+    // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 ==========================================================================================================================}
 }
 
 void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
@@ -8113,9 +8166,7 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
 
 void Procedures::LectureDonneesXMLTono(QDomDocument docxml)
 {
-    if (m_settings->value(Param_Poste_Refracteur).toString()=="TOMEY TOP-1000"  || m_settings->value(Param_Poste_Refracteur).toString()=="RODENSTOCK Topascope")
-    {
-        /*! exemple de fichier xml pour un RODENSTOCK TOPASCOPE / TOMEY TOP-1000
+     /*! exemple de fichier xml pour un RODENSTOCK TOPASCOPE / TOMEY TOP-1000
       *
 
  <Measurement iop_unit="mmHg" cct_unit="um">
@@ -8143,85 +8194,156 @@ void Procedures::LectureDonneesXMLTono(QDomDocument docxml)
      </Message>
  </Measurement>
  */
-        Logs::LogToFile("MesuresPachy.txt", docxml.toByteArray());
+    Logs::LogToFile("MesuresPachy.txt", docxml.toByteArray());
 
-        QString tono = m_settings->value(Param_Poste_Tono).toString();
-        if (tono=="TOMEY TOP-1000" || tono == "TODENSTOCK Topascope" )
+    QString tono = m_settings->value(Param_Poste_Tono).toString();
+    if (tono=="TOMEY TOP-1000" || tono == "TODENSTOCK Topascope" )
+    {
+        QString avgOD = "";
+        QString avgOG = "";
+        QString cctOD = "";
+        QString cctOG = "";
+        QString ciopOD = "";
+        QString ciopOG = "";
+        QDomElement xml = docxml.documentElement();
+        for (int h=0; h<xml.childNodes().size(); h++)
         {
-            QString avgOD = "";
-            QString avgOG = "";
-            QString cctOD = "";
-            QString cctOG = "";
-            QString ciopOD = "";
-            QString ciopOG = "";
-            QDomElement xml = docxml.documentElement();
-            for (int h=0; h<xml.childNodes().size(); h++)
+            QDomElement level1 = xml.childNodes().at(h).toElement();
+            if (level1.tagName() == "Measurement")
             {
-                QDomElement level1 = xml.childNodes().at(h).toElement();
-                if (level1.tagName() == "Measurement")
+                for (int g=0; g<level1.childNodes().size(); g++)
                 {
-                    for (int g=0; g<level1.childNodes().size(); g++)
+                    QDomElement level2 = level1.childNodes().at(g).toElement();
+                    if (level2.tagName() == "Eye")
                     {
-                        QDomElement level2 = level1.childNodes().at(g).toElement();
-                        if (level2.tagName() == "Eye")
+                        QString oeil = level2.attribute("type","");        /*!  Lire Eye type (OD / OS)  --------------------------------------------------*/
+                        for (int i=0; i<level2.childNodes().size(); i++)
                         {
-                            QString oeil = level2.attribute("type","");        /*!  Lire Eye type (OD / OS)  --------------------------------------------------*/
-                            for (int i=0; i<level2.childNodes().size(); i++)
+                            QDomElement measure = level2.childNodes().at(i).toElement();
+                            QString value = measure.text();
+                            if( value == "--.-") value = "";
+                            if (measure.tagName() == "IOPAvg")
                             {
-                                QDomElement measure = level2.childNodes().at(i).toElement();
-                                QString value = measure.text();
-                                if( value == "--.-") value = "";
-                                if (measure.tagName() == "IOPAvg")
-                                {
-                                    if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
-                                        avgOD = value;
-                                    else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
-                                        avgOG = value;
-                                }
-                                if (measure.tagName() == "CCT")
-                                {
-                                    if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
-                                        cctOD = value;
-                                    else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
-                                        cctOG = value;
-                                }
-                                if (measure.tagName() == "CIOP")
-                                {
-                                    if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
-                                        ciopOD = value;
-                                    else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
-                                        ciopOG = value;
-                                }
+                                if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
+                                    avgOD = value;
+                                else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                                    avgOG = value;
+                            }
+                            if (measure.tagName() == "CCT")
+                            {
+                                if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
+                                    cctOD = value;
+                                else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                                    cctOG = value;
+                            }
+                            if (measure.tagName() == "CIOP")
+                            {
+                                if (oeil == "OD")                           /*! OEIL DROIT  ------------------------------------------------------------------*/
+                                    ciopOD = value;
+                                else                                        /*! OEIL GAUCHE  ------------------------------------------------------------------*/
+                                    ciopOG = value;
                             }
                         }
                     }
                 }
             }
-            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
-            if (cctOD.toDouble()>0 && cctOG.toDouble()>0)
-            {
-                Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
-                if (cctOD.toDouble()>0)
-                    Datas::I()->mesurepachy->setpachyOD(int(cctOD.toDouble()));
-                if (cctOG.toDouble()>0)
-                    Datas::I()->mesurepachy->setpachyOG(int(cctOG.toDouble()));
-            }
-            if (avgOD.toDouble()>0 && avgOG.toDouble()>0)
-            {
-                Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
-                if (avgOD.toDouble()>0)
-                    Datas::I()->mesuretono->setTOD(int(avgOD.toDouble()));
-                if (avgOG.toDouble()>0)
-                    Datas::I()->mesuretono->setTOG(int(avgOG.toDouble()));
-                if (ciopOD.toDouble()>0)
-                    Datas::I()->mesuretono->setTODcorrigee(int(ciopOD.toDouble()));
-                if (ciopOG.toDouble()>0)
-                    Datas::I()->mesuretono->setTOGcorrigee(int(ciopOG.toDouble()));
-            }
         }
-        debugMesure(Datas::I()->mesuretono);
-        debugMesure(Datas::I()->mesurepachy);
+        Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+        if (cctOD.toDouble()>0 && cctOG.toDouble()>0)
+        {
+            Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+            if (cctOD.toDouble()>0)
+                Datas::I()->mesurepachy->setpachyOD(int(cctOD.toDouble()));
+            if (cctOG.toDouble()>0)
+                Datas::I()->mesurepachy->setpachyOG(int(cctOG.toDouble()));
+        }
+        if (avgOD.toDouble()>0 && avgOG.toDouble()>0)
+        {
+            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+            if (avgOD.toDouble()>0)
+                Datas::I()->mesuretono->setTOD(int(avgOD.toDouble()));
+            if (avgOG.toDouble()>0)
+                Datas::I()->mesuretono->setTOG(int(avgOG.toDouble()));
+            if (ciopOD.toDouble()>0)
+                Datas::I()->mesuretono->setTODcorrigee(int(ciopOD.toDouble()));
+            if (ciopOG.toDouble()>0)
+                Datas::I()->mesuretono->setTOGcorrigee(int(ciopOG.toDouble()));
+        }
     }
+    debugMesure(Datas::I()->mesuretono);
+    debugMesure(Datas::I()->mesurepachy);
+}
+
+
+bool Procedures::ReglePortTonometre()
+{
+    bool a = true;
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
+
+    InitSerialSettings(s_paramPortSerieTono);
+    if (m_settings->value(Param_Poste_PortTono_COM_baudrate) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortTono_COM_baudrate).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_databits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortTono_COM_databits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_parity) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortTono_COM_parity).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_stopBits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortTono_COM_stopBits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortTono_COM_flowControl) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortTono_COM_flowControl).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieTono.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
+    if (a)
+    {
+        index       = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortTono_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieTono.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortTono_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortTono_COM_flowControl, QVariant());
+    }
+    return a;
 }
 
 // -------------------------------------------------------------------------------------
@@ -8374,7 +8496,46 @@ QString Procedures::HtmlRefracteur()
 bool Procedures::ReglePortFronto()
 {
     bool a = true;
-    if (m_settings->value(Param_Poste_Fronto).toString()=="TOMEY TL-3000C")
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
+    QString name = m_settings->value(Param_Poste_Fronto).toString();
+    InitSerialSettings(s_paramPortSerieFronto);
+    if (m_settings->value(Param_Poste_PortFronto_COM_baudrate) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortFronto_COM_baudrate).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_databits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortFronto_COM_databits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_parity) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortFronto_COM_parity).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_stopBits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortFronto_COM_stopBits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortFronto_COM_flowControl) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortFronto_COM_flowControl).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieFronto.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
+    if (name =="TOMEY TL-3000C")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud2400;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
@@ -8382,8 +8543,8 @@ bool Procedures::ReglePortFronto()
         s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (m_settings->value(Param_Poste_Fronto).toString()=="VISIONIX VL1000"
-          || m_settings->value(Param_Poste_Fronto).toString()=="HUVITZ CLM7000")
+    else if (name =="VISIONIX VL1000"
+          || name =="HUVITZ CLM7000")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud9600;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
@@ -8391,9 +8552,9 @@ bool Procedures::ReglePortFronto()
         s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800P"
-          || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-1800PD"
-          || m_settings->value(Param_Poste_Fronto).toString()=="NIDEK LM-500")
+    else if (name =="NIDEK LM-1800P"
+          || name =="NIDEK LM-1800PD"
+          || name =="NIDEK LM-500")
     {
         s_paramPortSerieFronto.baudRate       = QSerialPort::Baud9600;
         s_paramPortSerieFronto.dataBits       = QSerialPort::Data8;
@@ -8401,8 +8562,43 @@ bool Procedures::ReglePortFronto()
         s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else a = false;
+    else a = false;   
+    if (a)
+    {
+        index       = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortFronto_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieFronto.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortFronto_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortFronto_COM_flowControl, QVariant());
+    }
     return a;
+}
+
+
+//-----------------------------------------------------------------------------------------
+// Lecture du flux de données sur le port série du tonometre
+//-----------------------------------------------------------------------------------------
+void Procedures::ReponsePortSerie_Tono(const QString &s)
+{
+    Utils::EnChantier();
 }
 
 QSerialPort *Procedures::PortFronto()
@@ -8649,18 +8845,57 @@ QString Procedures::HtmlFronto()
 bool Procedures::ReglePortAutoref()
 {
     bool a = true;
-    if (m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1A"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-1S"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1A"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-1S"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-530A"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-510A"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK HandyRef-K"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK ARK-30"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK AR-20"
-     || m_settings->value(Param_Poste_Autoref).toString()=="NIDEK TONOREF III")
+    int val(-1), index(-1);
+    QMetaEnum metaEnum;
+    QString name = m_settings->value(Param_Poste_Autoref).toString();
+    InitSerialSettings(s_paramPortSerieAutoref);
+    if (m_settings->value(Param_Poste_PortAutoref_COM_baudrate) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortAutoref_COM_baudrate).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.baudRate = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_databits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortAutoref_COM_databits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.dataBits = (QSerialPort::DataBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_parity) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortAutoref_COM_parity).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.parity = (QSerialPort::Parity)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_stopBits) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortAutoref_COM_stopBits).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.stopBits = (QSerialPort::StopBits)metaEnum.value(val);
+    }
+    if (m_settings->value(Param_Poste_PortAutoref_COM_flowControl) != QVariant())
+    {
+        val = m_settings->value(Param_Poste_PortAutoref_COM_flowControl).toInt();
+        index = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        QMetaEnum metaEnum = QSerialPort().metaObject()->enumerator(index);
+        s_paramPortSerieAutoref.flowControl = (QSerialPort::FlowControl)metaEnum.value(val);
+    }
+    if (name =="NIDEK ARK-1A"
+     || name =="NIDEK ARK-1"
+     || name =="NIDEK ARK-1S"
+     || name =="NIDEK AR-1A"
+     || name =="NIDEK AR-1"
+     || name =="NIDEK AR-1S"
+     || name =="NIDEK ARK-530A"
+     || name =="NIDEK ARK-510A"
+     || name =="NIDEK HandyRef-K"
+     || name =="NIDEK ARK-30"
+     || name =="NIDEK AR-20"
+     || name =="NIDEK TONOREF III")
 
     {
         s_paramPortSerieAutoref.baudRate       = QSerialPort::Baud9600;
@@ -8669,8 +8904,8 @@ bool Procedures::ReglePortAutoref()
         s_paramPortSerieAutoref.stopBits       = QSerialPort::OneStop;
         s_paramPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (m_settings->value(Param_Poste_Autoref).toString()=="TOMEY RC-5000"
-          || m_settings->value(Param_Poste_Autoref).toString()=="RODENSTOCK CX 2000")
+    else if (name =="TOMEY RC-5000"
+          || name =="RODENSTOCK CX 2000")
     {
         s_paramPortSerieAutoref.baudRate       = QSerialPort::Baud38400;
         s_paramPortSerieAutoref.dataBits       = QSerialPort::Data8;
@@ -8679,6 +8914,32 @@ bool Procedures::ReglePortAutoref()
         s_paramPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
+    if (a)
+    {
+        index       = QSerialPort().metaObject()->indexOfEnumerator("BaudRate");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_baudrate,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.baudRate));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("DataBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_databits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.dataBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("Parity");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_parity,         Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.parity));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("StopBits");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_stopBits,       Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.stopBits));
+        index       = QSerialPort().metaObject()->indexOfEnumerator("FlowControl");
+        metaEnum    = QSerialPort().metaObject()->enumerator(index);
+        m_settings  ->setValue(Param_Poste_PortAutoref_COM_flowControl,    Utils::getindexFromValue(metaEnum, s_paramPortSerieAutoref.flowControl));
+    }
+    else
+    {
+        m_settings->setValue(Param_Poste_PortAutoref_COM_baudrate,    QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_databits,    QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_parity,      QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_stopBits,    QVariant());
+        m_settings->setValue(Param_Poste_PortAutoref_COM_flowControl, QVariant());
+    }
     return a;
 }
 
@@ -9274,10 +9535,10 @@ PL04.7N
      || m_settings->value(Param_Poste_Autoref).toString()=="RODENSTOCK CX 2000")
     {
         /*! SORTIE EXEMPLE POUR UN TOMEY RC-5000
-         * SOH =    SOH            //SOH -> start of header
-         * STX =    STX            //STX -> start of text
-         * CR =     CR             //CR -> carriage return
-         * EOT =    EOT            //EOT -> end of transmission
+         * SOH =    SOH             //SOH -> start of header
+         * STX =    STX             //STX -> start of text
+         * CR =     CR              //CR -> carriage return
+         * EOT =    EOT             //EOT -> end of transmission
          * La 1ere ligne commence par SOH, la dernière par EOT- représentés ici
          * Les autres lignes commencent par STX
          * Toutes les lignes se terminent par CR

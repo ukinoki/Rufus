@@ -22,13 +22,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("28-01-2023/2");
+    qApp->setApplicationVersion("03-02-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
-    qApp->setStyleSheet(Styles::StyleAppli());
+    //qApp->setStyleSheet(Styles::StyleAppli());
     RecalcCurrentDateTime();
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
@@ -69,7 +69,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         UpMessageBox::Watch(this, tr("Pas d'utilisateur identifié!\nSortie du programme"));
         exit(0);
     }
-    //qApp->setStyleSheet(Styles::StyleAppli());
+    qApp->setStyleSheet(Styles::StyleAppli());
     ShowMessage::I()->SplashMessage(proc->currentuserstatus() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
 
     //! 3 Initialisation de tout

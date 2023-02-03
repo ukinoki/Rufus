@@ -426,23 +426,34 @@ private:
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
     QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
-    struct Settings {
+    struct SerialSettings {
         qint32 baudRate;
         QSerialPort::DataBits dataBits;
         QSerialPort::Parity parity;
         QSerialPort::StopBits stopBits;
         QSerialPort::FlowControl flowControl;
     };
-    Settings                s_paramPortSerieAutoref;
-    Settings                s_paramPortSerieFronto;
-    Settings                s_paramPortSerieRefracteur;
+    SerialSettings                s_paramPortSerieAutoref;
+    SerialSettings                s_paramPortSerieFronto;
+    SerialSettings                s_paramPortSerieRefracteur;
+    SerialSettings                s_paramPortSerieTono;
     SerialThread            *t_threadFronto = Q_NULLPTR;
+    SerialThread            *t_threadTono = Q_NULLPTR;
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
+    bool                    ReglePortTonometre();
+    void                    InitSerialSettings(SerialSettings set)
+    {
+        set.baudRate     = QSerialPort::Baud2400;
+        set.dataBits     = QSerialPort::Data8;
+        set.parity       = QSerialPort::NoParity;
+        set.stopBits     = QSerialPort::OneStop;
+        set.flowControl  = QSerialPort::NoFlowControl;
+    };
 
 public:
     enum TypeMesure {
@@ -487,10 +498,13 @@ public:
     QString                 HtmlPachy();
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure typemesure = MesureAll);              //! enregistre la mesure de réfraction
+    void                    InsertMesure(TypeMesure typemesure = MesureAll);        //! enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
     static TypeMesure       ConvertMesure(QString Mesure);
     static QString          ConvertMesure(Procedures::TypeMesure Mesure);
+
+    // LES PORTS COM ------------------------------------------------
+    void RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map);        /*! règle les datas du port série pour l'appareil passé en paramètre */
 
 private:
     QString                 m_mesureSerie;
@@ -538,6 +552,7 @@ private:
     void                    ReponseXML_Refracteur(const QDomDocument &docxml);
     //LE TONO ----------------------------------------------------
     void                    LectureDonneesXMLTono(QDomDocument docxml);             //! lit les données envoyées sur le fichier échange XML du fronto
+    void                    ReponsePortSerie_Tono(const QString &s);
     void                    ReponseXML_Tono(const QDomDocument &docxml);
 
     QByteArray              RequestToSendNIDEK();

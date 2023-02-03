@@ -500,7 +500,8 @@ qint32 Utils::ArrayToInt(QByteArray source)
 QByteArray Utils::StringToArray(QString source)
 {
     QByteArray ba;
-    ba = source.toLocal8Bit();
+    QDataStream in(&ba, QIODevice::WriteOnly);
+    in << QString(source);
     return ba;
 }
 
@@ -508,9 +509,14 @@ QByteArray Utils::IntToArray(int source)
 {
     //permet d'éviter le cast
     QByteArray ba;
+#ifdef Q_OS_WIN
+    ba = source.toLocal8Bit();          // pas accepté par gcc ou clang
+    return ba;
+#endif
     QDataStream data(&ba, QIODevice::ReadWrite);
     data << source;
     return ba;
+
 }
 
 QString Utils::IPAdress()
@@ -766,7 +772,7 @@ QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirde
     QUrl url = Dirdefaut;
     url = QFileDialog::getExistingDirectoryUrl(parent, title, url, QFileDialog::ShowDirsOnly);
     if (url.path() == "")
-        return QUrl();
+        return QUrl();   
 #ifdef Q_OS_WIN
     if( url.path().startsWith("/") )
     {
@@ -1260,6 +1266,7 @@ QImage Utils::imagemapFrom(const QJsonValue &val)
     QByteArray const encoded = val.toString().toLatin1();
     return QImage::fromData(QByteArray::fromBase64(encoded), "JPG");
 }
+
 void Utils::writeDataToFileDateTime (QByteArray data, QString name, QString path)
 {
     if( !QDir(path).exists())
@@ -1289,6 +1296,7 @@ void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString m
     port->waitForBytesWritten(timetowaitms);
 }
 
+
 bool Utils::isSerialPort( QString name )
 {
   if (name.contains("usbserial"))
@@ -1312,6 +1320,7 @@ void Utils::playAlarm(QString sound)
     se.setSource(QUrl(sound));
     se.play();
 }
+
 
 QString Utils::getSQLExecutable()
 {
@@ -1356,3 +1365,13 @@ QString Utils::getOrPromptSQLExecutable(QString message)
     }
     return "";
 }
+
+//! récupérer l'index d'une valeur dans un QMetaEnum
+int Utils::getindexFromValue(const QMetaEnum & e, int value)
+{
+    for(int i=0; i< e.keyCount(); i++){
+        if(e.key(i) == e.valueToKey(value))
+            return i;
+    }
+    return -1;
+};

@@ -45,7 +45,6 @@ public:
     bool                CotationsModifiees() const;
     bool                DataUserModifiees() const;
     QLineEdit           *wdg_CPDefautlineEdit, *wdg_VilleDefautlineEdit;
-    enum Mesure {Fronto, Autoref, Refracteur, Tono};      Q_ENUM(Mesure)
 
 private:
     Procedures              *proc                   = Procedures::I();
@@ -115,7 +114,7 @@ private:
     void                DossierClesSSL();
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);
-    void                EnableNetworkAppareilRefraction(UpComboBox *combo, int idx);
+    void                EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, int idx);
     void                EnableOKModifPosteButton();
     void                EnregistreAppareil();
     void                EnregDossierStockageApp(UpLineEdit *line, QString dir);
@@ -129,10 +128,11 @@ private:
     void                MAJActesCCAM(QWidget *widg, QString txt = "");
     void                MAJAssocCCAM(QWidget *widg, QString txt = "");
     void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
-    void                ModifPathEchangeReglageRefracteur(enum Mesure mesure);              /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
-    void                ModifPathDirEchangeMesure(enum Mesure mesure);                      /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
+    void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);              /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
+    void                ModifPathDirEchangeMesure(Procedures::TypeAppareil  appareil);                      /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
     void                ParamMotifs();
+    void                ReglePortCOM(Procedures::TypeAppareil appareil);                                      //! règle les aparamètres du port COM auquel est connecté l'appareil
     void                RegleAssocBoutons(QWidget *widg);
     void                ResetImprimante();
 

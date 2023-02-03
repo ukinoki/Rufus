@@ -26,7 +26,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     m_connectavecloginSQL = connectavecLoginSQL;
 
-    ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");
+    ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
     ui->PathSQLlineEdit     ->setText(Utils::getSQLExecutable());
     ui->IPlabel             ->setVisible(false);
     ui->IPlineEdit          ->setVisible(false);
@@ -208,7 +208,6 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
     }
     DataBase::I()->setSQLExecutable(SQLExecutable);
     DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
-
     QString Login = ui->LoginlineEdit->text();
     QString Password = ui->MDPlineEdit->text();
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}

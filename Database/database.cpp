@@ -57,6 +57,7 @@ int DataBase::port() const
     return m_port;
 }
 
+
 void DataBase::setSQLExecutable(const QString &sqlExecutable)
 {
     m_sqlExecutable = sqlExecutable;

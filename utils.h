@@ -30,7 +30,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QProcess>
 #include <QJsonObject>
-//#include <QTextCodec>
 #include <QUrl>
 #include <cmath>
 #include <QStandardPaths>
@@ -41,7 +40,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
-//#include "poppler-qt6.h"
 #include <QPdfDocument>
 
 #include <QInputDialog>
@@ -112,7 +110,6 @@ public:
 
     //! QString
     static QSize                    CalcSize(QString txt, QFont fm = qApp->font());
-
     static QString                  retirecaracteresaccentues(QString nom);
     static bool                     IsCharSpecial( QChar c);
     static bool                     IsCharNL( QChar c);
@@ -221,14 +218,19 @@ public:
     //! Savoir si un port es serial
     static bool isSerialPort( QString name );
 
-    //Sound Alarme
+    //! Sound Alarme
     static void playAlarm(QString sound = NOM_ALARME);
+
 
     //! renvoie le chemin de l'exécutable MySQL
     static QString getSQLExecutable();
 
     //! renvoie le chemin de l'exécutable MySQL en demandant à l'utilisateur si besoin
     static QString getOrPromptSQLExecutable(QString message = "");
+
+    //! récupérer l'index d'une valeur dans un QMetaEnum
+    static int getindexFromValue(const QMetaEnum & e, int value);
+
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

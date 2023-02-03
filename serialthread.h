@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QThread>
 #include <QSerialPort>
+#include <utils.h>
 
 class SerialThread : public QThread
 {

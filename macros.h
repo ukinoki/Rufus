@@ -859,13 +859,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_DIR_ECHECSTRANSFERTS                "/EchecsTransferts"
 
 #define NOM_FILE_INI                            "/Rufus.ini"
-
 #ifdef Q_OS_WIN
-    #define NOM_FILE_SCRIPTBACKUP                   "/RufusScriptBackup.bat"
+    #define NOM_FILE_SCRIPTBACKUP               "/RufusScriptBackup.bat"
 #else
-    #define NOM_FILE_SCRIPTBACKUP                   "/RufusScriptBackup.sh"
+    #define NOM_FILE_SCRIPTBACKUP               "/RufusScriptBackup.sh"
 #endif
-
 #define NOM_FILE_SCRIPT_MACOS_PLIST             "/rufus.bup.plist"
 #define NOM_FILE_ENTETEORDO                     "/Entete_Ordonnance.txt"
 #define NOM_FILE_CORPSORDO                      "/Corps_Ordonnance.txt"
@@ -1048,6 +1046,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define BOX                         "Box"
 #define RESEAU                      "Network"
 
+//datas des ports séries
+#define BAUDRATE                    "BaudRate"
+#define DATABITS                    "DataBits"
+#define PARITY                      "Parity"
+#define STOPBITS                    "StopBits"
+#define FLOWCONTROL                 "FlowControl"
+
 //mots utilisés en macros dans les documents à imprimer
 #define STR_TITRUSER            "TITREUSER"
 #define STR_NOMPAT              "NOM PATIENT"
@@ -1102,6 +1107,26 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_Poste_PortRefracteur_Reseau               Param_Poste_PortRefracteur "/Reseau"
 #define Param_Poste_PortRefracteur_Reseau_AdressAutoref Param_Poste_PortRefracteur_Reseau "AdressAutoref"
 #define Param_Poste_PortRefracteur_Reseau_AdressFronto  Param_Poste_PortRefracteur_Reseau "/AdressFronto"
+#define Param_Poste_PortFronto_COM_baudrate             Param_Poste_PortFronto "/baudRate"
+#define Param_Poste_PortFronto_COM_databits             Param_Poste_PortFronto "/dataBits"
+#define Param_Poste_PortFronto_COM_parity               Param_Poste_PortFronto "/parity"
+#define Param_Poste_PortFronto_COM_stopBits             Param_Poste_PortFronto "/stopBits"
+#define Param_Poste_PortFronto_COM_flowControl          Param_Poste_PortFronto "/flowControl"
+#define Param_Poste_PortAutoref_COM_baudrate            Param_Poste_PortAutoref "/baudRate"
+#define Param_Poste_PortAutoref_COM_databits            Param_Poste_PortAutoref "/dataBits"
+#define Param_Poste_PortAutoref_COM_parity              Param_Poste_PortAutoref "/parity"
+#define Param_Poste_PortAutoref_COM_stopBits            Param_Poste_PortAutoref "/stopBits"
+#define Param_Poste_PortAutoref_COM_flowControl         Param_Poste_PortAutoref "/flowControl"
+#define Param_Poste_PortRefracteur_COM_baudrate         Param_Poste_PortRefracteur "/baudRate"
+#define Param_Poste_PortRefracteur_COM_databits         Param_Poste_PortRefracteur "/dataBits"
+#define Param_Poste_PortRefracteur_COM_parity           Param_Poste_PortRefracteur "/parity"
+#define Param_Poste_PortRefracteur_COM_stopBits         Param_Poste_PortRefracteur "/stopBits"
+#define Param_Poste_PortRefracteur_COM_flowControl      Param_Poste_PortRefracteur "/flowControl"
+#define Param_Poste_PortTono_COM_baudrate               Param_Poste_PortTono "/baudRate"
+#define Param_Poste_PortTono_COM_databits               Param_Poste_PortTono "/dataBits"
+#define Param_Poste_PortTono_COM_parity                 Param_Poste_PortTono "/parity"
+#define Param_Poste_PortTono_COM_stopBits               Param_Poste_PortTono "/stopBits"
+#define Param_Poste_PortTono_COM_flowControl            Param_Poste_PortTono "/flowControl"
 #define Param_Poste_Fronto                              "Param_Poste/Fronto"
 #define Param_Poste_Autoref                             "Param_Poste/Autoref"
 #define Param_Poste_Tono                                "Param_Poste/Tonometre"
