@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("03-02-2023/1");
+    qApp->setApplicationVersion("04-02-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -407,7 +407,7 @@ void Rufus::ConnectSignals()
 void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 {
     //! si la fiche est déjà ouverte, on quitte
-    if (docs->patient() == currentpatient())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+     if (docs->patient() == currentpatient())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
     {
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
         bool founddlg = false;
@@ -7742,7 +7742,10 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     }
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
+    {
         ListDialogDocs.at(n)->close();
+        delete ListDialogDocs.at(n);
+    }
     if (currentpatient() != Q_NULLPTR)
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());
 }

@@ -881,37 +881,41 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
         << "-h" << host
         << "-P" << QString::number(db->port())
         << keys;
-     for (int i=0; i<ListScripts.size(); i++)
+    QString Command = sqlCommand;
+    for (int i = 0; i < args.size() ; ++i)
+        Command += " " + args.at(i);
+
+    for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
             QString path = ListScripts.at(i);
             listpaths << path;
-        }
-    QProcess dumpProcess(parent());
+            QString command = Command + " < " + path;
+            QProcess dumpProcess(parent());
+            QString bat = "bash -c \"" + command + "\"";
+            dumpProcess.startCommand(bat);
+            dumpProcess.waitForFinished(1000000);
 
-    for (int i=0; i< listpaths.size(); i++)
-    {
-        QString path = listpaths.at(i);
-        dumpProcess.setStandardInputFile(path);
-        dumpProcess.start(sqlCommand, args);
-        dumpProcess.waitForFinished(1000000000); /*! sur des systèmes lents, la création de la base prend parfois plus que les 30 secondes que sont la valeur par défaut de l'instruction waitForFinished() */
-        qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(),dumpProcess.exitStatus()) << "dumpProcess.exitCode()" << dumpProcess.exitCode() << dumpProcess.errorString();
-        if (dumpProcess.error() == QProcess::FailedToStart)
-        {
-            Logs::ERROR(tr("Impossible de lancer le processus de chargement de la base de données à partir du fichier \"%1\"").arg(path));
-            a = 99;
-            break;
+            /*! dumpProcess.setStandardInputFile(path);
+             *  dumpProcess.start(sqlCommand, args);                    NE MARCHE PLUS DEPUIS Qt6 */
+
+            if (dumpProcess.error() == QProcess::FailedToStart)
+            {
+                Logs::ERROR(tr("Impossible de lancer le processus de chargement de la base de données à partir du fichier \"%1\"").arg(path));
+                a = 99;
+                break;
+            }
+            if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                a = dumpProcess.exitCode();
+            else
+            {
+                Logs::ERROR(tr("Le processus de chargement de la base de données à partir du fichier \"%1\" a échoué").arg(path));
+                break;
+            }
+
+            if (a != 0)
+                break;
         }
-        if (dumpProcess.exitStatus() == QProcess::NormalExit)
-            a = dumpProcess.exitCode();
-        else
-        {
-            Logs::ERROR(tr("Le processus de chargement de la base de données à partir du fichier \"%1\" a échoué").arg(path));
-            break;
-        }
-        if (a != 0)
-            break;
-    }
     return a;
 }
 
@@ -4653,13 +4657,13 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                 else if (portsetting == "COM4")    portappareil = "ttyUSB3";
                 if (portappareil != "") break;
             }
-            //????????
-            else
+ #ifdef Q_OS_WIN          //????????
+            else if (nomgeneriqueduport == portsetting)
             {
                 portappareil = portsetting;
                 break;
             }
-
+#endif
         }
         return portappareil;
     };
