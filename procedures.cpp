@@ -5206,7 +5206,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             else if (originvalue < 100) finalvalue = " "  + QString::number(originvalue);
             else                        finalvalue = QString::number(originvalue);
         };
-        DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
+        DTRbuff.append(SOH);          //SOH -> start of header
 
         /*! réglage de l'autoref */
         if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
@@ -5225,7 +5225,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             SCAOD.replace("-0","- ");
             SCAOG.replace("+0","+ ");
             SCAOG.replace("-0","- ");
-            DTRbuff.append("DRM");                              //section fronto
+            DTRbuff.append(Utils::StringToArray("DRM"));                              //section fronto
             DTRbuff.append(STX);           //STX -> start of text
             DTRbuff.append(Utils::StringToArray("OR"+ SCAOD));  //SD
             DTRbuff.append(ETB);          //ETB -> end of text block
@@ -5260,7 +5260,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
             SCAOG.replace("-0","- ");
             AddOD       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
             AddOG       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
-            DTRbuff.append("DLM");                              //section fronto
+            DTRbuff.append(Utils::StringToArray("DLM"));                              //section fronto
             DTRbuff.append(STX);           //STX -> start of text
             DTRbuff.append(Utils::StringToArray(" R"+ SCAOD));  //SD
             DTRbuff.append(ETB);          //ETB -> end of text block
@@ -6635,9 +6635,9 @@ QByteArray Procedures::RequestToSendNIDEK()
      * Dans Rufus, cette demande d'envoi est créée à l'ouverture d'un dossier patient et permet de régler le refracteur sur les données de ce patient */
     QByteArray DTSbuff;
     DTSbuff.append(SOH);           //SOH -> start of header
-    DTSbuff.append("C**");                              //C**
+    DTSbuff.append(QString("C**").toLocal8Bit());                              //C**
     DTSbuff.append(STX);           //STX -> start of text
-    DTSbuff.append("RS");                               //RS
+    DTSbuff.append(QString("RS").toLocal8Bit());                               //RS
     DTSbuff.append(ETB);          //ETB -> end of text block  -> fin RTS
     DTSbuff.append(EOT);           //EOT -> end of transmission
     //qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
@@ -6652,7 +6652,7 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     DTRbuff.append(SOH);           //SOH -> start of header
     DTRbuff.append(mesure.toLocal8Bit());               //CRL pour le refracteur, CLM pour le fronto, CRK ou CRM pour l'autoref
     DTRbuff.append(STX);           //STX -> start of text
-    DTRbuff.append("SD");                               //SD
+    DTRbuff.append(QString("SD").toLocal8Bit());                               //SD
     DTRbuff.append(ETB);          //ETB -> end of text block  -> fin RTS
     DTRbuff.append(EOT);           //EOT -> end of transmission
     //QByteArray reponse = QString(DTRbuff).toLocal8Bit();

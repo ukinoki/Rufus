@@ -62,7 +62,8 @@ void SerialThread::LitPort()
     QByteArray reponseData = Port->readAll();
     while (Port->waitForReadyRead(100))
         reponseData += Port->readAll();
-    QString ReponsePort(reponseData);   
+    QString ReponsePort(Utils::cleanByteArray(reponseData));
+    //QString ReponsePort(reponseData);
 #ifdef Q_OS_WIN
         Utils::writeDataToFileDateTime(reponseData, "Received.bin","c:/outils/log/Phoromat/");
 #endif

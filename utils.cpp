@@ -499,24 +499,21 @@ qint32 Utils::ArrayToInt(QByteArray source)
 
 QByteArray Utils::StringToArray(QString source)
 {
-    QByteArray ba;
-    QDataStream in(&ba, QIODevice::WriteOnly);
-    in << QString(source);
+    QByteArray ba = source.toLocal8Bit(); ;
     return ba;
 }
 
 QByteArray Utils::IntToArray(int source)
 {
     //permet d'éviter le cast
-    QByteArray ba;
 #ifdef Q_OS_WIN
-    ba = source.toLocal8Bit();          // pas accepté par gcc ou clang
-    return ba;
-#endif
+    QByteArray ba((const char *) &source, sizeof(int));
+#else
+    QByteArray ba;
     QDataStream data(&ba, QIODevice::ReadWrite);
     data << source;
+#endif
     return ba;
-
 }
 
 QString Utils::IPAdress()
@@ -1375,3 +1372,18 @@ int Utils::getindexFromValue(const QMetaEnum & e, int value)
     }
     return -1;
 };
+
+
+QByteArray Utils::cleanByteArray( QByteArray byteArray )
+{
+    QByteArray reponseDataClean;
+    for( int i=0;i < byteArray.length(); i++ )
+    {
+        unsigned char c = byteArray.at(i);
+        // avoid control chars except CR and LF
+        if( c > 31 || c == 10 || c == 13 ) {
+            reponseDataClean += c;
+        }
+    }
+    return reponseDataClean;
+}

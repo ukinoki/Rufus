@@ -231,6 +231,8 @@ public:
     //! récupérer l'index d'une valeur dans un QMetaEnum
     static int getindexFromValue(const QMetaEnum & e, int value);
 
+    //! Removes control characters from byteArray
+    static QByteArray cleanByteArray( QByteArray byteArray );
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 
