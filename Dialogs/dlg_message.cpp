@@ -66,7 +66,7 @@ void ShowMessage::SplashMessage(QString msg, int duree)
 
     int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
     int xx              = QGuiApplication::primaryScreen()->availableGeometry().width();
-
+//    dlg                 ->move(xx - w - 45 - (marge*2) - lay->spacing()-15, yy - (int(hauteurligne)*nlignes) - marge*2);
 
     // Calculate the size of dlg
     int tx = w - 45 - (marge*2) - lay->spacing()-15;
@@ -81,7 +81,6 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     }
 
     dlg                 ->move(xx - tx, yy - ty);
-
     dlg                 ->show();
     QTimer::singleShot(duree, dlg, &QDialog::close);
 }

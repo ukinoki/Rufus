@@ -422,6 +422,13 @@ public:
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
 private:
+    // https://fr.wikipedia.org/wiki/Caract%C3%A8re_de_contr%C3%B4le
+    unsigned char SOH = 1;  //0x01
+    unsigned char STX = 2;  //0x02
+    unsigned char EOT = 4;  //0x04
+    unsigned char ETB = 23; //0x17
+    unsigned char LF  = 10; //0x0A
+    unsigned char CR  = 13; //0x0D
     bool                    m_dlgrefractionouverte;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
     QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
@@ -442,18 +449,54 @@ private:
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
+    void                    ReinitialiseSerialSettings(SerialSettings &set)
+                            {
+                                QMetaEnum metaEnum;
+                                int index(-1);
+                                index           = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                set.baudRate    = (QSerialPort::BaudRate)metaEnum.value(0);
+                                index           = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                set.dataBits    = (QSerialPort::DataBits)metaEnum.value(0);
+                                index           = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                set.stopBits    = (QSerialPort::StopBits)metaEnum.value(0);
+                                index           = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                set.flowControl = (QSerialPort::FlowControl)metaEnum.value(0);
+                            };
+    bool                    isSerialSettingsReinitialised(SerialSettings set)
+                            {
+                                bool a = true;
+                                QMetaEnum metaEnum;
+                                int index(-1);
+                                index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
+                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
+                                a = (set.baudRate == (QSerialPort::BaudRate)metaEnum.value(0));
+                                if (!a)
+                                    return false;
+                                index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
+                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
+                                a = (set.dataBits == (QSerialPort::DataBits)metaEnum.value(0));
+                                if (!a)
+                                    return false;
+                                index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
+                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
+                                a = (set.stopBits == (QSerialPort::StopBits)metaEnum.value(0));
+                                if (!a)
+                                    return false;
+                                index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
+                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
+                                a = (set.flowControl == (QSerialPort::FlowControl)metaEnum.value(0));
+                                if (!a)
+                                    return false;
+                                return a;
+                            };
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
     bool                    ReglePortTonometre();
-    void                    InitSerialSettings(SerialSettings set)
-    {
-        set.baudRate     = QSerialPort::Baud2400;
-        set.dataBits     = QSerialPort::Data8;
-        set.parity       = QSerialPort::NoParity;
-        set.stopBits     = QSerialPort::OneStop;
-        set.flowControl  = QSerialPort::NoFlowControl;
-    };
 
 public:
     enum TypeMesure {

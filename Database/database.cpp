@@ -2067,11 +2067,12 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
         jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
-        if (cotation != Q_NULLPTR)
+         if (cotation != Q_NULLPTR)
             cotations << cotation;
     }
     req = " SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
           CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
+          " FROM "  TBL_COTATIONS
           " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) +
           " and " CP_TYPEACTE_COTATIONS " not in (select " CP_CODECCAM_CCAM " from  " TBL_CCAM ")"
           " order by " CP_TYPEACTE_COTATIONS;
