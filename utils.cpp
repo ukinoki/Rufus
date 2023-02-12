@@ -1184,6 +1184,78 @@ QImage Utils::imagemapFrom(const QJsonValue &val)
     return QImage::fromData(QByteArray::fromBase64(encoded), "JPG");
 }
 
+/*!
+  retrouve  le nom physique du port concerné à partir de la liste des ports disponibles et du nom du port déclaré dans rufus.ini (COM1,COM2,COM3 ou COM4)
+*/
+QString Utils::RetrouveNomPort(QString portsetting)
+{
+    QString portappareil ("");
+    QList<QSerialPortInfo> availableports = QSerialPortInfo::availablePorts();
+    for (int i=0; i<availableports.size(); i++)
+    {
+        QString nomgeneriqueduport = availableports.at(i).portName();
+        if (nomgeneriqueduport.contains("usbserial"))
+        {
+            QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+            QString firstchar = nomgeneriqueduport.split("-").at(1).right(1);
+            /*!
+         * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+         * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+         * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+        */
+            if (portsetting == "COM1")
+            {
+                if (lastchar == "0" ||  lastchar == "A")
+                    portappareil = nomgeneriqueduport;
+                else if (firstchar == "A")
+                    portappareil = nomgeneriqueduport;
+                if (portappareil != "") break;
+            }
+            else if (portsetting == "COM2")
+            {
+                if (lastchar == "1" ||  lastchar == "B")
+                    portappareil = nomgeneriqueduport;
+                else if (firstchar == "B")
+                    portappareil = nomgeneriqueduport;
+                if (portappareil != "") break;
+            }
+            if (portsetting == "COM3")
+            {
+                if (lastchar == "2" ||  lastchar == "C")
+                    portappareil = nomgeneriqueduport;
+                else if (firstchar == "C")
+                    portappareil = nomgeneriqueduport;
+                if (portappareil != "") break;
+            }
+            if (portsetting == "COM4")
+            {
+                if (lastchar == "3" ||  lastchar == "4")
+                    portappareil = nomgeneriqueduport;
+                else if (firstchar == "D")
+                    portappareil = nomgeneriqueduport;
+                if (portappareil != "") break;
+            }
+        }
+        else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan ou Ubuntu */
+        {
+            if (portsetting == "COM1")         portappareil = "ttyUSB0";
+            else if (portsetting == "COM2")    portappareil = "ttyUSB1";
+            else if (portsetting == "COM3")    portappareil = "ttyUSB2";
+            else if (portsetting == "COM4")    portappareil = "ttyUSB3";
+            if (portappareil != "") break;
+        }
+#ifdef Q_OS_WIN
+        else if (nomgeneriqueduport == portsetting)
+        {
+            portappareil = portsetting;
+            break;
+        }
+#endif
+    }
+    return portappareil;
+}
+
+
 void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms)
 {
     qint32 baud = port->baudRate();

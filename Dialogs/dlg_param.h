@@ -94,6 +94,7 @@ private:
     void                ModifAssocCCAM();
     void                SupprAssocCCAM();
     void                NouvAppareil();
+    void                RecalcListPortsCOMDispo();
     void                RestaureBase();
     void                SupprAppareil();
     bool                VerifDirStockageImagerie();
@@ -132,7 +133,8 @@ private:
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
     void                ParamMotifs();
-    void                ReglePortCOM(Procedures::TypeAppareil appareil);                    //! règle les aparamètres du port COM auquel est connecté l'appareil
+    void                ReglePortCOM(Procedures::TypeAppareil appareil);                                //! règle les aparamètres du port COM auquel est connecté l'appareil
+    QString             ToolTipPortCOM(Procedures::TypeAppareil appareil);
     void                RegleAssocBoutons(QWidget *widg);
     void                ResetImprimante();
 

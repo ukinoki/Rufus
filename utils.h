@@ -30,6 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QProcess>
 #include <QJsonObject>
+#include <QSerialPortInfo>
 #include <QTextCodec>
 #include <QUrl>
 #include <cmath>
@@ -203,11 +204,15 @@ public:
     static QImage imagemapFrom(const QJsonValue &val);
     static void AfficheImage(QImage img);
 
+    //! retrouve le nomp physique d'un port série à partir de son nom courant (COM1, COM2, COM3 ou COM4
+    static QString RetrouveNomPort(QString portsetting);
+
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
 
     //! récupérer l'index d'une valeur dans un QMetaEnum
     static int getindexFromValue(const QMetaEnum & e, int value);
+
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)

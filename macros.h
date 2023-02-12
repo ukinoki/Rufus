@@ -1027,6 +1027,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define RESEAU                      "Network"
 
 //datas des ports séries
+#define PORT                        "Port"
 #define BAUDRATE                    "BaudRate"
 #define DATABITS                    "DataBits"
 #define PARITY                      "Parity"
