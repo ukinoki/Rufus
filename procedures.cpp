@@ -884,13 +884,18 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             listpaths << path;
             QString command = Command + " < " + path;
             QProcess dumpProcess(parent());
+#if Q_0S_WIN
+            dumpProcess.setStandardInputFile(path);
+            dumpProcess.start(sqlCommand, args);
+#else
             QString bat = "bash -c \"" + command + "\"";
             dumpProcess.startCommand(bat);
+#endif
             dumpProcess.waitForFinished(1000000);
 
             /*! https://www.qtcentre.org/threads/23460-QProcess-and-mysql-lt-backup-sql
              *  dumpProcess.setStandardInputFile(path);
-             *  dumpProcess.start(sqlCommand, args);                    NE MARCHE PLUS DEPUIS Qt6 */
+             *  dumpProcess.start(sqlCommand, args);                    NE MARCHE PLUS DEPUIS Qt6 sous MacOS ou Linux */
 
             if (dumpProcess.error() == QProcess::FailedToStart)
             {

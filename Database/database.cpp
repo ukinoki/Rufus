@@ -1854,7 +1854,7 @@ QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
         " and " CP_DATE_AUTRESRECETTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
         " order by actedate, nom";
 
-        //proc->Edit(req);
+        //qDebug() << req;
         //p... ça c'est de la requête
         QList<QVariantList> recetteslist = StandardSelectSQL(req,ok);
         if(!ok || recetteslist.size()==0)

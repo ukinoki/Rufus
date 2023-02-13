@@ -22,14 +22,14 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("12-02-2023/1");
+    qApp->setApplicationVersion("13-02-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
 #ifndef Q_OS_WIN
-    //qApp->setStyleSheet(Styles::StyleAppli());
+    qApp->setStyleSheet(Styles::StyleAppli());
 #endif
     RecalcCurrentDateTime();
 
@@ -71,7 +71,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         UpMessageBox::Watch(this, tr("Pas d'utilisateur identifié!\nSortie du programme"));
         exit(0);
     }
-    qApp->setStyleSheet(Styles::StyleAppli());
     ShowMessage::I()->SplashMessage(proc->currentuserstatus() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->currentsite()->nom(), 3000);
 
     //! 3 Initialisation de tout
@@ -1389,8 +1388,8 @@ void Rufus::BasculerMontantActe()
 
 void Rufus::BilanRecettes()
 {   
-    dlg_bilanrecettes *Dlg_BilanRec            = new dlg_bilanrecettes();
-    if (!Dlg_BilanRec->initOK())
+    dlg_bilanrecettes *Dlg_BilanRec = new dlg_bilanrecettes();
+    if (Dlg_BilanRec->initOK())
         Dlg_BilanRec->exec();
     delete Dlg_BilanRec;
 }
@@ -9675,7 +9674,7 @@ void Rufus::ResumeStatut()
         m_resumeStatut += tr("inconnue");
     else
         m_resumeStatut +=  QString::number(m_parametres->versionbase());
-    proc->ModifEdit(m_resumeStatut);
+    emit proc->ModifEdit(m_resumeStatut);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
