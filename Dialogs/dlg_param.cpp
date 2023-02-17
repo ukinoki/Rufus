@@ -1685,11 +1685,18 @@ void dlg_param::ParamMotifs()
 
 void dlg_param::RecalcListPortsCOMDispo()
 {
+    QStringList initlistports =  Utils::ReconstruitlistPortsCOM();
     QList<UpComboBox*> listbox;
     listbox << ui->PortFrontoupComboBox << ui->PortAutorefupComboBox << ui->PortRefracteurupComboBox << ui->PortTonometreupComboBox;
     for (int l=0; l< listbox.size(); ++l)
     {
-        QStringList listports =  QStringList() << COM1 << COM2 << COM3 << COM4;
+        QStringList listports = initlistports;
+        auto removeCom = [&] (QString txt)
+        {
+            int j = listports.indexOf(txt);
+            if (j>=0)
+                listports.removeAt(j);
+        };
         UpComboBox *combo = listbox.at(l);
         QString combotxt = combo->currentText();
         if (!combo)
@@ -1703,13 +1710,21 @@ void dlg_param::RecalcListPortsCOMDispo()
                 if (listports.contains(txt))
                 {
                     if (txt == COM1)
-                        listports.removeAt(listports.indexOf(COM1));
+                        removeCom(txt);
                     else if (txt == COM2)
-                        listports.removeAt(listports.indexOf(COM2));
+                        removeCom(txt);
                     else if (txt == COM3)
-                        listports.removeAt(listports.indexOf(COM3));
+                        removeCom(txt);
                     else if (txt == COM4)
-                        listports.removeAt(listports.indexOf(COM4));
+                        removeCom(txt);
+                    else if (txt == COM5)
+                        removeCom(txt);
+                    else if (txt == COM6)
+                        removeCom(txt);
+                    else if (txt == COM7)
+                        removeCom(txt);
+                    else if (txt == COM8)
+                        removeCom(txt);
                 }
             }
         }

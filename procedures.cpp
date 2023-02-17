@@ -1512,6 +1512,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->setMaximumWidth(x);
     gAsk->setMaximumHeight(y);
     gAsk->setWindowTitle(titre);
+    gAsk->setSizeGripEnabled(true);
 
     gAsk->dlglayout()->insertWidget(0,TxtEdit);
 

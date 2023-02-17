@@ -1255,6 +1255,92 @@ QString Utils::RetrouveNomPort(QString portsetting)
     return portappareil;
 }
 
+/*!
+  reconstruit la liste des ports COM disponibles sur le système (COM1,COM2,COM3, COM4...etc...) à partir de la liste des noms physiques des ports disponibles
+*/
+QStringList Utils::ReconstruitlistPortsCOM()
+{
+    QMap<int,QString> mapports;
+    QString portappareil ("");
+    QList<QSerialPortInfo> availableports = QSerialPortInfo::availablePorts();
+    for (int i=0; i<availableports.size(); i++)
+    {
+        QString nomgeneriqueduport = availableports.at(i).portName();
+        if (nomgeneriqueduport.contains("usbserial"))
+        {
+            QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+            QString firstchar = nomgeneriqueduport.split("-").at(1).right(1);
+            /*!
+         * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+         * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+         * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+        */
+            if (lastchar == "0" ||  lastchar == "A" || firstchar == "A")
+                mapports.insert(1, COM1);
+            else if (lastchar == "1" ||  lastchar == "B" || firstchar == "B")
+                mapports.insert(2, COM2);
+            else if (lastchar == "2" ||  lastchar == "C" || firstchar == "C")
+                mapports.insert(3, COM3);
+            else if (lastchar == "3" ||  lastchar == "D" || firstchar == "D")
+                mapports.insert(4, COM4);
+            else if (lastchar == "4" ||  lastchar == "E" || firstchar == "E")
+                mapports.insert(5, COM5);
+            else if (lastchar == "5" ||  lastchar == "F")
+                mapports.insert(6, COM6);
+            else if (lastchar == "6" ||  lastchar == "G")
+                mapports.insert(7, COM7);
+            else if (lastchar == "7" ||  lastchar == "H")
+                mapports.insert(8, COM8);
+        }
+        else if (nomgeneriqueduport.contains("TTY"))
+        {
+            QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+            if (lastchar == "0")
+                mapports.insert(1, COM1);
+            else if (lastchar == "1")
+                mapports.insert(2, COM2);
+            else if (lastchar == "2")
+                mapports.insert(3, COM3);
+            else if (lastchar == "3")
+                mapports.insert(4, COM4);
+            else if (lastchar == "4")
+                mapports.insert(5, COM5);
+            else if (lastchar == "5")
+                mapports.insert(6, COM6);
+            else if (lastchar == "6")
+                mapports.insert(7, COM7);
+            else if (lastchar == "7")
+                mapports.insert(8, COM8);
+        }
+#ifdef Q_OS_WIN
+        else if (nomgeneriqueduport.left(3) == "COM")
+        {
+            QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+            if (lastchar == "1")
+                listports.insert(1, COM1);
+            else if (lastchar == "2")
+                listports.insert(2, COM2);
+            else if (lastchar == "3")
+                listports.insert(3, COM3);
+            else if (lastchar == "4")
+                listports.insert(4, COM4);
+            else if (lastchar == "5")
+                listports.insert(5, COM5);
+            else if (lastchar == "6")
+                listports.insert(6, COM6);
+            else if (lastchar == "7")
+                listports.insert(7, COM7);
+            else if (lastchar == "8")
+                listports.insert(8, COM8);
+        }
+#endif
+    }
+    QStringList listports;
+    for (auto it = mapports.begin(); it != mapports.end(); ++it)
+        listports << it.value();
+    return listports;
+}
+
 
 void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms)
 {

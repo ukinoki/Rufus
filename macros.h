@@ -1023,6 +1023,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define COM2                        "COM2"
 #define COM3                        "COM3"
 #define COM4                        "COM4"
+#define COM5                        "COM5"
+#define COM6                        "COM6"
+#define COM7                        "COM7"
+#define COM8                        "COM8"
 #define BOX                         "Box"
 #define RESEAU                      "Network"
 
