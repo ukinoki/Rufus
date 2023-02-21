@@ -94,7 +94,7 @@ private:
     void                ModifAssocCCAM();
     void                SupprAssocCCAM();
     void                NouvAppareil();
-    void                RecalcListPortsCOMDispo();
+    void                RecalcAvailablesPorts(bool fromSettings = false);
     void                RestaureBase();
     void                SupprAppareil();
     bool                VerifDirStockageImagerie();
@@ -108,7 +108,7 @@ private:
     void                ChercheCodeCCAM(QString);
     void                ChoixDossierEchangeAppareilImagerie(UpPushButton *butt);
     void                ChoixFontpushButtonClicked();
-    void                ClearCom(UpComboBox *box, int);
+    void                ClearPortsComboBox(UpComboBox *box, int);
     void                DirLocalStockage();
     void                DirDistantStockage();
     void                DirPosteStockage();

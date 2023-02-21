@@ -33,6 +33,8 @@ public:
     int         iD() const;
     void        setIndexParDefaut(int defaut);
     int         IndexParDefaut() const;
+    void        setCurrentIndex(int idx);
+    void        setCurrentText(QString txt);
     void        setvaleuravant(QString valprec);
     QString     valeuravant() const;
     void        setvaleurapres(QString valpost);
@@ -44,14 +46,20 @@ public:
     void        setImmediateToolTip(QString Msg);
     void        clearImmediateToolTip();
 
+    int         idxavant() const;
+
 private:
     QLineEdit   *line;
     bool        eventFilter(QObject *, QEvent *);
     QString     m_valeuravant, m_valeurapres, m_champ, m_table, m_tooltipmsg;
-    int         m_id, m_indexpardefaut;
+    int         m_id, m_indexpardefaut, m_idxavant;;
 
 signals:
     void        mouseDoubleClick(int row);
+    void        activated(int);
+
+private slots:
+    void        emitactivated(int);
 
 protected:
     void        mouseDoubleClickEvent(QMouseEvent *e);

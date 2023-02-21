@@ -17,28 +17,51 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "serialthread.h"
 
-/*SerialThread::SerialThread(QSerialPort *PortProc)
+#ifdef Q_OS_WIN
+
+SerialThread::SerialThread(QSerialPort *PortProc)
 {
-    moveToThread(&thread);
-    Port            = PortProc;
-    connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
-    thread.start();
+    Port = PortProc;
+    m_thread = new QThread(this);
+    moveToThread(m_thread);
+    connect(m_thread, &QThread::started, this, [&]{
+                                connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
+                                connect(Port,   &QSerialPort::errorOccurred, this, [] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
+                                });
+
+    t_timer = new QTimer(0);
+    t_timer->setInterval(100);
+    t_timer->moveToThread(m_thread);
+    connect(t_timer,&QTimer::timeout, this, &SerialThread::readTimer);
+}
+
+void SerialThread::readTimer()
+{
+    reponseData = Port->readAll();
+    char buffer[50];
+    int numRead = Port->read(buffer, 50);
+    if (numRead == 0)
+    {
+        emit newdatacom(Utils::cleanByteArray(reponseData));
+        t_timer->stop();
+        //Utils::writeDataToFileDateTime(reponseData, "Received.bin","c:/outils/log");
+    }
+    else
+        reponseData += Port->readAll();
+    Port->clear();
 }
 
 void SerialThread::LitPort()
 {
-    reponseData = Port->readAll();
-    while (Port->waitForReadyRead(100))
-        reponseData.append(Port->readAll());
-    QString ReponsePort(reponseData);
-    if (ReponsePort != "")
-    {
-        Port->clear();
-        reponseData.clear();
-        emit reponse(ReponsePort);
-    }
-}*/
+    t_timer->start();
+}
+void SerialThread::transaction()
+{
+    if (!m_thread->isRunning())
+        m_thread->start();
+}
 
+#else
 QT_USE_NAMESPACE
 
 SerialThread::SerialThread(QSerialPort *PortProc)
@@ -55,6 +78,7 @@ void SerialThread::transaction()
 void SerialThread::run()
 {
     connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
+    connect(Port,   &QSerialPort::errorOccurred, this, [] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
 }
 
 void SerialThread::LitPort()
@@ -63,13 +87,10 @@ void SerialThread::LitPort()
     while (Port->waitForReadyRead(100))
         reponseData += Port->readAll();
     QString ReponsePort(Utils::cleanByteArray(reponseData));
-    //QString ReponsePort(reponseData);
-#ifdef Q_OS_WIN
-        Utils::writeDataToFileDateTime(reponseData, "Received.bin","c:/outils/log/Phoromat/");
-#endif
     if (ReponsePort != "")
     {
         emit newdatacom(ReponsePort);
         Port->clear();
     }
 }
+#endif

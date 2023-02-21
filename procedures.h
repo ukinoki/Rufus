@@ -423,14 +423,9 @@ public:
     bool                    FicheRefractionOuverte();
 private:
     // https://fr.wikipedia.org/wiki/Caract%C3%A8re_de_contr%C3%B4le
-    unsigned char SOH = 1;  //0x01
-    unsigned char STX = 2;  //0x02
-    unsigned char EOT = 4;  //0x04
-    unsigned char ETB = 23; //0x17
-    unsigned char LF  = 10; //0x0A
-    unsigned char CR  = 13; //0x0D
     bool                    m_dlgrefractionouverte;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
+    QMap<QString,QString>   m_mapports{{"-1","-1"}};
     QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
     struct SerialSettings {
@@ -440,10 +435,10 @@ private:
         QSerialPort::StopBits stopBits;
         QSerialPort::FlowControl flowControl;
     };
-    SerialSettings                s_paramPortSerieAutoref;
-    SerialSettings                s_paramPortSerieFronto;
-    SerialSettings                s_paramPortSerieRefracteur;
-    SerialSettings                s_paramPortSerieTono;
+    SerialSettings          s_paramPortSerieAutoref;
+    SerialSettings          s_paramPortSerieFronto;
+    SerialSettings          s_paramPortSerieRefracteur;
+    SerialSettings          s_paramPortSerieTono;
     SerialThread            *t_threadFronto = Q_NULLPTR;
     SerialThread            *t_threadTono = Q_NULLPTR;
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
@@ -523,7 +518,13 @@ signals:
     void                    newdataxml(const QDomDocument &xml);
 
 public:
-    QSerialPort*            PortAutoref();
+    //! renvoie la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
+    QMap<QString,QString> mapPortsCOM()
+    {
+        if (m_mapports == QMap<QString,QString> {{"-1","-1"}})
+            m_mapports = Utils::ReconstruitMapPortsCOM();
+        return m_mapports;
+    };   QSerialPort*            PortAutoref();
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();

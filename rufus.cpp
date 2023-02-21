@@ -22,15 +22,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-02-2023/1");
+    qApp->setApplicationVersion("21-02-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
-#ifndef Q_OS_WIN
-    qApp->setStyleSheet(Styles::StyleAppli());
-#endif
+//#ifndef Q_OS_WIN
+   qApp->setStyleSheet(Styles::StyleAppli());
+//#endif
     RecalcCurrentDateTime();
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
@@ -10234,7 +10234,7 @@ void Rufus::LireLaCPS()
             }
         // A REVOIR : faire tout ce qu'il faut pour nouveau user ... mais quoi ???
         currentuser()->setid(idusrdata.at(0).toInt());
-        setWindowTitle("Rufus - " + currentuser()->login() + " - " + currentuser()->fonction());
+        setWindowTitle("RufusQt6 - " + currentuser()->login() + " - " + currentuser()->fonction());
         }
 }
 /*-----------------------------------------------------------------------------------------------------------------

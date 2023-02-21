@@ -1269,12 +1269,15 @@ QImage Utils::imagemapFrom(const QJsonValue &val)
 
 
 /*!
-  retrouve  le nom physique du port concerné à partir de la liste des ports disponibles et du nom du port déclaré dans rufus.ini (COM1,COM2,COM3 ou COM4)
+   reconstruit la liste des ports COM disponibles sur le système (COM1,COM2,COM3, COM4...etc...) à partir de la liste des noms physiques des ports disponibles
 */
-QString Utils::RetrouveNomPort(QString portsetting)
+QMap<QString, QString> Utils::ReconstruitMapPortsCOM()
 {
+    QMap<QString,QString> mapports=  QMap<QString,QString> ();
     QString portappareil ("");
     QList<QSerialPortInfo> availableports = QSerialPortInfo::availablePorts();
+    if (availableports.size() == 0)
+        return mapports;
     for (int i=0; i<availableports.size(); i++)
     {
         QString nomgeneriqueduport = availableports.at(i).portName();
@@ -1283,60 +1286,53 @@ QString Utils::RetrouveNomPort(QString portsetting)
             QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
             QString firstchar = nomgeneriqueduport.split("-").at(1).right(1);
             /*!
-         * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
-         * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
-         * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
-        */
-            if (portsetting == "COM1")
-            {
-                if (lastchar == "0" ||  lastchar == "A")
-                    portappareil = nomgeneriqueduport;
-                else if (firstchar == "A")
-                    portappareil = nomgeneriqueduport;
-                if (portappareil != "") break;
-            }
-            else if (portsetting == "COM2")
-            {
-                if (lastchar == "1" ||  lastchar == "B")
-                    portappareil = nomgeneriqueduport;
-                else if (firstchar == "B")
-                    portappareil = nomgeneriqueduport;
-                if (portappareil != "") break;
-            }
-            if (portsetting == "COM3")
-            {
-                if (lastchar == "2" ||  lastchar == "C")
-                    portappareil = nomgeneriqueduport;
-                else if (firstchar == "C")
-                    portappareil = nomgeneriqueduport;
-                if (portappareil != "") break;
-            }
-            if (portsetting == "COM4")
-            {
-                if (lastchar == "3" ||  lastchar == "4")
-                    portappareil = nomgeneriqueduport;
-                else if (firstchar == "D")
-                    portappareil = nomgeneriqueduport;
-                if (portappareil != "") break;
-            }
+          * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
+          * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
+          * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+         */
+            if (lastchar == "0" ||  lastchar == "A" || firstchar == "A")
+                mapports.insert(COM1, nomgeneriqueduport);
+            else if (lastchar == "1" ||  lastchar == "B" || firstchar == "B")
+                mapports.insert(COM2, nomgeneriqueduport);
+            else if (lastchar == "2" ||  lastchar == "C" || firstchar == "C")
+                mapports.insert(COM3, nomgeneriqueduport);
+             else if (lastchar == "3" ||  lastchar == "D" || firstchar == "D")
+                mapports.insert(COM4, nomgeneriqueduport);
+            else if (lastchar == "4" ||  lastchar == "E" || firstchar == "E")
+                mapports.insert(COM5, nomgeneriqueduport);
+            else if (lastchar == "5" ||  lastchar == "F")
+                mapports.insert(COM6, nomgeneriqueduport);
+            else if (lastchar == "6" ||  lastchar == "G")
+                mapports.insert(COM7, nomgeneriqueduport);
+            else if (lastchar == "7" ||  lastchar == "H")
+                mapports.insert(COM8, nomgeneriqueduport);
         }
-        else if (nomgeneriqueduport.contains("ttyUSB"))      /*! nom des ports sous driver Keyspan ou Ubuntu */
+        else if (nomgeneriqueduport.contains("ttyUSB"))
         {
-            if (portsetting == "COM1")         portappareil = "ttyUSB0";
-            else if (portsetting == "COM2")    portappareil = "ttyUSB1";
-            else if (portsetting == "COM3")    portappareil = "ttyUSB2";
-            else if (portsetting == "COM4")    portappareil = "ttyUSB3";
-            if (portappareil != "") break;
+            QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
+            if (lastchar == "0")
+                mapports.insert(COM1, nomgeneriqueduport);
+            else if (lastchar == "1")
+                mapports.insert(COM2, nomgeneriqueduport);
+            else if (lastchar == "2")
+                mapports.insert(COM3, nomgeneriqueduport);
+            else if (lastchar == "3")
+                mapports.insert(COM4, nomgeneriqueduport);
+            else if (lastchar == "4")
+                mapports.insert(COM5, nomgeneriqueduport);
+            else if (lastchar == "5")
+                mapports.insert(COM6, nomgeneriqueduport);
+            else if (lastchar == "6")
+                mapports.insert(COM7, nomgeneriqueduport);
+            else if (lastchar == "7")
+                mapports.insert(COM8, nomgeneriqueduport);
         }
 #ifdef Q_OS_WIN
-        else if (nomgeneriqueduport == portsetting)
-        {
-            portappareil = portsetting;
-            break;
-        }
+        else if (nomgeneriqueduport.left(3) == "COM")
+            mapports.insert(nomgeneriqueduport, nomgeneriqueduport);
 #endif
     }
-    return portappareil;
+    return mapports;
 }
 
 

@@ -29,7 +29,7 @@ UpComboBox::UpComboBox(QWidget *parent) : QComboBox (parent)
     setContextMenuPolicy(Qt::NoContextMenu);
     installEventFilter(this);
     connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged),  this, &UpComboBox::clearImmediateToolTip);
-}
+ }
 
 UpComboBox::~UpComboBox()
 {
@@ -92,6 +92,11 @@ bool UpComboBox::eventFilter(QObject *obj, QEvent *event)
             QToolTip::showText(cursor().pos(),m_tooltipmsg);
     }
     return QWidget::eventFilter(obj, event);
+}
+
+int UpComboBox::idxavant() const
+{
+    return m_idxavant;
 }
 
 void UpComboBox::mouseDoubleClickEvent(QMouseEvent *)
@@ -169,4 +174,24 @@ void UpComboBox::setImmediateToolTip(QString Msg)
 {
     m_tooltipmsg = Msg;
 }
+
+void UpComboBox::setCurrentText(QString txt)
+{
+    QComboBox::setCurrentText(txt);
+    m_valeuravant = txt;
+    m_idxavant = findText(txt);
+}
+void UpComboBox::setCurrentIndex(int idx)
+{
+    QComboBox::setCurrentIndex(idx);
+    m_valeuravant = itemText(idx);
+    m_idxavant = idx;
+}
+
+void UpComboBox::emitactivated(int idx)
+{
+    if (idx == m_idxavant)
+        return;
+     emit QComboBox::currentIndexChanged(idx);
+ }
 

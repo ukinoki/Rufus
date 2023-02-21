@@ -209,8 +209,8 @@ public:
     static void AfficheImage(QImage img);
 
 
-    //! retrouve le nomp physique d'un port série à partir de son nom courant (COM1, COM2, COM3 ou COM4
-    static QString RetrouveNomPort(QString portsetting);
+    //! reconstruit la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
+    static QMap<QString, QString> ReconstruitMapPortsCOM();
 
     //! gestion des images en QJsonValue
     static QJsonValue jsonValFromImage(const QImage &p);
