@@ -447,7 +447,6 @@ private:
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
-    //! renvoie la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
     void                    ReinitialiseSerialSettings(SerialSettings &set)
                             {
                                 QMetaEnum metaEnum;
@@ -522,6 +521,7 @@ signals:
     void                    newdataxml(const QDomDocument &xml);
 
 public:
+    //! renvoie la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
     QMap<QString,QString> mapPortsCOM()
     {
         if (m_mapports == QMap<QString,QString> {{"-1","-1"}})

@@ -4150,10 +4150,10 @@ void Procedures::Ouverture_Appareils_Refraction()
     TypesAppareils appareilscom, appareilsreseau;
     bool m_isFrontoParametre    = (nameLM != "-"
                                 && nameLM != ""
-                                && m_settings->value(Param_Poste_PortFronto).toString() != "Box");
+                                && m_settings->value(Param_Poste_PortFronto).toString() != BOX);
     bool m_isAutorefParametre   = (nameARK != "-"
                                 && nameARK != ""
-                                && m_settings->value(Param_Poste_PortAutoref).toString() != "Box");
+                                && m_settings->value(Param_Poste_PortAutoref).toString() != BOX);
     bool m_isRefracteurParametre= (nameRF != "-"
                                 && nameRF != "");
     bool m_isTonoParametre      = (nameTO != "-"
@@ -4474,19 +4474,17 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         sp_portFronto = openserialport(Fronto);
         if (sp_portFronto != Q_NULLPTR)
         {
-            bool b = false;
             if (t_threadFronto != Q_NULLPTR)
                 delete t_threadFronto;
             if (sp_portFronto->open(QIODevice::ReadWrite))
             {
-                //qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
+                //qDebug() << "FRONTO -> " + m_portFronto;
                 t_threadFronto = new SerialThread(sp_portFronto);
                 t_threadFronto->transaction();
                 connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
                 msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
-                b = true;
             }
-            if (!b)
+            else
             {
                 msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
@@ -4511,21 +4509,19 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         sp_portRefracteur = openserialport(Refracteur);
         if (sp_portRefracteur != Q_NULLPTR)
         {
-            bool b = false;
             if (t_threadRefracteur != Q_NULLPTR)
                 delete t_threadRefracteur;
             if (sp_portRefracteur->open(QIODevice::ReadWrite))
             {
-                //qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
+                //qDebug() << "REFRACTEUR -> " + m_portRefracteur;
                 t_threadRefracteur     = new SerialThread(sp_portRefracteur);
                 t_threadRefracteur    ->transaction();
                 connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
                 if (msg != "")
                     msg += "\r";
                 msg += tr("Connexion refracteur OK sur ") + m_portRefracteur;
-                b = true;
             }
-            if(!b)
+            else
             {
                 if (msg != "")
                     msg += "\r";
@@ -4550,21 +4546,19 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         sp_portAutoref = openserialport(Autoref);
         if (sp_portAutoref != Q_NULLPTR)
         {
-            bool b = false;
             if (t_threadAutoref != Q_NULLPTR)
                 delete t_threadAutoref;
             if (sp_portAutoref->open(QIODevice::ReadWrite))
             {
-                //qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
+                //qDebug() << "AUTOREF -> " + m_portAutoref;
                 t_threadAutoref     = new SerialThread(sp_portAutoref);
                 t_threadAutoref   ->transaction();
                 connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
                 if (msg != "")
                     msg += " \r";
                 msg += tr("Connexion autoref OK sur ") + m_portAutoref;
-                b = true;
             }
-            if (!b)
+            else
             {
                 if (msg != "")
                     msg += "\r";
@@ -4583,28 +4577,25 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     if (appareils.testFlag(Tonometre))
     {
     m_portTono = m_settings->value(Param_Poste_PortRefracteur).toString();
-    //UpMessageBox::Watch(Q_NULLPTR, m_portRefracteur);
     if (m_portTono == "")
         UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion tonomètre"));
     ReglePortTonometre();
     sp_portTono = openserialport(Tonometre);
     if (sp_portTono != Q_NULLPTR)
     {
-        bool b = false;
         if (t_threadTono != Q_NULLPTR)
             delete t_threadTono;
         if (sp_portTono->open(QIODevice::ReadWrite))
         {
-            //qDebug() << "TONOMETRE -> " + m_portTono + " - " + NomPort;
+            //qDebug() << "TONOMETRE -> " + m_portTono +;
             t_threadTono     = new SerialThread(sp_portTono);
             t_threadTono    ->transaction();
             connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
             if (msg != "")
                 msg += "\r";
             msg += tr("Connexion tonmètre OK sur ") + m_portTono;
-            b= true;
         }
-        if (!b)
+        else
         {
             if (msg != "")
                 msg += "\r";
@@ -4635,6 +4626,7 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
     QString port(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
     SerialSettings serialset;
     QSerialPort *serialport;
+    TypesAppareils appareilscom;
     switch (appareil) {
     case Fronto :
         baudrate    = Param_Poste_PortFronto_COM_baudrate;
@@ -4643,7 +4635,10 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
         stopbits    = Param_Poste_PortFronto_COM_stopBits;
         flowcontrol = Param_Poste_PortFronto_COM_flowControl;
         if (sp_portFronto == Q_NULLPTR)
+        {
             sp_portFronto = new QSerialPort();
+            appareilscom.setFlag(Fronto);
+        }
         serialport  = sp_portFronto;
         break;
     case Autoref :
@@ -4653,7 +4648,10 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
         stopbits    = Param_Poste_PortAutoref_COM_stopBits;
         flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
         if (sp_portAutoref == Q_NULLPTR)
+        {
             sp_portAutoref = new QSerialPort();
+            appareilscom.setFlag(Autoref);
+        }
         serialport  = sp_portAutoref;
         break;
     case Refracteur :
@@ -4663,7 +4661,10 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
         stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
         flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
         if (sp_portRefracteur == Q_NULLPTR)
+        {
             sp_portRefracteur = new QSerialPort();
+            appareilscom.setFlag(Refracteur);
+        }
         serialport  = sp_portRefracteur;
         break;
     case Tonometre :
@@ -4673,7 +4674,10 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
         stopbits    = Param_Poste_PortTono_COM_stopBits;
         flowcontrol = Param_Poste_PortTono_COM_flowControl;
         if (sp_portTono == Q_NULLPTR)
+        {
             sp_portTono = new QSerialPort();
+            appareilscom.setFlag(Tonometre);
+        }
         serialport  = sp_portTono;
         break;
     default: return;
@@ -4738,6 +4742,8 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
         break;
     default: return;
     }
+    if (appareilscom>0 && m_mapports.size()>0)
+        Ouverture_Ports_Series(appareilscom);
 }
 
 bool Procedures::ReglePortRefracteur()

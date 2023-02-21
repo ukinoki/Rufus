@@ -1722,7 +1722,7 @@ void dlg_param::RecalcAvailablesPorts(bool fromSettings)
             QStringList listports = QStringList();
             for (auto it = mapports.begin(); it != mapports.end(); ++it)
                 listports << it.key();
-            QStringList listitems =  QStringList() << NULL << listports;
+            QStringList listitems =  QStringList() << N_NULL << listports;
             if (combobox != ui->PortRefracteurupComboBox)
                 listitems << BOX;
             listitems << DOSSIER_ECHANGE;
@@ -1746,7 +1746,7 @@ void dlg_param::RecalcAvailablesPorts(bool fromSettings)
                 continue;
             combobox->disconnect();
             QString port = combobox->currentText();
-            QStringList listitems =  QStringList() << NULL;
+            QStringList listitems =  QStringList() << N_NULL;
             if (fromSettings)
             {
                 if (combobox == ui->PortFrontoupComboBox)
