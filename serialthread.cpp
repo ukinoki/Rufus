@@ -17,28 +17,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "serialthread.h"
 
-/*SerialThread::SerialThread(QSerialPort *PortProc)
-{
-    moveToThread(&thread);
-    Port            = PortProc;
-    connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
-    thread.start();
-}
-
-void SerialThread::LitPort()
-{
-    reponseData = Port->readAll();
-    while (Port->waitForReadyRead(100))
-        reponseData.append(Port->readAll());
-    QString ReponsePort(reponseData);
-    if (ReponsePort != "")
-    {
-        Port->clear();
-        reponseData.clear();
-        emit reponse(ReponsePort);
-    }
-}*/
-
 QT_USE_NAMESPACE
 
 SerialThread::SerialThread(QSerialPort *PortProc)

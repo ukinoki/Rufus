@@ -204,10 +204,8 @@ public:
     static QImage imagemapFrom(const QJsonValue &val);
     static void AfficheImage(QImage img);
 
-    //! retrouve le nomp physique d'un port série à partir de son nom courant (COM1, COM2, COM3 ou COM4
-    static QString RetrouveNomPort(QString portsetting);
-    //! reconstruit la liste des ports COM disponibles sur le système (COM1,COM2,COM3, COM4...etc...) à partir de la liste des noms physiques des ports disponibles
-    static QStringList ReconstruitlistPortsCOM();
+    //! reconstruit la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
+    static QMap<QString, QString> ReconstruitMapPortsCOM();
 
     //! écriture sur un port série d'un qByteArray
     static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);

@@ -208,31 +208,38 @@ dlg_param::dlg_param(QWidget *parent) :
             Listapp << listtono.at(i).at(0).toString() + " " + listtono.at(i).at(1).toString();
     ui->TonometreupComboBox->insertItems(0,Listapp);
 
-    RecalcListPortsCOMDispo();
+    RecalcAvailablesPorts(true);
+    int idx;;
 
     ui->FrontoupComboBox                ->setCurrentText(proc->settings()->value(Param_Poste_Fronto).toString());
-    ui->PortFrontoupComboBox            ->setCurrentText(proc->settings()->value(Param_Poste_PortFronto).toString());
-    if (ui->PortFrontoupComboBox->currentText() == RESEAU)
-        ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortFronto_Reseau).toString());
+    idx = ui->PortFrontoupComboBox->findText(proc->settings()->value(Param_Poste_PortFronto).toString());
+    if (idx == -1)        idx = 0;
+    ui->PortFrontoupComboBox->setCurrentIndex(idx);
+    if (ui->PortFrontoupComboBox->currentText() == DOSSIER_ECHANGE)
+        ui->NetworkPathFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortFronto_DossierEchange).toString());
     EnableComOrNetworkWidgetsAppareilRefraction(ui->PortFrontoupComboBox,       ui->PortFrontoupComboBox->currentIndex());
     ui->NetworkPathFrontoupLineEdit     ->setImmediateToolTip(ui->NetworkPathFrontoupLineEdit->text());
     ui->NetworkPathFrontoupPushButton   ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le frontofocomètre"));
 
     ui->AutorefupComboBox               ->setCurrentText(proc->settings()->value(Param_Poste_Autoref).toString());
-    ui->PortAutorefupComboBox           ->setCurrentText(proc->settings()->value(Param_Poste_PortAutoref).toString());
-    if (ui->PortAutorefupComboBox->currentText() == RESEAU)
-        ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString());
+    idx = ui->PortAutorefupComboBox->findText(proc->settings()->value(Param_Poste_PortFronto).toString());
+    if (idx == -1)        idx = 0;
+    ui->PortAutorefupComboBox->setCurrentIndex(idx);
+    if (ui->PortAutorefupComboBox->currentText() == DOSSIER_ECHANGE)
+        ui->NetworkPathAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortAutoref_DossierEchange).toString());
     EnableComOrNetworkWidgetsAppareilRefraction(ui->PortAutorefupComboBox,      ui->PortAutorefupComboBox->currentIndex());
     ui->NetworkPathAutorefupLineEdit    ->setImmediateToolTip(ui->NetworkPathAutorefupLineEdit->text());
     ui->NetworkPathAutorefupPushButton  ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par l'autorefractomètre"));
 
     ui->RefracteurupComboBox            ->setCurrentText(proc->settings()->value(Param_Poste_Refracteur).toString());
-    ui->PortRefracteurupComboBox        ->setCurrentText(proc->settings()->value(Param_Poste_PortRefracteur).toString());
-    if (ui->PortRefracteurupComboBox->currentText() == RESEAU)
+    idx = ui->PortRefracteurupComboBox->findText(proc->settings()->value(Param_Poste_PortFronto).toString());
+    if (idx == -1)        idx = 0;
+    ui->PortRefracteurupComboBox->setCurrentIndex(idx);
+    if (ui->PortRefracteurupComboBox->currentText() == DOSSIER_ECHANGE)
     {
-        ui->NetworkPathRefracteurupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString());
-        ui->NetworkPathEchangeFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString());
-        ui->NetworkPathEchangeAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString());
+        ui->NetworkPathRefracteurupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange).toString());
+        ui->NetworkPathEchangeFrontoupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Fronto).toString());
+        ui->NetworkPathEchangeAutorefupLineEdit->setText(proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Autoref).toString());
     }
     EnableComOrNetworkWidgetsAppareilRefraction(ui->PortRefracteurupComboBox,   ui->PortRefracteurupComboBox->currentIndex());
     ui->NetworkPathRefracteurupPushButton       ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le refracteur"));
@@ -243,14 +250,14 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->NetworkPathEchangeAutorefupLineEdit     ->setImmediateToolTip(ui->NetworkPathEchangeAutorefupLineEdit->text());
 
     ui->TonometreupComboBox             ->setCurrentText(proc->settings()->value(Param_Poste_Tono).toString());
-    ui->PortTonometreupComboBox         ->setCurrentText(proc->settings()->value(Param_Poste_PortTono).toString());
-    if (ui->PortTonometreupComboBox->currentText() == RESEAU)
-        ui->NetworkPathTonoupLineEdit   ->setText(proc->settings()->value(Param_Poste_PortTono_Reseau).toString());
+    idx = ui->PortTonometreupComboBox->findText(proc->settings()->value(Param_Poste_PortFronto).toString());
+    if (idx == -1)        idx = 0;
+    ui->PortTonometreupComboBox->setCurrentIndex(idx);
+    if (ui->PortTonometreupComboBox->currentText() == DOSSIER_ECHANGE)
+        ui->NetworkPathTonoupLineEdit   ->setText(proc->settings()->value(Param_Poste_PortTono_DossierEchange).toString());
     EnableComOrNetworkWidgetsAppareilRefraction(ui->PortTonometreupComboBox,    ui->PortTonometreupComboBox->currentIndex());
     ui->NetworkPathTonoupLineEdit       ->setImmediateToolTip(ui->NetworkPathTonoupLineEdit->text());
     ui->NetworkPathTonoupPushButton     ->setImmediateToolTip(tr("Emplacement du fichier de mesures émises par le tonomètre"));
-
-    //RecalcListPortsCOMDispo();
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
@@ -746,26 +753,34 @@ void dlg_param::ChoixFontpushButtonClicked()
     delete Dlg_Fonts;
 }
 
-void dlg_param::ClearCom(UpComboBox* box, int a)
+void dlg_param::ClearPortsComboBox(UpComboBox* box, int a)
 {
     if (box == Q_NULLPTR)
         return;
-    if (a==0)
+    if (box==ui->AutorefupComboBox)
     {
-        if (box==ui->AutorefupComboBox)
+        if (a == 0)
             ui->PortAutorefupComboBox   ->setCurrentIndex(0);
-        if (box==ui->FrontoupComboBox)
-            ui->PortFrontoupComboBox    ->setCurrentIndex(0);
-        if (box==ui->TonometreupComboBox)
-            ui->PortTonometreupComboBox ->setCurrentIndex(0);
-        if (box==ui->RefracteurupComboBox)
-            ui->PortRefracteurupComboBox->setCurrentIndex(0);
-        EnableComOrNetworkWidgetsAppareilRefraction(box,0);
+        ui->PortAutorefupComboBox->setEnabled(a>0);
     }
-    ui->PortAutorefupComboBox   ->setEnabled(ui->AutorefupComboBox->currentIndex()>0);
-    ui->PortFrontoupComboBox    ->setEnabled(ui->FrontoupComboBox->currentIndex()>0);
-    ui->PortRefracteurupComboBox->setEnabled(ui->RefracteurupComboBox->currentIndex()>0);
-    ui->PortTonometreupComboBox ->setEnabled(ui->TonometreupComboBox->currentIndex()>0);
+    else if (box==ui->FrontoupComboBox)
+    {
+        if (a == 0)
+            ui->PortFrontoupComboBox   ->setCurrentIndex(0);
+        ui->PortFrontoupComboBox->setEnabled(a>0);
+    }
+    else if (box==ui->RefracteurupComboBox)
+    {
+        if (a == 0)
+            ui->PortRefracteurupComboBox   ->setCurrentIndex(0);
+        ui->PortRefracteurupComboBox->setEnabled(a>0);
+    }
+    else if (box==ui->TonometreupComboBox)
+    {
+        if (a == 0)
+            ui->PortTonometreupComboBox   ->setCurrentIndex(0);
+        ui->PortTonometreupComboBox->setEnabled(a>0);
+    }
 }
 
 void dlg_param::ConnectTimers(bool a)
@@ -1683,62 +1698,129 @@ void dlg_param::ParamMotifs()
     delete Dlg_motifs;
 }
 
-void dlg_param::RecalcListPortsCOMDispo()
+void dlg_param::RecalcAvailablesPorts(bool fromSettings)
 {
-    QStringList initlistports =  Utils::ReconstruitlistPortsCOM();
-    QList<UpComboBox*> listbox;
-    listbox << ui->PortFrontoupComboBox << ui->PortAutorefupComboBox << ui->PortRefracteurupComboBox << ui->PortTonometreupComboBox;
-    for (int l=0; l< listbox.size(); ++l)
+    QList<UpComboBox*> listportsbox;
+    listportsbox << ui->PortFrontoupComboBox << ui->PortAutorefupComboBox << ui->PortRefracteurupComboBox << ui->PortTonometreupComboBox;
+    QMap<QString,QString> initmapports = proc->mapPortsCOM();
+    if (initmapports.size() >0)
     {
-        QStringList listports = initlistports;
-        auto removeCom = [&] (QString txt)
+        for (int l=0; l< listportsbox.size(); ++l)
         {
-            int j = listports.indexOf(txt);
-            if (j>=0)
-                listports.removeAt(j);
-        };
-        UpComboBox *combo = listbox.at(l);
-        QString combotxt = combo->currentText();
-        if (!combo)
-            continue;
-        combo->disconnect();
-        for (int i=0; i< listbox.size(); ++i)
-        {
-            if (listbox.at(i) != combo)
+            UpComboBox *combobox = listportsbox.at(l);
+            if (!combobox)
+                continue;
+            QMap<QString,QString> mapports = initmapports;
+            QString combotxt = combobox->currentText();
+            combobox->disconnect();
+            for (int i=0; i< listportsbox.size(); ++i)
             {
-                QString txt = listbox.at(i)->currentText();
-                if (listports.contains(txt))
+                if (listportsbox.at(i) != combobox)
+                    if (mapports.find(listportsbox.at(i)->currentText()) != mapports.end())
+                        mapports.remove(listportsbox.at(i)->currentText());
+            }
+            QStringList listports = QStringList();
+            for (auto it = mapports.begin(); it != mapports.end(); ++it)
+                listports << it.key();
+            QStringList listitems =  QStringList() << NULL << listports;
+            if (combobox != ui->PortRefracteurupComboBox)
+                listitems << BOX;
+            listitems << DOSSIER_ECHANGE;
+            combobox->clear();
+            combobox->addItems(listitems);
+            combobox->setCurrentIndex(listitems.indexOf(combotxt));
+            EnableComOrNetworkWidgetsAppareilRefraction(combobox, combobox->currentIndex());
+            connect(combobox,   QOverload<int>::of(&QComboBox::activated),    this,   [=] (int a) {
+                                                                                                    EnableComOrNetworkWidgetsAppareilRefraction(combobox, a);
+                                                                                                    EnableOKModifPosteButton();
+                                                                                                    RecalcAvailablesPorts();
+                                                                                                  });
+        }
+    }
+    else
+    {
+        for (int l=0; l< listportsbox.size(); ++l)
+        {
+            UpComboBox *combobox = listportsbox.at(l);
+            if (!combobox)
+                continue;
+            combobox->disconnect();
+            QString port = combobox->currentText();
+            QStringList listitems =  QStringList() << NULL;
+            if (fromSettings)
+            {
+                if (combobox == ui->PortFrontoupComboBox)
+                    port = proc->settings()->value(Param_Poste_PortFronto).toString();
+                else if (combobox == ui->PortAutorefupComboBox)
+                    port = proc->settings()->value(Param_Poste_PortAutoref).toString();
+                else if (combobox == ui->PortRefracteurupComboBox)
+                    port = proc->settings()->value(Param_Poste_PortRefracteur).toString();
+                else if (combobox == ui->PortTonometreupComboBox)
+                    port = proc->settings()->value(Param_Poste_PortTono).toString();
+            }
+            if (port.left(3) == "COM")
+                listitems << port;
+            if (combobox != ui->PortRefracteurupComboBox)
+                listitems << BOX;
+            listitems << DOSSIER_ECHANGE;
+            combobox->clear();
+            combobox->addItems(listitems);
+            if (listitems.indexOf(port)>=0)
+                combobox->setCurrentIndex(listitems.indexOf(port));
+            else
+                combobox->setCurrentIndex(0);
+            if (combobox->currentIndex() == 0)
+            {
+                if (combobox == ui->PortFrontoupComboBox)
                 {
-                    if (txt == COM1)
-                        removeCom(txt);
-                    else if (txt == COM2)
-                        removeCom(txt);
-                    else if (txt == COM3)
-                        removeCom(txt);
-                    else if (txt == COM4)
-                        removeCom(txt);
-                    else if (txt == COM5)
-                        removeCom(txt);
-                    else if (txt == COM6)
-                        removeCom(txt);
-                    else if (txt == COM7)
-                        removeCom(txt);
-                    else if (txt == COM8)
-                        removeCom(txt);
+                    proc->settings()->remove(Param_Poste_PortFronto);
+                    proc->settings()->remove(Param_Poste_PortFronto_DossierEchange);
+                    proc->settings()->remove(Param_Poste_PortFronto_COM_baudrate);
+                    proc->settings()->remove(Param_Poste_PortFronto_COM_databits);
+                    proc->settings()->remove(Param_Poste_PortFronto_COM_parity);
+                    proc->settings()->remove(Param_Poste_PortFronto_COM_stopBits);
+                    proc->settings()->remove(Param_Poste_PortFronto_COM_flowControl);
+                }
+                else if (combobox == ui->PortAutorefupComboBox)
+                {
+                    proc->settings()->remove(Param_Poste_PortAutoref);
+                    proc->settings()->remove(Param_Poste_PortAutoref_DossierEchange);
+                    proc->settings()->remove(Param_Poste_PortAutoref_COM_baudrate);
+                    proc->settings()->remove(Param_Poste_PortAutoref_COM_databits);
+                    proc->settings()->remove(Param_Poste_PortAutoref_COM_parity);
+                    proc->settings()->remove(Param_Poste_PortAutoref_COM_stopBits);
+                    proc->settings()->remove(Param_Poste_PortAutoref_COM_flowControl);
+                }
+                else if (combobox == ui->PortRefracteurupComboBox)
+                {
+                    proc->settings()->remove(Param_Poste_PortRefracteur);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange_Autoref);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange_Fronto);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_COM_baudrate);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_COM_databits);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_COM_parity);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_COM_stopBits);
+                    proc->settings()->remove(Param_Poste_PortRefracteur_COM_flowControl);
+                }
+                else if (combobox == ui->PortTonometreupComboBox)
+                {
+                    proc->settings()->remove(Param_Poste_PortTono);
+                    proc->settings()->remove(Param_Poste_PortTono_DossierEchange);
+                    proc->settings()->remove(Param_Poste_PortTono_COM_baudrate);
+                    proc->settings()->remove(Param_Poste_PortTono_COM_databits);
+                    proc->settings()->remove(Param_Poste_PortTono_COM_parity);
+                    proc->settings()->remove(Param_Poste_PortTono_COM_stopBits);
+                    proc->settings()->remove(Param_Poste_PortTono_COM_flowControl);
                 }
             }
+            EnableComOrNetworkWidgetsAppareilRefraction(combobox, combobox->currentIndex());
+            connect(combobox,   QOverload<int>::of(&QComboBox::activated),    this,   [=] (int a) {
+                                                                                                    EnableComOrNetworkWidgetsAppareilRefraction(combobox, a);
+                                                                                                    EnableOKModifPosteButton();
+                                                                                                    RecalcAvailablesPorts();
+                                                                                                   });
         }
-        QStringList listitems =  QStringList() << "-" << listports << "Box" << RESEAU;
-        combo->clear();
-        combo->addItems(listitems);
-        combo->setCurrentIndex(listitems.indexOf(combotxt));
-        EnableComOrNetworkWidgetsAppareilRefraction(combo, combo->currentIndex());
-        connect(combo,   QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=] (int a) {  EnableComOrNetworkWidgetsAppareilRefraction(combo, a);
-                                                                                                        EnableOKModifPosteButton();
-                                                                                                        RecalcListPortsCOMDispo();
-                                                                                                     });
-        connect(combo,    QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnableOKModifPosteButton);
-
     }
 }
 
@@ -1777,7 +1859,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
                                 "Le nom de dossier ne doit pas contenir d'espace");
     switch (appareil) {
     case Procedures::Fronto:
-        pathappareil = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
+        pathappareil = proc->settings()->value(Param_Poste_PortFronto_DossierEchange).toString();
         if (pathappareil == "")
         {
             Utils::mkpath(PATH_DIR_FRONTO);
@@ -1790,10 +1872,10 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
             return;
         ui->NetworkPathFrontoupLineEdit ->setText(url.path());
         ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(url.path());
-        proc->settings()->setValue(Param_Poste_PortFronto_Reseau, url.path());
+        proc->settings()->setValue(Param_Poste_PortFronto_DossierEchange, url.path());
         break;
     case Procedures::Autoref:
-        pathappareil = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
+        pathappareil = proc->settings()->value(Param_Poste_PortAutoref_DossierEchange).toString();
         if (pathappareil == "")
         {
             Utils::mkpath(PATH_DIR_AUTOREF);
@@ -1806,10 +1888,10 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
             return;
         ui->NetworkPathAutorefupLineEdit ->setText(url.path());
         ui->NetworkPathAutorefupLineEdit ->setImmediateToolTip(url.path());
-        proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, url.path());
+        proc->settings()->setValue(Param_Poste_PortAutoref_DossierEchange, url.path());
         break;
     case Procedures::Refracteur:
-        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
+        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange).toString();
         if (pathappareil == "")
         {
             Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
@@ -1822,10 +1904,10 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
             return;
         ui->NetworkPathRefracteurupLineEdit ->setText(url.path());
         ui->NetworkPathRefracteurupLineEdit ->setImmediateToolTip(url.path());
-        proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, url.path());
+        proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange, url.path());
         break;
     case Procedures::Tonometre:
-        pathappareil = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
+        pathappareil = proc->settings()->value(Param_Poste_PortTono_DossierEchange).toString();
         if (pathappareil == "")
         {
             Utils::mkpath(PATH_DIR_TONO);
@@ -1838,7 +1920,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
             return;
         ui->NetworkPathTonoupLineEdit ->setText(url.path());
         ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(url.path());
-        proc->settings()->setValue(Param_Poste_PortTono_Reseau, url.path());
+        proc->settings()->setValue(Param_Poste_PortTono_DossierEchange, url.path());
         break;
     default:
         break;
@@ -1856,7 +1938,7 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appar
                                 "Le nom de dossier ne doit pas contenir d'espace");
     switch (appareil) {
     case Procedures::Fronto:
-        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
+        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Fronto).toString();
         if (pathappareil == "")
         {
             Utils::mkpath(PATH_DIR_REFRACTEUR_FRONTOIN);
@@ -1867,12 +1949,12 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appar
         url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
         if (url == QUrl())
             return;
-        proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, url.path());
+        proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Fronto, url.path());
         ui->NetworkPathEchangeFrontoupLineEdit ->setText(url.path());
         ui->NetworkPathEchangeFrontoupLineEdit ->setImmediateToolTip(url.path());
         break;
     case Procedures::Autoref:
-        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
+        pathappareil = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Autoref).toString();
         if (pathappareil == "")
         {
             Utils::mkpath(PATH_DIR_REFRACTEUR_AUTOREFIN);
@@ -1885,7 +1967,7 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appar
             return;
         ui->NetworkPathEchangeAutorefupLineEdit ->setText(url.path());
         ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(url.path());
-        proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, url.path());
+        proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Autoref, url.path());
         break;
     default: break;
     }
@@ -2240,14 +2322,14 @@ void dlg_param::ConnectSignals()
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->PosteStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirPosteStockage);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
-    connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearCom(ui->AutorefupComboBox,a);});
-    connect(ui->TonometreupComboBox,                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearCom(ui->TonometreupComboBox,a);});
-    connect(ui->FrontoupComboBox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearCom(ui->FrontoupComboBox,a);});
-    connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearCom(ui->RefracteurupComboBox,a);});
+    connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::activated),
+                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
+    connect(ui->TonometreupComboBox,                QOverload<int>::of(&QComboBox::activated),
+                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->TonometreupComboBox,a);});
+    connect(ui->FrontoupComboBox,                   QOverload<int>::of(&QComboBox::activated),
+                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->FrontoupComboBox,a);});
+    connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::activated),
+                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
     connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
     connect(ui->AssocCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->AssocCCAMupTableWidget, item);});
     connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
@@ -2367,105 +2449,223 @@ void dlg_param::EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, i
     if (combo == Q_NULLPTR)
         return;
     QString currtext = combo->itemText(idx);
-    bool a = (currtext == RESEAU);
-    bool b = (currtext.left(3) == "COM" );
-    if(!b)
-        combo->setImmediateToolTip("");
+    combo->setImmediateToolTip("");
     if (combo == ui->PortFrontoupComboBox)
     {
-        ui->NetworkPathFrontoupLineEdit     ->setVisible(a);
-        ui->NetworkPathFrontoupPushButton   ->setVisible(a);
-        ui->ParamCOMFrontoupPushButton      ->setVisible(b);
-        if (a)
+        if (currtext == DOSSIER_ECHANGE)
         {
-            QString path = proc->settings()->value(Param_Poste_PortFronto_Reseau).toString();
+            ui->NetworkPathFrontoupLineEdit     ->setVisible(true);
+            ui->NetworkPathFrontoupPushButton   ->setVisible(true);
+            ui->ParamCOMFrontoupPushButton      ->setVisible(false);
+            QString path = proc->settings()->value(Param_Poste_PortFronto_DossierEchange).toString();
             if (path == "")
             {
                 Utils::mkpath(PATH_DIR_FRONTO);
                 path = PATH_DIR_FRONTO;
             }
             ui->NetworkPathFrontoupLineEdit ->setText(path);
+            proc->settings()->setValue(Param_Poste_PortFronto_DossierEchange, path);
             ui->NetworkPathFrontoupLineEdit ->setImmediateToolTip(path);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_databits);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_parity);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_flowControl);
+
         }
-        else if (b)
+        else if (currtext.left(3) == "COM")
+        {
+            ui->NetworkPathFrontoupLineEdit     ->setVisible(false);
+            ui->NetworkPathFrontoupPushButton   ->setVisible(false);
+            ui->ParamCOMFrontoupPushButton      ->setVisible(true);
             combo->setImmediateToolTip(ToolTipPortCOM(Procedures::Fronto));
+            proc->settings()->remove(Param_Poste_PortFronto_DossierEchange);
+        }
+        else if (currtext != BOX)
+        {
+            ui->NetworkPathFrontoupLineEdit     ->setVisible(false);
+            ui->NetworkPathFrontoupPushButton   ->setVisible(false);
+            ui->ParamCOMFrontoupPushButton      ->setVisible(false);
+            proc->settings()->remove(Param_Poste_PortFronto_DossierEchange);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_databits);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_parity);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortFronto_COM_flowControl);
+            if (currtext != BOX)
+                proc->settings()->remove(Param_Poste_PortFronto);
+        }
     }
     else if (combo == ui->PortAutorefupComboBox)
     {
-        ui->NetworkPathAutorefupLineEdit    ->setVisible(a);
-        ui->NetworkPathAutorefupPushButton  ->setVisible(a);
-        ui->ParamCOMAutorefupPushButton     ->setVisible(b);
-        if (a)
+        if (currtext == DOSSIER_ECHANGE)
         {
-            QString path = proc->settings()->value(Param_Poste_PortAutoref_Reseau).toString();
+            ui->NetworkPathAutorefupLineEdit     ->setVisible(true);
+            ui->NetworkPathAutorefupPushButton   ->setVisible(true);
+            ui->ParamCOMAutorefupPushButton      ->setVisible(false);
+            QString path = proc->settings()->value(Param_Poste_PortAutoref_DossierEchange).toString();
             if (path == "")
             {
                 Utils::mkpath(PATH_DIR_AUTOREF);
                 path = PATH_DIR_AUTOREF;
             }
-            ui->NetworkPathAutorefupLineEdit->setText(path);
-            ui->NetworkPathAutorefupLineEdit->setImmediateToolTip(path);
+            ui->NetworkPathAutorefupLineEdit ->setText(path);
+            proc->settings()->setValue(Param_Poste_PortAutoref_DossierEchange, path);
+            ui->NetworkPathAutorefupLineEdit ->setImmediateToolTip(path);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_databits);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_parity);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_flowControl);
+
         }
-        else if (b)
+        else if (currtext.left(3) == "COM")
+        {
+            ui->NetworkPathAutorefupLineEdit     ->setVisible(false);
+            ui->NetworkPathAutorefupPushButton   ->setVisible(false);
+            ui->ParamCOMAutorefupPushButton      ->setVisible(true);
             combo->setImmediateToolTip(ToolTipPortCOM(Procedures::Autoref));
+            proc->settings()->remove(Param_Poste_PortAutoref_DossierEchange);
+        }
+        else
+        {
+            ui->NetworkPathAutorefupLineEdit     ->setVisible(false);
+            ui->NetworkPathAutorefupPushButton   ->setVisible(false);
+            ui->ParamCOMAutorefupPushButton      ->setVisible(false);
+            proc->settings()->remove(Param_Poste_PortAutoref_DossierEchange);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_databits);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_parity);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortAutoref_COM_flowControl);
+            if (currtext != BOX)
+                proc->settings()->remove(Param_Poste_PortAutoref);
+        }
     }
     else if (combo == ui->PortRefracteurupComboBox)
     {
-        ui->NetworkPathRefracteurupLineEdit         ->setVisible(a);
-        ui->NetworkPathRefracteurupPushButton       ->setVisible(a);
-        ui->NetworkPathEchangeAutorefupLineEdit     ->setVisible(a);
-        ui->NetworkPathEchangeAutorefupPushButton   ->setVisible(a);
-        ui->NetworkPathEchangeFrontoupLineEdit      ->setVisible(a);
-        ui->NetworkPathEchangeFrontoupPushButton    ->setVisible(a);
-        ui->ParamCOMRefracteurupPushButton          ->setVisible(b);
-        if (a)
+        if (currtext == DOSSIER_ECHANGE)
         {
-        QString path = proc->settings()->value(Param_Poste_PortRefracteur_Reseau).toString();
-        if (path == "")
+            ui->NetworkPathRefracteurupLineEdit         ->setVisible(true);
+            ui->NetworkPathRefracteurupPushButton       ->setVisible(true);
+            ui->NetworkPathEchangeAutorefupLineEdit     ->setVisible(true);
+            ui->NetworkPathEchangeAutorefupPushButton   ->setVisible(true);
+            ui->NetworkPathEchangeFrontoupLineEdit      ->setVisible(true);
+            ui->NetworkPathEchangeFrontoupPushButton    ->setVisible(true);
+            ui->ParamCOMRefracteurupPushButton          ->setVisible(false);
+            QString path = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange).toString();
+            if (path == "")
+            {
+                Utils::mkpath(PATH_DIR_REFRACTEUR);
+                path = PATH_DIR_REFRACTEUR;
+            }
+            ui->NetworkPathRefracteurupLineEdit ->setText(path);
+            proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange, path);
+            path = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Autoref).toString();
+            if (path == "")
+            {
+                Utils::mkpath(PATH_DIR_REFRACTEUR_AUTOREFIN);
+                path = PATH_DIR_REFRACTEUR_AUTOREFIN;
+            }
+            ui->NetworkPathEchangeAutorefupLineEdit ->setText(path);
+            proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Autoref, path);
+            ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(path);
+            path = proc->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Fronto).toString();
+            if (path == "")
+            {
+                Utils::mkpath(PATH_DIR_REFRACTEUR_FRONTOIN);
+                path = PATH_DIR_REFRACTEUR_FRONTOIN;
+            }
+            ui->NetworkPathEchangeFrontoupLineEdit  ->setText(path);
+            proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Fronto, path);
+            ui->NetworkPathEchangeFrontoupLineEdit  ->setImmediateToolTip(path);
+
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_databits);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_parity);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_flowControl);
+
+        }
+        else if (currtext.left(3) == "COM")
         {
-            Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
-            path = PATH_DIR_REFRACTEUR_IN;
-        }
-        ui->NetworkPathRefracteurupLineEdit     ->setText(path);
-        ui->NetworkPathRefracteurupLineEdit     ->setImmediateToolTip(path);
-        path = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressAutoref).toString();
-        if (path == "")
-        {
-            Utils::mkpath(PATH_DIR_REFRACTEUR_AUTOREFIN);
-            path = PATH_DIR_REFRACTEUR_AUTOREFIN;
-        }
-        ui->NetworkPathEchangeAutorefupLineEdit ->setText(path);
-        ui->NetworkPathEchangeAutorefupLineEdit ->setImmediateToolTip(path);
-        path = proc->settings()->value(Param_Poste_PortRefracteur_Reseau_AdressFronto).toString();
-        if (path == "")
-        {
-            Utils::mkpath(PATH_DIR_REFRACTEUR_FRONTOIN);
-            path = PATH_DIR_REFRACTEUR_FRONTOIN;
-        }
-        ui->NetworkPathEchangeFrontoupLineEdit  ->setText(path);
-        ui->NetworkPathEchangeFrontoupLineEdit  ->setImmediateToolTip(path);
-        }
-        else if (b)
+            ui->NetworkPathRefracteurupLineEdit         ->setVisible(false);
+            ui->NetworkPathRefracteurupPushButton       ->setVisible(false);
+            ui->NetworkPathEchangeAutorefupLineEdit     ->setVisible(false);
+            ui->NetworkPathEchangeAutorefupPushButton   ->setVisible(false);
+            ui->NetworkPathEchangeFrontoupLineEdit      ->setVisible(false);
+            ui->NetworkPathEchangeFrontoupPushButton    ->setVisible(false);
+            ui->ParamCOMRefracteurupPushButton          ->setVisible(true);
             combo->setImmediateToolTip(ToolTipPortCOM(Procedures::Refracteur));
+            proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange);
+            proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange_Autoref);
+            proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange_Fronto);
+        }
+        else
+        {
+            ui->NetworkPathRefracteurupLineEdit         ->setVisible(false);
+            ui->NetworkPathRefracteurupPushButton       ->setVisible(false);
+            ui->NetworkPathEchangeAutorefupLineEdit     ->setVisible(false);
+            ui->NetworkPathEchangeAutorefupPushButton   ->setVisible(false);
+            ui->NetworkPathEchangeFrontoupLineEdit      ->setVisible(false);
+            ui->NetworkPathEchangeFrontoupPushButton    ->setVisible(false);
+            ui->ParamCOMRefracteurupPushButton          ->setVisible(false);
+            proc->settings()->remove(Param_Poste_PortRefracteur);
+            proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange);
+            proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange_Autoref);
+            proc->settings()->remove(Param_Poste_PortRefracteur_DossierEchange_Fronto);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_databits);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_parity);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortRefracteur_COM_flowControl);
+        }
     }
     else if (combo == ui->PortTonometreupComboBox)
     {
-        ui->NetworkPathTonoupLineEdit   ->setVisible(a);
-        ui->NetworkPathTonoupPushButton ->setVisible(a);
-        ui->ParamCOMTonoupPushButton    ->setVisible(b);
-        if(a)
+        if (currtext == DOSSIER_ECHANGE)
         {
-            QString path = proc->settings()->value(Param_Poste_PortTono_Reseau).toString();
+            ui->NetworkPathTonoupLineEdit     ->setVisible(true);
+            ui->NetworkPathTonoupPushButton   ->setVisible(true);
+            ui->ParamCOMTonoupPushButton      ->setVisible(false);
+            QString path = proc->settings()->value(Param_Poste_PortTono_DossierEchange).toString();
             if (path == "")
             {
                 Utils::mkpath(PATH_DIR_TONO);
                 path = PATH_DIR_TONO;
             }
-            ui->NetworkPathTonoupLineEdit->setText(path);
-            ui->NetworkPathTonoupLineEdit->setImmediateToolTip(path);
+            ui->NetworkPathTonoupLineEdit ->setText(path);
+            proc->settings()->setValue(Param_Poste_PortTono_DossierEchange, path);
+            ui->NetworkPathTonoupLineEdit ->setImmediateToolTip(path);
+            proc->settings()->remove(Param_Poste_PortTono_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortTono_COM_databits);
+            proc->settings()->remove(Param_Poste_PortTono_COM_parity);
+            proc->settings()->remove(Param_Poste_PortTono_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortTono_COM_flowControl);
+
         }
-        else if (b)
+        else if (currtext.left(3) == "COM")
+        {
+            ui->NetworkPathTonoupLineEdit     ->setVisible(false);
+            ui->NetworkPathTonoupPushButton   ->setVisible(false);
+            ui->ParamCOMTonoupPushButton      ->setVisible(true);
             combo->setImmediateToolTip(ToolTipPortCOM(Procedures::Tonometre));
+            proc->settings()->remove(Param_Poste_PortTono_DossierEchange);
+        }
+        else
+        {
+            ui->NetworkPathTonoupLineEdit     ->setVisible(false);
+            ui->NetworkPathTonoupPushButton   ->setVisible(false);
+            ui->ParamCOMTonoupPushButton      ->setVisible(false);
+            proc->settings()->remove(Param_Poste_PortTono_DossierEchange);
+            proc->settings()->remove(Param_Poste_PortTono_COM_baudrate);
+            proc->settings()->remove(Param_Poste_PortTono_COM_databits);
+            proc->settings()->remove(Param_Poste_PortTono_COM_parity);
+            proc->settings()->remove(Param_Poste_PortTono_COM_stopBits);
+            proc->settings()->remove(Param_Poste_PortTono_COM_flowControl);
+            if (currtext != BOX)
+                proc->settings()->remove(Param_Poste_PortTono);
+        }
     }
 }
 
@@ -2547,11 +2747,13 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
 {
     UpDialog *Com_dlg = new UpDialog(this);
     Com_dlg->setWindowModality(Qt::WindowModal);
-    QString title(""), port(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
+    QString title(""), port(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol(""), nomphysiqueduport("");
+;
     switch (appareil) {
     case Procedures::Fronto :
         title = ui->FrontoupComboBox    ->currentText() + " - " + ui->PortFrontoupComboBox->currentText();
-        port        = ui->PortFrontoupComboBox->currentText().right(1);
+        port        = ui->PortFrontoupComboBox->currentText();
+        port.replace("COM","");
         baudrate    = Param_Poste_PortFronto_COM_baudrate;
         databits    = Param_Poste_PortFronto_COM_databits;
         parity      = Param_Poste_PortFronto_COM_parity;
@@ -2560,7 +2762,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         break;
     case Procedures::Autoref :
         title = ui->AutorefupComboBox   ->currentText() + " - " + ui->PortAutorefupComboBox->currentText();
-        port        = ui->PortAutorefupComboBox->currentText().right(1);
+        port        = ui->PortAutorefupComboBox->currentText();
+        port.replace("COM","");
         baudrate    = Param_Poste_PortAutoref_COM_baudrate;
         databits    = Param_Poste_PortAutoref_COM_databits;
         parity      = Param_Poste_PortAutoref_COM_parity;
@@ -2569,7 +2772,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         break;
     case Procedures::Refracteur :
         title = ui->RefracteurupComboBox->currentText() + " - " + ui->PortRefracteurupComboBox->currentText();
-        port        = ui->PortRefracteurupComboBox->currentText().right(1);
+        port        = ui->PortRefracteurupComboBox->currentText();
+        port.replace("COM","");
         baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
         databits    = Param_Poste_PortRefracteur_COM_databits;
         parity      = Param_Poste_PortRefracteur_COM_parity;
@@ -2578,7 +2782,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         break;
     case Procedures::Tonometre :
         title = ui->TonometreupComboBox ->currentText() + " - " + ui->PortTonometreupComboBox->currentText();
-        port        = ui->PortTonometreupComboBox->currentText().right(1);
+        port        = ui->PortTonometreupComboBox->currentText();
+        port.replace("COM","");
         baudrate    = Param_Poste_PortTono_COM_baudrate;
         databits    = Param_Poste_PortTono_COM_databits;
         parity      = Param_Poste_PortTono_COM_parity;
@@ -2587,8 +2792,14 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         break;
     default: break;
     }
+
+    auto it = proc->mapPortsCOM().find("COM" + port);
+    if (it != proc->mapPortsCOM().end())
+        nomphysiqueduport = it.value();
+
     QVBoxLayout     *gbllayout          = new QVBoxLayout();
     UpLabel         *lbltitle           = new UpLabel(Com_dlg, title);
+    UpLabel         *lblport            = new UpLabel(Com_dlg, "port = " + nomphysiqueduport);
     UpLabel         *lblbaud            = new UpLabel(Com_dlg, tr("Débit"));
     UpLabel         *lbldatabits        = new UpLabel(Com_dlg, tr("Bits de donnés"));
     UpLabel         *lblparity          = new UpLabel(Com_dlg, tr("Parité"));
@@ -2612,8 +2823,10 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
     combostopbits->setFixedWidth(width);
     comboflowcontrol->setFixedWidth(width);
     lbltitle->setAlignment(Qt::AlignCenter);
+    lblport->setAlignment(Qt::AlignCenter);
 
     baudlay->addWidget(lblbaud);
+    baudlay->addWidget(lblport);
     baudlay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
     baudlay->addWidget(combobaud);
     databitslay->addWidget(lbldatabits);
@@ -3382,7 +3595,7 @@ bool dlg_param::Valide_Modifications()
             ui->AutorefupComboBox->setFocus();
             return false;
         }
-        if (ui->AutorefupComboBox->currentIndex()>0 && ui->PortAutorefupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathAutorefupLineEdit->text()).exists())
+        if (ui->AutorefupComboBox->currentIndex()>0 && ui->PortAutorefupComboBox->currentText() == DOSSIER_ECHANGE && !QDir(ui->NetworkPathAutorefupLineEdit->text()).exists())
         {
             UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour l'autorefractomètre") + " !");
             ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
@@ -3404,7 +3617,7 @@ bool dlg_param::Valide_Modifications()
             ui->FrontoupComboBox->setFocus();
             return false;
         }
-        if (ui->FrontoupComboBox->currentIndex()>0 && ui->PortFrontoupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathFrontoupLineEdit->text()).exists())
+        if (ui->FrontoupComboBox->currentIndex()>0 && ui->PortFrontoupComboBox->currentText() == DOSSIER_ECHANGE && !QDir(ui->NetworkPathFrontoupLineEdit->text()).exists())
         {
             UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour le frontofocomètre") + " !");
             ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
@@ -3426,7 +3639,7 @@ bool dlg_param::Valide_Modifications()
             ui->RefracteurupComboBox->setFocus();
             return false;
         }
-        if (ui->RefracteurupComboBox->currentIndex()>0 && ui->PortRefracteurupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathRefracteurupLineEdit->text()).exists())
+        if (ui->RefracteurupComboBox->currentIndex()>0 && ui->PortRefracteurupComboBox->currentText() == DOSSIER_ECHANGE && !QDir(ui->NetworkPathRefracteurupLineEdit->text()).exists())
         {
             UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour le refracteur") + " !");
             ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
@@ -3448,7 +3661,7 @@ bool dlg_param::Valide_Modifications()
             ui->TonometreupComboBox->setFocus();
             return false;
         }
-        if (ui->TonometreupComboBox->currentIndex()>0 && ui->PortTonometreupComboBox->currentText() == RESEAU && !QDir(ui->NetworkPathTonoupLineEdit->text()).exists())
+        if (ui->TonometreupComboBox->currentIndex()>0 && ui->PortTonometreupComboBox->currentText() == DOSSIER_ECHANGE && !QDir(ui->NetworkPathTonoupLineEdit->text()).exists())
         {
             UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier réseau valide pour le tonomètre") + " !");
             ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
@@ -3507,30 +3720,30 @@ bool dlg_param::Valide_Modifications()
         if (ui->FrontoupComboBox->currentText() == "-")
         {
             proc->settings()->setValue(Param_Poste_PortFronto, "");
-            proc->settings()->setValue(Param_Poste_PortFronto_Reseau, "");
+            proc->settings()->setValue(Param_Poste_PortFronto_DossierEchange, "");
         }
         else
         {
             proc->settings()->setValue(Param_Poste_PortFronto,ui->PortFrontoupComboBox->currentText());
-            if (ui->PortFrontoupComboBox->currentText() == RESEAU)
-                proc->settings()->setValue(Param_Poste_PortFronto_Reseau, ui->NetworkPathFrontoupLineEdit->text());
+            if (ui->PortFrontoupComboBox->currentText() == DOSSIER_ECHANGE)
+                proc->settings()->setValue(Param_Poste_PortFronto_DossierEchange, ui->NetworkPathFrontoupLineEdit->text());
             else
-                proc->settings()->setValue(Param_Poste_PortFronto_Reseau, "");
+                proc->settings()->setValue(Param_Poste_PortFronto_DossierEchange, "");
         }
 
         proc->settings()->setValue(Param_Poste_Autoref,ui->AutorefupComboBox->currentText());
         if (ui->AutorefupComboBox->currentText() == "-")
         {
             proc->settings()->setValue(Param_Poste_PortAutoref, "");
-            proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, "");
+            proc->settings()->setValue(Param_Poste_PortAutoref_DossierEchange, "");
         }
         else
         {
             proc->settings()->setValue(Param_Poste_PortAutoref,ui->PortAutorefupComboBox->currentText());
-            if (ui->PortAutorefupComboBox->currentText() == RESEAU)
-                proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, ui->NetworkPathAutorefupLineEdit->text());
+            if (ui->PortAutorefupComboBox->currentText() == DOSSIER_ECHANGE)
+                proc->settings()->setValue(Param_Poste_PortAutoref_DossierEchange, ui->NetworkPathAutorefupLineEdit->text());
             else
-                proc->settings()->setValue(Param_Poste_PortAutoref_Reseau, "");
+                proc->settings()->setValue(Param_Poste_PortAutoref_DossierEchange, "");
         }
 
         proc->settings()->setValue(Param_Poste_Refracteur,ui->RefracteurupComboBox->currentText());
@@ -3538,23 +3751,23 @@ bool dlg_param::Valide_Modifications()
         if (ui->RefracteurupComboBox->currentText() == "-")
         {
             proc->settings()->setValue(Param_Poste_PortRefracteur, "");
-            proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, "");
-            proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, "");
-            proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange, "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Fronto, "");
+            proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Autoref, "");
         }
         else
         {
-            if (ui->PortRefracteurupComboBox->currentText() == RESEAU)
+            if (ui->PortRefracteurupComboBox->currentText() == DOSSIER_ECHANGE)
             {
-                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, ui->NetworkPathRefracteurupLineEdit->text());
-                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, ui->NetworkPathEchangeFrontoupLineEdit->text());
-                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, ui->NetworkPathEchangeAutorefupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange, ui->NetworkPathRefracteurupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Fronto, ui->NetworkPathEchangeFrontoupLineEdit->text());
+                proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Autoref, ui->NetworkPathEchangeAutorefupLineEdit->text());
             }
             else
             {
-                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau, "");
-                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressFronto, "");
-                proc->settings()->setValue(Param_Poste_PortRefracteur_Reseau_AdressAutoref, "");
+                proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange, "");
+                proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Fronto, "");
+                proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Autoref, "");
             }
         }
 
@@ -3563,14 +3776,14 @@ bool dlg_param::Valide_Modifications()
         if (ui->TonometreupComboBox->currentText() == "-")
         {
             proc->settings()->setValue(Param_Poste_PortTono, "");
-            proc->settings()->setValue(Param_Poste_PortTono_Reseau, "");
+            proc->settings()->setValue(Param_Poste_PortTono_DossierEchange, "");
         }
         else
         {
-            if (ui->PortTonometreupComboBox->currentText() == RESEAU)
-                proc->settings()->setValue(Param_Poste_PortTono_Reseau, ui->NetworkPathTonoupLineEdit->text());
+            if (ui->PortTonometreupComboBox->currentText() == DOSSIER_ECHANGE)
+                proc->settings()->setValue(Param_Poste_PortTono_DossierEchange, ui->NetworkPathTonoupLineEdit->text());
             else
-                proc->settings()->setValue(Param_Poste_PortTono_Reseau, "");
+                proc->settings()->setValue(Param_Poste_PortTono_DossierEchange, "");
         }
 
         proc->settings()->setValue(Ville_Defaut,wdg_VilleDefautlineEdit->text());

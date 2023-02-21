@@ -428,6 +428,7 @@ private:
     unsigned char CR  = 13; //0x0D
     bool                    m_dlgrefractionouverte;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
+    QMap<QString,QString>   m_mapports{{"-1","-1"}};
     QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
     struct SerialSettings {
@@ -446,6 +447,7 @@ private:
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
+    //! renvoie la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
     void                    ReinitialiseSerialSettings(SerialSettings &set)
                             {
                                 QMetaEnum metaEnum;
@@ -520,6 +522,12 @@ signals:
     void                    newdataxml(const QDomDocument &xml);
 
 public:
+    QMap<QString,QString> mapPortsCOM()
+    {
+        if (m_mapports == QMap<QString,QString> {{"-1","-1"}})
+            m_mapports = Utils::ReconstruitMapPortsCOM();
+        return m_mapports;
+    };
     QSerialPort*            PortAutoref();
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
