@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QComboBox>
 #include <QLineEdit>
-#include <QSound>
+#include <QSoundEffect>
 #include "upmessagebox.h"
 
 class UpComboBox : public QComboBox
@@ -45,6 +45,8 @@ public:
     QString     table() const;
     void        setImmediateToolTip(QString Msg);
     void        clearImmediateToolTip();
+    void        clearItems(bool exceptcurrent = false);
+    void        insertItemsRespectCurrent(QStringList listitems = QStringList());
 
     int         idxavant() const;
 
@@ -56,7 +58,6 @@ private:
 
 signals:
     void        mouseDoubleClick(int row);
-    void        activated(int);
 
 private slots:
     void        emitactivated(int);

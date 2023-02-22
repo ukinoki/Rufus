@@ -17,6 +17,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "upcombobox.h"
 
+#include "upcombobox.h"
+
 UpComboBox::UpComboBox(QWidget *parent) : QComboBox (parent)
 {
     m_valeuravant     = "";
@@ -40,6 +42,48 @@ void UpComboBox::clearImmediateToolTip()
 {
     if (currentIndex()==-1) setImmediateToolTip("");
 }
+
+/*!
+ * \brief UpComboBox::clearItems
+ * vide tous les itels
+ * \param exceptcurrent
+ * si ce paramètre est true, l'item correspondant au currentTexy() n'est pas retiré
+ */
+void UpComboBox::clearItems(bool exceptcurrent)
+{
+    int tot = count();
+    int  idx = 0;
+    for (int i=0; i<tot; ++i)
+    {
+        if (itemText(idx) == currentText())
+        {
+            if (exceptcurrent)
+                ++ idx;
+            else
+                removeItem(idx);
+        }
+        else
+            removeItem(idx);
+    }
+}
+
+/*!
+ * \brief UpComboBox::insertItemsRespectCurrent
+ * \param listitems
+ * insère la liste des items en respectant les items déjà présents dans le combobox ainsi que leur place dans la liste
+ * les items du combobox non présents dans la liste sont repoussés en fond de grille
+ */
+void UpComboBox::insertItemsRespectCurrent(QStringList listitems)
+{
+    int tot = listitems.size();
+    for (int i=0; i<tot; ++i)
+    {
+        if (listitems.at(i) != currentText())
+            insertItem(i,listitems.at(i));
+    }
+}
+
+
 
 // ------------------------------------------------------------------------------------------
 // Interception des évènements internes
@@ -193,5 +237,4 @@ void UpComboBox::emitactivated(int idx)
     if (idx == m_idxavant)
         return;
      emit QComboBox::currentIndexChanged(idx);
- }
-
+}
