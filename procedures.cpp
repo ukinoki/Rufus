@@ -4448,9 +4448,8 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     QString listeports = "";
     for (auto it = m_mapports.begin(); it != m_mapports.end(); it++)
     {
-        if (listeports != "")
-            listeports += " - ";
-        listeports += it.value();
+        listeports += "\n";
+        listeports += it.key() + " / " + it.value();
     }
     if (listeports != "")
         listeports = tr("Liste des ports disponibles") + " - " + listeports;
@@ -4472,36 +4471,32 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion frontofocomètre"));
         else
         {
+            ReglePortFronto();
             sp_portFronto = openserialport(Fronto);
             if (sp_portFronto != Q_NULLPTR)
             {
-                ReglePortFronto();
-                sp_portFronto = openserialport(Fronto);
-                if (sp_portFronto != Q_NULLPTR)
+                if (sp_portFronto->open(QIODevice::ReadWrite))
                 {
-                    if (sp_portFronto->open(QIODevice::ReadWrite))
-                    {
-                        //qDebug() << "FRONTO -> " + m_portFronto;
-                        sp_portFronto->setDataTerminalReady(true);
-                        if (t_threadFronto != Q_NULLPTR)
-                            delete t_threadFronto;
-                        t_threadFronto = new SerialThread(sp_portFronto);
-                        t_threadFronto->transaction();
-                        connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
-                        msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
-                    }
-                    else
-                    {
-                        msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
-                        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
-                        if (sp_portFronto != Q_NULLPTR)
-                            delete sp_portFronto;
-                        sp_portFronto = Q_NULLPTR;
-                    }
+                    //qDebug() << "FRONTO -> " + m_portFronto;
+                    sp_portFronto->setDataTerminalReady(true);
+                    if (t_threadFronto != Q_NULLPTR)
+                        delete t_threadFronto;
+                    t_threadFronto = new SerialThread(sp_portFronto);
+                    t_threadFronto->transaction();
+                    connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
+                    msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
                 }
                 else
+                {
+                    msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
+                    if (sp_portFronto != Q_NULLPTR)
+                        delete sp_portFronto;
+                    sp_portFronto = Q_NULLPTR;
+                }
             }
+            else
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
         }
     }
 
@@ -4551,8 +4546,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion autorefractomètre"));
         else
         {
-            if (sp_portAutoref->open(QIODevice::ReadWrite))
-                ReglePortAutoref();
+            ReglePortAutoref();
             sp_portAutoref = openserialport(Autoref);
             if (sp_portAutoref != Q_NULLPTR)
             {
@@ -4589,8 +4583,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion tonomètre"));
         else
         {
-            if (sp_portTono->open(QIODevice::ReadWrite))
-                ReglePortTonometre();
+            ReglePortTonometre();
             sp_portTono = openserialport(Tonometre);
             if (sp_portTono != Q_NULLPTR)
             {

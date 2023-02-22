@@ -2790,9 +2790,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
 ;
     switch (appareil) {
     case Procedures::Fronto :
-        title = ui->FrontoupComboBox    ->currentText() + " - " + ui->PortFrontoupComboBox->currentText();
+        title = ui->FrontoupComboBox    ->currentText();
         port        = ui->PortFrontoupComboBox->currentText();
-        port.replace("COM","");
         baudrate    = Param_Poste_PortFronto_COM_baudrate;
         databits    = Param_Poste_PortFronto_COM_databits;
         parity      = Param_Poste_PortFronto_COM_parity;
@@ -2800,9 +2799,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         flowcontrol = Param_Poste_PortFronto_COM_flowControl;
         break;
     case Procedures::Autoref :
-        title = ui->AutorefupComboBox   ->currentText() + " - " + ui->PortAutorefupComboBox->currentText();
+        title = ui->AutorefupComboBox   ->currentText();
         port        = ui->PortAutorefupComboBox->currentText();
-        port.replace("COM","");
         baudrate    = Param_Poste_PortAutoref_COM_baudrate;
         databits    = Param_Poste_PortAutoref_COM_databits;
         parity      = Param_Poste_PortAutoref_COM_parity;
@@ -2810,9 +2808,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
         break;
     case Procedures::Refracteur :
-        title = ui->RefracteurupComboBox->currentText() + " - " + ui->PortRefracteurupComboBox->currentText();
+        title = ui->RefracteurupComboBox->currentText();
         port        = ui->PortRefracteurupComboBox->currentText();
-        port.replace("COM","");
         baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
         databits    = Param_Poste_PortRefracteur_COM_databits;
         parity      = Param_Poste_PortRefracteur_COM_parity;
@@ -2820,9 +2817,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
         flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
         break;
     case Procedures::Tonometre :
-        title = ui->TonometreupComboBox ->currentText() + " - " + ui->PortTonometreupComboBox->currentText();
+        title = ui->TonometreupComboBox ->currentText();
         port        = ui->PortTonometreupComboBox->currentText();
-        port.replace("COM","");
         baudrate    = Param_Poste_PortTono_COM_baudrate;
         databits    = Param_Poste_PortTono_COM_databits;
         parity      = Param_Poste_PortTono_COM_parity;
@@ -2832,14 +2828,16 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
     default: break;
     }
 
+    //! PORT
     QMap<QString, QString> mapports = proc->mapPortsCOM();
-    auto it = (mapports.find("COM" + port));
+    auto it = (mapports.find(port));
     if (it != mapports.end())
         nomphysiqueduport = it.value();
 
     QVBoxLayout     *gbllayout          = new QVBoxLayout();
     UpLabel         *lbltitle           = new UpLabel(Com_dlg, title);
-    UpLabel         *lblport            = new UpLabel(Com_dlg, "port = " + nomphysiqueduport);
+    UpLabel         *lblport            = new UpLabel(Com_dlg, port);
+    UpLabel         *lblnomphysport     = new UpLabel(Com_dlg, nomphysiqueduport);
     UpLabel         *lblbaud            = new UpLabel(Com_dlg, tr("Débit"));
     UpLabel         *lbldatabits        = new UpLabel(Com_dlg, tr("Bits de donnés"));
     UpLabel         *lblparity          = new UpLabel(Com_dlg, tr("Parité"));
@@ -2857,16 +2855,16 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
     QHBoxLayout     *flowcontrollay     = new QHBoxLayout();
 
     int width = 170;
-    combobaud->setFixedWidth(width);
-    combodatabits->setFixedWidth(width);
-    comboparity->setFixedWidth(width);
-    combostopbits->setFixedWidth(width);
+    combobaud       ->setFixedWidth(width);
+    combodatabits   ->setFixedWidth(width);
+    comboparity     ->setFixedWidth(width);
+    combostopbits   ->setFixedWidth(width);
     comboflowcontrol->setFixedWidth(width);
-    lbltitle->setAlignment(Qt::AlignCenter);
-    lblport->setAlignment(Qt::AlignCenter);
+    lbltitle        ->setAlignment(Qt::AlignCenter);
+    lblport         ->setAlignment(Qt::AlignCenter);
+    lblnomphysport  ->setAlignment(Qt::AlignCenter);
 
     baudlay->addWidget(lblbaud);
-    baudlay->addWidget(lblport);
     baudlay->addSpacerItem(new QSpacerItem(20,0,QSizePolicy::Expanding));
     baudlay->addWidget(combobaud);
     databitslay->addWidget(lbldatabits);
@@ -2883,6 +2881,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
     flowcontrollay->addWidget(comboflowcontrol);
 
     gbllayout->addWidget(lbltitle);
+    gbllayout->addWidget(lblport);
+    gbllayout->addWidget(lblnomphysport);
     gbllayout->addSpacerItem(new QSpacerItem(0,30,QSizePolicy::Expanding));
     gbllayout->addLayout(baudlay);
     gbllayout->addLayout(databitslay);
@@ -2942,6 +2942,8 @@ void dlg_param::ReglePortCOM(Procedures::TypeAppareil appareil)
 
     //!REGLAGE DES VALEURS
     QVariant val;
+    //! PORT
+    port.replace("COM","");
     //! BAUD
     val = proc->settings()->value(baudrate);
     if (val != QVariant())
@@ -2983,50 +2985,50 @@ QString dlg_param::ToolTipPortCOM(Procedures::TypeAppareil appareil)
 {
     QVariant val;
     QString tooltip(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol(""), port (""), nomphysiqueduport("");
-    ;
-        switch (appareil) {
-        case Procedures::Fronto :
-            port        = ui->PortFrontoupComboBox->currentText();
-            baudrate    = Param_Poste_PortFronto_COM_baudrate;
-            databits    = Param_Poste_PortFronto_COM_databits;
-            parity      = Param_Poste_PortFronto_COM_parity;
-            stopbits    = Param_Poste_PortFronto_COM_stopBits;
-            flowcontrol = Param_Poste_PortFronto_COM_flowControl;
-            break;
-        case Procedures::Autoref :
-            port        = ui->PortAutorefupComboBox->currentText();
-            baudrate    = Param_Poste_PortAutoref_COM_baudrate;
-            databits    = Param_Poste_PortAutoref_COM_databits;
-            parity      = Param_Poste_PortAutoref_COM_parity;
-            stopbits    = Param_Poste_PortAutoref_COM_stopBits;
-            flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
-            break;
-        case Procedures::Refracteur :
-            port        = ui->PortRefracteurupComboBox->currentText();
-            baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
-            databits    = Param_Poste_PortRefracteur_COM_databits;
-            parity      = Param_Poste_PortRefracteur_COM_parity;
-            stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
-            flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
-            break;
-        case Procedures::Tonometre :
-            port        = ui->PortTonometreupComboBox->currentText();
-            baudrate    = Param_Poste_PortTono_COM_baudrate;
-            databits    = Param_Poste_PortTono_COM_databits;
-            parity      = Param_Poste_PortTono_COM_parity;
-            stopbits    = Param_Poste_PortTono_COM_stopBits;
-            flowcontrol = Param_Poste_PortTono_COM_flowControl;
-            break;
-        default: break;
-        }
+    switch (appareil) {
+    case Procedures::Fronto :
+        port        = proc->settings()->value(Param_Poste_PortFronto).toString();
+        baudrate    = Param_Poste_PortFronto_COM_baudrate;
+        databits    = Param_Poste_PortFronto_COM_databits;
+        parity      = Param_Poste_PortFronto_COM_parity;
+        stopbits    = Param_Poste_PortFronto_COM_stopBits;
+        flowcontrol = Param_Poste_PortFronto_COM_flowControl;
+        break;
+    case Procedures::Autoref :
+        port        = proc->settings()->value(Param_Poste_PortAutoref).toString();
+        baudrate    = Param_Poste_PortAutoref_COM_baudrate;
+        databits    = Param_Poste_PortAutoref_COM_databits;
+        parity      = Param_Poste_PortAutoref_COM_parity;
+        stopbits    = Param_Poste_PortAutoref_COM_stopBits;
+        flowcontrol = Param_Poste_PortAutoref_COM_flowControl;
+        break;
+    case Procedures::Refracteur :
+        port        = proc->settings()->value(Param_Poste_PortRefracteur).toString();
+        baudrate    = Param_Poste_PortRefracteur_COM_baudrate;
+        databits    = Param_Poste_PortRefracteur_COM_databits;
+        parity      = Param_Poste_PortRefracteur_COM_parity;
+        stopbits    = Param_Poste_PortRefracteur_COM_stopBits;
+        flowcontrol = Param_Poste_PortRefracteur_COM_flowControl;
+        break;
+    case Procedures::Tonometre :
+        port        = proc->settings()->value(Param_Poste_PortTono).toString();
+        baudrate    = Param_Poste_PortTono_COM_baudrate;
+        databits    = Param_Poste_PortTono_COM_databits;
+        parity      = Param_Poste_PortTono_COM_parity;
+        stopbits    = Param_Poste_PortTono_COM_stopBits;
+        flowcontrol = Param_Poste_PortTono_COM_flowControl;
+        break;
+    default: break;
+    }
 
-        const QString portcom = port;
-        auto it = proc->mapPortsCOM().find(portcom);
-        if (it != proc->mapPortsCOM().end())
-            nomphysiqueduport = it.value();
     int index;
     QMetaEnum metaEnum;
 
+    //! PORT
+    QMap<QString, QString> mapports = proc->mapPortsCOM();
+    auto it = (mapports.find(port));
+    if (it != mapports.end())
+        nomphysiqueduport = port + " - " + it.value();
     //! BAUD
     index = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
     metaEnum = QSerialPort().metaObject()->enumerator(index);
