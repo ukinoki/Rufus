@@ -46,7 +46,7 @@ public:
     void        setImmediateToolTip(QString Msg);
     void        clearImmediateToolTip();
     void        clearItems(bool exceptcurrent = false);
-    void        insertItemsRespectCurrent(QStringList listitems);
+    void        insertItemsRespectCurrent(QStringList listitems = QStringList());
 
     int         idxavant() const;
 

@@ -65,6 +65,12 @@ void UpComboBox::clearItems(bool exceptcurrent)
     }
 }
 
+/*!
+ * \brief UpComboBox::insertItemsRespectCurrent
+ * \param listitems
+ * insère la liste des items en respectant les items déjà présents dans le combobox ainsi que leur place dans la liste
+ * les items du combobox non présents dans la liste sont repoussés en fond de grille
+ */
 void UpComboBox::insertItemsRespectCurrent(QStringList listitems)
 {
     int tot = listitems.size();
@@ -74,6 +80,7 @@ void UpComboBox::insertItemsRespectCurrent(QStringList listitems)
             insertItem(i,listitems.at(i));
     }
 }
+
 
 
 // ------------------------------------------------------------------------------------------
