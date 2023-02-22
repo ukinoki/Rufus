@@ -45,6 +45,8 @@ public:
     QString     table() const;
     void        setImmediateToolTip(QString Msg);
     void        clearImmediateToolTip();
+    void        clearItems(bool exceptcurrent = false);
+    void        insertItemsRespectCurrent(QStringList listitems);
 
     int         idxavant() const;
 
@@ -56,7 +58,6 @@ private:
 
 signals:
     void        mouseDoubleClick(int row);
-    void        activated(int);
 
 private slots:
     void        emitactivated(int);

@@ -70,6 +70,7 @@ Procedures::Procedures(QObject *parent) :
     }
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
+
     QList<int> lports ={ 3306 , 3307};
     QSet<int> ports =QSet<int>(lports.constBegin(), lports.constEnd());
     bool k =    (
@@ -4669,32 +4670,35 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         m_portFronto = m_settings->value(Param_Poste_PortFronto).toString();
         if (m_portFronto == "")
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion frontofocomètre"));
-        ReglePortFronto();
-        sp_portFronto = openserialport(Fronto);
-        if (sp_portFronto != Q_NULLPTR)
+        else
         {
-            if (sp_portFronto->open(QIODevice::ReadWrite))
+            ReglePortFronto();
+            sp_portFronto = openserialport(Fronto);
+            if (sp_portFronto != Q_NULLPTR)
             {
-                //qDebug() << "FRONTO -> " + m_portFronto;
-                sp_portFronto->setDataTerminalReady(true);
-                if (t_threadFronto != Q_NULLPTR)
-                    delete t_threadFronto;
-                t_threadFronto = new SerialThread(sp_portFronto);
-                t_threadFronto->transaction();
-                connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
-                msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
+                if (sp_portFronto->open(QIODevice::ReadWrite))
+                {
+                    //qDebug() << "FRONTO -> " + m_portFronto;
+                    sp_portFronto->setDataTerminalReady(true);
+                    if (t_threadFronto != Q_NULLPTR)
+                        delete t_threadFronto;
+                    t_threadFronto = new SerialThread(sp_portFronto);
+                    t_threadFronto->transaction();
+                    connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
+                    msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
+                }
+                else
+                {
+                    msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
+                    UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
+                    if (sp_portFronto != Q_NULLPTR)
+                        delete sp_portFronto;
+                    sp_portFronto = Q_NULLPTR;
+                }
             }
             else
-            {
-                msg =  tr("Impossible de connecter le frontocomètre sur ") + m_portFronto;
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
-                if (sp_portFronto != Q_NULLPTR)
-                    delete sp_portFronto;
-                sp_portFronto = Q_NULLPTR;
-            }
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le frontocomètre sur ") + m_portFronto, listeports);
     }
 
     // PORT REFRACTEUR
@@ -4703,32 +4707,35 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         m_portRefracteur = m_settings->value(Param_Poste_PortRefracteur).toString();
         if (m_portRefracteur == "")
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion refracteur"));
-        ReglePortRefracteur();
-        sp_portRefracteur = openserialport(Refracteur);
-        if (sp_portRefracteur != Q_NULLPTR)
+        else
         {
-            if (sp_portRefracteur->open(QIODevice::ReadWrite))
+            ReglePortRefracteur();
+            sp_portRefracteur = openserialport(Refracteur);
+            if (sp_portRefracteur != Q_NULLPTR)
             {
-                //qDebug() << "REFRACTEUR -> " + m_portRefracteur;
-                sp_portRefracteur->setDataTerminalReady(true);
-                if (t_threadRefracteur != Q_NULLPTR)
-                    delete t_threadRefracteur;
-                t_threadRefracteur = new SerialThread(sp_portRefracteur);
-                t_threadRefracteur->transaction();
-                connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
-                msg = tr("Connexion refracteur OK sur ") + m_portRefracteur;
+                if (sp_portRefracteur->open(QIODevice::ReadWrite))
+                {
+                    //qDebug() << "REFRACTEUR -> " + m_portRefracteur;
+                    sp_portRefracteur->setDataTerminalReady(true);
+                    if (t_threadRefracteur != Q_NULLPTR)
+                        delete t_threadRefracteur;
+                    t_threadRefracteur = new SerialThread(sp_portRefracteur);
+                    t_threadRefracteur->transaction();
+                    connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
+                    msg = tr("Connexion refracteur OK sur ") + m_portRefracteur;
+                }
+                else
+                {
+                    msg =  tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
+                    UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
+                    if (sp_portRefracteur != Q_NULLPTR)
+                        delete sp_portRefracteur;
+                    sp_portRefracteur = Q_NULLPTR;
+                }
             }
             else
-            {
-                msg =  tr("Impossible de connecter le refracteur sur ") + m_portRefracteur;
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
-                if (sp_portRefracteur != Q_NULLPTR)
-                    delete sp_portRefracteur;
-                sp_portRefracteur = Q_NULLPTR;
-            }
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le refracteur sur ") + m_portRefracteur, listeports);
     }
 
     //PORT AUTOREF
@@ -4737,64 +4744,70 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         m_portAutoref = m_settings->value(Param_Poste_PortAutoref).toString();
         if (m_portAutoref == "")
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion autorefractomètre"));
-        ReglePortAutoref();
-        sp_portAutoref = openserialport(Autoref);
-        if (sp_portAutoref != Q_NULLPTR)
+        else
         {
-            if (sp_portAutoref->open(QIODevice::ReadWrite))
+            ReglePortAutoref();
+            sp_portAutoref = openserialport(Autoref);
+            if (sp_portAutoref != Q_NULLPTR)
             {
-                //qDebug() << "AUTOREF -> " + m_portAutoref;
-                sp_portAutoref->setDataTerminalReady(true);
-                if (t_threadAutoref != Q_NULLPTR)
-                    delete t_threadAutoref;
-                t_threadAutoref = new SerialThread(sp_portAutoref);
-                t_threadAutoref->transaction();
-                connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
-                msg = tr("Connexion autorefractomètre OK sur ") + m_portAutoref;
+                if (sp_portAutoref->open(QIODevice::ReadWrite))
+                {
+                    //qDebug() << "AUTOREF -> " + m_portAutoref;
+                    sp_portAutoref->setDataTerminalReady(true);
+                    if (t_threadAutoref != Q_NULLPTR)
+                        delete t_threadAutoref;
+                    t_threadAutoref = new SerialThread(sp_portAutoref);
+                    t_threadAutoref->transaction();
+                    connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
+                    msg = tr("Connexion autorefractomètre OK sur ") + m_portAutoref;
+                }
+                else
+                {
+                    msg =  tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref;
+                    UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
+                    if (sp_portAutoref != Q_NULLPTR)
+                        delete sp_portAutoref;
+                    sp_portAutoref = Q_NULLPTR;
+                }
             }
             else
-            {
-                msg =  tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref;
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
-                if (sp_portAutoref != Q_NULLPTR)
-                    delete sp_portAutoref;
-                sp_portAutoref = Q_NULLPTR;
-            }
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter l'autorefractomètre sur ") + m_portAutoref, listeports);
     }
     if (appareils.testFlag(Tonometre))
     {        
         m_portTono = m_settings->value(Param_Poste_PortTono).toString();
-        if (m_portAutoref == "")
+        if (m_portTono == "")
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur paramètrage connexion tonomomètre"));
-        ReglePortTonometre();
-        sp_portTono = openserialport(Tonometre);
-        if (sp_portTono != Q_NULLPTR)
+        else
         {
-            if (sp_portTono->open(QIODevice::ReadWrite))
+            ReglePortTonometre();
+            sp_portTono = openserialport(Tonometre);
+            if (sp_portTono != Q_NULLPTR)
             {
-                //qDebug() << "TONOMETRE -> " + m_portTono;
-                sp_portTono->setDataTerminalReady(true);
-                if (t_threadTono != Q_NULLPTR)
-                    delete t_threadTono;
-                t_threadTono = new SerialThread(sp_portTono);
-                t_threadTono->transaction();
-                connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
-                msg = tr("Connexion tonomètre OK sur ") + m_portTono;
+                if (sp_portTono->open(QIODevice::ReadWrite))
+                {
+                    //qDebug() << "TONOMETRE -> " + m_portTono;
+                    sp_portTono->setDataTerminalReady(true);
+                    if (t_threadTono != Q_NULLPTR)
+                        delete t_threadTono;
+                    t_threadTono = new SerialThread(sp_portTono);
+                    t_threadTono->transaction();
+                    connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
+                    msg = tr("Connexion tonomètre OK sur ") + m_portTono;
+                }
+                else
+                {
+                    msg =  tr("Impossible de connecter le tonomètre sur ") + m_portTono;
+                    UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonoomètre sur ") + m_portTono, listeports);
+                    if (sp_portTono != Q_NULLPTR)
+                        delete sp_portTono;
+                    sp_portTono = Q_NULLPTR;
+                }
             }
             else
-            {
-                msg =  tr("Impossible de connecter le tonomètre sur ") + m_portTono;
-                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonoomètre sur ") + m_portTono, listeports);
-                if (sp_portTono != Q_NULLPTR)
-                    delete sp_portTono;
-                sp_portTono = Q_NULLPTR;
-            }
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
         }
-        else
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de connecter le tonomètre sur ") + m_portTono, listeports);
     }
     if (msg != "")
         ShowMessage::I()->SplashMessage(msg, 3000);
