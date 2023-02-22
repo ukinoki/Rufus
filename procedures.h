@@ -521,6 +521,15 @@ public:
     //! renvoie la map des ports COM disponibles sur le système sous la forme (COMxx,nomgeneriqueduport)
     QMap<QString,QString> mapPortsCOM()
     {
+        /*! pour les tests
+        m_mapports.clear();
+        m_mapports.insert("COM1","blabla1");
+        m_mapports.insert("COM2","blabla2");
+        m_mapports.insert("COM3","blabla3");
+        m_mapports.insert("COM4","blabla4");
+        m_mapports.insert("COM5","blabla5");
+        m_mapports.insert("COM6","blabla6");
+        return m_mapports;//*/
         if (m_mapports == QMap<QString,QString> {{"-1","-1"}})
             m_mapports = Utils::ReconstruitMapPortsCOM();
         return m_mapports;

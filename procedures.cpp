@@ -4940,8 +4940,8 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
         break;
     default: return;
     }
-    if (appareilscom>0 && m_mapports.size()>0)
-        Ouverture_Ports_Series(appareilscom);
+//    if (appareilscom>0 && m_mapports.size()>0)
+//        Ouverture_Ports_Series(appareilscom);
 }
 
 bool Procedures::ReglePortRefracteur()
