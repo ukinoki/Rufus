@@ -57,6 +57,17 @@ int DataBase::port() const
     return m_port;
 }
 
+
+void DataBase::setSQLExecutable(const QString &sqlExecutable)
+{
+    m_sqlExecutable = sqlExecutable;
+}
+
+QString DataBase::SQLExecutable() const
+{
+    return m_sqlExecutable;
+}
+
 void DataBase::InfosConnexionSQL()
 {
     UpMessageBox::Watch(Q_NULLPTR,
@@ -80,7 +91,6 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
-
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
@@ -995,6 +1005,7 @@ QList<QString> DataBase::loadStringIdPostesConnectes()
     return listpostes;
 }
 
+
 /*
  * Correspondants
 */
@@ -1843,7 +1854,7 @@ QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
         " and " CP_DATE_AUTRESRECETTES " <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
         " order by actedate, nom";
 
-        //proc->Edit(req);
+        //qDebug() << req;
         //p... ça c'est de la requête
         QList<QVariantList> recetteslist = StandardSelectSQL(req,ok);
         if(!ok || recetteslist.size()==0)
@@ -2022,20 +2033,20 @@ QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
  * Cotations
 */
 QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
-{
-    int k = 0;
-    QList<Cotation*> cotations = QList<Cotation*>();
-    if (usr == Q_NULLPTR)
-        return cotations;
-    bool optam = usr->isOPTAM();
-    int secteur = usr->secteurconventionnel();
-    //qDebug() << optam << secteur;
+ {
+     int k = 0;
+     QList<Cotation*> cotations = QList<Cotation*>();
+     if (usr == Q_NULLPTR)
+         return cotations;
+     bool optam = usr->isOPTAM();
+     int secteur = usr->secteurconventionnel();
+     //qDebug() << optam << secteur;
 
-    QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                    CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
-                    " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
-                    " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
-                    " order by " CP_TYPEACTE_COTATIONS;
+     QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                     CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
+                     " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
+                     " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
+                     " order by " CP_TYPEACTE_COTATIONS;
     //qDebug() << req;
     QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok)
@@ -2056,7 +2067,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
         jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
-        if (cotation != Q_NULLPTR)
+         if (cotation != Q_NULLPTR)
             cotations << cotation;
     }
     req = " SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
@@ -2091,7 +2102,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
 
 QStringList DataBase::loadTypesCotations()
 {
-    QStringList listcotations;
+    QStringList listcotations;    
     QString req = "select distinct " CP_TYPEACTE_COTATIONS " as code from " TBL_COTATIONS
                   " union "
                   " select " CP_CODECCAM_CCAM " as code from " TBL_CCAM
@@ -2428,27 +2439,24 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
     QList<Patient*> listpatients;
     QString clausewhere ("");
     QString like = (filtre? "like" : "=");
-    QString clauselimit ("");
-    if (Utils::correctquoteSQL(nom).length() > 0 || Utils::correctquoteSQL(prenom).length() > 0)
+    QString orderby = " order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
+    QString clauselimit (" limit 1000");
+    if (nom + prenom != "")
         clausewhere += " WHERE ";
-    if (Utils::correctquoteSQL(nom).length() > 0)
+    if (nom != "")
         clausewhere += "PatNom " + like + " '" + Utils::correctquoteSQL(nom) + (filtre? "%" : "") + "'";
-    if (Utils::correctquoteSQL(prenom).length() > 0)
+    if (prenom != "")
     {
-        if (clausewhere != " WHERE ")
-            clausewhere += " AND PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
-        else
-            clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
+        if (nom != "")
+            clausewhere += " AND ";
+        clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
     }
-    clauselimit = " limit 1000";
     QString req = "select " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", "
                             CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
                             CP_IDCREATEUR_PATIENTS
-                   " from (SELECT " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", "
-                                    CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
-                                    CP_IDCREATEUR_PATIENTS " from " TBL_PATIENTS
-                                  " force index(idx_nomprenom) order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ") as idxpat";
+                   " from " TBL_PATIENTS;
     req += clausewhere;
+    req += orderby;
     req += clauselimit;
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);

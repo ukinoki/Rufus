@@ -721,21 +721,9 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
         host = "localhost";
     else
         host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
-    bool useSSL = (db->ModeAccesDataBase() == Utils::Distant);
     QString login = LOGIN_SQL;
-    if (useSSL)
-        login += "SSL";
     QString dirkey = "/etc/mysql";
-    QString keys = "";
-    if (useSSL)
-    {
-        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString() != "")
-            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
-        else
-            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
-        keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
-    }
-    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
+    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port());
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
