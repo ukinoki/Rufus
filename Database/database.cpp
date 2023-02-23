@@ -2439,27 +2439,24 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
     QList<Patient*> listpatients;
     QString clausewhere ("");
     QString like = (filtre? "like" : "=");
-    QString clauselimit ("");
-    if (Utils::correctquoteSQL(nom).length() > 0 || Utils::correctquoteSQL(prenom).length() > 0)
+    QString orderby = " order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
+    QString clauselimit (" limit 1000");
+    if (nom + prenom != "")
         clausewhere += " WHERE ";
-    if (Utils::correctquoteSQL(nom).length() > 0)
+    if (nom != "")
         clausewhere += "PatNom " + like + " '" + Utils::correctquoteSQL(nom) + (filtre? "%" : "") + "'";
-    if (Utils::correctquoteSQL(prenom).length() > 0)
+    if (prenom != "")
     {
-        if (clausewhere != " WHERE ")
-            clausewhere += " AND PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
-        else
-            clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
+        if (nom != "")
+            clausewhere += " AND ";
+        clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
     }
-    clauselimit = " limit 1000";
     QString req = "select " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", "
                             CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
                             CP_IDCREATEUR_PATIENTS
-                   " from (SELECT " CP_IDPAT_PATIENTS ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", "
-                                    CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
-                                    CP_IDCREATEUR_PATIENTS " from " TBL_PATIENTS
-                                  " force index(idx_nomprenom) order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ") as idxpat";
+                   " from " TBL_PATIENTS;
     req += clausewhere;
+    req += orderby;
     req += clauselimit;
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);

@@ -847,7 +847,6 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
  */
 int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 {
-    QStringList listpaths;
     int a = 99;
 
     QString sqlCommand = db->SQLExecutable();
@@ -861,41 +860,28 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
         host = "localhost";
     else
         host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
-    bool useSSL = (db->ModeAccesDataBase() == Utils::Distant);
     QString login = LOGIN_SQL;
-    if (useSSL)
-        login += "SSL";
-    QString dirkey = "/etc/mysql";
-    QString keys = "";
-    if (useSSL)
-    {
-        if (m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString() != "")
-            dirkey = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
-        else
-            m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
-        keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
-    }   
     QStringList args = QStringList()
         << "-u" << login
         << "-p" MDP_SQL
         << "-h" << host
-        << "-P" << QString::number(db->port())
-        << keys;
+        << "-P" << QString::number(db->port());
+#ifndef Q_OS_WIN
     QString Command = sqlCommand;
     for (int i = 0; i < args.size() ; ++i)
         Command += " " + args.at(i);
+#endif
 
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
             QString path = ListScripts.at(i);
-            listpaths << path;
-            QString command = Command + " < " + path;
             QProcess dumpProcess(parent());
-#if Q_0S_WIN
+#ifdef Q_OS_WIN
             dumpProcess.setStandardInputFile(path);
             dumpProcess.start(sqlCommand, args);
 #else
+            QString command = Command + " < " + path;
             QString bat = "bash -c \"" + command + "\"";
             dumpProcess.startCommand(bat);
 #endif
@@ -4648,9 +4634,8 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
     QString listeports = "";
     for (auto it = m_mapports.begin(); it != m_mapports.end(); it++)
     {
-        if (listeports != "")
-            listeports += " - ";
-        listeports += it.value();
+        listeports += "\n";
+        listeports += it.key() + " / " + it.value();
     }
     if (listeports != "")
         listeports = tr("Liste des ports disponibles") + " - " + listeports;
