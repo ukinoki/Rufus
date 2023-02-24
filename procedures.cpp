@@ -701,6 +701,116 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
 }
 
 /*!
+ * \brief Procedures::sqlExecutable
+ * \return le chemin vers les éxécutable mysql et mysqldump
+ */
+QString Procedures::dirSQLExecutable()
+{
+    if (m_dirSQLExecutable == "")
+        setDirSQLExecutable();
+    return m_dirSQLExecutable;
+}
+
+void Procedures::setDirSQLExecutable()
+{
+    QString sqlexecutable = settings()->value(Dossier_SQLExecutable).toString();
+    if (sqlexecutable != "" || !QFile(sqlexecutable + "/mysql").exists())
+    {
+#ifdef Q_OS_MACX
+        QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+        mysqldir.cdUp();
+        sqlexecutable = mysqldir.absolutePath() + "/Applications";
+#elif Q_OS_LINUX
+        sqlexecutable = "/usr/bin";
+#elif Q_OS_WIN
+        sqlexecutable = "C:\MYSQL\bin";
+#endif
+        bool a = (QFile(sqlexecutable + "/mysql").exists());
+        if (!a)
+            UpMessageBox::Information(Q_NULLPTR,
+                                      tr("le chemin par défaut (") + sqlexecutable + ") n'est pas valide"),
+                                      tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
+        while (!a)
+        {
+            QUrl urlexecutable = QUrl();
+            urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                                                              tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
+                                                              (QDir::rootPath()));
+            if (urlexecutable == QUrl() || !QFile(urlexecutable.path() + "/mysql").exists())
+            {
+                if (UpMessageBox::Question(Q_NULLPTR,
+                                           tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
+                                           tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
+                                           UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                           QStringList() << tr("Annuler") << tr("Reprendre"))
+                        != UpSmallButton::STARTBUTTON)
+                    return;
+            }
+            else
+            {
+                sqlexecutable = urlexecutable.path();
+                a = true;
+            }
+        }
+        if (sqlexecutable != settings()->value(Dossier_SQLExecutable).toString())
+            settings()->setValue(Dossier_SQLExecutable, sqlexecutable);
+    }
+    m_dirSQLExecutable = sqlexecutable;
+}
+
+/*!
+ * \brief Procedures::dirSSLKey
+ * \return le chemin vers le dossier des clés SSL
+ */
+QString Procedures::dirSSLKeys()
+{
+    if (m_dirSSLkeys == "")
+        setDirSSLKeys();
+    return m_dirSSLkeys;
+}
+
+void Procedures::setDirSSLKeys()
+{
+    QUrl urlkeys = QUrl();
+    QString dirkeys = settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+    if (dirkeys == "")
+    {
+        dirkeys = "/etc/mysql";
+        urlkeys.setPath(dirkeys);
+        bool a = urlkeys.isValid();
+        if (!a)
+            UpMessageBox::Information(Q_NULLPTR,
+                                      tr("le chemin par défaut (") + dirkeys + ") n'est pas valide"),
+                                      tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
+        while (!a)
+        {
+            urlkeys = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                                                       tr("Choisissez le dossier dans lequel se trouvent les clés SSL"),
+                                                       (QDir::rootPath()));
+            if (urlkeys == QUrl())
+            {
+                if (UpMessageBox::Question(Q_NULLPTR,
+                                           tr("le chemin choisi (") + urlkeys.path() + tr(") n'est pas valide"),
+                                           tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
+                                           UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                           QStringList() << tr("Annuler") << tr("Reprendre"))
+                        != UpSmallButton::STARTBUTTON)
+                    return;
+                else
+                {
+                    dirkeys = urlkeys.path();
+                    a = true;
+                }
+            }
+            dirkeys = urlkeys.path();
+        }
+        if (dirkeys !=settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString())
+            settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dirkeys);
+    }
+    m_dirSSLkeys = dirkeys;
+}
+
+/*!
  * \brief Procedures::DefinitScriptRestore
  * \param ListNomFiles
  */
@@ -708,22 +818,23 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
 {
     QStringList listpaths;
     int a = 99;
-    QString cheminmysql;
-#ifdef Q_OS_MACX
-    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
-    /*! cheminmysql = QCoreApplication::applicationDirPath()+ "/Contents/Applications";           // Depuis HighSierra on ne peut plus utiliser ce chemin - le script ne veut pas utiliser le client mysql du package (???)*/
-#endif
-#ifdef Q_OS_LINUX
-    cheminmysql = "/usr/bin";
-#endif
+    QString cheminmysql = dirSQLExecutable();
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
     else
         host = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
+    bool useSSL = (db->ModeAccesDataBase() == Utils::Distant);
     QString login = LOGIN_SQL;
-    QString dirkey = "/etc/mysql";
-    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port());
+    if (useSSL)
+        login += "SSL";
+    QString keys = "";
+    if (useSSL)
+    {
+        QString dirkey = dirSSLKeys();
+        keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
+    }
+    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
@@ -4616,6 +4727,7 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
     QString port(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
     SerialSettings serialset;
     QSerialPort *serialport;
+    ReinitialiseSerialSettings(serialset);
     TypesAppareils appareilscom;
     switch (appareil) {
     case Fronto :
@@ -8480,7 +8592,9 @@ void Procedures::LectureDonneesCOMFronto(QString Mesure)
 //-----------------------------------------------------------------------------------------
 void Procedures::ReponsePortSerie_Tono(const QString &s)
 {
-    Utils::EnChantier();
+    if( s.length() >0 || true ) {  // toujours true
+         Utils::EnChantier();
+     }
 }
 
 // -------------------------------------------------------------------------------------

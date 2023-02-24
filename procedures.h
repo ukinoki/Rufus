@@ -102,6 +102,8 @@ private:
     QList<Utils::ModeAcces> m_listemodesacces = QList<Utils::ModeAcces>();
     UpDialog                *dlg_buprestore;
     UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
+    QString                 m_dirSQLExecutable = "";                                    //! le chemin vers les éxécutables mysql et mysqldump
+    QString                 m_dirSSLkeys = "";                                          //! le chemin vers le dossier des clés SSL
     void                    ReconstruitListeModesAcces();
     bool                    VerifBaseEtRessources();
     bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
@@ -117,6 +119,10 @@ private:
     bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
 public:
+    void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
+    QString                 dirSQLExecutable();                                         /*! le chemin vers le dossier contenant les fichier mysql et mysqldump  */
+    void                    setDirSSLKeys();                                            /*! fixe le chemin vers le dossier des clés SSL */
+    QString                 dirSSLKeys();                                               /*! le chemin vers le dossier des clés SSL */
     bool                    AutresPostesConnectes(bool msg = true);
     bool                    FicheChoixConnexion();
     bool                    Connexion_A_La_Base();
@@ -562,6 +568,7 @@ public:
 
     // LES PORTS COM ------------------------------------------------
     void RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map);                       /*! règle les datas du port série pour l'appareil passé en paramètre */
+
 
 private:
     QString                 m_mesureSerie;

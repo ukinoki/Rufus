@@ -58,16 +58,6 @@ int DataBase::port() const
 }
 
 
-void DataBase::setSQLExecutable(const QString &sqlExecutable)
-{
-    m_sqlExecutable = sqlExecutable;
-}
-
-QString DataBase::SQLExecutable() const
-{
-    return m_sqlExecutable;
-}
-
 void DataBase::InfosConnexionSQL()
 {
     UpMessageBox::Watch(Q_NULLPTR,
