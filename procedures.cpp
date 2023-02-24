@@ -619,16 +619,10 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     Dir.cdUp();
     scriptbackup += "\n";
     QString cheminmysql;
-#ifdef Q_OS_MACX
-    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + DIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
-#endif
-#ifdef Q_OS_LINUX
-    cheminmysql = "/usr/bin";
-#endif
-    scriptbackup += "MYSQL=" + cheminmysql;
+    scriptbackup += "MYSQL=" + dirSQLExecutable();
     scriptbackup += "/mysql";
     scriptbackup += "\n";
-    scriptbackup += "MYSQLDUMP=" + cheminmysql;
+    scriptbackup += "MYSQLDUMP=" + dirSQLExecutable();
     scriptbackup += "/mysqldump";
     scriptbackup += "\n";
 
@@ -713,49 +707,84 @@ QString Procedures::dirSQLExecutable()
 
 void Procedures::setDirSQLExecutable()
 {
-    QString sqlexecutable = settings()->value(Dossier_SQLExecutable).toString();
-    if (sqlexecutable != "" || !QFile(sqlexecutable + "/mysql").exists())
-    {
-#ifdef Q_OS_MACX
-        QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
-        mysqldir.cdUp();
-        sqlexecutable = mysqldir.absolutePath() + "/Applications";
-#elif Q_OS_LINUX
-        sqlexecutable = "/usr/bin";
-#elif Q_OS_WIN
-        sqlexecutable = "C:\MYSQL\bin";
-#endif
-        bool a = (QFile(sqlexecutable + "/mysql").exists());
-        if (!a)
-            UpMessageBox::Information(Q_NULLPTR,
-                                      tr("le chemin par défaut (") + sqlexecutable + ") n'est pas valide"),
-                                      tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
-        while (!a)
-        {
-            QUrl urlexecutable = QUrl();
-            urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                                                              tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
-                                                              (QDir::rootPath()));
-            if (urlexecutable == QUrl() || !QFile(urlexecutable.path() + "/mysql").exists())
-            {
-                if (UpMessageBox::Question(Q_NULLPTR,
-                                           tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
-                                           tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
-                                           UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                                           QStringList() << tr("Annuler") << tr("Reprendre"))
-                        != UpSmallButton::STARTBUTTON)
-                    return;
-            }
-            else
-            {
-                sqlexecutable = urlexecutable.path();
-                a = true;
-            }
-        }
-        if (sqlexecutable != settings()->value(Dossier_SQLExecutable).toString())
-            settings()->setValue(Dossier_SQLExecutable, sqlexecutable);
-    }
-    m_dirSQLExecutable = sqlexecutable;
+    QString defaultsqlexecutable = "";
+     QString sqlexecutable = settings()->value(Param_SQLExecutable).toString();
+     bool defaultsql = false;
+ #ifdef Q_OS_MACX
+         QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+         mysqldir.cdUp();
+         defaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
+         defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
+ #elif Q_OS_LINUX
+         defaultsqlexecutable = "/usr/bin";
+         defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
+ #elif Q_OS_WIN
+         defaultsqlexecutable = "C:\MYSQL\bin";
+         defaultsql = QFile(defaultsqlexecutable + "\mysql.exe").exists();
+ #endif
+     if (defaultsql)
+     {
+         if (defaultsqlexecutable != sqlexecutable)
+             settings()->setValue(Param_SQLExecutable, defaultsqlexecutable);
+         m_dirSQLExecutable = defaultsqlexecutable;
+         return;
+     }
+     if (sqlexecutable == "" || (sqlexecutable != "" && !QFile(sqlexecutable + "/mysql").exists()))
+     {
+         bool a;
+ #ifdef Q_OS_MACX
+         QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+         mysqldir.cdUp();
+         sqlexecutable = mysqldir.absolutePath() + "/Applications";
+         if (!QFile(sqlexecutable + "/mysql").exists())
+             sqlexecutable = "/usr/local/mysql/bin";
+         if (!QFile(sqlexecutable + "/mysql").exists())
+             sqlexecutable = QStandardPaths::findExecutable("mysql");
+         a = (QFile(sqlexecutable + "/mysql").exists());
+ #elif Q_OS_LINUX
+         sqlexecutable = "/usr/bin";
+         if (!QFile(sqlexecutable + "/mysql").exists())
+             sqlexecutable = QStandardPaths::findExecutable("mysql");
+         a = (QFile(sqlexecutable + "/mysql").exists());
+ #elif Q_OS_WIN
+         sqlexecutable = "C:\MYSQL\bin";
+         if (!QFile(sqlexecutable + "\mysql.exe").exists())
+             sqlexecutable = QStandardPaths::findExecutable("mysql");
+         a = (QFile(sqlexecutable + "\mysql.exe").exists());
+ #endif
+         if (!a)
+             UpMessageBox::Information(Q_NULLPTR,
+                                       tr("le chemin des programmes mysql et mysqldump (") + sqlexecutable + ") n'est pas valide"),
+                                       tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
+         while (!a)
+         {
+             QUrl urlexecutable = QUrl();
+             urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                                                               tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
+                                                               (QDir::rootPath()));
+             if (urlexecutable == QUrl() || !QFile(urlexecutable.path() + "/mysql").exists())
+             {
+                 if (UpMessageBox::Question(Q_NULLPTR,
+                                            tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
+                                            tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
+                                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                            QStringList() << tr("Annuler") << tr("Reprendre"))
+                         != UpSmallButton::STARTBUTTON)
+                 {
+                     settings()->remove(Param_SQLExecutable);
+                     return;
+                 }
+             }
+             else
+             {
+                 sqlexecutable = urlexecutable.path();
+                 a = true;
+             }
+         }
+         if (sqlexecutable != settings()->value(Param_SQLExecutable).toString())
+             settings()->setValue(Param_SQLExecutable, sqlexecutable);
+     }
+     m_dirSQLExecutable = sqlexecutable;
 }
 
 /*!
@@ -818,7 +847,7 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
 {
     QStringList listpaths;
     int a = 99;
-    QString cheminmysql = dirSQLExecutable();
+    QString sqlCommand = dirSQLExecutable();
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
@@ -834,7 +863,7 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
         QString dirkey = dirSSLKeys();
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
-    QString command = cheminmysql + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
+    QString command = sqlCommand + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
     for (int i=0; i<ListScripts.size(); i++)
         if (QFile(ListScripts.at(i)).exists())
         {
@@ -2975,6 +3004,11 @@ bool Procedures::Connexion_A_La_Base()
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
+    if (dirSQLExecutable() == "")
+    {
+        Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
+        UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base"));
+    }
 
     db->initParametresConnexionSQL(server, port);
     if (!IdentificationUser())
@@ -4155,6 +4189,12 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant)
 {
+    if (dirSQLExecutable() == "")
+     {
+         UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
+         exit(0);
+     }
+
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
@@ -4727,7 +4767,7 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
     QString port(""), baudrate(""),databits(""),parity(""),stopbits(""),flowcontrol("");
     SerialSettings serialset;
     QSerialPort *serialport;
-    ReinitialiseSerialSettings(serialset);
+    InitialiseSerialSettings(serialset);
     TypesAppareils appareilscom;
     switch (appareil) {
     case Fronto :
@@ -4854,7 +4894,7 @@ bool Procedures::ReglePortRefracteur()
     int val(-1), index(-1);
     QMetaEnum metaEnum;
     QString nameRF    = m_settings->value(Param_Poste_Refracteur).toString();
-    ReinitialiseSerialSettings(s_paramPortSerieRefracteur);
+    InitialiseSerialSettings(s_paramPortSerieRefracteur);
     if (m_settings->value(Param_Poste_PortRefracteur_COM_baudrate)      != QVariant()
      && m_settings->value(Param_Poste_PortRefracteur_COM_databits)      != QVariant()
      && m_settings->value(Param_Poste_PortRefracteur_COM_parity)        != QVariant()
@@ -6311,7 +6351,7 @@ bool Procedures::ReglePortTonometre()
     bool a = true;
     int val(-1), index(-1);
     QMetaEnum metaEnum;
-    ReinitialiseSerialSettings(s_paramPortSerieTono);
+    InitialiseSerialSettings(s_paramPortSerieTono);
     if (m_settings->value(Param_Poste_PortTono_COM_baudrate)      != QVariant()
      && m_settings->value(Param_Poste_PortTono_COM_databits)      != QVariant()
      && m_settings->value(Param_Poste_PortTono_COM_parity)        != QVariant()
@@ -8324,7 +8364,7 @@ bool Procedures::ReglePortFronto()
     int val(-1), index(-1);
     QMetaEnum metaEnum;
     QString nameLM    = m_settings->value(Param_Poste_Fronto).toString();
-    ReinitialiseSerialSettings(s_paramPortSerieFronto);
+    InitialiseSerialSettings(s_paramPortSerieFronto);
     if (m_settings->value(Param_Poste_PortFronto_COM_baudrate)      != QVariant()
      && m_settings->value(Param_Poste_PortFronto_COM_databits)      != QVariant()
      && m_settings->value(Param_Poste_PortFronto_COM_parity)        != QVariant()
@@ -8668,7 +8708,7 @@ bool Procedures::ReglePortAutoref()
     bool a = true;
     int val(-1), index(-1);
     QMetaEnum metaEnum;
-    ReinitialiseSerialSettings(s_paramPortSerieAutoref);
+    InitialiseSerialSettings(s_paramPortSerieAutoref);
     if (m_settings->value(Param_Poste_PortAutoref_COM_baudrate)      != QVariant()
      && m_settings->value(Param_Poste_PortAutoref_COM_databits)      != QVariant()
      && m_settings->value(Param_Poste_PortAutoref_COM_parity)        != QVariant()

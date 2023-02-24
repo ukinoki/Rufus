@@ -453,7 +453,7 @@ private:
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
-    void                    ReinitialiseSerialSettings(SerialSettings &set)
+    void                    InitialiseSerialSettings(SerialSettings &set)
                             {
                                 QMetaEnum metaEnum;
                                 int index(-1);

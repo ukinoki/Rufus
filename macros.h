@@ -1124,7 +1124,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Dossier_DocsScannes                             "/DossiersDocsScannes"
 #define Dossier_Videos                                  "/DossiersVideos"
 #define Dossier_Documents                               "/DossiersDocuments/"
-#define Dossier_SQLExecutable                           "Param_Poste/DirSQLExecutable"
+#define Param_SQLExecutable                             "Param_Poste/DirSQLExecutable"
 
 #define Param_SSL                                       "/SSL"
 #define Param_Serveur                                   "/Serveur"
