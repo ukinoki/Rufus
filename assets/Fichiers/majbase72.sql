@@ -1,4 +1,4 @@
--- 22/01/2023
+-- 22/04/2022
 
 USE `rufus`;
 DROP PROCEDURE IF EXISTS MAJ72;
@@ -32,9 +32,10 @@ SELECT COUNT(*) INTO tot FROM
         INSERT INTO `rufus`.`listeappareils` (`TitreExamen`, `NomAppareil`) VALUES ('0CT', 'Spectralis SHIFT');
     END IF;
 SELECT COUNT(*) INTO tot FROM
-    (SELECT COLUMN_KEY
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 'salledattente' AND COLUMN_NAME = 'idPat') as chp;
+    (SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE column_key = 'PRI'
+		AND table_name = 'salledattente'
+		AND column_name = 'idPat') as chp;
     IF tot=1
     THEN
         ALTER TABLE `rufus`.`salledattente`

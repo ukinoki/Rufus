@@ -1148,7 +1148,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_SSL                                       "/SSL"
 #define Param_Serveur                                   "/Serveur"
 #define Param_Port                                      "/Port"
-#define Param_SQLExecutable                             "/SQLExecutable"
+#define Param_SQLExecutable                             "Param_Poste/DirSQLExecutable"
 #define Param_Active                                    "/Active"
 
 #define Imprimante_TailleEnTete                         "Param_Imprimante/TailleEnTete"

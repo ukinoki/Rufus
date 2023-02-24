@@ -90,7 +90,6 @@ private:
     QString m_base;
     QString m_server;
     int m_port = 3306;
-    QString m_sqlExecutable;
     bool ok;
     QSqlDatabase m_db = QSqlDatabase();
 
@@ -110,8 +109,6 @@ public:
     void                    setModeacces(const Utils::ModeAcces &modeacces);
     QString                 AdresseServer() const;              /*! l'adresse SQL du serveur - localhost ou adresse IP ou DynDNS */
     int                     port() const;                       /*! le port SQL */
-    void                    setSQLExecutable(const QString &sqlExecutable);
-    QString                 SQLExecutable() const;              /*! le chemin vers le dossier contenant le fichier mysql (.exe) */
     void                    InfosConnexionSQL();                /*! les infos de connexions SQL : host, database, login, mdp */
     int                     idUserConnected() const             { return m_iduserConnected; }
 
