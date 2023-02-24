@@ -631,14 +631,12 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += CRLF;
     scriptbackup += "set MYSQL_PASSWORD=\"" MDP_SQL "\"";
     //# Commandes MySQL
-    QDir Dir(QCoreApplication::applicationDirPath());
-    Dir.cdUp();
     scriptbackup += CRLF;
-    QString sqlCommand = db->SQLExecutable();
+    QString sqlCommand = dirSQLExecutable();
     QString cheminmysql = sqlCommand.left(sqlCommand.lastIndexOf("/"));
-    scriptbackup += "set MYSQL=" + sqlCommand;
+    scriptbackup += "set MYSQL=" + sqlCommand + "/mysql.exe";
     scriptbackup += CRLF;
-    scriptbackup += "set MYSQLDUMP=" + cheminmysql +"/mysqldump.exe";
+    scriptbackup += "set MYSQLDUMP=" + sqlCommand +"/mysqldump.exe";
     scriptbackup += CRLF;
 
     //# Bases de données MySQL à ignorer
@@ -757,8 +755,6 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "\n";
     scriptbackup += "MYSQL_PASSWORD=\"" MDP_SQL "\"";
     //# Commandes MySQL
-    QDir Dir(QCoreApplication::applicationDirPath());
-    Dir.cdUp();
     scriptbackup += "\n";
     scriptbackup += "MYSQL=" + dirSQLExecutable();
     scriptbackup += "/mysql";
@@ -859,42 +855,36 @@ void Procedures::setDirSQLExecutable()
         mysqldir.cdUp();
         defaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
         defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
         defaultsqlexecutable = "/usr/bin";
         defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
-#elif Q_OS_WIN
-        defaultsqlexecutable = "C:\MYSQL\bin";
-        defaultsql = QFile(defaultsqlexecutable + "\mysql.exe").exists();
+#endif
+#ifdef Q_OS_WIN
+        defaultsqlexecutable = "C:\\MySQL\\bin";
+        defaultsql = QFile(defaultsqlexecutable + "\\mysql.exe").exists();
 #endif
     if (defaultsql)
     {
         if (defaultsqlexecutable != sqlexecutable)
-            settings()->setValue(Param_SQLExecutable, defaultsqlexecutable);
+            settings()->setValue(Param_SQLExecutable, QDir::fromNativeSeparators(defaultsqlexecutable));
         m_dirSQLExecutable = defaultsqlexecutable;
         return;
     }
-    if (sqlexecutable == "" || (sqlexecutable != "" && !QFile(sqlexecutable + "/mysql").exists()))
-    {
-        bool a;
+    bool a;
 #ifdef Q_OS_MACX
-        QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
-        mysqldir.cdUp();
-        sqlexecutable = mysqldir.absolutePath() + "/Applications";
-        if (!QFile(sqlexecutable + "/mysql").exists())
-            sqlexecutable = "/usr/local/mysql/bin";
+        sqlexecutable = "/usr/local/mysql/bin";
         if (!QFile(sqlexecutable + "/mysql").exists())
             sqlexecutable = QStandardPaths::findExecutable("mysql");
         a = (QFile(sqlexecutable + "/mysql").exists());
-#elif Q_OS_LINUX
-        sqlexecutable = "/usr/bin";
-        if (!QFile(sqlexecutable + "/mysql").exists())
-            sqlexecutable = QStandardPaths::findExecutable("mysql");
+#endif
+#ifdef Q_OS_LINUX
+        sqlexecutable = QStandardPaths::findExecutable("mysql");
         a = (QFile(sqlexecutable + "/mysql").exists());
-#elif Q_OS_WIN
-        sqlexecutable = "C:\MYSQL\bin";
-        if (!QFile(sqlexecutable + "\mysql.exe").exists())
-            sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable + "\mysql.exe").exists());
+#endif
+#ifdef Q_OS_WIN
+        sqlexecutable = QStandardPaths::findExecutable("mysql");
+        a = (QFile(QDir::toNativeSeparators(sqlexecutable) + "\\mysql.exe").exists());
 #endif
         if (!a)
             UpMessageBox::Information(Q_NULLPTR,
@@ -927,7 +917,6 @@ void Procedures::setDirSQLExecutable()
         }
         if (sqlexecutable != settings()->value(Param_SQLExecutable).toString())
             settings()->setValue(Param_SQLExecutable, sqlexecutable);
-    }
     m_dirSQLExecutable = sqlexecutable;
 }
 
@@ -1012,7 +1001,9 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
         << "-p" MDP_SQL
         << "-h" << host
         << "-P" << QString::number(db->port());
-#ifndef Q_OS_WIN
+#ifdef Q_OS_WIN
+     sqlCommand += "\\mysql";
+#else
     sqlCommand += "/mysql";
     for (int i = 0; i < args.size() ; ++i)
         sqlCommand += " " + args.at(i);
