@@ -4869,8 +4869,11 @@ void Procedures::RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> m
     QMetaEnum metaEnum;
     QString name ("");
     port = "COM"+ QString::number(map[PORT]);
-    if (serialport != Q_NULLPTR)
-        serialport->setBaudRate(serialset.baudRate);
+
+// ERROR serialset.baudRate not initialised
+//    if (serialport != Q_NULLPTR)
+//        serialport->setBaudRate(serialset.baudRate);
+
     name = BAUDRATE;
     index = QSerialPort().metaObject()->indexOfEnumerator(name.toUtf8());
     metaEnum = QSerialPort().metaObject()->enumerator(index);
@@ -8573,7 +8576,10 @@ bool Procedures::ReglePortFronto()
 //-----------------------------------------------------------------------------------------
 void Procedures::ReponsePortSerie_Tono(const QString &s)
 {
-    Utils::EnChantier();
+    // unused s = Warning
+    if( s.length() >0 || true ) {  // toujours true
+        Utils::EnChantier();
+    }
 }
 
 QSerialPort *Procedures::PortFronto()
