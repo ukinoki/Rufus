@@ -101,11 +101,11 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         {
             QString nomfich  = listfichiers.at(t);
             if (nomfich == "client-key.pem")
-                connectSSLoptions += "SSL_KEY=" + dirkey + "/client-key.pem;";
+                connectSSLoptions += "SSL_KEY=" + QDir::toNativeSeparators(dirkey + "/client-key.pem;");
             if (nomfich == "client-cert.pem")
-                connectSSLoptions += "SSL_CERT=" + dirkey + "/client-cert.pem;";
+                connectSSLoptions += "SSL_CERT=" + QDir::toNativeSeparators(dirkey + "/client-cert.pem;");
             if (nomfich == "ca-cert.pem")
-                connectSSLoptions += "SSL_CA=" + dirkey + "/ca-cert.pem;";
+                connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/ca-cert.pem;");
         }
     }
     QString connectOptions = connectSSLoptions + "MYSQL_OPT_RECONNECT=1";
@@ -117,12 +117,14 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("databaseName - " + m_db.databaseName());
     Logs::LogSQL("Login        - " + m_db.userName());
     Logs::LogSQL("port         - " + QString::number(m_db.port()));
+    Logs::LogSQL("options      - " + connectOptions);
 
     if( m_db.open() )
         return QString();
 
-    QSqlDatabase::removeDatabase(basename);
-    return m_db.lastError().text();
+    QString error = m_db.lastError().text();
+    Logs::ERROR(error);
+    return error;
 }
 
 QDateTime DataBase::ServerDateTime()

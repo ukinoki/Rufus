@@ -374,7 +374,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     layVolumeLibre->addWidget(wdg_volumelibrelbl);
     dlg_buprestore->dlglayout()->insertLayout(dlg_buprestore->dlglayout()->count()-1, layVolumeLibre);
 
-    connect(BDDchk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
+    connect(BDDchk, &UpCheckBox::clicked, this, &Procedures::CalcTimeBupRestore);
 
     dlg_buprestore->setFixedWidth(400);
     dlg_buprestore->AjouteLayButtons(UpDialog::ButtonOK);
