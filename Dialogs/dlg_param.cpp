@@ -2089,10 +2089,8 @@ void dlg_param::DossierClesSSL()
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
     if (dir == "" || !QDir(dir).exists())
     {
-        dir = "/etc/mysql";
-        ui->DossierClesSSLupLineEdit->setText(dir);
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
-        return;
+        ui->DossierClesSSLupLineEdit->clear();
+        proc->settings()->remove(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL);
     }
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
     if (url == QUrl())
@@ -2754,7 +2752,7 @@ void dlg_param::EnregistreNouvMDPAdmin()
             msgbox.exec();
             return;
         }
-        if (Utils::calcSHA1(anc) != proc->MDPAdmin())
+        if (Utils::calcSHA1(anc) != proc->MDPAdmin() && anc != proc->MDPAdmin())
         {
             Utils::playAlarm();
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas le bon\n"));
