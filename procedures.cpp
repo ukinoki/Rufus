@@ -435,6 +435,15 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         QString Msg = (tr("Sauvegarde de la base de données\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+#ifdef Q_OS_WIN
+        QProcess process;
+        QString command = QDir::toNativeSeparators(PATH_FILE_SCRIPTBACKUP);
+        int success = 0;
+        success = process.execute(command);
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
+        if (success < 0)
+            return false;
+#else
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
         const QString msgOK = tr("Base de données sauvegardée!");
         m_controller.disconnect(SIGNAL(result(const int &)));
@@ -451,6 +460,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             return true;
         });
         m_controller.execute(task);
+#endif
     }
     else if (OKImages || OKVideos || OKFactures)
     {
@@ -600,31 +610,31 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "set DATE=%day%-%minute%";
     //# Dossier où sauvegarder les backups (créez le d'abord!)
     scriptbackup += CRLF;
-    scriptbackup += "set BACKUP_DIR=\"" + pathdirdestination + "\"";
+    scriptbackup += "set BACKUP_DIR=\"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
     //# Dossier de  ressources
     scriptbackup += CRLF;
-    scriptbackup += "set DIR_RESSOURCES=\"" + PATH_DIR_RESSOURCES + "\"";
+    scriptbackup += "set DIR_RESSOURCES=\"" + QDir::toNativeSeparators(PATH_DIR_RESSOURCES) + "\"";
     scriptbackup += CRLF;
     if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
         if (AvecImages)
         {
-            scriptbackup += "set DIR_IMAGES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + "\"";
+            scriptbackup += "set DIR_IMAGES=\"" + QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES) + "\"";
             scriptbackup += CRLF;
         }
         if (AvecFactures)
         {
-            scriptbackup += "set DIR_FACTURES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + "\"";
+            scriptbackup += "set DIR_FACTURES=\"" +  QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES) + "\"";
             scriptbackup += CRLF;
         }
         if (AvecVideos)
         {
-            scriptbackup += "set DIR_VIDEOS=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + "\"";
+            scriptbackup += "set DIR_VIDEOS=\"" +  QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS) + "\"";
             scriptbackup += CRLF;
         }
     }
     //# Rufus.ini
-    scriptbackup += "set RUFUSINI=\"" + PATH_FILE_INI "\"";
+    scriptbackup += "set RUFUSINI=\"" + QDir::toNativeSeparators(PATH_FILE_INI) + "\"";
     //# Identifiants MySQL
     scriptbackup += CRLF;
     scriptbackup += "set MYSQL_USER=\"" LOGIN_SQL "\"";
@@ -633,20 +643,30 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     //# Commandes MySQL
     scriptbackup += CRLF;
     QString sqlCommand = dirSQLExecutable();
-    QString cheminmysql = sqlCommand.left(sqlCommand.lastIndexOf("/"));
-    scriptbackup += "set MYSQL=" + sqlCommand + "/mysql.exe";
+    scriptbackup += "set MYSQL=" + sqlCommand + "\\mysql.exe";
     scriptbackup += CRLF;
-    scriptbackup += "set MYSQLDUMP=" + sqlCommand +"/mysqldump.exe";
+    scriptbackup += "set MYSQLDUMP=" + sqlCommand +"\\mysqldump.exe";
     scriptbackup += CRLF;
 
-    //# Bases de données MySQL à ignorer
-    scriptbackup += "set SKIPDATABASES=\"Database|information_schema|performance_schema|mysql|sys\"";
     //# Nombre de jours à garder les dossiers (seront effacés après X jours)
-    scriptbackup += CRLF;
     scriptbackup += "set RETENTION=14";
     //# Create a new directory into backup directory location for this date
     scriptbackup += CRLF;
     scriptbackup += "mkdir %BACKUP_DIR%/%DATE%";
+    scriptbackup += CRLF;
+    scriptbackup += CRLF;
+    //# Backup the 4 databases
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_CONSULTS " > \"%BACKUP_DIR%/%DATE%\\" DB_CONSULTS ".sql\"";
+    scriptbackup += CRLF;
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_COMPTA " > \"%BACKUP_DIR%/%DATE%\\" DB_COMPTA ".sql\"";
+    scriptbackup += CRLF;
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_OPHTA " > \"%BACKUP_DIR%/%DATE%\\" DB_OPHTA ".sql\"";
+    scriptbackup += CRLF;
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_IMAGES " > \"%BACKUP_DIR%/%DATE%\\" DB_IMAGES ".sql\"";
+
+    /*!
+    //# Bases de données MySQL à ignorer
+    scriptbackup += "set SKIPDATABASES=\"Database|information_schema|performance_schema|mysql|sys\"";
     //# Retrieve a list of all databases
     scriptbackup += CRLF;
     scriptbackup += "rem set databases=`$MYSQL -u$MYSQL_USER -p$MYSQL_PASSWORD -e \"SHOW DATABASES;\" | grep -Ev \"($SKIPDATABASES)\"`";
@@ -661,44 +681,50 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += CRLF;
     scriptbackup += ")";
     scriptbackup += CRLF;
+    //*/
     // Sauvegarde la table des utilisateurs
     scriptbackup += CRLF;
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% mysql user > \"%BACKUP_DIR%/%DATE%/user.sql\"";
+    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% mysql user > \"%BACKUP_DIR%/%DATE%\\user.sql\"";
     // Detruit les anciens fichiers
     scriptbackup += CRLF;
-    scriptbackup += "rem find $BACKUP_DIR/* -mtime +$RETENTION -delete";
+    scriptbackup += "rem find %BACKUP_DIR%\\* -mtime +%RETENTION% -delete";
+    scriptbackup += CRLF;
+
     // copie les fichiers ressources
     scriptbackup += CRLF;
-    scriptbackup += "xcopy %DIR_RESSOURCES% %BACKUP_DIR%/%DATE%/Ressources /S";
+    scriptbackup += "mkdir %BACKUP_DIR%/%DATE%\\Ressources";
+    scriptbackup += CRLF;
+    scriptbackup += "xcopy %DIR_RESSOURCES% %BACKUP_DIR%/%DATE%\\Ressources /S";
+    scriptbackup += CRLF;
+    // copie Rufus.ini
+    scriptbackup +=  "copy %RUFUSINI% %BACKUP_DIR%\\%DATE%\\";
     scriptbackup += CRLF;
     if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
         //! copie les fichiers image
         if (AvecImages)
         {
-            scriptbackup += "mkdir %BACKUP_DIR%" NOM_DIR_IMAGES;
+            scriptbackup += "mkdir %BACKUP_DIR%\\Images";
             scriptbackup += CRLF;
-            scriptbackup += "xcopy %DIR_IMAGES% %BACKUP_DIR% /S";
+            scriptbackup += "xcopy %DIR_IMAGES% %BACKUP_DIR%\\Images /S /Y";
             scriptbackup += CRLF;
         }
         if (AvecFactures)
         {
-            scriptbackup += "mkdir %BACKUP_DIR%" NOM_DIR_FACTURES;
+            scriptbackup += "mkdir %BACKUP_DIR%\\Factures";
             scriptbackup += CRLF;
-            scriptbackup += "xcopy %DIR_FACTURES% %BACKUP_DIR% /S";
+            scriptbackup += "xcopy %DIR_FACTURES% %BACKUP_DIR%\\Factures /S /Y";
             scriptbackup += CRLF;
         }
         //! copie les fichiers video
         if (AvecVideos)
         {
-            scriptbackup += "mkdir %BACKUP_DIR%" NOM_DIR_VIDEOS;
+            scriptbackup += "mkdir %BACKUP_DIR%\\Videos";
             scriptbackup += CRLF;
-            scriptbackup += "xcopy %DIR_VIDEOS% %BACKUP_DIR% /S";
+            scriptbackup += "xcopy %DIR_VIDEOS% %BACKUP_DIR%\\Videos /S /Y";
             scriptbackup += CRLF;
         }
     }
-    // copie Rufus.ini
-    scriptbackup +=  "copy %RUFUSINI% %BACKUP_DIR%/%DATE%" NOM_FILE_INI;
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
     QFile fbackup(PATH_FILE_SCRIPTBACKUP);
