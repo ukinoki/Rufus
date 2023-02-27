@@ -94,7 +94,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         else
             m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         QDir dirtorestore(dirkey);
-        //qDebug() << dirtorestore.absolutePath();
+        if (!dirtorestore.exists())
+            return ("");
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
         for (int t=0; t<listfichiers.size(); t++)
         {
@@ -120,9 +121,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
         return QString();
-    QString error = m_db.lastError().text();
-    Logs::ERROR(error);
-    return error;
+    return m_db.lastError().text();
 }
 
 QDateTime DataBase::ServerDateTime()

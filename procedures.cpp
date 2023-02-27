@@ -863,6 +863,8 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
 /*!
  * \brief Procedures::sqlExecutable
  * \return le chemin vers les éxécutable mysql et mysqldump
+ * Le chemin est stocké dans Rufus.ini au format Unix avec des "/"
+ * Pour le retrouver au format natif, on lui applique la fonction QDir::toNativeSeparators()
  */
 QString Procedures::dirSQLExecutable()
 {
@@ -874,7 +876,8 @@ QString Procedures::dirSQLExecutable()
 void Procedures::setDirSQLExecutable()
 {
     QString defaultsqlexecutable = "";
-    QString sqlexecutable = settings()->value(Param_SQLExecutable).toString();
+    QString sqlexecutable ("");
+    QString executable = "/mysql";
     bool defaultsql = false;
 #ifdef Q_OS_MACX
         QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
@@ -888,6 +891,7 @@ void Procedures::setDirSQLExecutable()
 #endif
 #ifdef Q_OS_WIN
         defaultsqlexecutable = "C:\\MySQL\\bin";
+        executable += ".exe";
         defaultsql = QFile(defaultsqlexecutable + "\\mysql.exe").exists();
 #endif
     if (defaultsql)
@@ -902,16 +906,28 @@ void Procedures::setDirSQLExecutable()
         sqlexecutable = "/usr/local/mysql/bin";
         if (!QFile(sqlexecutable + "/mysql").exists())
             sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable + "/mysql").exists());
+        a = (QFile(sqlexecutable).exists());
 #endif
 #ifdef Q_OS_LINUX
         sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable + "/mysql").exists());
+        a = (QFile(sqlexecutable).exists());
 #endif
 #ifdef Q_OS_WIN
         sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(QDir::toNativeSeparators(sqlexecutable) + "\\mysql.exe").exists());
+        a = QFile(sqlexecutable).exists();
 #endif
+        if (a)
+        {
+            sqlexecutable = QFileInfo(sqlexecutable).path();
+            settings()->setValue(Param_SQLExecutable, QDir::fromNativeSeparators(defaultsqlexecutable));
+        }
+        else
+        {
+            sqlexecutable = settings()->value(Param_SQLExecutable).toString();
+            QString path = sqlexecutable + executable;
+            if (QFile(path).exists())
+                a = true;
+        }
         if (!a)
             UpMessageBox::Information(Q_NULLPTR,
                                       tr("le chemin des programmes mysql et mysqldump (") + sqlexecutable + ") n'est pas valide"),
@@ -922,7 +938,8 @@ void Procedures::setDirSQLExecutable()
             urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
                                                               tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
                                                               (QDir::rootPath()));
-            if (urlexecutable == QUrl() || !QFile(urlexecutable.path() + "/mysql").exists())
+            QString path = urlexecutable.path() + executable;
+            if (urlexecutable == QUrl() || !QFile(path).exists())
             {
                 if (UpMessageBox::Question(Q_NULLPTR,
                                            tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
@@ -943,6 +960,7 @@ void Procedures::setDirSQLExecutable()
         }
         if (sqlexecutable != settings()->value(Param_SQLExecutable).toString())
             settings()->setValue(Param_SQLExecutable, sqlexecutable);
+        sqlexecutable = QDir::toNativeSeparators(sqlexecutable);
     m_dirSQLExecutable = sqlexecutable;
 }
 
@@ -999,8 +1017,9 @@ void Procedures::setDirSSLKeys()
 }
 
 /*!
- * \brief Procedures::DefinitScriptRestore
- * \param ListNomFiles
+ * \brief Procedures::ExecuteScriptSQL
+ * \param ListScripts
+ * Execute une liste de scripts SQL
  */
 int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 {
@@ -5193,12 +5212,16 @@ QSerialPort* Procedures::PortRefracteur()
 //-----------------------------------------------------------------------------------------
 void Procedures::ReponsePortSerie_Refracteur(const QString &s)
 {
-    //qDebug() << s;
+    /*!
+    qDebug() << "ReponsePortSerie_Refracteur(const QString &s)" << "s" << s;
+    qDebug() << "ReponsePortSerie_Refracteur(const QString &s)" << "SendDataNidek(CRL)" << SendDataNIDEK("CRL");
+    qDebug() << "ReponsePortSerie_Refracteur(const QString &s)" << "Utils::cleanByteArray(SendDataNIDEK(CRL)" << Utils::cleanByteArray(SendDataNIDEK("CRL"));
+    //*/
     m_mesureSerie        = s;
     QString nameRF = m_settings->value(Param_Poste_Refracteur).toString();
     if (nameRF =="NIDEK RT-5100" || nameRF =="NIDEK RT-2100")
     {
-        if (m_mesureSerie == SendDataNIDEK("CRL"))
+        if (m_mesureSerie == Utils::cleanByteArray(SendDataNIDEK("CRL")))
         {
             //Logs::LogToFile("PortSerieRefracteur", "SDN = " + m_mesureSerie + " - " + QDateTime().toString("dd-MM-yyyy HH:mm:ss"));
             //PortRefracteur()->waitForReadyRead(100);
@@ -5236,8 +5259,8 @@ void Procedures::RegleRefracteur(TypesMesures flag)
             Logs::LogToFile("PortSerieRefracteur.txt", "RTS = " + RequestToSendNIDEK() + " - "
                             + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                             + (nompat != ""? " - " : "") + nompat);
-            qDebug() << "RTS = " + RequestToSendNIDEK();
-            */
+            qDebug() << "RegleRefracteur(TypesMesures flag) - RTS Nidek = " + RequestToSendNIDEK();
+            //*/
             m_flagreglagerefracteurNidek = flag;
             Utils::writeDatasSerialPort(PortRefracteur(), RequestToSendNIDEK(), " RequestToSendNIDEK() - Refracteur = ");
         }
@@ -6692,7 +6715,13 @@ bool Procedures::isUserConnected(User *usr)
 
 void Procedures::debugMesure(QObject *mesure, QString titre)
 {
-    if (titre != "")
+    bool a = true;
+    if (a)
+        return;
+    if (titre != "" && mesure != Q_NULLPTR)
+        return;
+
+    /*!
         qDebug() << titre;
     Pachymetrie *pachy = qobject_cast<Pachymetrie *>(mesure);
     if (pachy != Q_NULLPTR)
@@ -6751,6 +6780,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
             qDebug() << Formule;
         }
     }
+    //*/
 }
 
 void Procedures::EnvoiDataPatientAuRefracteur()
@@ -6772,7 +6802,7 @@ QByteArray Procedures::RequestToSendNIDEK()
     DTSbuff.append(Utils::StringToArray("RS"));     //RS
     DTSbuff.append(ETB);                            //ETB -> end of text block  -> fin RTS
     DTSbuff.append(EOT);                            //EOT -> end of transmission
-    qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
+    //qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
     //return  QString(DTSbuff).toLocal8Bit();
     return DTSbuff;
 }
@@ -6791,14 +6821,14 @@ QByteArray Procedures::SendDataNIDEK(QString mesure)
     //reponse += "\r";                                    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
     DTRbuff.append(CR);                             // \r = CR
     DTRbuff.replace("""","");
-    qDebug() << "SendDataNidek = " << QString(DTRbuff).toLocal8Bit();
+    //qDebug() << "SendDataNidek = " << QString(DTRbuff).toLocal8Bit();
     //return reponse;
     return DTRbuff;
 }
 
 void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
 {
-    //Edit(Mesure);
+    //qDebug() << "LectureDonneesCOMRefracteur(QString Mesure)" << Mesure;
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
     QString mAxeOD      = "000";
@@ -8785,6 +8815,7 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
 
 void Procedures::LectureDonneesCOMFronto(QString Mesure)
 {
+    //qDebug() << "LectureDonneesCOMFronto(QString Mesure)" << Mesure;
     //Edit(Mesure);
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
