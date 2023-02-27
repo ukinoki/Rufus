@@ -4771,6 +4771,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
         QSerialPort *serialport = Q_NULLPTR;
         QString PortCom = "";
         SerialSettings sparamportserie;
+        InitialiseSerialSettings(sparamportserie);
         switch (appareil) {
         case Fronto:        sparamportserie = s_paramPortSerieFronto;       PortCom = m_portFronto;     break;
         case Autoref:       sparamportserie = s_paramPortSerieAutoref;      PortCom = m_portAutoref;    break;
