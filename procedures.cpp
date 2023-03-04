@@ -37,6 +37,10 @@ Procedures* Procedures::I()
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
+
+    QStringList driverslist = QSqlDatabase::drivers();
+    for (int i = 0; i<driverslist.size(); ++i)
+        qDebug() << driverslist.at(i);
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
     m_CPpardefaut    = "";
     m_Villepardefaut = "";
@@ -2714,10 +2718,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
             db->VideDatabases();
-            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "'");
-            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "' WITH GRANT OPTION");
+            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY " MDP_SQL "'");
+            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' WITH GRANT OPTION");
             db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' REQUIRE SSL");
-            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' WITH GRANT OPTION");
+            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
 
             //! Restauration à partir du dossier sélectionné
             int a = ExecuteScriptSQL(listnomsfilestorestore);
