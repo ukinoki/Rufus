@@ -887,7 +887,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
 {
     DocExterne *docmt = getDocumentFromIndex(idx);
     UpDialog * dlg              = new UpDialog();
-    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     QDateEdit   *dateedit       = new QDateEdit(dlg);
     UpLabel     *label          = new UpLabel(dlg);
     dlg->dlglayout()->insertWidget(0,dateedit);
@@ -895,7 +895,6 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
 
     dlg->setWindowModality(Qt::WindowModal);
-    dlg->setSizeGripEnabled(false);
     dlg->setFixedSize(200,100);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     dlg->setWindowTitle(tr("Modifier la date"));
@@ -926,7 +925,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 {
     DocExterne *docmt = getDocumentFromIndex(idx);
     UpDialog * dlg              = new UpDialog();
-    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     UpLineEdit  *Line           = new UpLineEdit(dlg);
     UpLabel     *label          = new UpLabel(dlg);
     dlg->dlglayout()->insertWidget(0,Line);
@@ -934,7 +933,6 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
 
     dlg->setWindowModality(Qt::WindowModal);
-    dlg->setSizeGripEnabled(false);
     dlg->setFixedSize(270,100);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     Line->setText(docmt->soustypedoc());

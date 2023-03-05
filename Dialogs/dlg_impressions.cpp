@@ -23,7 +23,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui(new Ui::dlg_impressions)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     m_currentpatient     = pat;
     if (intervention)
