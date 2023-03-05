@@ -23,7 +23,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui(new Ui::dlg_depenses)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
     setWindowTitle(tr("Journal des dépenses"));
 

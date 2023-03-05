@@ -94,8 +94,9 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
             dirkey = m_settings.value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         else
             m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
-        QDir dirtorestore(dirkey);
-        //qDebug() << dirtorestore.absolutePath();
+        QDir dirtorestore(dirkey);        
+        if (!dirtorestore.exists())
+            return ("");
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
         for (int t=0; t<listfichiers.size(); t++)
         {

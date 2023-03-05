@@ -1611,7 +1611,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
 {
     QString         rep("");
     QString         geometry(Position_Fiche "Edit");
-    UpDialog        *gAsk           = new UpDialog(parent);
+    UpDialog        *gAsk           = new UpDialog();
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     QList<QScreen*> listscreens = QGuiApplication::screens();
     int x = 0;
@@ -1622,12 +1622,13 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
         y = listscreens.first()->geometry().height();
     }
 
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     if (!editable)
         gAsk->setWindowModality(Qt::WindowModal);
 
     TxtEdit->setText(txt);
     TxtEdit->setTextInteractionFlags(editable? Qt::TextEditorInteraction : (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard));
+    gAsk->setWindowModality(Qt::WindowModal);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     gAsk->setMaximumWidth(x);
     gAsk->setMaximumHeight(y);
@@ -1655,7 +1656,7 @@ void Procedures::EditHtml(QString txt)
     QLabel *lbl                     = new QLabel(gAsk);
 
     gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gAsk->setSizeGripEnabled(false);
     lbl->setStyleSheet("border: 1px solid gray;");
     lbl->setTextFormat(Qt::PlainText);
@@ -1689,7 +1690,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     m_listeimages               = wdg_tablewidget->AfficheDoc(doc);
     wdg_tablewidget ->installEventFilter(this);
     gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gAsk->setWindowTitle(titre);
     gAsk->dlglayout()->insertWidget(0,wdg_tablewidget);
     wdg_tablewidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
@@ -2489,9 +2490,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
             db->VideDatabases();
             db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "'");
-            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "' WITH GRANT OPTION");
+            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' WITH GRANT OPTION");
             db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' REQUIRE SSL");
-            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' WITH GRANT OPTION");
+            db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
 
             //! Restauration à partir du dossier sélectionné
             int a = ExecuteSQLScript(listnomsfilestorestore);

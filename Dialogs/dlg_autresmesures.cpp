@@ -23,7 +23,7 @@ dlg_autresmesures::dlg_autresmesures(Mode mod,  QWidget *parent) :
     m_mode            = mod;
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowTitleHint);
 
     connect (OKButton,   &QPushButton::clicked,   this, [=] {OKButtonClicked();});
     if (m_mode == TONO)

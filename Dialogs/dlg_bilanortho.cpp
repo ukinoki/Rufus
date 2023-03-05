@@ -24,7 +24,7 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui(new Ui::dlg_bilanortho)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     Patient * pat= Datas::I()->patients->currentpatient();
     if (pat)
         setWindowTitle(tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom());

@@ -26,7 +26,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     else
         m_iditem = static_cast<Depense*>(item)->id();
     QString         NomOnglet;
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     Utils::ModeAcces mod = db->ModeAccesDataBase();
     if (mod == Utils::Poste)

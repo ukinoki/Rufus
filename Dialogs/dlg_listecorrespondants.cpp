@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeCorrespondants",parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des correspondants"));
 
     wdg_itemstree = new QTreeView(this);
