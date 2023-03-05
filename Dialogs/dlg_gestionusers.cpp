@@ -1469,7 +1469,6 @@ void dlg_gestionusers::Inactifs()
     label->setText(tr("Cochez les utilisateurs\nque vous souhaitez réactiver"));
     dlg_listinactifs->AjouteWidgetLayButtons(label, false);
     dlg_listinactifs->setFixedWidth(wdg_bigtable->width() + dlglayout()->contentsMargins().left()*2);
-    dlg_listinactifs->setSizeGripEnabled(false);
     dlg_listinactifs->setWindowTitle(tr("Utilisateurs inactifs"));
 
     connect(dlg_listinactifs->OKButton, &QPushButton::clicked, dlg_listinactifs, [=] {  calclistusers(m_model);

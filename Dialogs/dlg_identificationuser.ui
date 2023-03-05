@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>dlg_identificationuser</class>
  <widget class="QDialog" name="dlg_identificationuser">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,6 +12,12 @@
     <width>320</width>
     <height>245</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
@@ -21,9 +30,6 @@
     <width>320</width>
     <height>245</height>
    </size>
-  </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
   </property>
   <widget class="QLabel" name="IdUserlabel">
    <property name="geometry">

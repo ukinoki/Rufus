@@ -25,7 +25,7 @@ dlg_actesprecedents::dlg_actesprecedents(Actes *actes, bool AvantDernier, QWidge
 ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowTitleHint);
     setAttribute(Qt::WA_ShowWithoutActivating);
     m_actes                 = actes;
     m_idpatient             = m_actes->actes()->last()->idPatient();

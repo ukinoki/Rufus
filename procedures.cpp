@@ -37,10 +37,11 @@ Procedures* Procedures::I()
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
-
+    /*!
     QStringList driverslist = QSqlDatabase::drivers();
     for (int i = 0; i<driverslist.size(); ++i)
         qDebug() << driverslist.at(i);
+    //*/
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
     m_CPpardefaut    = "";
     m_Villepardefaut = "";
@@ -1825,7 +1826,8 @@ QByteArray Procedures::getFileFromServer(QString filename, int compression, QStr
 
     QList<QVariantList> listimpr;
     bool ok;
-    listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + filename + "') AS content",ok, tr("Impossible d'accéder à ") + filename);
+    QString req = "SELECT LOAD_FILE('" + filename + "') AS content";
+    listimpr = db->StandardSelectSQL(req,ok, tr("Impossible d'accéder à ") + filename);
     if(ok) {
         if (compression == 1)
             ba.append(qUncompress(listimpr.at(0).at(0).toByteArray()));
@@ -1850,7 +1852,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
         y = listscreens.first()->geometry().height();
     }
 
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     if (!editable)
         gAsk->setWindowModality(Qt::WindowModal);
 
@@ -1860,7 +1862,6 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->setMaximumWidth(x);
     gAsk->setMaximumHeight(y);
     gAsk->setWindowTitle(titre);
-    gAsk->setSizeGripEnabled(true);
 
     gAsk->dlglayout()->insertWidget(0,TxtEdit);
 
@@ -1883,7 +1884,7 @@ void Procedures::EditHtml(QString txt)
     QLabel *lbl                     = new QLabel(gAsk);
 
     gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gAsk->setSizeGripEnabled(false);
     lbl->setStyleSheet("border: 1px solid gray;");
     lbl->setTextFormat(Qt::PlainText);
@@ -1917,7 +1918,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     m_listeimages               = wdg_tablewidget->AfficheDoc(doc);
     wdg_tablewidget ->installEventFilter(this);
     gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gAsk->setWindowTitle(titre);
     gAsk->dlglayout()->insertWidget(0,wdg_tablewidget);
     wdg_tablewidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée

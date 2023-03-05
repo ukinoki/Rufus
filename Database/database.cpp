@@ -121,7 +121,9 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
         return QString();
-    return m_db.lastError().text();
+    QString error = m_db.lastError().text();
+    Logs::ERROR(error);
+    return error;
 }
 
 QDateTime DataBase::ServerDateTime()
