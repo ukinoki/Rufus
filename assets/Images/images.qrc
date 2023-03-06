@@ -192,5 +192,6 @@
         <file>factory.png</file>
         <file>IOL.png</file>
         <file>Notepad.png</file>
+        <file>icon.ico</file>
     </qresource>
 </RCC>

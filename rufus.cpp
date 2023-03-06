@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-03-2023/1");
+    qApp->setApplicationVersion("07-03-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -3923,10 +3923,10 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     ui->TerraintreeWidget->setColumnCount(2);
     ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
     ui->TerraintreeWidget->setColumnWidth(1,180 );     //
-    ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
-                                         " selection-background-color: rgb(164, 205, 255);"
+    ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgba(0,0,0);"
+                                         " selection-background-color: rgba(164, 205, 255);"
                                          " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
-                                         " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
+                                         " border: 1px solid rgba(150,150,150); border-radius: 10px;}");
     ui->TerraintreeWidget->setIconSize(QSize(25,25));
     ui->TerraintreeWidget->header()->setVisible(false);
     QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
@@ -5095,9 +5095,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
 
             UpTextEdit *Msgtxt = new UpTextEdit();
-            Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
+            Msgtxt->setStyleSheet("border: 1px solid rgba(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
             if  (msg->isurgent())
-                Msgtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);border-radius: 5px; background-color:#FFFFFF;");
+                Msgtxt->setStyleSheet("border: 2px solid rgba(251, 51, 61);border-radius: 5px; background-color:#FFFFFF;");
             Msgtxt->setText(msg->texte());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
@@ -5231,7 +5231,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
 
             UpTextEdit *Msgtxt = new UpTextEdit();
-            Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFDD;");
+            Msgtxt->setStyleSheet("border: 1px solid rgba(164, 205, 255);border-radius: 5px; background-color:#FFFFDD;");
             Msgtxt->setText(msg->texte());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
@@ -5325,7 +5325,7 @@ void Rufus::MsgResp(int idmsg)
     UpDialog *dlg_msgRepons = new UpDialog(this);
 
     UpTextEdit* rponstxt = new UpTextEdit();
-    rponstxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
+    rponstxt->setStyleSheet("border: 1px solid rgba(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
     dlg_msgRepons->dlglayout()->insertWidget(0,rponstxt);
 
     QHBoxLayout *lbllayout  = new QHBoxLayout();

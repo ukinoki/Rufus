@@ -48,7 +48,7 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     wdg_uppushbutton->setIcon(Icons::icBoy());
     wdg_treewidget  ->setColumnCount(1);
     wdg_treewidget  ->setHeaderLabels(QStringList() << tr("Nom de la police"));
-    wdg_treewidget  ->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");
+    wdg_treewidget  ->setStyleSheet("QTreeWidget {selection-color: rgba(0,0,0); selection-background-color: rgba(164, 205, 255);}");
     QStringList listmodifs;
     listmodifs << "Italic" << "Light" << "Regular" << "Normal" << "Bold" << "SemiBold" << "Black" << "Bold Italic";
 

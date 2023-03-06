@@ -127,7 +127,7 @@ void UpMessageBox::UpMessageBox::setText(QString Text)
 {
     if (Text == "")
         return;
-    wdg_texteditlbl         ->setStyleSheet("border: 0px solid; background-color: rgb(200,200,200,0)");
+    wdg_texteditlbl         ->setStyleSheet("border: 0px solid; background-color: rgba(200,200,200,0)");
     wdg_texteditlbl         ->setText("<b>" + Text + "</b>");
     wdg_texteditlbl         ->setWordWrap(true);
     wdg_texteditlbl         ->setFixedSize(Utils::CalcSize(Text));
@@ -138,7 +138,7 @@ void UpMessageBox::setInformativeText(QString Text)
 {
     if (Text == "")
         return;
-    wdg_infolbl     ->setStyleSheet("border: 0px solid; background-color: rgb(200,200,200,0)");
+    wdg_infolbl     ->setStyleSheet("border: 0px solid; background-color: rgba(200,200,200,0)");
     wdg_infolbl     ->setText(Text);
     wdg_infolbl     ->setWordWrap(true);
     int position = 1;

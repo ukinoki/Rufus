@@ -55,7 +55,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     ui->MotifsupTableWidget ->setColumnWidth(6,80);      // Par Defaut
     ui->MotifsupTableWidget ->setColumnWidth(7,20);      // Couleur
     ui->MotifsupTableWidget ->setColumnWidth(8,0);       // NoOrdre
-    ui->MotifsupTableWidget ->setStyleSheet("QTableView {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");
+    ui->MotifsupTableWidget ->setStyleSheet("QTableView {selection-color: rgba(0,0,0); selection-background-color: rgba(164, 205, 255);}");
     ui->MotifsupTableWidget ->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->MotifsupTableWidget ->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
     ui->MotifsupTableWidget ->setHorizontalHeaderItem(0, new QTableWidgetItem(""));

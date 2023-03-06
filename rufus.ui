@@ -2421,7 +2421,7 @@ background-color:rgb(255, 255, 255)</string>
             <bool>true</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
+            <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 200, 50));</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::Box</enum>
@@ -2547,7 +2547,7 @@ background-color:rgb(255, 255, 255)</string>
                   <bool>true</bool>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
+                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 200, 50));</string>
                  </property>
                  <property name="verticalScrollBarPolicy">
                   <enum>Qt::ScrollBarAsNeeded</enum>
@@ -2569,7 +2569,7 @@ background-color:rgb(255, 255, 255)</string>
                   <bool>true</bool>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
+                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 200, 50));</string>
                  </property>
                  <property name="verticalScrollBarPolicy">
                   <enum>Qt::ScrollBarAsNeeded</enum>
@@ -2605,7 +2605,7 @@ background-color:rgb(255, 255, 255)</string>
                   <bool>true</bool>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
+                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 200, 50));</string>
                  </property>
                  <property name="verticalScrollBarPolicy">
                   <enum>Qt::ScrollBarAsNeeded</enum>
@@ -2627,7 +2627,7 @@ background-color:rgb(255, 255, 255)</string>
                   <bool>true</bool>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
+                  <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 200, 50));</string>
                  </property>
                  <property name="verticalScrollBarPolicy">
                   <enum>Qt::ScrollBarAsNeeded</enum>
@@ -2695,7 +2695,7 @@ background-color:rgb(255, 255, 255)</string>
                  </size>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 215, 200, 50));</string>
+                 <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 215, 200, 50));</string>
                 </property>
                </widget>
               </item>
@@ -3133,7 +3133,7 @@ correspondants</string>
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
+          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgb(200,230, 250, 50));</string>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -3207,7 +3207,7 @@ correspondants</string>
            <bool>true</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));
+           <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 250, 50));
 </string>
           </property>
           <property name="verticalScrollBarPolicy">
@@ -3312,7 +3312,7 @@ précédente</string>
            <bool>true</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
+           <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 250, 50));</string>
           </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -3337,7 +3337,7 @@ précédente</string>
            <bool>true</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
+           <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 230, 250, 50));</string>
           </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -3580,7 +3580,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3637,7 +3637,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3768,7 +3768,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3829,7 +3829,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3872,7 +3872,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3927,7 +3927,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3982,7 +3982,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4037,7 +4037,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4089,7 +4089,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4131,7 +4131,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4263,7 +4263,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4331,7 +4331,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4413,7 +4413,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgb(175, 175, 175);
+color : gray; background-color: rgba(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4490,7 +4490,7 @@ color : gray;
           <enum>Qt::CustomContextMenu</enum>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
+          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgb(200,230, 250, 50));</string>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -4543,7 +4543,7 @@ color : gray;
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
+          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgb(200,230, 250, 50));</string>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -4609,7 +4609,7 @@ color : gray;
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
+          <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgb(200,230, 250, 50));</string>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>

@@ -99,7 +99,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     wdg_boxbuttlayout->setContentsMargins(0,5,0,0);
     ui->frame->layout()->addItem(wdg_boxbuttlayout);
 
-    ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
+    ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 210, 210, 50));}");
     ui->VisuDocupTableWidget->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
     QStringList ListeRubriques = db->ListeRubriquesFiscales();

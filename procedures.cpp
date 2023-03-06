@@ -1611,7 +1611,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
 {
     QString         rep("");
     QString         geometry(Position_Fiche "Edit");
-    UpDialog        *gAsk           = new UpDialog();
+    UpDialog        *gAsk           = new UpDialog(parent);
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     QList<QScreen*> listscreens = QGuiApplication::screens();
     int x = 0;
