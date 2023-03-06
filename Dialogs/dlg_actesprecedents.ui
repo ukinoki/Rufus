@@ -2,36 +2,7 @@
 <ui version="4.0">
  <class>dlg_actesprecedents</class>
  <widget class="QDialog" name="dlg_actesprecedents">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>610</width>
-    <height>650</height>
-   </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>610</width>
-    <height>550</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>1900</width>
-    <height>1900</height>
-   </size>
-  </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QVBoxLayout" name="_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>

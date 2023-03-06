@@ -1846,7 +1846,7 @@ QByteArray Procedures::getFileFromServer(QString filename, int compression, QStr
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal, QWidget *parent)
 {
     QString         rep("");
-    QString         geometry(Position_Fiche "Edit");
+    QString         geometry(Position_Fiche Nom_fiche_Edit);
     UpDialog        *gAsk           = new UpDialog(parent);
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     QList<QScreen*> listscreens = QGuiApplication::screens();

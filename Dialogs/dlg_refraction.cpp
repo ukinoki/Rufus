@@ -35,7 +35,7 @@ dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
     Init_variables();
     ConnectSignals();
 
-    restoreGeometry(proc->settings()->value(Position_Fiche "Refraction").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Refraction).toByteArray());
     //!> Recherche si Mesure en cours et affichage - la fiche a été appelée par un instrument de mesure
     if (m_modeouverture == Auto)
         AfficheMesureRefracteur();
@@ -62,7 +62,7 @@ void dlg_refraction::closeEvent(QCloseEvent *)
             accept();
         else
             reject();
-        proc->settings()->setValue(Position_Fiche "Refraction", saveGeometry());
+        proc->settings()->setValue(Position_Fiche Nom_fiche_Refraction, saveGeometry());
     }
 }
 

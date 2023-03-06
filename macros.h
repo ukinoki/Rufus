@@ -1166,5 +1166,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define Poste_VersionRessources                         "Param_Poste/VersionRessources"
 #define Position_Fiche                                  "PositionsFiches/Position"
+#define Nom_fiche_ActesPrecedents                       "ActesPrec"
+#define Nom_fiche_AutreDossier                          "AutreDossier"
+#define Nom_fiche_Comptes                               "Comptes"
+#define Nom_fiche_Archives                              "Archives"
+#define Nom_fiche_DocsExternes                          "DocsExternes"
+#define Nom_fiche_Paiement                              "Paiement"
+#define Nom_fiche_FontDialog                            "FontDialog"
+#define Nom_fiche_Depenses                              "Depenses"
+#define Nom_fiche_Refraction                            "Refraction"
+#define Nom_fiche_RemiseCheques                         "RemiseCheques"
+#define Nom_fiche_Edit                                  "Edit"
+#define Nom_fiche_Rufus                                 "Rufus"
+
 
 #endif // MACROS_H

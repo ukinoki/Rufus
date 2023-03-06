@@ -1,4 +1,4 @@
-/* (C) 2020 LAINE SERGE
+﻿/* (C) 2020 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -60,7 +60,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         proc->settings()->remove("PositionsFiches/Rufus");
     }
     else
-        restoreGeometry(proc->settings()->value(Position_Fiche "Rufus").toByteArray());
+        restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Rufus).toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
@@ -3957,7 +3957,7 @@ void Rufus::MAJPosteConnecte()
 {
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
-    proc->settings()->setValue(Position_Fiche "Rufus", saveGeometry());
+    proc->settings()->setValue(Position_Fiche Nom_fiche_Rufus, saveGeometry());
     if (currentpost() != Q_NULLPTR)
     {
         ItemsList::update(currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
@@ -7740,8 +7740,10 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
         delete ListDialog.at(n);
     }
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
-    for (int n = 0; n <  ListDialogDocs.size(); n++)
+    for (int n = 0; n < ListDialogDocs.size(); n++)
     {
+        if (n == ListDialogDocs.size()-1)
+            proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
         delete ListDialogDocs.at(n);
     }

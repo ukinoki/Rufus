@@ -55,9 +55,9 @@ ui(new Ui::dlg_actesprecedents)
     ui->FermepushButton->installEventFilter(this);
 
     if (m_avantdernieracte)
-        restoreGeometry(proc->settings()->value(Position_Fiche "ActesPrec").toByteArray());
+        restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_ActesPrecedents).toByteArray());
     else
-        restoreGeometry(proc->settings()->value(Position_Fiche "AutreDossier").toByteArray());
+        restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_AutreDossier).toByteArray());
 
     connect (ui->FermepushButton,           &QPushButton::clicked,  this,   &dlg_actesprecedents::close);
     connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Suiv);});
@@ -186,9 +186,9 @@ void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
 void dlg_actesprecedents::closeEvent(QCloseEvent *event)
 {
     if (m_avantdernieracte)
-        proc->settings()->setValue(Position_Fiche "ActesPrec", saveGeometry());
+        proc->settings()->setValue(Position_Fiche Nom_fiche_ActesPrecedents, saveGeometry());
     else
-        proc->settings()->setValue(Position_Fiche "AutreDossier", saveGeometry());
+        proc->settings()->setValue(Position_Fiche Nom_fiche_AutreDossier, saveGeometry());
     event->accept();
 }
 

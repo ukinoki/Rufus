@@ -25,7 +25,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    restoreGeometry(proc->settings()->value(Position_Fiche "Comptes").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Comptes).toByteArray());
 
     // On reconstruit le combobox des comptes de l'utilisateur
     Datas::I()->comptes->initListe(); // (si le solde a été changé sur un autre poste)
@@ -468,7 +468,7 @@ void dlg_comptes::RemplirTableArchives()
 }
 void dlg_comptes::VoirArchives()
 {
-    dlg_archives            = new UpDialog(PATH_FILE_INI, Position_Fiche "Archives", this);
+    dlg_archives            = new UpDialog(PATH_FILE_INI, Position_Fiche Nom_fiche_Archives, this);
     wdg_tablearchives       = new UpTableWidget();
     wdg_listarchivescombo   = new QComboBox();
     wdg_lbltitre            = new UpLabel();
@@ -707,7 +707,7 @@ void dlg_comptes::ChangeCompte(int idcompte)
 
 void dlg_comptes::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue(Position_Fiche "Comptes",saveGeometry());
+    proc->settings()->setValue(Position_Fiche Nom_fiche_Comptes,saveGeometry());
     event->accept();
 }
 

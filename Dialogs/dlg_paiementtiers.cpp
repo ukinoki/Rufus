@@ -39,7 +39,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     font.setPointSize(font.pointSize()+5);
     ui->Utilisateurlabel->setFont(font);
 
-    restoreGeometry(proc->settings()->value(Position_Fiche "Paiement").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Paiement).toByteArray());
 
     map_comptables = Datas::I()->users->comptables(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
     if (currentuser()->isLiberal())
@@ -830,7 +830,7 @@ void dlg_paiementtiers::ValidePaiement()
 
 void dlg_paiementtiers::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue(Position_Fiche "Paiement", saveGeometry());
+    proc->settings()->setValue(Position_Fiche Nom_fiche_Paiement, saveGeometry());
     event->accept();
 }
 
