@@ -29,6 +29,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     if (listscreens.size()>0)
         setMaximumHeight(listscreens.first()->geometry().height());
     setWindowTitle(tr("Documents de ") + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom());
+    restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_DocsExternes).toByteArray());
 
     QFont font  = qApp->font();
     font        .setPointSize(font.pointSize()+2);

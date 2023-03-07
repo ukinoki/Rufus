@@ -3580,7 +3580,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3637,7 +3637,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3768,7 +3768,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3829,7 +3829,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3872,7 +3872,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3927,7 +3927,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -3982,7 +3982,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4037,7 +4037,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4089,7 +4089,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4131,7 +4131,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4263,7 +4263,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4331,7 +4331,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {
@@ -4413,7 +4413,7 @@ color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;
 }
 QPushButton:pressed
 {
-color : gray; background-color: rgba(175, 175, 175);
+color : gray; background-color: rgb(175, 175, 175);
 }
 QPushButton:!enabled
 {

@@ -56,7 +56,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     m_fermealafin = (m_listidactes.size() > 0);
 
-    restoreGeometry(proc->settings()->value(Position_Fiche "Paiement").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Paiement).toByteArray());
 
     map_comptables         = Datas::I()->users->comptables();
     if( map_comptables->size() == 0 )
@@ -1087,7 +1087,7 @@ void dlg_paiementdirect::ListeActes()
 
 void dlg_paiementdirect::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue(Position_Fiche "Paiement", saveGeometry());
+    proc->settings()->setValue(Position_Fiche Nom_fiche_Paiement, saveGeometry());
     event->accept();
 }
 

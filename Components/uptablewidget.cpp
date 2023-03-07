@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
 {
-    setStyleSheet("UpTableWidget {selection-color: rgba(255, 255, 255); selection-background-color: rgba(164, 205, 255); }");
+    setStyleSheet("UpTableWidget {selection-color: rgb(255, 255, 255); selection-background-color: rgb(164, 205, 255); }");
     horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     setContextMenuPolicy(Qt::NoContextMenu);

@@ -10,11 +10,11 @@
     <height>374</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>1340</width>
-    <height>374</height>
-   </size>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
@@ -29,7 +29,7 @@
    <string>Dialog</string>
   </property>
   <property name="windowOpacity">
-   <double>1.000000000000000</double>
+   <double>-5.000000000000000</double>
   </property>
   <widget class="QFrame" name="textFrame">
    <property name="geometry">

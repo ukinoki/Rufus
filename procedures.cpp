@@ -1610,7 +1610,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal, QWidget *parent)
 {
     QString         rep("");
-    QString         geometry(Position_Fiche "Edit");
+    QString         geometry(Position_Fiche Nom_fiche_Edit);
     UpDialog        *gAsk           = new UpDialog(parent);
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     QList<QScreen*> listscreens = QGuiApplication::screens();
@@ -1633,7 +1633,6 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->setMaximumWidth(x);
     gAsk->setMaximumHeight(y);
     gAsk->setWindowTitle(titre);
-    gAsk->setSizeGripEnabled(true);
 
     gAsk->dlglayout()->insertWidget(0,TxtEdit);
 

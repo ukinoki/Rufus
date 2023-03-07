@@ -60,7 +60,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         proc->settings()->remove("PositionsFiches/Rufus");
     }
     else
-        restoreGeometry(proc->settings()->value(Position_Fiche "Rufus").toByteArray());
+        restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Rufus).toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
@@ -3882,7 +3882,7 @@ void Rufus::MAJPosteConnecte()
 {
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
-    proc->settings()->setValue(Position_Fiche "Rufus", saveGeometry());
+    proc->settings()->setValue(Position_Fiche Nom_fiche_Rufus, saveGeometry());
     if (currentpost() != Q_NULLPTR)
     {
         ItemsList::update(currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
@@ -3923,8 +3923,8 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     ui->TerraintreeWidget->setColumnCount(2);
     ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
     ui->TerraintreeWidget->setColumnWidth(1,180 );     //
-    ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgba(0,0,0);"
-                                         " selection-background-color: rgba(164, 205, 255);"
+    ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
+                                         " selection-background-color: rgb(164, 205, 255);"
                                          " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
                                          " border: 1px solid rgba(150,150,150); border-radius: 10px;}");
     ui->TerraintreeWidget->setIconSize(QSize(25,25));
@@ -7653,6 +7653,8 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
     {
+        if (n == ListDialogDocs.size()-1)
+            proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
         delete ListDialogDocs.at(n);
     }

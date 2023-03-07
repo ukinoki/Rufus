@@ -436,7 +436,7 @@ void dlg_listelieux::ReconstruitModel()
     wdg_tblview->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_tblview->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-    wdg_tblview->setStyleSheet("QTableView {selection-color: rgba(0,0,0); selection-background-color: rgba(164, 205, 255);}");
+    wdg_tblview->setStyleSheet("QTableView {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");
 
     int larg = 0;
     for (int i=0; i < m_model->columnCount(); i++)
