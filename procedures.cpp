@@ -19,12 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "database.h"
 #include "gbl_datas.h"
-unsigned char SOH = 01;  //0x01
-unsigned char STX = 02;  //0x02
-unsigned char EOT = 04;  //0x04
-unsigned char ETB = 23; //0x17
-unsigned char LF  = 10; //0x0A
-unsigned char CR  = 13; //0x0D
+#include "ascii.h"
+#include "tomey.h"
 
 Procedures* Procedures::instance =  Q_NULLPTR;
 Procedures* Procedures::I()
@@ -9720,123 +9716,7 @@ PL04.7N
 
     else if (nameARK == "TOMEY RC-5000" || nameARK == "RODENSTOCK CX 2000")
     {
-        /*! SORTIE EXEMPLE POUR UN TOMEY RC-5000
-         * SOH =    SOH             //SOH -> start of header
-         * STX =    STX             //STX -> start of text
-         * CR =     CR              //CR -> carriage return
-         * EOT =    EOT             //EOT -> end of transmission
-         * La 1ere ligne commence par SOH, la dernière par EOT- représentés ici
-         * Les autres lignes commencent par STX
-         * Toutes les lignes se terminent par CR
-
-
-SOH*1234                                    -> id (4 octets)
-RK
-0R+ 5.25- 0.25179                           -> AR Côté (R/L) Sphere (6o) Cylindre (6o) Axe (3o)
-0L+ 3.00- 0.75 89
-DB60.5                                      -> EIP (4o)
-CR 5.0045.00 89 4.0040.00 75 4.50- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o)
-CL 5.0045.00 89 4.0040.00 75 4.50- 0.25
-*/
-        a               = Mesure.indexOf("RK");
-        a               = Mesure.length() - a -1;
-        QString Ref("");
-        Ref             = Mesure.right(a);
-        if (Ref != "")
-        {
-            a  = Ref.indexOf("OR");
-            // OEIL DROIT -----------------------------------------------------------------------------
-            if (a>=0)
-            {
-                QString mesureOD("");
-                QString mSphereOD   = "+00.00";
-                QString mCylOD      = "+00.00";
-                QString mAxeOD      = "000";
-                mesureOD            = Ref.mid(Ref.indexOf("OR")+2,15)   .replace(" ","0");
-                mSphereOD           = mesureOD.mid(0,6);
-                mCylOD              = mesureOD.mid(6,6);
-                mAxeOD              = mesureOD.mid(12,3);
-                Datas::I()->mesureautoref->setsphereOD(mSphereOD.toDouble());
-                Datas::I()->mesureautoref->setcylindreOD(mCylOD.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
-            }
-            // OEIL GAUCHE ---------------------------------------------------------------------------
-            a  = Ref.indexOf("OL");
-            if (a>=0)
-            {
-                QString mesureOG("");
-                QString mSphereOG   = "+00.00";
-                QString mCylOG      = "+00.00";
-                QString mAxeOG      = "000";
-                mesureOG            = Ref.mid(Ref.indexOf("OL")+2,15)   .replace(" ","0");
-                mSphereOG           = mesureOG.mid(0,6);
-                mCylOG              = mesureOG.mid(6,6);
-                mAxeOG              = mesureOG.mid(12,3);
-                Datas::I()->mesureautoref->setsphereOG(mSphereOG.toDouble());
-                Datas::I()->mesureautoref->setcylindreOG(mCylOG.toDouble());
-                Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
-            }
-            a  = Ref.indexOf("DB");
-            if (a >= 0) {
-                QString PD      = Ref.mid(Ref.indexOf("DB")+2,2);
-                Datas::I()->mesureautoref->setecartIP(PD.toInt());
-            }
-            // Données de KERATOMETRIE -------------------------------------------------------------------------------------------------------
-            // OEIL DROIT -----------------------------------------------------------------------------
-            a  = Ref.indexOf("CR");
-            if (a>=0)
-            {
-                /*!->CR 5.0045.00 89 4.0040.00 75 4.50- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
-                QString KOD("");
-                QString K1OD("null"), K2OD("null");
-                int     AxeKOD(0);
-                KOD                 = Ref.mid(Ref.indexOf("CR")+2,37);
-                /*!              1           2           3
-                 *!->01234|56789|012|34567|89012|345|67890|123456 */
-                /*   mK1OD|dK1OD|Axe|mK2OD|dK2OD|Axe|mAvgK|Cylndr
-                 *!-> 5.00|45.00| 89| 4.00|40.00| 75| 4.50|- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
-                KOD.replace(" ", "0");
-                /*!->05.00|45.00|089|04.00|40.00|075|04.50|-00.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
-                K1OD                = KOD.mid(0,5);
-                K2OD                = KOD.mid(13,5);
-                AxeKOD              = KOD.mid(10,3).toInt();
-                if (K1OD.toDouble() != 0 && K2OD.toDouble() != 0)
-                {
-                    Datas::I()->mesurekerato->setK1OD(K1OD.toDouble());
-                    Datas::I()->mesurekerato->setK2OD(K2OD.toDouble());
-                    Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
-                    Datas::I()->mesurekerato->setdioptriesK1OD(KOD.mid(5,5).toDouble());
-                    Datas::I()->mesurekerato->setdioptriesK2OD(KOD.mid(18,5).toDouble());
-                }
-            }
-            // OEIL GAUCHE ---------------------------------------------------------------------------
-            a  = Ref.indexOf("CL");
-            if (a>=0)
-            {
-                /*!->CL 5.0045.00 89 4.0040.00 75 4.50- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
-                QString KOG("");
-                QString K1OG("null"), K2OG("null");
-                int     AxeKOG(0);
-                KOG                 = Ref.mid(Ref.indexOf("CR")+2,37);
-                /*!              1           2           3
-                 *!->01234|56789|012|34567|89012|345|67890|123456 */
-                /*   mK1OG|dK1OG|Axe|mK2OG|dK2OG|Axe|mAvgK|Cylndr
-                 *!-> 5.00|45.00| 89| 4.00|40.00| 75| 4.50|- 0.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
-                KOG.replace(" ", "0");
-                /*!->05.00|45.00|089|04.00|40.00|075|04.50|-00.25     -> Kerato R1mm (5o) R1dioptries (5o) R1Axe (3o) R2mm (5o) R2dioptries (5o) R2Axe (3o) RAVGmm (5o) Cylindre (6o) */
-                K1OG                = KOG.mid(0,5);
-                K2OG                = KOG.mid(13,5);
-                AxeKOG              = KOG.mid(10,3).toInt();
-                if (K1OG.toDouble() != 0 && K2OG.toDouble() != 0)
-                {
-                    Datas::I()->mesurekerato->setK1OG(K1OG.toDouble());
-                    Datas::I()->mesurekerato->setK2OG(K2OG.toDouble());
-                    Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
-                    Datas::I()->mesurekerato->setdioptriesK1OG(KOG.mid(5,5).toDouble());
-                    Datas::I()->mesurekerato->setdioptriesK2OG(KOG.mid(18,5).toDouble());
-                }
-            }
-        }
+        Tomey::I()->LectureDonneesRC5000Form( Mesure,  nameARK);
     }
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
 }

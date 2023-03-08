@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "serialthread.h"
+#include "ascii.h"
 
 #ifdef Q_OS_WIN
 
@@ -42,7 +43,10 @@ void SerialThread::readTimer()
     int numRead = Port->read(buffer, 50);
     if (numRead == 0)
     {
-        emit newdatacom(Utils::cleanByteArray(reponseData));
+        QByteArray b(Utils::cleanByteArray(reponseData));
+//        b.replace(CR,' ');  //replace CR (\n) for space
+//        b.replace(LF,'|');  //replace CR (\n) for separator
+        emit newdatacom(QString::fromLocal8Bit(b));
         t_timer->stop();
         //Utils::writeDataToFileDateTime(reponseData, "Received.bin","c:/outils/log");
     }

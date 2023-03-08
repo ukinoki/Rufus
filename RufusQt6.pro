@@ -20,7 +20,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 OSX     { TARGET = /Applications/RufusQt6 }
 LINUX   { TARGET = $(HOME)/RufusQt6App }
-win32   { TARGET = Rufus }
+win32   { TARGET = RufusQt6 }
 win32 {
 RC_ICONS = assets/Images/icon.ico
 RC_FILE = assets/Images/icon.rc
@@ -75,6 +75,7 @@ SOURCES += main.cpp\
     flags.cpp
 
 HEADERS += rufus.h \
+    ascii.h \
     ostask.h \
     procedures.h \
     pyxinterf.h \
@@ -105,6 +106,7 @@ include(ItemsLists/itemslists.pri)
 include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
+include(Protocols/Protocols.pri)
 
 unix|win32{
 include(SingleApplication/singleapplication.pri)
@@ -127,6 +129,7 @@ ICON += \
     Sunglasses.icns
 
 DISTFILES += \
+    Protocols/protocols.pri \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
     _Diagrams/Gestion des documents sous Rufus.pdf \
