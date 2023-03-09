@@ -900,15 +900,15 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
     }
     else if (choix == "Date")
     {
-        if (AskDialog("Choix de date")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//DATE))");
-        delete dlg_askdialog;
+        QString question = AskDialog("Choix de date");
+        if (question != "")
+            ui->upTextEdit->textCursor().insertHtml("((" + question + "//DATE))");
     }
     else if (choix == "Texte")
     {
-        if (AskDialog("Choix de texte")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//TEXTE))");
-        delete dlg_askdialog;
+        QString question = AskDialog("Choix de texte");
+        if (question != "")
+            ui->upTextEdit->textCursor().insertHtml("((" + question + "//TEXTE))");
     }
     else if (choix == "Soignant")
     {
@@ -967,26 +967,26 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
     }
     else if (choix == "Montant")
     {
-        if (AskDialog("Choix de texte")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//MONTANT))");
-        delete dlg_askdialog;
+        QString question = AskDialog("Choix de texte");
+        if (question != "")
+            ui->upTextEdit->textCursor().insertHtml("((" + question + "//MONTANT))");
     }
     else if (choix == "Heure")
     {
-        if (AskDialog("Choix d'une heure")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//HEURE))");
-        delete dlg_askdialog;
+        QString question = AskDialog("Choix d'une heure");
+        if (question != "")
+            ui->upTextEdit->textCursor().insertHtml("((" + question + "//HEURE))");
     }
     else if (choix == COTE)
     {
-        if (AskDialog("Choix d'un côté")>0)
+        QString question = AskDialog("Choix d'un côté");
+        if (question != "")
         {
-            QString txt = "((" + dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text() + "//";
+            QString txt = "((" + question + "//";
             txt += COTE;
             txt += "))";
             ui->upTextEdit->textCursor().insertHtml(txt);
         }
-        delete dlg_askdialog;
     }
 }
 
@@ -1753,37 +1753,40 @@ void dlg_impressions::keyPressEvent(QKeyEvent * event )
     }
 }
 
-int dlg_impressions::AskDialog(QString titre)
+QString dlg_impressions::AskDialog(QString titre)
 {
-    dlg_askdialog               = new UpDialog(this);
-    dlg_askdialog               ->setWindowModality(Qt::WindowModal);
-    UpLineEdit  *Line           = new UpLineEdit(dlg_askdialog);
-    UpLabel     *label          = new UpLabel(dlg_askdialog);
-    QString question            = tr("Entrez la question que vous voulez poser.");
+    QString reponse = "";
+     dlg_askdialog               = new UpDialog(this);
+     dlg_askdialog               ->setWindowModality(Qt::WindowModal);
+     UpLineEdit  *Line           = new UpLineEdit(dlg_askdialog);
+     UpLabel     *label          = new UpLabel(dlg_askdialog);
+     QString question            = tr("Entrez la question que vous voulez poser.");
 
-    label   ->setText(question);
-    label   ->setFixedSize(Utils::CalcSize(question));
-    Line    ->setFixedSize(Utils::CalcSize(question));
+     label   ->setText(question);
+     label   ->setFixedSize(Utils::CalcSize(question));
+     Line    ->setFixedSize(Utils::CalcSize(question));
 
-    dlg_askdialog->dlglayout()->setSpacing(4);
-    dlg_askdialog->dlglayout()->insertWidget(0,Line);
-    dlg_askdialog->dlglayout()->insertWidget(0,label);
+     dlg_askdialog->dlglayout()->setSpacing(4);
+     dlg_askdialog->dlglayout()->insertWidget(0,Line);
+     dlg_askdialog->dlglayout()->insertWidget(0,label);
 
-    dlg_askdialog->setSizeGripEnabled(false);
-    //dlg_askdialog->setFixedSize(270,100);
-    dlg_askdialog->move(QPoint(x()+width()/2,y()+height()/2));
-    dlg_askdialog->setWindowTitle(titre);
-    dlg_askdialog->AjouteLayButtons();
-    dlg_askdialog->TuneSize();
+     dlg_askdialog->setSizeGripEnabled(false);
+     //dlg_askdialog->setFixedSize(270,100);
+     dlg_askdialog->move(QPoint(x()+width()/2,y()+height()/2));
+     dlg_askdialog->setWindowTitle(titre);
+     dlg_askdialog->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+     dlg_askdialog->TuneSize();
 
-    connect(dlg_askdialog->OKButton,   &QPushButton::clicked, dlg_askdialog,  [=] {dlg_askdialog->accept();});
+     connect(dlg_askdialog->OKButton,   &QPushButton::clicked, dlg_askdialog,  [=] {dlg_askdialog->accept();});
 
-    Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
-    Line->setMaxLength(60);
-    int a = dlg_askdialog->exec();
-    delete dlg_askdialog;
-    dlg_askdialog = Q_NULLPTR;
-    return a;
+     Line->setValidator(new QRegularExpressionValidator(Utils::rgx_Question,this));
+     Line->setMaxLength(60);
+     int a = dlg_askdialog->exec();
+     if (a>0)
+         reponse = dlg_askdialog->findChildren<UpLineEdit*>().at(0)->text();
+     delete dlg_askdialog;
+     dlg_askdialog = Q_NULLPTR;
+     return reponse;
 }
 
 // ----------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 #--------------------
-# DATABASE
+# PROTOCOLS
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/tomey.cpp

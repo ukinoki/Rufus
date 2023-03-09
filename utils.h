@@ -82,6 +82,7 @@ public:
     static QRegularExpression const rgx_AlphaNumeric_5_12;
     static QRegularExpression const rgx_AlphaNumeric_5_15;
     static QRegularExpression const rgx_MajusculeSeul;
+    static QRegularExpression const rgx_Question;
 
     static QRegularExpression const rgx_IPV4;
     static QRegularExpression const rgx_IPV4_mask;

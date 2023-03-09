@@ -106,7 +106,8 @@ include(ItemsLists/itemslists.pri)
 include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
-include(Protocols/Protocols.pri)
+include(Protocols/protocols.pri)
+
 
 unix|win32{
 include(SingleApplication/singleapplication.pri)
@@ -129,7 +130,6 @@ ICON += \
     Sunglasses.icns
 
 DISTFILES += \
-    Protocols/protocols.pri \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
     _Diagrams/Gestion des documents sous Rufus.pdf \

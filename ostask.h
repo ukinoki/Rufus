@@ -4,7 +4,6 @@
 #include <QProcess>
 #include <QThread>
 #include <QDebug>
-#include "utils.h"
 
 class OsTask : public QObject
 {
