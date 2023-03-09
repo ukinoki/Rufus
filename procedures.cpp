@@ -15,12 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "icons.h"
 #include "procedures.h"
-#include "database.h"
-#include "gbl_datas.h"
-#include "ascii.h"
-#include "tomey.h"
 
 Procedures* Procedures::instance =  Q_NULLPTR;
 Procedures* Procedures::I()
@@ -2721,7 +2716,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
             db->VideDatabases();
-            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY " MDP_SQL "'");
+            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "'");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' WITH GRANT OPTION");
             db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' REQUIRE SSL");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");

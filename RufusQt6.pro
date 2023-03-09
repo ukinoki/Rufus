@@ -20,7 +20,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 OSX     { TARGET = /Applications/RufusQt6 }
 LINUX   { TARGET = $(HOME)/RufusQt6App }
-win32   { TARGET = RufusQt6 }
+win32   { TARGET = Rufus }
 win32 {
 RC_ICONS = assets/Images/icon.ico
 RC_FILE = assets/Images/icon.rc

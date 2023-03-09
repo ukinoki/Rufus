@@ -36,7 +36,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     setWindowIcon(Icons::icLoupe());
 
 
-    restoreGeometry(proc->settings()->value(Position_Fiche "Documents").toByteArray());
+    restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Documents).toByteArray());
 
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
     wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocsupTableView);
@@ -1685,7 +1685,7 @@ bool dlg_impressions::event(QEvent *event)
 }
 void dlg_impressions::closeEvent(QCloseEvent *event)
 {
-    proc->settings()->setValue(Position_Fiche "Documents",saveGeometry());
+    proc->settings()->setValue(Position_Fiche Nom_fiche_Documents,saveGeometry());
     event->accept();
 }
 

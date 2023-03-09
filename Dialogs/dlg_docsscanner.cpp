@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsscanner.h"
 
 dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, Position_Fiche "DocsScanner", parent)
+    UpDialog(PATH_FILE_INI, Position_Fiche Nom_fiche_DocsScanner, parent)
 {
     m_mode           = mode;
     if ( m_mode == Document)
