@@ -715,7 +715,8 @@ void Procedures::setDirSQLExecutable()
     mysqldir.cdUp();
     defaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
     defaultsqlexecutable = "/usr/bin";
     defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
 #endif
@@ -738,7 +739,8 @@ void Procedures::setDirSQLExecutable()
         if (!QFile(sqlexecutable + "/mysql").exists())
             sqlexecutable = QStandardPaths::findExecutable("mysql");
         a = (QFile(sqlexecutable + "/mysql").exists());
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
         sqlexecutable = "/usr/bin";
         if (!QFile(sqlexecutable + "/mysql").exists())
             sqlexecutable = QStandardPaths::findExecutable("mysql");
