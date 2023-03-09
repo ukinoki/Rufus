@@ -96,7 +96,7 @@ private:
     void                        ChoixMenuContextuelTexteDocument(QString);
     void                        ChoixMenuContextuelDocument(QString);
     void                        ChoixMenuContextuelDossier(QString);
-    int                         AskDialog(QString titre);
+    QString                     AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
     void                        ChoixCorrespondant(QList<Correspondant*> listcor);

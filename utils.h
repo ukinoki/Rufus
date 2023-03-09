@@ -80,6 +80,7 @@ public:
     static QRegExp const rgx_AlphaNumeric_5_12;
     static QRegExp const rgx_AlphaNumeric_5_15;
     static QRegExp const rgx_MajusculeSeul;
+    static QRegExp const rgx_Question;
 
     static QRegExp const rgx_IPV4;
     static QRegExp const rgx_IPV4_mask;
