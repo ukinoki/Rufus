@@ -112,7 +112,8 @@ bool Users::add(User *usr)
 void Users::addList(QList<User*> listusr)
 {
     foreach (User *usr, listusr)
-        add(usr);
+        if(usr != Q_NULLPTR)
+            add(usr);
 }
 
 /*!

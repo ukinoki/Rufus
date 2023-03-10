@@ -33,18 +33,16 @@ bool TypesTiers::add(TypeTiers *typetiers)
     if (typetiers == Q_NULLPTR)
         return false;
     if( m_typestiers->contains(typetiers) )
-    {
-        delete typetiers;
         return false;
-    }
     *m_typestiers << typetiers;
     return true;
 }
 
-void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
+void TypesTiers::addList(QList<TypeTiers*> list)
 {
-    foreach (TypeTiers* trs, listTypesTiers)
-        add( trs );
+    foreach (TypeTiers* trs, list)
+        if(trs != Q_NULLPTR)
+            add( trs );
 }
 
 void TypesTiers::remove(TypeTiers* typetiers)
@@ -70,6 +68,7 @@ void TypesTiers::clearAll()
 void TypesTiers::initListe()
 {
     clearAll();
-    addList(DataBase::I()->loadTypesTiers());
+    QList<TypeTiers*> list = DataBase::I()->loadTypesTiers();
+    addList(list);
 }
 

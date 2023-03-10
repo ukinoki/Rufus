@@ -79,6 +79,8 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     foreach (DocExterne* doc, listdocs)
     {
+        if (doc == Q_NULLPTR)
+            continue;;
         if(!map_docsexternes->contains(doc->id()))
             m_nouveaudocument = true;
         add(map_docsexternes, doc);
@@ -93,15 +95,16 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
 void DocsExternes::initListeByPatient(Patient *pat)
 {
     m_patient = pat;
-    QList<DocExterne*> listdocs = DataBase::I()->loadDoscExternesByPatient(pat);
-    epurelist(map_docsexternes, &listdocs);
-    addList(listdocs);
+    QList<DocExterne*> list = DataBase::I()->loadDoscExternesByPatient(pat);
+    epurelist(map_docsexternes, &list);
+    addList(list);
 }
 
 void DocsExternes::actualise()
 {
     m_nouveaudocument = false;
-    addList(DataBase::I()->loadDoscExternesByPatient(m_patient));
+    QList<DocExterne*> list = DataBase::I()->loadDoscExternesByPatient(m_patient);
+    addList(list);
 }
 
 void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
