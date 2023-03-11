@@ -387,21 +387,21 @@ bool dlg_listelieux::ValidationFiche()
     {
         Msg += tr("le nom de la structure de soins");
         wdg_nomlineedit->setFocus();
-        UpMessageBox::Watch(this,Msg);
+        UpMessageBox::Watch(dlg_lieu,Msg);
         return false;
     }
     if (wdg_CPlineedit->text().toInt() ==  0)
     {
         Msg += tr("le code postal");
         wdg_CPlineedit->setFocus();
-        UpMessageBox::Watch(this,Msg);
+        UpMessageBox::Watch(dlg_lieu,Msg);
         return false;
     }
     if (wdg_villelineedit->text() == QString())
     {
         Msg += tr("la ville");
         wdg_villelineedit->setFocus();
-        UpMessageBox::Watch(this,Msg);
+        UpMessageBox::Watch(dlg_lieu,Msg);
         return false;
     }
     return true;

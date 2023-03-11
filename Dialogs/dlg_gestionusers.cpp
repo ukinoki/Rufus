@@ -903,7 +903,7 @@ void dlg_gestionusers::GestLieux()
     m_MDPverified = Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), mdp, m_MDPverified, this);
     if (!m_MDPverified)
             return;
-    dlg_listelieux *gestLieux = new dlg_listelieux();
+    dlg_listelieux *gestLieux = new dlg_listelieux(this);
     gestLieux->exec();
     ReconstruitListeLieuxExercice();
     delete gestLieux;
