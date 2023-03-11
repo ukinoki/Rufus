@@ -1284,8 +1284,8 @@ QMap<QString, QString> Utils::ReconstruitMapPortsCOM()
         QString nomgeneriqueduport = availableports.at(i).portName();
         if (nomgeneriqueduport.contains("usbserial"))
         {
-            QString lastchar = nomgeneriqueduport.at(nomgeneriqueduport.size() - 1);
-            QString firstchar = nomgeneriqueduport.split("-").at(1).right(1);
+            QString lastchar = nomgeneriqueduport.right(1);
+            QString firstchar = nomgeneriqueduport.split("-").at(1).left(1);
             /*!
           * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
           * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
