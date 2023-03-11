@@ -79,6 +79,8 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     foreach (DocExterne* doc, listdocs)
     {
+        if (doc == Q_NULLPTR)
+            continue;;
         if(!map_docsexternes->contains(doc->id()))
             m_nouveaudocument = true;
         add(map_docsexternes, doc);

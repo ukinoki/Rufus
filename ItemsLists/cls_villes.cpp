@@ -82,15 +82,10 @@ bool Villes::add(Ville *ville)
 
 void Villes::addList(QList<Ville*> listvilles)
 {
-    QList<Ville*>::const_iterator it;
-    for( it = listvilles.constBegin(); it != listvilles.constEnd(); ++it )
-    {
-        Ville* ville = const_cast<Ville*>(*it);
-        add( ville );
-    }
+    foreach (Ville* ville, listvilles)
+         if (ville != Q_NULLPTR)
+             add( ville );
 }
-
-
 
 QStringList Villes::ListeVilles()
 {
