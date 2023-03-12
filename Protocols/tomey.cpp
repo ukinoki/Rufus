@@ -17,7 +17,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "tomey.h"
 #include "gbl_datas.h"
-#include "ascii.h"
 
 Tomey* Tomey::instance = Q_NULLPTR;
 
@@ -36,6 +35,7 @@ QList<QString> getFieldsFromLine(QList<QString> list, int i)
     QList<QString> fields = line.split(",");
     return fields;
 }
+
 
 void Tomey::LectureDonneesRC5000Form(QString Mesure, QString nameARK)
 {
@@ -70,8 +70,8 @@ void Tomey::LectureDonneesRC5000Form(QString Mesure, QString nameARK)
             {
                 for( int k=i; k<i+n; k++)
                 {
-                    QList<QString> fields2 = getFieldsFromLine(list, i+1); //get first measure
-                    if ( fields2.at(0) == "[POWER_R]" && fields2.at(1) == "A" && fields2.length() > 5)
+                    QList<QString> fields2 = getFieldsFromLine(list, k+1); //get measure
+                    if ( fields2.at(0) == "[POWER_R]" && fields2.at(1) == "A" && fields2.length() > 5)  // Average
                     {
                         QString mSphereOD   = fields2.at(2);
                         QString mCylOD      = fields2.at(3);
@@ -94,8 +94,8 @@ void Tomey::LectureDonneesRC5000Form(QString Mesure, QString nameARK)
             {
                 for( int k=i; k<i+n; k++)
                 {
-                    QList<QString> fields2 = getFieldsFromLine(list, i+1); //get first measure
-                    if ( fields2.at(0) == "[POWER_L]" && fields2.at(1) == "A" && fields2.length() > 5)
+                    QList<QString> fields2 = getFieldsFromLine(list, k+1); //get measure
+                    if ( fields2.at(0) == "[POWER_L]" && fields2.at(1) == "A" && fields2.length() > 5)  // Average
                     {
                         QString mSphereOG   = fields2.at(2);
                         QString mCylOG      = fields2.at(3);
@@ -117,157 +117,122 @@ void Tomey::LectureDonneesRC5000Form(QString Mesure, QString nameARK)
         // i+3  [K2_R], 8.19, 41.21,106
         // i+4  [AV_R], 8.29, 40.71
         // i+5  [CYL_R],-0.94,16
-        // i+6  [KAI_R],  4.0,343,A,
-        // i+7  [KRI_R],  2.0,A,
+        // i+6  [KAI_R],  4.0,343,A,           --------------------- Rodenstock CX 2000 Not in Tomey Form specification.
+        // i+7  [KRI_R],  2.0,A,               ---------------------  idem
         else if ( fields.at(0) == "[N_R]" && mode == "KERATO")
         {
             bool ok;
-            int n = fields.at(1).toInt(&ok);
-            if ( ok && i+n*7 < nlines ) // 7 lines for measure
-            {
-                for( int k=i; k<i+n*7; k+=7)
+            i+=1;
+            // read lines until found [INF_R],A,
+            while ( i < nlines ){
+                QList<QString> fields2 = getFieldsFromLine(list, i);
+                if ( fields2.at(0) == "[INF_R]" && fields2.length() > 1)
                 {
-                    bool complete = true;
-                    QList<QString> fields2 = getFieldsFromLine(list, k+1);
-                    if ( fields2.at(0) == "[INF_R]" && fields2.at(1) == "A" && fields2.length() > 1)
+                    if(fields2.at(1) == "A")
                     {
-                        fields2 = getFieldsFromLine(list, k+2);
-                        if ( fields2.at(0) == "[K1_R]" and fields2.length() > 1)
-                        {
-                            double K1OD = fields2.at(1).toDouble(&ok);
-                            if( ok )
+                        i+=1;
+                        while(i < nlines) {
+                            fields2 = getFieldsFromLine(list, i);
+                            if ( fields2.at(0) == "[K1_R]" and fields2.length() > 3)
                             {
-                                Datas::I()->mesurekerato->setK1OD(K1OD);
-                            } else {
-                                complete=false;
+                                double K1OD = fields2.at(1).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setK1OD(K1OD);
+                                }
+                                double K1DOD = fields2.at(2).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setdioptriesK1OD(K1DOD);
+                                }
+                                int    AxeKOD = fields2.at(3).toInt(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
+                                }
                             }
-                            double K1DOD = fields2.at(2).toDouble(&ok);
-                            if( ok )
+                            else if ( fields2.at(0) == "[K2_R]" and fields2.length() > 2)
                             {
-                                Datas::I()->mesurekerato->setdioptriesK1OD(K1DOD);
+                                double K2OD = fields2.at(1).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setK2OD(K2OD);
+                                }
+                                double K2ODD = fields2.at(2).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setdioptriesK2OD(K2ODD);
+                                }
                             } else {
-                                complete=false;
+                                break;
                             }
-                            int    AxeKOD = fields2.at(3).toInt(&ok);
-                            if( ok )
-                            {
-                                Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(AxeKOD));
-                            } else {
-                                complete=false;
-                            }
+                            i+=1;
                         }
-                        else
-                        {
-                            complete=false;
-                        }
-                        fields2 = getFieldsFromLine(list, k+3);
-                        if ( fields2.at(0) == "[K2_R]" and fields2.length() > 1)
-                        {
-                            double K2OD = fields2.at(1).toDouble(&ok);
-                            if( ok )
-                            {
-                                Datas::I()->mesurekerato->setK2OD(K2OD);
-                            } else {
-                                complete=false;
-                            }
-                            double K2ODD = fields2.at(2).toDouble(&ok);
-                            if( ok )
-                            {
-                                Datas::I()->mesurekerato->setdioptriesK2OD(K2ODD);
-                            } else {
-                                complete=false;
-                            }
-                        }
-                        else
-                        {
-                            complete=false;
-                        }
-                        if( complete )
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
-                i+=n*7; //skip all measures
+                i+=1;
             }
         }
         // OEIL GAUCHE -------------------------------------------------------- [FM_IF], KERATO
         else if ( fields.at(0) == "[N_L]" && mode == "KERATO")
         {
             bool ok;
-            int n = fields.at(1).toInt(&ok);
-            if ( ok && i+n*7 < nlines ) // 7 lines for measure
-            {
-                for( int k=i; k<i+n*7; k+=7)
+            // read lines until found [INF_L],A,
+            i+=1;
+            while ( i < nlines ){
+                QList<QString> fields2 = getFieldsFromLine(list, i);
+                if ( fields2.at(0) == "[INF_L]" && fields2.length() > 1)
                 {
-                    bool complete = true;
-                    QList<QString> fields2 = getFieldsFromLine(list, k+1);
-                    if ( fields2.at(0) == "[INF_R]" && fields2.at(1) == "A" && fields2.length() > 1)
+                    if(fields2.at(1) == "A")
                     {
-                        fields2 = getFieldsFromLine(list, k+2);
-                        if ( fields2.at(0) == "[K1_L]" and fields2.length() > 2)
-                        {
-                            double K1OG = fields2.at(1).toDouble(&ok);
-                            if( ok )
+                        i+=1;
+                        while(i < nlines) {
+                            fields2 = getFieldsFromLine(list, i);
+                            if ( fields2.at(0) == "[K1_L]" and fields2.length() > 3)
                             {
-                                Datas::I()->mesurekerato->setK1OG(K1OG);
-                            } else {
-                                complete=false;
+                                double K1OG = fields2.at(1).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setK1OG(K1OG);
+
+                                }
+                                double K1DOG = fields2.at(2).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setdioptriesK1OG(K1DOG);
+                                }
+                                int    AxeKOG = fields2.at(3).toInt(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
+                                }
                             }
-                            double K1DOG = fields2.at(2).toDouble(&ok);
-                            if( ok )
+                            else if ( fields2.at(0) == "[K2_L]" and fields2.length() > 2)
                             {
-                                Datas::I()->mesurekerato->setdioptriesK1OG(K1DOG);
+                                double K2OG = fields2.at(1).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setK2OG(K2OG);
+                                }
+                                double K2OGD = fields2.at(2).toDouble(&ok);
+                                if( ok )
+                                {
+                                    Datas::I()->mesurekerato->setdioptriesK2OG(K2OGD);
+                                }
                             } else {
-                                complete=false;
+                                break;
                             }
-                            int    AxeKOG = fields2.at(3).toInt(&ok);
-                            if( ok )
-                            {
-                                Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(AxeKOG));
-                            } else {
-                                complete=false;
-                            }
+                            i+=1;
                         }
-                        else
-                        {
-                            complete=false;
-                        }
-                        fields2 = getFieldsFromLine(list, k+3);
-                        if ( fields2.at(0) == "[K2_L]" and fields2.length() > 1)
-                        {
-                            double K2OG = fields2.at(1).toDouble(&ok);
-                            if( ok )
-                            {
-                                Datas::I()->mesurekerato->setK2OG(K2OG);
-                            } else {
-                                complete=false;
-                            }
-                            double K2OGD = fields2.at(2).toDouble(&ok);
-                            if( ok )
-                            {
-                                Datas::I()->mesurekerato->setdioptriesK2OG(K2OGD);
-                            } else {
-                                complete=false;
-                            }
-                        }
-                        else
-                        {
-                            complete=false;
-                        }
-                        if( complete )
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
-                i+=n*7; //skip all measures
+                i+=1;
             }
         }
     }
 }
-
-
 
 void Tomey::LectureDonneesRC5000(QString Mesure, QString nameARK)
 {

@@ -1,4 +1,5 @@
 *.pro.user
+*.7z
 .DS_Store
 WindowsInstaller/Output
 

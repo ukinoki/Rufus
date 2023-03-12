@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Rufus"
-#define MyAppVersion "08-03-2023"
+#define MyAppVersion "11-03-2023"
 #define MyAppPublisher "Rufus Vision"
 #define MyAppURL "https://www.rufusvision.org/"
 #define MyAppExeName "Rufus.exe"
@@ -50,7 +50,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: {app}\vc_redist.x64.exe; \
+Filename: {tmp}\vc_redist.x64.exe; \
     Parameters: "/q /passive /Q:a /c:""msiexec /q /i vcredist.msi"""; \
     StatusMsg: "Installing VC++ 2008 Redistributables..."; Flags: postinstall
 
