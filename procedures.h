@@ -72,7 +72,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <database.h>
 #include <gbl_datas.h>
 #include <timerthread.h>
-#include <ascii.h>
 #include <tomey.h>
 #include <icons.h>
 #include <gbl_datas.h>

@@ -247,8 +247,6 @@ void Tomey::LectureDonneesRC5000(QString Mesure, QString nameARK)
      * La 1ere ligne commence par SOH, la dernière par EOT- représentés ici
      * Les autres lignes commencent par STX
      * Toutes les lignes se terminent par CR
-
-
 SOH*1234                                    -> id (4 octets)
 RK
 0R+ 5.25- 0.25179                           -> AR Côté (R/L) Sphere (6o) Cylindre (6o) Axe (3o)

@@ -75,7 +75,6 @@ SOURCES += main.cpp\
     flags.cpp
 
 HEADERS += rufus.h \
-    ascii.h \
     ostask.h \
     procedures.h \
     pyxinterf.h \

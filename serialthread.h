@@ -21,7 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include <QSerialPort>
 #include <utils.h>
-#include <ascii.h>
 
 #ifdef Q_OS_WIN
 class SerialThread : public QObject

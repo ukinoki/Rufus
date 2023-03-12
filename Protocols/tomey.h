@@ -34,7 +34,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlRecord>
 #include <QJsonDocument>
 
-
 class Tomey : public QObject
 {
     Q_OBJECT
