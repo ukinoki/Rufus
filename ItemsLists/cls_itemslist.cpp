@@ -408,6 +408,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 else
                     ok = false;
             }
+            else
+                ok = false;
             break;
         }
         post = dynamic_cast<PosteConnecte*>(item);
@@ -471,6 +473,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 post->setidpatencours(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         bq = dynamic_cast<Banque*>(item);
@@ -575,12 +579,12 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 usr->setdesactive(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
             }
-            if (field == CP_AFFICHEDOCSPUBLICS_USR )
+            else if (field == CP_AFFICHEDOCSPUBLICS_USR )
             {
                 usr->setaffichedocspublics(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
             }
-            if (field == CP_AFFICHECOMMENTSPUBLICS_USR )
+            else if (field == CP_AFFICHECOMMENTSPUBLICS_USR )
             {
                 usr->setaffichecommentslunettespublics(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
@@ -620,6 +624,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 sessionop->setincident(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         sit = dynamic_cast<Site*>(item);
@@ -673,6 +679,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 sit->setcouleur(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         man = dynamic_cast<Manufacturer*>(item);
@@ -736,6 +744,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 man->setmail(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         typinterv = dynamic_cast<TypeIntervention*>(item);
@@ -759,6 +769,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 typinterv->setduree(newvalue.toTime());
                 Utils::CalcTimeValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         iol = dynamic_cast<IOL*>(item);
@@ -919,6 +931,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setType(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         interv = dynamic_cast<Intervention*>(item);
@@ -987,6 +1001,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 interv->setincident(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         tiers = dynamic_cast<Tiers*>(item);
@@ -1045,6 +1061,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 tiers->setWebsite(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         com = dynamic_cast<Commercial*>(item);
@@ -1083,6 +1101,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 com->setidmanufactureur(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         comment = dynamic_cast<CommentLunet*>(item);
@@ -1118,6 +1138,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 comment->setpublic(a);
                 newvalue = (a? "1" : "null");
             }
+            else
+                ok = false;
             break;
         }
         motcle = dynamic_cast<MotCle*>(item);
@@ -1131,6 +1153,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 motcle->setmotcle(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         impr = dynamic_cast<Impression*>(item);
@@ -1183,6 +1207,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 impr->setmedical(a);
                 newvalue = (a? "1" : "null");
             }
+            else
+                ok = false;
             break;
         }
         dossier = dynamic_cast<DossierImpression*>(item);
@@ -1207,6 +1233,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 dossier->setpublic(a);
                 newvalue = (a? "1" : "null");
             }
+            else
+                ok = false;
             break;
         }
         msg = dynamic_cast<Message*>(item);
@@ -1236,12 +1264,12 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 msg->settache(a);
                 newvalue = (a? "1" : "null");
             }
-            if (field == CP_DATELIMITE_MSG )
+            else if (field == CP_DATELIMITE_MSG )
             {
                 msg->setdatelimite(newvalue.toDate());
                 Utils::CalcDateValueSQL(newvalue);
             }
-            if (field == CP_DATECREATION_MSG )
+            else if (field == CP_DATECREATION_MSG )
             {
                 msg->setdatecreation(newvalue.toDateTime());
                 Utils::CalcDateTimeValueSQL(newvalue);
@@ -1263,6 +1291,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 msg->setasupprimer(a);
                 newvalue = (a? "1" : "null");
             }
+            else
+                ok = false;
             break;
         }
         session = dynamic_cast<Session*>(item);
@@ -1306,6 +1336,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 session->setidcomptable(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
+            else
+                ok = false;
             break;
         }
         return false;
