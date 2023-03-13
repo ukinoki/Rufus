@@ -3934,6 +3934,29 @@ bool Procedures::PremierDemarrage()
 
 
     // Création des dossiers
+    /*!
+      ----- ~/Documents/Rufus   /Imagerie-- /DossierEchange
+                                               /Un dossier par appareil d'imagerie
+                                               /Refraction
+                                                   /Refracteur
+                                                       /In
+                                                       /Out
+                                                   /Fronto
+                                                   /Tono
+                                                   /Autoref
+                                           /Factures
+                                           /EchecsTransferts
+                                           /FacturesSansLien
+                                           /Images
+                                           /Originaux
+                                                /Factures
+                                                /Images
+                                           /Prov
+                                           /Video
+                                /Logs
+                                /Resources
+     */
+
     Utils::mkpath(PATH_DIR_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGES);
     Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
