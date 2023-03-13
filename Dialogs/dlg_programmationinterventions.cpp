@@ -1441,29 +1441,29 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         qApp->focusWidget()->clearFocus();
         if (!timeedit->time().isValid())
         {
-            UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié une heure valide"));
+            UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié une heure valide"));
             return;
         }
         if (interventioncombo->currentText() == "" || interventioncombo->currentIndex() == -1)
         {
-            UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié le type d'intervention"));
+            UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié le type d'intervention"));
             return;
         }
         if (anesthcombo->currentText() == "" || anesthcombo->currentIndex() == -1)
         {
-            UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié le type d'anesthésie"));
+            UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié le type d'anesthésie"));
             return;
         }
         if (wdg_IOLchk->isChecked())
         {
             if (Datas::I()->manufacturers->getById(wdg_manufacturercombo->currentData().toInt()) == Q_NULLPTR)
             {
-                UpMessageBox::Watch(this, tr("Ce fabricant n'est pas retrouvé"));
+                UpMessageBox::Watch(dlg_intervention, tr("Ce fabricant n'est pas retrouvé"));
                 return;
             }
             if (Datas::I()->iols->getById(wdg_IOLcombo->currentData().toInt()) == Q_NULLPTR)
             {
-                UpMessageBox::Watch(this, tr("Cet implant n'est pas retrouvé"));
+                UpMessageBox::Watch(dlg_intervention, tr("Cet implant n'est pas retrouvé"));
                 return;
             }
         }
