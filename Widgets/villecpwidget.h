@@ -44,7 +44,7 @@ public:
     Ui::VilleCPWidget       *ui;
 
     Villes          *villes() const;
-    bool            rechercheCP() {return m_rechercheCP;};
+    bool            isValid();
 
 private:
     Villes          *m_villes;

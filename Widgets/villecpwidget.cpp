@@ -117,6 +117,33 @@ VilleCPWidget::~VilleCPWidget()
     delete ui;
 }
 
+bool   VilleCPWidget::isValid()
+{
+    if (ui->CPlineEdit->text() == "" && ui->VillelineEdit->text() == "")
+    {
+        UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
+        ui->CPlineEdit->setFocus();
+        return false;
+    }
+
+    if (ui->CPlineEdit->text() == "" || ui->VillelineEdit->text() == "")
+    {
+        if (ui->CPlineEdit->text() == "" && m_rechercheCP)
+        {
+            UpMessageBox::Watch(this,tr("Il manque le code postal"));
+            ui->CPlineEdit->setFocus();
+            return false;
+        }
+        if (ui->VillelineEdit->text() == "")
+        {
+            UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
+            ui->VillelineEdit->setFocus();
+            return false;
+        }
+    }
+    return true;
+}
+
 Villes *VilleCPWidget::villes() const
 {
     return m_villes;
