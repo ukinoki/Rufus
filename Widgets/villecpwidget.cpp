@@ -21,7 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_villes.h"
 #include "utils.h"
 
-/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/*!
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------- GESTION DES VILLES ET DES CODES POSTAUX
 CE WIDGET SERT À GÉRER LES VILLES ET LES CODES POSTAUX
 Il intègre 2 QLabel et 2 QLineEdit pour le code postal et la ville
@@ -47,7 +48,7 @@ Donc, dans l'ordre qui doit gérer les codes postaux:
 Le signal villecpmodified() est émis quand le CP ou la ville ont été modifiés
 
 B - LA RECHERCHE DE LA VILLE A PARTIR D'UN CODE POSTAL
-Même chose mais en plus simple : pas de recherche à partir du QCompleter, pas de suggestion sur des orthographes avoisinantes (par la force desc choses)
+Même chose mais en plus simple : pas de recherche à partir du QCompleter, pas de suggestion sur des orthographes avoisinantes (par la force des choses)
 
 Pour intéggrer le widget, il suffit de faire
     VilleCPWidget *VilleCPwidg  = new VilleCPWidget(NomDeLaBDD, NomDeLaTableDesVillesEtDesCodesPostaux, leParent, ListedesVilles, ListeDesCodesPostaux, NomDeLAlarme);
@@ -76,6 +77,10 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->VillelineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_ville,this));
     m_villes                    = villes;
     wdg_parent                  = parent;
+    QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
+    if (m_settings.value(Recherche_CodePostal).toBool() != false || m_settings.value(Recherche_CodePostal) == QVariant())
+        m_settings.setValue(Recherche_CodePostal, m_rechercheCP);
+    m_rechercheCP = m_settings.value(Recherche_CodePostal).toBool();
 
     setFocusProxy(ui->CPlineEdit);
 
@@ -90,15 +95,20 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     complListCP                 ->setCompletionMode(QCompleter::InlineCompletion);
     ui->CPlineEdit              ->setCompleter(complListCP);
 
+    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { if (m_rechercheCP) ChercheCodePostal(false);
+                                                                                                    emit villecpmodified(); });
+    if (m_rechercheCP)
+    {
+        connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
+                connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
+                });
+        connect(ui->VillelineEdit, &QLineEdit::textEdited, this, [=]{
+                connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
+                });
+    }
+    else
+        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=] {emit villecpmodified(); });
 
-    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { ChercheCodePostal(false); emit villecpmodified(); });
-    //connect(complListCP,        QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { qDebug()<<"CP Completer"; ChercheVille(false); emit villecpmodified(); });
-    connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
-        connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
-    });
-    connect(ui->VillelineEdit, &QLineEdit::textEdited, this, [=]{
-        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
-    });
 
 }
 

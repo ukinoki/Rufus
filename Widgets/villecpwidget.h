@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "updelegate.h"
 #include <QCompleter>
+#include <QSettings>
 #include <QSound>
 #include <QSqlDatabase>
 #include <QStandardItemModel>
@@ -43,9 +44,11 @@ public:
     Ui::VilleCPWidget       *ui;
 
     Villes          *villes() const;
+    bool            rechercheCP() {return m_rechercheCP;};
 
 private:
     Villes          *m_villes;
+    bool            m_rechercheCP = true;
 
     void            StartChercheVille();
     void            ChercheVille(bool confirmerleCP = true);

@@ -160,8 +160,10 @@ void    dlg_identificationpatient::EnableOKpushButton()
     bool a  = ui->NomlineEdit->text() != ""
            && ui->PrenomlineEdit->text() != ""
            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
-           && wdg_CPlineedit->text() != ""
            && wdg_villelineedit->text() != "";
+    if (a)
+        if (wdg_villeCP->rechercheCP() && wdg_CPlineedit->text() == "")
+            a = false;
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
@@ -213,7 +215,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
 
     if (wdg_CPlineedit->text() == "" || wdg_villelineedit->text() == "")
     {
-        if (wdg_CPlineedit->text() == "")
+        if (wdg_CPlineedit->text() == "" && wdg_villeCP->rechercheCP())
         {
             UpMessageBox::Watch(this,tr("Il manque le code postal"));
             wdg_CPlineedit->setFocus();

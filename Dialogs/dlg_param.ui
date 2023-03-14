@@ -2568,6 +2568,13 @@ un serveur hébergé sur le réseau local</string>
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="RechercheCPcheckBox">
+              <property name="text">
+               <string>Rechercher automatiquement les correspondances entre ville et code postal</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QFrame" name="VilleDefautframe">
               <property name="minimumSize">
                <size>

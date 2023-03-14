@@ -114,6 +114,8 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
+    if (m_settings->value(Recherche_CodePostal).toBool() != false || m_settings->value(Recherche_CodePostal) == QVariant())
+        m_settings->setValue(Recherche_CodePostal, true);
 }
 
 void Procedures::ab(int i)
@@ -3156,8 +3158,14 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         }
         delete Dlg_GestUsr;
     }
-    m_settings->setValue(Ville_Defaut,"Flayat");
-    m_settings->setValue(CodePostal_Defaut,"23260");
+    Datas::I()->villes          ->initListe();
+    QString CP(""),ville("");
+    if (Datas::I()->villes->ListeCodesPostaux().size()>0)
+        CP = Datas::I()->villes->ListeCodesPostaux().first();
+    if (Datas::I()->villes->getVilleByCodePostal(CP).size()>0)
+        ville = Datas::I()->villes->getVilleByCodePostal(CP).first()->nom();
+    m_settings->setValue(Ville_Defaut,ville);
+    m_settings->setValue(CodePostal_Defaut,CP);
     m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
@@ -3934,29 +3942,6 @@ bool Procedures::PremierDemarrage()
 
 
     // Création des dossiers
-    /*!
-      ----- ~/Documents/Rufus   /Imagerie-- /DossierEchange
-                                               /Un dossier par appareil d'imagerie
-                                               /Refraction
-                                                   /Refracteur
-                                                       /In
-                                                       /Out
-                                                   /Fronto
-                                                   /Tono
-                                                   /Autoref
-                                           /Factures
-                                           /EchecsTransferts
-                                           /FacturesSansLien
-                                           /Images
-                                           /Originaux
-                                                /Factures
-                                                /Images
-                                           /Prov
-                                           /Video
-                                /Logs
-                                /Resources
-     */
-
     Utils::mkpath(PATH_DIR_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGES);
     Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
