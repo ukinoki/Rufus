@@ -78,9 +78,9 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     m_villes                    = villes;
     wdg_parent                  = parent;
     QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
-    if (m_settings.value(Recherche_CodePostal).toBool() != false || m_settings.value(Recherche_CodePostal) == QVariant())
-        m_settings.setValue(Recherche_CodePostal, m_rechercheCP);
-    m_rechercheCP = m_settings.value(Recherche_CodePostal).toBool();
+    if (m_settings.value(Utilise_BBD_Villes).toBool() != false || m_settings.value(Utilise_BBD_Villes) == QVariant())
+        m_settings.setValue(Utilise_BBD_Villes, m_rechercheCP);
+    m_rechercheCP = m_settings.value(Utilise_BBD_Villes).toBool();
 
     setFocusProxy(ui->CPlineEdit);
 
@@ -95,10 +95,10 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     complListCP                 ->setCompletionMode(QCompleter::InlineCompletion);
     ui->CPlineEdit              ->setCompleter(complListCP);
 
-    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { if (m_rechercheCP) ChercheCodePostal(false);
-                                                                                                    emit villecpmodified(); });
     if (m_rechercheCP)
     {
+        connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { ChercheCodePostal(false);
+                                                                                                        emit villecpmodified(); });
         connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
                 connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
                 });
@@ -107,7 +107,10 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
                 });
     }
     else
-        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=] {emit villecpmodified(); });
+        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=] {
+                                                                            ui->VillelineEdit->setText(Utils::trimcapitilize(ui->VillelineEdit->text()));
+                                                                            emit villecpmodified();
+                                                                         });
 
 
 }
@@ -117,29 +120,37 @@ VilleCPWidget::~VilleCPWidget()
     delete ui;
 }
 
-bool   VilleCPWidget::isValid()
+bool   VilleCPWidget::isValid(bool avecmsgbox)
 {
-    if (ui->CPlineEdit->text() == "" && ui->VillelineEdit->text() == "")
+    if (m_rechercheCP)
     {
-        UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
-        ui->CPlineEdit->setFocus();
-        return false;
-    }
-
-    if (ui->CPlineEdit->text() == "" || ui->VillelineEdit->text() == "")
-    {
-        if (ui->CPlineEdit->text() == "" && m_rechercheCP)
+        if (ui->CPlineEdit->text() == "" && ui->VillelineEdit->text() == "")
         {
-            UpMessageBox::Watch(this,tr("Il manque le code postal"));
-            ui->CPlineEdit->setFocus();
+            if (avecmsgbox)
+            {
+                UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
+                ui->CPlineEdit->setFocus();
+            }
             return false;
         }
-        if (ui->VillelineEdit->text() == "")
+        if (ui->CPlineEdit->text() == "")
+        {
+            if (avecmsgbox)
+            {
+                UpMessageBox::Watch(this,tr("Il manque le code postal"));
+                ui->CPlineEdit->setFocus();
+            }
+            return false;
+        }
+    }
+    if (ui->VillelineEdit->text() == "")
+    {
+        if (avecmsgbox)
         {
             UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
             ui->VillelineEdit->setFocus();
-            return false;
         }
+        return false;
     }
     return true;
 }

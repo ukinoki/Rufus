@@ -861,7 +861,7 @@
              <string>Modifier mes données</string>
             </property>
             <property name="icon">
-             <iconset resource="../assets/Images/images.qrc">
+             <iconset>
               <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
             </property>
             <property name="iconSize">
@@ -896,7 +896,7 @@
              <string>Changer la police d'écran</string>
             </property>
             <property name="icon">
-             <iconset resource="../assets/Images/images.qrc">
+             <iconset>
               <normaloff>:/font.png</normaloff>:/font.png</iconset>
             </property>
             <property name="iconSize">
@@ -2439,7 +2439,7 @@ un serveur hébergé sur le réseau local</string>
               <string>Oups!</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/damn-icon.png</normaloff>:/damn-icon.png</iconset>
              </property>
              <property name="iconSize">
@@ -2570,7 +2570,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="QCheckBox" name="RechercheCPcheckBox">
               <property name="text">
-               <string>Rechercher automatiquement les correspondances entre ville et code postal</string>
+               <string>Utiliser la base de données des villes françaises</string>
               </property>
              </widget>
             </item>
@@ -3204,7 +3204,7 @@ les données</string>
               <string>Gestion des utilisateurs</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/chgtuser.png</normaloff>:/chgtuser.png</iconset>
              </property>
              <property name="iconSize">
@@ -3257,7 +3257,7 @@ les données</string>
 les motifs de consultation</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
              </property>
              <property name="iconSize">
@@ -3310,7 +3310,7 @@ les motifs de consultation</string>
 de passe administrateur</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/password.ico</normaloff>:/password.ico</iconset>
              </property>
              <property name="iconSize">
@@ -3350,7 +3350,7 @@ de passe administrateur</string>
 des organismes bancaires</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/euro.ico</normaloff>:/euro.ico</iconset>
              </property>
              <property name="iconSize">
@@ -3376,7 +3376,7 @@ des organismes bancaires</string>
               <string>Gestion des lieux d'activité</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
              </property>
              <property name="iconSize">
@@ -3552,7 +3552,7 @@ des organismes bancaires</string>
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../assets/Images/images.qrc">
+        <iconset>
          <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
        </property>
        <property name="iconSize">
@@ -3635,8 +3635,6 @@ des organismes bancaires</string>
   <tabstop>HeureBackuptimeEdit</tabstop>
   <tabstop>DirBackuppushButton</tabstop>
  </tabstops>
- <resources>
-  <include location="../assets/Images/images.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

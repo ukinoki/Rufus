@@ -420,7 +420,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,72,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,73,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -517,6 +517,22 @@ LOCK TABLES `UtilisateursConnectes` WRITE;
 /*!40000 ALTER TABLE `UtilisateursConnectes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `UtilisateursConnectes` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `AutresVilles`
+--
+
+DROP TABLE IF EXISTS `AutresVilles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `AutresVilles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `CodePostal` varchar(45) DEFAULT NULL,
+  `Nom` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Table structure for table `Villes`

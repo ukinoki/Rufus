@@ -161,6 +161,15 @@ void    dlg_identificationpatient::EnableOKpushButton()
            && ui->PrenomlineEdit->text() != ""
            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
            && wdg_villeCP->isValid();
+    if (!wdg_villeCP->RechercheCP())
+        Majuscule(wdg_villelineedit);
+    Majuscule(ui->NomlineEdit);
+    Majuscule(ui->PrenomlineEdit);
+    Majuscule(ui->Adresse1lineEdit);
+    Majuscule(ui->Adresse2lineEdit);
+    Majuscule(ui->Adresse3lineEdit);
+    Majuscule(ui->ProfessionlineEdit);
+
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
@@ -203,7 +212,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
     PatCreePar  = QString::number(Datas::I()->users->userconnected()->id());
 
-    if (!wdg_villeCP->isValid())
+    if (!wdg_villeCP->isValid(true))
         return;
     QString Sexe ("");
     if (ui->MradioButton->isChecked()) Sexe = "M";

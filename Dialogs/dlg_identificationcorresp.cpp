@@ -147,7 +147,7 @@ void    dlg_identificationcorresp::OKpushButtonClicked()
     CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
     CorPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
 
-    if (!wdg_villeCP->isValid())
+    if (!wdg_villeCP->isValid(true))
         return;
     // B - On vérifie ensuite que la saisie est complète
     if (CorNom == "")

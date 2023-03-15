@@ -1,0 +1,22 @@
+-- 15/03/2023
+
+USE `rufus`;
+DROP PROCEDURE IF EXISTS MAJ73;
+DELIMITER |
+CREATE PROCEDURE MAJ73()
+BEGIN
+
+DROP TABLE IF EXISTS `AutresVilles`;
+CREATE TABLE `AutresVilles` (
+  `id` int(11) NOT NULL  AUTO_INCREMENT,
+  `CodePostal` varchar(45) DEFAULT NULL,
+  `Nom` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 73;
+
+END|
+
+CALL MAJ73();
+DROP PROCEDURE IF EXISTS MAJ73;

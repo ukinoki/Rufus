@@ -286,7 +286,7 @@ dlg_param::dlg_param(QWidget *parent) :
         }
     }
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       ui->RechercheCPcheckBox->setChecked(proc->settings()->value(Recherche_CodePostal).toBool());
+       ui->RechercheCPcheckBox->setChecked(proc->settings()->value(Utilise_BBD_Villes).toBool());
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        wdg_CPDefautlineEdit    = wdg_villeCP->ui->CPlineEdit;
        wdg_VilleDefautlineEdit = wdg_villeCP->ui->VillelineEdit;
@@ -3940,7 +3940,7 @@ bool dlg_param::Valide_Modifications()
         }
         proc->settings()->setValue(Ville_Defaut,wdg_VilleDefautlineEdit->text());
         proc->settings()->setValue(CodePostal_Defaut,wdg_CPDefautlineEdit->text());
-        proc->settings()->setValue(Recherche_CodePostal, ui->RechercheCPcheckBox->isChecked());
+        proc->settings()->setValue(Utilise_BBD_Villes, ui->RechercheCPcheckBox->isChecked());
 
         m_modifposte = false;
     }

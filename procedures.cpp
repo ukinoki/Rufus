@@ -114,8 +114,8 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
-    if (m_settings->value(Recherche_CodePostal).toBool() != false || m_settings->value(Recherche_CodePostal) == QVariant())
-        m_settings->setValue(Recherche_CodePostal, true);
+    if (m_settings->value(Utilise_BBD_Villes).toBool() != false || m_settings->value(Utilise_BBD_Villes) == QVariant())
+        m_settings->setValue(Utilise_BBD_Villes, true);
 }
 
 void Procedures::ab(int i)
@@ -3158,12 +3158,23 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         }
         delete Dlg_GestUsr;
     }
-    Datas::I()->villes          ->initListe();
     QString CP(""),ville("");
-    if (Datas::I()->villes->ListeCodesPostaux().size()>0)
-        CP = Datas::I()->villes->ListeCodesPostaux().first();
-    if (Datas::I()->villes->getVilleByCodePostal(CP).size()>0)
-        ville = Datas::I()->villes->getVilleByCodePostal(CP).first()->nom();
+    if (UpMessageBox::Question(Q_NULLPTR,
+                               tr("Base de données des villes et codes postaux"),
+                               tr("Voulez-vous utiliser la base de données des villes françaises?)"),
+                               UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                               QStringList() << "Non" << "Utiliser les codes postaux français")
+            == UpSmallButton::STARTBUTTON)
+    {
+        Datas::I()->villes          ->initListe();
+        if (Datas::I()->villes->ListeCodesPostaux().size()>0)
+            CP = Datas::I()->villes->ListeCodesPostaux().first();
+        if (Datas::I()->villes->getVilleByCodePostal(CP).size()>0)
+            ville = Datas::I()->villes->getVilleByCodePostal(CP).first()->nom();
+        m_settings->setValue(Utilise_BBD_Villes, true);
+    }
+    else
+        m_settings->setValue(Utilise_BBD_Villes, false);
     m_settings->setValue(Ville_Defaut,ville);
     m_settings->setValue(CodePostal_Defaut,CP);
     m_connexionbaseOK = true;
@@ -3942,6 +3953,31 @@ bool Procedures::PremierDemarrage()
 
 
     // Création des dossiers
+    /*!
+      ----- ~/Documents/Rufus
+                                /Imagerie--
+                                            /DossierEchange
+                                                            /Un dossier par appareil d'imagerie
+                                                            /Refraction
+                                                                        /Refracteur
+                                                                                    /In
+                                                                                    /Out
+                                                                        /Fronto
+                                                                        /Tono
+                                                                        /Autoref
+                                            /Factures
+                                            /EchecsTransferts
+                                            /FacturesSansLien
+                                            /Images
+                                            /Originaux
+                                                            /Factures
+                                                            /Images
+                                            /Prov
+                                            /Video
+                                /Logs
+                                /Resources
+    */
+
     Utils::mkpath(PATH_DIR_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGES);
     Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
