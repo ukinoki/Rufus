@@ -60,6 +60,11 @@ private:
     QString         dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName);
     void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
     QWidget         *wdg_parent = Q_NULLPTR;
+    QCompleter *complListVilles = new QCompleter(this);
+    QCompleter *complListCP     = new QCompleter(this);
+
+    void            ChercheVilleBaseIndividual(QString nomville);
+    void            ChercheCPBaseIndividual(QString nomville);
 
 signals:
     void            villecpmodified();

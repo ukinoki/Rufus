@@ -66,9 +66,16 @@ Villes::Villes(QObject *parent) : ItemsList(parent)
 {
 }
 
-void Villes::initListe()
+void Villes::initListe(TownsFrom from)
 {
-    QList<Ville*> list = DataBase::I()->loadVilles();
+    clearAll(m_mapvilles);
+    map_villes.clear();
+    map_codespostaux.clear();
+    QList<Ville*> list = QList<Ville*>();
+    switch (from) {
+    case DATABASE:      list  = DataBase::I()->loadVilles();        break;
+    case INDIVIDUAL:    list  = DataBase::I()->loadAutresVilles();  break;
+    }
     addList(list);
 }
 
@@ -78,6 +85,7 @@ bool Villes::add(Ville *ville)
         return false;
     map_villes.insert(ville->nom(), ville);
     map_codespostaux.insert(ville->codePostal(), ville);
+    ItemsList::add(m_mapvilles, ville);
     return true;
 }
 
@@ -88,15 +96,28 @@ void Villes::addList(QList<Ville*> listvilles)
             add( ville );
 }
 
+void Villes::enregistreNouvelleVille(QString CP, QString nomville)
+{
+    int id;
+    DataBase::I()->EnregistreAutreVille(CP, nomville, id);
+    QJsonObject jEtab{};
+    jEtab[CP_ID_VILLES] = id;
+    jEtab[CP_CP_VILLES] = CP;
+    jEtab[CP_NOM_VILLES] = nomville;
+    Ville *newville = new Ville(jEtab);
+    add(newville);
+    m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
+    m_listeNomVilles = QStringList(map_villes.uniqueKeys());
+}
 
-
-QStringList Villes::ListeVilles()
+QStringList Villes::ListeNomsVilles()
 {
    if( m_listeNomVilles.isEmpty() )
         m_listeNomVilles = QStringList(map_villes.uniqueKeys());
 
     return m_listeNomVilles;
 }
+
 QStringList Villes::ListeCodesPostaux()
 {
     if( m_listeCodePostal.isEmpty() )
@@ -132,6 +153,7 @@ QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegri
 
     return listV;
 }
+
 QList<Ville *> Villes::getVilleByName(QString name, bool distinct)
 {
     QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présente.

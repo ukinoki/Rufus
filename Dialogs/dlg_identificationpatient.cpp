@@ -92,7 +92,6 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
 
-
     installEventFilter(this);
 
     ui->MGupComboBox        ->installEventFilter(this);
