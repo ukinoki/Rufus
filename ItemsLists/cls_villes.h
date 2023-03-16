@@ -59,7 +59,7 @@ private:
 
 public:
     Villes(QObject *parent = Q_NULLPTR);
-    enum TownsFrom{DATABASE, INDIVIDUAL}; Q_ENUM(TownsFrom)
+    enum TownsFrom{DATABASE, CUSTOM}; Q_ENUM(TownsFrom)
     void initListe(TownsFrom from = DATABASE);
     void enregistreNouvelleVille(QString CP, QString nomville);
 

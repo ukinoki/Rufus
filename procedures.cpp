@@ -3168,7 +3168,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
             == UpSmallButton::STARTBUTTON)
         from = Villes::DATABASE;
     else
-        from = Villes::INDIVIDUAL;
+        from = Villes::CUSTOM;
     Datas::I()->villes          ->initListe(from);
     if (Datas::I()->villes->ListeNomsVilles().size()>0)
     {
@@ -3300,7 +3300,7 @@ bool Procedures::IdentificationUser()
         if (m_settings->value(Utilise_BDD_Villes).toBool())
             from = Villes::DATABASE;
         else
-            from = Villes::INDIVIDUAL;
+            from = Villes::CUSTOM;
         Datas::I()->villes          ->initListe(from);
         Datas::I()->sites           ->initListe();
         Datas::I()->comptes         ->initListe();

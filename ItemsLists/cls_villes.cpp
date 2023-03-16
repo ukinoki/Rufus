@@ -76,7 +76,7 @@ void Villes::initListe(TownsFrom from)
     QList<Ville*> list = QList<Ville*>();
     switch (from) {
     case DATABASE:      list  = DataBase::I()->loadVilles();        break;
-    case INDIVIDUAL:    list  = DataBase::I()->loadAutresVilles();  break;
+    case CUSTOM:    list  = DataBase::I()->loadAutresVilles();  break;
     }
     addList(list);
 }

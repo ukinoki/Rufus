@@ -3945,7 +3945,7 @@ bool dlg_param::Valide_Modifications()
         if (ui->UtiliseBDDVillescheckBox->isChecked())
             from = Villes::DATABASE;
         else
-            from = Villes::INDIVIDUAL;
+            from = Villes::CUSTOM;
         Datas::I()->villes          ->initListe(from);
 
         m_modifposte = false;
