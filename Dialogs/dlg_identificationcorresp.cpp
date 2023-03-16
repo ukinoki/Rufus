@@ -131,7 +131,13 @@ void    dlg_identificationcorresp::EnableOKpushButton()
            && ui->PrenomlineEdit->text() != ""
            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
            && wdg_villeCP->isValid();
-    OKButton->setEnabled(a);
+    if (!wdg_villeCP->RechercheCP())
+        Majuscule(wdg_villelineedit);
+    Majuscule(ui->NomlineEdit);
+    Majuscule(ui->PrenomlineEdit);
+    Majuscule(ui->Adresse1lineEdit);
+    Majuscule(ui->Adresse2lineEdit);
+    Majuscule(ui->Adresse3lineEdit);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 

@@ -1142,7 +1142,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_SSL                                       "/SSL"
 #define Param_Serveur                                   "/Serveur"
 #define Param_Port                                      "/Port"
-#define Param_Active                                     "/Active"
+#define Param_Active                                    "/Active"
 
 #define Imprimante_TailleEnTete                         "Param_Imprimante/TailleEnTete"
 #define Imprimante_TailleEnTeteALD                      "Param_Imprimante/TailleEnTeteALD"
@@ -1156,7 +1156,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define Ville_Defaut                                    "Param_Poste/VilleParDefaut"
 #define CodePostal_Defaut                               "Param_Poste/CodePostalParDefaut"
-#define Utilise_BBD_Villes                              "Param_Poste/Utilise_BasedeDonnees_Villes"
+#define Utilise_BDD_Villes                              "Param_Poste/Utilise_BasedeDonnees_Villes"
 
 #define Poste_VersionRessources                         "Param_Poste/VersionRessources"
 #define Position_Fiche                                  "PositionsFiches/Position"

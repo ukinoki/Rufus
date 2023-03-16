@@ -71,6 +71,8 @@ void Villes::initListe(TownsFrom from)
     clearAll(m_mapvilles);
     map_villes.clear();
     map_codespostaux.clear();
+    m_listeNomVilles.clear();
+    m_listeCodePostal.clear();
     QList<Ville*> list = QList<Ville*>();
     switch (from) {
     case DATABASE:      list  = DataBase::I()->loadVilles();        break;

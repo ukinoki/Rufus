@@ -114,8 +114,8 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
-    if (m_settings->value(Utilise_BBD_Villes).toBool() != false || m_settings->value(Utilise_BBD_Villes) == QVariant())
-        m_settings->setValue(Utilise_BBD_Villes, true);
+    if (m_settings->value(Utilise_BDD_Villes).toBool() != false || m_settings->value(Utilise_BDD_Villes) == QVariant())
+        m_settings->setValue(Utilise_BDD_Villes, true);
 }
 
 void Procedures::ab(int i)
@@ -3176,7 +3176,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         CP = town->codePostal();
         ville = town->nom();
     }
-    m_settings->setValue(Utilise_BBD_Villes, from == Villes::DATABASE);
+    m_settings->setValue(Utilise_BDD_Villes, from == Villes::DATABASE);
 
     m_settings->setValue(Ville_Defaut,ville);
     m_settings->setValue(CodePostal_Defaut,CP);
@@ -3297,7 +3297,7 @@ bool Procedures::IdentificationUser()
     {
         m_parametres = db->parametres();
         enum Villes::TownsFrom from;
-        if (m_settings->value(Utilise_BBD_Villes).toBool())
+        if (m_settings->value(Utilise_BDD_Villes).toBool())
             from = Villes::DATABASE;
         else
             from = Villes::INDIVIDUAL;

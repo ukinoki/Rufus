@@ -2568,7 +2568,7 @@ un serveur hébergé sur le réseau local</string>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="RechercheCPcheckBox">
+             <widget class="QCheckBox" name="UtiliseBDDVillescheckBox">
               <property name="text">
                <string>Utiliser la base de données des villes françaises</string>
               </property>

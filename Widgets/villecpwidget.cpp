@@ -78,9 +78,9 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     m_villes                    = villes;
     wdg_parent                  = parent;
     QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
-    if (m_settings.value(Utilise_BBD_Villes).toBool() != false || m_settings.value(Utilise_BBD_Villes) == QVariant())
-        m_settings.setValue(Utilise_BBD_Villes, m_rechercheCP);
-    m_rechercheCP = m_settings.value(Utilise_BBD_Villes).toBool();
+    if (m_settings.value(Utilise_BDD_Villes).toBool() != false || m_settings.value(Utilise_BDD_Villes) == QVariant())
+        m_settings.setValue(Utilise_BDD_Villes, m_rechercheCP);
+    m_rechercheCP = m_settings.value(Utilise_BDD_Villes).toBool();
 
     setFocusProxy(ui->CPlineEdit);
 
@@ -350,7 +350,7 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             dlg_ask->dlglayout()    ->insertSpacerItem(0,new QSpacerItem(0,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
             UpLabel *labelCP        = new UpLabel();
-            labelCP                 ->setText(tr("Code postal"));
+            labelCP                 ->setText(tr("Code postal (facultatif)"));
             dlg_ask->dlglayout()    ->insertWidget(0,labelCP);
 
             dlg_ask->dlglayout()    ->insertSpacerItem(0,new QSpacerItem(0,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -383,6 +383,8 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
         else
             ui->CPlineEdit->clear();
     }
+    else
+         ChercheCPBaseIndividual(nomville);
 }
 
 void VilleCPWidget::ChercheCPBaseIndividual(QString nomville)
