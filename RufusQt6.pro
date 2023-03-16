@@ -150,6 +150,7 @@ DISTFILES += \
     assets/Fichiers/majbase70.sql \
     assets/Fichiers/majbase71.sql \
     assets/Fichiers/majbase72.sql \
+    assets/Fichiers/majbase73.sql \
     assets/Fichiers/oplus.sql \
     assets/Fichiers/pdf.pdf \
     assets/Fichiers/recupccam.sql \

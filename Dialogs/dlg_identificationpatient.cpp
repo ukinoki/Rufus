@@ -87,8 +87,15 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->NNIlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_NNI,this));
 
     QList <QWidget *> listtab;
-    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->DDNdateEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
-            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->NNIlineEdit << ui->ProfessionlineEdit << ui->MGupComboBox << ui->CMUcheckBox << ui->ALDcheckBox;
+    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->DDNdateEdit
+            << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit
+            << ui->Adresse2lineEdit << ui->Adresse3lineEdit;
+    if (Procedures::I()->settings()->value(Utilise_BDD_Villes).toBool())
+        listtab << wdg_CPlineedit;
+    listtab << wdg_villelineedit
+            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit
+            << ui->NNIlineEdit << ui->ProfessionlineEdit << ui->MGupComboBox
+            << ui->CMUcheckBox << ui->ALDcheckBox;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
 
@@ -157,11 +164,18 @@ void dlg_identificationpatient::ChoixMG()
 
 void    dlg_identificationpatient::EnableOKpushButton()
 {
-    bool a  = ui->NomlineEdit->text() != ""
-           && ui->PrenomlineEdit->text() != ""
-           && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
-           && wdg_CPlineedit->text() != ""
-           && wdg_villelineedit->text() != "";
+    bool a = ui->NomlineEdit->text() != ""
+            && ui->PrenomlineEdit->text() != ""
+            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
+            && wdg_villeCP->isValid();
+    if (!wdg_villeCP->RechercheCP())
+        Majuscule(wdg_villelineedit);
+    Majuscule(ui->NomlineEdit);
+    Majuscule(ui->PrenomlineEdit);
+    Majuscule(ui->Adresse1lineEdit);
+    Majuscule(ui->Adresse2lineEdit);
+    Majuscule(ui->Adresse3lineEdit);
+    Majuscule(ui->ProfessionlineEdit);
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
@@ -204,28 +218,9 @@ void    dlg_identificationpatient::OKpushButtonClicked()
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
     PatCreePar  = QString::number(Datas::I()->users->userconnected()->id());
 
-    if (wdg_CPlineedit->text() == "" && wdg_villelineedit->text() == "")
-    {
-        UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
-        wdg_CPlineedit->setFocus();
-        return;
-    }
+    if (!wdg_villeCP->isValid(true))
+         return;
 
-    if (wdg_CPlineedit->text() == "" || wdg_villelineedit->text() == "")
-    {
-        if (wdg_CPlineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le code postal"));
-            wdg_CPlineedit->setFocus();
-            return;
-        }
-        if (wdg_villelineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
-            wdg_villelineedit->setFocus();
-            return;
-        }
-    }
     QString Sexe ("");
     if (ui->MradioButton->isChecked()) Sexe = "M";
     if (ui->FradioButton->isChecked()) Sexe = "F";
@@ -553,18 +548,12 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
         ui->Adresse3lineEdit->setText(m_currentpatient->adresse3());
         QString CP;
-        if (m_currentpatient->codepostal() == "")
-            CP = Procedures::CodePostalParDefaut();
-        else
-            CP = m_currentpatient->codepostal();
+        CP = m_currentpatient->codepostal();
         wdg_CPlineedit          ->completer()->setCurrentRow(wdg_villeCP->villes()->ListeCodesPostaux().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
         // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
 
         wdg_CPlineedit          ->setText(CP);
-        if (m_currentpatient->ville() == "")
-            wdg_villelineedit   ->setText(Procedures::VilleParDefaut());
-        else
-            wdg_villelineedit   ->setText(m_currentpatient->ville());
+        wdg_villelineedit   ->setText(m_currentpatient->ville());
         ui->TellineEdit     ->setText(m_currentpatient->telephone());
         ui->PortablelineEdit->setText(m_currentpatient->portable());
         ui->MaillineEdit    ->setText(m_currentpatient->mail());

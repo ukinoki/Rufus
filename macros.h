@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          72  // version de la base de données
+#define VERSION_BASE                          73  // version de la base de données
 #define VERSION_RESSOURCES                    35  // version des fichiers de ressources
 
 // Les bases
@@ -94,6 +94,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_UTILISATEURS                      "rufus.utilisateurs"
 #define TBL_USERSCONNECTES                    "rufus.UtilisateursConnectes"
 #define TBL_VILLES                            "rufus.Villes"
+#define TBL_AUTRESVILLES                      "rufus.AutresVilles"
 
 // Les champs
 #define CP_ISALLLOADED                                  "isallloaded"
@@ -448,6 +449,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDDESTINATAIRE_JOINTURESMSG                  "idDestinataire"
 #define CP_LU_JOINTURESMSG                              "Lu"
 #define CP_FAIT_JOINTURESMSG                            "Fait"
+
+                            //! Table  Rufus.villes
+#define CP_ID_VILLES                                    "ville_id"
+#define CP_CP_VILLES                                    "codePostal"
+#define CP_NOM_VILLES                                   "ville"
+
+                            //! Table  Rufus.AutresVilles
+#define CP_ID_AUTRESVILLES                              "id"
+#define CP_CP_AUTRESVILLES                              "CodePostal"
+#define CP_NOM_AUTRESVILLES                             "Nom"
 
                             //! Table Images.EchangeImages
 #define CP_ID_ECHGIMAGES                                "idImpression"
@@ -1163,6 +1174,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define Ville_Defaut                                    "Param_Poste/VilleParDefaut"
 #define CodePostal_Defaut                               "Param_Poste/CodePostalParDefaut"
+#define Utilise_BDD_Villes                              "Param_Poste/Utilise_BasedeDonnees_Villes"
 
 #define Poste_VersionRessources                         "Param_Poste/VersionRessources"
 #define Position_Fiche                                  "PositionsFiches/Position"

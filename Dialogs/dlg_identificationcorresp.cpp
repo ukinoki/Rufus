@@ -75,8 +75,11 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     ui->PortablelineEdit    ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
     QList <QWidget *> listtab;
-    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
-            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
+    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton
+            << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit;
+    if (Procedures::I()->settings()->value(Utilise_BDD_Villes).toBool())
+        listtab << wdg_CPlineedit;
+    listtab << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
 
@@ -130,8 +133,14 @@ void    dlg_identificationcorresp::EnableOKpushButton()
     bool a  = ui->NomlineEdit->text() != ""
            && ui->PrenomlineEdit->text() != ""
            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
-           && wdg_CPlineedit->text() != ""
-           && wdg_villelineedit->text() != "";
+           && wdg_villeCP->isValid();
+    if (!wdg_villeCP->RechercheCP())
+        Majuscule(wdg_villelineedit);
+    Majuscule(ui->NomlineEdit);
+    Majuscule(ui->PrenomlineEdit);
+    Majuscule(ui->Adresse1lineEdit);
+    Majuscule(ui->Adresse2lineEdit);
+    Majuscule(ui->Adresse3lineEdit);
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
@@ -147,29 +156,9 @@ void    dlg_identificationcorresp::OKpushButtonClicked()
     QString CorNom, CorPrenom;
     CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
     CorPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
+    if (!wdg_villeCP->isValid(true))
+         return;
 
-    if (wdg_CPlineedit->text() == "" && wdg_villelineedit->text() == "")
-    {
-        UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
-        wdg_CPlineedit->setFocus();
-        return;
-    }
-
-    if (wdg_CPlineedit->text() == "" || wdg_villelineedit->text() == "")
-    {
-        if (wdg_CPlineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le code postal"));
-            wdg_CPlineedit->setFocus();
-            return;
-        }
-        if (wdg_villelineedit->text() == "")
-        {
-            UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
-            wdg_villelineedit->setFocus();
-            return;
-        }
-    }
     // B - On vérifie ensuite que la saisie est complète
     if (CorNom == "")
     {

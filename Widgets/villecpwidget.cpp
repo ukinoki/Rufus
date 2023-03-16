@@ -21,7 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_villes.h"
 #include "utils.h"
 
-/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/*!
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------- GESTION DES VILLES ET DES CODES POSTAUX
 CE WIDGET SERT À GÉRER LES VILLES ET LES CODES POSTAUX
 Il intègre 2 QLabel et 2 QLineEdit pour le code postal et la ville
@@ -47,7 +48,7 @@ Donc, dans l'ordre qui doit gérer les codes postaux:
 Le signal villecpmodified() est émis quand le CP ou la ville ont été modifiés
 
 B - LA RECHERCHE DE LA VILLE A PARTIR D'UN CODE POSTAL
-Même chose mais en plus simple : pas de recherche à partir du QCompleter, pas de suggestion sur des orthographes avoisinantes (par la force desc choses)
+Même chose mais en plus simple : pas de recherche à partir du QCompleter, pas de suggestion sur des orthographes avoisinantes (par la force des choses)
 
 Pour intéggrer le widget, il suffit de faire
     VilleCPWidget *VilleCPwidg  = new VilleCPWidget(NomDeLaBDD, NomDeLaTableDesVillesEtDesCodesPostaux, leParent, ListedesVilles, ListeDesCodesPostaux, NomDeLAlarme);
@@ -75,35 +76,90 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->CPlineEdit              ->setValidator(new QRegularExpressionValidator(Utils::rgx_CP,this));
     ui->VillelineEdit           ->setValidator(new QRegularExpressionValidator(Utils::rgx_ville,this));
     m_villes                    = villes;
+    wdg_parent                  = parent;
+    QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
+    if (m_settings.value(Utilise_BDD_Villes).toBool() != false || m_settings.value(Utilise_BDD_Villes) == QVariant())
+        m_settings.setValue(Utilise_BDD_Villes, m_rechercheCP);
+    m_rechercheCP = m_settings.value(Utilise_BDD_Villes).toBool();
 
     setFocusProxy(ui->CPlineEdit);
 
-    QCompleter *complListVilles = new QCompleter(m_villes->ListeVilles(),this);
+    complListVilles             ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
     complListVilles             ->setCaseSensitivity(Qt::CaseInsensitive);
     complListVilles             ->setCompletionMode(QCompleter::PopupCompletion);
     complListVilles             ->setFilterMode(Qt::MatchStartsWith);
     ui->VillelineEdit           ->setCompleter(complListVilles);
 
-    QCompleter *complListCP     = new QCompleter(m_villes->ListeCodesPostaux(),this);
+    complListCP                 ->setModel(new QStringListModel(m_villes->ListeCodesPostaux()));
     complListCP                 ->setCaseSensitivity(Qt::CaseInsensitive);
     complListCP                 ->setCompletionMode(QCompleter::InlineCompletion);
     ui->CPlineEdit              ->setCompleter(complListCP);
 
+    if (m_rechercheCP)
+    {
+        connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { ChercheCodePostal(false);
+                                                                                                        emit villecpmodified(); });
+        connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
+                connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
+                });
+        connect(ui->VillelineEdit, &QLineEdit::textEdited, this, [=]{
+                connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
+                });
+    }
+    else
+    {
+        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=] {
+                                                                            ui->VillelineEdit->setText(Utils::trimcapitilize(ui->VillelineEdit->text()));
+                                                                            if  (ui->VillelineEdit->text() != "")
+                                                                                ChercheVilleBaseIndividual(ui->VillelineEdit->text());
+                                                                            emit villecpmodified();
+                                                                         });
+        connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] {
+                                                                                                        ChercheCPBaseIndividual(ui->VillelineEdit->text());
+                                                                                                        emit villecpmodified(); });
+                                                                                                      }
 
-    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { ChercheCodePostal(false); emit villecpmodified(); });
-    //connect(complListCP,        QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) { qDebug()<<"CP Completer"; ChercheVille(false); emit villecpmodified(); });
-    connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
-        connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
-    });
-    connect(ui->VillelineEdit, &QLineEdit::textEdited, this, [=]{
-        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
-    });
 
 }
 
 VilleCPWidget::~VilleCPWidget()
 {
     delete ui;
+}
+
+bool   VilleCPWidget::isValid(bool avecmsgbox)
+{
+    if (m_rechercheCP)
+    {
+        if (ui->CPlineEdit->text() == "" && ui->VillelineEdit->text() == "")
+        {
+            if (avecmsgbox)
+            {
+                UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
+                ui->CPlineEdit->setFocus();
+            }
+            return false;
+        }
+        if (ui->CPlineEdit->text() == "")
+        {
+            if (avecmsgbox)
+            {
+                UpMessageBox::Watch(this,tr("Il manque le code postal"));
+                ui->CPlineEdit->setFocus();
+            }
+            return false;
+        }
+    }
+    if (ui->VillelineEdit->text() == "")
+    {
+        if (avecmsgbox)
+        {
+            UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
+            ui->VillelineEdit->setFocus();
+        }
+        return false;
+    }
+    return true;
 }
 
 Villes *VilleCPWidget::villes() const
@@ -183,7 +239,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     if( villes.isEmpty() )
     {
         Utils::playAlarm();
-        UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
+        UpMessageBox::Watch(this,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
         return;
@@ -214,7 +270,7 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
     if( villes.isEmpty() )
     {
         Utils::playAlarm();
-        UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
+        UpMessageBox::Watch(this,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
         return QString();
@@ -237,7 +293,7 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::Field
     VilleListModel *listModel      = new VilleListModel(listData,fieldName);
 
     UpLabelDelegate  *deleglabl    = new UpLabelDelegate;
-    gAsk->AjouteLayButtons(UpDialog::ButtonOK);
+    gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
     //list->setFixedWidth(100);
     list->setPalette(QPalette(Qt::white));
@@ -273,4 +329,76 @@ void VilleCPWidget::Repons(QListView *lv, UpDialog *ud, QString &newValue )
     }
 }
 
+void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
+{
+    if (!m_villes->ListeNomsVilles().contains(nomville))
+    {
+        if  (UpMessageBox::Question(this,
+                                    tr("Ville  inconnue!"),
+                                    tr("Voulez-vous enregistrer ") + nomville + tr(" dans la base de données?"))
+             == UpSmallButton::STARTBUTTON)
+        {
+            UpDialog *dlg_ask       = new UpDialog(this);
+            dlg_ask                 ->setWindowModality(Qt::WindowModal);
 
+            UpLineEdit *CP          = new UpLineEdit(dlg_ask);
+            CP                      ->setValidator(new QRegularExpressionValidator(Utils::rgx_CP,this));
+            CP                      ->setAlignment(Qt::AlignCenter);
+            CP                      ->setMaxLength(12);
+            dlg_ask->dlglayout()    ->insertWidget(0,CP);
+
+            dlg_ask->dlglayout()    ->insertSpacerItem(0,new QSpacerItem(0,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+            UpLabel *labelCP        = new UpLabel();
+            labelCP                 ->setText(tr("Code postal (facultatif)"));
+            dlg_ask->dlglayout()    ->insertWidget(0,labelCP);
+
+            dlg_ask->dlglayout()    ->insertSpacerItem(0,new QSpacerItem(0,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+            UpLabel *labelVille     = new UpLabel();
+            labelVille              ->setText(nomville.toUpper());
+            labelVille              ->setAlignment(Qt::AlignCenter);
+            QFont font = qApp->font();
+            font.setBold(true);
+            font.setPointSize(font.pointSize()+4);
+            labelVille              ->setFont(font);
+            dlg_ask->dlglayout()    ->insertWidget(0,labelVille);
+
+            dlg_ask->dlglayout()    ->insertSpacerItem(0,new QSpacerItem(0,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+            dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
+            connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
+                                                                                Datas::I()->villes      ->enregistreNouvelleVille(CP->text(), nomville);
+                                                                                delete complListVilles->model();
+                                                                                complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
+                                                                                delete complListCP->model();
+                                                                                complListCP             ->setModel(new QStringListModel(m_villes->ListeCodesPostaux()));
+                                                                                ChercheCPBaseIndividual(nomville);
+                                                                                dlg_ask                 ->close();
+                                                                            });
+            dlg_ask->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
+            dlg_ask                 ->exec();
+        }
+        else
+            ui->CPlineEdit->clear();
+    }
+    else
+        ChercheCPBaseIndividual(nomville);
+}
+
+void VilleCPWidget::ChercheCPBaseIndividual(QString nomville)
+{
+    ui->CPlineEdit->clear();
+    int idx = m_villes->ListeNomsVilles().indexOf(nomville);
+    if (idx != -1)
+    {
+        QList<Ville *> listvilles = m_villes->getVilleByName(nomville);
+        if (listvilles.size() > 0)
+        {
+            Ville * ville = listvilles.at(0);
+            if (ville != Q_NULLPTR)
+                ui->CPlineEdit->setText(ville->codePostal());
+        }
+    }
+}

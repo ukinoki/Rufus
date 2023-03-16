@@ -47,21 +47,25 @@ private:
 
 class Villes : public ItemsList
 {
-
+    Q_OBJECT
 private:
     QMultiMap<QString, Ville*> map_villes;          //!< map des villes par nom
     QMultiMap<QString, Ville*> map_codespostaux;    //!< map des villes par codePostal
     QStringList m_listeNomVilles;                   //!< la liste de nom de ville
     QStringList m_listeCodePostal;                  //!< la liste des codes postaux
+    QMap<int, Ville*> *m_mapvilles = new QMap<int, Ville*>();   //!< la liste des villes
     bool add(Ville *ville);
     void addList(QList<Ville*> listvilles);
 
 public:
     Villes(QObject *parent = Q_NULLPTR);
-    void initListe();
+    enum TownsFrom{DATABASE, CUSTOM}; Q_ENUM(TownsFrom)
+    void initListe(TownsFrom from = DATABASE);
+    void enregistreNouvelleVille(QString CP, QString nomville);
 
-    QStringList ListeVilles();
+    QStringList ListeNomsVilles();
     QStringList ListeCodesPostaux();
+    QMap<int, Ville*> *villes() { return m_mapvilles; };
 
     QList<Ville *> getVilleByCodePostal(QString codePostal, bool testIntegrite = true);
     QList<Ville *> getVilleByName(QString name, bool distinct=false);

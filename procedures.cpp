@@ -121,6 +121,8 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
+    if (m_settings->value(Utilise_BDD_Villes).toBool() != false || m_settings->value(Utilise_BDD_Villes) == QVariant())
+         m_settings->setValue(Utilise_BDD_Villes, true);
 }
 
 void Procedures::ab(int i)
@@ -3387,8 +3389,27 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         }
         delete Dlg_GestUsr;
     }
-    m_settings->setValue(Ville_Defaut,"Flayat");
-    m_settings->setValue(CodePostal_Defaut,"23260");
+    QString CP(""),ville("");
+    enum Villes::TownsFrom from;
+    if (UpMessageBox::Question(Q_NULLPTR,
+                               tr("Base de données des villes et codes postaux"),
+                               tr("Voulez-vous utiliser la base de données des villes françaises?)"),
+                               UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                               QStringList() << "Non" << "Utiliser les codes postaux français")
+            == UpSmallButton::STARTBUTTON)
+        from = Villes::DATABASE;
+    else
+        from = Villes::CUSTOM;
+    Datas::I()->villes          ->initListe(from);
+
+    if (Datas::I()->villes->ListeCodesPostaux().size()>0)
+    {
+        Ville *town = Datas::I()->villes->villes()->first();
+        CP = town->codePostal();
+        ville = town->nom();
+    }
+    m_settings->setValue(Utilise_BDD_Villes, from == Villes::DATABASE);
+
     m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
@@ -3504,8 +3525,13 @@ bool Procedures::IdentificationUser()
     connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, [&]{VerifBaseEtRessources(dlg_IdentUser);});
     if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
-        m_parametres = db->parametres();
-        Datas::I()->villes          ->initListe();
+        m_parametres = db->parametres();        
+        enum Villes::TownsFrom from;
+        if (m_settings->value(Utilise_BDD_Villes).toBool())
+            from = Villes::DATABASE;
+        else
+            from = Villes::CUSTOM;
+        Datas::I()->villes          ->initListe(from);
         Datas::I()->sites           ->initListe();
         Datas::I()->comptes         ->initListe();
         Datas::I()->postesconnectes ->initListe();
@@ -4167,6 +4193,31 @@ bool Procedures::PremierDemarrage()
 
 
     // Création des dossiers
+    /*!
+        ----- ~/Documents/Rufus
+                                  /Imagerie--
+                                              /DossierEchange
+                                                              /Un dossier par appareil d'imagerie
+                                                              /Refraction
+                                                                          /Refracteur
+                                                                                      /In
+                                                                                      /Out
+                                                                          /Fronto
+                                                                          /Tono
+                                                                          /Autoref
+                                              /Factures
+                                              /EchecsTransferts
+                                              /FacturesSansLien
+                                              /Images
+                                              /Originaux
+                                                              /Factures
+                                                              /Images
+                                              /Prov
+                                              /Video
+                                  /Logs
+                                  /Resources
+      */
+
     Utils::mkpath(PATH_DIR_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGES);
     Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);

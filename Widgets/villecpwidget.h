@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "updelegate.h"
 #include <QCompleter>
+#include <QSettings>
 #include <QSoundEffect>
 #include <QSqlDatabase>
 #include <QStandardItemModel>
@@ -43,9 +44,12 @@ public:
     Ui::VilleCPWidget       *ui;
 
     Villes          *villes() const;
+    bool            isValid(bool avecmsgbox = false);
+    bool            RechercheCP() {return m_rechercheCP;}
 
 private:
     Villes          *m_villes;
+    bool            m_rechercheCP = true;
 
     void            StartChercheVille();
     void            ChercheVille(bool confirmerleCP = true);
@@ -56,6 +60,11 @@ private:
     QString         dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName);
     void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
     QWidget         *wdg_parent = Q_NULLPTR;
+    QCompleter      *complListVilles = new QCompleter(this);
+    QCompleter      *complListCP     = new QCompleter(this);
+
+    void            ChercheVilleBaseIndividual(QString nomville);
+    void            ChercheCPBaseIndividual(QString nomville);
 
 signals:
     void            villecpmodified();

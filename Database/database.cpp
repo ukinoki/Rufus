@@ -2206,23 +2206,56 @@ QList<Ville*> DataBase::loadVilles()
 {
     QList<Ville*> villes;
 
-    QString req = "select ville_id, codePostal, ville "
-                  "from " TBL_VILLES;
+    QString req = "select " CP_CP_VILLES ", " CP_NOM_VILLES
+            " from " TBL_VILLES;
     QList<QVariantList> villist = StandardSelectSQL(req,ok);
     if(!ok || villist.size()==0)
         return villes;
     for (int i=0; i<villist.size(); ++i)
     {
         QJsonObject jEtab{};
-        jEtab["ville_id"] = villist.at(i).at(0).toInt();
-        jEtab["codePostal"] = villist.at(i).at(1).toString();
-        jEtab["ville"] = villist.at(i).at(2).toString();
+        jEtab[CP_ID_VILLES] = i;
+        jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
+        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;
     }
     return villes;
 }
+
+QList<Ville*> DataBase::loadAutresVilles()
+{
+    QList<Ville*> villes;
+
+    QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
+            " from " TBL_AUTRESVILLES;
+    QList<QVariantList> villist = StandardSelectSQL(req,ok);
+    if(!ok || villist.size()==0)
+        return villes;
+    for (int i=0; i<villist.size(); ++i)
+    {
+        QJsonObject jEtab{};
+        jEtab[CP_ID_VILLES] = i;
+        jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
+        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
+        Ville *ville = new Ville(jEtab);
+        if (ville != Q_NULLPTR)
+            villes << ville;
+    }
+    return villes;
+}
+
+bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
+{
+    QHash<QString, QString> listsets;
+    listsets.insert(CP_CP_AUTRESVILLES,             CP);
+    listsets.insert(CP_NOM_AUTRESVILLES,            ville);
+    InsertIntoTable(TBL_AUTRESVILLES, listsets);
+    bool ok;
+    id = selectMaxFromTable(CP_ID_AUTRESVILLES, TBL_AUTRESVILLES,ok);
+}
+
 
 
 /*

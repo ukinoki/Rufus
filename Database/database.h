@@ -310,7 +310,10 @@ public:
      * Villes
     */
     QList<Ville *>          loadVilles();                                //! charge toutes les villes et leur code postal à partir de la table villes
-
+    QList<Ville *>          loadAutresVilles();                          /*! charge toutes les villes et leur code postal à partir de la table AutresVlles
+                                                                          * utilisé pour les cas où la Table Villes n'est pas utiliséee
+                                                                          * et est remplacée par une liste de villes complétée au fur et à mesure des entrées */
+    bool                    EnregistreAutreVille(QString CP, QString ville, int &id);
 /*
  * PatientsEnCours r
  */
