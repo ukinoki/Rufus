@@ -2216,7 +2216,7 @@ QList<Ville*> DataBase::loadVilles()
         QJsonObject jEtab{};
         jEtab[CP_ID_VILLES] = i;
         jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
-        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
+        jEtab[CP_NOM_VILLES] = Utils::trimcapitilize(villist.at(i).at(1).toString());
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;
@@ -2238,7 +2238,7 @@ QList<Ville*> DataBase::loadAutresVilles()
         QJsonObject jEtab{};
         jEtab[CP_ID_VILLES] = i;
         jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
-        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
+        jEtab[CP_NOM_VILLES] = Utils::trimcapitilize(villist.at(i).at(1).toString());
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;
@@ -2246,7 +2246,7 @@ QList<Ville*> DataBase::loadAutresVilles()
     return villes;
 }
 
-bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
+void DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
 {
     QHash<QString, QString> listsets;
     listsets.insert(CP_CP_AUTRESVILLES,             CP);
