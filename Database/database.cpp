@@ -2250,12 +2250,26 @@ QList<Ville*> DataBase::loadAutresVilles()
 
 bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
 {
+    bool ok;
+    QString nomville = CP_NOM_AUTRESVILLES;
+    QString cpville = CP_CP_AUTRESVILLES;
+    QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
+            " from " TBL_AUTRESVILLES " where " + QString::number(cpville.toInt()) + " = " + QString::number(CP.toInt()) + " and " + nomville.toUpper() + " = " + ville.toUpper();
+    if (StandardSelectSQL(req,ok).size() > 0)
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Ville déjà enregistrée"),
+                            tr("La localité ") + ville + tr(" est déjà enregistrée dans la base avec le code postal ") + CP);
+        ok = false;
+    }
+    if(!ok)
+        return ok;
     QHash<QString, QString> listsets;
     listsets.insert(CP_CP_AUTRESVILLES,             CP);
     listsets.insert(CP_NOM_AUTRESVILLES,            ville);
-    InsertIntoTable(TBL_AUTRESVILLES, listsets);
-    bool ok;
-    id = selectMaxFromTable(CP_ID_AUTRESVILLES, TBL_AUTRESVILLES,ok);
+    ok = InsertIntoTable(TBL_AUTRESVILLES, listsets);
+    if (ok)
+        id = selectMaxFromTable(CP_ID_AUTRESVILLES, TBL_AUTRESVILLES,ok);
+    return ok;
 }
 
 

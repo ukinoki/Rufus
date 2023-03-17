@@ -310,10 +310,10 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::Field
     gAsk->OKButton->setEnabled(false);
 
     QString newValue;
-    connect(gAsk->OKButton, &QPushButton::clicked,      gAsk, [=, &newValue] { Repons(list, gAsk, newValue); });
-    connect(list,           &QListView::doubleClicked,  gAsk, [=, &newValue] { Repons(list, gAsk, newValue); });
-    connect(deleglabl,      &UpLabelDelegate::focusitem, gAsk, [gAsk] { gAsk->OKButton->setEnabled(true); });
-    connect(list->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,  [=] { gAsk->OKButton->setEnabled(list->selectionModel()->selectedIndexes().size()>0); });
+    connect(gAsk->OKButton, &QPushButton::clicked,                          gAsk,   [=, &newValue] { Repons(list, gAsk, newValue); });
+    connect(list,           &QListView::doubleClicked,                      gAsk,   [=, &newValue] { Repons(list, gAsk, newValue); });
+    connect(deleglabl,      &UpLabelDelegate::focusitem,                    gAsk,   [gAsk] { gAsk->OKButton->setEnabled(true); });
+    connect(list->selectionModel(), &QItemSelectionModel::currentChanged,   gAsk,   [=] { gAsk->OKButton->setEnabled(list->selectionModel()->selectedIndexes().size()>0); });
 
     gAsk->exec();
     delete gAsk;
@@ -369,12 +369,14 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
             connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
-                                                                                Datas::I()->villes      ->enregistreNouvelleVille(CP->text(), nomville);
-                                                                                delete complListVilles->model();
-                                                                                complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
-                                                                                delete complListCP->model();
-                                                                                complListCP             ->setModel(new QStringListModel(m_villes->ListeCodesPostaux()));
-                                                                                ChercheCPBaseIndividual(nomville);
+                                                                                if (Datas::I()->villes      ->enregistreNouvelleVille(CP->text(), nomville))
+                                                                                {
+                                                                                    delete complListVilles->model();
+                                                                                    complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
+                                                                                    delete complListCP->model();
+                                                                                    complListCP             ->setModel(new QStringListModel(m_villes->ListeCodesPostaux()));
+                                                                                    ChercheCPBaseIndividual(nomville);
+                                                                                }
                                                                                 dlg_ask                 ->close();
                                                                             });
             dlg_ask->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);

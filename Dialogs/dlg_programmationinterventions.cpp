@@ -1436,7 +1436,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 
     dlg_intervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     disconnect(dlg_intervention->CancelButton,   &QPushButton::clicked, dlg_intervention, &UpDialog::reject);
-    connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [&]
+    connect(dlg_intervention->OKButton, &QPushButton::clicked, dlg_intervention, [=, &dlg_intervention]
     {
         qApp->focusWidget()->clearFocus();
         if (!timeedit->time().isValid())

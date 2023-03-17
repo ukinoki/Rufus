@@ -61,7 +61,7 @@ public:
     Villes(QObject *parent = Q_NULLPTR);
     enum TownsFrom{DATABASE, CUSTOM}; Q_ENUM(TownsFrom)
     void initListe(TownsFrom from = DATABASE);
-    void enregistreNouvelleVille(QString CP, QString nomville);
+    bool enregistreNouvelleVille(QString CP, QString nomville);
 
     QStringList ListeNomsVilles();
     QStringList ListeCodesPostaux();

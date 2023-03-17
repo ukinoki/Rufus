@@ -98,18 +98,22 @@ void Villes::addList(QList<Ville*> listvilles)
             add( ville );
 }
 
-void Villes::enregistreNouvelleVille(QString CP, QString nomville)
+bool Villes::enregistreNouvelleVille(QString CP, QString nomville)
 {
     int id;
-    DataBase::I()->EnregistreAutreVille(CP, nomville, id);
-    QJsonObject jEtab{};
-    jEtab[CP_ID_VILLES] = id;
-    jEtab[CP_CP_VILLES] = CP;
-    jEtab[CP_NOM_VILLES] = nomville;
-    Ville *newville = new Ville(jEtab);
-    add(newville);
-    m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
-    m_listeNomVilles = QStringList(map_villes.uniqueKeys());
+    bool ok = DataBase::I()->EnregistreAutreVille(CP, nomville, id);
+    if (ok)
+    {
+        QJsonObject jEtab{};
+        jEtab[CP_ID_VILLES] = id;
+        jEtab[CP_CP_VILLES] = CP;
+        jEtab[CP_NOM_VILLES] = nomville;
+        Ville *newville = new Ville(jEtab);
+        add(newville);
+        m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
+        m_listeNomVilles = QStringList(map_villes.uniqueKeys());
+    }
+    return ok;
 }
 
 QStringList Villes::ListeNomsVilles()
