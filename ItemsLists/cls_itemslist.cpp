@@ -656,7 +656,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_CODEPOSTAL_SITE )
             {
-                sit->setcodepostal(newvalue.toInt());
+                sit->setcodepostal(newvalue.toString());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_VILLE_SITE)

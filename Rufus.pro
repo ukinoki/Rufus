@@ -129,30 +129,3 @@ INCLUDEPATH += /usr/include/poppler/qt5
 LIBS += -L/usr/local/lib -lpoppler-qt5
 }
 
-DISTFILES += \
-    _Diagrams/ImpressionsRufus.vpp \
-    _Diagrams/readme.txt \
-    _Diagrams/Gestion des documents sous Rufus.pdf \
-    _Diagrams/Recuperation_CCAM-howto.txt \
-    _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
-    assets/A_faire.odt \
-    assets/Fichiers/ComptaMedicale.sql \
-    assets/Fichiers/Corps_OrdoALD.txt \
-    assets/Fichiers/Corps_Ordonnance.txt \
-    assets/Fichiers/Entete_OrdoALD.txt \
-    assets/Fichiers/Entete_Ordonnance.txt \
-    assets/Fichiers/Images.sql \
-    assets/Fichiers/Ophtalmologie.sql \
-    assets/Fichiers/Pied_Ordonnance.txt \
-    assets/Fichiers/Pied_Ordonnance_Lunettes.txt \
-    assets/Fichiers/majbase67.sql \
-    assets/Fichiers/majbase68.sql \
-    assets/Fichiers/majbase69.sql \
-    assets/Fichiers/majbase70.sql \
-    assets/Fichiers/majbase71.sql \
-    assets/Fichiers/majbase72.sql \
-    assets/Fichiers/majbase73.sql \
-    assets/Fichiers/oplus.sql \
-    assets/Fichiers/pdf.pdf \
-    assets/Fichiers/recupccam.sql \
-    assets/Fichiers/rufus.sql

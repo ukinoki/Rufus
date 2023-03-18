@@ -870,6 +870,7 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
     QProcess dumpProcess(parent());
     for (int i=0; i< listpaths.size(); i++)
     {
+        /*! ->        mysql -u login-pmdp -h localhost -P 3306 < /users/user/dumps/rufus.sql  */
         QString path = listpaths.at(i);
         dumpProcess.setStandardInputFile(path);
         dumpProcess.start(command);
@@ -1278,7 +1279,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                 adresse += sit->adresse1() + sit->adresse2();
         }
         Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", QString::number(sit->codePostal()) + " " + sit->ville().toUpper());
+        Entete.replace("{{CPVILLE}}", sit->codePostal() + " " + sit->ville().toUpper());
         Entete.replace("{{TEL}}", "Tél. " + sit->telephone());
         if (nlignesadresse==2)
             Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");

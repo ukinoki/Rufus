@@ -152,7 +152,7 @@ CREATE TABLE `LieuxExercice` (
   `LieuAdresse1` varchar(45) DEFAULT NULL,
   `LieuAdresse2` varchar(45) DEFAULT NULL,
   `LieuAdresse3` varchar(45) DEFAULT NULL,
-  `LieuCodePostal` mediumint(9) DEFAULT NULL,
+  `LieuCodePostal` varchar(10) DEFAULT NULL,
   `LieuVille` varchar(45) DEFAULT NULL,
   `LieuTelephone` varchar(17) DEFAULT NULL,
   `LieuFax` varchar(17) DEFAULT NULL,
@@ -183,8 +183,8 @@ CREATE TABLE `Manufacturers` (
   `ManAdresse1` varchar(80) DEFAULT NULL,
   `ManAdresse2` varchar(80) DEFAULT NULL,
   `ManAdresse3` varchar(80) DEFAULT NULL,
-  `ManCodepostal` varchar(5) DEFAULT NULL,
-  `ManVille` varchar(40) DEFAULT NULL,
+  `ManCodepostal` varchar(10) DEFAULT NULL,
+  `ManVille` varchar(45) DEFAULT NULL,
   `ManTelephone` varchar(17) DEFAULT NULL,
   `ManFax` varchar(17) DEFAULT NULL,
   `ManPortable` varchar(17) DEFAULT NULL,
@@ -420,7 +420,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,73,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,74,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -527,8 +527,8 @@ DROP TABLE IF EXISTS `AutresVilles`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `AutresVilles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `CodePostal` varchar(45) DEFAULT NULL,
-  `Nom` varchar(255) DEFAULT NULL,
+  `CodePostal` varchar(10) DEFAULT NULL,
+  `Nom` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -543,8 +543,8 @@ DROP TABLE IF EXISTS `Villes`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Villes` (
   `ville_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `codePostal` varchar(255) DEFAULT NULL,
-  `ville` varchar(45) DEFAULT NULL,
+  `CodePostal` varchar(10) DEFAULT NULL,
+  `Nom` varchar(45) DEFAULT NULL,
   `pk` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB AUTO_INCREMENT=36829 DEFAULT CHARSET=utf8;
@@ -626,8 +626,8 @@ CREATE TABLE `correspondants` (
   `CorAdresse1` varchar(70) DEFAULT NULL,
   `CorAdresse2` varchar(70) DEFAULT NULL,
   `CorAdresse3` varchar(70) DEFAULT NULL,
-  `CorCodepostal` varchar(5) DEFAULT NULL,
-  `CorVille` varchar(40) DEFAULT NULL,
+  `CorCodepostal` varchar(10) DEFAULT NULL,
+  `CorVille` varchar(45) DEFAULT NULL,
   `CorTelephone` varchar(17) DEFAULT NULL,
   `CorPortable` varchar(17) DEFAULT NULL,
   `CorFax` varchar(17) DEFAULT NULL,
@@ -723,8 +723,8 @@ CREATE TABLE `donneessocialespatients` (
   `PatAdresse1` varchar(80) DEFAULT NULL,
   `PatAdresse2` varchar(80) DEFAULT NULL,
   `PatAdresse3` varchar(80) DEFAULT NULL,
-  `PatCodepostal` varchar(5) DEFAULT NULL,
-  `PatVille` varchar(40) DEFAULT NULL,
+  `PatCodepostal` varchar(10) DEFAULT NULL,
+  `PatVille` varchar(45) DEFAULT NULL,
   `PatTelephone` varchar(17) DEFAULT NULL,
   `PatPortable` varchar(17) DEFAULT NULL,
   `PatMail` varchar(45) DEFAULT NULL,
@@ -982,7 +982,7 @@ CREATE TABLE `utilisateurs` (
   `UserAdresse1` varchar(45) DEFAULT NULL,
   `UserAdresse2` varchar(45) DEFAULT NULL,
   `UserAdresse3` varchar(45) DEFAULT NULL,
-  `UserCodePostal` mediumint(9) DEFAULT NULL,
+  `UserCodePostal` varchar(10) DEFAULT NULL,
   `UserVille` varchar(45) DEFAULT NULL,
   `UserTelephone` varchar(17) DEFAULT NULL,
   `UserPortable` varchar(17) DEFAULT NULL,

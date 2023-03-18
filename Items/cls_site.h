@@ -29,7 +29,7 @@ private:
     QString m_adresse1 = "";
     QString m_adresse2 = "";
     QString m_adresse3 = "";
-    int m_codePostal = 0;
+    QString m_codePostal = 0;
     QString m_ville = "";
     QString m_telephone = "";
     QString m_fax = "";
@@ -45,7 +45,7 @@ public:
     QString adresse1() const;
     QString adresse2() const;
     QString adresse3() const;
-    int codePostal() const;
+    QString codePostal() const;
     QString ville() const;
     QString telephone() const;
     QString fax() const;
@@ -55,7 +55,7 @@ public:
     void setadresse1(const QString &adresse1);
     void setadresse2(const QString &adresse2);
     void setadresse3(const QString &adresse3);
-    void setcodepostal(int codePostal);
+    void setcodepostal(const QString codePostal);
     void setville(const QString &ville);
     void settelephone(const QString &telephone);
     void setfax(const QString &fax);

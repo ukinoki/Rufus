@@ -253,7 +253,9 @@ bool DataBase::UpdateTable(QString nomtable,
     while (itset.hasNext())
     {
         itset.next();
-        QString clause  = " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+        QString clause  = " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""?
+                                                           "null," :
+                                                           "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
         //qDebug() << "itset.value().toString() = " << itset.value().toString();
         //qDebug() << "clause = " << clause;
         req += clause;
@@ -2251,10 +2253,10 @@ QList<Ville*> DataBase::loadAutresVilles()
 bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
 {
     bool ok;
-    QString nomville = CP_NOM_AUTRESVILLES;
-    QString cpville = CP_CP_AUTRESVILLES;
     QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
-            " from " TBL_AUTRESVILLES " where " + QString::number(cpville.toInt()) + " = " + QString::number(CP.toInt()) + " and " + nomville.toUpper() + " = " + ville.toUpper();
+            " from " TBL_AUTRESVILLES
+            " where LOWER(" CP_CP_AUTRESVILLES ") = LOWER('" + Utils::correctquoteSQL(Utils::trim(CP)) + "')"
+            " and LOWER(" + CP_NOM_AUTRESVILLES + ") = LOWER('" + Utils::correctquoteSQL(Utils::trim(ville)) + "')";
     if (StandardSelectSQL(req,ok).size() > 0)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Ville déjà enregistrée"),

@@ -328,7 +328,7 @@ void dlg_listelieux::ModifLieu()
     wdg_adress1lineedit->setText(sit->adresse1());
     wdg_adress2lineedit->setText(sit->adresse2());
     wdg_adress3lineedit->setText(sit->adresse3());
-    wdg_CPlineedit     ->setText(QString::number(sit->codePostal()));
+    wdg_CPlineedit     ->setText(sit->codePostal());
     wdg_villelineedit  ->setText(sit->ville());
     wdg_tellineedit    ->setText(sit->telephone());
     wdg_faxlineedit    ->setText(sit->fax());
