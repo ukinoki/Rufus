@@ -96,16 +96,7 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->CPlineEdit              ->setCompleter(complListCP);
 
     if (m_rechercheCP)
-    {
-        connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] { ChercheCodePostal(false);
-                                                                                                        emit villecpmodified(); });
-        connect(ui->CPlineEdit, &QLineEdit::textEdited, this, [=]{
-                connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
-                });
-        connect(ui->VillelineEdit, &QLineEdit::textEdited, this, [=]{
-                connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
-                });
-    }
+        connectrecherche();
     else
     {
         connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=] {
@@ -116,8 +107,9 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
                                                                          });
         connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] {
                                                                                                         ChercheCPBaseIndividual(ui->VillelineEdit->text());
-                                                                                                        emit villecpmodified(); });
-                                                                                                      }
+                                                                                                        emit villecpmodified();
+                                                                                                      });
+    }
 
 
 }
@@ -169,9 +161,10 @@ Villes *VilleCPWidget::villes() const
 
 void VilleCPWidget::StartChercheVille()
 {
-    disconnect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
+    disconnectrecherche();
     ChercheVille();
     emit villecpmodified();
+    connectrecherche();
 }
 void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une fois qu'on a entré un code postal
 {
@@ -210,12 +203,44 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
         ui->VillelineEdit->setText(newValue);
 }
 
+void VilleCPWidget::connectrecherche()
+{
+    m_villeobject = new QObject(this);
+    m_CPobject = new QObject(this);
+    m_completerobject = new QObject(this);
+    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), m_completerobject, [=] { ChercheCodePostal(false);
+        emit villecpmodified(); });
+    connect(ui->CPlineEdit, &QLineEdit::textEdited, m_CPobject, [=]{
+        connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
+    });
+    connect(ui->VillelineEdit, &QLineEdit::textEdited, m_villeobject, [&]{
+        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
+    });
+}
+
+void VilleCPWidget::disconnectrecherche()
+{
+    delete m_villeobject;
+    delete m_CPobject;
+    delete m_completerobject;
+    complListVilles->disconnect();
+    ui->CPlineEdit->disconnect();
+    ui->VillelineEdit->disconnect();
+}
+
 void VilleCPWidget::StartChercheCodePostal()
 {
-    disconnect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
+    disconnectrecherche();
     ChercheCodePostal();
     emit villecpmodified();
+    connectrecherche();
 }
+
+
+/*!
+ * \brief VilleCPWidget::ChercheCodePostal
+ * \param confirmerlaville -> true = la fonction a été appelée par la ligne et pass par le QCompleter
+*/
 void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
 {
     if (ui->VillelineEdit->text() == "")
@@ -228,6 +253,8 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
 
     if (confirmerlaville)
         ville = ConfirmeVille(ville);
+    else
+        disconnectrecherche();
 
     if( ville.isEmpty() )
         return;
@@ -262,6 +289,8 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
         }
     }
     ui->CPlineEdit->setText(newValue);
+    if (!confirmerlaville && m_rechercheCP)
+        connectrecherche();
 }
 
 QString VilleCPWidget::ConfirmeVille(QString ville)
@@ -285,35 +314,34 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
     return dialogList(villes, VilleListModel::NOM, tr("Nom de la ville"));
 }
 
-QString VilleCPWidget::dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName)
+QString VilleCPWidget::dialogList(QList<Ville*> &listvilles, VilleListModel::FieldName fieldName, QString headerName)
 {
     UpDialog *gAsk                 = new UpDialog(wdg_parent);
     gAsk                           ->setWindowModality(Qt::WindowModal);
-    QListView *list                = new QListView(gAsk);
-    VilleListModel *listModel      = new VilleListModel(listData,fieldName);
+    QListView *listvw              = new QListView(gAsk);
+    VilleListModel *listModel      = new VilleListModel(listvilles,fieldName);
 
     UpLabelDelegate  *deleglabl    = new UpLabelDelegate;
     gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
-    //list->setFixedWidth(100);
-    list->setPalette(QPalette(Qt::white));
-    list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    list->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    list->setSelectionMode(QAbstractItemView::SingleSelection);
+    listvw->    setPalette(QPalette(Qt::white));
+    listvw->    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    listvw->    setEditTriggers(QAbstractItemView::NoEditTriggers);
+    listvw->    setSelectionMode(QAbstractItemView::SingleSelection);
 
-    listModel->setHeaderData(0, Qt::Orientation::Horizontal, headerName);
-    list->setModel(listModel);
-    list->setItemDelegate(deleglabl);
+    listModel-> setHeaderData(0, Qt::Orientation::Horizontal, headerName);
+    listvw->    setModel(listModel);
+    listvw->    setItemDelegate(deleglabl);
 
-    gAsk->dlglayout()->insertWidget(0,list);
-    gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    gAsk->OKButton->setEnabled(false);
+    gAsk->dlglayout()-> insertWidget(0,listvw);
+    gAsk->dlglayout()-> setSizeConstraint(QLayout::SetFixedSize);
+    gAsk->OKButton->    setEnabled(false);
 
     QString newValue;
-    connect(gAsk->OKButton, &QPushButton::clicked,      gAsk, [=, &newValue] { Repons(list, gAsk, newValue); });
-    connect(list,           &QListView::doubleClicked,  gAsk, [=, &newValue] { Repons(list, gAsk, newValue); });
-    connect(deleglabl,      &UpLabelDelegate::focusitem, gAsk, [gAsk] { gAsk->OKButton->setEnabled(true); });
-    connect(list->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,  [=] { gAsk->OKButton->setEnabled(list->selectionModel()->selectedIndexes().size()>0); });
+    connect(gAsk->OKButton, &QPushButton::clicked,                          gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
+    connect(listvw,           &QListView::doubleClicked,                    gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
+    connect(deleglabl,      &UpLabelDelegate::focusitem,                    gAsk,   [gAsk] { gAsk->OKButton->setEnabled(true); });
+    connect(listvw->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,   [=] { gAsk->OKButton->setEnabled(listvw->selectionModel()->selectedIndexes().size()>0); });
 
     gAsk->exec();
     delete gAsk;
@@ -369,12 +397,14 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
             connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
-                                                                                Datas::I()->villes      ->enregistreNouvelleVille(CP->text(), nomville);
-                                                                                delete complListVilles->model();
-                                                                                complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
-                                                                                delete complListCP->model();
-                                                                                complListCP             ->setModel(new QStringListModel(m_villes->ListeCodesPostaux()));
-                                                                                ChercheCPBaseIndividual(nomville);
+                                                                                if (Datas::I()->villes      ->enregistreNouvelleVille(Utils::trim(CP->text()), nomville))
+                                                                                {
+                                                                                    delete complListVilles->model();
+                                                                                    complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
+                                                                                    delete complListCP->model();
+                                                                                    complListCP             ->setModel(new QStringListModel(m_villes->ListeCodesPostaux()));
+                                                                                    ChercheCPBaseIndividual(nomville);
+                                                                                }
                                                                                 dlg_ask                 ->close();
                                                                             });
             dlg_ask->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);

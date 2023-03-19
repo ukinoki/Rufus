@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          73  // version de la base de données
+#define VERSION_BASE                          74  // version de la base de données
 #define VERSION_RESSOURCES                    35  // version des fichiers de ressources
 
 // Les bases
@@ -451,9 +451,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FAIT_JOINTURESMSG                            "Fait"
 
                             //! Table  Rufus.villes
-#define CP_ID_VILLES                                    "ville_id"
-#define CP_CP_VILLES                                    "codePostal"
-#define CP_NOM_VILLES                                   "ville"
+#define CP_ID_VILLES                                    "id"
+#define CP_CP_VILLES                                    "CodePostal"
+#define CP_NOM_VILLES                                   "Nom"
 
                             //! Table  Rufus.AutresVilles
 #define CP_ID_AUTRESVILLES                              "id"

@@ -328,7 +328,7 @@ void dlg_listelieux::ModifLieu()
     wdg_adress1lineedit->setText(sit->adresse1());
     wdg_adress2lineedit->setText(sit->adresse2());
     wdg_adress3lineedit->setText(sit->adresse3());
-    wdg_CPlineedit     ->setText(QString::number(sit->codePostal()));
+    wdg_CPlineedit     ->setText(sit->codePostal());
     wdg_villelineedit  ->setText(sit->ville());
     wdg_tellineedit    ->setText(sit->telephone());
     wdg_faxlineedit    ->setText(sit->fax());
@@ -349,10 +349,10 @@ void dlg_listelieux::enregModifLieu()
         m_listbinds[CP_ADRESSE1_SITE]     = Utils::trimcapitilize(wdg_adress1lineedit->text().toUpper(),true);
         m_listbinds[CP_ADRESSE2_SITE]     = Utils::trimcapitilize(wdg_adress2lineedit->text(),true);
         m_listbinds[CP_ADRESSE3_SITE]     = Utils::trimcapitilize(wdg_adress3lineedit->text(),true);
-        m_listbinds[CP_CODEPOSTAL_SITE]   = wdg_CPlineedit->text().toInt();
+        m_listbinds[CP_CODEPOSTAL_SITE]   = Utils::trim(wdg_CPlineedit->text());
         m_listbinds[CP_VILLE_SITE]        = Utils::trimcapitilize(wdg_villelineedit->text(),true);
-        m_listbinds[CP_TELEPHONE_SITE]    = wdg_tellineedit->text();
-        m_listbinds[CP_FAX_SITE]          = wdg_faxlineedit->text();
+        m_listbinds[CP_TELEPHONE_SITE]    = Utils::trim(wdg_tellineedit->text());
+        m_listbinds[CP_FAX_SITE]          = Utils::trim(wdg_faxlineedit->text());
         m_listbinds[CP_COULEUR_SITE]      = str_nouvcolor;
 
         DataBase::I()->UpdateTable(TBL_LIEUXEXERCICE, m_listbinds, " where " CP_ID_SITE " = " + QString::number(sit->id()),tr("Impossible de modifier le site"));

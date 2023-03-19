@@ -253,11 +253,11 @@ void    dlg_identificationcorresp::OKpushButtonClicked()
                 + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
                 + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
                 + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_villelineedit->text(),true))
-                + "', '" + wdg_CPlineedit->text()
-                + "', '" + ui->TellineEdit->text()
-                + "', '" + ui->PortablelineEdit->text()
-                + "', '" + ui->FaxlineEdit->text()
-                + "', '" + Utils::correctquoteSQL(ui->MaillineEdit->text());
+                + "', '" + Utils::trim(wdg_CPlineedit->text())
+                + "', '" + Utils::trim(ui->TellineEdit->text())
+                + "', '" + Utils::trim(ui->PortablelineEdit->text())
+                + "', '" + Utils::trim(ui->FaxlineEdit->text())
+                + "', '" + Utils::correctquoteSQL(Utils::trim(ui->MaillineEdit->text()));
         if (ui->MGradioButton->isChecked())
             insrequete += "',1, 0,null);";
         else if (ui->SperadioButton->isChecked())
@@ -285,11 +285,11 @@ void    dlg_identificationcorresp::OKpushButtonClicked()
                 + "', CorAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
                 + "', CorAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
                 + "', CorVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_villelineedit->text(),true))
-                + "', CorCodePostal = '" + wdg_CPlineedit->text()
-                + "', CorTelephone = '" + ui->TellineEdit->text()
-                + "', CorPortable = '" + ui->PortablelineEdit->text()
-                + "', CorFax = '" + ui->FaxlineEdit->text()
-                + "', CorMail = '" + Utils::correctquoteSQL(ui->MaillineEdit->text()) + "'";
+                + "', CorCodePostal = '" + Utils::trim(wdg_CPlineedit->text())
+                + "', CorTelephone = '" + Utils::trim(ui->TellineEdit->text())
+                + "', CorPortable = '" + Utils::trim(ui->PortablelineEdit->text())
+                + "', CorFax = '" + Utils::trim(ui->FaxlineEdit->text())
+                + "', CorMail = '" + Utils::correctquoteSQL(Utils::trim(ui->MaillineEdit->text()) + "'");
         if (ui->MGradioButton->isChecked())
             Modifrequete += ", CorMedecin = 1, CorSpecialite = 0, CorautreProfession = NULL";
         else if (ui->SperadioButton->isChecked())

@@ -115,7 +115,7 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce fabricant dans la base!"));
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce site dans la base!"));
         return sit;
     }
     QJsonObject  data = QJsonObject{};
@@ -128,7 +128,7 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
         else if (champ == CP_ADRESSE1_SITE)                 data[champ] = itset.value().toString();
         else if (champ == CP_ADRESSE2_SITE)                 data[champ] = itset.value().toString();
         else if (champ == CP_ADRESSE3_SITE)                 data[champ] = itset.value().toString();
-        else if (champ == CP_CODEPOSTAL_SITE)               data[champ] = itset.value().toInt();
+        else if (champ == CP_CODEPOSTAL_SITE)               data[champ] = itset.value().toString();
         else if (champ == CP_VILLE_SITE)                    data[champ] = itset.value().toString();
         else if (champ == CP_TELEPHONE_SITE)                data[champ] = itset.value().toString();
         else if (champ == CP_FAX_SITE)                      data[champ] = itset.value().toString();

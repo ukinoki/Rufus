@@ -57,11 +57,17 @@ private:
     QString         ConfirmeVille(QString ville);
     void            ChercheCodePostal(bool confirmerlaville = true);
 
-    QString         dialogList(QList<Ville*> &listData, VilleListModel::FieldName fieldName, QString headerName);
+    QString         dialogList(QList<Ville*> &listvilles, VilleListModel::FieldName fieldName, QString headerName);
     void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
-    QWidget         *wdg_parent = Q_NULLPTR;
-    QCompleter      *complListVilles = new QCompleter(this);
-    QCompleter      *complListCP     = new QCompleter(this);
+    QWidget         *wdg_parent         = Q_NULLPTR;
+    QCompleter      *complListVilles    = new QCompleter(this);
+    QCompleter      *complListCP        = new QCompleter(this);
+    QObject         *m_villeobject      = Q_NULLPTR;
+    QObject         *m_CPobject         = Q_NULLPTR;
+    QObject         *m_completerobject  = Q_NULLPTR;
+
+    void connectrecherche();
+    void disconnectrecherche();
 
     void            ChercheVilleBaseIndividual(QString nomville);
     void            ChercheCPBaseIndividual(QString nomville);

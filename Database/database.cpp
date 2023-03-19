@@ -251,7 +251,10 @@ bool DataBase::UpdateTable(QString nomtable,
     while (itset.hasNext())
     {
         itset.next();
-        QString clause  = " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""? "null," : "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+        QString clause  = " " + itset.key() + " = "
+                + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""?
+                       "null," :
+                       "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
         //qDebug() << "itset.value().toString() = " << itset.value().toString();
         //qDebug() << "clause = " << clause;
         req += clause;
@@ -2145,7 +2148,7 @@ QJsonObject DataBase::loadSiteData(QVariantList sitdata)         //! attribue la
     data[CP_ADRESSE1_SITE]     = sitdata.at(2).toString();
     data[CP_ADRESSE2_SITE]     = sitdata.at(3).toString();
     data[CP_ADRESSE3_SITE]     = sitdata.at(4).toString();
-    data[CP_CODEPOSTAL_SITE]   = sitdata.at(5).toInt();
+    data[CP_CODEPOSTAL_SITE]   = sitdata.at(5).toString();
     data[CP_VILLE_SITE]        = sitdata.at(6).toString();
     data[CP_TELEPHONE_SITE]    = sitdata.at(7).toString();
     data[CP_FAX_SITE]          = sitdata.at(8).toString();
@@ -2216,7 +2219,7 @@ QList<Ville*> DataBase::loadVilles()
         QJsonObject jEtab{};
         jEtab[CP_ID_VILLES] = i;
         jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
-        jEtab[CP_NOM_VILLES] = Utils::trimcapitilize(villist.at(i).at(1).toString());
+        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;
@@ -2238,7 +2241,7 @@ QList<Ville*> DataBase::loadAutresVilles()
         QJsonObject jEtab{};
         jEtab[CP_ID_VILLES] = i;
         jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
-        jEtab[CP_NOM_VILLES] = Utils::trimcapitilize(villist.at(i).at(1).toString());
+        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;
@@ -2246,14 +2249,28 @@ QList<Ville*> DataBase::loadAutresVilles()
     return villes;
 }
 
-void DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
+bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
 {
+    bool ok;
+    QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
+            " from " TBL_AUTRESVILLES
+              " where LOWER(" CP_CP_AUTRESVILLES ") = LOWER('" + Utils::correctquoteSQL(CP) + "')"
+              " and LOWER(" + CP_NOM_AUTRESVILLES + ") = LOWER('" + Utils::correctquoteSQL(ville) + "')";
+    if (StandardSelectSQL(req,ok).size() > 0)
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Ville déjà enregistrée"),
+                            tr("La localité ") + ville + tr(" est déjà enregistrée dans la base avec le code postal ") + CP);
+        ok = false;
+    }
+    if(!ok)
+        return ok;
     QHash<QString, QString> listsets;
     listsets.insert(CP_CP_AUTRESVILLES,             CP);
     listsets.insert(CP_NOM_AUTRESVILLES,            ville);
-    InsertIntoTable(TBL_AUTRESVILLES, listsets);
-    bool ok;
-    id = selectMaxFromTable(CP_ID_AUTRESVILLES, TBL_AUTRESVILLES,ok);
+    ok = InsertIntoTable(TBL_AUTRESVILLES, listsets);
+    if (ok)
+        id = selectMaxFromTable(CP_ID_AUTRESVILLES, TBL_AUTRESVILLES,ok);
+    return ok;
 }
 
 
@@ -2339,7 +2356,7 @@ void DataBase::loadSocialDataPatient(QJsonObject &jData, bool &ok)
     QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille,"
                   " PatTelephone, PatPortable, PatMail, PatNNI, PatALD,"
                   " PatCMU, PatProfession FROM " TBL_DONNEESSOCIALESPATIENTS
-                  " WHERE idPat = " + QString::number(jData[CP_IDPAT_PATIENTS].toInt());
+                  " WHERE " CP_IDPAT_DSP " = " + QString::number(jData[CP_IDPAT_PATIENTS].toInt());
     QVariantList patlist = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok || patlist.size()==0)
     {
