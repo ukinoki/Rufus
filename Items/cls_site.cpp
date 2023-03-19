@@ -49,7 +49,7 @@ void Site::resetdatas()
     data[CP_ADRESSE1_SITE]  = "";
     data[CP_ADRESSE2_SITE]  = "";
     data[CP_ADRESSE3_SITE]  = "";
-    data[CP_CODEPOSTAL_SITE] = 0;
+    data[CP_CODEPOSTAL_SITE] = "";
     data[CP_VILLE_SITE]     = "";
     data[CP_TELEPHONE_SITE] = "";
     data[CP_FAX_SITE]       = "";

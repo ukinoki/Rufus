@@ -3174,7 +3174,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     if (Datas::I()->villes->ListeNomsVilles().size()>0)
     {
         Ville *town = Datas::I()->villes->villes()->first();
-        CP = town->codePostal();
+        CP = town->codepostal();
         ville = town->nom();
     }
     m_settings->setValue(Utilise_BDD_Villes, from == Villes::DATABASE);

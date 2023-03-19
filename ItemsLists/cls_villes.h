@@ -29,7 +29,7 @@ class VilleListModel : public QAbstractListModel
     Q_OBJECT
 public: //STATIC
     static bool sortByName(const Ville *v1, const Ville *v2) { return v1->nom() < v2->nom(); }
-    static bool sortByCodePostal(const Ville *v1, const Ville *v2) { return v1->codePostal() < v2->codePostal(); }
+    static bool sortByCodePostal(const Ville *v1, const Ville *v2) { return v1->codepostal() < v2->codepostal(); }
 
 public:
     enum FieldName {NOM, CODEPOSTAL}; Q_ENUM(FieldName)

@@ -313,9 +313,9 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
         else if (champ == CP_COMMENTAIRE_PATIENTS)      data[champ] = itset.value().toString();
     }
     pat = new Patient(data);
-    QString req = "INSERT INTO " TBL_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
+    QString req = "INSERT INTO " TBL_DONNEESSOCIALESPATIENTS " (" CP_IDPAT_DSP ") VALUES ('" + QString::number(pat->id()) + "')";
     DataBase::I()->StandardSQL(req,tr("Impossible de créer les données sociales"));
-    req = "INSERT INTO " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
+    req = "INSERT INTO " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " (" CP_IDPAT_RMP ") VALUES ('" + QString::number(pat->id()) + "')";
     DataBase::I()->StandardSQL(req,tr("Impossible de créer les renseignements médicaux"));
     DataBase::I()->unlocktables();
     return pat;

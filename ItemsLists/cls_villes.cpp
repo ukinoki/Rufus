@@ -53,7 +53,7 @@ QVariant VilleListModel::data(const QModelIndex& index, int role) const
         return QString(m_villes.at(index.row())->nom());
 
     if( m_fieldName == CODEPOSTAL )
-        return QString(m_villes.at(index.row())->codePostal());
+        return QString(m_villes.at(index.row())->codepostal());
 
     return QVariant();
 }
@@ -86,7 +86,7 @@ bool Villes::add(Ville *ville)
     if (ville == Q_NULLPTR)
         return false;
     map_villes.insert(ville->nom(), ville);
-    map_codespostaux.insert(ville->codePostal(), ville);
+    map_codespostaux.insert(ville->codepostal(), ville);
     ItemsList::add(m_mapvilles, ville);
     return true;
 }
@@ -100,7 +100,7 @@ void Villes::addList(QList<Ville*> listvilles)
 
 bool Villes::enregistreNouvelleVille(QString CP, QString nomville)
 {
-    int id;
+    int id = 0;
     bool ok = DataBase::I()->EnregistreAutreVille(CP, nomville, id);
     if (ok)
     {

@@ -2149,7 +2149,7 @@ QJsonObject DataBase::loadSiteData(QVariantList sitdata)         //! attribue la
     data[CP_ADRESSE1_SITE]     = sitdata.at(2).toString();
     data[CP_ADRESSE2_SITE]     = sitdata.at(3).toString();
     data[CP_ADRESSE3_SITE]     = sitdata.at(4).toString();
-    data[CP_CODEPOSTAL_SITE]   = sitdata.at(5).toInt();
+    data[CP_CODEPOSTAL_SITE]   = sitdata.at(5).toString();
     data[CP_VILLE_SITE]        = sitdata.at(6).toString();
     data[CP_TELEPHONE_SITE]    = sitdata.at(7).toString();
     data[CP_FAX_SITE]          = sitdata.at(8).toString();
@@ -2255,8 +2255,8 @@ bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
     bool ok;
     QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
             " from " TBL_AUTRESVILLES
-            " where LOWER(" CP_CP_AUTRESVILLES ") = LOWER('" + Utils::correctquoteSQL(Utils::trim(CP)) + "')"
-            " and LOWER(" + CP_NOM_AUTRESVILLES + ") = LOWER('" + Utils::correctquoteSQL(Utils::trim(ville)) + "')";
+            " where LOWER(" CP_CP_AUTRESVILLES ") = LOWER('" + Utils::correctquoteSQL(CP) + "')"
+            " and LOWER(" + CP_NOM_AUTRESVILLES + ") = LOWER('" + Utils::correctquoteSQL(ville) + "')";
     if (StandardSelectSQL(req,ok).size() > 0)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Ville déjà enregistrée"),
@@ -2356,7 +2356,7 @@ void DataBase::loadSocialDataPatient(QJsonObject &jData, bool &ok)
     QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille,"
                   " PatTelephone, PatPortable, PatMail, PatNNI, PatALD,"
                   " PatCMU, PatProfession FROM " TBL_DONNEESSOCIALESPATIENTS
-                  " WHERE idPat = " + QString::number(jData[CP_IDPAT_PATIENTS].toInt());
+                  " WHERE " CP_IDPAT_DSP " = " + QString::number(jData[CP_IDPAT_PATIENTS].toInt());
     QVariantList patlist = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok || patlist.size()==0)
     {

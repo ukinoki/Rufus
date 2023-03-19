@@ -13,7 +13,7 @@ private:
 public:
     explicit Ville(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
-    QString codePostal() const;
+    QString codepostal() const;
     QString nom() const;
 
     void setData(QJsonObject data);

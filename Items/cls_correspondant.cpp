@@ -137,7 +137,7 @@ void Correspondant::setData(QJsonObject data)
     Utils::setDataString(data, CP_PRENOM_CORRESP, m_prenom);
     Utils::setDataString(data, CP_SEXE_CORRESP, m_sexe);
     Utils::setDataString(data, CP_METIER, m_metier);
-    Utils::setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
+    Utils::setDataString(data, CP_ADRESSE1_CORRESP, m_adresse1);
     Utils::setDataString(data, CP_ADRESSE2_CORRESP, m_adresse2);
     Utils::setDataString(data, CP_ADRESSE3_CORRESP, m_adresse3);
     Utils::setDataString(data, CP_CODEPOSTAL_CORRESP, m_codepostal);
