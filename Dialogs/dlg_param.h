@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestioncotations.h"
 #include "dlg_gestionusers.h"
 #include "dlg_fontdialog.h"
+#include "dlg_listevilles.h"
 #include "dlg_motifs.h"
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
@@ -53,6 +54,7 @@ private:
     bool                    m_donneesusermodifiees  = false;
     User*                   currentuser() { return Datas::I()->users->userconnected(); }
     ParametresSysteme       *m_parametres           = db->parametres();
+    bool m_custombasevilles = Datas::I()->villes->iscustomizedbase();
 
     bool                    m_modifposte            = false;
     bool                    m_MDPadminverifie       = false;

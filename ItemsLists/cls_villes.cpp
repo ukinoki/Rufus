@@ -76,8 +76,9 @@ void Villes::initListe(TownsFrom from)
     QList<Ville*> list = QList<Ville*>();
     switch (from) {
     case DATABASE:      list  = DataBase::I()->loadVilles();        break;
-    case CUSTOM:    list  = DataBase::I()->loadAutresVilles();  break;
+    case CUSTOM:        list  = DataBase::I()->loadAutresVilles();  break;
     }
+    m_custombase = (from == CUSTOM);
     addList(list);
 }
 
@@ -98,8 +99,9 @@ void Villes::addList(QList<Ville*> listvilles)
             add( ville );
 }
 
-bool Villes::enregistreNouvelleVille(QString CP, QString nomville)
+Ville* Villes::enregistreNouvelleVille(QString CP, QString nomville)
 {
+    Ville *ville = Q_NULLPTR;
     int id = 0;
     bool ok = DataBase::I()->EnregistreAutreVille(CP, nomville, id);
     if (ok)
@@ -113,7 +115,7 @@ bool Villes::enregistreNouvelleVille(QString CP, QString nomville)
         m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
         m_listeNomVilles = QStringList(map_villes.uniqueKeys());
     }
-    return ok;
+    return ville;
 }
 
 QStringList Villes::ListeNomsVilles()
@@ -223,5 +225,13 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
 
     return listV;
 }
+
+void Villes::SupprimeVille(Ville* ville)
+{
+    QString req = "delete from " TBL_AUTRESVILLES " where " CP_CP_AUTRESVILLES " = " + ville->codepostal() + " and LOWER(" CP_NOM_AUTRESVILLES ") = " + ville->nom().toLower();
+    DataBase::I()->StandardSQL(req);
+    initListe(CUSTOM);
+}
+
 
 

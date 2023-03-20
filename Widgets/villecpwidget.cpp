@@ -399,7 +399,7 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
             connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
-                                                                                if (Datas::I()->villes      ->enregistreNouvelleVille(Utils::trim(CP->text()), nomville))
+                                                                                if (Datas::I()->villes->enregistreNouvelleVille(Utils::trim(CP->text()), nomville) != Q_NULLPTR)
                                                                                 {
                                                                                     delete complListVilles->model();
                                                                                     complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));

@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -861,7 +861,7 @@
              <string>Modifier mes données</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../assets/Images/images.qrc">
               <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
             </property>
             <property name="iconSize">
@@ -896,7 +896,7 @@
              <string>Changer la police d'écran</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../assets/Images/images.qrc">
               <normaloff>:/font.png</normaloff>:/font.png</iconset>
             </property>
             <property name="iconSize">
@@ -2439,7 +2439,7 @@ un serveur hébergé sur le réseau local</string>
               <string>Oups!</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/damn-icon.png</normaloff>:/damn-icon.png</iconset>
              </property>
              <property name="iconSize">
@@ -2487,6 +2487,19 @@ un serveur hébergé sur le réseau local</string>
            </widget>
           </item>
           <item>
+           <spacer name="horizontalSpacer_9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <property name="spacing">
              <number>0</number>
@@ -2496,7 +2509,7 @@ un serveur hébergé sur le réseau local</string>
               <property name="minimumSize">
                <size>
                 <width>520</width>
-                <height>95</height>
+                <height>80</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -2512,7 +2525,7 @@ un serveur hébergé sur le réseau local</string>
                <property name="geometry">
                 <rect>
                  <x>5</x>
-                 <y>15</y>
+                 <y>10</y>
                  <width>511</width>
                  <height>21</height>
                 </rect>
@@ -2531,7 +2544,7 @@ un serveur hébergé sur le réseau local</string>
                <property name="geometry">
                 <rect>
                  <x>5</x>
-                 <y>40</y>
+                 <y>30</y>
                  <width>511</width>
                  <height>21</height>
                 </rect>
@@ -2550,7 +2563,7 @@ un serveur hébergé sur le réseau local</string>
                <property name="geometry">
                 <rect>
                  <x>5</x>
-                 <y>65</y>
+                 <y>50</y>
                  <width>511</width>
                  <height>21</height>
                 </rect>
@@ -2568,11 +2581,86 @@ un serveur hébergé sur le réseau local</string>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="UtiliseBDDVillescheckBox">
-              <property name="text">
-               <string>Utiliser la base de données des villes françaises</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="4,0,1">
+              <item>
+               <widget class="QGroupBox" name="VillesgroupBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>400</width>
+                  <height>60</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>400</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="title">
+                 <string/>
+                </property>
+                <widget class="QCheckBox" name="UtiliseBDDVillescheckBox">
+                 <property name="geometry">
+                  <rect>
+                   <x>5</x>
+                   <y>10</y>
+                   <width>361</width>
+                   <height>20</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Utiliser la base de données des villes françaises</string>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+                <widget class="QCheckBox" name="UtiliseCustomVillescheckBox">
+                 <property name="geometry">
+                  <rect>
+                   <x>5</x>
+                   <y>30</y>
+                   <width>351</width>
+                   <height>20</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Utiliser une base de données de villes personnalisée</string>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="UpPushButton" name="ModifListVillesupPushButton">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>60</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Modifier la
+liste des villes</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QFrame" name="VilleDefautframe">
@@ -2611,7 +2699,7 @@ un serveur hébergé sur le réseau local</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>958</width>
-            <height>43</height>
+            <height>28</height>
            </size>
           </property>
          </spacer>
@@ -2640,7 +2728,7 @@ un serveur hébergé sur le réseau local</string>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>0</width>
               <height>20</height>
              </size>
             </property>
@@ -3204,7 +3292,7 @@ les données</string>
               <string>Gestion des utilisateurs</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/chgtuser.png</normaloff>:/chgtuser.png</iconset>
              </property>
              <property name="iconSize">
@@ -3257,7 +3345,7 @@ les données</string>
 les motifs de consultation</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
              </property>
              <property name="iconSize">
@@ -3310,7 +3398,7 @@ les motifs de consultation</string>
 de passe administrateur</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/password.ico</normaloff>:/password.ico</iconset>
              </property>
              <property name="iconSize">
@@ -3350,7 +3438,7 @@ de passe administrateur</string>
 des organismes bancaires</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/euro.ico</normaloff>:/euro.ico</iconset>
              </property>
              <property name="iconSize">
@@ -3376,7 +3464,7 @@ des organismes bancaires</string>
               <string>Gestion des lieux d'activité</string>
              </property>
              <property name="icon">
-              <iconset>
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
              </property>
              <property name="iconSize">
@@ -3552,7 +3640,7 @@ des organismes bancaires</string>
         <string/>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../assets/Images/images.qrc">
          <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
        </property>
        <property name="iconSize">
@@ -3635,6 +3723,8 @@ des organismes bancaires</string>
   <tabstop>HeureBackuptimeEdit</tabstop>
   <tabstop>DirBackuppushButton</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../assets/Images/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

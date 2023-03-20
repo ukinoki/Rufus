@@ -15,7 +15,8 @@ public:
 
     QString codepostal() const;
     QString nom() const;
-
+    void setcodepostal(const QString &codePostal);
+    void setnom(const QString &nom);
     void setData(QJsonObject data);
 };
 #endif // CLS_VILLE_H
