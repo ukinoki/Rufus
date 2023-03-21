@@ -34,8 +34,17 @@ BEGIN
         WHERE TABLE_NAME = 'Villes' AND COLUMN_NAME = 'ville') as chp;
         IF tot=1
         THEN
-			ALTER TABLE `rufus`.`Villes` 
-			CHANGE COLUMN `ville` `Nom` VARCHAR(45) CHARACTER SET 'utf8' NULL DEFAULT NULL ;
+            ALTER TABLE `rufus`.`Villes`
+            CHANGE COLUMN `ville` `Nom` VARCHAR(45) CHARACTER SET 'utf8' NULL DEFAULT NULL ;
+        END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT COLUMN_KEY
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'Villes' AND COLUMN_NAME = 'pk') as chp;
+            IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`Villes`
+                CHANGE COLUMN `pk` `id` INT(11) NOT NULL AUTO_INCREMENT FIRST;
         END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 74;
 END|
