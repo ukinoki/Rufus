@@ -127,6 +127,8 @@ dlg_identificationcorresp::~dlg_identificationcorresp()
 
 void    dlg_identificationcorresp::EnableOKpushButton()
 {
+    if (OKButton->isEnabled())
+        return;
     bool a  = ui->NomlineEdit->text() != ""
            && ui->PrenomlineEdit->text() != ""
            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
