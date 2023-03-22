@@ -33,6 +33,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Impression *impr            = Q_NULLPTR;
     DossierImpression *dossier  = Q_NULLPTR;
     Message *msg                = Q_NULLPTR;
+    Ville *ville                = Q_NULLPTR;
     bool ok = false;
     bool loop = false;
     while (!loop)
@@ -1335,6 +1336,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             {
                 session->setidcomptable(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
+            }
+            else
+                ok = false;
+            break;
+        }
+        ville = dynamic_cast<Ville*>(item);
+        if (ville)
+        {
+            table = TBL_AUTRESVILLES;
+            ok = true;
+            clause = CP_ID_AUTRESVILLES " = " + QString::number(item->id());
+            if (field == CP_CP_AUTRESVILLES )
+            {
+                ville->setcodepostal(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_NOM_AUTRESVILLES )
+            {
+                ville->setnom(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
             }
             else
                 ok = false;

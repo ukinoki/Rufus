@@ -68,6 +68,8 @@ public:
     QStringList ListeCodesPostaux();
     QMap<int, Ville*> *villes() { return m_mapvilles; };
 
+    void ReinitMaps();
+
     QList<Ville *> getVilleByCodePostal(QString codePostal, bool testIntegrite = true);
     QList<Ville *> getVilleByName(QString name, bool distinct=false);
     QList<Ville *> getVilleByCodePostalEtNom(QString codePostal, QString name);

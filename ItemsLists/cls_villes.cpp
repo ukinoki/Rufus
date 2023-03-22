@@ -99,6 +99,20 @@ void Villes::addList(QList<Ville*> listvilles)
             add( ville );
 }
 
+void Villes::ReinitMaps()
+{
+    map_villes.clear();
+    map_codespostaux.clear();
+    m_listeNomVilles.clear();
+    m_listeCodePostal.clear();
+    for (auto it = m_mapvilles->cbegin();it != m_mapvilles->cend(); ++it)
+    {
+        Ville *ville = it.value();
+        map_villes.insert(ville->nom(), ville);
+        map_codespostaux.insert(ville->codepostal(), ville);
+    }
+}
+
 Ville* Villes::enregistreNouvelleVille(QString CP, QString nomville)
 {
     Ville *ville = Q_NULLPTR;
@@ -110,8 +124,8 @@ Ville* Villes::enregistreNouvelleVille(QString CP, QString nomville)
         jEtab[CP_ID_VILLES] = id;
         jEtab[CP_CP_VILLES] = CP;
         jEtab[CP_NOM_VILLES] = nomville;
-        Ville *newville = new Ville(jEtab);
-        add(newville);
+        ville = new Ville(jEtab);
+        add(ville);
         m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
         m_listeNomVilles = QStringList(map_villes.uniqueKeys());
     }
@@ -164,7 +178,7 @@ QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegri
 
 QList<Ville *> Villes::getVilleByName(QString name, bool distinct)
 {
-    QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présente.
+    QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présent
     QList<Ville *> listV;
     QList<Ville *> listVStartWith;
     QMap<QString, Ville*>::const_iterator it = map_villes.constBegin();
@@ -228,7 +242,7 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
 
 void Villes::SupprimeVille(Ville* ville)
 {
-    QString req = "delete from " TBL_AUTRESVILLES " where " CP_CP_AUTRESVILLES " = " + ville->codepostal() + " and LOWER(" CP_NOM_AUTRESVILLES ") = " + ville->nom().toLower();
+    QString req = "delete from " TBL_AUTRESVILLES " where " CP_CP_AUTRESVILLES " = '" + ville->codepostal() + "' and LOWER(" CP_NOM_AUTRESVILLES ") = '" + ville->nom().toLower()+ "'";
     DataBase::I()->StandardSQL(req);
     initListe(CUSTOM);
 }

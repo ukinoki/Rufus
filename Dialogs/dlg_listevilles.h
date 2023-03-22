@@ -30,32 +30,34 @@ public:
     dlg_listevilles(QWidget *parent = Q_NULLPTR);
     ~dlg_listevilles();
 
-    enum Mode                   {Selection, Modification, Creation};     Q_ENUM(Mode)
-
 private:
     DataBase                    *db = DataBase::I();
 
-    Mode                        m_mode;
     UpTableView                 *wdg_tblview;
+
     WidgetButtonFrame           *wdg_buttonframe;
     UpStandardItemModel         *m_model = Q_NULLPTR;
     Ville                       *m_currentville = Q_NULLPTR;
     QHash<QString, QVariant>    m_listbinds;
     QMap<int, Ville*>           *m_mapvilles = Datas::I()->villes->villes();
-
-    void                        keyPressEvent   (QKeyEvent * event );
-    void                        Annulation();
-    bool                        ChercheDoublon(QString str, int row);
+    QSortFilterProxyModel       *m_listnomsproxymodel  = Q_NULLPTR;
+    QSortFilterProxyModel       *m_listCPsproxymodel    = Q_NULLPTR;
+    QCompleter                  *m_complListVilles      = Q_NULLPTR;
+    UpDialog                    *dlg_ask                = Q_NULLPTR;
+    UpLineEdit                  *cpline                 = Q_NULLPTR;
+    UpLineEdit                  *nomline                = Q_NULLPTR;
+    bool                        ChercheDoublon(QString cp, QString nom);
     void                        ChoixButtonFrame();
     void                        ChoixMenuContextuel(QString);
-    void                        ConfigMode(Mode mode, Ville *ville = Q_NULLPTR);
-    bool                        EnregistreVille(Ville *com);
     Ville*                      getVilleFromIndex(QModelIndex idx);
     void                        MenuContextuel();
     void                        RemplirTableView();
     void                        selectcurrentVille(Ville *ville, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
-    void                        setVilleToRow(Ville *ville, int row, bool resizecolumn = true);
+    void                        setVilleToRow(Ville *ville, int row);
     void                        SupprimmVille(Ville *ville);
+    void                        EnregistreNouvelleVille();
+    void                        ModifieVille(Ville *ville);
+    void                        dialogville(QString cp, QString nom);
 };
 
 #endif // DLG_LISTEVILLES_H
