@@ -2,6 +2,8 @@
 *.7z
 .DS_Store
 WindowsInstaller/Output
+WindowsInstaller/Deploy
+WindowsInstaller/Microsoft
 
 .DS_Store
 assets/.DS_Store

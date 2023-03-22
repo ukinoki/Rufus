@@ -5608,9 +5608,14 @@ SOH*PC_SND_EEOT                 -> end block
         DTRbuff.append(SOH);                                                //SOH -> start of header
         DTRbuff.append(Utils::StringToArray("*PC_SND_S"));
         DTRbuff.append(EOT);                                                //EOT -> end of transmission
+        DTRbuff.append(CR);                                                 //CR LF
+        DTRbuff.append(LF);                                                 //CR LF
+
         DTRbuff.append(STX);                                                //STX -> start of text
         DTRbuff.append(Utils::StringToArray("*Phoromat 2000|000000001|0"));
         DTRbuff.append(ETB);                                                //ETB -> end of text block
+        DTRbuff.append(CR);                                                 //CR LF
+        DTRbuff.append(LF);                                                 //CR LF
 
         /*! écart interpupillaire
             *PD|32.0|32.0|                  ->PD | left PD result | right PD result |        */
@@ -5619,6 +5624,8 @@ SOH*PC_SND_EEOT                 -> end block
         QString halfeip = QString::number(eip/2,'f',1);                     // quel bricolage nul....
         DTRbuff.append(Utils::StringToArray("*PD|" + halfeip + "|" + halfeip + "|"));
         DTRbuff.append(ETB);                                                //ETB -> end of text block
+        DTRbuff.append(CR);                                                 //CR LF
+        DTRbuff.append(LF);                                                 //CR LF
 
         /*! réglage du fronto`
             *LM                             -> Fronto
@@ -5640,18 +5647,28 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(STX);                                            //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*LM"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOD + "|" + SphereOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOG + "|" + SphereOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOG + "|" + CylindreOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOG + "|" + AxeOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*AD|"+ AddOG + "|" + AddOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
@@ -5678,18 +5695,28 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(STX);                                            //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AR"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOD + "|" + SphereOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOG + "|" + SphereOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOG + "|" + CylindreOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOG + "|" + AxeOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*AD|"+ AddOG + "|" + AddOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
@@ -5717,18 +5744,28 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(STX);                                            //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SJ"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOD + "|" + SphereOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*SP|"+ SphereOG + "|" + SphereOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOD + "|" + CylindreOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*CY|"+ CylindreOG + "|" + CylindreOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOD + "|" + AxeOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*AX|"+ AxeOG + "|" + AxeOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             DTRbuff.append(STX);                                            //STX -> start of text
-            DTRbuff.append(Utils::StringToArray("*AD|"+ AddOD + "|" + AddOG + "|"));
+            DTRbuff.append(Utils::StringToArray("*AD|"+ AddOG + "|" + AddOD + "|"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
+            DTRbuff.append(CR);                                                 //CR LF
+            DTRbuff.append(LF);                                                 //CR LF
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
         }
@@ -5738,6 +5775,8 @@ SOH*PC_SND_EEOT                 -> end block
         DTRbuff.append(SOH);                                                //SOH -> start of header
         DTRbuff.append(Utils::StringToArray("*PC_SND_E"));
         DTRbuff.append(EOT);                                                //EOT -> end of transmission
+        DTRbuff.append(CR);                                                 //CR LF
+        DTRbuff.append(LF);                                                 //CR LF
 
         /*!
         qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
@@ -5749,7 +5788,6 @@ SOH*PC_SND_EEOT                 -> end block
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
         */
-        // No escribimos nada ... TEST
         Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);    }
     // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
 }
@@ -7298,8 +7336,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionFronto.contains("*SP"))
             {
                 mSphere     = SectionFronto.mid(SectionFronto.indexOf("SP")+3,13)   .replace(" ","");
-                mSphereOD   = mSphere.split("|").at(0);
-                mSphereOG   = mSphere.split("|").at(1);
+                mSphereOG   = mSphere.split("|").at(0);
+                mSphereOD   = mSphere.split("|").at(1);
                 Datas::I()->mesurefronto->setsphereOD(Utils::roundToNearestPointTwentyFive(mSphereOD.toDouble()));
                 Datas::I()->mesurefronto->setsphereOG(Utils::roundToNearestPointTwentyFive(mSphereOG.toDouble()));
             }
@@ -7307,8 +7345,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionFronto.contains("*CY"))
             {
                 mCyl     = SectionFronto.mid(SectionFronto.indexOf("CY")+3,13)   .replace(" ","");
-                mCylOD   = mCyl.split("|").at(0);
-                mCylOG   = mCyl.split("|").at(1);
+                mCylOG   = mCyl.split("|").at(0);
+                mCylOD   = mCyl.split("|").at(1);
                 Datas::I()->mesurefronto->setcylindreOD(Utils::roundToNearestPointTwentyFive(mCylOD.toDouble()));
                 Datas::I()->mesurefronto->setcylindreOG(Utils::roundToNearestPointTwentyFive(mCylOG.toDouble()));
             }
@@ -7316,8 +7354,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionFronto.contains("*AX"))
             {
                 mAxe     = SectionFronto.mid(SectionFronto.indexOf("AX")+3,7)   .replace(" ","");
-                mAxeOD   = mAxe.split("|").at(0);
-                mAxeOG   = mAxe.split("|").at(1);
+                mAxeOG   = mAxe.split("|").at(0);
+                mAxeOD   = mAxe.split("|").at(1);
                 Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                 Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             }
@@ -7325,8 +7363,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionFronto.contains("*AD"))
             {
                 mAdd     = SectionFronto.mid(SectionFronto.indexOf("AD")+3,11)   .replace(" ","");
-                mAddOD   = mAdd.split("|").at(0);
-                mAddOG   = mAdd.split("|").at(1);
+                mAddOG   = mAdd.split("|").at(0);
+                mAddOD   = mAdd.split("|").at(1);
                 Datas::I()->mesurefronto->setaddVPOD(Utils::roundToNearestPointTwentyFive(mAddOD.toDouble()));
                 Datas::I()->mesurefronto->setaddVPOG(Utils::roundToNearestPointTwentyFive(mAddOG.toDouble()));
             }
@@ -7362,8 +7400,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionAutoref.contains("*SP"))
             {
                 mSphere     = SectionAutoref.mid(SectionAutoref.indexOf("SP")+3,13)   .replace(" ","");
-                mSphereOD   = mSphere.split("|").at(0);
-                mSphereOG   = mSphere.split("|").at(1);
+                mSphereOG   = mSphere.split("|").at(0);
+                mSphereOD   = mSphere.split("|").at(1);
                 Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(mSphereOD.toDouble()));
                 Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(mSphereOG.toDouble()));
             }
@@ -7371,8 +7409,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionAutoref.contains("*CY"))
             {
                 mCyl     = SectionAutoref.mid(SectionAutoref.indexOf("CY")+3,13)   .replace(" ","");
-                mCylOD   = mCyl.split("|").at(0);
-                mCylOG   = mCyl.split("|").at(1);
+                mCylOG   = mCyl.split("|").at(0);
+                mCylOD   = mCyl.split("|").at(1);
                 Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(mCylOD.toDouble()));
                 Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(mCylOG.toDouble()));
             }
@@ -7380,8 +7418,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionAutoref.contains("*AX"))
             {
                 mAxe     = SectionAutoref.mid(SectionAutoref.indexOf("AX")+3,7)   .replace(" ","");
-                mAxeOD   = mAxe.split("|").at(0);
-                mAxeOG   = mAxe.split("|").at(1);
+                mAxeOG   = mAxe.split("|").at(0);
+                mAxeOD   = mAxe.split("|").at(1);
                 Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                 Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
             }
@@ -7389,8 +7427,8 @@ SOH*PC_RCV_EEOT                 -> end block
             if (SectionAutoref.contains("*AD"))
             {
                 mAdd     = SectionAutoref.mid(SectionAutoref.indexOf("AD")+3,11)   .replace(" ","");
-                mAddOD   = mAdd.split("|").at(0);
-                mAddOG   = mAdd.split("|").at(1);
+                mAddOG   = mAdd.split("|").at(0);
+                mAddOD   = mAdd.split("|").at(1);
                 Datas::I()->mesureautoref->setaddVPOD(Utils::roundToNearestPointTwentyFive(mAddOD.toDouble()));
                 Datas::I()->mesureautoref->setaddVPOG(Utils::roundToNearestPointTwentyFive(mAddOG.toDouble()));
             }
@@ -7426,8 +7464,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*SP"))
                 {
                     mSphere     = SectionRefracteur.mid(SectionRefracteur.indexOf("SP")+3,13)   .replace(" ","");
-                    mSphereOD   = mSphere.split("|").at(0);
-                    mSphereOG   = mSphere.split("|").at(1);
+                    mSphereOG   = mSphere.split("|").at(0);
+                    mSphereOD   = mSphere.split("|").at(1);
                     Datas::I()->mesureacuite->setsphereOD(Utils::roundToNearestPointTwentyFive(mSphereOD.toDouble()));
                     Datas::I()->mesureacuite->setsphereOG(Utils::roundToNearestPointTwentyFive(mSphereOG.toDouble()));
                 }
@@ -7435,8 +7473,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*CY"))
                 {
                     mCyl     = SectionRefracteur.mid(SectionRefracteur.indexOf("CY")+3,13)   .replace(" ","");
-                    mCylOD   = mCyl.split("|").at(0);
-                    mCylOG   = mCyl.split("|").at(1);
+                    mCylOG   = mCyl.split("|").at(0);
+                    mCylOD   = mCyl.split("|").at(1);
                     Datas::I()->mesureacuite->setcylindreOD(Utils::roundToNearestPointTwentyFive(mCylOD.toDouble()));
                     Datas::I()->mesureacuite->setcylindreOG(Utils::roundToNearestPointTwentyFive(mCylOG.toDouble()));
                 }
@@ -7444,8 +7482,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*AX"))
                 {
                     mAxe     = SectionRefracteur.mid(SectionRefracteur.indexOf("AX")+3,7)   .replace(" ","");
-                    mAxeOD   = mAxe.split("|").at(0);
-                    mAxeOG   = mAxe.split("|").at(1);
+                    mAxeOG   = mAxe.split("|").at(0);
+                    mAxeOD   = mAxe.split("|").at(1);
                     Datas::I()->mesureacuite->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                     Datas::I()->mesureacuite->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                 }
@@ -7453,8 +7491,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*AD"))
                 {
                     mAdd     = SectionRefracteur.mid(SectionRefracteur.indexOf("AD")+3,11)   .replace(" ","");
-                    mAddOD   = mAdd.split("|").at(0);
-                    mAddOG   = mAdd.split("|").at(1);
+                    mAddOG   = mAdd.split("|").at(0);
+                    mAddOD   = mAdd.split("|").at(1);
                     Datas::I()->mesureacuite->setaddVPOD(Utils::roundToNearestPointTwentyFive(mAddOD.toDouble()));
                     Datas::I()->mesureacuite->setaddVPOG(Utils::roundToNearestPointTwentyFive(mAddOG.toDouble()));
                 }
@@ -7462,8 +7500,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*VA"))
                 {
                     AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3,11);
-                    AVLOD   = AVL.split("|").at(0);
-                    AVLOG   = AVL.split("|").at(1);
+                    AVLOG   = AVL.split("|").at(0);
+                    AVLOD   = AVL.split("|").at(1);
                     Datas::I()->mesureacuite->setavlOD(AVLOD);
                     Datas::I()->mesureacuite->setavlOG(AVLOG);
                 }
@@ -7487,8 +7525,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*SP"))
                 {
                     mSphere     = SectionRefracteur.mid(SectionRefracteur.indexOf("SP")+3,13)   .replace(" ","");
-                    mSphereOD   = mSphere.split("|").at(0);
-                    mSphereOG   = mSphere.split("|").at(1);
+                    mSphereOG   = mSphere.split("|").at(0);
+                    mSphereOD   = mSphere.split("|").at(1);
                     Datas::I()->mesurefinal->setsphereOD(Utils::roundToNearestPointTwentyFive(mSphereOD.toDouble()));
                     Datas::I()->mesurefinal->setsphereOG(Utils::roundToNearestPointTwentyFive(mSphereOG.toDouble()));
                 }
@@ -7496,8 +7534,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*CY"))
                 {
                     mCyl     = SectionRefracteur.mid(SectionRefracteur.indexOf("CY")+3,13)   .replace(" ","");
-                    mCylOD   = mCyl.split("|").at(0);
-                    mCylOG   = mCyl.split("|").at(1);
+                    mCylOG   = mCyl.split("|").at(0);
+                    mCylOD   = mCyl.split("|").at(1);
                     Datas::I()->mesurefinal->setcylindreOD(Utils::roundToNearestPointTwentyFive(mCylOD.toDouble()));
                     Datas::I()->mesurefinal->setcylindreOG(Utils::roundToNearestPointTwentyFive(mCylOG.toDouble()));
                 }
@@ -7505,8 +7543,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*AX"))
                 {
                     mAxe     = SectionRefracteur.mid(SectionRefracteur.indexOf("AX")+3,7)   .replace(" ","");
-                    mAxeOD   = mAxe.split("|").at(0);
-                    mAxeOG   = mAxe.split("|").at(1);
+                    mAxeOG   = mAxe.split("|").at(0);
+                    mAxeOD   = mAxe.split("|").at(1);
                     Datas::I()->mesurefinal->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
                     Datas::I()->mesurefinal->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
                 }
@@ -7514,8 +7552,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*AD"))
                 {
                     mAdd     = SectionRefracteur.mid(SectionRefracteur.indexOf("AD")+3,11)   .replace(" ","");
-                    mAddOD   = mAdd.split("|").at(0);
-                    mAddOG   = mAdd.split("|").at(1);
+                    mAddOG   = mAdd.split("|").at(0);
+                    mAddOD   = mAdd.split("|").at(1);
                     Datas::I()->mesurefinal->setaddVPOD(Utils::roundToNearestPointTwentyFive(mAddOD.toDouble()));
                     Datas::I()->mesurefinal->setaddVPOG(Utils::roundToNearestPointTwentyFive(mAddOG.toDouble()));
                 }
@@ -7523,8 +7561,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*VA"))
                 {
                     AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3,11);
-                    AVLOD   = AVL.split("|").at(0);
-                    AVLOG   = AVL.split("|").at(1);
+                    AVLOG   = AVL.split("|").at(0);
+                    AVLOD   = AVL.split("|").at(1);
                     Datas::I()->mesurefinal->setavlOD(AVLOD);
                     Datas::I()->mesurefinal->setavlOG(AVLOG);
                 }

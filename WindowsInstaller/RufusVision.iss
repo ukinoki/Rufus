@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Rufus"
-#define MyAppVersion "11-03-2023"
+#define MyAppVersion "22-03-2023"
 #define MyAppPublisher "Rufus Vision"
 #define MyAppURL "https://www.rufusvision.org/"
 #define MyAppExeName "Rufus.exe"
@@ -40,8 +40,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Sunglasses.ico
 
 [Files]
-Source: "D:\Rufus\RufusDeploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: vc_redist.x64.exe
-Source: "D:\Rufus\vc_redist.x64.exe"; DestDir: {tmp};
+Source: "Deploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: vc_redist.x64.exe
+Source: "Microsoft\vc_redist.x64.exe"; DestDir: {tmp};
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 
