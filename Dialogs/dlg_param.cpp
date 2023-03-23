@@ -357,6 +357,7 @@ dlg_param::dlg_param(QWidget *parent) :
     EnableWidgContent(ui->VilleDefautframe,false);
     ui->VillesgroupBox                  ->setEnabled(false);
     ui->ModifListVillesupPushButton     ->setEnabled(false);
+    ui->GestUserpushButton              ->setEnabled(false);
     ui->GestLieuxpushButton             ->setEnabled(false);
     ui->ParamMotifspushButton           ->setEnabled(false);
     ui->GestionBanquespushButton        ->setEnabled(false);
