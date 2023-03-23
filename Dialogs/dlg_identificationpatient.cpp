@@ -164,6 +164,8 @@ void dlg_identificationpatient::ChoixMG()
 
 void    dlg_identificationpatient::EnableOKpushButton()
 {
+    if (OKButton->isEnabled())
+        return;
     bool a = ui->NomlineEdit->text() != ""
             && ui->PrenomlineEdit->text() != ""
             && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
@@ -182,7 +184,7 @@ void    dlg_identificationpatient::EnableOKpushButton()
 
 void dlg_identificationpatient::Majuscule(QLineEdit* ledit)
 {
-    ledit->setText(Utils::trimcapitilize(ledit->text()));
+    ledit->setText(Utils::trimcapitilize(ledit->text(), false));
     OKButton->setEnabled(true);
 }
 

@@ -110,8 +110,6 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
                                                                                                         emit villecpmodified();
                                                                                                       });
     }
-
-
 }
 
 VilleCPWidget::~VilleCPWidget()
@@ -209,13 +207,13 @@ void VilleCPWidget::connectrecherche()
     m_CPobject = new QObject(this);
     m_completerobject = new QObject(this);
     connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), m_completerobject, [=] { ChercheCodePostal(false);
-        emit villecpmodified(); });
+                                                                                                    emit villecpmodified(); });
     connect(ui->CPlineEdit, &QLineEdit::textEdited, m_CPobject, [=]{
-        connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
-    });
+            connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
+            });
     connect(ui->VillelineEdit, &QLineEdit::textEdited, m_villeobject, [&]{
-        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
-    });
+            connect(ui->VillelineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheCodePostal);
+            });
 }
 
 void VilleCPWidget::disconnectrecherche()
@@ -227,6 +225,7 @@ void VilleCPWidget::disconnectrecherche()
     ui->CPlineEdit->disconnect();
     ui->VillelineEdit->disconnect();
 }
+
 
 void VilleCPWidget::StartChercheCodePostal()
 {
@@ -248,13 +247,15 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
 
     if( confirmerlaville )
         ui->VillelineEdit->setText(Utils::trimcapitilize(ui->VillelineEdit->text()));
+    else
+    {
+        disconnectrecherche();
+    }
 
     QString ville = ui->VillelineEdit->text();
 
     if (confirmerlaville)
         ville = ConfirmeVille(ville);
-    else
-        disconnectrecherche();
 
     if( ville.isEmpty() )
         return;
@@ -274,7 +275,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     if( villes.size() == 1 )
     {
         // on a trouvé la ville - on affiche sa valeur dans le champ codePostal
-        ui->CPlineEdit->setText( villes.at(0)->codePostal() );
+        ui->CPlineEdit->setText( villes.at(0)->codepostal() );
         return;
     }
 
@@ -322,20 +323,21 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listvilles, VilleListModel::Fie
     VilleListModel *listModel      = new VilleListModel(listvilles,fieldName);
 
     UpLabelDelegate  *deleglabl    = new UpLabelDelegate;
-    gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    gAsk                           ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
-    listvw->    setPalette(QPalette(Qt::white));
-    listvw->    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    listvw->    setEditTriggers(QAbstractItemView::NoEditTriggers);
-    listvw->    setSelectionMode(QAbstractItemView::SingleSelection);
+    //listw->setFixedWidth(100);
+    listvw      ->setPalette(QPalette(Qt::white));
+    listvw      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    listvw      ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    listvw      ->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    listModel-> setHeaderData(0, Qt::Orientation::Horizontal, headerName);
-    listvw->    setModel(listModel);
-    listvw->    setItemDelegate(deleglabl);
+    listModel   ->setHeaderData(0, Qt::Orientation::Horizontal, headerName);
+    listvw      ->setModel(listModel);
+    listvw      ->setItemDelegate(deleglabl);
 
-    gAsk->dlglayout()-> insertWidget(0,listvw);
-    gAsk->dlglayout()-> setSizeConstraint(QLayout::SetFixedSize);
-    gAsk->OKButton->    setEnabled(false);
+    gAsk->dlglayout()   ->insertWidget(0,listvw);
+    gAsk->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    gAsk->OKButton      ->setEnabled(false);
 
     QString newValue;
     connect(gAsk->OKButton, &QPushButton::clicked,                          gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
@@ -397,7 +399,7 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
             connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
-                                                                                if (Datas::I()->villes      ->enregistreNouvelleVille(Utils::trim(CP->text()), nomville))
+                                                                                if (Datas::I()->villes->enregistreNouvelleVille(Utils::trim(CP->text()), nomville) != Q_NULLPTR)
                                                                                 {
                                                                                     delete complListVilles->model();
                                                                                     complListVilles         ->setModel(new QStringListModel(m_villes->ListeNomsVilles()));
@@ -414,7 +416,7 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
             ui->CPlineEdit->clear();
     }
     else
-        ChercheCPBaseIndividual(nomville);
+         ChercheCPBaseIndividual(nomville);
 }
 
 void VilleCPWidget::ChercheCPBaseIndividual(QString nomville)
@@ -428,7 +430,7 @@ void VilleCPWidget::ChercheCPBaseIndividual(QString nomville)
         {
             Ville * ville = listvilles.at(0);
             if (ville != Q_NULLPTR)
-                ui->CPlineEdit->setText(ville->codePostal());
+                ui->CPlineEdit->setText(ville->codepostal());
         }
     }
 }

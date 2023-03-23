@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setApplicationVersion("22-03-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
-    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
     qApp->setStyleSheet(Styles::StyleAppli());

@@ -1491,7 +1491,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                 adresse += sit->adresse1() + sit->adresse2();
         }
         Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", sit->codePostal() + " " + sit->ville().toUpper());
+        Entete.replace("{{CPVILLE}}", sit->codepostal() + " " + sit->ville().toUpper());
         Entete.replace("{{TEL}}", "Tél. " + sit->telephone());
         if (nlignesadresse==2)
             Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
@@ -3405,7 +3405,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     if (Datas::I()->villes->ListeCodesPostaux().size()>0)
     {
         Ville *town = Datas::I()->villes->villes()->first();
-        CP = town->codePostal();
+        CP = town->codepostal();
         ville = town->nom();
     }
     m_settings->setValue(Utilise_BDD_Villes, from == Villes::DATABASE);

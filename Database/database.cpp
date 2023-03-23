@@ -2209,17 +2209,17 @@ QList<Ville*> DataBase::loadVilles()
 {
     QList<Ville*> villes;
 
-    QString req = "select " CP_CP_VILLES ", " CP_NOM_VILLES
-            " from " TBL_VILLES;
+    QString req = "select " CP_ID_VILLES "," CP_CP_VILLES ", " CP_NOM_VILLES
+                  " from " TBL_VILLES;
     QList<QVariantList> villist = StandardSelectSQL(req,ok);
     if(!ok || villist.size()==0)
         return villes;
     for (int i=0; i<villist.size(); ++i)
     {
         QJsonObject jEtab{};
-        jEtab[CP_ID_VILLES] = i;
-        jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
-        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
+        jEtab[CP_ID_VILLES] = villist.at(i).at(0).toInt();
+        jEtab[CP_CP_VILLES] = villist.at(i).at(1).toString();
+        jEtab[CP_NOM_VILLES] = Utils::trimcapitilize(villist.at(i).at(2).toString());
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;
@@ -2231,17 +2231,17 @@ QList<Ville*> DataBase::loadAutresVilles()
 {
     QList<Ville*> villes;
 
-    QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
-            " from " TBL_AUTRESVILLES;
+    QString req = "select " CP_ID_AUTRESVILLES "," CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
+                  " from " TBL_AUTRESVILLES;
     QList<QVariantList> villist = StandardSelectSQL(req,ok);
     if(!ok || villist.size()==0)
         return villes;
     for (int i=0; i<villist.size(); ++i)
     {
         QJsonObject jEtab{};
-        jEtab[CP_ID_VILLES] = i;
-        jEtab[CP_CP_VILLES] = villist.at(i).at(0).toString();
-        jEtab[CP_NOM_VILLES] = villist.at(i).at(1).toString();
+        jEtab[CP_ID_VILLES] = villist.at(i).at(0).toInt();
+        jEtab[CP_CP_VILLES] = villist.at(i).at(1).toString();
+        jEtab[CP_NOM_VILLES] = Utils::trimcapitilize(villist.at(i).at(2).toString());
         Ville *ville = new Ville(jEtab);
         if (ville != Q_NULLPTR)
             villes << ville;

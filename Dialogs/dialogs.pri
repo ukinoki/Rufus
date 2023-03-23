@@ -30,6 +30,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_listemanufacturers.cpp \
     $$PWD/dlg_listemotscles.cpp \
     $$PWD/dlg_listetiers.cpp \
+    $$PWD/dlg_listevilles.cpp \
     $$PWD/dlg_message.cpp \
     $$PWD/dlg_motifs.cpp \
     $$PWD/dlg_paramconnexion.cpp \
@@ -74,6 +75,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_listemanufacturers.h \
     $$PWD/dlg_listemotscles.h \
     $$PWD/dlg_listetiers.h \
+    $$PWD/dlg_listevilles.h \
     $$PWD/dlg_message.h \
     $$PWD/dlg_motifs.h \
     $$PWD/dlg_paramconnexion.h \

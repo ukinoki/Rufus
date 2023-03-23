@@ -115,7 +115,7 @@ Site* Sites::CreationSite(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce site dans la base!"));
+        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce fabricant dans la base!"));
         return sit;
     }
     QJsonObject  data = QJsonObject{};

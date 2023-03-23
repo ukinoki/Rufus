@@ -288,7 +288,22 @@ dlg_param::dlg_param(QWidget *parent) :
 
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       ui->UtiliseBDDVillescheckBox->setChecked(proc->settings()->value(Utilise_BDD_Villes).toBool());
+        ui->UtiliseBDDVillescheckBox     ->setChecked(proc->settings()->value(Utilise_BDD_Villes).toBool() != false);
+        ui->UtiliseCustomVillescheckBox  ->setChecked(proc->settings()->value(Utilise_BDD_Villes).toBool() == false);
+        ui->ModifListVillesupPushButton  ->setVisible(proc->settings()->value(Utilise_BDD_Villes).toBool() == false);
+        connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::stateChanged, this, [=](int state){
+            ui->ModifListVillesupPushButton->setVisible(state == Qt::Checked);
+            if (state == Qt::Checked)
+                Datas::I()->villes->initListe(Villes::CUSTOM);
+            else
+                Datas::I()->villes->initListe(Villes::DATABASE);
+           });
+        connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=]{
+                                                                                       dlg_listevilles *dlg_listvilles = new dlg_listevilles(this);
+                                                                                       dlg_listvilles->exec();
+                                                                                       delete dlg_listvilles;
+                                                                                   });
+
        wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        wdg_CPDefautlineEdit    = wdg_villeCP->ui->CPlineEdit;
        wdg_VilleDefautlineEdit = wdg_villeCP->ui->VillelineEdit;
@@ -342,7 +357,8 @@ dlg_param::dlg_param(QWidget *parent) :
     EnableWidgContent(ui->Instrmtsframe,false);
     EnableWidgContent(ui->Imprimanteframe,false);
     EnableWidgContent(ui->VilleDefautframe,false);
-    ui->UtiliseBDDVillescheckBox             ->setEnabled(false);
+    ui->VillesgroupBox                  ->setEnabled(false);
+    ui->ModifListVillesupPushButton     ->setEnabled(false);
     ui->GestUserpushButton              ->setEnabled(false);
     ui->GestLieuxpushButton             ->setEnabled(false);
     ui->ParamMotifspushButton           ->setEnabled(false);
@@ -600,8 +616,18 @@ void dlg_param::FermepushButtonClicked()
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
         msgbox.exec();
         if (msgbox.clickedButton() == &OKBouton)
+        {
             if (!Valide_Modifications())
                 return;
+        }
+        //! si on annule alors qu'on a entretemps modifié la base des villes, on revient à l'ancienne base de villes
+        else if (m_custombasevilles != Datas::I()->villes->iscustomizedbase())
+        {
+            if (m_custombasevilles)
+                Datas::I()->villes->initListe(Villes::CUSTOM);
+            else
+                Datas::I()->villes->initListe(Villes::DATABASE);
+        }
     }
     if (VerifDirStockageImagerie())
         reject();
@@ -882,7 +908,8 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ParamConnexiontabWidget->setEnabled(a);
         EnableWidgContent(ui->Imprimanteframe,a);
         EnableWidgContent(ui->VilleDefautframe,a);
-        ui->UtiliseBDDVillescheckBox     ->setEnabled(a);
+        ui->ModifListVillesupPushButton     ->setEnabled(a);
+        ui->VillesgroupBox                  ->setEnabled(a);
         ui->ImportDocsgroupBox      ->setEnabled(a);
     }
     else if (obj == ui->LockParamUserupLabel)

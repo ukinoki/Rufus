@@ -3,12 +3,22 @@
 /*
  * Ville
 */
+void Ville::setcodepostal(const QString &codePostal)
+{
+    m_codePostal = codePostal;
+}
+
+void Ville::setnom(const QString &nom)
+{
+    m_nom = nom;
+}
+
 Ville::Ville(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData( data );
 }
 
-QString Ville::codePostal() const { return m_codePostal; }
+QString Ville::codepostal() const { return m_codePostal; }
 QString Ville::nom() const { return m_nom; }
 
 void Ville::setData(QJsonObject data)

@@ -29,7 +29,7 @@ class VilleListModel : public QAbstractListModel
     Q_OBJECT
 public: //STATIC
     static bool sortByName(const Ville *v1, const Ville *v2) { return v1->nom() < v2->nom(); }
-    static bool sortByCodePostal(const Ville *v1, const Ville *v2) { return v1->codePostal() < v2->codePostal(); }
+    static bool sortByCodePostal(const Ville *v1, const Ville *v2) { return v1->codepostal() < v2->codepostal(); }
 
 public:
     enum FieldName {NOM, CODEPOSTAL}; Q_ENUM(FieldName)
@@ -49,27 +49,32 @@ class Villes : public ItemsList
 {
     Q_OBJECT
 private:
-    QMultiMap<QString, Ville*> map_villes;          //!< map des villes par nom
-    QMultiMap<QString, Ville*> map_codespostaux;    //!< map des villes par codePostal
-    QStringList m_listeNomVilles;                   //!< la liste de nom de ville
-    QStringList m_listeCodePostal;                  //!< la liste des codes postaux
-    QMap<int, Ville*> *m_mapvilles = new QMap<int, Ville*>();   //!< la liste des villes
+    QMultiMap<QString, Ville*> map_villes;                      //!< map des villes par nom
+    QMultiMap<QString, Ville*> map_codespostaux;                //!< map des villes par codePostal
+    QStringList m_listeNomVilles;                               //!< la liste de nom de ville
+    QStringList m_listeCodePostal;                              //!< la liste des codes postaux
+    QMap<int, Ville*> *m_mapvilles = new QMap<int, Ville*>();   //!< la map des villes
     bool add(Ville *ville);
     void addList(QList<Ville*> listvilles);
+    bool m_custombase = false;
 
 public:
     Villes(QObject *parent = Q_NULLPTR);
-    enum TownsFrom{DATABASE, CUSTOM}; Q_ENUM(TownsFrom)
+    enum TownsFrom {DATABASE, CUSTOM}; Q_ENUM(TownsFrom)
     void initListe(TownsFrom from = DATABASE);
-    bool enregistreNouvelleVille(QString CP, QString nomville);
+    Ville *enregistreNouvelleVille(QString CP, QString nomville);
 
     QStringList ListeNomsVilles();
     QStringList ListeCodesPostaux();
     QMap<int, Ville*> *villes() { return m_mapvilles; };
 
+    void ReinitMaps();
+
     QList<Ville *> getVilleByCodePostal(QString codePostal, bool testIntegrite = true);
     QList<Ville *> getVilleByName(QString name, bool distinct=false);
     QList<Ville *> getVilleByCodePostalEtNom(QString codePostal, QString name);
+    void           SupprimeVille(Ville* ville);
+    bool           iscustomizedbase() {return m_custombase;};
 };
 
 #endif // CLS_VILLES_H

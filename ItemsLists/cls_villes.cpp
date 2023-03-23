@@ -53,7 +53,7 @@ QVariant VilleListModel::data(const QModelIndex& index, int role) const
         return QString(m_villes.at(index.row())->nom());
 
     if( m_fieldName == CODEPOSTAL )
-        return QString(m_villes.at(index.row())->codePostal());
+        return QString(m_villes.at(index.row())->codepostal());
 
     return QVariant();
 }
@@ -76,8 +76,9 @@ void Villes::initListe(TownsFrom from)
     QList<Ville*> list = QList<Ville*>();
     switch (from) {
     case DATABASE:      list  = DataBase::I()->loadVilles();        break;
-    case CUSTOM:    list  = DataBase::I()->loadAutresVilles();  break;
+    case CUSTOM:        list  = DataBase::I()->loadAutresVilles();  break;
     }
+    m_custombase = (from == CUSTOM);
     addList(list);
 }
 
@@ -86,7 +87,7 @@ bool Villes::add(Ville *ville)
     if (ville == Q_NULLPTR)
         return false;
     map_villes.insert(ville->nom(), ville);
-    map_codespostaux.insert(ville->codePostal(), ville);
+    map_codespostaux.insert(ville->codepostal(), ville);
     ItemsList::add(m_mapvilles, ville);
     return true;
 }
@@ -98,8 +99,23 @@ void Villes::addList(QList<Ville*> listvilles)
             add( ville );
 }
 
-bool Villes::enregistreNouvelleVille(QString CP, QString nomville)
+void Villes::ReinitMaps()
 {
+    map_villes.clear();
+    map_codespostaux.clear();
+    m_listeNomVilles.clear();
+    m_listeCodePostal.clear();
+    for (auto it = m_mapvilles->cbegin();it != m_mapvilles->cend(); ++it)
+    {
+        Ville *ville = it.value();
+        map_villes.insert(ville->nom(), ville);
+        map_codespostaux.insert(ville->codepostal(), ville);
+    }
+}
+
+Ville* Villes::enregistreNouvelleVille(QString CP, QString nomville)
+{
+    Ville *ville = Q_NULLPTR;
     int id = 0;
     bool ok = DataBase::I()->EnregistreAutreVille(CP, nomville, id);
     if (ok)
@@ -108,12 +124,12 @@ bool Villes::enregistreNouvelleVille(QString CP, QString nomville)
         jEtab[CP_ID_VILLES] = id;
         jEtab[CP_CP_VILLES] = CP;
         jEtab[CP_NOM_VILLES] = nomville;
-        Ville *newville = new Ville(jEtab);
-        add(newville);
+        ville = new Ville(jEtab);
+        add(ville);
         m_listeCodePostal = QStringList(map_codespostaux.uniqueKeys());
         m_listeNomVilles = QStringList(map_villes.uniqueKeys());
     }
-    return ok;
+    return ville;
 }
 
 QStringList Villes::ListeNomsVilles()
@@ -162,7 +178,7 @@ QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegri
 
 QList<Ville *> Villes::getVilleByName(QString name, bool distinct)
 {
-    QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présente.
+    QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présent
     QList<Ville *> listV;
     QList<Ville *> listVStartWith;
     QMultiMap<QString, Ville*>::const_iterator it = map_villes.constBegin();
@@ -223,5 +239,13 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
 
     return listV;
 }
+
+void Villes::SupprimeVille(Ville* ville)
+{
+    QString req = "delete from " TBL_AUTRESVILLES " where " CP_CP_AUTRESVILLES " = '" + ville->codepostal() + "' and LOWER(" CP_NOM_AUTRESVILLES ") = '" + ville->nom().toLower()+ "'";
+    DataBase::I()->StandardSQL(req);
+    initListe(CUSTOM);
+}
+
 
 
