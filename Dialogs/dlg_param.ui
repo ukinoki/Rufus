@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -2581,88 +2581,6 @@ un serveur hébergé sur le réseau local</string>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="4,0,1">
-              <item>
-               <widget class="QGroupBox" name="VillesgroupBox">
-                <property name="minimumSize">
-                 <size>
-                  <width>400</width>
-                  <height>60</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>400</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="title">
-                 <string/>
-                </property>
-                <widget class="QCheckBox" name="UtiliseBDDVillescheckBox">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>10</y>
-                   <width>361</width>
-                   <height>20</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Utiliser la base de données des villes françaises</string>
-                 </property>
-                 <property name="autoExclusive">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-                <widget class="QCheckBox" name="UtiliseCustomVillescheckBox">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>30</y>
-                   <width>351</width>
-                   <height>20</height>
-                  </rect>
-                 </property>
-                 <property name="text">
-                  <string>Utiliser une base de données de villes personnalisée</string>
-                 </property>
-                 <property name="autoExclusive">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_5">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>0</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="UpPushButton" name="ModifListVillesupPushButton">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>60</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Modifier la
-liste des villes</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
              <widget class="QFrame" name="VilleDefautframe">
               <property name="minimumSize">
                <size>
@@ -3264,6 +3182,83 @@ les données</string>
              </property>
              <property name="text">
               <string>Appareils connectés au réseau</string>
+             </property>
+            </widget>
+            <widget class="QGroupBox" name="VillesgroupBox">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>420</y>
+               <width>400</width>
+               <height>60</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>400</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="title">
+              <string/>
+             </property>
+             <widget class="QCheckBox" name="UtiliseBDDVillescheckBox">
+              <property name="geometry">
+               <rect>
+                <x>5</x>
+                <y>10</y>
+                <width>361</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Utiliser la base de données des villes françaises</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+             <widget class="QCheckBox" name="UtiliseCustomVillescheckBox">
+              <property name="geometry">
+               <rect>
+                <x>5</x>
+                <y>30</y>
+                <width>351</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Utiliser une base de données de villes personnalisée</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </widget>
+            <widget class="UpPushButton" name="ModifListVillesupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>416</x>
+               <y>421</y>
+               <width>127</width>
+               <height>60</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Modifier la
+liste des villes</string>
              </property>
             </widget>
            </widget>

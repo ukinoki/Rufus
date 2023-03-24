@@ -77,10 +77,7 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->VillelineEdit           ->setValidator(new QRegularExpressionValidator(Utils::rgx_ville,this));
     m_villes                    = villes;
     wdg_parent                  = parent;
-    QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
-    if (m_settings.value(Utilise_BDD_Villes).toBool() != false || m_settings.value(Utilise_BDD_Villes) == QVariant())
-        m_settings.setValue(Utilise_BDD_Villes, m_rechercheCP);
-    m_rechercheCP = m_settings.value(Utilise_BDD_Villes).toBool();
+    m_rechercheCP               = DataBase::I()->parametres()->villesfrance();
 
     setFocusProxy(ui->CPlineEdit);
 

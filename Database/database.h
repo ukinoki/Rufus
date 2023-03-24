@@ -191,6 +191,9 @@ public:
     void setdaysbkup(Utils::Days days);
     void setheurebkup(QTime time = QTime());
     void setdirbkup(QString adress = "");
+    void setvillesfrance(bool one = true);
+    void setcotationsfrance(bool one = true);
+    void setcomptafrance(bool one= true);
 
     /*
      * Donnees ophta patient
@@ -311,9 +314,11 @@ public:
     */
     QList<Ville *>          loadVilles();                                //! charge toutes les villes et leur code postal à partir de la table villes
     QList<Ville *>          loadAutresVilles();                          /*! charge toutes les villes et leur code postal à partir de la table AutresVlles
-                                                                          * utilisé pour les cas où la Table Villes n'est pas utiliséee
-                                                                          * et est remplacée par une liste de villes complétée au fur et à mesure des entrées */
+                                                                           * utilisé pour les cas où la Table Villes n'est pas utiliséee
+                                                                           * et est remplacée par une liste de villes complétée au fur et à mesure des entrées */
     bool                    EnregistreAutreVille(QString CP, QString ville, int &id);
+
+
 /*
  * PatientsEnCours r
  */

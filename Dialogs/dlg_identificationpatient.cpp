@@ -90,7 +90,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->DDNdateEdit
             << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit
             << ui->Adresse2lineEdit << ui->Adresse3lineEdit;
-    if (Procedures::I()->settings()->value(Utilise_BDD_Villes).toBool())
+    if (db->parametres()->villesfrance() == true)
         listtab << wdg_CPlineedit;
     listtab << wdg_villelineedit
             << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit

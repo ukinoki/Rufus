@@ -57,6 +57,7 @@ int DataBase::port() const
     return m_port;
 }
 
+
 void DataBase::InfosConnexionSQL()
 {
     UpMessageBox::Watch(Q_NULLPTR,
@@ -93,7 +94,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
             dirkey = m_settings.value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         else
             m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
-        QDir dirtorestore(dirkey);
+        QDir dirtorestore(dirkey);        
         if (!dirtorestore.exists())
             return ("");
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
@@ -121,6 +122,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
         return QString();
+
     QString error = m_db.lastError().text();
     Logs::ERROR(error);
     return error;
@@ -251,10 +253,9 @@ bool DataBase::UpdateTable(QString nomtable,
     while (itset.hasNext())
     {
         itset.next();
-        QString clause  = " " + itset.key() + " = "
-                + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""?
-                       "null," :
-                       "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+        QString clause  = " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""?
+                                                           "null," :
+                                                           "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
         //qDebug() << "itset.value().toString() = " << itset.value().toString();
         //qDebug() << "clause = " << clause;
         req += clause;
@@ -429,7 +430,18 @@ void DataBase::initParametresSysteme()
     paramData[CP_HEUREBKUP_PARAMSYSTEME]              = paramdata.at(16).toTime().toString("HH:mm:ss");
     paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(17).toString();
     m_parametres->setData(paramData);
-    return;
+    if (m_parametres->versionbase()>73)
+    {
+        req = "select " CP_VILLES_PARAMSYSTEME ", " CP_COTATIONS_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME
+                " from " TBL_PARAMSYSTEME;
+        QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+        if(!ok || paramdata.size() == 0)
+            return ;
+        paramData[CP_VILLES_PARAMSYSTEME]                 = (paramdata.at(0).toInt() == 1);
+        paramData[CP_COTATIONS_PARAMSYSTEME]              = (paramdata.at(1).toInt() == 1);
+        paramData[CP_COMPTA_PARAMSYSTEME]                 = (paramdata.at(2).toInt() == 1);
+        m_parametres->setData(paramData);
+    }
 }
 
 ParametresSysteme* DataBase::parametres()
@@ -550,6 +562,30 @@ void DataBase::setdirbkup(QString adress)
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRBKUP_PARAMSYSTEME " = " + value);
     parametres()->setdirbkup(adress);
+}
+void DataBase::setvillesfrance(bool one)
+{
+    if (!m_db.isOpen())
+        return;
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VILLES_PARAMSYSTEME " = " + a);
+    parametres()->setvillesfrance(one);
+}
+void DataBase::setcotationsfrance(bool one)
+{
+    if (!m_db.isOpen())
+        return;
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_COTATIONS_PARAMSYSTEME " = " + a);
+    parametres()->setcotationsfrance(one);
+}
+void DataBase::setcomptafrance(bool one)
+{
+    if (!m_db.isOpen())
+        return;
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_COMPTA_PARAMSYSTEME " = " + a);
+    parametres()->setcomptafrance(one);
 }
 
 /*
@@ -2254,8 +2290,8 @@ bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
     bool ok;
     QString req = "select " CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
             " from " TBL_AUTRESVILLES
-              " where LOWER(" CP_CP_AUTRESVILLES ") = LOWER('" + Utils::correctquoteSQL(CP) + "')"
-              " and LOWER(" + CP_NOM_AUTRESVILLES + ") = LOWER('" + Utils::correctquoteSQL(ville) + "')";
+            " where LOWER(" CP_CP_AUTRESVILLES ") = LOWER('" + Utils::correctquoteSQL(CP) + "')"
+            " and LOWER(" + CP_NOM_AUTRESVILLES + ") = LOWER('" + Utils::correctquoteSQL(ville) + "')";
     if (StandardSelectSQL(req,ok).size() > 0)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Ville déjà enregistrée"),
@@ -2272,7 +2308,6 @@ bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
         id = selectMaxFromTable(CP_ID_AUTRESVILLES, TBL_AUTRESVILLES,ok);
     return ok;
 }
-
 
 
 /*
