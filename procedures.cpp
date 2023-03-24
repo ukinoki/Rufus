@@ -114,8 +114,6 @@ Procedures::Procedures(QObject *parent) :
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
     connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
-    if (m_settings->value(Utilise_BDD_Villes).toBool() != false || m_settings->value(Utilise_BDD_Villes) == QVariant())
-        m_settings->setValue(Utilise_BDD_Villes, true);
 }
 
 void Procedures::ab(int i)
@@ -2913,6 +2911,16 @@ bool Procedures::VerifBaseEtRessources()
                 req = "update " TBL_MANUFACTURERS " set CorNom = null, CorPrenom = null, CorStatut = null, CorMail = null, CorTelephone = null";
                 DataBase::I()->StandardSQL(req);
             }
+            if (Version == 74)
+            {
+                QSettings settings(PATH_FILE_INI, QSettings::IniFormat);
+                if (settings.contains("Param_Poste/Utilise_BasedeDonnees_Villes"))
+                {
+                    if (settings.value("Param_Poste/Utilise_BasedeDonnees_Villes").toBool() == false)
+                        db->setvillesfrance(false);
+                    settings.remove("Param_Poste/Utilise_BasedeDonnees_Villes");
+                }
+            }
         }
     }
     //verification des fichiers ressources
@@ -3177,7 +3185,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         CP = town->codepostal();
         ville = town->nom();
     }
-    m_settings->setValue(Utilise_BDD_Villes, from == Villes::DATABASE);
+    db->setvillesfrance(from == Villes::DATABASE);
 
     m_settings->setValue(Ville_Defaut,ville);
     m_settings->setValue(CodePostal_Defaut,CP);
@@ -3298,7 +3306,7 @@ bool Procedures::IdentificationUser()
     {
         m_parametres = db->parametres();
         enum Villes::TownsFrom from;
-        if (m_settings->value(Utilise_BDD_Villes).toBool())
+        if (m_parametres->villesfrance())
             from = Villes::DATABASE;
         else
             from = Villes::CUSTOM;

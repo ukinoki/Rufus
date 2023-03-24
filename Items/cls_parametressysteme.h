@@ -42,6 +42,9 @@ private:
     Utils::Days m_daysbkup;                 //!> flag énumérant les jours de la sauvegarde
     QTime m_heurebkup = QTime(0,0);         //!> l'heure de la sauvegarde
     QString m_dirbkup = "";                 //!> l'adresse du dossier de sauvegarde vue depuis le serveur
+    bool m_villesfrance = true;             //!> utilise la base de données des villes françaises
+    bool m_cotationsfrance = true;          //!> utilise les cotations d'actes françaises (CMU, ALD, CCAM, secteur conventionnel, OPTAM...etc...)
+    bool m_comptafrance = true;             //!> utilise la comptabilité française
 
 public:
     explicit ParametresSysteme(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -59,6 +62,9 @@ public:
     Utils::Days daysbkup() const;
     QTime heurebkup() const;
     QString dirbkup() const;
+    bool villesfrance() const;
+    bool cotationsfrance() const;
+    bool comptafrance() const;
 
     void setmdpadmin(QString mdp);
     void setnumcentre(int id);
@@ -72,6 +78,9 @@ public:
     void setdirbkup(QString adress);
     void setdaysbkup(Utils::Days days);
     void setheurebkup(QTime time);
+    void setvillesfrance(bool one);
+    void setcotationsfrance(bool one);
+    void setcomptafrance(bool one);
 };
 
 #endif // CLS_PARAMETRESSYSTEME_H

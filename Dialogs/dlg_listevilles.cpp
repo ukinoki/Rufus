@@ -226,51 +226,51 @@ void dlg_listevilles::RemplirTableView()
     QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
     delete m;
 
-    if (m_model->rowCount()>0)
+    if (m_listCPsproxymodel != Q_NULLPTR)
+        delete m_listCPsproxymodel;
+    m_listCPsproxymodel = new QSortFilterProxyModel();
+    m_listCPsproxymodel->setSourceModel(m_model);
+    m_listCPsproxymodel->sort(0);
+
+    if (m_listnomsproxymodel != Q_NULLPTR)
+        delete m_listnomsproxymodel;
+    m_listnomsproxymodel = new QSortFilterProxyModel();
+    m_listnomsproxymodel->setSourceModel(m_listCPsproxymodel);
+    m_listnomsproxymodel->sort(1);
+    m_listnomsproxymodel->setFilterKeyColumn(1);
+
+    wdg_tblview->setModel(m_listnomsproxymodel);
+    wdg_tblview->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    QHeaderView *verticalHeader = wdg_tblview->verticalHeader();
+    verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+    verticalHeader->setDefaultSectionSize(int(QFontMetrics(qApp->font()).height()*1.6));
+    verticalHeader->setVisible(false);
+    wdg_tblview->setColumnWidth(0,60);      // Code postal
+    wdg_tblview->setColumnWidth(1,280);     // Ville
+    wdg_tblview->FixLargeurTotale();
+    wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
+    connect(wdg_tblview,     &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
+        Ville *ville = getVilleFromIndex(idx);
+        if (ville)
+            m_currentville = ville;
+    });
+    connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listevilles::MenuContextuel);
+    connect (wdg_tblview->selectionModel(),
+             &QItemSelectionModel::currentRowChanged,
+             this,
+             [&] (QModelIndex idx)
     {
-        if (m_listCPsproxymodel != Q_NULLPTR)
-            delete m_listCPsproxymodel;
-        m_listCPsproxymodel = new QSortFilterProxyModel();
-        m_listCPsproxymodel->setSourceModel(m_model);
-        m_listCPsproxymodel->sort(0);
-
-        if (m_listnomsproxymodel != Q_NULLPTR)
-            delete m_listnomsproxymodel;
-        m_listnomsproxymodel = new QSortFilterProxyModel();
-        m_listnomsproxymodel->setSourceModel(m_listCPsproxymodel);
-        m_listnomsproxymodel->sort(1);
-        m_listnomsproxymodel->setFilterKeyColumn(1);
-
-        wdg_tblview->setModel(m_listnomsproxymodel);
-
-        wdg_tblview->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-        QHeaderView *verticalHeader = wdg_tblview->verticalHeader();
-        verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
-        verticalHeader->setDefaultSectionSize(int(QFontMetrics(qApp->font()).height()*1.6));
-        verticalHeader->setVisible(false);
-        wdg_tblview->setColumnWidth(0,60);      // Code postal
-        wdg_tblview->setColumnWidth(1,280);     // Ville
-        wdg_tblview->FixLargeurTotale();
-        wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
-        connect(wdg_tblview,     &QAbstractItemView::doubleClicked,         this,   [&] (QModelIndex idx) {
-                                                                                                            Ville *ville = getVilleFromIndex(idx);
-                                                                                                            if (ville)
-                                                                                                                m_currentville = ville;
-                                                                                                          });
-        connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listevilles::MenuContextuel);
-        connect (wdg_tblview->selectionModel(),                   &QItemSelectionModel::currentRowChanged,          this,   [&] (QModelIndex idx) {
-                                                                                                                    m_currentville = getVilleFromIndex(idx);
-                                                                                                                    if (m_currentville)
-                                                                                                                    {
-                                                                                                                        wdg_buttonframe->searchline()->setText(m_currentville->nom());
-                                                                                                                        wdg_buttonframe->searchline()->selectAll();
-                                                                                                                        wdg_buttonframe->searchline()->setFocus();
-                                                                                                                    }
-                                                                                                                    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentville != Q_NULLPTR);
-                                                                                                                    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentville != Q_NULLPTR);
-                                                                                                                });
-        m_currentville = Q_NULLPTR;
-    }
+        m_currentville = getVilleFromIndex(idx);
+        if (m_currentville)
+        {
+            wdg_buttonframe->searchline()->setText(m_currentville->nom());
+            wdg_buttonframe->searchline()->selectAll();
+            wdg_buttonframe->searchline()->setFocus();
+        }
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentville != Q_NULLPTR);
+        wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentville != Q_NULLPTR);
+    });
+    m_currentville = Q_NULLPTR;
     wdg_buttonframe->wdg_moinsBouton->setEnabled(m_mapvilles->size()>0);
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_mapvilles->size()>0);
     wdg_buttonframe->wdg_plusBouton->setEnabled(true);
@@ -439,9 +439,11 @@ void dlg_listevilles::dialogville(QString cp, QString nom)
     cpline                  ->setAlignment(Qt::AlignCenter);
     cpline                  ->setMaxLength(10);
     cpline                  ->setText(cp);
+    cpline                  ->setFixedWidth(60);
     cplay                   ->insertWidget(0,cpline);
-    cplay                   ->insertSpacerItem(0,new QSpacerItem(10,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    cplay                   ->insertSpacerItem(0,new QSpacerItem(20,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
     UpLabel *labelCP        = new UpLabel();
+    labelCP                 ->setAlignment(Qt::AlignRight);
     labelCP                 ->setText(tr("Code postal (facultatif)"));
     cplay                   ->insertWidget(0,labelCP);
     dlg_ask->dlglayout()    ->insertLayout(0,cplay);
@@ -454,10 +456,11 @@ void dlg_listevilles::dialogville(QString cp, QString nom)
     nomline                 ->setAlignment(Qt::AlignCenter);
     nomline                 ->setMaxLength(45);
     nomline                 ->setText(nom);
+    nomline                 ->setFixedWidth(280);
     nomlay                  ->insertWidget(0,nomline);
-    nomlay                  ->insertSpacerItem(0,new QSpacerItem(10,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    nomlay                  ->insertSpacerItem(0,new QSpacerItem(20,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
     UpLabel *labelVille     = new UpLabel();
-    labelVille              ->setAlignment(Qt::AlignCenter);
+    labelVille              ->setAlignment(Qt::AlignRight);
     labelVille              ->setText(tr("Nom"));
     nomlay                  ->insertWidget(0,labelVille);
     dlg_ask->dlglayout()    ->insertLayout(0,nomlay);

@@ -430,7 +430,18 @@ void DataBase::initParametresSysteme()
     paramData[CP_HEUREBKUP_PARAMSYSTEME]              = paramdata.at(16).toTime().toString("HH:mm:ss");
     paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(17).toString();
     m_parametres->setData(paramData);
-    return;
+    if (m_parametres->versionbase()>73)
+    {
+        req = "select " CP_VILLES_PARAMSYSTEME ", " CP_COTATIONS_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME
+                " from " TBL_PARAMSYSTEME;
+        QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+        if(!ok || paramdata.size() == 0)
+            return ;
+        paramData[CP_VILLES_PARAMSYSTEME]                 = (paramdata.at(0).toInt() == 1);
+        paramData[CP_COTATIONS_PARAMSYSTEME]              = (paramdata.at(1).toInt() == 1);
+        paramData[CP_COMPTA_PARAMSYSTEME]                 = (paramdata.at(2).toInt() == 1);
+        m_parametres->setData(paramData);
+    }
 }
 
 ParametresSysteme* DataBase::parametres()
@@ -551,6 +562,30 @@ void DataBase::setdirbkup(QString adress)
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRBKUP_PARAMSYSTEME " = " + value);
     parametres()->setdirbkup(adress);
+}
+void DataBase::setvillesfrance(bool one)
+{
+    if (!m_db.isOpen())
+        return;
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VILLES_PARAMSYSTEME " = " + a);
+    parametres()->setvillesfrance(one);
+}
+void DataBase::setcotationsfrance(bool one)
+{
+    if (!m_db.isOpen())
+        return;
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_COTATIONS_PARAMSYSTEME " = " + a);
+    parametres()->setcotationsfrance(one);
+}
+void DataBase::setcomptafrance(bool one)
+{
+    if (!m_db.isOpen())
+        return;
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_COMPTA_PARAMSYSTEME " = " + a);
+    parametres()->setcomptafrance(one);
 }
 
 /*

@@ -191,6 +191,9 @@ public:
     void setdaysbkup(Utils::Days days);
     void setheurebkup(QTime time = QTime());
     void setdirbkup(QString adress = "");
+    void setvillesfrance(bool one = true);
+    void setcotationsfrance(bool one = true);
+    void setcomptafrance(bool one= true);
 
     /*
      * Donnees ophta patient

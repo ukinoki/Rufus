@@ -139,6 +139,7 @@ private:
     QString             ToolTipPortCOM(Procedures::TypeAppareil appareil);
     void                RegleAssocBoutons(QWidget *widg);
     void                ResetImprimante();
+    void                ModifBDDVilles(Villes::TownsFrom from);
 
 signals:
     void                click(QWidget *obj);

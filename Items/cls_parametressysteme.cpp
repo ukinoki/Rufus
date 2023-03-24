@@ -44,6 +44,9 @@ void ParametresSysteme::setData(QJsonObject data)
     m_daysbkup.setFlag(Utils::Vendredi, data[CP_VENDREDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Samedi,   data[CP_SAMEDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Dimanche, data[CP_DIMANCHEBKUP_PARAMSYSTEME].toBool());
+    Utils::setDataBool(data, CP_VILLES_PARAMSYSTEME, m_villesfrance);
+    Utils::setDataBool(data, CP_COMPTA_PARAMSYSTEME, m_comptafrance);
+    Utils::setDataBool(data, CP_COTATIONS_PARAMSYSTEME, m_cotationsfrance);
     m_data = data;
 }
 
@@ -59,6 +62,9 @@ QString ParametresSysteme::dirimagerieserveur() const           { return m_dirim
 Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
+bool ParametresSysteme::villesfrance() const                    { return m_villesfrance; }
+bool ParametresSysteme::cotationsfrance() const                 { return m_cotationsfrance; }
+bool ParametresSysteme::comptafrance() const                    { return m_comptafrance; }
 
 void ParametresSysteme::setmdpadmin(QString mdp)                { m_mdpdmin = mdp;
                                                                   m_data[CP_MDPADMIN_PARAMSYSTEME] = mdp; }
@@ -90,3 +96,9 @@ void ParametresSysteme::setdaysbkup(Utils::Days days)           { m_daysbkup = d
                                                                   m_data[CP_VENDREDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Vendredi);
                                                                   m_data[CP_SAMEDIBKUP_PARAMSYSTEME] = days.testFlag(Utils::Samedi);
                                                                   m_data[CP_DIMANCHEBKUP_PARAMSYSTEME] = days.testFlag(Utils::Dimanche); }
+void ParametresSysteme::setvillesfrance(bool one)              { m_villesfrance = one;
+                                                                  m_data[CP_VILLES_PARAMSYSTEME] = one; }
+void ParametresSysteme::setcotationsfrance(bool one)           { m_cotationsfrance = one;
+                                                                  m_data[CP_COTATIONS_PARAMSYSTEME] = one; }
+void ParametresSysteme::setcomptafrance(bool one)              { m_comptafrance = one;
+                                                                  m_data[CP_COMPTA_PARAMSYSTEME] = one; }

@@ -286,16 +286,18 @@ dlg_param::dlg_param(QWidget *parent) :
         }
     }
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       ui->UtiliseBDDVillescheckBox     ->setChecked(proc->settings()->value(Utilise_BDD_Villes).toBool() != false);
-       ui->UtiliseCustomVillescheckBox  ->setChecked(proc->settings()->value(Utilise_BDD_Villes).toBool() == false);
-       ui->ModifListVillesupPushButton  ->setVisible(proc->settings()->value(Utilise_BDD_Villes).toBool() == false);
+       ui->UtiliseBDDVillescheckBox     ->setChecked(db->parametres()->villesfrance() == true);
+       ui->UtiliseCustomVillescheckBox  ->setChecked(db->parametres()->villesfrance() == false);
+       ui->ModifListVillesupPushButton  ->setVisible(db->parametres()->villesfrance() == false);
        connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::stateChanged, this, [=](int state){
            ui->ModifListVillesupPushButton->setVisible(state == Qt::Checked);
+           enum Villes::TownsFrom from;
            if (state == Qt::Checked)
-               Datas::I()->villes->initListe(Villes::CUSTOM);
+               from = Villes::CUSTOM;
            else
-               Datas::I()->villes->initListe(Villes::DATABASE);
-            });
+               from = Villes::DATABASE;
+           ModifBDDVilles(from);
+           });
        connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=]{
                                                                                         dlg_listevilles *dlg_listvilles = new dlg_listevilles(this);
                                                                                         dlg_listvilles->exec();
@@ -2059,6 +2061,12 @@ void dlg_param::ModifHeureBackup()    //Modification de la date du backup
                                            && QDir(m_parametres->dirbkup()).exists()
                                            && m_parametres->dirbkup() != ""
                                            && m_parametres->heurebkup() != QTime());
+}
+
+void dlg_param::ModifBDDVilles(Villes::TownsFrom from)
+{
+    db                  ->setvillesfrance(from == Villes::DATABASE);
+    Datas::I()->villes  ->initListe(from);
 }
 
 void dlg_param::DirLocalStockage()
@@ -3967,14 +3975,6 @@ bool dlg_param::Valide_Modifications()
         }
         proc->settings()->setValue(Ville_Defaut,wdg_VilleDefautlineEdit->text());
         proc->settings()->setValue(CodePostal_Defaut,wdg_CPDefautlineEdit->text());
-        proc->settings()->setValue(Utilise_BDD_Villes, ui->UtiliseBDDVillescheckBox->isChecked());
-        enum Villes::TownsFrom from;
-        if (ui->UtiliseBDDVillescheckBox->isChecked())
-            from = Villes::DATABASE;
-        else
-            from = Villes::CUSTOM;
-        Datas::I()->villes          ->initListe(from);
-
         m_modifposte = false;
     }
     return true;

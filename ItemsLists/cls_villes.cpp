@@ -150,7 +150,7 @@ QStringList Villes::ListeCodesPostaux()
 
 QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegrite)
 {
-    QMap<QString, Ville*>::const_iterator it = map_codespostaux.constFind( codePostal );
+    QMultiMap<QString, Ville*>::const_iterator it = map_codespostaux.constFind( codePostal );
     QJsonObject error{};
     if( testIntegrite && (it == map_codespostaux.constEnd()) )
     {
@@ -181,7 +181,7 @@ QList<Ville *> Villes::getVilleByName(QString name, bool distinct)
     QList<QString> listVName; //Permet de tester si le nom d'une ville est déjà présent
     QList<Ville *> listV;
     QList<Ville *> listVStartWith;
-    QMap<QString, Ville*>::const_iterator it = map_villes.constBegin();
+    QMultiMap<QString, Ville*>::const_iterator it = map_villes.constBegin();
     while( it != map_villes.constEnd() )
     {
         if( it.value()->nom() == name )
@@ -222,7 +222,7 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
     }
     */
 
-    QMap<QString, Ville*>::const_iterator it = map_codespostaux.constFind( codePostal );
+    QMultiMap<QString, Ville*>::const_iterator it = map_codespostaux.constFind( codePostal );
     while( it != map_codespostaux.cend() && it.key() == codePostal)
     {
         if( it.value()->nom() == name )

@@ -46,6 +46,33 @@ BEGIN
                 ALTER TABLE `rufus`.`Villes`
                 CHANGE COLUMN `pk` `id` INT(11) NOT NULL AUTO_INCREMENT FIRST;
         END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT COLUMN_KEY
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'VillesFrance') as chp;
+            IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                ADD COLUMN `VillesFrance` INT(1) NULL DEFAULT 1 AFTER `DirBkup`;
+        END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT COLUMN_KEY
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'Villes.ParametresSysteme' AND COLUMN_NAME = 'CotationsFrance') as chp;
+            IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                ADD COLUMN `CotationsFrance` INT(1) NULL DEFAULT 1 AFTER `VillesFrance`;
+        END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT COLUMN_KEY
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'Villes.ParametresSysteme' AND COLUMN_NAME = 'ComptaFrance') as chp;
+            IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                ADD COLUMN `ComptaFrance` INT(1) NULL DEFAULT 1 AFTER `CotationsFrance`;
+        END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 74;
 END|
 

@@ -10,7 +10,6 @@
         <file>ComptaMedicale.sql</file>
         <file>Images.sql</file>
         <file>Ophtalmologie.sql</file>
-        <file>rufus.sql</file>
         <file>majbase67.sql</file>
         <file>majbase68.sql</file>
         <file>majbase69.sql</file>
@@ -19,5 +18,6 @@
         <file>majbase72.sql</file>
         <file>majbase73.sql</file>
         <file>majbase74.sql</file>
+        <file>rufus.sql</file>
     </qresource>
 </RCC>

@@ -17,9 +17,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
-#include "database.h"
-#include "cls_villes.h"
-#include "utils.h"
 
 /*!
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -77,10 +74,7 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
     ui->VillelineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_ville,this));
     m_villes                    = villes;
     wdg_parent                  = parent;
-    QSettings m_settings(PATH_FILE_INI, QSettings::IniFormat);
-    if (m_settings.value(Utilise_BDD_Villes).toBool() != false || m_settings.value(Utilise_BDD_Villes) == QVariant())
-        m_settings.setValue(Utilise_BDD_Villes, m_rechercheCP);
-    m_rechercheCP = m_settings.value(Utilise_BDD_Villes).toBool();
+    m_rechercheCP               = DataBase::I()->parametres()->villesfrance();
 
     setFocusProxy(ui->CPlineEdit);
 
