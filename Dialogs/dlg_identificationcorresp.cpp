@@ -75,8 +75,10 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     QList <QWidget *> listtab;
-    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
-            << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
+    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit;
+    if (db->parametres()->villesfrance() == true)
+        listtab <<  wdg_CPlineedit;
+    listtab << wdg_villelineedit <<  ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
 
