@@ -58,7 +58,7 @@ BEGIN
         SELECT COUNT(*) INTO tot FROM
             (SELECT COLUMN_KEY
             FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_NAME = 'Villes.ParametresSysteme' AND COLUMN_NAME = 'CotationsFrance') as chp;
+            WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'CotationsFrance') as chp;
             IF tot=0
             THEN
                 ALTER TABLE `rufus`.`ParametresSysteme`
@@ -67,7 +67,7 @@ BEGIN
         SELECT COUNT(*) INTO tot FROM
             (SELECT COLUMN_KEY
             FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_NAME = 'Villes.ParametresSysteme' AND COLUMN_NAME = 'ComptaFrance') as chp;
+            WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'ComptaFrance') as chp;
             IF tot=0
             THEN
                 ALTER TABLE `rufus`.`ParametresSysteme`

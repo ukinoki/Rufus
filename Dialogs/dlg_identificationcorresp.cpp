@@ -77,8 +77,8 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton
             << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit;
-    if (Procedures::I()->settings()->value(Utilise_BDD_Villes).toBool())
-        listtab << wdg_CPlineedit;
+   if (db->parametres()->villesfrance() == true)
+       listtab << wdg_CPlineedit;
     listtab << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
