@@ -115,7 +115,11 @@ TRANSLATIONS    = rufus_en.ts
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \
     assets/Images/images.qrc \
-    assets/Sons/sons.qrc \
+    assets/Sons/sons.qrc
+
+DISTFILES += \
+    assets/Licenses/License.rtf \
+    assets/Licenses/LICENSE
 
 ICON += \
     Sunglasses.icns
