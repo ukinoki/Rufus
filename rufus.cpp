@@ -1134,10 +1134,6 @@ void Rufus::AfficheMenu(QMenu *menu)
         delete listcourriers;
     }
 
-    bool b = (ui->tabWidget->currentWidget() == ui->tabDossier);
-    actionSupprimerActe->setVisible(b);
-    actionCreerActe->setVisible(b);
-
     if (menu == menuDossier)
     {
         actionOuvrirDossier         ->setVisible(!currentuser()->isNeutre());
@@ -1146,11 +1142,17 @@ void Rufus::AfficheMenu(QMenu *menu)
         actionSupprimerDossier->setEnabled(true);
         actionSupprimerDossier->setVisible(ui->tabWidget->currentWidget() == ui->tabDossier && currentuser()->isSoignant());
     }
-    if (menu == menuEdition)
+    else if (menu == menuEdition)
     {
         actionParametres         ->setVisible(!currentuser()->isNeutre());
     }
-    if (menu == menuDocuments)
+    else if (menu == menuActe)
+    {
+        bool b = (ui->tabWidget->currentWidget() == ui->tabDossier);
+        actionSupprimerActe->setVisible(b);
+        actionCreerActe->setVisible(b);
+    }
+    else if (menu == menuDocuments)
     {
         menuDocuments->clear();
         if (ui->tabWidget->currentWidget() == ui->tabDossier)
@@ -7438,7 +7440,6 @@ void Rufus::CreerMenu()
 // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     menuDossier         = menuBar()->addMenu(tr("Dossier"));
     menuEdition         = menuBar()->addMenu(tr("Edition"));
-    menuActe            = new QMenu(this);
     if (currentuser()->isSoignant())
         menuActe        = menuBar()->addMenu(tr("Acte"));
     menuDocuments       = menuBar()->addMenu(tr("Documents"));

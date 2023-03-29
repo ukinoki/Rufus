@@ -48,11 +48,8 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);
     wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMupLineEdit);
 
-    QHBoxLayout *EnteteCCAMlay  = new QHBoxLayout();
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QHBoxLayout *Marge2lay      = new QHBoxLayout();
-    QHBoxLayout *Marge0lay      = new QHBoxLayout();
-    QVBoxLayout *CCAMlay        = new QVBoxLayout();
     QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
     QVBoxLayout *HorsCCAMlay    = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
@@ -60,31 +57,10 @@ dlg_param::dlg_param(QWidget *parent) :
     Cotationslay    ->setSpacing(marge);
     marge = 0;
     Cotationslay    ->setContentsMargins(marge,marge,marge,marge);
-    Marge0lay       ->setContentsMargins(marge,marge,marge,marge);
-    Marge0lay       ->setSpacing(marge);
     Margelay        ->setContentsMargins(marge,marge,marge,marge);
     Margelay        ->setSpacing(marge);
     Marge2lay       ->setContentsMargins(marge,marge,marge,marge);
     Marge2lay       ->setSpacing(marge);
-    CCAMlay         ->setContentsMargins(marge,marge,marge,marge);
-    CCAMlay         ->setSpacing(marge);
-    EnteteCCAMlay   ->setContentsMargins(marge,marge,marge,marge);
-    EnteteCCAMlay   ->setSpacing(marge);
-
-    EnteteCCAMlay   ->addWidget(ui->ActesCCAMlabel);
-    EnteteCCAMlay   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-    EnteteCCAMlay   ->addWidget(ui->OphtaSeulcheckBox);
-
-    CCAMlay         ->addLayout(EnteteCCAMlay);
-    CCAMlay         ->addWidget(ui->ActesCCAMupTableWidget);
-    CCAMlay         ->setStretch(0,0);
-    CCAMlay         ->setStretch(1,15);
-
-    Marge0lay       ->addWidget(ui->ShowCCAMlabel);
-    Marge0lay       ->addLayout(CCAMlay);
-    Marge0lay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-    Cotationslay    ->addLayout(Marge0lay);
 
     AssocCCAMlay     ->addWidget(ui->AssocCCAMlabel);
     AssocCCAMlay     ->addWidget(wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent());
@@ -107,12 +83,46 @@ dlg_param::dlg_param(QWidget *parent) :
     Margelay        ->addWidget(ui->MargeWidget);
     Margelay        ->addLayout(HorsCCAMlay);
     Margelay        ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    //ui->AssocCCAMlabel  ->setText(tr("Actes codifiés"));
+    //ui->HorsNomenclaturelabel   ->setText(tr("Actes non codifés"));
 
     Cotationslay    ->addLayout(Margelay);
+    Cotationslay    ->setStretch(0,7);      // Marge2lay - les associations
+    Cotationslay    ->setStretch(1,5);      // Margelay - les actes hors nomenclature
 
-    Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
-    Cotationslay    ->setStretch(1,7);      // Marge2lay - les associations
-    Cotationslay    ->setStretch(2,5);      // Margelay - les actes hors nomenclature
+    //if (db->parametres()->cotationsfrance())    {
+        QHBoxLayout *Marge0lay      = new QHBoxLayout();
+        Marge0lay       ->setContentsMargins(marge,marge,marge,marge);
+        Marge0lay       ->setSpacing(marge);
+        QHBoxLayout *EnteteCCAMlay  = new QHBoxLayout();
+        EnteteCCAMlay   ->setContentsMargins(marge,marge,marge,marge);
+        EnteteCCAMlay   ->setSpacing(marge);
+        EnteteCCAMlay   ->addWidget(ui->ActesCCAMlabel);
+        EnteteCCAMlay   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+        EnteteCCAMlay   ->addWidget(ui->OphtaSeulcheckBox);
+
+        QVBoxLayout *CCAMlay        = new QVBoxLayout();
+        CCAMlay         ->setContentsMargins(marge,marge,marge,marge);
+        CCAMlay         ->setSpacing(marge);
+        CCAMlay         ->addLayout(EnteteCCAMlay);
+        CCAMlay         ->addWidget(ui->ActesCCAMupTableWidget);
+        CCAMlay         ->setStretch(0,0);
+        CCAMlay         ->setStretch(1,15);
+
+        Marge0lay       ->addWidget(ui->ShowCCAMlabel);
+        Marge0lay       ->addLayout(CCAMlay);
+        Marge0lay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+        Cotationslay    ->insertLayout(0,Marge0lay);
+        //ui->AssocCCAMlabel  ->setText(tr("Actes codifiés"));
+        //ui->HorsNomenclaturelabel   ->setText(tr("Actes non codifés"));
+        Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
+        Cotationslay    ->setStretch(1,7);      // Marge2lay - les associations
+        Cotationslay    ->setStretch(2,5);      // Margelay - les actes hors nomenclature
+    //}
+
+
+
 
     ui->Cotationswidget  ->setLayout(Cotationslay);
 
