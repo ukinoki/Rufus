@@ -3138,6 +3138,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL (req);
     req = "update " TBL_COMMENTAIRESLUNETTES " set " CP_IDUSER_COMLUN " = " + QString::number(idusr) + ", " CP_PUBLIC_COMLUN " = 1";
     db->StandardSQL (req);
+    req = "update " TBL_COTATIONS " set " CP_IDUSER_COTATIONS " = " + QString::number(idusr) + ", " CP_PUBLIC_COMLUN " = 1";
+    db->StandardSQL (req);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été créé"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
