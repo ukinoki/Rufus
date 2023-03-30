@@ -273,6 +273,7 @@ public:
 
     static QIcon icTampon() { return foundIC("icTampon", "://stamp.png"); }
     static QIcon icText() { return foundIC("icText", "://text.png"); }
+    static QIcon icTownn() { return foundIC("icTown", "://nature.png"); }
     static QIcon icTri() { return foundIC("icTri", "://tri.png"); }
 
     static QIcon icValide(QSize size = QSize()) { return foundIC("icValide", "://Valide2.jpg", size); } //25

@@ -193,5 +193,6 @@
         <file>IOL.png</file>
         <file>Notepad.png</file>
         <file>icon.ico</file>
+        <file>nature.png</file>
     </qresource>
 </RCC>

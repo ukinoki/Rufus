@@ -3187,21 +3187,21 @@ les données</string>
             <widget class="QGroupBox" name="VillesgroupBox">
              <property name="geometry">
               <rect>
-               <x>20</x>
+               <x>10</x>
                <y>420</y>
-               <width>400</width>
+               <width>350</width>
                <height>60</height>
               </rect>
              </property>
              <property name="minimumSize">
               <size>
-               <width>400</width>
+               <width>350</width>
                <height>60</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>400</width>
+               <width>350</width>
                <height>16777215</height>
               </size>
              </property>
@@ -3213,7 +3213,7 @@ les données</string>
                <rect>
                 <x>5</x>
                 <y>10</y>
-                <width>361</width>
+                <width>341</width>
                 <height>20</height>
                </rect>
               </property>
@@ -3229,7 +3229,7 @@ les données</string>
                <rect>
                 <x>5</x>
                 <y>30</y>
-                <width>351</width>
+                <width>341</width>
                 <height>20</height>
                </rect>
               </property>
@@ -3244,9 +3244,9 @@ les données</string>
             <widget class="UpPushButton" name="ModifListVillesupPushButton">
              <property name="geometry">
               <rect>
-               <x>416</x>
+               <x>372</x>
                <y>421</y>
-               <width>127</width>
+               <width>181</width>
                <height>60</height>
               </rect>
              </property>
@@ -3259,6 +3259,16 @@ les données</string>
              <property name="text">
               <string>Modifier la
 liste des villes</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../assets/Images/images.qrc">
+               <normaloff>:/nature.png</normaloff>:/nature.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
              </property>
             </widget>
            </widget>
