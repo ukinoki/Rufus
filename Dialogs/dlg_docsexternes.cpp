@@ -389,9 +389,13 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     }
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {
-        bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
+        Procedures::typeDoc typedoc;
+        if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
+            typedoc = Procedures::Image;
+        else
+            typedoc = Procedures::Text;
         if (docmt->imageformat() == QByteArray())
-            proc->CalcImage(docmt, pict, true);
+            proc->CalcImageDocument(docmt, typedoc , true);
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
         if (docmt->imageformat() == JPG)     // le document est un JPG
         {
@@ -828,9 +832,13 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
 
 bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 {
-    bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
+    Procedures::typeDoc typedoc;
+    if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
+        typedoc = Procedures::Image;
+    else
+        typedoc = Procedures::Text;
     if (docmt->imageblob() == QByteArray())
-        proc->CalcImage(docmt, pict, false);
+        proc->CalcImageDocument(docmt, typedoc, false);
     if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
     {
         QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());

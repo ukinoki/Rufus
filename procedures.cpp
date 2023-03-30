@@ -1599,8 +1599,18 @@ bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString
     return a;
 }
 
-void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
+void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc, bool afficher)
 {
+    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
+     *  pour pouvoir les afficher ou les imprimer
+
+   * \param afficher = true -> la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
+     *      typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
+     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+     *                          Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
+     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
+     *      typedoc = Image ->  le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
+    */
     if (docmt == Q_NULLPTR )
         return;
     QString iditem;
@@ -1620,8 +1630,9 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
     QByteArray ba;
     QString fileformat=PDF;
     QLabel inflabel;
-    if (imagerie)                                           //!> il s'agit d'un fichier image
-    {
+    switch (typedoc) {
+    case Image:
+        //!> il s'agit d'un fichier image
         if (afficher)                                       //! si on veut afficher
         {
             sstitre = "<font color='magenta'>" + date + " - " + typedocmt + " - " + soustypedocmt + "</font>";
@@ -1632,15 +1643,15 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
             QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
             ba=getFileFromServer(fullFilename,docmt->compression(), fileformat);
         }
-         if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
+        if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
         {
-             QString sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem;
-             // PDF=0, JPG=1, COMPRESSION=2
-             ba=getFileFromSQL(sQuery, 0, 1, 2, fileformat, tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
-         }
-    }
-    else                                                    //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-    {
+            QString sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem;
+            // PDF=0, JPG=1, COMPRESSION=2
+            ba=getFileFromSQL(sQuery, 0, 1, 2, fileformat, tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
+        }
+        break;
+    case Text:
+        //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
         inflabel    .setText("");
         QString Entete  = docmt->textentete();
         QString Corps   = docmt->textcorps();
@@ -1652,20 +1663,19 @@ void Procedures::CalcImage(DocExterne *docmt, bool imagerie, bool afficher)
             TexteAImprimer->setFooterSize(TaillePieddePageOrdoLunettes());
         else
             TexteAImprimer->setFooterSize(TaillePieddePage());
-
         TexteAImprimer->setHeaderText(Entete);
         TexteAImprimer->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(TailleTopMarge());
-
         ba=TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+        break;
     }
     docmt->setimageformat(fileformat);
     docmt->setimageblob(ba);
 
 }
 
-void Procedures::CalcImage(Depense *dep, bool imagerie, bool afficher)
+void Procedures::CalcImageFacture(Depense *dep, bool afficher)
 {
     if (dep == Q_NULLPTR)
         return;
@@ -1684,54 +1694,25 @@ void Procedures::CalcImage(Depense *dep, bool imagerie, bool afficher)
     filename = dep->lienfacture();
     QByteArray ba;
     QLabel inflabel;
-    if (imagerie)                                           //!> il s'agit d'un fichier image
+    if (afficher)                                       //! si on veut afficher
     {
-        if (afficher)                                       //! si on veut afficher
-        {
         sstitre = "<font color='magenta'>" + date + " - " + objet + "</font>";
         inflabel   .setText(sstitre);
-        }
-        QString fileformat="";
-        if (filename != "")
-        {
-            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
-            ba=getFileFromServer(fullFilename, 0, fileformat);
-        }
-        if (ba.size()==0)  // le document n'est pas dans echangeimages, on va le chercher dans factures
-        {
-            QString sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem;
-            // PDF=0, JPG=1, COMPRESSION=NO
-            ba=getFileFromSQL(sQuery, 0, 1, -1, fileformat, tr("Impossible d'accéder à la table ") + TBL_FACTURES);
-        }
-        dep->setfactureformat(fileformat);
-        dep->setfactureblob(ba);
     }
-}
-
-void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
-{
-    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
-     *  pour pouvoir les afficher ou les imprimer
-
-   * \param afficher = true -> la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      imagerie = false -> Le document est un document texte (ordo, certificat...etc).
-     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
-     *                          Ces champs vont être utilisés pour l'impression vers un fichier pdf.
-     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
-     *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
-
-   * \param afficher = false -> la fonction est applée par dlg_docsexternes::ReImprimeDoc(DocExterne *docmt) - on utilise la table echangeimages
-     *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
-     *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
-     * La fonction est aussi appelée par la table dépenses pour afficher les factures
-    */
-    DocExterne *docmt = dynamic_cast<DocExterne*>(item);
-    if (docmt != Q_NULLPTR)
-        return CalcImage(docmt, imagerie, afficher);
-
-    Depense *dep = Q_NULLPTR;
-    if (docmt != Q_NULLPTR)
-        return CalcImage(dep, imagerie, afficher);
+    QString fileformat="";
+    if (filename != "")
+    {
+        QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
+        ba=getFileFromServer(fullFilename, 0, fileformat);
+    }
+    if (ba.size()==0)  // le document n'est pas dans echangeimages, on va le chercher dans factures
+    {
+        QString sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem;
+        // PDF=0, JPG=1, COMPRESSION=NO
+        ba=getFileFromSQL(sQuery, 0, 1, -1, fileformat, tr("Impossible d'accéder à la table ") + TBL_FACTURES);
+    }
+    dep->setfactureformat(fileformat);
+    dep->setfactureblob(ba);
 }
 
 // Get file content from SQL table
@@ -3340,7 +3321,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL (req);
     req = "update " TBL_COMMENTAIRESLUNETTES " set " CP_IDUSER_COMLUN " = " + QString::number(idusr) + ", " CP_PUBLIC_COMLUN " = 1";
     db->StandardSQL (req);
-
+    req = "update " TBL_COTATIONS " set " CP_IDUSER_COTATIONS " = " + QString::number(idusr);
+    db->StandardSQL (req);
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été créé"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
                                currentuser()->titre() + " "  + currentuser()->prenom() + " " + currentuser()->nom() + ", " + currentuser()->fonction()

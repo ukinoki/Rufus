@@ -91,6 +91,7 @@ private:
 public:
     static Procedures       *I();
     QSettings*              settings() const { return m_settings; }
+    enum typeDoc {Text, Image}; Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
 
 
 /*! --------------------------------------------------------------------------------------------------------
@@ -277,11 +278,10 @@ private:
 
 public:
     void                    ab(int i = 1);
-    void                    CalcImage(DocExterne *docmt, bool imagerie, bool afficher);
-    void                    CalcImage(Depense *dep, bool imagerie, bool afficher);
+    void                    CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc, bool afficher);
+    void                    CalcImageFacture(Depense *dep, bool afficher);
 
-    void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
-    QByteArray              getFileFromSQL(QString sQuery, int fieldPDF, int fieldJPG, int fieldCompression, QString &imageformat, QString errMsg);
+     QByteArray             getFileFromSQL(QString sQuery, int fieldPDF, int fieldJPG, int fieldCompression, QString &imageformat, QString errMsg);
     QByteArray              getFileFromServer(QString filename, int compression, QString &fileformat);
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);

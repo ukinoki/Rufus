@@ -12,12 +12,7 @@
 
 
 TextPrinter::TextPrinter(QObject *parent)
-    : QObject(parent), parent_(Q_NULLPTR),
-                        printer_(new QPrinter(QPrinter::HighResolution)),
-                        tempdoc_(Q_NULLPTR),
-                        leftmargin_(10), rightmargin_(10), topmargin_(10), bottommargin_(10), spacing_(3),
-                        headersize_(0.0), headerlinepenwidth_(0.5), headertext_(QString()), footersize_(0.0), footerlinepenwidth_(0.5), footertext_(QString()),
-                        duplex_(QPrinter::DuplexAuto), textprinterunits_(Millimeter)
+    : QObject(parent), parent_(Q_NULLPTR)
 {
     if (parent)
         parent_ = qobject_cast<QWidget*>(parent);
@@ -36,113 +31,14 @@ TextPrinter::TextPrinter(QObject *parent)
     setUnits(textprinterunits_);
 }
 
-TextPrinter::~TextPrinter()
-{
-    delete printer_;
-}
-
-QPageSize TextPrinter::pageSize() const
-{
-    return printer_->pageLayout().pageSize();
-}
-
-void TextPrinter::setPageSize(QPageSize size)
-{
-    printer_->setPageSize(size);
-}
-
-QPageLayout::Orientation TextPrinter::orientation() const
-{
-    return printer_->pageLayout().orientation();
-}
-
-void TextPrinter::setOrientation(QPageLayout::Orientation orientation)
-{
-    // Valeur par defaut = QPrinter::Portrait
-    QPageLayout lay = printer_->pageLayout();
-    lay.setOrientation(orientation);
-}
-
-void TextPrinter::setLeftMargin(double margin)
-{
-    // Valeur par defaut = 10mm
-    if ((margin > 0) && (margin < printer_->paperRect(units_).width() / 2))
-        leftmargin_ = margin;
-    else
-        leftmargin_ = 0;
-}
-
-
-double TextPrinter::rightMargin() const
-{
-    return rightmargin_;
-}
-
-void TextPrinter::setRightMargin(double margin)
-{
-    // Valeur par defaut = 10mm
-    if ((margin > 0) && (margin < printer_->paperRect(units_).width() / 2))
-        rightmargin_ = margin;
-    else
-        rightmargin_ = 0;
-}
-
-double TextPrinter::topMargin() const
-{
-    return topmargin_;
-}
+TextPrinter::~TextPrinter() { delete printer_; }
 
 void TextPrinter::setTopMargin(double margin)
 {
-    // Valeur par defaut = 15mm
     if ((margin > 0) && (margin < printer_->paperRect(units_).height() / 4))
         topmargin_ = margin;
     else
         topmargin_ = 0;
-}
-
-double TextPrinter::bottomMargin() const
-{
-    return bottommargin_;
-}
-
-void TextPrinter::setBottomMargin(double margin)
-{
-    // Valeur par defaut = 15mm
-    if ((margin > 0) && (margin < printer_->paperRect(units_).height() / 4))
-        bottommargin_ = margin;
-    else
-        bottommargin_ = 0;
-}
-
-void TextPrinter::setMargins(double margin)
-{
-    if ((margin > 0)
-            && (margin < printer_->paperRect(units_).height() / 2)
-            && (margin < printer_->paperRect(units_).width() / 2))
-        leftmargin_ = rightmargin_ = topmargin_ = bottommargin_ = margin;
-    else
-        leftmargin_ = rightmargin_ = topmargin_ = bottommargin_ = 0;
-}
-
-double TextPrinter::spacing() const
-{
-    return spacing_;
-}
-
-void TextPrinter::setSpacing(double spacing)
-{
-    // Espace entre le contenu de la page et les blocs d'en-tête et de pied
-    // Valeur par defaut = 5mm
-    if ((spacing > 0) && (spacing <= printer_->paperRect(units_).height() / 4))
-        spacing_ = spacing;
-    else
-        spacing_ = 0;
-}
-
-double TextPrinter::headerSize() const
-{
-    return headersize_;
 }
 
 void TextPrinter::setHeaderSize(double size)
@@ -153,23 +49,6 @@ void TextPrinter::setHeaderSize(double size)
     else
         headersize_ = 0;
 }
-
-double TextPrinter::headerLinePenWidth() const
-{
-    return headerlinepenwidth_;
-}
-
-void TextPrinter::setHeaderLinePenWidth(double pointsize)
-{
-    // Valeur par defaut = 0.5 pt (1/144 inch)
-    headerlinepenwidth_ = qMax(0.0, pointsize);
-}
-
-const QString &TextPrinter::headerText() const
-{
-    return headertext_;
-}
-
 void TextPrinter::setHeaderText(const QString &text)
 {
     headertext_ = text;
@@ -189,22 +68,6 @@ void TextPrinter::setFooterSize(double size)
         footersize_ = 0;
 }
 
-double TextPrinter::footerLinePenWidth() const
-{
-    return footerlinepenwidth_;
-}
-
-void TextPrinter::setFooterLinePenWidth(double pointsize)
-{
-    // Valeur par defaut = 0.5 pt (1/144 inch)
-    footerlinepenwidth_ = qMax(0.0, pointsize);
-}
-
-const QString &TextPrinter::footerText() const
-{
-    return footertext_;
-}
-
 void TextPrinter::setFooterText(const QString &text)
 {
     footertext_ = text;
@@ -215,15 +78,9 @@ void TextPrinter::setDuplex(const QPrinter::DuplexMode duplex)
     duplex_ = duplex;
 }
 
-
-QPrinter::Unit TextPrinter::units() const
+void TextPrinter::setUnits(const Unit value)
 {
-    return units_;
-}
-
-void TextPrinter::setUnits(const enum TextPrinter::Unit value)
-{
-     switch (value)
+    switch (value)
     {
     case TextPrinter::Point:
         units_ = QPrinter::Point;
@@ -351,10 +208,6 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
     return (b>0);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// private methods
-///////////////////////////////////////////////////////////////////////////////
-
 void TextPrinter::setPrinterName(QString printerName)
 {
     if (printerName != "") printer_->setPrinterName(printerName);
@@ -364,6 +217,10 @@ QString TextPrinter::getPrinterName()
 {
     return printer_->printerName();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// private methods
+///////////////////////////////////////////////////////////////////////////////
 
 /*!
  * \brief TextPrinter::QRectF2device
@@ -381,69 +238,6 @@ void TextPrinter::QRectF2device(QRectF *rect, QPaintDevice *device)
     qreal h = rect->height();
     rect->setRect(x * factorX, y * factorY, w * factorX, h * factorY);
 }
-
-/*!
- * \brief TextPrinter::x2device
- * \param x
- * \param device
- * \param unit
- * \return
- * return an x ccordinate expressed in unit to his value in resolution in DPI of the device
- */
-qreal TextPrinter::x2device(qreal x, QPaintDevice *device, QPrinter::Unit unit)
-{
-    qreal correctX;
-    switch (unit) {
-    case QPrinter::Inch:
-        correctX = 1;
-        break;
-    case QPrinter::Point:
-        correctX = 1/72;
-        break;
-    case QPrinter::Millimeter:
-       correctX = 0.039370147;
-       break;
-    default:
-       correctX = 0.039370147;
-       break;
-    }
-    /*! device horizontal resolution by unit */
-    int factorX = device->logicalDpiX() * correctX;
-    /*! number of dots in device resolution for x */
-    return x * factorX;
-}
-
-/*!
- * \brief TextPrinter::x2device
- * \param x
- * \param device
- * \param unit
- * \return
- * return an x ccordinate expressed in unit to his value in resolution in DPI of the device
- */
-qreal TextPrinter::y2device(qreal y, QPaintDevice *device, QPrinter::Unit unit)
-{
-    qreal correctY;
-    switch (unit) {
-    case QPrinter::Inch:
-        correctY = 1;
-        break;
-    case QPrinter::Point:
-        correctY = 1/72;
-        break;
-    case QPrinter::Millimeter:
-       correctY = 0.039370147;
-       break;
-    default:
-        correctY = 0.039370147;
-        break;
-    }
-    /*! device vertical resolution by unit */
-    int factorY = device->logicalDpiY() * correctY;
-    /*! number of dots in device resolution for y */
-    return y * factorY;
-}
-
 
 QRectF TextPrinter::paperRectDPI(QPaintDevice *device)
 {
@@ -758,3 +552,194 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
     tempdoc_->drawContents(painter, clip);
     painter->restore();
 }
+
+
+
+
+
+
+
+
+
+/*! ----------- PAS UTILISÉS --------------------------- */
+QPageSize TextPrinter::pageSize() const
+{
+    return printer_->pageLayout().pageSize();
+}
+
+void TextPrinter::setPageSize(QPageSize size)
+{
+    printer_->setPageSize(size);
+}
+QPageLayout::Orientation TextPrinter::orientation() const { return printer_->pageLayout().orientation();}
+void TextPrinter::setOrientation(QPageLayout::Orientation orientation)
+{
+    // Valeur par defaut = QPageLayout::Portrait
+    QPageLayout lay = printer_->pageLayout();
+    lay.setOrientation(orientation);
+}
+void TextPrinter::setLeftMargin(double margin)
+{
+    // Valeur par defaut = 10mm
+    if ((margin > 0) && (margin < printer_->paperRect(units_).width() / 2))
+        leftmargin_ = margin;
+    else
+        leftmargin_ = 0;
+}
+double TextPrinter::rightMargin() const
+{
+    return rightmargin_;
+}
+void TextPrinter::setRightMargin(double margin)
+{
+    // Valeur par defaut = 10mm
+    if ((margin > 0) && (margin < printer_->paperRect(units_).width() / 2))
+        rightmargin_ = margin;
+    else
+        rightmargin_ = 0;
+}
+double TextPrinter::topMargin() const
+{
+    return topmargin_;
+}
+double TextPrinter::bottomMargin() const
+{
+    return bottommargin_;
+}
+void TextPrinter::setBottomMargin(double margin)
+{
+    // Valeur par defaut = 15mm
+    if ((margin > 0) && (margin < printer_->paperRect(units_).height() / 4))
+        bottommargin_ = margin;
+    else
+        bottommargin_ = 0;
+}
+void TextPrinter::setMargins(double margin)
+{
+    if ((margin > 0)
+            && (margin < printer_->paperRect(units_).height() / 2)
+            && (margin < printer_->paperRect(units_).width() / 2))
+        leftmargin_ = rightmargin_ = topmargin_ = bottommargin_ = margin;
+    else
+        leftmargin_ = rightmargin_ = topmargin_ = bottommargin_ = 0;
+}
+double TextPrinter::spacing() const
+{
+    return spacing_;
+}
+void TextPrinter::setSpacing(double spacing)
+{
+    // Espace entre le contenu de la page et les blocs d'en-tête et de pied
+    // Valeur par defaut = 5mm
+    if ((spacing > 0) && (spacing <= printer_->paperRect(units_).height() / 4))
+        spacing_ = spacing;
+    else
+        spacing_ = 0;
+}
+double TextPrinter::headerSize() const
+{
+    return headersize_;
+}
+double TextPrinter::headerLinePenWidth() const
+{
+    return headerlinepenwidth_;
+}
+void TextPrinter::setHeaderLinePenWidth(double pointsize)
+{
+    // Valeur par defaut = 0.5 pt (1/144 inch)
+    headerlinepenwidth_ = qMax(0.0, pointsize);
+}
+const QString &TextPrinter::headerText() const
+{
+    return headertext_;
+}
+
+double TextPrinter::footerLinePenWidth() const
+{
+    return footerlinepenwidth_;
+}
+void TextPrinter::setFooterLinePenWidth(double pointsize)
+{
+    // Valeur par defaut = 0.5 pt (1/144 inch)
+    footerlinepenwidth_ = qMax(0.0, pointsize);
+}
+const QString &TextPrinter::footerText() const
+{
+    return footertext_;
+}
+QPrinter::Unit TextPrinter::units() const
+{
+    return units_;
+}
+
+
+/*!       PRIVATES      */
+/*!
+ * \brief TextPrinter::x2device
+ * \param x
+ * \param device
+ * \param unit
+ * \return
+ * return an x ccordinate expressed in unit to his value in resolution in DPI of the device
+ */
+qreal TextPrinter::x2device(qreal x, QPaintDevice *device, QPrinter::Unit unit)
+{
+    qreal correctX;
+    switch (unit) {
+    case QPrinter::Inch:
+        correctX = 1;
+        break;
+    case QPrinter::Point:
+        correctX = 1/72;
+        break;
+    case QPrinter::Millimeter:
+       correctX = 0.039370147;
+       break;
+    default:
+       correctX = 0.039370147;
+       break;
+    }
+    /*! device horizontal resolution by unit */
+    int factorX = device->logicalDpiX() * correctX;
+    /*! number of dots in device resolution for x */
+    return x * factorX;
+}
+
+/*!
+ * \brief TextPrinter::y2device
+ * \param x
+ * \param device
+ * \param unit
+ * \return
+ * return an y ccordinate expressed in unit to his value in resolution in DPI of the device
+ */
+qreal TextPrinter::y2device(qreal y, QPaintDevice *device, QPrinter::Unit unit)
+{
+    qreal correctY;
+    switch (unit) {
+    case QPrinter::Inch:
+        correctY = 1;
+        break;
+    case QPrinter::Point:
+        correctY = 1/72;
+        break;
+    case QPrinter::Millimeter:
+       correctY = 0.039370147;
+       break;
+    default:
+        correctY = 0.039370147;
+        break;
+    }
+    /*! device vertical resolution by unit */
+    int factorY = device->logicalDpiY() * correctY;
+    /*! number of dots in device resolution for y */
+    return y * factorY;
+}
+
+
+
+
+
+
+
+
