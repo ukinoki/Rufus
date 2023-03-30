@@ -29,13 +29,13 @@ Utils* Utils::I()
 /*
  * Initialisation des variables static const
 */
-QRegularExpression const Utils::rgx_rx                  = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
+QRegularExpression const Utils::rgx_rx                  = QRegularExpression("[\\w' \\-]*", QRegularExpression::UseUnicodePropertiesOption);
 QRegularExpression const Utils::rgx_AlphaNumeric        = QRegularExpression("[A-Za-z0-9]*");
 QRegularExpression const Utils::rgx_AlphaNumeric_3_12   = QRegularExpression("[A-Za-z0-9]{3,12}$");
 QRegularExpression const Utils::rgx_AlphaNumeric_5_15   = QRegularExpression("[A-Za-z0-9]{5,15}$");
 QRegularExpression const Utils::rgx_AlphaNumeric_5_12   = QRegularExpression("[A-Za-z0-9]{5,12}$");
 QRegularExpression const Utils::rgx_MajusculeSeul       = QRegularExpression("[A-Z]*");
-QRegularExpression const Utils::rgx_Question            = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*[?]*");
+QRegularExpression const Utils::rgx_Question            = QRegularExpression("[\\w'°, \\-]*[?]*", QRegularExpression::UseUnicodePropertiesOption);
 QRegularExpression const Utils::rgx_IPV4                = QRegularExpression("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
 QRegularExpression const Utils::rgx_IPV4_mask           = QRegularExpression("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                                                                             "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
@@ -45,19 +45,16 @@ QRegularExpression const Utils::rgx_IPV4_mask           = QRegularExpression("(2
 QRegularExpression const Utils::rgx_mail                = QRegularExpression("^[A-Za-z0-9_-]+(.[A-Za-z0-9_-]+)+@[A-Za1-z0-9_-]+(.[A-Za1-z0-9_-]+).[A-Za-z0-9_-]{2,6}");
 QRegularExpression const Utils::rgx_NNI                 = QRegularExpression("[12][0-9]{14}");
 
-QRegularExpression const Utils::rgx_adresse             = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*");
-QRegularExpression const Utils::rgx_intitulecompta      = QRegularExpression("[/%éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*");
-/*! QRegularExpression const Utils::rgx_intitulecompta  = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -/%]*");
- *  ne marche pas sous Qt6 et laisse tout passer - il faut mettre le front slash et le % devant pour que ça marche
- *  bug ou c'est moi qui n'ai rien compris ????? */
-QRegularExpression const Utils::rgx_CP                  = QRegularExpression("[0-9]{5}");
-QRegularExpression const Utils::rgx_ville               = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
+QRegularExpression const Utils::rgx_adresse             = QRegularExpression("[\\w'°, \\-]*", QRegularExpression::UseUnicodePropertiesOption);
+QRegularExpression const Utils::rgx_intitulecompta      = QRegularExpression("[\\w'°, \\-/%]*", QRegularExpression::UseUnicodePropertiesOption);
+QRegularExpression const Utils::rgx_CP                  = QRegularExpression("[A-Z0-9]*");
+QRegularExpression const Utils::rgx_ville               = QRegularExpression("[\\w' \\-]*", QRegularExpression::UseUnicodePropertiesOption);
 QRegularExpression const Utils::rgx_telephone           = QRegularExpression("[0-9 ]*");
 
 QRegularExpression const Utils::rgx_tabac               = QRegularExpression("[0-9]{2}");
 QRegularExpression const Utils::rgx_cotation            = QRegularExpression("[a-zA-Z0-9.+/ ]*");
 
-QRegularExpression const Utils::rgx_recherche           = QRegularExpression("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-Z %-]*");
+QRegularExpression const Utils::rgx_recherche           = QRegularExpression("[\\w' %\\-]*");
 
 
 /*!
@@ -696,6 +693,7 @@ QString Utils::calcSHA1(QString mdp)
              else
                  UpMessageBox::Watch(dlg_askMDP, QObject::tr("Mot de passe invalide!"));
          });
+         connect(ConfirmMDP, &UpLineEdit::returnPressed, dlg_askMDP->OKButton, &QPushButton::click);
          dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
          dlg_askMDP->dlglayout()->setSpacing(8);
          mdpval = ConfirmMDP->text();

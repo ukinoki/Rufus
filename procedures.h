@@ -86,7 +86,7 @@ private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     QSettings               *m_settings = Q_NULLPTR;
     ParametresSysteme       *m_parametres;
-    Controller              m_controller;
+    OsTask                  m_ostask;
 
 public:
     static Procedures       *I();

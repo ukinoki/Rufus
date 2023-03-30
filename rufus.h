@@ -196,6 +196,7 @@ private:
     void        SaisieFSE();
     void        SalleDAttente();
     void        SurbrillanceSalDat(UpLabel *lab);
+    void        Apropos();
 
 
     // la liste de cotations en cours d'utilisation
@@ -414,6 +415,7 @@ private:
     QAction         *actionBilanRecettes            = Q_NULLPTR;
     QAction         *actionJournalDepenses          = Q_NULLPTR;
     QAction         *actionRemiseCheques            = Q_NULLPTR;
+    QAction         *actionApropos                  = Q_NULLPTR;
     QAction         *actionQuit                     = Q_NULLPTR;
 };
 

@@ -5,57 +5,51 @@
 #include <QThread>
 #include <QDebug>
 
-class OsTask : public QObject
+class OsTask : public QProcess
 {
     Q_OBJECT
-public slots:
-    void        executeScript(const QString &script)
+
+public:
+    OsTask()
     {
-        //qDebug() << script;
-        QProcess dumpProcess(parent());
-        dumpProcess.startCommand(script);
-        dumpProcess.waitForFinished(1000000000);
+        connect(this, &QProcess::finished, this, &OsTask::handleResults);
+    }
+
+    ~OsTask()
+    {
+        if (!isFinished()) {
+            qDebug() << "Waiting for Controller to finish...";
+            waitForFinished(-1);
+        }
+    }
+
+    bool isFinished()
+    {
+        return waitForFinished(1);
+    }
+
+    void execute(const QString &script)
+    {
+        if (!isFinished()) {
+            qDebug() << "Waiting for Controller to finish...";
+            waitForFinished(-1);
+        }
+
+        startCommand(script);
+    }
+
+private slots:
+    void handleResults(const int &exitCode)
+    {
         int a = 99;
         //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ExitStatus>(), dumpProcess.exitStatus());
         //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<QProcess::ProcessError>(), dumpProcess.error());
-        if (dumpProcess.exitStatus() == QProcess::NormalExit)
-            a = dumpProcess.exitCode();
-        emit resultReady(a);
+        if (exitStatus() == QProcess::NormalExit)
+            a = exitCode;
+        emit result(a);
     }
 
 signals:
-    void        resultReady(const int &result);
-};
-
-class Controller : public QObject
-{
-    Q_OBJECT
-    QThread OsTaskThread;
-private:
-    OsTask *m_task = Q_NULLPTR;
-public:
-    ~Controller() {
-        OsTaskThread.quit();
-        OsTaskThread.wait();
-    }
-    void execute(const QString &script)
-    {
-        disconnect(SIGNAL(operate(const QString &)));
-        OsTaskThread.disconnect();
-        if (m_task != Q_NULLPTR)
-            delete m_task;
-        m_task = new OsTask();
-        m_task->moveToThread(&OsTaskThread);
-        connect(&OsTaskThread,  &QThread::finished,     m_task, &QObject::deleteLater);
-        connect(this,           &Controller::operate,   m_task, &OsTask::executeScript);
-        connect(m_task,         &OsTask::resultReady,   this,   &Controller::handleResults);
-        OsTaskThread.start();
-        emit operate(script);
-    }
-private slots:
-    void handleResults(const int &a) { emit result(a);}
-signals:
-    void operate(const QString &);
     void result(const int &a);
 };
 #endif // OSTASK_H

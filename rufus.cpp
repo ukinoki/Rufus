@@ -4937,6 +4937,30 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     }
 }
 
+/**
+ * Affiche la fenêtre d'information sur Rufus
+ */
+void Rufus::Apropos()
+{
+    QString text = tr("Rufus est un logiciel libre - open source - publié sous licence GPLv3 de gestion d'activité en ophtalmologie et en orthoptie.") + "\n" +
+            tr("En savoir plus sur RufusVision : ") + "https://www.rufusvision.org" + "\n\n";
+
+#ifdef Q_OS_WIN
+    QString os = "Windows";
+#elif defined(Q_OS_MAC)
+    QString os = "MacOS";
+#elif defined(Q_OS_LINUX)
+    QString os = "Linux";
+#endif
+    text +=
+        tr("RufusVision pour ") + os + "\n"
+        + tr("Version ") + qApp->applicationVersion() + "\n"
+        + "\n"
+        + tr("Rufus utilise MySQL ou MariaDB pour intéragir avec la base de données. Ces logiciels sont publiés sous licence GNU GPL.") + "\n";
+
+    UpMessageBox::Information(this, tr("A propos de RufusVision"), text);
+}
+
 // utilisé par le poste importateur des documents pour supprimer les documents et les factures
 // ayant été inscrits dans les tables DocsASupprimer et FacturesASupprimer
 // par les autres postes
@@ -7467,11 +7491,12 @@ void Rufus::CreerMenu()
     actionGestionComptesBancaires   = new QAction(tr("Gestion des comptes bancaires"));
     actionRemiseCheques             = new QAction(tr("Effectuer une remise de chèques"));
 
-    QAction *Apropos                = new QAction(tr("A propos"));
+    actionApropos                   = new QAction(tr("A propos"));
     actionQuit                      = new QAction(tr("Quitter"));
     actionQuit                      ->setMenuRole(QAction::PreferencesRole);
     // Les connect des actions --------------------------------------------------------------------------------------------------
     connect (actionQuit,                        &QAction::triggered,        this,                   &Rufus::close);
+    connect (actionApropos,                     &QAction::triggered,        this,                   &Rufus::Apropos);
     connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::ModeCreationDossier);
     connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::ModeSelectDepuisListe);
     connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] { SupprimerDossier(currentpatient()); });
@@ -7514,9 +7539,10 @@ void Rufus::CreerMenu()
 // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     menuDossier         = menuBar()->addMenu(tr("Dossier"));
     menuEdition         = menuBar()->addMenu(tr("Edition"));
-    menuActe            = new QMenu(this);
     if (currentuser()->isSoignant())
         menuActe        = menuBar()->addMenu(tr("Acte"));
+    else
+        menuActe        = Q_NULLPTR;
     menuDocuments       = menuBar()->addMenu(tr("Documents"));
     menuEmettre         = menuDocuments->addMenu(tr("Emettre"));
     menuComptabilite    = menuBar()->addMenu(tr("Comptabilité"));
@@ -7532,12 +7558,12 @@ void Rufus::CreerMenu()
     menuDossier->addAction(actionRechercheParID);
 
 #ifdef Q_OS_MACX
-    menuBar()   ->addAction(Apropos);
+    menuBar()   ->addAction(actionApropos);
     menuBar()   ->addAction(actionQuit);
 #endif
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     menuAide    = menuBar()->addMenu(tr("Aide"));
-    menuAide    ->addAction(Apropos);
+    menuAide    ->addAction(actionApropos);
     menuDossier ->addAction(actionQuit);
 #endif
 
@@ -7548,8 +7574,10 @@ void Rufus::CreerMenu()
     menuEdition->addAction(actionParametres);
     menuEdition->addAction(actionResumeStatut);
 
-    menuActe    ->addAction(actionCreerActe);
-    menuActe    ->addAction(actionSupprimerActe);
+    if(menuActe != Q_NULLPTR) {
+        menuActe    ->addAction(actionCreerActe);
+        menuActe    ->addAction(actionSupprimerActe);
+    }
 
     menuEmettre ->addAction(actionEmettreDocument);
     menuEmettre ->addAction(actionExportActe);
@@ -7567,7 +7595,10 @@ void Rufus::CreerMenu()
     menuComptabilite->addAction(actionTiers);
 
     // Les connect des menus --------------------------------------------------------------------------------------------------
-    connect (menuActe,                          &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
+    if(menuActe != Q_NULLPTR)
+        connect (menuActe,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
+    if(menuAide != Q_NULLPTR)
+        connect (menuAide,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuAide);});
     connect (menuEdition,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuEdition);});
     connect (menuDocuments,                     &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDocuments);});
     connect (menuDossier,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDossier);});
