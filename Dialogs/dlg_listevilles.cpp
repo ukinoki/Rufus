@@ -62,39 +62,25 @@ dlg_listevilles::dlg_listevilles(QWidget *parent) :
     connect (OKButton,                      &QPushButton::clicked,      this,   &dlg_listevilles::accept);
 
     connect (wdg_buttonframe,               &WidgetButtonFrame::choix,  this,   &dlg_listevilles::ChoixButtonFrame);
-    connect (wdg_buttonframe->searchline(), &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
-                                                                                                    wdg_buttonframe->searchline()->setText(txt);
-                                                                                                    for (int i = 0; i < Datas::I()->villes->ListeNomsVilles().size(); ++i)
-                                                                                                    {
-                                                                                                        QString nomville = Datas::I()->villes->ListeNomsVilles().at(i);
-                                                                                                        if (nomville.toUpper().startsWith(txt.toUpper()))
-                                                                                                        {
-                                                                                                            QList<QStandardItem *> listitm = m_model->findItems(nomville,Qt::MatchExactly,1);
-                                                                                                            if (listitm.size())
-                                                                                                            {
-                                                                                                                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listitm.at(0));
-                                                                                                                if (itm)
-                                                                                                                {
-                                                                                                                    Ville *ville = dynamic_cast<Ville*>(itm->item());
-                                                                                                                    if (ville)
-                                                                                                                        selectcurrentVille(ville, QAbstractItemView::PositionAtCenter);
-                                                                                                                }
-                                                                                                            }
-                                                                                                            break;
-                                                                                                        }
-                                                                                                    }
-                                                                                                    });
-    connect(m_complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] (QString s) {
-        for (auto it = Datas::I()->villes->villes()->constBegin(); it != Datas::I()->villes->villes()->constEnd(); ++it)
-        {
-            Ville *ville = const_cast<Ville*>(it.value());
-            if (ville->nom() == s)
-            {
-                selectcurrentVille(ville, QAbstractItemView::PositionAtCenter);
-                break;
-            }
+    connect (wdg_buttonframe->searchline(), &QLineEdit::textEdited,     this,   [=] (QString txt) {
+        QString txtTrim = Utils::trimcapitilize(txt, false, true);
+        if (txtTrim != txt) {
+            // mettre à jour en conservant la position du curseur
+            int pos = wdg_buttonframe->searchline()->cursorPosition();
+            if(txtTrim.length() < txt.length())
+                pos--; // le trim est fait sur un (et un seul) caractère proche du curseur
+            wdg_buttonframe->searchline()->setText(txtTrim);
+            wdg_buttonframe->searchline()->setCursorPosition(pos);
         }
-                                                                                                  });
+        // Sélectionner la première ville correspondante
+        Ville *ville = getVilleFromNom(txtTrim);
+        selectcurrentVille(ville);
+    });
+    connect(m_complListVilles, QOverload<const QString &>::of(&QCompleter::activated), this, [=](QString s) {
+        // cliquer sur une ville => la sélectionner
+        Ville *ville = getVilleFromNom(s);
+        selectcurrentVille(ville, QAbstractItemView::PositionAtCenter);
+    });
 
     RemplirTableView();
     if (m_model->rowCount()>0)
@@ -173,6 +159,24 @@ Ville* dlg_listevilles::getVilleFromIndex(QModelIndex idx)
         return Q_NULLPTR;
 }
 
+// ------------------------------------------------------------------------------------------
+// renvoie la ville correspondant au nom
+// ------------------------------------------------------------------------------------------
+Ville* dlg_listevilles::getVilleFromNom(QString nomVille, Qt::MatchFlag flags)
+{
+    QList<QStandardItem *> listitm = m_model->findItems(nomVille,flags,1);
+    if (listitm.size())
+    {
+        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listitm.at(0));
+        if (itm)
+        {
+            Ville *ville = dynamic_cast<Ville*>(itm->item());
+            return ville;
+        }
+    }
+    return Q_NULLPTR;
+}
+
 void dlg_listevilles::MenuContextuel()
 {
     QMenu *menuContextuel = new QMenu(this);
@@ -197,13 +201,27 @@ void dlg_listevilles::MenuContextuel()
     delete menuContextuel;
 }
 
+void dlg_listevilles::ClickerVille(QModelIndex idx)
+{
+    m_currentville = getVilleFromIndex(idx);
+    if (m_currentville)
+    {
+       wdg_buttonframe->searchline()->setText(m_currentville->nom());
+       wdg_buttonframe->searchline()->selectAll();
+       wdg_buttonframe->searchline()->setFocus();
+    }
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentville != Q_NULLPTR);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentville != Q_NULLPTR);
+}
+
 // ----------------------------------------------------------------------------------
 // Remplissage de la tablewidgetavec les villes de la base.
 // ----------------------------------------------------------------------------------
 void dlg_listevilles::RemplirTableView()
 {
     wdg_tblview->disconnect();
-    wdg_tblview->selectionModel()->disconnect();
+    if (wdg_tblview->selectionModel() != Q_NULLPTR)
+        wdg_tblview->selectionModel()->disconnect();
     if (m_model != Q_NULLPTR)
         delete m_model;
     m_model = new UpStandardItemModel();
@@ -255,21 +273,7 @@ void dlg_listevilles::RemplirTableView()
             m_currentville = ville;
     });
     connect (wdg_tblview,    &QWidget::customContextMenuRequested,      this,   &dlg_listevilles::MenuContextuel);
-    connect (wdg_tblview->selectionModel(),
-             &QItemSelectionModel::currentRowChanged,
-             this,
-             [&] (QModelIndex idx)
-    {
-        m_currentville = getVilleFromIndex(idx);
-        if (m_currentville)
-        {
-            wdg_buttonframe->searchline()->setText(m_currentville->nom());
-            wdg_buttonframe->searchline()->selectAll();
-            wdg_buttonframe->searchline()->setFocus();
-        }
-        wdg_buttonframe->wdg_moinsBouton->setEnabled(m_currentville != Q_NULLPTR);
-        wdg_buttonframe->wdg_modifBouton->setEnabled(m_currentville != Q_NULLPTR);
-    });
+    connect (wdg_tblview->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &dlg_listevilles::ClickerVille);
     m_currentville = Q_NULLPTR;
     wdg_buttonframe->wdg_moinsBouton->setEnabled(m_mapvilles->size()>0);
     wdg_buttonframe->wdg_modifBouton->setEnabled(m_mapvilles->size()>0);
@@ -372,10 +376,7 @@ void dlg_listevilles::SupprimmVille(Ville* ville)
             QList<Ville*> listville = Datas::I()->villes->getVilleByCodePostalEtNom(cp, nom);
             if (listville.size() >0)
                 ville = listville.at(0);
-            RemplirTableView();
-            QStringListModel *model = dynamic_cast<QStringListModel*> (m_complListVilles->completionModel());
-            if (model)
-                model->setStringList(Datas::I()->villes->ListeNomsVilles());
+            actualiserListeVillesEtFocus(Q_NULLPTR);
             if (ville != Q_NULLPTR)
                 selectcurrentVille(ville);
         }
@@ -385,45 +386,50 @@ void dlg_listevilles::SupprimmVille(Ville* ville)
 void dlg_listevilles::ModifieVille(Ville *ville)
 {
     dialogville(ville->codepostal(), ville->nom());
-    connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
-                                                                        if (!ChercheDoublon(Utils::trimcapitilize(cpline->text()), Utils::trimcapitilize(nomline->text())))
-                                                                        {
-                                                                            ItemsList::update(ville, CP_CP_AUTRESVILLES,  Utils::trimcapitilize(cpline->text().toUpper()));
-                                                                            ItemsList::update(ville, CP_NOM_AUTRESVILLES, Utils::trimcapitilize(nomline->text()));
-                                                                            Datas::I()->villes->ReinitMaps();
-                                                                            dlg_ask->close();
-                                                                            RemplirTableView();
-                                                                            QStringListModel *model = dynamic_cast<QStringListModel*> (m_complListVilles->model());
-                                                                            if (model)
-                                                                                model->setStringList(Datas::I()->villes->ListeNomsVilles());
-                                                                            selectcurrentVille(ville);
-                                                                            wdg_buttonframe->searchline()->setText(ville->nom());
-                                                                            wdg_buttonframe->searchline()->selectAll();
-                                                                            wdg_buttonframe->searchline()->setFocus();
-                                                                        }
-                                                                    });
+    connect(dlg_ask->OKButton, &QPushButton::clicked, this, [=] {
+        QString cp = Utils::trimcapitilize(cpline->text().toUpper());
+        QString nom = Utils::trimcapitilize(nomline->text());
+        if (!ChercheDoublon(Utils::trimcapitilize(cpline->text()), Utils::trimcapitilize(nomline->text())))
+        {
+            ItemsList::update(ville, CP_CP_AUTRESVILLES, cp);
+            ItemsList::update(ville, CP_NOM_AUTRESVILLES, nom);
+            Datas::I()->villes->ReinitMaps();
+            dlg_ask->close();
+            actualiserListeVillesEtFocus(ville);
+        }
+    });
     dlg_ask->exec();
 }
 
 void dlg_listevilles::EnregistreNouvelleVille()
 {
     dialogville("","");
-    connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
-                                                                        Ville * ville = Datas::I()->villes->enregistreNouvelleVille(Utils::trimcapitilize(cpline->text()), Utils::trimcapitilize(nomline->text()));
-                                                                        if (ville != Q_NULLPTR)
-                                                                        {
-                                                                            RemplirTableView();
-                                                                            QStringListModel *model = dynamic_cast<QStringListModel*> (m_complListVilles->model());
-                                                                            if (model)
-                                                                                model->setStringList(Datas::I()->villes->ListeNomsVilles());
-                                                                            selectcurrentVille(ville);
-                                                                            dlg_ask->close();
-                                                                            wdg_buttonframe->searchline()->setText(ville->nom());
-                                                                            wdg_buttonframe->searchline()->selectAll();
-                                                                            wdg_buttonframe->searchline()->setFocus();
-                                                                        }
-                                                                    });
+    connect(dlg_ask->OKButton, &QPushButton::clicked, this, [=] {
+        QString cp = Utils::trimcapitilize(cpline->text());
+        QString nom = Utils::trimcapitilize(nomline->text());
+        Ville *ville = Datas::I()->villes->enregistreNouvelleVille(cp, nom);
+        if (ville != Q_NULLPTR)
+        {
+            dlg_ask->close();
+            actualiserListeVillesEtFocus(ville);
+        }
+    });
     dlg_ask->exec();
+}
+
+void dlg_listevilles::actualiserListeVillesEtFocus(Ville *focusVille)
+{
+    RemplirTableView();
+    QStringListModel *model = dynamic_cast<QStringListModel *>(m_complListVilles->model());
+    if (model)
+        model->setStringList(Datas::I()->villes->ListeNomsVilles());
+    if (focusVille != Q_NULLPTR)
+    {
+        selectcurrentVille(focusVille);
+        wdg_buttonframe->searchline()->setText(focusVille->nom());
+        wdg_buttonframe->searchline()->selectAll();
+        wdg_buttonframe->searchline()->setFocus();
+    }
 }
 
 void dlg_listevilles::dialogville(QString cp, QString nom)
@@ -470,7 +476,18 @@ void dlg_listevilles::dialogville(QString cp, QString nom)
     dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
     dlg_ask->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
-    connect (nomline,       &QLineEdit::textEdited,                  this,   [=] {nomline->setText(Utils::trimcapitilize(nomline->text(),false));;});
+    connect (nomline,       &QLineEdit::textEdited,                  this,   [=] {
+        QString txtTrim = Utils::trimcapitilize(nomline->text(),false);
+
+        if (txtTrim != nomline->text()) {
+            // mettre à jour en conservant la position du curseur
+            int pos = nomline->cursorPosition();
+            if(txtTrim.length() < nomline->text().length())
+                pos--; // le trim est fait sur un (et un seul) caractère proche du curseur
+            nomline->setText(txtTrim);
+            nomline->setCursorPosition(pos);
+        }
+    });
     connect (dlg_ask->CancelButton, &QPushButton::clicked,  dlg_ask, &QDialog::reject);
     nomline                 ->setFocus();
 }

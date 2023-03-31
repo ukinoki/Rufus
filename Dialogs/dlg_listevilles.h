@@ -50,13 +50,16 @@ private:
     void                        ChoixButtonFrame();
     void                        ChoixMenuContextuel(QString);
     Ville*                      getVilleFromIndex(QModelIndex idx);
+    Ville*                      getVilleFromNom(QString nomVille, Qt::MatchFlag flags = Qt::MatchExactly);
     void                        MenuContextuel();
+    void                        ClickerVille(QModelIndex idx);
     void                        RemplirTableView();
     void                        selectcurrentVille(Ville *ville, QAbstractItemView::ScrollHint hint = QAbstractItemView::EnsureVisible);
     void                        setVilleToRow(Ville *ville, int row);
     void                        SupprimmVille(Ville *ville);
     void                        EnregistreNouvelleVille();
     void                        ModifieVille(Ville *ville);
+    void                        actualiserListeVillesEtFocus(Ville *focusVille = Q_NULLPTR);
     void                        dialogville(QString cp, QString nom);
 };
 
