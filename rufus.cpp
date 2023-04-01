@@ -8109,16 +8109,27 @@ void Rufus::InitEventFilters()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitMenus()
 {
-    bool a = (currentuser()->isLiberal() || currentuser()->isSecretaire());
+    bool a = (currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie());
     actionPaiementTiers             ->setVisible(a);
-    actionPaiementDirect            ->setVisible(a || (currentuser()->isSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
+    actionPaiementDirect            ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
     actionBilanRecettes             ->setVisible(a);
-    actionRecettesSpeciales         ->setVisible(currentuser()->isComptable());
+    actionRecettesSpeciales         ->setVisible(currentuser()->isComptableActes() || currentuser()->isLiberalSEL());
     actionJournalDepenses           ->setVisible(a);
-    actionGestionComptesBancaires   ->setVisible(currentuser()->isComptable());
+    actionGestionComptesBancaires   ->setVisible(currentuser()->isComptableActes() || currentuser()->isLiberalSEL());
     actionRemiseCheques             ->setVisible(a);
-    menuComptabilite                ->setVisible(a || (currentuser()->isSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
+    menuComptabilite                ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
     actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
+    /* Mada
+    actionPaiementTiers             ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSocComptable());
+    actionPaiementDirect            ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSalarie() || currentuser()->isRemplacant());
+    actionBilanRecettes             ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSalarie() || currentuser()->isComptable());
+    actionRecettesSpeciales         ->setVisible(currentuser()->isComptable());
+    actionJournalDepenses           ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire());
+    actionGestionComptesBancaires   ->setVisible(currentuser()->isLiberal() || currentuser()->isComptable());
+    actionRemiseCheques             ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSocComptable());
+    menuComptabilite                ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSocComptable());
+    actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
+    */
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

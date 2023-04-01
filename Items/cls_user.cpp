@@ -69,7 +69,6 @@ void User::setData(QJsonObject data)
     Utils::setDataInt(data, CP_POSTE_USR, m_poste);
     Utils::setDataInt(data, CP_IDEMPLOYEUR_USR, m_employeur);
     Utils::setDataInt(data, CP_ISMEDECIN_USR, m_medecin);
-    Utils::setDataInt(data, CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR, m_idCompteEncaissHonoraires);
     Utils::setDataInt(data, CP_ENREGHONORAIRES_USR, m_enregHonoraires);
     Utils::setDataInt(data, CP_SECTEUR_USR, m_secteur);
 
@@ -138,6 +137,7 @@ User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
     case 2: return Salarie;
     case 3: return Retrocession;
     case 4: return NoCompta;
+    case 5: return LiberalSEL;
     }
     return NoCompta;
 }
@@ -170,10 +170,11 @@ bool User::isAutreSoignant()                        { return metier() == AutreSo
 bool User::isNonSoignant()                          { return metier() == NonSoignant; }
 bool User::isSocComptable()                         { return metier() == SocieteComptable; }
 bool User::isNeutre()                               { return metier() == Neutre; }
-bool User::isComptable()                            { return isLiberal() || isSocComptable(); }
+bool User::isComptableActes()                       { return isLiberal() || isSocComptable(); }
 bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
 bool User::isLiberal()                              { return isSoignant() && modeenregistrementhonoraires() == Liberal; }
-bool User::isSalarie()                              { return isSoignant() && modeenregistrementhonoraires() == Salarie; }
+bool User::isLiberalSEL()                           { return isSoignant() && modeenregistrementhonoraires() == LiberalSEL; }
+bool User::isSoignantSalarie()                      { return isSoignant() && modeenregistrementhonoraires() == Salarie; }
 bool User::isRemplacant()                           { return isSoignant() && modeenregistrementhonoraires() == Retrocession; }
 bool User::isSansCompta()                           { return modeenregistrementhonoraires() == NoCompta; }
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }

@@ -528,7 +528,7 @@ lieux d'activité</string>
           <rect>
            <x>0</x>
            <y>280</y>
-           <width>481</width>
+           <width>491</width>
            <height>185</height>
           </rect>
          </property>
@@ -536,9 +536,9 @@ lieux d'activité</string>
           <property name="geometry">
            <rect>
             <x>5</x>
-            <y>5</y>
-            <width>170</width>
-            <height>140</height>
+            <y>0</y>
+            <width>191</width>
+            <height>160</height>
            </rect>
           </property>
           <property name="contextMenuPolicy">
@@ -573,7 +573,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>8</x>
-             <y>110</y>
+             <y>130</y>
              <width>160</width>
              <height>22</height>
             </rect>
@@ -595,7 +595,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>8</x>
-             <y>50</y>
+             <y>73</y>
              <width>160</width>
              <height>22</height>
             </rect>
@@ -617,7 +617,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>8</x>
-             <y>75</y>
+             <y>97</y>
              <width>160</width>
              <height>22</height>
             </rect>
@@ -645,7 +645,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>95</y>
+             <y>116</y>
              <width>151</width>
              <height>16</height>
             </rect>
@@ -654,12 +654,31 @@ lieux d'activité</string>
             <enum>Qt::Horizontal</enum>
            </property>
           </widget>
+          <widget class="UpRadioButton" name="ComptaLiberalSELupRadioButton">
+           <property name="geometry">
+            <rect>
+             <x>8</x>
+             <y>49</y>
+             <width>171</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Activité libérale en SEL</string>
+           </property>
+          </widget>
          </widget>
          <widget class="UpRadioButton" name="AGAupRadioButton">
           <property name="geometry">
            <rect>
             <x>13</x>
-            <y>152</y>
+            <y>165</y>
             <width>151</width>
             <height>22</height>
            </rect>
@@ -674,59 +693,21 @@ lieux d'activité</string>
            <string>Membre d'une AGA</string>
           </property>
          </widget>
-         <widget class="QWidget" name="CompteActeswidget" native="true">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>10</y>
-            <width>298</width>
-            <height>71</height>
-           </rect>
-          </property>
-          <widget class="UpComboBox" name="CompteActescomboBox">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>40</y>
-             <width>297</width>
-             <height>26</height>
-            </rect>
-           </property>
-           <property name="toolTip">
-            <string>Le compte bancaire utilisé par défaut
-pour l'encaissement des honoraires</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="CompteActeslabel">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>208</width>
-             <height>41</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Compte bancaire utilisé
-pour l'enregistrement des actes</string>
-           </property>
-          </widget>
-         </widget>
          <widget class="QWidget" name="CompteComptawidget" native="true">
           <property name="geometry">
            <rect>
-            <x>180</x>
+            <x>190</x>
             <y>80</y>
             <width>298</width>
             <height>51</height>
            </rect>
           </property>
-          <widget class="UpComboBox" name="CompteComptacomboBox">
+          <widget class="UpComboBox" name="CompteParDefautcomboBox">
            <property name="geometry">
             <rect>
-             <x>0</x>
+             <x>20</x>
              <y>20</y>
-             <width>297</width>
+             <width>270</width>
              <height>26</height>
             </rect>
            </property>
@@ -734,7 +715,7 @@ pour l'enregistrement des actes</string>
           <widget class="QLabel" name="CompteComptalabel">
            <property name="geometry">
             <rect>
-             <x>0</x>
+             <x>20</x>
              <y>0</y>
              <width>271</width>
              <height>21</height>
@@ -751,7 +732,7 @@ pour l'enregistrement des actes</string>
           </property>
           <property name="geometry">
            <rect>
-            <x>266</x>
+            <x>270</x>
             <y>137</y>
             <width>210</width>
             <height>35</height>
@@ -770,7 +751,7 @@ pour l'enregistrement des actes</string>
          <widget class="QWidget" name="Employeurwidget" native="true">
           <property name="geometry">
            <rect>
-            <x>180</x>
+            <x>190</x>
             <y>10</y>
             <width>298</width>
             <height>51</height>
@@ -779,9 +760,9 @@ pour l'enregistrement des actes</string>
           <widget class="UpComboBox" name="EmployeurcomboBox">
            <property name="geometry">
             <rect>
-             <x>0</x>
+             <x>20</x>
              <y>20</y>
-             <width>297</width>
+             <width>270</width>
              <height>26</height>
             </rect>
            </property>
@@ -789,7 +770,7 @@ pour l'enregistrement des actes</string>
           <widget class="QLabel" name="Employeurlabel">
            <property name="geometry">
             <rect>
-             <x>0</x>
+             <x>20</x>
              <y>0</y>
              <width>271</width>
              <height>21</height>

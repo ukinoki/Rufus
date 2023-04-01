@@ -34,7 +34,7 @@ private:
     QMap<int, User*> *map_superviseurs = Q_NULLPTR;    //!< map des superviseurs : User->isResponsable()
     QMap<int, User*> *map_parents = Q_NULLPTR;         //!< map des parents : User->isSoignant() && !User->isRemplacant()
     QMap<int, User*> *map_liberaux = Q_NULLPTR;        //!< map des liberaux : User->isLiberal()
-    QMap<int, User*> *map_comptables = Q_NULLPTR;      //!< map des comptables : User->isSocComptable() || User->isLiberal()
+    QMap<int, User*> *map_comptablesactes = Q_NULLPTR;      //!< map des comptables : User->isSocComptable() || User->isLiberal()
     QMap<int, User*> *map_medecins = Q_NULLPTR;        //!< map des medecins : User->isMedecin()
     bool add(User *usr);
     void addList(QList<User*> listusr);
@@ -58,7 +58,7 @@ public:
     void        reload(User* usr);
     bool        recalcStatut(User* usr);
     void        initListe();
-    void        initShortListe();
+    void        CalcCompteEncaissementActes (User *usr);
     void        remplaceUserListes(User *usr);
     void        SupprimeUser(User *usr);
     User*       userconnected()     { return getById(DataBase::I()->idUserConnected()); }

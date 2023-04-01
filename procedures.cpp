@@ -165,7 +165,7 @@ bool Procedures::AutresPostesConnectes(bool msg)
 {
     /*! avant la mise à jour 61, on ne peut pas utiliser Datas::I()->users->initListe() parce que le champ DateCreationMDP de la table utilisateurs n'existe pas */
     if (Datas::I()->users->all()->isEmpty())
-        Datas::I()->users       ->initShortListe();
+        Datas::I()->users       ->initListe();
     Datas::I()->postesconnectes->initListe();
     int id = 0;
     if (Datas::I()->users->userconnected() != Q_NULLPTR)
@@ -1164,7 +1164,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             {
                 QVariantList soigndata = db->getFirstRecordFromStandardSelectSQL("select " CP_SOIGNANTSTATUS_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " = " + QString::number(user->id()), m_ok);
                 QString req   = "select " CP_ID_USR ", " CP_LOGIN_USR " from " TBL_UTILISATEURS
-                        " where (" CP_ENREGHONORAIRES_USR " = 1 or " CP_ENREGHONORAIRES_USR " = 2)"
+                        " where (" CP_ENREGHONORAIRES_USR " = 1 or " CP_ENREGHONORAIRES_USR " = 2 or " CP_ENREGHONORAIRES_USR " = 5)"
                         " and " CP_ID_USR " <> " + QString::number(user->id()) +
                         " and " CP_SOIGNANTSTATUS_USR " = " + soigndata.at(0).toString() +
                         " and " CP_ISDESACTIVE_USR " is null";
@@ -1974,7 +1974,7 @@ QString Procedures::SessionStatus()
     bool responsableles2= currentuser()->isResponsableOuAssistant();
 
     bool liberal        = currentuser()->isLiberal();
-    bool pasliberal     = currentuser()->isSalarie();
+    bool pasliberal     = currentuser()->isSoignantSalarie();
     bool retrocession   = currentuser()->isRemplacant();
     bool pasdecompta    = currentuser()->isSansCompta();
 
@@ -3033,7 +3033,7 @@ bool Procedures::Connexion_A_La_Base()
     m_listbinds[CP_DATEDEBUT_SESSIONS]      = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     Datas::I()->sessions->CreationSession(m_listbinds);
 
-    if (Datas::I()->sites->currentsite() == Q_NULLPTR)
+    if (Datas::I()->sites->currentsite() == Q_NULLPTR && currentuser()->isSoignant())
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     m_connexionbaseOK = true;
 
@@ -3263,7 +3263,6 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             CP_DROITS_USR " = '" OPHTALIBERAL "', \n"
             CP_ENREGHONORAIRES_USR " = 1,\n"
             CP_IDCOMPTEPARDEFAUT_USR " = " + idcpt + ",\n"
-            CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + idcpt + ",\n"
             CP_SOIGNANTSTATUS_USR " = 1,\n"
             CP_ISMEDECIN_USR " = 1,\n"
             CP_RESPONSABLEACTES_USR " = 1,\n"
@@ -3615,7 +3614,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                     continue;
                                 if( usr->id() == currentuser()->idsuperviseur() )
                                     continue;
-                                if( !usr->isLiberal() && !usr->isSalarie() )
+                                if( !usr->isLiberal() && !usr->isSoignantSalarie() )
                                     continue;
                                 listUserFound << usr;
                             }
@@ -3683,7 +3682,9 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                      m_aveccomptaprovisoire = !usrparent->isSansCompta();
                     if( usrparent->isLiberal() )
                         currentuser()->setidcomptable(usrparent->id());
-                    else if( usrparent->isSalarie() )
+                    else if( usrparent->isLiberalSEL() )
+                        currentuser()->setidcomptable(usrparent->idemployeur());
+                    else if( usrparent->isSoignantSalarie() )
                         currentuser()->setidcomptable(usrparent->idemployeur());
                     else
                         currentuser()->setidcomptable(User::ROLE_NON_RENSEIGNE);
@@ -3737,16 +3738,12 @@ void Procedures::MAJComptesBancaires(User *usr)
     if (!usr)
         return;
     usr->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
-    if (usr->isSalarie())
-    {
-        User *employer = Datas::I()->users->getById(usr->idemployeur());
-        usr->setidcompteencaissementhonoraires(employer? employer->idcompteencaissementhonoraires() : 0);
-    }
-    else if (usr->idcomptable() > 0)
-    {
-        User *cptble = Datas::I()->users->getById(usr->idcomptable());
-        usr->setidcompteencaissementhonoraires(cptble? cptble->idcompteencaissementhonoraires() : 0);
-    }
+    if (usr->isRemplacant())
+        if (usr->idcomptable() > 0)
+        {
+            User *cptble = Datas::I()->users->getById(usr->idcomptable());
+            usr->setidcompteencaissementhonoraires(cptble? cptble->idcompteencaissementhonoraires() : 0);
+        }
 }
 
 /*!
@@ -3875,7 +3872,7 @@ void Procedures::CalcUserParent()
             User *usr = const_cast<User*>(it.value());
             if( usr->id() == user->id() )
                 continue;
-            if( !usr->isLiberal() && !usr->isSalarie() )
+            if( !usr->isLiberal() && !usr->isSoignantSalarie() )
                 continue;
             if( usr->metier() != user->metier() )
                 continue;

@@ -46,7 +46,7 @@ QMap<int, User *> *Users::liberaux() const
 }
 QMap<int, User *> *Users::comptables() const
 {
-    return map_comptables;
+    return map_comptablesactes;
 }
 QMap<int, User *> *Users::medecins() const
 {
@@ -65,7 +65,7 @@ Users::Users(QObject *parent) : ItemsList(parent)
     map_superviseurs    = new QMap<int, User*>();
     map_liberaux        = new QMap<int, User*>();
     map_parents         = new QMap<int, User*>();
-    map_comptables      = new QMap<int, User*>();
+    map_comptablesactes = new QMap<int, User*>();
     map_medecins        = new QMap<int, User*>();
 }
 
@@ -83,24 +83,23 @@ bool Users::add(User *usr)
 {
     if( usr == Q_NULLPTR)
         return false;
-
     auto itusr = map_all->constFind(usr->id());
     if( itusr != map_all->constEnd() )
         itusr.value()->setData(usr->datas());
     else
         map_all->insert(usr->id(), usr);
     mapsclean(usr);
-    if (!usr->isDesactive())
+     if (!usr->isDesactive())
     {
         map_actifs->insert(usr->id(), usr);
         if( usr->isResponsable() || usr->isResponsableOuAssistant())
             map_superviseurs->insert(usr->id(), usr);
-        if( usr->isLiberal() )
+        if( usr->isLiberal() || usr->isLiberalSEL() )
             map_liberaux->insert(usr->id(), usr);
         if( usr->isSoignant() && !usr->isRemplacant() )
             map_parents->insert(usr->id(), usr);
-        if( usr->isComptable() )
-            map_comptables->insert(usr->id(), usr);
+        if( usr->isComptableActes() )
+            map_comptablesactes->insert(usr->id(), usr);
         if( usr->isMedecin() )
             map_medecins->insert(usr->id(), usr);
     }
@@ -196,11 +195,12 @@ void Users::initListe()
     for (auto it = map_actifs->constBegin(); it != map_actifs->constEnd(); ++it)
     {
         User *usr = const_cast<User*>(it.value());
-         if (usr->login() == NOM_ADMINISTRATEUR)
+        if (usr->login() == NOM_ADMINISTRATEUR)
         {
             m_useradmin = usr;
             break;
         }
+        CalcCompteEncaissementActes(usr);
     }
     if (userconnected() != Q_NULLPTR)
     {
@@ -211,26 +211,29 @@ void Users::initListe()
 }
 
 /*!
- * \brief Users::initListe
- * Charge l'ensemble des utilisateurs avec des renseignements succincts
- * et les ajoute à la classe Users
+ * \brief Users::CalcCompteEncaissementActes
+ * Détermine le compte bancaire sur lequel seront encissés les paiements pour ce user
  */
-void Users::initShortListe()
+void Users::CalcCompteEncaissementActes(User *usr)
 {
-    QList<User*> listusers = DataBase::I()->loadUsersShortListe();
-    epurelist(map_all, &listusers);
-    mapsclean();
-    foreach (User *usr, listusers)
-        if( usr != Q_NULLPTR)
+    usr->setidcompteencaissementhonoraires(0);
+    if (usr->isSocComptable())
+        usr->setidcompteencaissementhonoraires(usr->idcomptepardefaut());
+    else if (usr->isSoignant())
+    {
+        if (usr->isLiberal())
+            usr->setidcompteencaissementhonoraires(usr->idcomptepardefaut());
+        else if (usr->isLiberalSEL() || usr->isSoignantSalarie())
         {
-            auto itusr = map_all->constFind(usr->id());
-            if( itusr != map_all->constEnd() )
-                itusr.value()->setData(usr->datas());
-            else
-                map_all->insert(usr->id(), usr);
-            if (usr->login() == NOM_ADMINISTRATEUR)
-                m_useradmin = usr;
+            auto it = map_comptablesactes->find(usr->idemployeur());
+            if (it != map_comptablesactes->cend())
+            {
+                User *usrcpt = it.value();
+                if (usrcpt)
+                    usr->setidcompteencaissementhonoraires(usrcpt->idcomptepardefaut());
+            }
         }
+    }
 }
 
 /*!
@@ -260,9 +263,9 @@ void Users::remplaceUserListes(User *usr)
         auto itp = map_parents->find(usr->id());
         if (itp != map_parents->end())
             map_parents->insert(itp.key(), usr);
-        auto itc = map_comptables->find(usr->id());
-        if (itc != map_comptables->end())
-            map_comptables->insert(itc.key(), usr);
+        auto itc = map_comptablesactes->find(usr->id());
+        if (itc != map_comptablesactes->end())
+            map_comptablesactes->insert(itc.key(), usr);
         auto itm = map_medecins->find(usr->id());
         if (itm != map_medecins->end())
             map_medecins->insert(itm.key(), usr);
@@ -290,18 +293,18 @@ void Users::mapsclean(User *usr)
         map_superviseurs    ->clear();
         map_liberaux        ->clear();
         map_parents         ->clear();
-        map_comptables      ->clear();
+        map_comptablesactes ->clear();
         map_medecins        ->clear();
     }
     else
     {
-        map_actifs        ->remove(usr->id());
-        map_inactifs      ->remove(usr->id());
-        map_superviseurs  ->remove(usr->id());
-        map_liberaux      ->remove(usr->id());
-        map_parents       ->remove(usr->id());
-        map_comptables    ->remove(usr->id());
-        map_medecins      ->remove(usr->id());
+        map_actifs          ->remove(usr->id());
+        map_inactifs        ->remove(usr->id());
+        map_superviseurs    ->remove(usr->id());
+        map_liberaux        ->remove(usr->id());
+        map_parents         ->remove(usr->id());
+        map_comptablesactes ->remove(usr->id());
+        map_medecins        ->remove(usr->id());
     }
 }
 

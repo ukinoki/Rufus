@@ -44,14 +44,14 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     map_comptables = Datas::I()->users->comptables(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
     if (currentuser()->isLiberal())
         m_useracrediter = currentuser();
-    else if (currentuser()->isSalarie() && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
+    else if (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
         m_useracrediter = Datas::I()->users->getById(currentuser()->idcomptable());
     else if (currentuser()->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
     {
         User *parent = Datas::I()->users->getById(currentuser()->idparent());
         if (parent->isLiberal())
             m_useracrediter = parent;
-        else if (currentuser()->isSalarie() && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
+        else if (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
             m_useracrediter = Datas::I()->users->getById(parent->idcomptable());
     }
     else if(currentuser()->isSecretaire())
