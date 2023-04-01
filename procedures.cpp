@@ -1974,7 +1974,8 @@ QString Procedures::SessionStatus()
     bool responsableles2= currentuser()->isResponsableOuAssistant();
 
     bool liberal        = currentuser()->isLiberal();
-    bool pasliberal     = currentuser()->isSoignantSalarie();
+    bool liberalSEL     = currentuser()->isLiberalSEL();
+    bool salarie        = currentuser()->isSoignantSalarie();
     bool retrocession   = currentuser()->isRemplacant();
     bool pasdecompta    = currentuser()->isSansCompta();
 
@@ -1982,7 +1983,7 @@ QString Procedures::SessionStatus()
 
     bool soignant           = currentuser()->isSoignant();
     bool soigntnonassistant = soignant && !assistant;
-    bool respsalarie        = soigntnonassistant && pasliberal;
+    bool respsalarie        = soigntnonassistant && (salarie||liberalSEL);
     bool respliberal        = soigntnonassistant && liberal;
 
 
@@ -2021,7 +2022,13 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("Exercice :\t\t\t");
         if (liberal)
             txtstatut += tr("libéral");
-        else if (pasliberal)
+        else if (liberalSEL)
+        {
+            QString txtsalarie = tr("libéral en SEL");
+            txtsalarie += " - " + (employeur? employeur->login() : "null");
+            txtstatut += txtsalarie;
+        }
+        else if (salarie)
         {
             QString txtsalarie = tr("salarié");
             txtsalarie += " - " + tr("Employeur : ") + (employeur? employeur->login() : "null");
@@ -3614,7 +3621,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                     continue;
                                 if( usr->id() == currentuser()->idsuperviseur() )
                                     continue;
-                                if( !usr->isLiberal() && !usr->isSoignantSalarie() )
+                                if( !usr->isLiberal() && !usr->isSoignantSalarie() && !usr->isLiberalSEL() )
                                     continue;
                                 listUserFound << usr;
                             }

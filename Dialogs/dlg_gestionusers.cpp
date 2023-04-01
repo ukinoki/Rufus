@@ -1033,7 +1033,6 @@ void dlg_gestionusers::RegleAffichage()
         User *usr = Datas::I()->users->getById(ui->idUseruplineEdit->text().toInt());
         if (usr)
         CalcListitemsEmployeurcomboBox(usr);
-        ui->EmployeurcomboBox->setCurrentIndex(0);
     }
     ui->OKupSmallButton->setEnabled(true);
 }
@@ -1141,18 +1140,18 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomp
 void dlg_gestionusers::CalcListitemsEmployeurcomboBox(User *usr)
 {
     ui->EmployeurcomboBox->clear();
-    /*! Le truc infâme qui suit est le seul moyen de mettre l'employeur en currentItem dans le QComboBox
-    parce qu'il est disabled et que setCurrntIndex et set CurrentText ne fonctionnenet pas dans e cas.
-    */
-    User* usremployer = Datas::I()->users->getById(usr->idemployeur());
     for (auto it = Datas::I()->users->comptables()->begin(); it != Datas::I()->users->comptables()->end(); ++it)
     {
         User* usrcpt = it.value();
-        if (usrcpt != usremployer)
+        if (usrcpt)
             ui->EmployeurcomboBox->insertItem(0, usrcpt->grandnom(), usrcpt->id());
     }
+    User* usremployer = Datas::I()->users->getById(usr->idemployeur());
     if (usremployer)
-        ui->EmployeurcomboBox->insertItem(0, usremployer->grandnom(), usremployer->id());
+    {
+        int idx = ui->EmployeurcomboBox->findData(usremployer->id());
+        ui->EmployeurcomboBox->setCurrentIndex(idx);
+    }
 }
 
 bool  dlg_gestionusers::AfficheParamUser(int idUser)

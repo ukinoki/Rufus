@@ -881,26 +881,6 @@ void DataBase::NettoieTableUsers()
     StandardSQL(req);
 }
 
-QList<User*> DataBase::loadUsersShortListe()
-{
-    QList<User*> users;
-    QString req = "select " CP_ID_USR ", " CP_LOGIN_USR  " from " TBL_UTILISATEURS;
-
-    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
-    if( !ok || usrlist.size()==0 )
-        return users;
-    for (int i=0; i<usrlist.size(); ++i)
-    {
-        QVariantList usrdata = usrlist.at(i);
-        QJsonObject userData{};
-        userData[CP_ID_USR]                             = usrdata.at(0).toInt();
-        userData[CP_LOGIN_USR]                          = usrdata.at(1).toString();
-        User *usr = new User(userData);
-        users << usr;
-    }
-    return users;
-}
-
 QList<User*> DataBase::loadUsers()
 {
     QList<User*> users;
