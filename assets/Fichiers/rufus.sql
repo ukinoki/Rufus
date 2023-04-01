@@ -1001,7 +1001,7 @@ CREATE TABLE `utilisateurs` (
   `Soignant` int(11) DEFAULT NULL COMMENT '1 = ophtalmo\n2 = orthoptiste\n3 = autre\n4 = Non soignant\n5 = societe comptable\n6 = neutre (poste ne modifiant pas les donnees et sans affichage des donnees medicales)',
   `Medecin` int(1) DEFAULT NULL,
   `ResponsableActes` int(11) DEFAULT NULL COMMENT '1 = effectue exlusivement des actes sous sa responsabilite\n2 = effectue des actes sous sa responsabilite et sous celle des autres users\n3 = n effectue aucun acte sous sa responsabilite',
-  `UserEnregHonoraires` tinyint(1) DEFAULT NULL COMMENT '1 = liberal\n2 = salarie\n3 = retrocession\n4 = pas de comptabilite',
+  `UserEnregHonoraires` tinyint(1) DEFAULT NULL COMMENT '1 = liberal\n2 = salarie\n3 = retrocession\n4 = pas de comptabilite\n5 = liberal en SEL',
   `UserEmployeur` int(11) DEFAULT NULL COMMENT 'iduser employeur si user salarie',
   `idCompteEncaissHonoraires` int(11) DEFAULT NULL COMMENT 'Compte bancaire encaissement honoraires',
   `UserDesactive` tinyint(1) DEFAULT NULL,

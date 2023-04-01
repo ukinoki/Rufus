@@ -90,6 +90,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->AutreFonctionupRadioButton,     &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->SecretaireupRadioButton,        &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaLiberalupRadioButton,     &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
+    connect(ui->ComptaLiberalSELupRadioButton,  &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaNoLiberalupRadioButton,   &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaRemplaupRadioButton,      &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->NoComptaupRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
@@ -427,7 +428,6 @@ void dlg_gestionusers::EnregistreUser()
         {
             req += CP_DROITS_USR " = '" OPHTAASSISTANT "', \n"
                    CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                   CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                    CP_IDEMPLOYEUR_USR " = null,\n"
                    CP_ENREGHONORAIRES_USR " = null,\n"
                    CP_ISAGA_USR " = null,\n";
@@ -437,10 +437,20 @@ void dlg_gestionusers::EnregistreUser()
             if (ui->ComptaLiberalupRadioButton->isChecked())
             {
                 req += CP_DROITS_USR " = '" OPHTALIBERAL "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 1,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n";
+                if (ui->AGAupRadioButton->isChecked())
+                    req += CP_ISAGA_USR " = 1,\n";
+                else
+                    req += CP_ISAGA_USR " = null,\n";
+            }
+            else if (ui->ComptaLiberalSELupRadioButton->isChecked())
+            {
+                req += CP_DROITS_USR " = '" OPHTASEL "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 5,\n"
+                       CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n";
                 if (ui->AGAupRadioButton->isChecked())
                     req += CP_ISAGA_USR " = 1,\n";
                 else
@@ -449,21 +459,18 @@ void dlg_gestionusers::EnregistreUser()
             else if (ui->ComptaNoLiberalupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" OPHTASALARIE "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 2,\n"
                        CP_ISAGA_USR " = null,\n";
             else if (ui->ComptaRemplaupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" OPHTAREMPLACANT "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
             else if (ui->NoComptaupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" OPHTANOCOMPTA "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 4,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
@@ -490,7 +497,6 @@ void dlg_gestionusers::EnregistreUser()
         {
             req += CP_DROITS_USR " = '" ORTHOASSISTANT "', \n"
                    CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                   CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                    CP_ENREGHONORAIRES_USR " = null,\n"
                    CP_IDEMPLOYEUR_USR " = null,\n"
                    CP_ISAGA_USR " = null,\n";
@@ -500,10 +506,20 @@ void dlg_gestionusers::EnregistreUser()
             if (ui->ComptaLiberalupRadioButton->isChecked())
             {
                 req += CP_DROITS_USR " = '" ORTHOLIBERAL "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 1,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n";
+                if (ui->AGAupRadioButton->isChecked())
+                    req += CP_ISAGA_USR " = 1,\n";
+                else
+                    req += CP_ISAGA_USR " = null,\n";
+            }
+            else if (ui->ComptaLiberalSELupRadioButton->isChecked())
+            {
+                req += CP_DROITS_USR " = '" ORTHOLIBERAL "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 5,\n"
+                       CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n";
                 if (ui->AGAupRadioButton->isChecked())
                     req += CP_ISAGA_USR " = 1,\n";
                 else
@@ -512,21 +528,18 @@ void dlg_gestionusers::EnregistreUser()
             else if (ui->ComptaNoLiberalupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" ORTHOSALARIE "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 2,\n"
                        CP_ISAGA_USR " = null,\n";
             else if (ui->ComptaRemplaupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" ORTHOREMPLACANT "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
             else if (ui->NoComptaupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" ORTHONOCOMPTA "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 4,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
@@ -553,7 +566,6 @@ void dlg_gestionusers::EnregistreUser()
         {
             req += CP_DROITS_USR " = '" AUTRESOIGNANTASSISTANT "', \n"
                    CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                   CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                    CP_ENREGHONORAIRES_USR " = null,\n"
                    CP_IDEMPLOYEUR_USR " = null,\n"
                    CP_ISAGA_USR " = null,\n";
@@ -563,10 +575,20 @@ void dlg_gestionusers::EnregistreUser()
             if (ui->ComptaLiberalupRadioButton->isChecked())
             {
                 req += CP_DROITS_USR " = '" AUTRESOIGNANTLIBERAL "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = " + ui->CompteActescomboBox->currentData().toString() + ",\n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 1,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n";
+                if (ui->AGAupRadioButton->isChecked())
+                    req += CP_ISAGA_USR " = 1,\n";
+                else
+                    req += CP_ISAGA_USR " = null,\n";
+            }
+            else if (ui->ComptaLiberalSELupRadioButton->isChecked())
+            {
+                req += CP_DROITS_USR " = '" AUTRESOIGNANTLIBERAL "', \n"
+                       CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
+                       CP_ENREGHONORAIRES_USR " = 5,\n"
+                       CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n";
                 if (ui->AGAupRadioButton->isChecked())
                     req += CP_ISAGA_USR " = 1,\n";
                 else
@@ -575,21 +597,18 @@ void dlg_gestionusers::EnregistreUser()
             else if (ui->ComptaNoLiberalupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" AUTRESOIGNANTSALARIE "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 2,\n"
                        CP_ISAGA_USR " = null,\n";
             else if (ui->ComptaRemplaupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" AUTRESOIGNANTREMPLACANT "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
             else if (ui->NoComptaupRadioButton->isChecked())
                 req += CP_DROITS_USR " = '" AUTRESOIGNANTNOCOMPTA "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 4,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
@@ -605,7 +624,6 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                CP_CCAM_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
@@ -621,7 +639,6 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                CP_CCAM_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
@@ -636,8 +653,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISMEDECIN_USR " = null,\n"
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
-               CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteComptacomboBox->currentData().toString() + ",\n"
-               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
+               CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
                CP_CCAM_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
@@ -653,7 +669,6 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-               CP_IDCOMPTEENCAISSEMENTHONORAIRES_USR " = null,\n"
                CP_CCAM_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
@@ -853,10 +868,8 @@ void dlg_gestionusers::GestionComptes()
     bool modif      = false;
     bool verifempl  = ui->Employeurwidget->isVisible();
     QString empl    = ui->EmployeurcomboBox->currentText();
-    bool verifact   = ui->CompteActeswidget->isVisible();
-    QString cptact  = ui->CompteActescomboBox->currentText();
     bool verifcpta  = ui->CompteComptawidget->isVisible();
-    QString cptcpta = ui->CompteComptacomboBox->currentText();
+    QString cptcpta = ui->CompteParDefautcomboBox->currentText();
 
     bool comptedesociete    = ui->SocieteComptableupRadioButton->isChecked();
     dlg_gestioncomptes *Dlg_GestComptes = new dlg_gestioncomptes(m_userencours, comptedesociete, this);
@@ -865,16 +878,10 @@ void dlg_gestionusers::GestionComptes()
     if (verifempl)
         if (ui->EmployeurcomboBox->currentText() != empl)
             modif   = true;
-    if (verifact)
-    {
-        CalcListitemsCompteActescomboBox(m_userencours);
-        if (ui->CompteActescomboBox->currentText() != cptact)
-            modif   = true;
-    }
     if (verifcpta)
     {
         CalcListitemsCompteComptacomboBox(m_userencours, ui->SocieteComptableupRadioButton->isChecked());
-        if (ui->CompteComptacomboBox->currentText() != cptcpta)
+        if (ui->CompteParDefautcomboBox->currentText() != cptcpta)
             modif   = true;
     }
     ui->OKupSmallButton->setEnabled(modif);
@@ -895,7 +902,6 @@ void dlg_gestionusers::ModifUser()
     ui->OPTAMupRadioButton          ->setEnabled(true);
     ui->OKupSmallButton             ->setEnabled(false);
     ui->AGAupRadioButton            ->setEnabled(true);
-    ui->CompteActeswidget           ->setEnabled(true);
     m_mode                          = Modifier;
 }
 
@@ -1012,23 +1018,24 @@ void dlg_gestionusers::RegleAffichage()
         ui->ComptaNoLiberalupRadioButton  ->setImmediateToolTip(avert);
         ui->ComptaNoLiberalupRadioButton  ->setEnabled(u);
     }
-    ui->GererCompteuppushButton     ->setVisible(m_respliberal || m_soccomptable);
-    ui->Employeurwidget             ->setVisible(m_respsalarie);
-    ui->CompteActeswidget           ->setVisible(m_respliberal);
-    ui->CompteComptawidget          ->setVisible(m_respliberal || m_soccomptable);
-    ui->AGAupRadioButton            ->setVisible(m_respliberal);
+
+    ui->GererCompteuppushButton     ->setVisible(m_respliberal || m_soccomptable || m_respliberalSEL);
+    ui->Employeurwidget             ->setVisible(m_respsalarie || m_respliberalSEL);
+    ui->CompteComptawidget          ->setVisible(m_respliberal || m_soccomptable || m_respliberalSEL);
+    ui->AGAupRadioButton            ->setVisible(m_respliberal || m_respliberalSEL);
 
     ui->Prenomlabel                 ->setVisible(!m_soccomptable && !m_neutre);
     ui->PrenomuplineEdit            ->setVisible(!m_soccomptable && !m_neutre);
-    ui->AdressupTableWidget         ->setVisible(!m_soccomptable && !m_neutre);
-    ui->GestLieuxpushButton         ->setVisible(!m_soccomptable && !m_neutre);
+    ui->AdressupTableWidget         ->setVisible(true);
+    ui->GestLieuxpushButton         ->setVisible(true);
 
-    if (m_respliberal || m_soccomptable)
-        ActualiseRsgnmtBanque(m_soccomptable);
-    if (m_respsalarie)
-    {
-        CalcListitemsEmployeurcomboBox(ui->idUseruplineEdit->text().toInt());
-        ui->EmployeurcomboBox->setCurrentIndex(0);
+
+    if (m_respliberal || m_soccomptable || m_respliberalSEL)
+        CalcListitemsCompteComptacomboBox(m_userencours, m_soccomptable);
+    if (m_respsalarie || m_respliberalSEL)    {
+        User *usr = Datas::I()->users->getById(ui->idUseruplineEdit->text().toInt());
+        if (usr)
+            CalcListitemsEmployeurcomboBox(usr);
     }
     ui->OKupSmallButton->setEnabled(true);
 }
@@ -1112,25 +1119,6 @@ void dlg_gestionusers::SupprUser()
     }
 }
 
-void dlg_gestionusers::ActualiseRsgnmtBanque(bool soccomptable)
-{
-    CalcListitemsCompteActescomboBox(m_userencours);
-    CalcListitemsCompteComptacomboBox(m_userencours, soccomptable);
-}
-
-void dlg_gestionusers::CalcListitemsCompteActescomboBox(User *usr)
-{
-    //! tous les comptes non désactivés de l'utilisateur et tous les comptes partagés
-    QList<Compte*> listcomptes;
-    foreach (Compte *cpt, *Datas::I()->comptes->comptes())
-        if ((cpt->idUser() == usr->id() || cpt->isPartage()) && !cpt->isDesactive())
-            listcomptes << cpt;
-    ui->CompteActescomboBox->clear();
-    foreach (Compte *cpt, listcomptes)
-        ui->CompteActescomboBox->insertItem(0, cpt->intitulecompte() + " - " + cpt->nomabrege(), cpt->id());
-    if (usr->idcompteencaissementhonoraires() > 0)
-        ui->CompteActescomboBox->setCurrentIndex(ui->CompteActescomboBox->findData(usr->idcompteencaissementhonoraires()));
-}
 
 void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomptable)
 {
@@ -1146,31 +1134,28 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomp
             else
                 listcomptes << cpt;
         }
-    ui->CompteComptacomboBox->clear();
+    ui->CompteParDefautcomboBox->clear();
     foreach (Compte *cpt, listcomptes)
-        ui->CompteComptacomboBox->insertItem(0, cpt->intitulecompte() + " - " + cpt->nomabrege(), cpt->id());
+        ui->CompteParDefautcomboBox->insertItem(0, cpt->intitulecompte() + " - " + cpt->nomabrege(), cpt->id());
     if (usr->idcomptepardefaut() > 0)
-        ui->CompteComptacomboBox->setCurrentIndex(ui->CompteComptacomboBox->findData(usr->idcomptepardefaut()));
+        ui->CompteParDefautcomboBox->setCurrentIndex(ui->CompteParDefautcomboBox->findData(usr->idcomptepardefaut()));
 }
 
-void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
+void dlg_gestionusers::CalcListitemsEmployeurcomboBox(User *usr)
 {
-    QString user = QString::number(iduser);
-    QString req = "select " CP_ID_USR ", " CP_PRENOM_USR ", " CP_NOM_USR " from " TBL_UTILISATEURS
-                  " where (" CP_SOIGNANTSTATUS_USR " = 5"
-                  " or (" CP_SOIGNANTSTATUS_USR " < 4 and " CP_ENREGHONORAIRES_USR " = 1))"
-                  " and " CP_ID_USR " <> " + user +
-                  " and " CP_ISDESACTIVE_USR " is null";
-    //qDebug() << req;
-    QList<QVariantList> listusr = db->StandardSelectSQL(req, m_ok, tr("Impossible de retrouver la liste des employeurs"));
-    if (!m_ok)
-        return;
     ui->EmployeurcomboBox->clear();
-    for (int i=0; i<listusr.size(); i++)
-        ui->EmployeurcomboBox->insertItem(0, (listusr.at(i).at(1).toString() != ""? listusr.at(i).at(1).toString() + " " + listusr.at(i).at(2).toString() : listusr.at(i).at(2).toString()), listusr.at(i).at(0).toInt());
-    QVariantList idusrlst = db->getFirstRecordFromStandardSelectSQL("select " CP_IDEMPLOYEUR_USR " from " TBL_UTILISATEURS " where " CP_ID_USR " = " + user, m_ok);
-    if (m_ok && idusrlst.size()>0)
-        ui->EmployeurcomboBox->setCurrentIndex(ui->EmployeurcomboBox->findData(idusrlst.at(0)));
+    for (auto it = Datas::I()->users->comptables()->begin(); it != Datas::I()->users->comptables()->end(); ++it)
+    {
+        User* usrcpt = it.value();
+        if (usrcpt)
+            ui->EmployeurcomboBox->insertItem(0, usrcpt->grandnom(), usrcpt->id());
+    }
+    User* usremployer = Datas::I()->users->getById(usr->idemployeur());
+    if (usremployer)
+    {
+        int idx = ui->EmployeurcomboBox->findData(usremployer->id());
+        ui->EmployeurcomboBox->setCurrentIndex(idx);
+    }
 }
 
 bool  dlg_gestionusers::AfficheParamUser(int idUser)
@@ -1198,8 +1183,9 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     bool responsable    = m_userencours->isResponsable();
     bool responsableles2= m_userencours->isResponsableOuAssistant();
 
-    bool liberal        = m_userencours->isLiberal();
-    bool pasliberal     = m_userencours->isSalarie();
+    bool liberal        = m_userencours->isLiberal();    
+    bool liberalSEL     = m_userencours->isLiberalSEL();
+    bool pasliberal     = m_userencours->isSoignantSalarie() || m_userencours->isLiberalSEL();
     bool retrocession   = m_userencours->isRemplacant();
     bool pasdecompta    = m_userencours->isSansCompta();
 
@@ -1222,19 +1208,18 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->Comptawidget                ->setVisible((soignant && !assistant) || soccomptable);
     ui->ComptagroupBox              ->setVisible(soignant && !assistant);
     ui->ComptaNoLiberalupRadioButton->setEnabled(ExisteEmployeur(idUser));
-    ui->GererCompteuppushButton     ->setVisible((soignant && !assistant && liberal) || soccomptable);
-    ui->Employeurwidget             ->setVisible(soignant && !assistant && pasliberal);
-    ui->CompteActeswidget           ->setVisible(soignant && !assistant && liberal);
+    ui->GererCompteuppushButton     ->setVisible((soignant && !assistant && liberal) || soccomptable);    
+    ui->Employeurwidget             ->setVisible(m_userencours->isSoignantSalarie() || m_userencours->isLiberalSEL());
     ui->CompteComptawidget          ->setVisible((soignant && !assistant && liberal) || soccomptable);
     ui->AGAupRadioButton            ->setVisible(soignant && !assistant && liberal);
 
     ui->Prenomlabel                 ->setVisible(!soccomptable && !neutre);
     ui->PrenomuplineEdit            ->setVisible(!soccomptable && !neutre);
 
-    if ((soignant && !assistant && liberal) || soccomptable)
-        ActualiseRsgnmtBanque(soccomptable);
-    if (soignant && !assistant && pasliberal)
-        CalcListitemsEmployeurcomboBox(idUser);
+    if ((soignant && !assistant && (liberal || liberalSEL)) || soccomptable)
+        CalcListitemsCompteComptacomboBox(m_userencours, soccomptable);
+    if (m_userencours->isSoignantSalarie() || m_userencours->isLiberalSEL())
+        CalcListitemsEmployeurcomboBox(m_userencours);
 
     ui->idUseruplineEdit            ->setText(QString::number(m_userencours->id()));
     ui->LoginuplineEdit             ->setText(m_userencours->login());
@@ -1380,7 +1365,8 @@ void   dlg_gestionusers::DefinitLesVariables()
 
     m_assistant      = ui->AssistantupRadioButton          ->isChecked();
 
-    m_liberal        = ui->ComptaLiberalupRadioButton      ->isChecked();
+    m_liberal        = ui->ComptaLiberalupRadioButton      ->isChecked();    
+    m_liberalSEL     = ui->ComptaLiberalSELupRadioButton   ->isChecked();
     m_pasliberal     = ui->ComptaNoLiberalupRadioButton    ->isChecked();
     m_retrocession   = ui->ComptaRemplaupRadioButton       ->isChecked();
 
@@ -1389,6 +1375,7 @@ void   dlg_gestionusers::DefinitLesVariables()
     m_responsable    = m_soignant && !m_assistant;
     m_respsalarie    = m_responsable && m_pasliberal;
     m_respliberal    = m_responsable && m_liberal;
+    m_respliberalSEL = m_responsable && m_liberalSEL;
     m_soignantnonremplacant = m_responsable && !m_retrocession;
 }
 
@@ -1486,8 +1473,7 @@ void dlg_gestionusers::setDataCurrentUser(int id)
     if (m_userencours == Q_NULLPTR)
         return;
     m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(id));
-    if (m_userencours->isSalarie())
-        m_userencours->setidcompteencaissementhonoraires(Datas::I()->users->getById(m_userencours->idemployeur())->idcompteencaissementhonoraires());
+    Datas::I()->users->CalcCompteEncaissementActes(m_userencours);
 }
 
 void dlg_gestionusers::ReconstruitListeLieuxExercice()
@@ -1761,14 +1747,8 @@ bool dlg_gestionusers::VerifFiche()
             return false;
         }
     }
-    if (m_respliberal)
-        if (ui->CompteActescomboBox->currentIndex()==-1)
-        {
-            UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un compte bancaire pour l'encaissement des honoraires!"));
-            return false;
-        }
-    if (m_respliberal || m_soccomptable)
-        if (ui->CompteComptacomboBox->currentIndex()==-1)
+    if (m_respliberal || m_soccomptable || m_respliberalSEL)
+        if (ui->CompteParDefautcomboBox->currentIndex()==-1)
         {
             UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un compte bancaire pour l'enregistrement de la comptabilité!"));
             return false;

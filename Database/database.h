@@ -207,7 +207,6 @@ public:
     QueryResult             verifExistUser(QString login, QString password);        /*! verifie que le login-mdp existe dans la base */
     QueryResult             calcidUserConnected(QString login, QString password);   /*! retrouve l'id correspondant au mdp_login, modifie au besoin le mdp en sha1(mdp) */
     QList<User*>            loadUsers();                                            //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements complets
-    QList<User*>            loadUsersShortListe();                                  //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
     QJsonObject             loadUserData(int idUser);                               //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
     QJsonObject             loadAdminData();                                        //! complète tous les renseignements concernant l'utilisateur admin
     void                    NettoieTableUsers();                                    //! Elimine les enregistrements corrompus de la table utilisateurs
