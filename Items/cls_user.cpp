@@ -56,7 +56,6 @@ void User::setData(QJsonObject data)
     Utils::setDataString(data, CP_SPECIALITE_USR, m_specialite);
     Utils::setDataString(data, CP_NUMCO_USR, m_numCO);
     Utils::setDataString(data, CP_PORTABLE_USR, m_portable);
-    Utils::setDataString(data, CP_WEBSITE_USR, m_web);
     Utils::setDataString(data, CP_MEMO_USR, m_memo);
     Utils::setDataString(data, CP_POLICEECRAN_USR, m_policeEcran);
     Utils::setDataString(data, CP_POLICEATTRIBUT_USR, m_policeAttribut);
@@ -66,7 +65,6 @@ void User::setData(QJsonObject data)
     Utils::setDataLongLongInt(data, CP_NUMPS_USR, m_numPS);
     Utils::setDataInt(data, CP_IDSPECIALITE_USR, m_noSpecialite);
     Utils::setDataInt(data, CP_IDCOMPTEPARDEFAUT_USR, m_idCompteParDefaut);
-    Utils::setDataInt(data, CP_POSTE_USR, m_poste);
     Utils::setDataInt(data, CP_IDEMPLOYEUR_USR, m_employeur);
     Utils::setDataInt(data, CP_ISMEDECIN_USR, m_medecin);
     Utils::setDataInt(data, CP_ENREGHONORAIRES_USR, m_enregHonoraires);
@@ -137,6 +135,7 @@ User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
     case 2: return Salarie;
     case 3: return Retrocession;
     case 4: return NoCompta;
+    case 5: return LiberalSEL;
     }
     return NoCompta;
 }

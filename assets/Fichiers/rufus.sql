@@ -423,7 +423,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,74,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,75,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -983,16 +983,8 @@ CREATE TABLE `utilisateurs` (
   `UserDroits` varchar(45) DEFAULT NULL COMMENT 'Définit les droits d''accès aux fichiers de l''utilisateur',
   `UserLogin` varchar(15) DEFAULT NULL,
   `UserMDP` varchar(45) DEFAULT NULL,
-  `UserAdresse1` varchar(45) DEFAULT NULL,
-  `UserAdresse2` varchar(45) DEFAULT NULL,
-  `UserAdresse3` varchar(45) DEFAULT NULL,
-  `UserCodePostal` varchar(10) DEFAULT NULL,
-  `UserVille` varchar(45) DEFAULT NULL,
   `UserTelephone` varchar(17) DEFAULT NULL,
   `UserPortable` varchar(17) DEFAULT NULL,
-  `UserPoste` smallint(6) DEFAULT NULL,
-  `UserFax` varchar(17) DEFAULT NULL,
-  `UserWeb` varchar(45) DEFAULT NULL,
   `UserMail` varchar(45) DEFAULT NULL,
   `UserMemo` text,
   `IdCompteParDefaut` int(11) DEFAULT NULL,
@@ -1003,7 +995,6 @@ CREATE TABLE `utilisateurs` (
   `ResponsableActes` int(11) DEFAULT NULL COMMENT '1 = effectue exlusivement des actes sous sa responsabilite\n2 = effectue des actes sous sa responsabilite et sous celle des autres users\n3 = n effectue aucun acte sous sa responsabilite',
   `UserEnregHonoraires` tinyint(1) DEFAULT NULL COMMENT '1 = liberal\n2 = salarie\n3 = retrocession\n4 = pas de comptabilite\n5 = liberal en SEL',
   `UserEmployeur` int(11) DEFAULT NULL COMMENT 'iduser employeur si user salarie',
-  `idCompteEncaissHonoraires` int(11) DEFAULT NULL COMMENT 'Compte bancaire encaissement honoraires',
   `UserDesactive` tinyint(1) DEFAULT NULL,
   `UserPoliceEcran` varchar(100) DEFAULT NULL,
   `UserPoliceAttribut` varchar(45) DEFAULT NULL,

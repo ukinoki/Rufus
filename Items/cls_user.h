@@ -65,7 +65,6 @@ private:
     QString m_specialite = "";          //!> la spécialité
     QString m_numCO = "";               //!> le no du conseil de l'ordre
     QString m_portable = "";            //!> le no de téléphone portable
-    QString m_web = "";                 //!> le site web
     QString m_memo = "";                //!> memo sur l'utilisateur
     QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
     QString m_policeAttribut = "";      //!> le choix d'attribut de la police d'écran
@@ -76,7 +75,6 @@ private:
     qlonglong m_numPS;
     int m_noSpecialite;
 
-    int m_poste;
     int m_employeur;
     int m_medecin;
 
