@@ -80,7 +80,8 @@ bool Manufacturer::isactif() const          { return !m_inactif; }
 int Manufacturer::iddistributeur() const    { return m_distributeur; }
 int Manufacturer::idrufus() const           { return m_idrufus; }
 
-bool Manufacturer::buildIOls() const        { return m_buildIOLS; }
+bool Manufacturer::buildIOLs() const        { return m_buildIOLs; }
+
 
 QString Manufacturer::tooltip() const
 {
@@ -159,7 +160,7 @@ void Manufacturer::setactif(const bool &actif)                  { m_inactif = !a
 void Manufacturer::setiddistributeur(int id)                    { m_distributeur = id; m_data[CP_DISTRIBUEPAR_MANUFACTURER] = id; }
 void Manufacturer::setidrufus(int id)                           { m_idrufus = id; m_data[CP_IDRUFUS_MANUFACTURER] = id; }
 
-void Manufacturer::setbuildIOLS(bool build)                     { m_buildIOLS = build; }
+void Manufacturer::setbuildIOLS(bool build)                     { m_buildIOLs = build; }
 
 
 QString Manufacturer::adresseComplete() const

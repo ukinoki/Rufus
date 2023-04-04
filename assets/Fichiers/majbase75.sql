@@ -1,4 +1,4 @@
--- 20/03/2023
+-- 03/04/2023
 
 
 ALTER TABLE `rufus`.`utilisateurs` 
@@ -18,8 +18,80 @@ BEGIN
         WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'idCompteEncaissHonoraires') as chp;
         IF tot=1
         THEN
-			ALTER TABLE `rufus`.`utilisateurs` 
-			DROP COLUMN `idCompteEncaissHonoraires`; 
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `idCompteEncaissHonoraires`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserAdresse1') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserAdresse1`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserAdresse2') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserAdresse2`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserAdresse3') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserAdresse3`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserCodePostal') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserCodePostal`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserVille') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserVille`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserPoste') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserPoste`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserFax') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserFax`;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserWeb') as chp;
+        IF tot=1
+        THEN
+                ALTER TABLE `rufus`.`utilisateurs`
+                DROP COLUMN `UserWeb`;
         END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 75;
 END|

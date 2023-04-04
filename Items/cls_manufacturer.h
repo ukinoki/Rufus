@@ -48,7 +48,7 @@ public:
     QString tooltip() const;
     int iddistributeur() const;
     int idrufus() const;
-    bool buildIOls() const;
+    bool buildIOLs() const;
 
     QString coordonnees() const;
 
@@ -85,7 +85,7 @@ private:
     QString m_website       = "";
     QString m_mail          = "";
     bool m_inactif          = false;
-    bool m_buildIOLS        = false;
+    bool m_buildIOLs        = false;
     int m_distributeur      = 0;
     int m_idrufus           = 0;
 };

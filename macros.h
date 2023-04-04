@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          74  // version de la base de données
+#define VERSION_BASE                          75  // version de la base de données
 #define VERSION_RESSOURCES                    35  // version des fichiers de ressources
 
 // Les bases
@@ -378,16 +378,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_DROITS_USR                                   "UserDroits"
 #define CP_LOGIN_USR                                    "UserLogin"
 #define CP_MDP_USR                                      "UserMDP"
-#define CP_ADRESSE1_USR                                 "UserAdresse1"    //!> pas utilisé
-#define CP_ADRESSE2_USR                                 "UserAdresse2"    //!> pas utilisé
-#define CP_ADRESSE3_USR                                 "UserAdresse3"    //!> pas utilisé
-#define CP_CP_USR                                       "UserCodePostal"  //!> pas utilisé
-#define CP_VILLE_USR                                    "UserVille"       //!> pas utilisé
-#define CP_TEL_USR                                      "UserTelephone"   //!> pas utilisé
-#define CP_POSTE_USR                                    "UserPoste"
+#define CP_TEL_USR                                      "UserTelephone"
 #define CP_PORTABLE_USR                                 "UserPortable"
-#define CP_FAX_USR                                      "UserFax"         //!> pas utilisé
-#define CP_WEBSITE_USR                                  "UserWeb"
 #define CP_MAIL_USR                                     "UserMail"
 #define CP_MEMO_USR                                     "UserMemo"        //!> pas utilisé
 #define CP_IDCOMPTEPARDEFAUT_USR                        "IdCompteParDefaut"

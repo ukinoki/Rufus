@@ -810,10 +810,10 @@ QJsonObject DataBase::loadUserData(int idUser)
     QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
             CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
             CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
-            CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
-            CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
-            CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", "                        // 25,26,27,28,29
-            CP_ID_USR ", " CP_DATECREATIONMDP_USR ", " CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR                                     // 30,31,32,33
+            CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
+            CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", "                        // 20,21,22,23,24
+            CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR                                                                                // 30,31
             " from " TBL_UTILISATEURS
             " where " CP_ID_USR " = " + QString::number(idUser);
 
@@ -845,23 +845,21 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_ENREGHONORAIRES_USR]                = usrdata.at(13).toInt();
     userData[CP_MDP_USR]                            = usrdata.at(14).toString();
     userData[CP_PORTABLE_USR]                       = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
-    userData[CP_POSTE_USR]                          = usrdata.at(16).toInt();
-    userData[CP_WEBSITE_USR]                        = usrdata.at(17).isNull() ? "" : usrdata.at(17).toString();
-    userData[CP_MEMO_USR]                           = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
-    userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(19).toInt() == 1);
-    userData[CP_POLICEECRAN_USR]                    = usrdata.at(20).isNull() ? "" : usrdata.at(20).toString();
-    userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(21).isNull() ? "" : usrdata.at(21).toString();
-    userData[CP_SECTEUR_USR]                        = usrdata.at(22).toInt();
-    userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(23).toInt();
-    userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(24).toInt();
-    userData[CP_CCAM_USR]                           = (usrdata.at(25).toInt() == 1);
-    userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(26).toInt();
-    userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
-    userData[CP_ISMEDECIN_USR]                      = usrdata.at(28).toInt();
-    userData[CP_ISOPTAM_USR]                        = (usrdata.at(29).toInt() == 1);
-    userData[CP_DATECREATIONMDP_USR]                = usrdata.at(31).toDate().toString("yyyy-MM-dd");
-    userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(32).toInt() == 1);
-    userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(33).toInt() == 1);
+    userData[CP_MEMO_USR]                           = usrdata.at(16).isNull() ? "" : usrdata.at(16).toString();
+    userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(17).toInt() == 1);
+    userData[CP_POLICEECRAN_USR]                    = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
+    userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(19).isNull() ? "" : usrdata.at(19).toString();
+    userData[CP_SECTEUR_USR]                        = usrdata.at(20).toInt();
+    userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(21).toInt();
+    userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(22).toInt();
+    userData[CP_CCAM_USR]                           = (usrdata.at(23).toInt() == 1);
+    userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
+    userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
+    userData[CP_ISMEDECIN_USR]                      = usrdata.at(26).toInt();
+    userData[CP_ISOPTAM_USR]                        = (usrdata.at(27).toInt() == 1);
+    userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
+    userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
+    userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
     return userData;
 }
 
@@ -887,10 +885,10 @@ QList<User*> DataBase::loadUsers()
     QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
             CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
             CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
-            CP_PORTABLE_USR ", " CP_POSTE_USR ", " CP_WEBSITE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR ","                                          // 15,16,17,18,19
-            CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", " CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", "              // 20,21,22,23,24
-            CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", " CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", "                        // 25,26,27,28,29
-            CP_ID_USR ", " CP_DATECREATIONMDP_USR ", " CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR                                     // 30,31,32,33
+            CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
+            CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_CCAM_USR ", " CP_IDEMPLOYEUR_USR ", "                        // 20,21,22,23,24
+            CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR                                                                                // 30,31
             " from " TBL_UTILISATEURS;
     //qDebug() << req;
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
@@ -900,7 +898,7 @@ QList<User*> DataBase::loadUsers()
     {
         QVariantList usrdata = usrlist.at(i);
         QJsonObject userData{};
-        userData[CP_ID_USR]                             = usrdata.at(30).toInt();
+        userData[CP_ID_USR]                             = usrdata.at(28).toInt();
         userData[CP_DROITS_USR]                         = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
         userData[CP_ISAGA_USR]                          = (usrdata.at(1).toInt() == 1);
         userData[CP_LOGIN_USR]                          = usrdata.at(2).isNull() ? "" : usrdata.at(2).toString();
@@ -917,23 +915,21 @@ QList<User*> DataBase::loadUsers()
         userData[CP_ENREGHONORAIRES_USR]                = usrdata.at(13).toInt();
         userData[CP_MDP_USR]                            = usrdata.at(14).toString();
         userData[CP_PORTABLE_USR]                       = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
-        userData[CP_POSTE_USR]                          = usrdata.at(16).toInt();
-        userData[CP_WEBSITE_USR]                        = usrdata.at(17).isNull() ? "" : usrdata.at(17).toString();
-        userData[CP_MEMO_USR]                           = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
-        userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(19).toInt() == 1);
-        userData[CP_POLICEECRAN_USR]                    = usrdata.at(20).isNull() ? "" : usrdata.at(20).toString();
-        userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(21).isNull() ? "" : usrdata.at(21).toString();
-        userData[CP_SECTEUR_USR]                        = usrdata.at(22).toInt();
-        userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(23).toInt();
-        userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(24).toInt();
-        userData[CP_CCAM_USR]                           = (usrdata.at(25).toInt() == 1);
-        userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(26).toInt();
-        userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
-        userData[CP_ISMEDECIN_USR]                      = usrdata.at(28).toInt();
-        userData[CP_ISOPTAM_USR]                        = (usrdata.at(29).toInt() == 1);
-        userData[CP_DATECREATIONMDP_USR]                = usrdata.at(31).toDate().toString("yyyy-MM-dd");
-        userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(32).toInt() == 1);
-        userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(33).toInt() == 1);
+        userData[CP_MEMO_USR]                           = usrdata.at(16).isNull() ? "" : usrdata.at(16).toString();
+        userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(17).toInt() == 1);
+        userData[CP_POLICEECRAN_USR]                    = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
+        userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(19).isNull() ? "" : usrdata.at(19).toString();
+        userData[CP_SECTEUR_USR]                        = usrdata.at(20).toInt();
+        userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(21).toInt();
+        userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(22).toInt();
+        userData[CP_CCAM_USR]                           = (usrdata.at(23).toInt() == 1);
+        userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
+        userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
+        userData[CP_ISMEDECIN_USR]                      = usrdata.at(26).toInt();
+        userData[CP_ISOPTAM_USR]                        = (usrdata.at(27).toInt() == 1);
+        userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
+        userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
+        userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
         User *usr = new User(userData);
         users << usr;
     }
