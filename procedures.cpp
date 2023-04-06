@@ -707,48 +707,52 @@ QString Procedures::dirSQLExecutable()
 
 void Procedures::setDirSQLExecutable()
 {
-    QString defaultsqlexecutable = "";
-    QString sqlexecutable = settings()->value(Param_SQLExecutable).toString();
-    bool defaultsql = false;
+    QString dirdefaultsqlexecutable = "";
+    QString dirsqlexecutable = settings()->value(Param_SQLExecutable).toString();
+    bool isdirdefaultsql = false;
 #ifdef Q_OS_MACX
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     mysqldir.cdUp();
-    defaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
+    dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
+    if (db->version().contains("MariaDB"))
+        dirdefaultsqlexecutable += "/MariaDB";
+    isdirdefaultsql = QFile(dirdefaultsqlexecutable + "/mysql").exists();
 #endif
 #ifdef Q_OS_LINUX
-    defaultsqlexecutable = "/usr/bin";
-    defaultsql = QFile(defaultsqlexecutable + "/mysql").exists();
+    dirdefaultsqlexecutable = "/usr/bin";
+    isdirdefaultsql = QFile(dirdefaultsqlexecutable + "/mysql").exists();
 #endif
-    if (defaultsql)
+    if (isdirdefaultsql)
     {
-        if (defaultsqlexecutable != sqlexecutable)
-            settings()->setValue(Param_SQLExecutable, defaultsqlexecutable);
-        m_dirSQLExecutable = defaultsqlexecutable;
+        if (dirdefaultsqlexecutable != dirsqlexecutable)
+            settings()->setValue(Param_SQLExecutable, dirdefaultsqlexecutable);
+        m_dirSQLExecutable = dirdefaultsqlexecutable;
         return;
     }
-    if (sqlexecutable == "" || (sqlexecutable != "" && !QFile(sqlexecutable + "/mysql").exists()))
+    if (dirsqlexecutable == "" || (dirsqlexecutable != "" && !QFile(dirsqlexecutable + "/mysql").exists()))
     {
         bool a;
 #ifdef Q_OS_MACX
         QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
         mysqldir.cdUp();
-        sqlexecutable = mysqldir.absolutePath() + "/Applications";
-        if (!QFile(sqlexecutable + "/mysql").exists())
-            sqlexecutable = "/usr/local/mysql/bin";
-        if (!QFile(sqlexecutable + "/mysql").exists())
-            sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable + "/mysql").exists());
+        dirsqlexecutable = mysqldir.absolutePath() + "/Applications";
+        if (!QFile(dirsqlexecutable + "/mysql").exists())
+            dirsqlexecutable = "/usr/local/mysql/bin";
+        if (!QFile(dirsqlexecutable + "/mysql").exists())
+            dirsqlexecutable = "/usr/local/bin";
+        if (!QFile(dirsqlexecutable + "/mysql").exists())
+            dirsqlexecutable = QStandardPaths::findExecutable("mysql");
+        a = (QFile(dirsqlexecutable + "/mysql").exists());
 #endif
 #ifdef Q_OS_LINUX
-        sqlexecutable = "/usr/bin";
-        if (!QFile(sqlexecutable + "/mysql").exists())
-            sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable + "/mysql").exists());
+        dirsqlexecutable = "/usr/bin";
+        if (!QFile(dirsqlexecutable + "/mysql").exists())
+            dirsqlexecutable = QStandardPaths::findExecutable("mysql");
+        a = (QFile(dirsqlexecutable + "/mysql").exists());
 #endif
         if (!a)
             UpMessageBox::Information(Q_NULLPTR,
-                                      tr("le chemin des programmes mysql et mysqldump (") + sqlexecutable + ") n'est pas valide"),
+                                      tr("le chemin des programmes mysql et mysqldump (") + dirsqlexecutable + ") n'est pas valide"),
                     tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
         while (!a)
         {
@@ -771,14 +775,14 @@ void Procedures::setDirSQLExecutable()
             }
             else
             {
-                sqlexecutable = urlexecutable.path();
+                dirsqlexecutable = urlexecutable.path();
                 a = true;
             }
         }
-        if (sqlexecutable != settings()->value(Param_SQLExecutable).toString())
-            settings()->setValue(Param_SQLExecutable, sqlexecutable);
+        if (dirsqlexecutable != settings()->value(Param_SQLExecutable).toString())
+            settings()->setValue(Param_SQLExecutable, dirsqlexecutable);
     }
-    m_dirSQLExecutable = sqlexecutable;
+    m_dirSQLExecutable = dirsqlexecutable;
 }
 
 /*!
@@ -1516,6 +1520,7 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                                       " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename) + "'), " +
                                       "1)";
                         db->StandardSQL(req);
+                        //qDebug() << req;
                     }
                 }
             }
@@ -3016,15 +3021,15 @@ bool Procedures::Connexion_A_La_Base()
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
+    db->initParametresConnexionSQL(server, port);
+    if (!IdentificationUser())
+        return false;
     if (dirSQLExecutable() == "")
     {
         Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
         UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base"));
     }
 
-    db->initParametresConnexionSQL(server, port);
-    if (!IdentificationUser())
-        return false;
 
     //initListeUsers();
     CalcLieuExercice();
@@ -4250,12 +4255,6 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant)
 {
-    if (dirSQLExecutable() == "")
-     {
-         UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
-         exit(0);
-     }
-
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
@@ -4289,6 +4288,12 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         login = Dlg_ParamConnex->ui->LoginlineEdit->text();
         delete Dlg_ParamConnex;
         return true;
+        if (dirSQLExecutable() == "")
+        {
+            UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
+                exit(0);
+        }
+
     }
     disconnect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
     delete Dlg_ParamConnex;

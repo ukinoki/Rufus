@@ -56,7 +56,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())
-        if (man->isactif() && man->buildIOls()) {
+        if (man->isactif() && man->buildIOLs()) {
             QList<QStandardItem *> items;
             UpStandardItem *itemman = new UpStandardItem(man->nom(), man);
             UpStandardItem *itemid = new UpStandardItem(QString::number(man->id()), man);
