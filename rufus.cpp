@@ -1146,7 +1146,7 @@ void Rufus::AfficheMenu(QMenu *menu)
     {
         actionParametres         ->setVisible(!currentuser()->isNeutre());
     }
-    else if (menu == menuActe)
+    else if (menu == menuActe && menuActe != Q_NULLPTR)
     {
         bool b = (ui->tabWidget->currentWidget() == ui->tabDossier);
         actionSupprimerActe->setVisible(b);
@@ -7473,8 +7473,11 @@ void Rufus::CreerMenu()
     menuEdition->addAction(actionParametres);
     menuEdition->addAction(actionResumeStatut);
 
-    menuActe    ->addAction(actionCreerActe);
-    menuActe    ->addAction(actionSupprimerActe);
+    if (menuActe)
+    {
+        menuActe    ->addAction(actionCreerActe);
+        menuActe    ->addAction(actionSupprimerActe);
+    }
 
     menuEmettre ->addAction(actionEmettreDocument);
     menuEmettre ->addAction(actionExportActe);
@@ -7492,7 +7495,8 @@ void Rufus::CreerMenu()
     menuComptabilite->addAction(actionTiers);
 
     // Les connect des menus --------------------------------------------------------------------------------------------------
-    connect (menuActe,                          &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
+    if (menuActe)
+        connect (menuActe,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
     connect (menuEdition,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuEdition);});
     connect (menuDocuments,                     &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDocuments);});
     connect (menuDossier,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDossier);});
