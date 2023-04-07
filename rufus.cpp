@@ -7004,9 +7004,9 @@ QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
     if (pat->isald() || pat->iscmu())
     {
         html += "<p class=\"p3\"><td width=\"60\">";
-        if (pat->isald())
+        if (pat->isald() && db->parametres()->cotationsfrance())
             html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                           //ALD
-        if (pat->iscmu())
+        if (pat->iscmu() && db->parametres()->cotationsfrance())
             html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b><\font>";                    //CMU
         html += "</td></p>";
     }
@@ -8397,7 +8397,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
-            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
+            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
             if (Entete == "") return;
             Entete.replace("{{TITRE1}}"        , "");

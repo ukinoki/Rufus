@@ -3131,7 +3131,7 @@ les données</string>
                <x>10</x>
                <y>40</y>
                <width>541</width>
-               <height>371</height>
+               <height>281</height>
               </rect>
              </property>
              <property name="minimumSize">
@@ -3276,6 +3276,47 @@ liste des villes</string>
                <height>50</height>
               </size>
              </property>
+            </widget>
+            <widget class="QGroupBox" name="CotationssgroupBox_2">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>375</y>
+               <width>360</width>
+               <height>40</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>360</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>360</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="title">
+              <string/>
+             </property>
+             <widget class="QCheckBox" name="CotationsFrancecheckBox">
+              <property name="geometry">
+               <rect>
+                <x>5</x>
+                <y>10</y>
+                <width>361</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Utiliser les cotations d'actes françaises</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
             </widget>
            </widget>
           </item>
@@ -3671,19 +3712,24 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpSmallButton</class>
@@ -3694,11 +3740,6 @@ des organismes bancaires</string>
    <class>UpLabel</class>
    <extends>QLabel</extends>
    <header>uplabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpComboBox</class>
-   <extends>QComboBox</extends>
-   <header>upcombobox.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>

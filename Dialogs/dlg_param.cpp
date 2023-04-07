@@ -295,6 +295,11 @@ dlg_param::dlg_param(QWidget *parent) :
             });
         }
     }
+    /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
+    ui->CotationsFrancecheckBox->setChecked(db->parametres()->cotationsfrance());
+    connect (ui->CotationsFrancecheckBox, &QCheckBox::stateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});
+    /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
+
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        ui->UtiliseBDDVillescheckBox     ->setChecked(db->parametres()->villesfrance() == true);
        ui->UtiliseCustomVillescheckBox  ->setChecked(db->parametres()->villesfrance() == false);
@@ -367,6 +372,7 @@ dlg_param::dlg_param(QWidget *parent) :
     EnableWidgContent(ui->Instrmtsframe,false);
     EnableWidgContent(ui->Imprimanteframe,false);
     EnableWidgContent(ui->VilleDefautframe,false);
+    ui->CotationsFrancecheckBox         ->setEnabled(false);
     ui->VillesgroupBox                  ->setEnabled(false);
     ui->ModifListVillesupPushButton     ->setEnabled(false);
     ui->GestUserpushButton              ->setEnabled(false);
@@ -915,12 +921,13 @@ void dlg_param::EnableModif(QWidget *obj)
         if (a && ui->RefracteurupComboBox   ->currentIndex()==0)    ui->PortRefracteurupComboBox->setEnabled(false);
         if (a && ui->AutorefupComboBox      ->currentIndex()==0)    ui->PortAutorefupComboBox->setEnabled(false);
         if (a && ui->TonometreupComboBox    ->currentIndex()==0)    ui->PortTonometreupComboBox->setEnabled(false);
-        ui->ParamConnexiontabWidget->setEnabled(a);
+        ui->ParamConnexiontabWidget         ->setEnabled(a);
         EnableWidgContent(ui->Imprimanteframe,a);
         EnableWidgContent(ui->VilleDefautframe,a);
+        ui->CotationsFrancecheckBox         ->setEnabled(a);
         ui->ModifListVillesupPushButton     ->setEnabled(a);
         ui->VillesgroupBox                  ->setEnabled(a);
-        ui->ImportDocsgroupBox  ->setEnabled(a);
+        ui->ImportDocsgroupBox              ->setEnabled(a);
     }
     else if (obj == ui->LockParamUserupLabel)
     {

@@ -3187,7 +3187,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
                                tr("Base de données des villes et codes postaux"),
                                tr("Voulez-vous utiliser la base de données des villes françaises?)"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                               QStringList() << "Non" << "Utiliser les codes postaux français")
+                               QStringList() << tr("Non") << tr("Utiliser les codes postaux français"))
             == UpSmallButton::STARTBUTTON)
         from = Villes::DATABASE;
     else
@@ -3200,9 +3200,17 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         ville = town->nom();
     }
     db->setvillesfrance(from == Villes::DATABASE);
-
     m_settings->setValue(Ville_Defaut,ville);
     m_settings->setValue(CodePostal_Defaut,CP);
+
+    bool a = (UpMessageBox::Question(Q_NULLPTR,
+                               tr("Cotations françaises"),
+                               tr("Voulez-vous utiliser le système français de cotation des actes médicaux?)"),
+                               UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                     QStringList() << tr("Non") << tr("Utiliser les cotations françaises"))
+            == UpSmallButton::STARTBUTTON);
+    db->setcotationsfrance(a);
+
     m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();

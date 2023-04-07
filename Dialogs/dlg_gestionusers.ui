@@ -696,16 +696,16 @@ lieux d'activité</string>
          <widget class="QWidget" name="CompteComptawidget" native="true">
           <property name="geometry">
            <rect>
-            <x>190</x>
+            <x>200</x>
             <y>80</y>
-            <width>298</width>
+            <width>281</width>
             <height>51</height>
            </rect>
           </property>
           <widget class="UpComboBox" name="CompteParDefautcomboBox">
            <property name="geometry">
             <rect>
-             <x>20</x>
+             <x>10</x>
              <y>20</y>
              <width>270</width>
              <height>26</height>
@@ -715,7 +715,7 @@ lieux d'activité</string>
           <widget class="QLabel" name="CompteComptalabel">
            <property name="geometry">
             <rect>
-             <x>20</x>
+             <x>10</x>
              <y>0</y>
              <width>271</width>
              <height>21</height>
@@ -751,16 +751,16 @@ lieux d'activité</string>
          <widget class="QWidget" name="Employeurwidget" native="true">
           <property name="geometry">
            <rect>
-            <x>190</x>
+            <x>200</x>
             <y>10</y>
-            <width>298</width>
+            <width>281</width>
             <height>51</height>
            </rect>
           </property>
           <widget class="UpComboBox" name="EmployeurcomboBox">
            <property name="geometry">
             <rect>
-             <x>20</x>
+             <x>12</x>
              <y>20</y>
              <width>270</width>
              <height>26</height>
@@ -770,7 +770,7 @@ lieux d'activité</string>
           <widget class="QLabel" name="Employeurlabel">
            <property name="geometry">
             <rect>
-             <x>20</x>
+             <x>10</x>
              <y>0</y>
              <width>271</width>
              <height>21</height>

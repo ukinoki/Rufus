@@ -580,7 +580,6 @@ void DataBase::setvillesfrance(bool one)
     QString a = (one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VILLES_PARAMSYSTEME " = " + a);
     parametres()->setvillesfrance(one);
-    parametres()->setcotationsfrance(one);
 }
 void DataBase::setcotationsfrance(bool one)
 {

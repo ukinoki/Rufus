@@ -1909,7 +1909,7 @@ void dlg_impressions::ConfigMode(Mode mode)
     m_mode = mode;
     wdg_docsbuttonframe->searchline()   ->setEnabled(m_mode == Selection);
     ui->dateImpressiondateEdit          ->setEnabled(m_mode == Selection);
-    ui->ALDcheckBox                     ->setVisible(m_mode == Selection);
+    ui->ALDcheckBox                     ->setVisible(m_mode == Selection && db->parametres()->cotationsfrance());
     wdg_dossiersbuttonframe             ->setEnabled(m_mode == Selection);
     ui->DossiersupTableView             ->setEnabled(m_mode == Selection);
     ui->OKupPushButton                  ->setEnabled(false);
